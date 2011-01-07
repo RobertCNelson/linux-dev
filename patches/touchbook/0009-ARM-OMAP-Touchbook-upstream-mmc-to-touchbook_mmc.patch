@@ -1,0 +1,42 @@
+From 1f7b773cf6fb46772eb839a553f11793f59e7637 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 16 Sep 2010 12:33:46 -0500
+Subject: [PATCH 09/22] ARM OMAP Touchbook upstream mmc to touchbook_mmc
+
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index 96da76d..de354be 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -197,7 +197,7 @@ static void __init touchbook_display_init(void)
+ 	gpio_direction_output(touchbook_dvi_device.reset_gpio, 0);
+ }
+ 
+-static struct omap2_hsmmc_info mmc[] = {
++static struct omap2_hsmmc_info touchbook_mmc[] = {
+ 	{
+ 		.mmc		= 1,
+ 		.wires		= 8,
+@@ -219,12 +219,12 @@ static int touchbook_twl_gpio_setup(struct device *dev,
+ 		unsigned gpio, unsigned ngpio)
+ {
+ 	/* gpio + 0 is "mmc0_cd" (input/IRQ) */
+-	mmc[0].gpio_cd = gpio + 0;
+-	omap2_hsmmc_init(mmc);
++	touchbook_mmc[0].gpio_cd = gpio + 0;
++	omap2_hsmmc_init(touchbook_mmc);
+ 
+ 	/* link regulators to MMC adapters */
+-	touchbook_vmmc1_supply.dev = mmc[0].dev;
+-	touchbook_vsim_supply.dev = mmc[0].dev;
++	touchbook_vmmc1_supply.dev = touchbook_mmc[0].dev;
++	touchbook_vsim_supply.dev = touchbook_mmc[0].dev;
+ 
+ 	/* REVISIT: need ehci-omap hooks for external VBUS
+ 	 * power switch and overcurrent detect
+-- 
+1.7.1
+

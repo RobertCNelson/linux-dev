@@ -1,0 +1,109 @@
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 8109aff..8f4a7f2 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -53,6 +53,57 @@
+ 
+ #define NAND_BLOCK_SIZE		SZ_128K
+ 
++#if defined(CONFIG_KS8851) || defined(CONFIG_KS8851_MODULE)
++
++#include <linux/spi/spi.h>
++#include <plat/mcspi.h>
++#include <linux/interrupt.h>
++#include <linux/ks8851.h>
++
++#define KSZ8851_SNL_INT 157
++
++static struct omap2_mcspi_device_config ksz8851_mcspi_config = {
++	.turbo_mode	= 0,
++	.single_channel	= 1,	/* 0: slave, 1: master */
++};
++
++static struct ks8851_pdata ksz8851_snl_data = {
++	.irq_flags	= IRQF_TRIGGER_FALLING,
++};
++
++static struct spi_board_info ksz8851_snl_info[] __initdata = {
++	{
++		.modalias		= "ks8851",
++		.bus_num		= 4,
++		.chip_select		= 0,
++		.max_speed_hz		= 36000000,
++		.controller_data = &ksz8851_mcspi_config,
++		.irq		= OMAP_GPIO_IRQ(KSZ8851_SNL_INT),
++		.platform_data	= &ksz8851_snl_data,
++	},
++};
++
++static int __init omap3430_spi_init(void)
++{
++	int irq = irq_to_gpio(ksz8851_snl_info[0].irq);
++
++	if (gpio_request(irq, "spi4_intr") < 0) {
++		printk(KERN_ERR "Failed to request GPIO %d for "
++			"SPI4 interrupt\n", irq);
++		return 1;
++	}
++	gpio_direction_input(irq);
++	spi_register_board_info(ksz8851_snl_info,
++		ARRAY_SIZE(ksz8851_snl_info));
++	return 0;
++
++}
++
++#else
++static inline void omap3430_spi_init(void) {}
++#endif
++
++
+ static struct mtd_partition omap3beagle_nand_partitions[] = {
+ 	/* All the partition sizes are listed in terms of NAND block size */
+ 	{
+@@ -186,6 +237,14 @@ static struct twl4030_hsmmc_info mmc[] = {
+ 		.wires		= 8,
+ 		.gpio_wp	= 29,
+ 	},
++	{
++		.mmc		= 2,
++		.wires		= 4,
++		.gpio_wp	= 141,
++		.gpio_cd	= 162,
++		.transceiver	= true,
++		.ocr_mask	= 0x00100000,	/* 3.3V */
++	},
+ 	{}	/* Terminator */
+ };
+ 
+@@ -339,11 +398,22 @@ static struct i2c_board_info __initdata beagle_i2c_boardinfo[] = {
+ 	},
+ };
+ 
++#if defined(CONFIG_RTC_DRV_DS1307) || defined(CONFIG_RTC_DRV_DS1307_MODULE)
++static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {
++	{
++		I2C_BOARD_INFO("ds1307", 0x68),
++	},
++};
++#else
++static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {};
++#endif
++
+ static int __init omap3_beagle_i2c_init(void)
+ {
+ 	omap_register_i2c_bus(1, 2600, beagle_i2c_boardinfo,
+ 			ARRAY_SIZE(beagle_i2c_boardinfo));
+-	omap_register_i2c_bus(2, 400, NULL, 0);
++	omap_register_i2c_bus(2, 400, beagle_i2c2_boardinfo,
++			ARRAY_SIZE(beagle_i2c2_boardinfo));
+ 	/* Bus 3 is attached to the DVI port where devices like the pico DLP
+ 	 * projector don't work reliably with 400kHz */
+ 	omap_register_i2c_bus(3, 100, NULL, 0);
+@@ -494,6 +564,7 @@ static void __init omap3_beagle_init(void)
+ 	usb_musb_init();
+ 	usb_ehci_init(&ehci_pdata);
+ 	omap3beagle_flash_init();
++	omap3430_spi_init();
+ 
+ 	/* Ensure SDRC pins are mux'd for self-refresh */
+ 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);

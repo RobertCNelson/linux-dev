@@ -1,0 +1,42 @@
+From 785860b0f1a11884573c26d44a5edb89ae3c6bb9 Mon Sep 17 00:00:00 2001
+From: Vishwanath BS <vishwanath.bs@ti.com>
+Date: Wed, 7 Apr 2010 02:06:09 +0800
+Subject: [PATCH] OMAP3630 PM: Update for OPP 1GHz
+
+It is found that system is not very stable with current 1GHz OPP configuration
+(ARM@1G, IVA@880M, VDD1@1.31V) and it has been recommended to
+use below configuration for stable 1GHz OPP.
+(ARM@1G, IVA@800M, VDD1@1.35V).
+
+Signed-off-by: Vishwanath BS <vishwanath.bs@ti.com>
+Acked-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+---
+ arch/arm/mach-omap2/cpufreq34xx.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/cpufreq34xx.c b/arch/arm/mach-omap2/cpufreq34xx.c
+index c453ec5..189c42e 100644
+--- a/arch/arm/mach-omap2/cpufreq34xx.c
++++ b/arch/arm/mach-omap2/cpufreq34xx.c
+@@ -82,7 +82,7 @@ static struct omap_opp_def __initdata omap36xx_mpu_rate_table[] = {
+ 	/* OPP3 - OPP-Turbo */
+ 	OMAP_OPP_DEF(false, 800000000, 1260000),
+ 	/* OPP4 - OPP-SB */
+-	OMAP_OPP_DEF(false, 1000000000, 1310000),
++	OMAP_OPP_DEF(false, 1000000000, 1350000),
+ 	/* Terminator */
+ 	OMAP_OPP_DEF(0, 0, 0)
+ };
+@@ -104,7 +104,7 @@ static struct omap_opp_def __initdata omap36xx_dsp_rate_table[] = {
+ 	/* OPP3 - OPP-Turbo */
+ 	OMAP_OPP_DEF(false, 660000000, 1260000),
+ 	/* OPP4 - OPP-SB */
+-	OMAP_OPP_DEF(false, 875000000, 1310000),
++	OMAP_OPP_DEF(false, 800000000, 1350000),
+ 	/* Terminator */
+ 	OMAP_OPP_DEF(0, 0, 0)
+ };
+-- 
+1.7.0.4
+

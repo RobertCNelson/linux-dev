@@ -1,0 +1,103 @@
+From 1ce2c8aeb551cca3b4a470134852d03f11991d63 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 16 Sep 2010 12:03:19 -0500
+Subject: [PATCH 07/22] ARM OMAP Touchbook upstream sync formatting
+
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |   33 +++++++++------------------
+ 1 files changed, 11 insertions(+), 22 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index 8fce6e3..2be6441 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -54,6 +54,7 @@
+ #include "hsmmc.h"
+ 
+ #include <asm/setup.h>
++#include "sdram-micron-mt46h32m32lf-6.h"
+ 
+ #define OMAP3_AC_GPIO		136
+ #define OMAP3_TS_GPIO		162
+@@ -168,8 +169,8 @@ static struct omap_dss_board_info touchbook_dss_data = {
+ };
+ 
+ static struct platform_device touchbook_dss_device = {
+-	.name          = "omapdss",
+-	.id            = -1,
++	.name		= "omapdss",
++	.id		= -1,
+ 	.dev            = {
+ 		.platform_data = &touchbook_dss_data,
+ 	},
+@@ -195,13 +196,11 @@ static void __init touchbook_display_init(void)
+ 
+ 	gpio_direction_output(touchbook_dvi_device.reset_gpio, 0);
+ }
+-#include "sdram-micron-mt46h32m32lf-6.h"
+ 
+ static struct omap2_hsmmc_info mmc[] = {
+ 	{
+ 		.mmc		= 1,
+ 		.wires		= 8,
+-		.gpio_wp	= -EINVAL,
+ 	},
+ 	{}	/* Terminator */
+ };
+@@ -260,11 +259,8 @@ static struct regulator_init_data touchbook_vmmc1 = {
+ 	.constraints = {
+ 		.min_uV			= 1850000,
+ 		.max_uV			= 3150000,
+-		.valid_modes_mask	= REGULATOR_MODE_NORMAL
+-					| REGULATOR_MODE_STANDBY,
+-		.valid_ops_mask		= REGULATOR_CHANGE_VOLTAGE
+-					| REGULATOR_CHANGE_MODE
+-					| REGULATOR_CHANGE_STATUS,
++		.valid_modes_mask	= REGULATOR_MODE_NORMAL | REGULATOR_MODE_STANDBY,
++		.valid_ops_mask		= REGULATOR_CHANGE_VOLTAGE | REGULATOR_CHANGE_MODE | REGULATOR_CHANGE_STATUS,
+ 	},
+ 	.num_consumer_supplies	= 1,
+ 	.consumer_supplies	= &touchbook_vmmc1_supply,
+@@ -275,11 +271,8 @@ static struct regulator_init_data touchbook_vsim = {
+ 	.constraints = {
+ 		.min_uV			= 1800000,
+ 		.max_uV			= 3000000,
+-		.valid_modes_mask	= REGULATOR_MODE_NORMAL
+-					| REGULATOR_MODE_STANDBY,
+-		.valid_ops_mask		= REGULATOR_CHANGE_VOLTAGE
+-					| REGULATOR_CHANGE_MODE
+-					| REGULATOR_CHANGE_STATUS,
++		.valid_modes_mask	= REGULATOR_MODE_NORMAL | REGULATOR_MODE_STANDBY,
++		.valid_ops_mask		= REGULATOR_CHANGE_VOLTAGE | REGULATOR_CHANGE_MODE | REGULATOR_CHANGE_STATUS,
+ 	},
+ 	.num_consumer_supplies	= 1,
+ 	.consumer_supplies	= &touchbook_vsim_supply,
+@@ -290,10 +283,8 @@ static struct regulator_init_data touchbook_vdac = {
+ 	.constraints = {
+ 		.min_uV			= 1800000,
+ 		.max_uV			= 1800000,
+-		.valid_modes_mask	= REGULATOR_MODE_NORMAL
+-					| REGULATOR_MODE_STANDBY,
+-		.valid_ops_mask		= REGULATOR_CHANGE_MODE
+-					| REGULATOR_CHANGE_STATUS,
++		.valid_modes_mask	= REGULATOR_MODE_NORMAL | REGULATOR_MODE_STANDBY,
++		.valid_ops_mask		= REGULATOR_CHANGE_MODE | REGULATOR_CHANGE_STATUS,
+ 	},
+ 	.num_consumer_supplies	= 1,
+ 	.consumer_supplies	= &touchbook_vdac_supply,
+@@ -304,10 +295,8 @@ static struct regulator_init_data touchbook_vpll2 = {
+ 	.constraints = {
+ 		.min_uV			= 1800000,
+ 		.max_uV			= 1800000,
+-		.valid_modes_mask	= REGULATOR_MODE_NORMAL
+-					| REGULATOR_MODE_STANDBY,
+-		.valid_ops_mask		= REGULATOR_CHANGE_MODE
+-					| REGULATOR_CHANGE_STATUS,
++		.valid_modes_mask	= REGULATOR_MODE_NORMAL | REGULATOR_MODE_STANDBY,
++		.valid_ops_mask		= REGULATOR_CHANGE_MODE | REGULATOR_CHANGE_STATUS,
+ 	},
+ 	.num_consumer_supplies  = ARRAY_SIZE(touchbook_vdds_supplies),
+ 	.consumer_supplies      = touchbook_vdds_supplies,
+-- 
+1.7.1
+

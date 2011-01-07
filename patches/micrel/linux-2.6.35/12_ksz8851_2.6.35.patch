@@ -1,0 +1,27 @@
+--- a/drivers/net/ks8851.c	2010-03-30 12:23:36.000000000 -0700
++++ b/drivers/net/ks8851.c	2010-03-30 12:23:53.000000000 -0700
+@@ -1160,7 +1160,6 @@ static void ks8851_eeprom_regwrite(struc
+ 	if (ee->reg_chip_select)
+ 		val |= EEPCR_EECS;
+ 
+-	printk(KERN_INFO "%s: wr %04x\n", __func__, val);
+ 	ks8851_wrreg16(ks, KS_EEPCR, val);
+ }
+ 
+@@ -1176,6 +1175,8 @@ static int ks8851_eeprom_claim(struct ks
+ 	if (!(ks->rc_ccr & CCR_EEPROM))
+ 		return -ENOENT;
+ 
++	mutex_lock(&ks->lock);
++
+ 	/* start with clock low, cs high */
+ 	ks8851_wrreg16(ks, KS_EEPCR, EEPCR_EESA | EEPCR_EECS);
+ 	return 0;
+@@ -1192,6 +1193,7 @@ static void ks8851_eeprom_release(struct
+ 	unsigned val = ks8851_rdreg16(ks, KS_EEPCR);
+ 
+ 	ks8851_wrreg16(ks, KS_EEPCR, val & ~EEPCR_EESA);
++	mutex_unlock(&ks->lock);
+ }
+ 
+ #define KS_EEPROM_MAGIC (0x00008851)

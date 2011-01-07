@@ -1,0 +1,52 @@
+From b74f33362af66b2be552fab5d9435a19bb52b70b Mon Sep 17 00:00:00 2001
+From: Keshava Munegowda <keshava_mgowda@ti.com>
+Date: Sun, 21 Nov 2010 23:23:41 +0530
+Subject: [PATCH 03/12] usb: ehci: introduce CONFIG_USB_EHCI_HCD_OMAP
+
+Introduce the CONFIG_USB_EHCI_HCD_OMAP option to select
+EHCI support on OMAP3 and later chips. This scales better
+than having a long line of dependencies for each new OMAP
+with EHCI support.
+
+Signed-off-by: Keshava Munegowda <keshava_mgowda@ti.com>
+Signed-off-by: Anand Gadiyar <gadiyar@ti.com>
+---
+ drivers/usb/host/Kconfig    |    8 ++++++++
+ drivers/usb/host/ehci-hcd.c |    2 +-
+ 2 files changed, 9 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
+index 6f4f8e6..7c1f843 100644
+--- a/drivers/usb/host/Kconfig
++++ b/drivers/usb/host/Kconfig
+@@ -133,6 +133,14 @@ config USB_EHCI_MXC
+ 	---help---
+ 	  Variation of ARC USB block used in some Freescale chips.
+ 
++config USB_EHCI_HCD_OMAP
++	bool "EHCI support for OMAP3 and later chips"
++	depends on USB_EHCI_HCD && ARCH_OMAP
++	default y
++	--- help ---
++	  Enables support for the on-chip EHCI controller on
++	  OMAP3 and later chips.
++
+ config USB_EHCI_HCD_PPC_OF
+ 	bool "EHCI support for PPC USB controller on OF platform bus"
+ 	depends on USB_EHCI_HCD && PPC_OF
+diff --git a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+index 502a7e6..1c80441 100644
+--- a/drivers/usb/host/ehci-hcd.c
++++ b/drivers/usb/host/ehci-hcd.c
+@@ -1171,7 +1171,7 @@ MODULE_LICENSE ("GPL");
+ #define	PLATFORM_DRIVER		ehci_hcd_au1xxx_driver
+ #endif
+ 
+-#ifdef CONFIG_ARCH_OMAP3
++#ifdef CONFIG_USB_EHCI_HCD_OMAP
+ #include "ehci-omap.c"
+ #define        PLATFORM_DRIVER         ehci_hcd_omap_driver
+ #endif
+-- 
+1.7.1
+

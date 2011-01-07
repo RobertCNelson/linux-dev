@@ -1,0 +1,43 @@
+From 0098b401817af509c7bae7732ec0305fbc5e9af3 Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <sakoman@gmail.com>
+Date: Tue, 15 Dec 2009 15:24:10 -0800
+Subject: [PATCH 07/31] drivers: input: touchscreen: ads7846: return ENODEV if device is not found
+
+Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+---
+ drivers/input/touchscreen/ads7846.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 1603193..74d307c 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1300,9 +1300,16 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 	if (ts->model == 7845)
+ 		ads7845_read12_ser(&spi->dev, PWRDOWN);
+ 	else
+-		(void) ads7846_read12_ser(&spi->dev,
++		err = ads7846_read12_ser(&spi->dev,
+ 				READ_12BIT_SER(vaux) | ADS_PD10_ALL_ON);
+ 
++	/* if sample is all 0's or all 1's then there is no device on spi */
++	if ( (err == 0x000) || (err == 0xfff)) {
++		dev_info(&spi->dev, "no device detected, test read result was 0x%08X\n", err);
++		err = -ENODEV;
++		goto err_free_irq;
++	}
++
+ 	err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
+ 	if (err)
+ 		goto err_remove_hwmon;
+@@ -1326,7 +1333,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+  err_put_regulator:
+ 	regulator_put(ts->reg);
+  err_free_gpio:
+-	if (ts->gpio_pendown != -1)
++	if (!ts->get_pendown_state && ts->gpio_pendown != -1)
+ 		gpio_free(ts->gpio_pendown);
+  err_cleanup_filter:
+ 	if (ts->filter_cleanup)
+-- 
+1.7.1

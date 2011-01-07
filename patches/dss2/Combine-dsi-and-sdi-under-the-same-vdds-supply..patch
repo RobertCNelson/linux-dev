@@ -1,0 +1,36 @@
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 69b154c..32565dc 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -162,8 +162,10 @@ static struct platform_device beagle_dss_device = {
+ static struct regulator_consumer_supply beagle_vdac_supply =
+ 	REGULATOR_SUPPLY("vdda_dac", "omapdss");
+ 
+-static struct regulator_consumer_supply beagle_vdvi_supply =
+-	REGULATOR_SUPPLY("vdds_dsi", "omapdss");
++static struct regulator_consumer_supply beagle_vdds_supplies[] = {
++	REGULATOR_SUPPLY("vdds_dsi", "omapdss"),
++	REGULATOR_SUPPLY("vdds_sdi", "omapdss"),
++};
+ 
+ static void __init beagle_display_init(void)
+ {
+@@ -291,7 +293,6 @@ static struct regulator_init_data beagle_vdac = {
+ /* VPLL2 for digital video outputs */
+ static struct regulator_init_data beagle_vpll2 = {
+ 	.constraints = {
+-		.name			= "VDVI",
+ 		.min_uV			= 1800000,
+ 		.max_uV			= 1800000,
+ 		.valid_modes_mask	= REGULATOR_MODE_NORMAL
+@@ -299,8 +300,8 @@ static struct regulator_init_data beagle_vpll2 = {
+ 		.valid_ops_mask		= REGULATOR_CHANGE_MODE
+ 					| REGULATOR_CHANGE_STATUS,
+ 	},
+-	.num_consumer_supplies	= 1,
+-	.consumer_supplies	= &beagle_vdvi_supply,
++	.num_consumer_supplies  = ARRAY_SIZE(beagle_vdds_supplies),
++	.consumer_supplies      = beagle_vdds_supplies,
+ };
+ 
+ static struct twl4030_usb_data beagle_usb_data = {

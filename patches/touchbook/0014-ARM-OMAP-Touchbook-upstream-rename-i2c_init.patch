@@ -1,0 +1,34 @@
+From b6e5b68fbd53c6bf0794125a6051a6c02e84729a Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 16 Sep 2010 14:57:40 -0500
+Subject: [PATCH 14/22] ARM OMAP Touchbook upstream rename i2c_init
+
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index dee3965..77df745 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -349,7 +349,7 @@ static struct i2c_board_info __initdata touchBook_i2c_boardinfo[] = {
+ 	},
+ };
+ 
+-static int __init omap3_touchbook_i2c_init(void)
++static int __init touchbook_i2c_init(void)
+ {
+ 	/* Standard TouchBook bus */
+ 	omap_register_i2c_bus(1, 2600, touchbook_i2c_boardinfo,
+@@ -567,7 +567,7 @@ static void __init touchbook_init(void)
+ 	pm_power_off = omap3_touchbook_poweroff;
+ 
+ 	omap3_mux_init(board_mux, OMAP_PACKAGE_CBB);
+-	omap3_touchbook_i2c_init();
++	touchbook_i2c_init();
+ 	platform_add_devices(omap3_touchbook_devices,
+ 			ARRAY_SIZE(omap3_touchbook_devices));
+ 	omap_serial_init();
+-- 
+1.7.1
+

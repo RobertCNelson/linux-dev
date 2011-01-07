@@ -1,0 +1,28 @@
+From 56c99f88112e18cd4fef90ee8ae6b540abf32978 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Mon, 18 Oct 2010 15:02:35 -0500
+Subject: [PATCH] omap: beagle: use GPIO2 on the xM A3 to turn DVI on
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 8404529..8c9d3c7 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -489,6 +489,10 @@ static int beagle_twl_gpio_setup(struct device *dev,
+ 		gpio_request(gpio + 1, "nDVI_PWR_EN");
+ 		gpio_direction_output(gpio + 1, 0);
+ 
++		/* On the xM A3 DVI_PUP was moved to an empty GPIO pin on the TPS65950 */
++		gpio_request(gpio + 2, "DVI_PUP");
++		gpio_direction_output(gpio + 2, 1);
++
+ 		/* TWL4030_GPIO_MAX + 0 == ledA, EHCI nEN_USB_PWR (out, active low) */
+ 		gpio_request(gpio + TWL4030_GPIO_MAX, "nEN_USB_PWR");
+ 		gpio_direction_output(gpio + TWL4030_GPIO_MAX, 1);
+-- 
+1.7.1
+

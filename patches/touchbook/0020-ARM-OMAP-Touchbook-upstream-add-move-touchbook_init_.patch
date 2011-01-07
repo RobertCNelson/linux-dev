@@ -1,0 +1,52 @@
+From 7876f87a39cab9359e9bff4fcde5bb9055347190 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 16 Sep 2010 15:54:13 -0500
+Subject: [PATCH 20/22] ARM OMAP Touchbook upstream add move touchbook_init_irq
+
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index 5752429..584ded9 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -503,17 +503,6 @@ static struct omap_board_mux board_mux[] __initdata = {
+ #define board_mux	NULL
+ #endif
+ 
+-static void __init touchbook_init_irq(void)
+-{
+-	omap2_init_common_hw(mt46h32m32lf6_sdrc_params,
+-			     mt46h32m32lf6_sdrc_params);
+-	omap_init_irq();
+-#ifdef CONFIG_OMAP_32K_TIMER
+-	omap2_gp_clockevent_set_gptimer(12);
+-#endif
+-	omap_gpio_init();
+-}
+-
+ static struct platform_device *omap3_touchbook_devices[] __initdata = {
+ 	&leds_gpio,
+ 	&keys_gpio,
+@@ -623,6 +612,17 @@ static void __init touchbook_init(void)
+ 	touchbook_display_init();
+ }
+ 
++static void __init touchbook_init_irq(void)
++{
++	omap2_init_common_hw(mt46h32m32lf6_sdrc_params,
++			     mt46h32m32lf6_sdrc_params);
++	omap_init_irq();
++#ifdef CONFIG_OMAP_32K_TIMER
++	omap2_gp_clockevent_set_gptimer(12);
++#endif
++	omap_gpio_init();
++}
++
+ static void __init super_init(void)
+ {
+ 	touchbook_init();
+-- 
+1.7.1
+

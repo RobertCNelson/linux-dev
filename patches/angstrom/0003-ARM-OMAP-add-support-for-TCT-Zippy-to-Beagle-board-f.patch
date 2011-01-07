@@ -1,0 +1,135 @@
+From 48e1df47cf683e4640ec3ae403b2e6dea7432d0c Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <sakoman@gmail.com>
+Date: Tue, 15 Dec 2009 15:34:29 -0800
+Subject: [PATCH 03/45] ARM: OMAP: add support for TCT Zippy to Beagle board file
+
+Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |   74 +++++++++++++++++++++++++++++-
+ 1 files changed, 71 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 330fb25..ddfb9c0 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -21,6 +21,7 @@
+ #include <linux/io.h>
+ #include <linux/leds.h>
+ #include <linux/gpio.h>
++#include <linux/irq.h>
+ #include <linux/input.h>
+ #include <linux/gpio_keys.h>
+ 
+@@ -56,6 +57,49 @@
+ 
+ #define NAND_BLOCK_SIZE		SZ_128K
+ 
++#if defined(CONFIG_ENC28J60) || defined(CONFIG_ENC28J60_MODULE)
++
++#include <plat/mcspi.h>
++#include <linux/spi/spi.h>
++
++#define OMAP3BEAGLE_GPIO_ENC28J60_IRQ 157
++
++static struct omap2_mcspi_device_config enc28j60_spi_chip_info = {
++	.turbo_mode	= 0,
++	.single_channel	= 1,	/* 0: slave, 1: master */
++};
++
++static struct spi_board_info omap3beagle_spi_board_info[] __initdata = {
++	{
++		.modalias		= "enc28j60",
++		.bus_num		= 4,
++		.chip_select		= 0,
++		.max_speed_hz		= 20000000,
++		.controller_data	= &enc28j60_spi_chip_info,
++	},
++};
++
++static void __init omap3beagle_enc28j60_init(void)
++{
++	if ((gpio_request(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, "ENC28J60_IRQ") == 0) &&
++	    (gpio_direction_input(OMAP3BEAGLE_GPIO_ENC28J60_IRQ) == 0)) {
++		gpio_export(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, 0);
++		omap3beagle_spi_board_info[0].irq	= OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
++		set_irq_type(omap3beagle_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
++	} else {
++		printk(KERN_ERR "could not obtain gpio for ENC28J60_IRQ\n");
++		return;
++	}
++
++	spi_register_board_info(omap3beagle_spi_board_info,
++			ARRAY_SIZE(omap3beagle_spi_board_info));
++}
++
++#else
++static inline void __init omap3beagle_enc28j60_init(void) { return; }
++#endif
++
++
+ static struct mtd_partition omap3beagle_nand_partitions[] = {
+ 	/* All the partition sizes are listed in terms of NAND block size */
+ 	{
+@@ -118,6 +162,14 @@ static struct twl4030_hsmmc_info mmc[] = {
+ 		.wires		= 8,
+ 		.gpio_wp	= 29,
+ 	},
++	{
++		.mmc		= 2,
++		.wires		= 4,
++		.gpio_wp	= 141,
++		.gpio_cd	= 162,
++		.transceiver	= true,
++		.ocr_mask	= 0x00100000,	/* 3.3V */
++	},
+ 	{}	/* Terminator */
+ };
+ 
+@@ -281,7 +333,7 @@ static struct twl4030_platform_data beagle_twldata = {
+ 	.vpll2		= &beagle_vpll2,
+ };
+ 
+-static struct i2c_board_info __initdata beagle_i2c_boardinfo[] = {
++static struct i2c_board_info __initdata beagle_i2c1_boardinfo[] = {
+ 	{
+ 		I2C_BOARD_INFO("twl4030", 0x48),
+ 		.flags = I2C_CLIENT_WAKE,
+@@ -290,10 +342,24 @@ static struct i2c_board_info __initdata beagle_i2c_boardinfo[] = {
+ 	},
+ };
+ 
++#if defined(CONFIG_RTC_DRV_DS1307) || \
++	defined(CONFIG_RTC_DRV_DS1307_MODULE)
++
++static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {
++	{
++		I2C_BOARD_INFO("ds1307", 0x68),
++	},
++};
++#else
++static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {};
++#endif
++
+ static int __init omap3_beagle_i2c_init(void)
+ {
+-	omap_register_i2c_bus(1, 2600, beagle_i2c_boardinfo,
+-			ARRAY_SIZE(beagle_i2c_boardinfo));
++	omap_register_i2c_bus(1, 2600, beagle_i2c1_boardinfo,
++			ARRAY_SIZE(beagle_i2c1_boardinfo));
++	omap_register_i2c_bus(2, 400,  beagle_i2c2_boardinfo,
++			ARRAY_SIZE(beagle_i2c2_boardinfo));
+ 	/* Bus 3 is attached to the DVI port where devices like the pico DLP
+ 	 * projector don't work reliably with 400kHz */
+ 	omap_register_i2c_bus(3, 100, NULL, 0);
+@@ -448,6 +514,8 @@ static void __init omap3_beagle_init(void)
+ 	/* REVISIT leave DVI powered down until it's needed ... */
+ 	gpio_direction_output(170, true);
+ 
++	omap3beagle_enc28j60_init();
++
+ 	usb_musb_init();
+ 	usb_ehci_init(&ehci_pdata);
+ 	omap3beagle_flash_init();
+-- 
+1.6.6.1
+

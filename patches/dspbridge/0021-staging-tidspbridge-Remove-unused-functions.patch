@@ -1,0 +1,655 @@
+From 86b83173d61872057d4c3757364cc4bbeed24b80 Mon Sep 17 00:00:00 2001
+From: Armando Uribe <x0095078@ti.com>
+Date: Fri, 17 Dec 2010 01:18:30 -0600
+Subject: [PATCH 21/25] staging: tidspbridge - Remove unused functions
+
+Remove functions that are not used at all, also remove the dependencies
+of this functions like struct members, comments and calls.
+
+Signed-off-by: Armando Uribe <x0095078@ti.com>
+Signed-off-by: Omar Ramirez Luna <omar.ramirez@ti.com>
+---
+ drivers/staging/tidspbridge/core/io_sm.c           |    4 -
+ drivers/staging/tidspbridge/core/tiomap3430.c      |    2 -
+ .../staging/tidspbridge/include/dspbridge/chnl.h   |   21 ---
+ .../staging/tidspbridge/include/dspbridge/dbll.h   |    6 -
+ .../tidspbridge/include/dspbridge/dblldefs.h       |    3 -
+ .../staging/tidspbridge/include/dspbridge/dev.h    |   55 --------
+ .../staging/tidspbridge/include/dspbridge/dspio.h  |    1 -
+ .../tidspbridge/include/dspbridge/host_os.h        |    9 --
+ drivers/staging/tidspbridge/include/dspbridge/io.h |   16 ---
+ .../staging/tidspbridge/include/dspbridge/io_sm.h  |  135 --------------------
+ .../staging/tidspbridge/include/dspbridge/node.h   |   18 ---
+ .../include/dspbridge/resourcecleanup.h            |   11 --
+ .../staging/tidspbridge/include/dspbridge/strm.h   |   62 ---------
+ drivers/staging/tidspbridge/pmgr/cod.c             |    3 -
+ drivers/staging/tidspbridge/pmgr/dbll.c            |   41 ------
+ drivers/staging/tidspbridge/rmgr/nldr.c            |    3 -
+ 16 files changed, 0 insertions(+), 390 deletions(-)
+
+diff --git a/drivers/staging/tidspbridge/core/io_sm.c b/drivers/staging/tidspbridge/core/io_sm.c
+index 9289522..90e89ee 100644
+--- a/drivers/staging/tidspbridge/core/io_sm.c
++++ b/drivers/staging/tidspbridge/core/io_sm.c
+@@ -1682,10 +1682,6 @@ int bridge_io_get_proc_load(struct io_mgr *hio_mgr,
+ 	return 0;
+ }
+ 
+-void io_sm_init(void)
+-{
+-	/* Do nothing */
+-}
+ 
+ #if defined(CONFIG_TIDSPBRIDGE_BACKTRACE) || defined(CONFIG_TIDSPBRIDGE_DEBUG)
+ void print_dsp_debug_trace(struct io_mgr *hio_mgr)
+diff --git a/drivers/staging/tidspbridge/core/tiomap3430.c b/drivers/staging/tidspbridge/core/tiomap3430.c
+index cb45e93..cacd30e 100644
+--- a/drivers/staging/tidspbridge/core/tiomap3430.c
++++ b/drivers/staging/tidspbridge/core/tiomap3430.c
+@@ -255,8 +255,6 @@ void bridge_drv_entry(struct bridge_drv_interface **drv_intf,
+ 
+ 	DBC_REQUIRE(driver_file_name != NULL);
+ 
+-	io_sm_init();		/* Initialization of io_sm module */
+-
+ 	if (strcmp(driver_file_name, "UMA") == 0)
+ 		*drv_intf = &drv_interface_fxns;
+ 	else
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/chnl.h b/drivers/staging/tidspbridge/include/dspbridge/chnl.h
+index 8733b3b..92f6a13 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/chnl.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/chnl.h
+@@ -25,27 +25,6 @@
+ #include <dspbridge/chnlpriv.h>
+ 
+ /*
+- *  ======== chnl_close ========
+- *  Purpose:
+- *      Ensures all pending I/O on this channel is cancelled, discards all
+- *      queued I/O completion notifications, then frees the resources allocated
+- *      for this channel, and makes the corresponding logical channel id
+- *      available for subsequent use.
+- *  Parameters:
+- *      chnl_obj:          Channel object handle.
+- *  Returns:
+- *      0:        Success;
+- *      -EFAULT:    Invalid chnl_obj.
+- *  Requires:
+- *      chnl_init(void) called.
+- *      No thread must be blocked on this channel's I/O completion event.
+- *  Ensures:
+- *      0:        The I/O completion event for this channel is freed.
+- *                      chnl_obj is no longer valid.
+- */
+-extern int chnl_close(struct chnl_object *chnl_obj);
+-
+-/*
+  *  ======== chnl_create ========
+  *  Purpose:
+  *      Create a channel manager object, responsible for opening new channels
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/dbll.h b/drivers/staging/tidspbridge/include/dspbridge/dbll.h
+index b018676..46a9e00 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/dbll.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/dbll.h
+@@ -42,18 +42,12 @@ extern bool dbll_init(void);
+ extern int dbll_load(struct dbll_library_obj *lib,
+ 			    dbll_flags flags,
+ 			    struct dbll_attrs *attrs, u32 * entry);
+-extern int dbll_load_sect(struct dbll_library_obj *zl_lib,
+-				 char *sec_name, struct dbll_attrs *attrs);
+ extern int dbll_open(struct dbll_tar_obj *target, char *file,
+ 			    dbll_flags flags,
+ 		       struct dbll_library_obj **lib_obj);
+ extern int dbll_read_sect(struct dbll_library_obj *lib,
+ 				 char *name, char *buf, u32 size);
+-extern void dbll_set_attrs(struct dbll_tar_obj *target,
+-			   struct dbll_attrs *pattrs);
+ extern void dbll_unload(struct dbll_library_obj *lib, struct dbll_attrs *attrs);
+-extern int dbll_unload_sect(struct dbll_library_obj *lib,
+-				   char *sect_name, struct dbll_attrs *attrs);
+ #ifdef CONFIG_TIDSPBRIDGE_BACKTRACE
+ bool dbll_find_dsp_symbol(struct dbll_library_obj *zl_lib, u32 address,
+ 		u32 offset_range, u32 *sym_addr_output, char *name_output);
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/dblldefs.h b/drivers/staging/tidspbridge/include/dspbridge/dblldefs.h
+index d2b4fda..81821e5 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/dblldefs.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/dblldefs.h
+@@ -485,12 +485,9 @@ struct dbll_fxns {
+ 	dbll_get_sect_fxn get_sect_fxn;
+ 	dbll_init_fxn init_fxn;
+ 	dbll_load_fxn load_fxn;
+-	dbll_load_sect_fxn load_sect_fxn;
+ 	dbll_open_fxn open_fxn;
+ 	dbll_read_sect_fxn read_sect_fxn;
+-	dbll_set_attrs_fxn set_attrs_fxn;
+ 	dbll_unload_fxn unload_fxn;
+-	dbll_unload_sect_fxn unload_sect_fxn;
+ };
+ 
+ #endif /* DBLDEFS_ */
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/dev.h b/drivers/staging/tidspbridge/include/dspbridge/dev.h
+index 357458f..4d4196b 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/dev.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/dev.h
+@@ -95,43 +95,6 @@ extern int dev_create_device(struct dev_object
+ 				    struct cfg_devnode *dev_node_obj);
+ 
+ /*
+- *  ======== dev_create_iva_device ========
+- *  Purpose:
+- *      Called by the operating system to load the Bridge Driver for IVA.
+- *  Parameters:
+- *      device_obj:     Ptr to location to receive the device object handle.
+- *      driver_file_name: Name of Bridge driver PE DLL file to load.  If the
+- *                      absolute path is not provided, the file is loaded
+- *                      through 'Bridge's module search path.
+- *      host_config:    Host configuration information, to be passed down
+- *                      to the Bridge driver when bridge_dev_create() is called.
+- *      pDspConfig:     DSP resources, to be passed down to the Bridge driver
+- *                      when bridge_dev_create() is called.
+- *      dev_node_obj:       Platform specific device node.
+- *  Returns:
+- *      0:            Module is loaded, device object has been created
+- *      -ENOMEM:        Insufficient memory to create needed resources.
+- *      -EPERM:              Unable to find Bridge driver entry point function.
+- *      -ESPIPE:   Unable to load ZL DLL.
+- *  Requires:
+- *      DEV Initialized.
+- *      device_obj != NULL.
+- *      driver_file_name != NULL.
+- *      host_config != NULL.
+- *      pDspConfig != NULL.
+- *  Ensures:
+- *      0:  *device_obj will contain handle to the new device object.
+- *      Otherwise, does not create the device object, ensures the Bridge driver
+- *      module is unloaded, and sets *device_obj to NULL.
+- */
+-extern int dev_create_iva_device(struct dev_object
+-					**device_obj,
+-					const char *driver_file_name,
+-					const struct cfg_hostres
+-					*host_config,
+-					struct cfg_devnode *dev_node_obj);
+-
+-/*
+  *  ======== dev_create2 ========
+  *  Purpose:
+  *      After successful loading of the image from api_init_complete2
+@@ -542,24 +505,6 @@ extern void dev_exit(void);
+ extern bool dev_init(void);
+ 
+ /*
+- *  ======== dev_is_locked ========
+- *  Purpose:
+- *      Predicate function to determine if the device has been
+- *      locked by a client for exclusive access.
+- *  Parameters:
+- *      hdev_obj:     Handle to device object created with
+- *                      dev_create_device().
+- *  Returns:
+- *      0:        TRUE: device has been locked.
+- *      0:     FALSE: device not locked.
+- *      -EFAULT:    hdev_obj was invalid.
+- *  Requires:
+- *      DEV Initialized.
+- *  Ensures:
+- */
+-extern int dev_is_locked(struct dev_object *hdev_obj);
+-
+-/*
+  *  ======== dev_insert_proc_object ========
+  *  Purpose:
+  *      Inserts the Processor Object into the List of PROC Objects
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/dspio.h b/drivers/staging/tidspbridge/include/dspbridge/dspio.h
+index 88f5f90..5c666b8 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/dspio.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/dspio.h
+@@ -34,7 +34,6 @@ extern int bridge_io_destroy(struct io_mgr *hio_mgr);
+ 
+ extern int bridge_io_on_loaded(struct io_mgr *hio_mgr);
+ 
+-extern int iva_io_on_loaded(struct io_mgr *hio_mgr);
+ extern int bridge_io_get_proc_load(struct io_mgr *hio_mgr,
+ 				       struct dsp_procloadstat *proc_lstat);
+ 
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/host_os.h b/drivers/staging/tidspbridge/include/dspbridge/host_os.h
+index 6549898..b1b8acb 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/host_os.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/host_os.h
+@@ -57,13 +57,4 @@
+ extern struct platform_device *omap_dspbridge_dev;
+ extern struct device *bridge;
+ 
+-#if defined(CONFIG_TIDSPBRIDGE) || defined(CONFIG_TIDSPBRIDGE_MODULE)
+-extern void dspbridge_reserve_sdram(void);
+-#else
+-static inline void dspbridge_reserve_sdram(void)
+-{
+-}
+-#endif
+-
+-extern unsigned long dspbridge_get_mempool_base(void);
+ #endif
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/io.h b/drivers/staging/tidspbridge/include/dspbridge/io.h
+index bc346f9..da4683c 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/io.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/io.h
+@@ -95,20 +95,4 @@ extern void io_exit(void);
+  */
+ extern bool io_init(void);
+ 
+-/*
+- *  ======== io_on_loaded ========
+- *  Purpose:
+- *      Called when a program is loaded so IO manager can update its
+- *      internal state.
+- *  Parameters:
+- *      hio_mgr:         IOmanager object.
+- *  Returns:
+- *      0:        Success.
+- *      -EFAULT:    hio_mgr was invalid.
+- *  Requires:
+- *      io_init(void) called.
+- *  Ensures:
+- */
+-extern int io_on_loaded(struct io_mgr *hio_mgr);
+-
+ #endif /* CHNL_ */
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/io_sm.h b/drivers/staging/tidspbridge/include/dspbridge/io_sm.h
+index bcde1d9..8778ab4 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/io_sm.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/io_sm.h
+@@ -120,122 +120,6 @@ extern void io_request_chnl(struct io_mgr *io_manager,
+ extern void iosm_schedule(struct io_mgr *io_manager);
+ 
+ /*
+- * DSP-DMA IO functions
+- */
+-
+-/*
+- *  ======== io_ddma_init_chnl_desc ========
+- *  Purpose:
+- *      Initialize DSP DMA channel descriptor.
+- *  Parameters:
+- *      hio_mgr:         Handle to a I/O manager.
+- *      ddma_chnl_id:    DDMA channel identifier.
+- *      num_desc:       Number of buffer descriptors(equals # of IOReqs &
+- *                      Chirps)
+- *      dsp:           Dsp address;
+- *  Returns:
+- *  Requires:
+- *     ddma_chnl_id < DDMA_MAXDDMACHNLS
+- *     num_desc > 0
+- *     pVa != NULL
+- *     pDspPa != NULL
+- *
+- *  Ensures:
+- */
+-extern void io_ddma_init_chnl_desc(struct io_mgr *hio_mgr, u32 ddma_chnl_id,
+-				   u32 num_desc, void *dsp);
+-
+-/*
+- *  ======== io_ddma_clear_chnl_desc ========
+- *  Purpose:
+- *      Clear DSP DMA channel descriptor.
+- *  Parameters:
+- *      hio_mgr:         Handle to a I/O manager.
+- *      ddma_chnl_id:    DDMA channel identifier.
+- *  Returns:
+- *  Requires:
+- *     ddma_chnl_id < DDMA_MAXDDMACHNLS
+- *  Ensures:
+- */
+-extern void io_ddma_clear_chnl_desc(struct io_mgr *hio_mgr, u32 ddma_chnl_id);
+-
+-/*
+- *  ======== io_ddma_request_chnl ========
+- *  Purpose:
+- *      Request channel DSP-DMA from the DSP. Sets up SM descriptors and
+- *      control fields in shared memory.
+- *  Parameters:
+- *      hio_mgr:     Handle to a I/O manager.
+- *      pchnl:      Ptr to channel object
+- *      chnl_packet_obj:     Ptr to channel i/o request packet.
+- *  Returns:
+- *  Requires:
+- *      pchnl != NULL
+- *      pchnl->cio_reqs > 0
+- *      chnl_packet_obj != NULL
+- *  Ensures:
+- */
+-extern void io_ddma_request_chnl(struct io_mgr *hio_mgr,
+-				 struct chnl_object *pchnl,
+-				 struct chnl_irp *chnl_packet_obj,
+-				 u16 *mbx_val);
+-
+-/*
+- * Zero-copy IO functions
+- */
+-
+-/*
+- *  ======== io_ddzc_init_chnl_desc ========
+- *  Purpose:
+- *      Initialize ZCPY channel descriptor.
+- *  Parameters:
+- *      hio_mgr:     Handle to a I/O manager.
+- *      zid:        zero-copy channel identifier.
+- *  Returns:
+- *  Requires:
+- *     ddma_chnl_id < DDMA_MAXZCPYCHNLS
+- *     hio_mgr != Null
+- *  Ensures:
+- */
+-extern void io_ddzc_init_chnl_desc(struct io_mgr *hio_mgr, u32 zid);
+-
+-/*
+- *  ======== io_ddzc_clear_chnl_desc ========
+- *  Purpose:
+- *      Clear DSP ZC channel descriptor.
+- *  Parameters:
+- *      hio_mgr:         Handle to a I/O manager.
+- *      ch_id:        ZC channel identifier.
+- *  Returns:
+- *  Requires:
+- *      hio_mgr is valid
+- *      ch_id < DDMA_MAXZCPYCHNLS
+- *  Ensures:
+- */
+-extern void io_ddzc_clear_chnl_desc(struct io_mgr *hio_mgr, u32 ch_id);
+-
+-/*
+- *  ======== io_ddzc_request_chnl ========
+- *  Purpose:
+- *      Request zero-copy channel transfer. Sets up SM descriptors and
+- *      control fields in shared memory.
+- *  Parameters:
+- *      hio_mgr:         Handle to a I/O manager.
+- *      pchnl:          Ptr to channel object
+- *      chnl_packet_obj:         Ptr to channel i/o request packet.
+- *  Returns:
+- *  Requires:
+- *      pchnl != NULL
+- *      pchnl->cio_reqs > 0
+- *      chnl_packet_obj != NULL
+- *  Ensures:
+- */
+-extern void io_ddzc_request_chnl(struct io_mgr *hio_mgr,
+-				 struct chnl_object *pchnl,
+-				 struct chnl_irp *chnl_packet_obj,
+-				 u16 *mbx_val);
+-
+-/*
+  *  ======== io_sh_msetting ========
+  *  Purpose:
+  *      Sets the shared memory setting
+@@ -258,25 +142,6 @@ extern int io_sh_msetting(struct io_mgr *hio_mgr, u8 desc, void *pargs);
+ /* Maximum channel bufsize that can be used. */
+ extern u32 io_buf_size(struct io_mgr *hio_mgr);
+ 
+-extern u32 io_read_value(struct bridge_dev_context *dev_ctxt, u32 dsp_addr);
+-
+-extern void io_write_value(struct bridge_dev_context *dev_ctxt,
+-			   u32 dsp_addr, u32 value);
+-
+-extern u32 io_read_value_long(struct bridge_dev_context *dev_ctxt,
+-			      u32 dsp_addr);
+-
+-extern void io_write_value_long(struct bridge_dev_context *dev_ctxt,
+-				u32 dsp_addr, u32 value);
+-
+-extern void io_or_set_value(struct bridge_dev_context *dev_ctxt,
+-			    u32 dsp_addr, u32 value);
+-
+-extern void io_and_set_value(struct bridge_dev_context *dev_ctxt,
+-			     u32 dsp_addr, u32 value);
+-
+-extern void io_sm_init(void);
+-
+ #ifdef CONFIG_TIDSPBRIDGE_BACKTRACE
+ /*
+  *  ========print_dsp_trace_buffer ========
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/node.h b/drivers/staging/tidspbridge/include/dspbridge/node.h
+index 49ed5c1..4c5558c 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/node.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/node.h
+@@ -113,24 +113,6 @@ extern int node_alloc_msg_buf(struct node_object *hnode,
+ extern int node_change_priority(struct node_object *hnode, s32 prio);
+ 
+ /*
+- *  ======== node_close_orphans ========
+- *  Purpose:
+- *      Delete all nodes whose owning processor is being destroyed.
+- *  Parameters:
+- *      hnode_mgr:       Node manager object.
+- *      proc:          Handle to processor object being destroyed.
+- *  Returns:
+- *      0:        Success.
+- *      -EPERM:      Unable to delete all nodes belonging to proc.
+- *  Requires:
+- *      Valid hnode_mgr.
+- *      proc != NULL.
+- *  Ensures:
+- */
+-extern int node_close_orphans(struct node_mgr *hnode_mgr,
+-				     struct proc_object *proc);
+-
+-/*
+  *  ======== node_connect ========
+  *  Purpose:
+  *      Connect two nodes on the DSP, or a node on the DSP to the GPP. In the
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/resourcecleanup.h b/drivers/staging/tidspbridge/include/dspbridge/resourcecleanup.h
+index dfaf0c6..8c9c902 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/resourcecleanup.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/resourcecleanup.h
+@@ -17,23 +17,12 @@
+ #include <dspbridge/nodepriv.h>
+ #include <dspbridge/drv.h>
+ 
+-extern int drv_get_proc_ctxt_list(struct process_context **pctxt,
+-					 struct drv_object *hdrv_obj);
+-
+-extern int drv_insert_proc_context(struct drv_object *driver_obj,
+-					  void *process_ctxt);
+-
+ extern int drv_remove_all_dmm_res_elements(void *process_ctxt);
+ 
+ extern int drv_remove_all_node_res_elements(void *process_ctxt);
+ 
+-extern int drv_proc_set_pid(void *ctxt, s32 process);
+-
+ extern int drv_remove_all_resources(void *process_ctxt);
+ 
+-extern int drv_remove_proc_context(struct drv_object *driver_obj,
+-					  void *pr_ctxt);
+-
+ extern int drv_insert_node_res_element(void *hnode, void *node_resource,
+ 					      void *process_ctxt);
+ 
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/strm.h b/drivers/staging/tidspbridge/include/dspbridge/strm.h
+index 3e4671e..613fe53 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/strm.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/strm.h
+@@ -142,25 +142,6 @@ extern int strm_free_buffer(struct strm_res_object *strmres,
+ 				   struct process_context *pr_ctxt);
+ 
+ /*
+- *  ======== strm_get_event_handle ========
+- *  Purpose:
+- *      Get stream's user event handle. This function is used when closing
+- *      a stream, so the event can be closed.
+- *  Parameter:
+- *      stream_obj:      Stream handle returned from strm_open().
+- *      ph_event:        Location to store event handle on output.
+- *  Returns:
+- *      0:        Success.
+- *      -EFAULT:    Invalid stream_obj.
+- *  Requires:
+- *      strm_init(void) called.
+- *      ph_event != NULL.
+- *  Ensures:
+- */
+-extern int strm_get_event_handle(struct strm_object *stream_obj,
+-					void **ph_event);
+-
+-/*
+  *  ======== strm_get_info ========
+  *  Purpose:
+  *      Get information about a stream. User's dsp_streaminfo is contained
+@@ -276,27 +257,6 @@ extern int strm_open(struct node_object *hnode, u32 dir,
+ 			    struct process_context *pr_ctxt);
+ 
+ /*
+- *  ======== strm_prepare_buffer ========
+- *  Purpose:
+- *      Prepare a data buffer not allocated by DSPStream_AllocateBuffers()
+- *      for use with a stream.
+- *  Parameter:
+- *      stream_obj:     Stream handle returned from strm_open().
+- *      usize:          Size (GPP bytes) of the buffer.
+- *      pbuffer:        Buffer address.
+- *  Returns:
+- *      0:        Success.
+- *      -EFAULT:    Invalid stream_obj.
+- *      -EPERM:      Failure occurred, unable to prepare buffer.
+- *  Requires:
+- *      strm_init(void) called.
+- *      pbuffer != NULL.
+- *  Ensures:
+- */
+-extern int strm_prepare_buffer(struct strm_object *stream_obj,
+-				      u32 usize, u8 *pbuffer);
+-
+-/*
+  *  ======== strm_reclaim ========
+  *  Purpose:
+  *      Request a buffer back from a stream.
+@@ -379,26 +339,4 @@ extern int strm_register_notify(struct strm_object *stream_obj,
+ extern int strm_select(struct strm_object **strm_tab,
+ 			      u32 strms, u32 *pmask, u32 utimeout);
+ 
+-/*
+- *  ======== strm_unprepare_buffer ========
+- *  Purpose:
+- *      Unprepare a data buffer that was previously prepared for a stream
+- *      with DSPStream_PrepareBuffer(), and that will no longer be used with
+- *      the stream.
+- *  Parameter:
+- *      stream_obj:     Stream handle returned from strm_open().
+- *      usize:          Size (GPP bytes) of the buffer.
+- *      pbuffer:        Buffer address.
+- *  Returns:
+- *      0:        Success.
+- *      -EFAULT:    Invalid stream_obj.
+- *      -EPERM:      Failure occurred, unable to unprepare buffer.
+- *  Requires:
+- *      strm_init(void) called.
+- *      pbuffer != NULL.
+- *  Ensures:
+- */
+-extern int strm_unprepare_buffer(struct strm_object *stream_obj,
+-					u32 usize, u8 *pbuffer);
+-
+ #endif /* STRM_ */
+diff --git a/drivers/staging/tidspbridge/pmgr/cod.c b/drivers/staging/tidspbridge/pmgr/cod.c
+index 52989ab..db29a19 100644
+--- a/drivers/staging/tidspbridge/pmgr/cod.c
++++ b/drivers/staging/tidspbridge/pmgr/cod.c
+@@ -78,12 +78,9 @@ static struct dbll_fxns ldr_fxns = {
+ 	(dbll_get_sect_fxn) dbll_get_sect,
+ 	(dbll_init_fxn) dbll_init,
+ 	(dbll_load_fxn) dbll_load,
+-	(dbll_load_sect_fxn) dbll_load_sect,
+ 	(dbll_open_fxn) dbll_open,
+ 	(dbll_read_sect_fxn) dbll_read_sect,
+-	(dbll_set_attrs_fxn) dbll_set_attrs,
+ 	(dbll_unload_fxn) dbll_unload,
+-	(dbll_unload_sect_fxn) dbll_unload_sect,
+ };
+ 
+ static bool no_op(void);
+diff --git a/drivers/staging/tidspbridge/pmgr/dbll.c b/drivers/staging/tidspbridge/pmgr/dbll.c
+index 878aa50..2f46b06 100644
+--- a/drivers/staging/tidspbridge/pmgr/dbll.c
++++ b/drivers/staging/tidspbridge/pmgr/dbll.c
+@@ -568,18 +568,6 @@ int dbll_load(struct dbll_library_obj *lib, dbll_flags flags,
+ }
+ 
+ /*
+- *  ======== dbll_load_sect ========
+- *  Not supported for COFF.
+- */
+-int dbll_load_sect(struct dbll_library_obj *zl_lib, char *sec_name,
+-			  struct dbll_attrs *attrs)
+-{
+-	DBC_REQUIRE(zl_lib);
+-
+-	return -ENOSYS;
+-}
+-
+-/*
+  *  ======== dbll_open ========
+  */
+ int dbll_open(struct dbll_tar_obj *target, char *file, dbll_flags flags,
+@@ -794,22 +782,6 @@ func_cont:
+ }
+ 
+ /*
+- *  ======== dbll_set_attrs ========
+- *  Set the attributes of the target.
+- */
+-void dbll_set_attrs(struct dbll_tar_obj *target, struct dbll_attrs *pattrs)
+-{
+-	struct dbll_tar_obj *zl_target = (struct dbll_tar_obj *)target;
+-	DBC_REQUIRE(refs > 0);
+-	DBC_REQUIRE(zl_target);
+-	DBC_REQUIRE(pattrs != NULL);
+-
+-	if ((pattrs != NULL) && (zl_target != NULL))
+-		zl_target->attrs = *pattrs;
+-
+-}
+-
+-/*
+  *  ======== dbll_unload ========
+  */
+ void dbll_unload(struct dbll_library_obj *lib, struct dbll_attrs *attrs)
+@@ -848,19 +820,6 @@ func_end:
+ }
+ 
+ /*
+- *  ======== dbll_unload_sect ========
+- *  Not supported for COFF.
+- */
+-int dbll_unload_sect(struct dbll_library_obj *lib, char *sec_name,
+-			    struct dbll_attrs *attrs)
+-{
+-	DBC_REQUIRE(refs > 0);
+-	DBC_REQUIRE(sec_name != NULL);
+-
+-	return -ENOSYS;
+-}
+-
+-/*
+  *  ======== dof_close ========
+  */
+ static void dof_close(struct dbll_library_obj *zl_lib)
+diff --git a/drivers/staging/tidspbridge/rmgr/nldr.c b/drivers/staging/tidspbridge/rmgr/nldr.c
+index a6ae007..26cfb32 100644
+--- a/drivers/staging/tidspbridge/rmgr/nldr.c
++++ b/drivers/staging/tidspbridge/rmgr/nldr.c
+@@ -260,12 +260,9 @@ static struct dbll_fxns ldr_fxns = {
+ 	(dbll_get_sect_fxn) dbll_get_sect,
+ 	(dbll_init_fxn) dbll_init,
+ 	(dbll_load_fxn) dbll_load,
+-	(dbll_load_sect_fxn) dbll_load_sect,
+ 	(dbll_open_fxn) dbll_open,
+ 	(dbll_read_sect_fxn) dbll_read_sect,
+-	(dbll_set_attrs_fxn) dbll_set_attrs,
+ 	(dbll_unload_fxn) dbll_unload,
+-	(dbll_unload_sect_fxn) dbll_unload_sect,
+ };
+ 
+ static u32 refs;		/* module reference count */
+-- 
+1.7.1
+

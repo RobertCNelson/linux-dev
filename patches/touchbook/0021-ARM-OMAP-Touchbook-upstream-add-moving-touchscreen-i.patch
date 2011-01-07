@@ -1,0 +1,38 @@
+From 4b3e2272e96e6c706aca578736435e7d893c2ab8 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 16 Sep 2010 16:04:29 -0500
+Subject: [PATCH 21/22] ARM OMAP Touchbook upstream add moving touchscreen init
+
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index 584ded9..5fb972a 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -597,10 +597,6 @@ static void __init touchbook_init(void)
+ 	/* REVISIT leave DVI powered down until it's needed ... */
+ 	gpio_direction_output(176, true);
+ 
+-	/* Touchscreen and accelerometer */
+-	spi_register_board_info(touchbook_spi_board_info, ARRAY_SIZE(touchbook_spi_board_info));
+-	touchbook_ads7846_init();
+-
+ 	usb_musb_init(&musb_board_data);
+ 	usb_ehci_init(&ehci_pdata);
+ 	touchbook_flash_init();
+@@ -610,6 +606,10 @@ static void __init touchbook_init(void)
+ 	omap_mux_init_signal("sdrc_cke1", OMAP_PIN_OUTPUT);
+ 
+ 	touchbook_display_init();
++
++	/* Touchscreen and accelerometer */
++	spi_register_board_info(touchbook_spi_board_info, ARRAY_SIZE(touchbook_spi_board_info));
++	touchbook_ads7846_init();
+ }
+ 
+ static void __init touchbook_init_irq(void)
+-- 
+1.7.1
+

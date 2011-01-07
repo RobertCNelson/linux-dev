@@ -1,0 +1,34 @@
+From 58e4dcb56aa8ded1ec983882b18ff164f897590d Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Mon, 10 May 2010 13:59:14 -0700
+Subject: [PATCH 27/31] OMAP: DSS2: check for both cpu type and revision, rather than just revision
+
+---
+ drivers/video/omap2/dss/dispc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/dispc.c b/drivers/video/omap2/dss/dispc.c
+index e777e35..6ba87d8 100644
+--- a/drivers/video/omap2/dss/dispc.c
++++ b/drivers/video/omap2/dss/dispc.c
+@@ -2111,7 +2111,7 @@ void dispc_set_parallel_interface_mode(enum omap_parallel_interface_mode mode)
+ static bool _dispc_lcd_timings_ok(int hsw, int hfp, int hbp,
+ 		int vsw, int vfp, int vbp)
+ {
+-	if (cpu_is_omap24xx() || omap_rev() < OMAP3430_REV_ES3_0) {
++	if (cpu_is_omap24xx() || (cpu_is_omap34xx() && omap_rev_lt_3_0())) {
+ 		if (hsw < 1 || hsw > 64 ||
+ 				hfp < 1 || hfp > 256 ||
+ 				hbp < 1 || hbp > 256 ||
+@@ -2144,7 +2144,7 @@ static void _dispc_set_lcd_timings(int hsw, int hfp, int hbp,
+ {
+ 	u32 timing_h, timing_v;
+ 
+-	if (cpu_is_omap24xx() || omap_rev() < OMAP3430_REV_ES3_0) {
++	if (cpu_is_omap24xx() || (cpu_is_omap34xx() && omap_rev_lt_3_0())) {
+ 		timing_h = FLD_VAL(hsw-1, 5, 0) | FLD_VAL(hfp-1, 15, 8) |
+ 			FLD_VAL(hbp-1, 27, 20);
+ 
+-- 
+1.7.1
+

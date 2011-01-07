@@ -1,0 +1,79 @@
+From 4318ac467955a67639e439b466d80869bc76aeda Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 16 Sep 2010 15:04:49 -0500
+Subject: [PATCH 18/22] ARM OMAP Touchbook upstream add Chacha Tablet
+
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |   35 +++++++++++++++++++++++++++-
+ 1 files changed, 34 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index b477b8d..5752429 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -36,7 +36,9 @@
+ 
+ #include <linux/regulator/machine.h>
+ #include <linux/i2c/twl.h>
+-
++#include <linux/i2c/chacha.h>
++#include <linux/i2c/bq27x00.h>
++#include <linux/i2c-gpio.h>
+ #include <mach/hardware.h>
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
+@@ -343,20 +345,51 @@ static struct i2c_board_info __initdata touchbook_i2c_boardinfo_1[] = {
+ 	},
+ };
+ 
++static struct chacha_platform_data touchbook_chacha_t_data = {
++	.gpio		= 155,
++	.version	= 3,
++	.calibrate	= 0,
++	.debug		= 0,
++	.secondfinger	= 0,
++	.name		= "Touchscreen Chacha Tablet",
++	.minX		= 128,
++	.maxX		= 17230,
++	.minY		= 55555,
++	.maxY		= 65300,
++};
++
+ static struct i2c_board_info __initdata touchbook_i2c_boardinfo_3[] = {
+ 	{
+ 		I2C_BOARD_INFO("bq27200", 0x55),
+ 	},
++	{
++		I2C_BOARD_INFO("chacha", 0x40),
++		.irq = OMAP_GPIO_IRQ(155),
++		.platform_data = &touchbook_chacha_t_data,
++	},
++	{
++		I2C_BOARD_INFO("ds1307", 0x68),
++	},
+ };
+ 
+ static int __init touchbook_i2c_init(void)
+ {
++	int ret;
++	int touchbook_chacha_t_gpio = 155;
++
+ 	/* Standard TouchBook bus */
+ 	omap_register_i2c_bus(1, 2600, touchbook_i2c_boardinfo_1, ARRAY_SIZE(touchbook_i2c_boardinfo_1));
+ 
+ 	/* Additional TouchBook bus */
+ 	omap_register_i2c_bus(3, 100, touchbook_i2c_boardinfo_3, ARRAY_SIZE(touchbook_i2c_boardinfo_3));
+ 
++	ret = gpio_request(touchbook_chacha_t_gpio, "chacha_t");
++	if (ret < 0) {
++		printk(KERN_ERR "Failed to request GPIO %d for chacha_t IRQ\n", touchbook_chacha_t_gpio);
++		return 0;
++	}
++	gpio_direction_input(touchbook_chacha_t_gpio);
++
+ 	return 0;
+ }
+ 
+-- 
+1.7.1
+

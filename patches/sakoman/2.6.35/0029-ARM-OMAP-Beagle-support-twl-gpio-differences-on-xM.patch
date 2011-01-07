@@ -1,0 +1,44 @@
+From 390a631250d139bb04f9324b16380cbd48b2239c Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Tue, 11 May 2010 05:47:23 -0700
+Subject: [PATCH 29/31] ARM: OMAP: Beagle: support twl gpio differences on xM
+
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |   20 +++++++++++++++-----
+ 1 files changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 6a1767e..a339bc1 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -349,12 +349,22 @@ static int beagle_twl_gpio_setup(struct device *dev,
+ 	 * power switch and overcurrent detect
+ 	 */
+ 
+-	gpio_request(gpio + 1, "EHCI_nOC");
+-	gpio_direction_input(gpio + 1);
++	if (cpu_is_omap3630()) {
++		gpio_request(gpio + 1, "nDVI_PWR_EN");
++		gpio_direction_output(gpio + 1, 0);
+ 
+-	/* TWL4030_GPIO_MAX + 0 == ledA, EHCI nEN_USB_PWR (out, active low) */
+-	gpio_request(gpio + TWL4030_GPIO_MAX, "nEN_USB_PWR");
+-	gpio_direction_output(gpio + TWL4030_GPIO_MAX, 0);
++		/* TWL4030_GPIO_MAX + 0 == ledA, EHCI nEN_USB_PWR (out, active low) */
++		gpio_request(gpio + TWL4030_GPIO_MAX, "nEN_USB_PWR");
++		gpio_direction_output(gpio + TWL4030_GPIO_MAX, 1);
++	}
++	else {
++		gpio_request(gpio + 1, "EHCI_nOC");
++		gpio_direction_input(gpio + 1);
++
++		/* TWL4030_GPIO_MAX + 0 == ledA, EHCI nEN_USB_PWR (out, active low) */
++		gpio_request(gpio + TWL4030_GPIO_MAX, "nEN_USB_PWR");
++		gpio_direction_output(gpio + TWL4030_GPIO_MAX, 0);
++	}
+ 
+ 	/* TWL4030_GPIO_MAX + 1 == ledB, PMU_STAT (out, active low LED) */
+ 	gpio_leds[2].gpio = gpio + TWL4030_GPIO_MAX + 1;
+-- 
+1.7.1
+

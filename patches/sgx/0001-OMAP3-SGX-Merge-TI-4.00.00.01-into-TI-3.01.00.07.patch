@@ -1,0 +1,4464 @@
+From a7cce91eef0662462b469724ea48f49da4aca9d5 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 23 Sep 2010 10:31:05 -0500
+Subject: [PATCH] OMAP3 SGX Merge TI 4.00.00.01 into TI 3.01.00.07
+
+---
+ drivers/staging/omap3-sgx/Kbuild                   |    8 +
+ drivers/staging/omap3-sgx/Kconfig                  |    4 +-
+ drivers/staging/omap3-sgx/Makefile                 |    4 +
+ .../build/linux/omap3430_linux/makefile.core       |    2 +-
+ .../services4/3rdparty/bufferclass_ti/Kbuild       |    4 +
+ .../services4/3rdparty/bufferclass_ti/bc_cat.c     |    9 +-
+ .../services4/3rdparty/dc_ti8168_linux/Kbuild      |   17 +
+ .../3rdparty/dc_ti8168_linux/kbuild/Makefile       |   43 +
+ .../services4/3rdparty/dc_ti8168_linux/omaplfb.h   |  282 ++++
+ .../dc_ti8168_linux/omaplfb_displayclass.c         | 1545 ++++++++++++++++++++
+ .../3rdparty/dc_ti8168_linux/omaplfb_linux.c       |  405 +++++
+ .../services4/srvkm/devices/sgx/sgxinit.c          |    9 +-
+ .../omap3-sgx/services4/system/ti8168/oemfuncs.h   |   56 +
+ .../omap3-sgx/services4/system/ti8168/sysconfig.c  |  807 ++++++++++
+ .../omap3-sgx/services4/system/ti8168/sysconfig.h  |   53 +
+ .../omap3-sgx/services4/system/ti8168/sysinfo.h    |   98 ++
+ .../omap3-sgx/services4/system/ti8168/syslocal.h   |  128 ++
+ .../omap3-sgx/services4/system/ti8168/sysutils.c   |   30 +
+ .../services4/system/ti8168/sysutils_linux.c       |  738 ++++++++++
+ 19 files changed, 4235 insertions(+), 7 deletions(-)
+ create mode 100644 drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/Kbuild
+ create mode 100644 drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/kbuild/Makefile
+ create mode 100644 drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb.h
+ create mode 100644 drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_displayclass.c
+ create mode 100644 drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_linux.c
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti8168/oemfuncs.h
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.c
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.h
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti8168/sysinfo.h
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti8168/syslocal.h
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti8168/sysutils.c
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti8168/sysutils_linux.c
+
+diff --git a/drivers/staging/omap3-sgx/Kbuild b/drivers/staging/omap3-sgx/Kbuild
+index 81ee6d3..81fd965 100644
+--- a/drivers/staging/omap3-sgx/Kbuild
++++ b/drivers/staging/omap3-sgx/Kbuild
+@@ -7,11 +7,15 @@ BUILD = release
+ TI_PLATFORM = omap3430
+ 
+ SGXCORE = 530
++ifeq ($(TI_PLATFORM),ti8168)
++CORE = -DPLAT_TI8168 -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=125
++else
+ ifeq ($(TI_PLATFORM),omap3630)
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=125
+ else
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=121
+ endif
++endif
+ 
+ SUPPORT_SGX = 1
+ SUPPORT_HW_RECOVERY = 1
+@@ -217,6 +221,10 @@ EXTRA_CFLAGS += $(ALL_CFLAGS)
+ 
+ pvrsrvkm-y	:= $(FILES:.c=.o)
+ 
++ifeq ($(TI_PLATFORM),ti8168)
++obj-y := services4/3rdparty/dc_ti8168_linux/
++else
+ obj-y := services4/3rdparty/dc_omap3430_linux/
++endif
+ obj-y += services4/3rdparty/bufferclass_ti/
+ 
+diff --git a/drivers/staging/omap3-sgx/Kconfig b/drivers/staging/omap3-sgx/Kconfig
+index 4e8858b..3bca0e6 100644
+--- a/drivers/staging/omap3-sgx/Kconfig
++++ b/drivers/staging/omap3-sgx/Kconfig
+@@ -3,7 +3,7 @@
+ #
+ 
+ config OMAP3_SGX
+-	bool "OMAP3 SGX support (TI: 3.01.00.07)"
++	bool "OMAP3 SGX support (TI: 4.00.00.01)"
+ 	depends on OMAP2_DSS && m
+ 	help
+-	  This is TI's OMAP3 SGX Kernel Modules 3.01.00.07
++	  This is TI's OMAP3 SGX Kernel Modules 4.00.00.01
+diff --git a/drivers/staging/omap3-sgx/Makefile b/drivers/staging/omap3-sgx/Makefile
+index 3eaee9e..272410e 100644
+--- a/drivers/staging/omap3-sgx/Makefile
++++ b/drivers/staging/omap3-sgx/Makefile
+@@ -9,12 +9,16 @@ export BUILD = release
+ export KBUILD_EXTRA_SYMBOLS = `pwd`/services4/srvkm/env/linux/kbuild/Module.symvers
+ 
+ SGXCORE = 530
++ifeq ($(TI_PLATFORM),ti8168)
++CORE = -DPLAT_TI8168 -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=125
++else
+ ifeq ($(TI_PLATFORM),omap3630)
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=125
+ else
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=121
+ endif
+ 
++endif
+ SUPPORT_SGX = 1
+ SUPPORT_HW_RECOVERY = 1
+ SUPPORT_SGX_HWPERF = 1
+diff --git a/drivers/staging/omap3-sgx/eurasiacon/build/linux/omap3430_linux/makefile.core b/drivers/staging/omap3-sgx/eurasiacon/build/linux/omap3430_linux/makefile.core
+index eea2327..b16d3ef 100644
+--- a/drivers/staging/omap3-sgx/eurasiacon/build/linux/omap3430_linux/makefile.core
++++ b/drivers/staging/omap3-sgx/eurasiacon/build/linux/omap3430_linux/makefile.core
+@@ -27,7 +27,7 @@ CORE = -DSGX$(SGXCORE) -DSUPPORT_SGX$(SGXCORE)
+ 
+ ifeq ("$(SGXCOREREV)","")
+ ifeq ("$(SGXCORE)","530")
+-CORE += -DSGX_CORE_REV=121
++CORE += -DSGX_CORE_REV=125
+ else
+ CORE += -DUSE_SGX_CORE_REV_HEAD
+ endif
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/Kbuild b/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/Kbuild
+index 52e5ba7..777f017 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/Kbuild
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/Kbuild
+@@ -2,6 +2,10 @@ ccflags-y += -DLINUX
+ ccflags-y += -Idrivers/staging/omap3-sgx/include4
+ ccflags-y += -Idrivers/staging/omap3-sgx/services4/include
+ 
++ifeq ($(TI_PLATFORM),ti8168)
++ccflags-y += -DPLAT_TI8168
++endif
++
+ obj-m :=  bufferclass_ti.o
+ bufferclass_ti-y := bc_cat.o
+ 
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c b/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c
+index 2019af8..0b9f6e0 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c
+@@ -35,6 +35,8 @@
+ #include <kernelbuffer.h>
+ #include "bc_cat.h"
+ 
++#include <linux/slab.h>
++
+ #include <linux/dma-mapping.h>
+ 
+ #define DEVNAME             "bccat"
+@@ -487,8 +489,11 @@ static int __init bc_cat_init(void)
+ 
+     /* texture buffer width should be multiple of 8 for OMAP3 ES3.x,
+      * or 32 for ES2.x */
+-    width_align = cpu_is_omap3530() && omap_rev_lt_3_0() ? 32 : 8;
+-    
++#ifdef PLAT_TI8168  
++   width_align = 8;
++#else
++   width_align = cpu_is_omap3530() && omap_rev_lt_3_0() ? 32 : 8;   
++#endif    
+     major = register_chrdev(0, DEVNAME, &bc_cat_fops);
+ 
+     if (major <= 0) {
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/Kbuild b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/Kbuild
+new file mode 100644
+index 0000000..aba88c9
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/Kbuild
+@@ -0,0 +1,17 @@
++SYS_USING_INTERRUPTS = 1
++SUPPORT_TI_DSS_FW = 0
++
++SYS_CFLAGS.$(SYS_USING_INTERRUPTS)                      += -DSYS_USING_INTERRUPTS
++SYS_CFLAGS.$(SUPPORT_TI_DSS_FW)                         += -DSUPPORT_TI_DSS_FW
++
++
++EXTRA_CFLAGS =	-DLINUX \
++		-DCONFIG_OMAP2_DSS \
++		-I$(PVR_BUILD_DIR)/include4 \
++		-I$(PVR_BUILD_DIR)/services4/include \
++		-I$(PVR_BUILD_DIR)/services4/system/$(PVR_SYSTEM) \
++		-I$(PVR_BUILD_DIR)/services4/system/include \
++		$(SYS_CFLAGS.1) \
++
++obj-m := omaplfb.o
++omaplfb-y := omaplfb_displayclass.o omaplfb_linux.o
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/kbuild/Makefile b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/kbuild/Makefile
+new file mode 100644
+index 0000000..54139af
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/kbuild/Makefile
+@@ -0,0 +1,43 @@
++#
++# Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++# 
++# This program is free software; you can redistribute it and/or modify it
++# under the terms and conditions of the GNU General Public License,
++# version 2, as published by the Free Software Foundation.
++# 
++# This program is distributed in the hope it will be useful but, except 
++# as otherwise stated in writing, without any warranty; without even the 
++# implied warranty of merchantability or fitness for a particular purpose. 
++# See the GNU General Public License for more details.
++# 
++# You should have received a copy of the GNU General Public License along with
++# this program; if not, write to the Free Software Foundation, Inc.,
++# 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++# 
++# The full GNU General Public License is included in this distribution in
++# the file called "COPYING".
++#
++# Contact Information:
++# Imagination Technologies Ltd. <gpl-support@imgtec.com>
++# Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++# 
++#
++#
++
++include $(EURASIAROOT)/eurasiacon/build/linux/kbuild/Makefile.kbuild_subdir_common
++
++MODULE		= omaplfb
++
++INCLUDES = 	-I$(EURASIAROOT)/include4 \
++		-I$(EURASIAROOT)/services4/include \
++		-I$(EURASIAROOT)/services4/system/$(PVR_SYSTEM) \
++		-I$(EURASIAROOT)/services4/system/include \
++
++SOURCES	=	../omaplfb_displayclass.c \
++			../omaplfb_linux.c
++
++SYM_VERS_DEPS = $(EURASIAROOT)/services4/srvkm/env/linux
++
++
++
++
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb.h b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb.h
+new file mode 100644
+index 0000000..66ff328
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb.h
+@@ -0,0 +1,282 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#ifndef __OMAPLFB_H__
++#define __OMAPLFB_H__
++
++extern IMG_BOOL PVRGetDisplayClassJTable(PVRSRV_DC_DISP2SRV_KMJTABLE *psJTable);
++
++#define OMAPLCD_IRQ			25
++
++#define OMAPLCD_SYSCONFIG           0x0410
++#define OMAPLCD_CONFIG              0x0444
++#define OMAPLCD_DEFAULT_COLOR0      0x044C
++#define OMAPLCD_TIMING_H            0x0464
++#define OMAPLCD_TIMING_V            0x0468
++#define OMAPLCD_POL_FREQ            0x046C
++#define OMAPLCD_DIVISOR             0x0470
++#define OMAPLCD_SIZE_DIG            0x0478
++#define OMAPLCD_SIZE_LCD            0x047C
++#define OMAPLCD_GFX_POSITION        0x0488
++#define OMAPLCD_GFX_SIZE            0x048C
++#define OMAPLCD_GFX_ATTRIBUTES      0x04a0
++#define OMAPLCD_GFX_FIFO_THRESHOLD  0x04a4
++#define OMAPLCD_GFX_WINDOW_SKIP     0x04b4
++
++#define OMAPLCD_IRQSTATUS       0x0418
++#define OMAPLCD_IRQENABLE       0x041c
++#define OMAPLCD_CONTROL         0x0440
++#define OMAPLCD_GFX_BA0         0x0480
++#define OMAPLCD_GFX_BA1         0x0484
++#define OMAPLCD_GFX_ROW_INC     0x04ac
++#define OMAPLCD_GFX_PIX_INC     0x04b0
++#define OMAPLCD_VID1_BA0        0x04bc
++#define OMAPLCD_VID1_BA1        0x04c0
++#define OMAPLCD_VID1_ROW_INC    0x04d8
++#define OMAPLCD_VID1_PIX_INC    0x04dc
++
++#define	OMAP_CONTROL_GODIGITAL      (1 << 6)
++#define	OMAP_CONTROL_GOLCD          (1 << 5)
++#define	OMAP_CONTROL_DIGITALENABLE  (1 << 1)
++#define	OMAP_CONTROL_LCDENABLE      (1 << 0)
++
++#define OMAPLCD_INTMASK_VSYNC       (1 << 1)
++#define OMAPLCD_INTMASK_OFF		0
++
++typedef void *       OMAP_HANDLE;
++
++typedef enum tag_omap_bool
++{
++	OMAP_FALSE = 0,
++	OMAP_TRUE  = 1,
++} OMAP_BOOL, *OMAP_PBOOL;
++
++typedef struct OMAPLFB_BUFFER_TAG
++{
++	unsigned long                ulBufferSize;
++
++	
++	
++
++	IMG_SYS_PHYADDR              sSysAddr;
++	IMG_CPU_VIRTADDR             sCPUVAddr;
++	PVRSRV_SYNC_DATA            *psSyncData;
++
++	struct OMAPLFB_BUFFER_TAG	*psNext;
++} OMAPLFB_BUFFER;
++
++typedef struct OMAPLFB_VSYNC_FLIP_ITEM_TAG
++{
++	
++
++
++	OMAP_HANDLE      hCmdComplete;
++	
++	unsigned long    ulSwapInterval;
++	
++	OMAP_BOOL        bValid;
++	
++	OMAP_BOOL        bFlipped;
++	
++	OMAP_BOOL        bCmdCompleted;
++
++	
++	
++
++	
++	IMG_SYS_PHYADDR* sSysAddr;
++} OMAPLFB_VSYNC_FLIP_ITEM;
++
++typedef struct PVRPDP_SWAPCHAIN_TAG
++{
++	
++	unsigned long       ulBufferCount;
++	
++	OMAPLFB_BUFFER     *psBuffer;
++	
++	OMAPLFB_VSYNC_FLIP_ITEM	*psVSyncFlips;
++
++	
++	unsigned long       ulInsertIndex;
++	
++	
++	unsigned long       ulRemoveIndex;
++
++	
++	void *pvRegs;
++
++	
++	PVRSRV_DC_DISP2SRV_KMJTABLE	*psPVRJTable;
++
++	
++	OMAP_BOOL           bFlushCommands;
++
++	
++	unsigned long       ulSetFlushStateRefCount;
++
++	
++	OMAP_BOOL           bBlanked;
++
++	
++	spinlock_t         *psSwapChainLock;
++} OMAPLFB_SWAPCHAIN;
++
++typedef struct OMAPLFB_FBINFO_TAG
++{
++	unsigned long       ulFBSize;
++	unsigned long       ulBufferSize;
++	unsigned long       ulRoundedBufferSize;
++	unsigned long       ulWidth;
++	unsigned long       ulHeight;
++	unsigned long       ulByteStride;
++
++	
++	
++	IMG_SYS_PHYADDR     sSysAddr;
++	IMG_CPU_VIRTADDR    sCPUVAddr;
++
++	
++	PVRSRV_PIXEL_FORMAT ePixelFormat;
++}OMAPLFB_FBINFO;
++
++typedef struct OMAPLFB_DEVINFO_TAG
++{
++	unsigned long           ulDeviceID;
++
++	
++	OMAPLFB_BUFFER          sSystemBuffer;
++
++	
++	PVRSRV_DC_DISP2SRV_KMJTABLE	sPVRJTable;
++	
++	
++	PVRSRV_DC_SRV2DISP_KMJTABLE	sDCJTable;
++
++	
++	OMAPLFB_FBINFO          sFBInfo;
++
++	
++	unsigned long           ulRefCount;
++
++	
++	OMAPLFB_SWAPCHAIN      *psSwapChain;
++
++	
++	OMAP_BOOL               bFlushCommands;
++
++	
++	struct fb_info         *psLINFBInfo;
++
++	
++	struct notifier_block   sLINNotifBlock;
++
++	
++	OMAP_BOOL               bDeviceSuspended;
++
++	
++	spinlock_t             sSwapChainLock;
++
++	
++	
++
++	
++	IMG_DEV_VIRTADDR		sDisplayDevVAddr;
++
++	DISPLAY_INFO            sDisplayInfo;
++
++	
++	DISPLAY_FORMAT          sDisplayFormat;
++	
++	
++	DISPLAY_DIMS            sDisplayDim;
++
++}  OMAPLFB_DEVINFO;
++
++#define	OMAPLFB_PAGE_SIZE 4096
++#define	OMAPLFB_PAGE_MASK (OMAPLFB_PAGE_SIZE - 1)
++#define	OMAPLFB_PAGE_TRUNC (~OMAPLFB_PAGE_MASK)
++
++#define	OMAPLFB_PAGE_ROUNDUP(x) (((x) + OMAPLFB_PAGE_MASK) & OMAPLFB_PAGE_TRUNC)
++
++//#define DEBUG
++
++#ifdef	DEBUG
++#define	DEBUG_PRINTK(x) printk x
++#else
++#define	DEBUG_PRINTK(x)
++#endif
++
++#define DISPLAY_DEVICE_NAME "PowerVR OMAP Linux Display Driver"
++#define	DRVNAME	"omaplfb"
++#define	DEVNAME	DRVNAME
++#define	DRIVER_PREFIX DRVNAME
++
++typedef enum _OMAP_ERROR_
++{
++	OMAP_OK                             =  0,
++	OMAP_ERROR_GENERIC                  =  1,
++	OMAP_ERROR_OUT_OF_MEMORY            =  2,
++	OMAP_ERROR_TOO_FEW_BUFFERS          =  3,
++	OMAP_ERROR_INVALID_PARAMS           =  4,
++	OMAP_ERROR_INIT_FAILURE             =  5,
++	OMAP_ERROR_CANT_REGISTER_CALLBACK   =  6,
++	OMAP_ERROR_INVALID_DEVICE           =  7,
++	OMAP_ERROR_DEVICE_REGISTER_FAILED   =  8
++} OMAP_ERROR;
++
++
++#ifndef UNREFERENCED_PARAMETER
++#define	UNREFERENCED_PARAMETER(param) (param) = (param)
++#endif
++
++OMAP_ERROR OMAPLFBInit(void);
++OMAP_ERROR OMAPLFBDeinit(void);
++
++#ifdef	LDM_PLATFORM
++void OMAPLFBDriverSuspend(void);
++void OMAPLFBDriverResume(void);
++#endif
++
++void *OMAPLFBAllocKernelMem(unsigned long ulSize);
++void OMAPLFBFreeKernelMem(void *pvMem);
++OMAP_ERROR OMAPLFBGetLibFuncAddr(char *szFunctionName, PFN_DC_GET_PVRJTABLE *ppfnFuncTable);
++OMAP_ERROR OMAPLFBInstallVSyncISR (OMAPLFB_SWAPCHAIN *psSwapChain);
++OMAP_ERROR OMAPLFBUninstallVSyncISR(OMAPLFB_SWAPCHAIN *psSwapChain);
++OMAP_BOOL OMAPLFBVSyncIHandler(OMAPLFB_SWAPCHAIN *psSwapChain);
++void OMAPLFBEnableVSyncInterrupt(OMAPLFB_SWAPCHAIN *psSwapChain);
++void OMAPLFBDisableVSyncInterrupt(OMAPLFB_SWAPCHAIN *psSwapChain);
++#if defined (SUPPORT_TI_DSS_FW)
++void OMAPLFBEnableDisplayRegisterAccess(void);
++void OMAPLFBDisableDisplayRegisterAccess(void);
++#endif
++#if defined (CONFIG_OMAP2_DSS)
++IMG_VOID OMAPLFBFlipDSS2(OMAPLFB_SWAPCHAIN *psSwapChain,
++						  IMG_UINT32 aPhyAddr);
++#endif
++void OMAPLFBFlip(OMAPLFB_SWAPCHAIN *psSwapChain, unsigned long aPhyAddr);
++
++#endif 
++
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_displayclass.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_displayclass.c
+new file mode 100644
+index 0000000..8282c0b
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_displayclass.c
+@@ -0,0 +1,1545 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#include <linux/version.h>
++#include <linux/kernel.h>
++#include <linux/console.h>
++#include <linux/fb.h>
++#include <linux/module.h>
++#include <linux/string.h>
++#include <linux/notifier.h>
++#include <linux/spinlock.h>
++
++#include "img_defs.h"
++#include "servicesext.h"
++#include "kerneldisplay.h"
++#include "omaplfb.h"
++
++static void *gpvAnchor;
++
++static int fb_idx = 0;
++
++#define OMAPLFB_COMMAND_COUNT		1
++
++static PFN_DC_GET_PVRJTABLE pfnGetPVRJTable = 0;
++
++static OMAPLFB_DEVINFO * GetAnchorPtr(void)
++{
++	return (OMAPLFB_DEVINFO *)gpvAnchor;
++}
++
++static void SetAnchorPtr(OMAPLFB_DEVINFO *psDevInfo)
++{
++	gpvAnchor = (void*)psDevInfo;
++}
++
++	
++static void FlushInternalVSyncQueue(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++	OMAPLFB_VSYNC_FLIP_ITEM *psFlipItem;
++	unsigned long            ulMaxIndex;
++	unsigned long            i;
++
++	
++	psFlipItem = &psSwapChain->psVSyncFlips[psSwapChain->ulRemoveIndex];
++	ulMaxIndex = psSwapChain->ulBufferCount - 1;
++
++	for(i = 0; i < psSwapChain->ulBufferCount; i++)
++	{
++		if (psFlipItem->bValid == OMAP_FALSE)
++		{
++			continue;
++		}
++
++		DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX ": FlushInternalVSyncQueue: Flushing swap buffer (index %lu)\n", psSwapChain->ulRemoveIndex));
++
++		if(psFlipItem->bFlipped == OMAP_FALSE)
++		{
++			
++			OMAPLFBFlip(psSwapChain, (unsigned long)psFlipItem->sSysAddr);
++		}
++		
++		if(psFlipItem->bCmdCompleted == OMAP_FALSE)
++		{
++			DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX ": FlushInternalVSyncQueue: Calling command complete for swap buffer (index %lu)\n", psSwapChain->ulRemoveIndex));
++
++			psSwapChain->psPVRJTable->pfnPVRSRVCmdComplete((IMG_HANDLE)psFlipItem->hCmdComplete, IMG_TRUE);
++		}
++
++		
++		psSwapChain->ulRemoveIndex++;
++		
++		if(psSwapChain->ulRemoveIndex > ulMaxIndex)
++		{
++			psSwapChain->ulRemoveIndex = 0;
++		}
++
++		
++		psFlipItem->bFlipped = OMAP_FALSE;
++		psFlipItem->bCmdCompleted = OMAP_FALSE;
++		psFlipItem->bValid = OMAP_FALSE;
++		
++		
++		psFlipItem = &psSwapChain->psVSyncFlips[psSwapChain->ulRemoveIndex];
++	}
++
++	psSwapChain->ulInsertIndex = 0;
++	psSwapChain->ulRemoveIndex = 0;
++}
++
++static void SetFlushStateInternalNoLock(OMAPLFB_DEVINFO* psDevInfo,
++                                        OMAP_BOOL bFlushState)
++{
++	OMAPLFB_SWAPCHAIN *psSwapChain = psDevInfo->psSwapChain;
++
++	if (psSwapChain == NULL)
++	{
++		return;
++	}
++
++	if (bFlushState)
++	{
++		if (psSwapChain->ulSetFlushStateRefCount == 0)
++		{
++			OMAPLFBDisableVSyncInterrupt(psSwapChain);
++			psSwapChain->bFlushCommands = OMAP_TRUE;
++			FlushInternalVSyncQueue(psSwapChain);
++		}
++		psSwapChain->ulSetFlushStateRefCount++;
++	}
++	else
++	{
++		if (psSwapChain->ulSetFlushStateRefCount != 0)
++		{
++			psSwapChain->ulSetFlushStateRefCount--;
++			if (psSwapChain->ulSetFlushStateRefCount == 0)
++			{
++				psSwapChain->bFlushCommands = OMAP_FALSE;
++				OMAPLFBEnableVSyncInterrupt(psSwapChain);
++			}
++		}
++	}
++}
++
++static IMG_VOID SetFlushStateInternal(OMAPLFB_DEVINFO* psDevInfo,
++                                      OMAP_BOOL bFlushState)
++{
++	unsigned long ulLockFlags;
++
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	SetFlushStateInternalNoLock(psDevInfo, bFlushState);
++
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++}
++
++static void SetFlushStateExternal(OMAPLFB_DEVINFO* psDevInfo,
++                                  OMAP_BOOL bFlushState)
++{
++	unsigned long ulLockFlags;
++
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	
++	if (psDevInfo->bFlushCommands != bFlushState)
++	{
++		psDevInfo->bFlushCommands = bFlushState;
++		SetFlushStateInternalNoLock(psDevInfo, bFlushState);
++	}
++
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++}
++
++static IMG_VOID SetDCState(IMG_HANDLE hDevice, IMG_UINT32 ui32State)
++{
++	OMAPLFB_DEVINFO *psDevInfo = (OMAPLFB_DEVINFO *)hDevice;
++
++	switch (ui32State)
++	{
++		case DC_STATE_FLUSH_COMMANDS:
++			SetFlushStateExternal(psDevInfo, OMAP_TRUE);
++			break;
++		case DC_STATE_NO_FLUSH_COMMANDS:
++			SetFlushStateExternal(psDevInfo, OMAP_FALSE);
++			break;
++		default:
++			break;
++	}
++
++	return;
++}
++
++static int FrameBufferEvents(struct notifier_block *psNotif,
++                             unsigned long event, void *data)
++{
++	OMAPLFB_DEVINFO *psDevInfo;
++	OMAPLFB_SWAPCHAIN *psSwapChain;
++	struct fb_event *psFBEvent = (struct fb_event *)data;
++	OMAP_BOOL bBlanked;
++
++	
++	if (event != FB_EVENT_BLANK)
++	{
++		return 0;
++	}
++
++	psDevInfo = GetAnchorPtr();
++	psSwapChain = psDevInfo->psSwapChain;
++
++	bBlanked = (*(IMG_INT *)psFBEvent->data != 0) ? OMAP_TRUE: OMAP_FALSE;
++
++	if (bBlanked != psSwapChain->bBlanked)
++	{
++		psSwapChain->bBlanked = bBlanked;
++
++		if (bBlanked)
++		{
++			
++			SetFlushStateInternal(psDevInfo, OMAP_TRUE);
++		}
++		else
++		{
++			
++			SetFlushStateInternal(psDevInfo, OMAP_FALSE);
++		}
++	}
++
++	return 0;
++}
++
++
++static OMAP_ERROR UnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
++{
++	int res;
++
++	acquire_console_sem();
++	res = fb_blank(psDevInfo->psLINFBInfo, 0);
++	release_console_sem();
++#if !defined (CONFIG_OMAP2_DSS)
++	/* DSS2 returns error if unblank from a non-suspend state */
++	if (res != 0)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX
++			": fb_blank failed (%d)", res);
++		return (OMAP_ERROR_GENERIC);
++	}
++#endif
++
++	return (OMAP_OK);
++}
++
++#if defined (CONFIG_OMAP2_DSS)
++#include <linux/workqueue.h>
++struct wq_flip {
++        struct fb_var_screeninfo var;
++	    struct fb_info *psLINFBInfo; 
++        struct work_struct work;
++};
++struct wq_flip wq_flipdss2;
++
++static void dss2_pan_display (struct work_struct *work)
++{
++    struct wq_flip *ptrwq_flip =
++            container_of(work, struct wq_flip, work);
++    if (ptrwq_flip->psLINFBInfo->fbops->fb_pan_display != NULL) {
++        ptrwq_flip->psLINFBInfo->fbops->fb_pan_display (&ptrwq_flip->var, ptrwq_flip->psLINFBInfo);
++
++    }
++
++}
++
++/*
++	 Flip implementation for DSS2 using fb_pan_display
++*/
++IMG_VOID OMAPLFBFlipDSS2(OMAPLFB_SWAPCHAIN *psSwapChain,
++						  IMG_UINT32 aPhyAddr)
++{
++	OMAPLFB_DEVINFO *psDevInfo = GetAnchorPtr ();
++	struct fb_info *psLINFBInfo = psDevInfo->psLINFBInfo;
++	memcpy ( &wq_flipdss2.var, &psLINFBInfo->var, sizeof(struct fb_var_screeninfo)); 
++        wq_flipdss2.var.yoffset = (aPhyAddr-psLINFBInfo->fix.smem_start)/psLINFBInfo->fix.line_length;
++	wq_flipdss2.psLINFBInfo = psLINFBInfo;
++	schedule_work (&wq_flipdss2.work);
++}
++#endif
++
++static OMAP_ERROR EnableLFBEventNotification(OMAPLFB_DEVINFO *psDevInfo)
++{
++	int                res;
++	OMAPLFB_SWAPCHAIN *psSwapChain = psDevInfo->psSwapChain;
++	OMAP_ERROR         eError;
++
++	
++	memset(&psDevInfo->sLINNotifBlock, 0, sizeof(psDevInfo->sLINNotifBlock));
++
++	psDevInfo->sLINNotifBlock.notifier_call = FrameBufferEvents;
++
++	psSwapChain->bBlanked = OMAP_FALSE;
++
++	res = fb_register_client(&psDevInfo->sLINNotifBlock);
++	if (res != 0)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX
++			": fb_register_client failed (%d)", res);
++
++		return (OMAP_ERROR_GENERIC);
++	}
++
++	eError = UnblankDisplay(psDevInfo);
++	if (eError != OMAP_OK)
++	{
++		DEBUG_PRINTK((KERN_WARNING DRIVER_PREFIX
++			": UnblankDisplay failed (%d)", eError));
++		return eError;
++	}
++
++	return (OMAP_OK);
++}
++
++static OMAP_ERROR DisableLFBEventNotification(OMAPLFB_DEVINFO *psDevInfo)
++{
++	int res;
++
++	
++	res = fb_unregister_client(&psDevInfo->sLINNotifBlock);
++	if (res != 0)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX
++			": fb_unregister_client failed (%d)", res);
++		return (OMAP_ERROR_GENERIC);
++	}
++
++	return (OMAP_OK);
++}
++
++static PVRSRV_ERROR OpenDCDevice(IMG_UINT32 ui32DeviceID,
++                                 IMG_HANDLE *phDevice,
++                                 PVRSRV_SYNC_DATA* psSystemBufferSyncData)
++{
++	OMAPLFB_DEVINFO *psDevInfo;
++	OMAP_ERROR eError;
++
++	UNREFERENCED_PARAMETER(ui32DeviceID);
++
++	psDevInfo = GetAnchorPtr();
++
++	
++	psDevInfo->sSystemBuffer.psSyncData = psSystemBufferSyncData;
++	
++	eError = UnblankDisplay(psDevInfo);
++	if (eError != OMAP_OK)
++	{
++		DEBUG_PRINTK((KERN_WARNING DRIVER_PREFIX
++			": UnblankDisplay failed (%d)", eError));
++		return (PVRSRV_ERROR_GENERIC);
++	}
++
++	
++	*phDevice = (IMG_HANDLE)psDevInfo;
++	
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR CloseDCDevice(IMG_HANDLE hDevice)
++{
++	UNREFERENCED_PARAMETER(hDevice);
++
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR EnumDCFormats(IMG_HANDLE hDevice,
++                                  IMG_UINT32 *pui32NumFormats,
++                                  DISPLAY_FORMAT *psFormat)
++{
++	OMAPLFB_DEVINFO	*psDevInfo;
++	
++	if(!hDevice || !pui32NumFormats)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++	
++	*pui32NumFormats = 1;
++	
++	if(psFormat)
++	{
++		psFormat[0] = psDevInfo->sDisplayFormat;
++	}
++
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR EnumDCDims(IMG_HANDLE hDevice, 
++                               DISPLAY_FORMAT *psFormat,
++                               IMG_UINT32 *pui32NumDims,
++                               DISPLAY_DIMS *psDim)
++{
++	OMAPLFB_DEVINFO	*psDevInfo;
++
++	if(!hDevice || !psFormat || !pui32NumDims)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++
++	*pui32NumDims = 1;
++
++	
++	if(psDim)
++	{
++		psDim[0] = psDevInfo->sDisplayDim;
++	}
++	
++	return (PVRSRV_OK);
++}
++
++
++static PVRSRV_ERROR GetDCSystemBuffer(IMG_HANDLE hDevice, IMG_HANDLE *phBuffer)
++{
++	OMAPLFB_DEVINFO	*psDevInfo;
++	
++	if(!hDevice || !phBuffer)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++
++	*phBuffer = (IMG_HANDLE)&psDevInfo->sSystemBuffer;
++
++	return (PVRSRV_OK);
++}
++
++
++static PVRSRV_ERROR GetDCInfo(IMG_HANDLE hDevice, DISPLAY_INFO *psDCInfo)
++{
++	OMAPLFB_DEVINFO	*psDevInfo;
++	
++	if(!hDevice || !psDCInfo)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++
++	*psDCInfo = psDevInfo->sDisplayInfo;
++
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR GetDCBufferAddr(IMG_HANDLE        hDevice,
++                                    IMG_HANDLE        hBuffer, 
++                                    IMG_SYS_PHYADDR   **ppsSysAddr,
++                                    IMG_UINT32        *pui32ByteSize,
++                                    IMG_VOID          **ppvCpuVAddr,
++                                    IMG_HANDLE        *phOSMapInfo,
++                                    IMG_BOOL          *pbIsContiguous)
++{
++	OMAPLFB_DEVINFO	*psDevInfo;
++	OMAPLFB_BUFFER *psSystemBuffer;
++
++	if(!hDevice)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++	
++	if(!hBuffer)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++	psSystemBuffer = (OMAPLFB_BUFFER *)hBuffer;
++
++	if (!ppsSysAddr)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	*ppsSysAddr = &psSystemBuffer->sSysAddr;
++
++	if (!pui32ByteSize)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	*pui32ByteSize = (IMG_UINT32)psDevInfo->sFBInfo.ulBufferSize;
++
++	if (ppvCpuVAddr)
++	{
++		*ppvCpuVAddr = psSystemBuffer->sCPUVAddr;
++	}
++
++	if (phOSMapInfo)
++	{
++		*phOSMapInfo = (IMG_HANDLE)0;
++	}
++
++	if (pbIsContiguous)
++	{
++		*pbIsContiguous = IMG_TRUE;
++	}
++
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR CreateDCSwapChain(IMG_HANDLE hDevice,
++                                      IMG_UINT32 ui32Flags,
++                                      DISPLAY_SURF_ATTRIBUTES *psDstSurfAttrib,
++                                      DISPLAY_SURF_ATTRIBUTES *psSrcSurfAttrib,
++                                      IMG_UINT32 ui32BufferCount,
++                                      PVRSRV_SYNC_DATA **ppsSyncData,
++                                      IMG_UINT32 ui32OEMFlags,
++                                      IMG_HANDLE *phSwapChain,
++                                      IMG_UINT32 *pui32SwapChainID)
++{
++	OMAPLFB_DEVINFO	*psDevInfo;
++	OMAPLFB_SWAPCHAIN *psSwapChain;
++	OMAPLFB_BUFFER *psBuffer;
++	OMAPLFB_VSYNC_FLIP_ITEM *psVSyncFlips;
++	IMG_UINT32 i;
++	PVRSRV_ERROR eError = PVRSRV_ERROR_GENERIC;
++	unsigned long ulLockFlags;
++	IMG_UINT32 ui32BuffersToSkip;
++
++	UNREFERENCED_PARAMETER(ui32OEMFlags);
++	UNREFERENCED_PARAMETER(pui32SwapChainID);
++	
++	
++	if(!hDevice
++	|| !psDstSurfAttrib
++	|| !psSrcSurfAttrib
++	|| !ppsSyncData
++	|| !phSwapChain)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++	
++	
++	if (psDevInfo->sDisplayInfo.ui32MaxSwapChains == 0)
++	{
++		return (PVRSRV_ERROR_NOT_SUPPORTED);
++	}
++
++	
++	if(psDevInfo->psSwapChain != NULL)
++	{
++		return (PVRSRV_ERROR_FLIP_CHAIN_EXISTS);
++	}
++	
++	
++	if(ui32BufferCount > psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers)
++	{
++		return (PVRSRV_ERROR_TOOMANYBUFFERS);
++	}
++	
++	if ((psDevInfo->sFBInfo.ulRoundedBufferSize * (unsigned long)ui32BufferCount) > psDevInfo->sFBInfo.ulFBSize)
++	{
++		return (PVRSRV_ERROR_TOOMANYBUFFERS);
++	}
++
++	
++	ui32BuffersToSkip = psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers - ui32BufferCount;
++
++	
++	if(psDstSurfAttrib->pixelformat != psDevInfo->sDisplayFormat.pixelformat
++	|| psDstSurfAttrib->sDims.ui32ByteStride != psDevInfo->sDisplayDim.ui32ByteStride
++	|| psDstSurfAttrib->sDims.ui32Width != psDevInfo->sDisplayDim.ui32Width
++	|| psDstSurfAttrib->sDims.ui32Height != psDevInfo->sDisplayDim.ui32Height)
++	{
++		
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}		
++
++	if(psDstSurfAttrib->pixelformat != psSrcSurfAttrib->pixelformat
++	|| psDstSurfAttrib->sDims.ui32ByteStride != psSrcSurfAttrib->sDims.ui32ByteStride
++	|| psDstSurfAttrib->sDims.ui32Width != psSrcSurfAttrib->sDims.ui32Width
++	|| psDstSurfAttrib->sDims.ui32Height != psSrcSurfAttrib->sDims.ui32Height)
++	{
++		
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}		
++
++	
++	UNREFERENCED_PARAMETER(ui32Flags);
++	
++	
++	psSwapChain = (OMAPLFB_SWAPCHAIN*)OMAPLFBAllocKernelMem(sizeof(OMAPLFB_SWAPCHAIN));
++	if(!psSwapChain)
++	{
++		return (PVRSRV_ERROR_OUT_OF_MEMORY);
++	}
++
++	psBuffer = (OMAPLFB_BUFFER*)OMAPLFBAllocKernelMem(sizeof(OMAPLFB_BUFFER) * ui32BufferCount);
++	if(!psBuffer)
++	{
++		eError = PVRSRV_ERROR_OUT_OF_MEMORY;
++		goto ErrorFreeSwapChain;
++	}
++
++	psVSyncFlips = (OMAPLFB_VSYNC_FLIP_ITEM *)OMAPLFBAllocKernelMem(sizeof(OMAPLFB_VSYNC_FLIP_ITEM) * ui32BufferCount);
++	if (!psVSyncFlips)
++	{
++		eError = PVRSRV_ERROR_OUT_OF_MEMORY;
++		goto ErrorFreeBuffers;
++	}
++
++	psSwapChain->ulBufferCount = (unsigned long)ui32BufferCount;
++	psSwapChain->psBuffer = psBuffer;
++	psSwapChain->psVSyncFlips = psVSyncFlips;
++	psSwapChain->ulInsertIndex = 0;
++	psSwapChain->ulRemoveIndex = 0;
++	psSwapChain->psPVRJTable = &psDevInfo->sPVRJTable;
++	psSwapChain->psSwapChainLock = &psDevInfo->sSwapChainLock;
++
++	
++	for(i=0; i<ui32BufferCount-1; i++)
++	{
++		psBuffer[i].psNext = &psBuffer[i+1];
++	}
++	
++	psBuffer[i].psNext = &psBuffer[0];
++
++	
++	for(i=0; i<ui32BufferCount; i++)
++	{
++		IMG_UINT32 ui32SwapBuffer = i + ui32BuffersToSkip;
++		IMG_UINT32 ui32BufferOffset = ui32SwapBuffer * (IMG_UINT32)psDevInfo->sFBInfo.ulRoundedBufferSize;
++
++		psBuffer[i].psSyncData = ppsSyncData[i];
++
++		psBuffer[i].sSysAddr.uiAddr = psDevInfo->sFBInfo.sSysAddr.uiAddr + ui32BufferOffset;
++		psBuffer[i].sCPUVAddr = psDevInfo->sFBInfo.sCPUVAddr + ui32BufferOffset;
++	}
++
++	
++	for(i=0; i<ui32BufferCount; i++)
++	{
++		psVSyncFlips[i].bValid = OMAP_FALSE;
++		psVSyncFlips[i].bFlipped = OMAP_FALSE;
++		psVSyncFlips[i].bCmdCompleted = OMAP_FALSE;
++	}
++#if defined (SUPPORT_TI_DSS_FW)
++
++	OMAPLFBEnableDisplayRegisterAccess();
++
++	
++	psSwapChain->pvRegs = ioremap(psDevInfo->psLINFBInfo->fix.mmio_start, psDevInfo->psLINFBInfo->fix.mmio_len);
++	if (psSwapChain->pvRegs == NULL)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": Couldn't map registers needed for flipping\n");
++		goto ErrorDisableDisplayRegisters;
++	}
++#endif
++	if (OMAPLFBInstallVSyncISR(psSwapChain) != OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": ISR handler failed to register\n");
++		goto ErrorUnmapRegisters;
++	}
++
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	
++	psDevInfo->psSwapChain = psSwapChain;
++
++	
++	psSwapChain->bFlushCommands = psDevInfo->bFlushCommands;
++
++	if (psSwapChain->bFlushCommands)
++	{
++		psSwapChain->ulSetFlushStateRefCount = 1;
++	}
++	else
++	{
++		psSwapChain->ulSetFlushStateRefCount = 0;
++		OMAPLFBEnableVSyncInterrupt(psSwapChain);
++	}
++		
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	if (EnableLFBEventNotification(psDevInfo)!= OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": Couldn't enable framebuffer event notification\n");
++		goto ErrorUninstallVSyncInterrupt;
++	}
++
++	
++	*phSwapChain = (IMG_HANDLE)psSwapChain;
++
++	return (PVRSRV_OK);
++
++ErrorUninstallVSyncInterrupt:
++	if(OMAPLFBUninstallVSyncISR(psSwapChain) != OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": Couldn't uninstall VSync ISR\n");
++	}
++ErrorUnmapRegisters:
++#if defined (SUPPORT_TI_DSS_FW)
++	iounmap(psSwapChain->pvRegs);
++ErrorDisableDisplayRegisters:
++	OMAPLFBDisableDisplayRegisterAccess();
++#endif
++	OMAPLFBFreeKernelMem(psVSyncFlips);
++ErrorFreeBuffers:
++	OMAPLFBFreeKernelMem(psBuffer);
++ErrorFreeSwapChain:
++	OMAPLFBFreeKernelMem(psSwapChain);
++
++	return eError;
++}
++
++static PVRSRV_ERROR DestroyDCSwapChain(IMG_HANDLE hDevice,
++	IMG_HANDLE hSwapChain)
++{
++	OMAPLFB_DEVINFO	*psDevInfo;
++	OMAPLFB_SWAPCHAIN *psSwapChain;
++	unsigned long ulLockFlags;
++	OMAP_ERROR eError;
++
++	
++	if(!hDevice || !hSwapChain)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++	
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++	psSwapChain = (OMAPLFB_SWAPCHAIN*)hSwapChain;
++	if (psSwapChain != psDevInfo->psSwapChain)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	eError = DisableLFBEventNotification(psDevInfo);
++	if (eError != OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": Couldn't disable framebuffer event notification\n");
++	}
++
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	OMAPLFBDisableVSyncInterrupt(psSwapChain);
++
++	
++	FlushInternalVSyncQueue(psSwapChain);
++
++	
++	OMAPLFBFlip(psSwapChain, (unsigned long)psDevInfo->sFBInfo.sSysAddr.uiAddr);
++
++	
++	psDevInfo->psSwapChain = NULL;
++
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	if(OMAPLFBUninstallVSyncISR(psSwapChain) != OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": Couldn't uninstall VSync ISR\n");
++		return (PVRSRV_ERROR_GENERIC);
++	}
++
++#if defined (SUPPORT_TI_DSS_FW)
++	
++	iounmap(psSwapChain->pvRegs);
++
++	OMAPLFBDisableDisplayRegisterAccess();
++#endif
++	
++	OMAPLFBFreeKernelMem(psSwapChain->psVSyncFlips);
++	OMAPLFBFreeKernelMem(psSwapChain->psBuffer);
++	OMAPLFBFreeKernelMem(psSwapChain);
++
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR SetDCDstRect(IMG_HANDLE hDevice,
++	IMG_HANDLE hSwapChain,
++	IMG_RECT *psRect)
++{
++	UNREFERENCED_PARAMETER(hDevice);
++	UNREFERENCED_PARAMETER(hSwapChain);
++	UNREFERENCED_PARAMETER(psRect);
++
++	
++	
++	return (PVRSRV_ERROR_NOT_SUPPORTED);
++}
++
++static PVRSRV_ERROR SetDCSrcRect(IMG_HANDLE hDevice,
++                                 IMG_HANDLE hSwapChain,
++                                 IMG_RECT *psRect)
++{
++	UNREFERENCED_PARAMETER(hDevice);
++	UNREFERENCED_PARAMETER(hSwapChain);
++	UNREFERENCED_PARAMETER(psRect);
++
++	
++
++	return (PVRSRV_ERROR_NOT_SUPPORTED);
++}
++
++static PVRSRV_ERROR SetDCDstColourKey(IMG_HANDLE hDevice,
++                                      IMG_HANDLE hSwapChain,
++                                      IMG_UINT32 ui32CKColour)
++{
++	UNREFERENCED_PARAMETER(hDevice);
++	UNREFERENCED_PARAMETER(hSwapChain);
++	UNREFERENCED_PARAMETER(ui32CKColour);
++
++	
++
++	return (PVRSRV_ERROR_NOT_SUPPORTED);
++}
++
++static PVRSRV_ERROR SetDCSrcColourKey(IMG_HANDLE hDevice,
++                                      IMG_HANDLE hSwapChain,
++                                      IMG_UINT32 ui32CKColour)
++{
++	UNREFERENCED_PARAMETER(hDevice);
++	UNREFERENCED_PARAMETER(hSwapChain);
++	UNREFERENCED_PARAMETER(ui32CKColour);
++
++	
++
++	return (PVRSRV_ERROR_NOT_SUPPORTED);
++}
++
++static PVRSRV_ERROR GetDCBuffers(IMG_HANDLE hDevice,
++                                 IMG_HANDLE hSwapChain,
++                                 IMG_UINT32 *pui32BufferCount,
++                                 IMG_HANDLE *phBuffer)
++{
++	OMAPLFB_DEVINFO   *psDevInfo;
++	OMAPLFB_SWAPCHAIN *psSwapChain;
++	unsigned long      i;
++	
++	
++	if(!hDevice 
++	|| !hSwapChain
++	|| !pui32BufferCount
++	|| !phBuffer)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++	
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++	psSwapChain = (OMAPLFB_SWAPCHAIN*)hSwapChain;
++	if (psSwapChain != psDevInfo->psSwapChain)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++	
++	
++	*pui32BufferCount = (IMG_UINT32)psSwapChain->ulBufferCount;
++	
++	
++	for(i=0; i<psSwapChain->ulBufferCount; i++)
++	{
++		phBuffer[i] = (IMG_HANDLE)&psSwapChain->psBuffer[i];
++	}
++	
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR SwapToDCBuffer(IMG_HANDLE hDevice,
++                                   IMG_HANDLE hBuffer,
++                                   IMG_UINT32 ui32SwapInterval,
++                                   IMG_HANDLE hPrivateTag,
++                                   IMG_UINT32 ui32ClipRectCount,
++                                   IMG_RECT *psClipRect)
++{
++	OMAPLFB_DEVINFO *psDevInfo;
++
++	UNREFERENCED_PARAMETER(ui32SwapInterval);
++	UNREFERENCED_PARAMETER(hPrivateTag);
++	UNREFERENCED_PARAMETER(psClipRect);
++	
++	if(!hDevice 
++	|| !hBuffer
++	|| (ui32ClipRectCount != 0))
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++
++	
++	return (PVRSRV_OK);
++}
++
++static PVRSRV_ERROR SwapToDCSystem(IMG_HANDLE hDevice,
++                                   IMG_HANDLE hSwapChain)
++{
++	OMAPLFB_DEVINFO   *psDevInfo;
++	OMAPLFB_SWAPCHAIN *psSwapChain;
++	unsigned long      ulLockFlags;
++
++	if(!hDevice || !hSwapChain)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++
++	psDevInfo = (OMAPLFB_DEVINFO*)hDevice;
++	psSwapChain = (OMAPLFB_SWAPCHAIN*)hSwapChain;
++	if (psSwapChain != psDevInfo->psSwapChain)
++	{
++		return (PVRSRV_ERROR_INVALID_PARAMS);
++	}
++	
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	
++	FlushInternalVSyncQueue(psSwapChain);
++
++	
++	OMAPLFBFlip(psSwapChain, (unsigned long)psDevInfo->sFBInfo.sSysAddr.uiAddr);
++
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	return (PVRSRV_OK);
++}
++
++OMAP_BOOL OMAPLFBVSyncIHandler(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++	OMAP_BOOL bStatus = OMAP_FALSE;
++	OMAPLFB_VSYNC_FLIP_ITEM *psFlipItem;
++	unsigned long ulMaxIndex;
++	unsigned long ulLockFlags;
++
++	psFlipItem = &psSwapChain->psVSyncFlips[psSwapChain->ulRemoveIndex];
++	ulMaxIndex = psSwapChain->ulBufferCount - 1;
++
++	spin_lock_irqsave(psSwapChain->psSwapChainLock, ulLockFlags);
++
++	
++	if (psSwapChain->bFlushCommands)
++	{
++		goto ExitUnlock;
++	}
++
++	while(psFlipItem->bValid)
++	{	
++		
++		if(psFlipItem->bFlipped)
++		{
++			
++			if(!psFlipItem->bCmdCompleted)
++			{
++				
++				psSwapChain->psPVRJTable->pfnPVRSRVCmdComplete((IMG_HANDLE)psFlipItem->hCmdComplete, IMG_TRUE);
++
++				
++				psFlipItem->bCmdCompleted = OMAP_TRUE;
++			}
++
++			
++			psFlipItem->ulSwapInterval--;
++
++			
++			if(psFlipItem->ulSwapInterval == 0)
++			{	
++				
++				psSwapChain->ulRemoveIndex++;
++				
++				if(psSwapChain->ulRemoveIndex > ulMaxIndex)
++				{
++					psSwapChain->ulRemoveIndex = 0;
++				}
++				
++				
++				psFlipItem->bCmdCompleted = OMAP_FALSE;
++				psFlipItem->bFlipped = OMAP_FALSE;
++	
++				
++				psFlipItem->bValid = OMAP_FALSE;
++			}
++			else
++			{
++				
++				break;
++			}
++		}
++		else
++		{
++			
++			OMAPLFBFlip(psSwapChain, (unsigned long)psFlipItem->sSysAddr);
++			
++			
++			psFlipItem->bFlipped = OMAP_TRUE;
++			
++			
++			break;
++		}
++		
++		
++		psFlipItem = &psSwapChain->psVSyncFlips[psSwapChain->ulRemoveIndex];
++	}
++		
++ExitUnlock:
++	spin_unlock_irqrestore(psSwapChain->psSwapChainLock, ulLockFlags);
++
++	return bStatus;
++}
++
++static IMG_BOOL ProcessFlip(IMG_HANDLE  hCmdCookie,
++                            IMG_UINT32  ui32DataSize,
++                            IMG_VOID   *pvData)
++{
++	DISPLAYCLASS_FLIP_COMMAND *psFlipCmd;
++	OMAPLFB_DEVINFO *psDevInfo;
++	OMAPLFB_BUFFER *psBuffer;
++	OMAPLFB_SWAPCHAIN *psSwapChain;
++#if defined(SYS_USING_INTERRUPTS)
++	OMAPLFB_VSYNC_FLIP_ITEM* psFlipItem;
++#endif
++	unsigned long ulLockFlags;
++
++	
++	if(!hCmdCookie || !pvData)
++	{
++		return IMG_FALSE;
++	}
++
++	
++	psFlipCmd = (DISPLAYCLASS_FLIP_COMMAND*)pvData;
++
++	if (psFlipCmd == IMG_NULL || sizeof(DISPLAYCLASS_FLIP_COMMAND) != ui32DataSize)
++	{
++		return IMG_FALSE;
++	}
++
++	
++	psDevInfo = (OMAPLFB_DEVINFO*)psFlipCmd->hExtDevice;
++	
++	psBuffer = (OMAPLFB_BUFFER*)psFlipCmd->hExtBuffer;
++	psSwapChain = (OMAPLFB_SWAPCHAIN*) psFlipCmd->hExtSwapChain;
++
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	
++	if (psDevInfo->bDeviceSuspended)
++	{
++		psSwapChain->psPVRJTable->pfnPVRSRVCmdComplete(hCmdCookie, IMG_TRUE);
++		goto ExitTrueUnlock;
++	}
++
++#if defined(SYS_USING_INTERRUPTS)
++	
++	if(psFlipCmd->ui32SwapInterval == 0 || psSwapChain->bFlushCommands == OMAP_TRUE)
++	{
++#endif
++		
++		OMAPLFBFlip(psSwapChain, (unsigned long)psBuffer->sSysAddr.uiAddr);
++
++		
++		psSwapChain->psPVRJTable->pfnPVRSRVCmdComplete(hCmdCookie, IMG_TRUE);
++
++#if defined(SYS_USING_INTERRUPTS)
++		goto ExitTrueUnlock;
++	}
++
++	psFlipItem = &psSwapChain->psVSyncFlips[psSwapChain->ulInsertIndex];
++
++	
++	if(psFlipItem->bValid == OMAP_FALSE)
++	{
++		unsigned long ulMaxIndex = psSwapChain->ulBufferCount - 1;
++		
++		if(psSwapChain->ulInsertIndex == psSwapChain->ulRemoveIndex)
++		{
++			
++			OMAPLFBFlip(psSwapChain, (unsigned long)psBuffer->sSysAddr.uiAddr);
++
++			psFlipItem->bFlipped = OMAP_TRUE;
++		}
++		else
++		{
++			psFlipItem->bFlipped = OMAP_FALSE;
++		}
++
++		psFlipItem->hCmdComplete = (OMAP_HANDLE)hCmdCookie;
++		psFlipItem->ulSwapInterval = (unsigned long)psFlipCmd->ui32SwapInterval;
++		psFlipItem->sSysAddr = &psBuffer->sSysAddr;
++		psFlipItem->bValid = OMAP_TRUE;
++
++		psSwapChain->ulInsertIndex++;
++		if(psSwapChain->ulInsertIndex > ulMaxIndex)
++		{
++			psSwapChain->ulInsertIndex = 0;
++		}
++
++		goto ExitTrueUnlock;
++	}
++	
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++	return IMG_FALSE;
++#endif
++
++ExitTrueUnlock:
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++	return IMG_TRUE;
++}
++
++
++static OMAP_ERROR InitDev(OMAPLFB_DEVINFO *psDevInfo)
++{
++	struct fb_info *psLINFBInfo;
++	struct module *psLINFBOwner;
++	OMAPLFB_FBINFO *psPVRFBInfo = &psDevInfo->sFBInfo;
++	OMAP_ERROR eError = OMAP_ERROR_GENERIC;
++	unsigned long FBSize;
++
++	acquire_console_sem();
++
++	if (fb_idx < 0 || fb_idx >= num_registered_fb)
++	{
++		eError = OMAP_ERROR_INVALID_DEVICE;
++		goto errRelSem;
++	}
++
++	psLINFBInfo = registered_fb[fb_idx];
++
++	psLINFBOwner = psLINFBInfo->fbops->owner;
++	if (!try_module_get(psLINFBOwner))
++	{
++		printk(KERN_INFO DRIVER_PREFIX
++			": Couldn't get framebuffer module\n");
++
++		goto errRelSem;
++	}
++
++	if (psLINFBInfo->fbops->fb_open != NULL)
++	{
++		int res;
++
++		res = psLINFBInfo->fbops->fb_open(psLINFBInfo, 0);
++		if (res != 0)
++		{
++			printk(KERN_INFO DRIVER_PREFIX
++				": Couldn't open framebuffer: %d\n", res);
++
++			goto errModPut;
++		}
++	}
++
++       
++	psDevInfo->psLINFBInfo = psLINFBInfo;
++
++        DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++                        ": psLINFBInfo->screen_size: 0x%lx\n",
++                        psLINFBInfo->screen_size));
++        DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++                        ": psLINFBInfo->fix.smem_len : 0x%lx\n",
++                        psLINFBInfo->fix.smem_len));
++
++
++	FBSize = (psLINFBInfo->screen_size) != 0 ?
++					psLINFBInfo->screen_size :
++					psLINFBInfo->fix.smem_len;
++        
++       DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer physical address: 0x%lx\n",
++			psLINFBInfo->fix.smem_start));
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer virtual address: 0x%lx\n",
++			(unsigned long)psLINFBInfo->screen_base));
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer size: %lu\n",
++			FBSize));
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer virtual width: %u\n",
++			psLINFBInfo->var.xres_virtual));
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer virtual height: %u\n",
++			psLINFBInfo->var.yres_virtual));
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer width: %u\n",
++			psLINFBInfo->var.xres));
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer height: %u\n",
++			psLINFBInfo->var.yres));
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Framebuffer stride: %u\n",
++			psLINFBInfo->fix.line_length));
++
++	
++	psPVRFBInfo->sSysAddr.uiAddr = psLINFBInfo->fix.smem_start;
++	psPVRFBInfo->sCPUVAddr = psLINFBInfo->screen_base;
++	if ((psLINFBInfo->var.rotate == FB_ROTATE_CW)
++		|| (psLINFBInfo->var.rotate == FB_ROTATE_CCW) ) {
++	   psPVRFBInfo->ulWidth = psLINFBInfo->var.yres;
++	   psPVRFBInfo->ulHeight = psLINFBInfo->var.xres;
++    } else {
++	psPVRFBInfo->ulWidth = psLINFBInfo->var.xres;
++	psPVRFBInfo->ulHeight = psLINFBInfo->var.yres;
++    }
++
++	psPVRFBInfo->ulByteStride =  psLINFBInfo->fix.line_length;
++	psPVRFBInfo->ulFBSize = FBSize;
++	psPVRFBInfo->ulBufferSize = psPVRFBInfo->ulHeight * psPVRFBInfo->ulByteStride;
++	
++
++
++#ifdef CONFIG_OMAP2_DSS	
++    psPVRFBInfo->ulRoundedBufferSize = psPVRFBInfo->ulBufferSize;
++#else
++	psPVRFBInfo->ulRoundedBufferSize = OMAPLFB_PAGE_ROUNDUP(psPVRFBInfo->ulBufferSize);
++#endif
++	if(psLINFBInfo->var.bits_per_pixel == 16)
++	{
++		if((psLINFBInfo->var.red.length == 5) &&
++			(psLINFBInfo->var.green.length == 6) && 
++			(psLINFBInfo->var.blue.length == 5) && 
++			(psLINFBInfo->var.red.offset == 11) &&
++			(psLINFBInfo->var.green.offset == 5) && 
++			(psLINFBInfo->var.blue.offset == 0) && 
++			(psLINFBInfo->var.red.msb_right == 0))
++		{
++			psPVRFBInfo->ePixelFormat = PVRSRV_PIXEL_FORMAT_RGB565;
++		}
++		else
++		{
++			printk("Unknown FB format\n");
++		}
++	}
++	else if(psLINFBInfo->var.bits_per_pixel == 32)
++	{
++		if((psLINFBInfo->var.red.length == 8) &&
++			(psLINFBInfo->var.green.length == 8) && 
++			(psLINFBInfo->var.blue.length == 8) && 
++			(psLINFBInfo->var.red.offset == 16) &&
++			(psLINFBInfo->var.green.offset == 8) && 
++			(psLINFBInfo->var.blue.offset == 0) && 
++			(psLINFBInfo->var.red.msb_right == 0))
++		{
++			printk ("PVRSRV_PIXEL_FORMAT_ARGB8888\n");
++			psPVRFBInfo->ePixelFormat = PVRSRV_PIXEL_FORMAT_ARGB8888;
++		}
++		else
++		{
++			printk("Unknown FB format\n");
++		}
++	}	
++	else
++	{
++		printk("Unknown FB format\n");
++	}
++
++	
++	psDevInfo->sFBInfo.sSysAddr.uiAddr = psPVRFBInfo->sSysAddr.uiAddr;
++	psDevInfo->sFBInfo.sCPUVAddr = psPVRFBInfo->sCPUVAddr;
++
++#ifdef CONFIG_OMAP2_DSS
++	INIT_WORK (&wq_flipdss2.work, dss2_pan_display);
++#endif
++
++	eError = OMAP_OK;
++	goto errRelSem;
++
++errModPut:
++	module_put(psLINFBOwner);
++errRelSem:
++	release_console_sem();
++	return eError;
++}
++
++static void DeInitDev(OMAPLFB_DEVINFO *psDevInfo)
++{
++	struct fb_info *psLINFBInfo = psDevInfo->psLINFBInfo;
++	struct module *psLINFBOwner;
++
++	acquire_console_sem();
++
++	psLINFBOwner = psLINFBInfo->fbops->owner;
++
++	if (psLINFBInfo->fbops->fb_release != NULL) 
++	{
++		(void) psLINFBInfo->fbops->fb_release(psLINFBInfo, 0);
++	}
++
++	module_put(psLINFBOwner);
++
++	release_console_sem();
++}
++
++OMAP_ERROR OMAPLFBInit(void)
++{
++	OMAPLFB_DEVINFO		*psDevInfo;
++
++	psDevInfo = GetAnchorPtr();
++	
++	if (psDevInfo == NULL)
++	{
++		PFN_CMD_PROC	 		pfnCmdProcList[OMAPLFB_COMMAND_COUNT];
++		IMG_UINT32				aui32SyncCountList[OMAPLFB_COMMAND_COUNT][2];
++		
++		psDevInfo = (OMAPLFB_DEVINFO *)OMAPLFBAllocKernelMem(sizeof(OMAPLFB_DEVINFO));
++
++		if(!psDevInfo)
++		{
++			return (OMAP_ERROR_OUT_OF_MEMORY);
++		}
++
++		
++		memset(psDevInfo, 0, sizeof(OMAPLFB_DEVINFO));
++
++		
++		SetAnchorPtr((void*)psDevInfo);
++
++		
++		psDevInfo->ulRefCount = 0;
++
++		
++		if(InitDev(psDevInfo) != OMAP_OK)
++		{
++			return (OMAP_ERROR_INIT_FAILURE);
++		}
++
++		if(OMAPLFBGetLibFuncAddr ("PVRGetDisplayClassJTable", &pfnGetPVRJTable) != OMAP_OK)
++		{
++			return (OMAP_ERROR_INIT_FAILURE);
++		}
++
++		
++		if(!(*pfnGetPVRJTable)(&psDevInfo->sPVRJTable))
++		{
++			return (OMAP_ERROR_INIT_FAILURE);
++		}
++
++				
++		spin_lock_init(&psDevInfo->sSwapChainLock);
++
++		psDevInfo->psSwapChain = 0;
++		psDevInfo->bFlushCommands = OMAP_FALSE;
++		psDevInfo->bDeviceSuspended = OMAP_FALSE;
++
++		psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers = (IMG_UINT32)(psDevInfo->sFBInfo.ulFBSize / psDevInfo->sFBInfo.ulRoundedBufferSize);
++#if !defined (SUPPORT_TI_DSS_FW)
++		/*  Limiting the ui32MaxSwapChainBuffers to 3 */
++ 		if (psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers > 3)
++			psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers = 3;
++#endif
++#if 1 
++                /* for fb_pan_display to work, yres_virtual should be set to number of buffers multiplied yres */  
++                psDevInfo->psLINFBInfo->var.yres_virtual = psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers * psDevInfo->psLINFBInfo->var.yres;
++                if (fb_set_var(psDevInfo->psLINFBInfo, &psDevInfo->psLINFBInfo->var) != 0)
++                {
++                   printk(KERN_INFO DRIVER_PREFIX ": Couldn't set framebuffer paramter: ");
++
++                }
++#endif
++		if (psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers == 0)
++		{
++			psDevInfo->sDisplayInfo.ui32MaxSwapChains = 0;
++			psDevInfo->sDisplayInfo.ui32MaxSwapInterval = 0;
++		}
++		else
++		{
++			psDevInfo->sDisplayInfo.ui32MaxSwapChains = 1;
++			psDevInfo->sDisplayInfo.ui32MaxSwapInterval = 3;
++		}
++		psDevInfo->sDisplayInfo.ui32MinSwapInterval = 0;
++
++		strncpy(psDevInfo->sDisplayInfo.szDisplayName, DISPLAY_DEVICE_NAME, MAX_DISPLAY_NAME_SIZE);
++	
++		psDevInfo->sDisplayFormat.pixelformat = psDevInfo->sFBInfo.ePixelFormat;
++		psDevInfo->sDisplayDim.ui32Width      = (IMG_UINT32)psDevInfo->sFBInfo.ulWidth;
++		psDevInfo->sDisplayDim.ui32Height     = (IMG_UINT32)psDevInfo->sFBInfo.ulHeight;
++		psDevInfo->sDisplayDim.ui32ByteStride = (IMG_UINT32)psDevInfo->sFBInfo.ulByteStride;
++
++		DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX
++			": Maximum number of swap chain buffers: %lu\n",
++			psDevInfo->sDisplayInfo.ui32MaxSwapChainBuffers));
++
++		
++		psDevInfo->sSystemBuffer.sSysAddr = psDevInfo->sFBInfo.sSysAddr;
++		psDevInfo->sSystemBuffer.sCPUVAddr = psDevInfo->sFBInfo.sCPUVAddr;
++		psDevInfo->sSystemBuffer.ulBufferSize = psDevInfo->sFBInfo.ulRoundedBufferSize;
++
++		
++
++		psDevInfo->sDCJTable.ui32TableSize = sizeof(PVRSRV_DC_SRV2DISP_KMJTABLE);
++		psDevInfo->sDCJTable.pfnOpenDCDevice = OpenDCDevice;
++		psDevInfo->sDCJTable.pfnCloseDCDevice = CloseDCDevice;
++		psDevInfo->sDCJTable.pfnEnumDCFormats = EnumDCFormats;
++		psDevInfo->sDCJTable.pfnEnumDCDims = EnumDCDims;
++		psDevInfo->sDCJTable.pfnGetDCSystemBuffer = GetDCSystemBuffer;
++		psDevInfo->sDCJTable.pfnGetDCInfo = GetDCInfo;
++		psDevInfo->sDCJTable.pfnGetBufferAddr = GetDCBufferAddr;
++		psDevInfo->sDCJTable.pfnCreateDCSwapChain = CreateDCSwapChain;
++		psDevInfo->sDCJTable.pfnDestroyDCSwapChain = DestroyDCSwapChain;
++		psDevInfo->sDCJTable.pfnSetDCDstRect = SetDCDstRect;
++		psDevInfo->sDCJTable.pfnSetDCSrcRect = SetDCSrcRect;
++		psDevInfo->sDCJTable.pfnSetDCDstColourKey = SetDCDstColourKey;
++		psDevInfo->sDCJTable.pfnSetDCSrcColourKey = SetDCSrcColourKey;
++		psDevInfo->sDCJTable.pfnGetDCBuffers = GetDCBuffers;
++		psDevInfo->sDCJTable.pfnSwapToDCBuffer = SwapToDCBuffer;
++		psDevInfo->sDCJTable.pfnSwapToDCSystem = SwapToDCSystem;
++		psDevInfo->sDCJTable.pfnSetDCState = SetDCState;
++
++		
++		if(psDevInfo->sPVRJTable.pfnPVRSRVRegisterDCDevice (
++			&psDevInfo->sDCJTable,
++			&psDevInfo->ulDeviceID ) != PVRSRV_OK)
++		{
++			return (OMAP_ERROR_DEVICE_REGISTER_FAILED);
++		}
++		
++		
++		pfnCmdProcList[DC_FLIP_COMMAND] = ProcessFlip;
++
++		
++		aui32SyncCountList[DC_FLIP_COMMAND][0] = 0; 
++		aui32SyncCountList[DC_FLIP_COMMAND][1] = 2; 
++
++		
++
++
++
++		if (psDevInfo->sPVRJTable.pfnPVRSRVRegisterCmdProcList (psDevInfo->ulDeviceID,
++																&pfnCmdProcList[0],
++																aui32SyncCountList,
++																OMAPLFB_COMMAND_COUNT) != PVRSRV_OK)
++		{
++			printk(KERN_WARNING DRIVER_PREFIX ": Can't register callback\n");
++			return (OMAP_ERROR_CANT_REGISTER_CALLBACK);
++		}
++
++	}
++
++	
++	psDevInfo->ulRefCount++;
++
++	
++	return (OMAP_OK);
++	
++	}
++
++OMAP_ERROR OMAPLFBDeinit(void)
++{
++	OMAPLFB_DEVINFO *psDevInfo, *psDevFirst;
++
++	psDevFirst = GetAnchorPtr();
++	psDevInfo = psDevFirst;
++
++	
++	if (psDevInfo == NULL)
++	{
++		return (OMAP_ERROR_GENERIC);
++	}
++
++	
++	psDevInfo->ulRefCount--;
++
++	if (psDevInfo->ulRefCount == 0)
++	{
++		
++		PVRSRV_DC_DISP2SRV_KMJTABLE	*psJTable = &psDevInfo->sPVRJTable;
++
++		if (psDevInfo->sPVRJTable.pfnPVRSRVRemoveCmdProcList (psDevInfo->ulDeviceID, OMAPLFB_COMMAND_COUNT) != PVRSRV_OK)
++		{
++			return (OMAP_ERROR_GENERIC);
++		}
++
++		
++		if (psJTable->pfnPVRSRVRemoveDCDevice(psDevInfo->ulDeviceID) != PVRSRV_OK)
++		{
++			return (OMAP_ERROR_GENERIC);
++		}
++		
++		DeInitDev(psDevInfo);
++
++		
++		OMAPLFBFreeKernelMem(psDevInfo);
++	}
++	
++	
++	SetAnchorPtr(NULL);
++
++	
++	return (OMAP_OK);
++}
++
++
++#if defined(LDM_PLATFORM)
++void OMAPLFBDriverSuspend(void)
++{
++	OMAPLFB_DEVINFO *psDevInfo = GetAnchorPtr();
++	unsigned long    ulLockFlags;
++
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	if (psDevInfo->bDeviceSuspended)
++	{
++		goto ExitUnlock;
++	}
++	psDevInfo->bDeviceSuspended = OMAP_TRUE;
++
++	
++	SetFlushStateInternalNoLock(psDevInfo, OMAP_TRUE);
++
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	
++#if defined (SUPPORT_TI_DSS_FW)		
++	if (psDevInfo->psSwapChain != NULL)
++	{
++		OMAPLFBDisableDisplayRegisterAccess();
++	}
++#endif
++	return;
++
++ExitUnlock:
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++}
++
++void OMAPLFBDriverResume(void)
++{
++	OMAPLFB_DEVINFO *psDevInfo = GetAnchorPtr();
++	unsigned long    ulLockFlags;
++
++	if (psDevInfo->bDeviceSuspended == OMAP_FALSE)
++	{
++		return;
++	}
++#if defined (SUPPORT_TI_DSS_FW)
++	if (psDevInfo->psSwapChain != NULL)
++	{
++		OMAPLFBEnableDisplayRegisterAccess();
++	}
++#endif
++	spin_lock_irqsave(&psDevInfo->sSwapChainLock, ulLockFlags);
++
++	
++	SetFlushStateInternalNoLock(psDevInfo, OMAP_FALSE);
++
++	psDevInfo->bDeviceSuspended = OMAP_FALSE;
++
++	spin_unlock_irqrestore(&psDevInfo->sSwapChainLock, ulLockFlags);
++}
++#endif
++
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_linux.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_linux.c
+new file mode 100644
+index 0000000..9002cba
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti8168_linux/omaplfb_linux.c
+@@ -0,0 +1,405 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#ifndef AUTOCONF_INCLUDED
++#include <linux/config.h>
++#endif
++
++#include <linux/version.h>
++#include <linux/module.h>
++
++#include <linux/pci.h>
++#include <asm/uaccess.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/interrupt.h>
++
++
++#include "img_defs.h"
++#include "servicesext.h"
++#include "kerneldisplay.h"
++#include "omaplfb.h"
++#include "pvrmodule.h"
++
++#include <plat/ti81xx-vpss.h>
++
++#if defined(LDM_PLATFORM)
++#include <linux/platform_device.h>
++#endif 
++
++#if defined (SUPPORT_TI_DSS_FW)
++#include <asm/io.h>
++
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,26))
++#include <plat/display.h>
++#else 
++#include <asm/arch-omap/display.h>
++#endif 
++#else
++#if !defined (CONFIG_OMAP2_DSS)
++#define DISPC_IRQ_VSYNC 0x0002
++int omap_dispc_request_irq(unsigned long irq_mask, void (*callback)(void *data),
++                           void *data)
++{
++    printk(" omap_dispc_request_irq NOT Implemented \n");
++    return (0);
++}
++void omap_dispc_free_irq(unsigned long irq_mask, void (*callback)(void *data),
++                         void *data)
++{
++    printk("omap_dispc_free_irq NOT Implemented \n");
++}
++
++void omap_dispc_set_plane_base(int plane, IMG_UINT32 phys_addr)
++{
++    printk (" omap_dispc_set_plane_base NOT Implemented \n");
++}
++
++#else
++#include <plat/display.h>
++#include <linux/console.h>
++#include <linux/fb.h>
++static int pOMAPLFBVSyncISRHandle = 0;
++#endif
++#endif
++
++MODULE_SUPPORTED_DEVICE(DEVNAME);
++
++#define unref__ __attribute__ ((unused))
++
++void *OMAPLFBAllocKernelMem(unsigned long ulSize)
++{
++	return kmalloc(ulSize, GFP_KERNEL);
++}
++
++void OMAPLFBFreeKernelMem(void *pvMem)
++{
++	kfree(pvMem);
++}
++
++
++OMAP_ERROR OMAPLFBGetLibFuncAddr (char *szFunctionName, PFN_DC_GET_PVRJTABLE *ppfnFuncTable)
++{
++	if(strcmp("PVRGetDisplayClassJTable", szFunctionName) != 0)
++	{
++		return (OMAP_ERROR_INVALID_PARAMS);
++	}
++
++	
++	*ppfnFuncTable = PVRGetDisplayClassJTable;
++
++	return (OMAP_OK);
++}
++#if !defined (SUPPORT_TI_DSS_FW) 
++IMG_VOID OMAPLFBEnableVSyncInterrupt(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if defined (CONFIG_OMAP2_DSS)
++	if (pOMAPLFBVSyncISRHandle == 0)
++#endif
++		OMAPLFBInstallVSyncISR (psSwapChain);
++}
++
++IMG_VOID OMAPLFBDisableVSyncInterrupt(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if defined (CONFIG_OMAP2_DSS)
++	if (pOMAPLFBVSyncISRHandle != 0)
++#endif
++		OMAPLFBUninstallVSyncISR (psSwapChain);
++}
++#else
++static void OMAPLFBVSyncWriteReg(OMAPLFB_SWAPCHAIN *psSwapChain, unsigned long ulOffset, unsigned long ulValue)
++{
++	void *pvRegAddr = (void *)((char *)psSwapChain->pvRegs + ulOffset);
++
++	
++	writel(ulValue, pvRegAddr);
++}
++
++static unsigned long OMAPLFBVSyncReadReg(OMAPLFB_SWAPCHAIN *psSwapChain, unsigned long ulOffset)
++{
++	return readl((char *)psSwapChain->pvRegs + ulOffset);
++}
++
++void OMAPLFBEnableVSyncInterrupt(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if defined(SYS_USING_INTERRUPTS)
++	
++	unsigned long ulInterruptEnable  = OMAPLFBVSyncReadReg(psSwapChain, OMAPLCD_IRQENABLE);
++	ulInterruptEnable |= OMAPLCD_INTMASK_VSYNC;
++	OMAPLFBVSyncWriteReg(psSwapChain, OMAPLCD_IRQENABLE, ulInterruptEnable );
++#endif
++}
++
++void OMAPLFBDisableVSyncInterrupt(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if defined(SYS_USING_INTERRUPTS)
++	
++	unsigned long ulInterruptEnable = OMAPLFBVSyncReadReg(psSwapChain, OMAPLCD_IRQENABLE);
++	ulInterruptEnable &= ~(OMAPLCD_INTMASK_VSYNC);
++	OMAPLFBVSyncWriteReg(psSwapChain, OMAPLCD_IRQENABLE, ulInterruptEnable);
++#endif
++}
++#endif
++#if defined(SYS_USING_INTERRUPTS)
++static void
++#if defined (SUPPORT_TI_DSS_FW)
++OMAPLFBVSyncISR(void *arg, struct pt_regs unref__ *regs)
++#else
++#if defined (CONFIG_OMAP2_DSS)
++OMAPLFBVSyncISR(void *arg)
++#else
++OMAPLFBVSyncISR(void *arg)
++#endif
++#endif
++{
++	OMAPLFB_SWAPCHAIN *psSwapChain= (OMAPLFB_SWAPCHAIN *)arg;
++	(void) OMAPLFBVSyncIHandler(psSwapChain);
++}
++#endif
++#if !defined (SUPPORT_TI_DSS_FW)
++OMAP_ERROR OMAPLFBInstallVSyncISR(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if !defined (CONFIG_OMAP2_DSS)
++	if (omap_dispc_request_irq(DISPC_IRQ_VSYNC, OMAPLFBVSyncISR, psSwapChain) != 0)
++#else
++        int ret;
++	ret = vps_grpx_register_isr ((vsync_callback_t)OMAPLFBVSyncISR, psSwapChain, 0); // fb_idx = 0
++        if ( ret == 0) 
++             pOMAPLFBVSyncISRHandle  = 1;
++        else 
++            pOMAPLFBVSyncISRHandle = 0;
++ 	
++        if (pOMAPLFBVSyncISRHandle == 0)
++#endif
++		return PVRSRV_ERROR_OUT_OF_MEMORY; /* not worth a proper mapping */
++	return OMAP_OK;
++}
++
++
++OMAP_ERROR OMAPLFBUninstallVSyncISR (OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if !defined (CONFIG_OMAP2_DSS)
++	omap_dispc_free_irq(DISPC_IRQ_VSYNC, OMAPLFBVSyncISR, psSwapChain);
++#else
++        int ret;
++        ret = vps_grpx_unregister_isr((vsync_callback_t) OMAPLFBVSyncISR, (void *)psSwapChain, 0); // fb_idx = 0
++
++#endif
++	return OMAP_OK;		
++} 
++
++
++IMG_VOID OMAPLFBFlip(OMAPLFB_SWAPCHAIN *psSwapChain,
++						  IMG_UINT32 aPhyAddr)
++{
++#if !defined (CONFIG_OMAP2_DSS)
++	omap_dispc_set_plane_base(0, aPhyAddr);
++#else
++	OMAPLFBFlipDSS2 (psSwapChain, aPhyAddr);
++#endif
++}
++#else
++
++OMAP_ERROR OMAPLFBInstallVSyncISR(OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if defined(SYS_USING_INTERRUPTS)
++	OMAPLFBDisableVSyncInterrupt(psSwapChain);
++
++	if (omap2_disp_register_isr(OMAPLFBVSyncISR, psSwapChain,
++				    DISPC_IRQSTATUS_VSYNC))
++	{
++		printk(KERN_INFO DRIVER_PREFIX ": OMAPLFBInstallVSyncISR: Request OMAPLCD IRQ failed\n");
++		return (OMAP_ERROR_INIT_FAILURE);
++	}
++
++#endif
++	return (OMAP_OK);
++}
++
++
++OMAP_ERROR OMAPLFBUninstallVSyncISR (OMAPLFB_SWAPCHAIN *psSwapChain)
++{
++#if defined(SYS_USING_INTERRUPTS)
++	OMAPLFBDisableVSyncInterrupt(psSwapChain);
++
++	omap2_disp_unregister_isr(OMAPLFBVSyncISR);
++
++#endif
++	return (OMAP_OK);
++}
++
++void OMAPLFBEnableDisplayRegisterAccess(void)
++{
++	omap2_disp_get_dss();
++}
++
++void OMAPLFBDisableDisplayRegisterAccess(void)
++{
++	omap2_disp_put_dss();
++}
++
++void OMAPLFBFlip(OMAPLFB_SWAPCHAIN *psSwapChain, unsigned long aPhyAddr)
++{
++	unsigned long control;
++
++	
++	OMAPLFBVSyncWriteReg(psSwapChain, OMAPLCD_GFX_BA0, aPhyAddr);
++	OMAPLFBVSyncWriteReg(psSwapChain, OMAPLCD_GFX_BA1, aPhyAddr);
++
++	control = OMAPLFBVSyncReadReg(psSwapChain, OMAPLCD_CONTROL);
++	control |= OMAP_CONTROL_GOLCD;
++	OMAPLFBVSyncWriteReg(psSwapChain, OMAPLCD_CONTROL, control);
++}
++#endif
++
++#if defined(LDM_PLATFORM)
++
++static OMAP_BOOL bDeviceSuspended;
++
++static void OMAPLFBCommonSuspend(void)
++{
++	if (bDeviceSuspended)
++	{
++		return;
++	}
++
++	OMAPLFBDriverSuspend();
++
++	bDeviceSuspended = OMAP_TRUE;
++}
++
++static int OMAPLFBDriverSuspend_Entry(struct platform_device unref__ *pDevice, pm_message_t unref__ state)
++{
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX ": OMAPLFBDriverSuspend_Entry\n"));
++
++	OMAPLFBCommonSuspend();
++
++	return 0;
++}
++
++static int OMAPLFBDriverResume_Entry(struct platform_device unref__ *pDevice)
++{
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX ": OMAPLFBDriverResume_Entry\n"));
++
++	OMAPLFBDriverResume();
++
++	bDeviceSuspended = OMAP_FALSE;
++
++	return 0;
++}
++
++static IMG_VOID OMAPLFBDriverShutdown_Entry(struct platform_device unref__ *pDevice)
++{
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX ": OMAPLFBDriverShutdown_Entry\n"));
++
++	OMAPLFBCommonSuspend();
++}
++
++static void OMAPLFBDeviceRelease_Entry(struct device unref__ *pDevice)
++{
++	DEBUG_PRINTK((KERN_INFO DRIVER_PREFIX ": OMAPLFBDriverRelease_Entry\n"));
++
++	OMAPLFBCommonSuspend();
++}
++
++static struct platform_driver omaplfb_driver = {
++	.driver = {
++		.name		= DRVNAME,
++	},
++	.suspend	= OMAPLFBDriverSuspend_Entry,
++	.resume		= OMAPLFBDriverResume_Entry,
++	.shutdown	= OMAPLFBDriverShutdown_Entry,
++};
++
++static struct platform_device omaplfb_device = {
++	.name			= DEVNAME,
++	.id				= -1,
++	.dev 			= {
++		.release		= OMAPLFBDeviceRelease_Entry
++	}
++};
++#endif	
++
++static int __init OMAPLFB_Init(void)
++{
++#if defined(LDM_PLATFORM)
++	int error;
++#endif
++
++	if(OMAPLFBInit() != OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": OMAPLFB_Init: OMAPLFBInit failed\n");
++		return -ENODEV;
++	}
++
++#if defined(LDM_PLATFORM)
++	if ((error = platform_driver_register(&omaplfb_driver)) != 0)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": OMAPLFB_Init: Unable to register platform driver (%d)\n", error);
++
++		goto ExitDeinit;
++	}
++
++	if ((error = platform_device_register(&omaplfb_device)) != 0)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": OMAPLFB_Init:  Unable to register platform device (%d)\n", error);
++
++		goto ExitDriverUnregister;
++	}
++#endif 
++
++	return 0;
++
++#if defined(LDM_PLATFORM)
++ExitDriverUnregister:
++	platform_driver_unregister(&omaplfb_driver);
++
++ExitDeinit:
++	if(OMAPLFBDeinit() != OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": OMAPLFB_Init: OMAPLFBDeinit failed\n");
++	}
++
++	return -ENODEV;
++#endif 
++}
++
++static IMG_VOID __exit OMAPLFB_Cleanup(IMG_VOID)
++{    
++#if defined (LDM_PLATFORM)
++	platform_device_unregister(&omaplfb_device);
++	platform_driver_unregister(&omaplfb_driver);
++#endif
++
++	if(OMAPLFBDeinit() != OMAP_OK)
++	{
++		printk(KERN_WARNING DRIVER_PREFIX ": OMAPLFB_Cleanup: OMAPLFBDeinit failed\n");
++	}
++}
++
++module_init(OMAPLFB_Init);
++module_exit(OMAPLFB_Cleanup);
++
+diff --git a/drivers/staging/omap3-sgx/services4/srvkm/devices/sgx/sgxinit.c b/drivers/staging/omap3-sgx/services4/srvkm/devices/sgx/sgxinit.c
+index eb01ed0..1b6e509 100644
+--- a/drivers/staging/omap3-sgx/services4/srvkm/devices/sgx/sgxinit.c
++++ b/drivers/staging/omap3-sgx/services4/srvkm/devices/sgx/sgxinit.c
+@@ -284,8 +284,12 @@ PVRSRV_ERROR SGXInitialise(PVRSRV_SGXDEV_INFO	*psDevInfo,
+ 	}
+ 	PDUMPCOMMENTWITHFLAGS(PDUMP_FLAGS_CONTINUOUS, "End of SGX initialisation script part 2\n");
+ 
+-	if(cpu_is_omap3630())
+-		OSWriteHWReg(psDevInfo->pvRegsBaseKM, 0xFF08, 0x80000000);//OCP Bypass mode
++#ifdef PLAT_TI8168
++        OSWriteHWReg(psDevInfo->pvRegsBaseKM, 0xFF08, 0x80000000);//OCP Bypass mode
++#else
++ 	if(cpu_is_omap3630())
++ 		OSWriteHWReg(psDevInfo->pvRegsBaseKM, 0xFF08, 0x80000000);//OCP Bypass mode
++#endif
+ 
+ 	SGXStartTimer(psDevInfo, (IMG_BOOL)!bHardwareRecovery);
+ 
+@@ -1544,6 +1548,7 @@ PVRSRV_ERROR SGXReadDiffCountersKM(IMG_HANDLE					hDevHandle,
+ 	PVRSRV_SGXDEV_INFO	*psDevInfo = psDeviceNode->pvDevice;
+ 
+ 	
++
+ 	if(bNew)
+ 	{
+ 		psDevInfo->ui32HWGroupRequested = ui32New;
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti8168/oemfuncs.h b/drivers/staging/omap3-sgx/services4/system/ti8168/oemfuncs.h
+new file mode 100644
+index 0000000..206f7fa
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti8168/oemfuncs.h
+@@ -0,0 +1,56 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#if !defined(__OEMFUNCS_H__)
++#define __OEMFUNCS_H__
++
++#if defined (__cplusplus)
++extern "C" {
++#endif
++
++typedef IMG_UINT32   (*PFN_SRV_BRIDGEDISPATCH)( IMG_UINT32  Ioctl,
++												IMG_BYTE   *pInBuf,
++												IMG_UINT32  InBufLen, 
++											    IMG_BYTE   *pOutBuf,
++												IMG_UINT32  OutBufLen,
++												IMG_UINT32 *pdwBytesTransferred);
++typedef struct PVRSRV_DC_OEM_JTABLE_TAG
++{
++	PFN_SRV_BRIDGEDISPATCH			pfnOEMBridgeDispatch;
++	IMG_PVOID						pvDummy1;
++	IMG_PVOID						pvDummy2;
++	IMG_PVOID						pvDummy3;
++
++} PVRSRV_DC_OEM_JTABLE;
++
++#define OEM_GET_EXT_FUNCS			(1<<1)
++
++#if defined(__cplusplus)
++}
++#endif
++
++#endif	
++
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.c b/drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.c
+new file mode 100644
+index 0000000..28ea568
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.c
+@@ -0,0 +1,807 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#include "services_headers.h"
++#include "kerneldisplay.h"
++#include "oemfuncs.h"
++#include "sgxinfo.h"
++#include "pdump_km.h"
++#include "sgxinfokm.h"
++#include "syslocal.h"
++#include "sysconfig.h"
++
++SYS_DATA* gpsSysData = (SYS_DATA*)IMG_NULL;
++SYS_DATA  gsSysData;
++
++static SYS_SPECIFIC_DATA gsSysSpecificData;
++SYS_SPECIFIC_DATA *gpsSysSpecificData;
++
++static IMG_UINT32	gui32SGXDeviceID;
++static SGX_DEVICE_MAP	gsSGXDeviceMap;
++static PVRSRV_DEVICE_NODE *gpsSGXDevNode;
++
++#define DEVICE_SGX_INTERRUPT (1 << 0)
++
++#if defined(NO_HARDWARE)
++static IMG_CPU_VIRTADDR gsSGXRegsCPUVAddr;
++#endif
++
++IMG_UINT32 PVRSRV_BridgeDispatchKM(IMG_UINT32	Ioctl,
++								   IMG_BYTE		*pInBuf,
++								   IMG_UINT32	InBufLen,
++								   IMG_BYTE		*pOutBuf,
++								   IMG_UINT32	OutBufLen,
++								   IMG_UINT32	*pdwBytesTransferred);
++
++static PVRSRV_ERROR SysLocateDevices(SYS_DATA *psSysData)
++{
++#if defined(NO_HARDWARE)
++	PVRSRV_ERROR eError;
++	IMG_CPU_PHYADDR sCpuPAddr;
++#endif
++
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++
++	
++	gsSGXDeviceMap.ui32Flags = 0x0;
++	
++#if defined(NO_HARDWARE)
++	
++	
++	eError = OSBaseAllocContigMemory(SYS_OMAP3430_SGX_REGS_SIZE, 
++									 &gsSGXRegsCPUVAddr,
++									 &sCpuPAddr);
++	if(eError != PVRSRV_OK)
++	{
++		return eError;
++	}
++	gsSGXDeviceMap.sRegsCpuPBase = sCpuPAddr;
++	gsSGXDeviceMap.sRegsSysPBase = SysCpuPAddrToSysPAddr(gsSGXDeviceMap.sRegsCpuPBase);
++	gsSGXDeviceMap.ui32RegsSize = SYS_OMAP3430_SGX_REGS_SIZE;
++#if defined(__linux__)
++	
++	gsSGXDeviceMap.pvRegsCpuVBase = gsSGXRegsCPUVAddr;
++#else
++	
++	gsSGXDeviceMap.pvRegsCpuVBase = IMG_NULL;
++#endif
++
++	OSMemSet(gsSGXRegsCPUVAddr, 0, SYS_OMAP3430_SGX_REGS_SIZE);
++
++	
++
++
++	gsSGXDeviceMap.ui32IRQ = 0;
++
++#else 
++
++	gsSGXDeviceMap.sRegsSysPBase.uiAddr = SYS_OMAP3430_SGX_REGS_SYS_PHYS_BASE;
++	gsSGXDeviceMap.sRegsCpuPBase = SysSysPAddrToCpuPAddr(gsSGXDeviceMap.sRegsSysPBase);
++	gsSGXDeviceMap.ui32RegsSize = SYS_OMAP3430_SGX_REGS_SIZE;
++
++	gsSGXDeviceMap.ui32IRQ = SYS_OMAP3430_SGX_IRQ;
++
++#endif 
++
++
++	
++
++
++	return PVRSRV_OK;
++}
++
++
++IMG_CHAR *SysCreateVersionString(IMG_CPU_PHYADDR sRegRegion)
++{
++	static IMG_CHAR aszVersionString[100];
++	SYS_DATA	*psSysData;
++	IMG_UINT32	ui32SGXRevision;
++	IMG_INT32	i32Count;
++#if !defined(NO_HARDWARE)
++	IMG_VOID	*pvRegsLinAddr;
++
++	pvRegsLinAddr = OSMapPhysToLin(sRegRegion,
++								   SYS_OMAP3430_SGX_REGS_SIZE,
++								   PVRSRV_HAP_UNCACHED|PVRSRV_HAP_KERNEL_ONLY,
++								   IMG_NULL);
++	if(!pvRegsLinAddr)
++	{
++		return IMG_NULL;
++	}
++
++	ui32SGXRevision = OSReadHWReg((IMG_PVOID)((IMG_PBYTE)pvRegsLinAddr),
++								  EUR_CR_CORE_REVISION);
++#else
++	ui32SGXRevision = 0;
++#endif
++
++	if (SysAcquireData(&psSysData) != PVRSRV_OK)
++	{
++		return IMG_NULL;
++	}
++
++	i32Count = OSSNPrintf(aszVersionString, 100,
++						  "SGX revision = %u.%u.%u",
++						  (IMG_UINT)((ui32SGXRevision & EUR_CR_CORE_REVISION_MAJOR_MASK)
++							>> EUR_CR_CORE_REVISION_MAJOR_SHIFT),
++						  (IMG_UINT)((ui32SGXRevision & EUR_CR_CORE_REVISION_MINOR_MASK)
++							>> EUR_CR_CORE_REVISION_MINOR_SHIFT),
++						  (IMG_UINT)((ui32SGXRevision & EUR_CR_CORE_REVISION_MAINTENANCE_MASK)
++							>> EUR_CR_CORE_REVISION_MAINTENANCE_SHIFT)
++						 );
++
++#if !defined(NO_HARDWARE)
++	OSUnMapPhysToLin(pvRegsLinAddr,
++					 SYS_OMAP3430_SGX_REGS_SIZE,
++					 PVRSRV_HAP_UNCACHED|PVRSRV_HAP_KERNEL_ONLY,
++					 IMG_NULL);
++#endif
++
++	if(i32Count == -1)
++	{
++		return IMG_NULL;
++	}
++
++	return aszVersionString;
++}
++
++
++PVRSRV_ERROR SysInitialise(IMG_VOID)
++{
++	IMG_UINT32			i;
++	PVRSRV_ERROR 		eError;
++	PVRSRV_DEVICE_NODE	*psDeviceNode;
++	IMG_CPU_PHYADDR		TimerRegPhysBase;
++
++#if defined(DEBUG)
++	PVR_DPF((PVR_DBG_WARNING,"SysInitialise: Entering..."));
++#endif
++
++#if !defined(SGX_DYNAMIC_TIMING_INFO)
++	SGX_TIMING_INFORMATION*	psTimingInfo;
++#endif
++	gpsSysData = &gsSysData;
++	OSMemSet(gpsSysData, 0, sizeof(SYS_DATA));
++
++	gpsSysSpecificData =  &gsSysSpecificData;
++	OSMemSet(gpsSysSpecificData, 0, sizeof(SYS_SPECIFIC_DATA));
++
++	gpsSysData->pvSysSpecificData = gpsSysSpecificData;
++
++	eError = OSInitEnvData(&gpsSysData->pvEnvSpecificData);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to setup env structure"));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_ENVDATA);
++
++	gpsSysData->ui32NumDevices = SYS_DEVICE_COUNT;
++
++	
++	for(i=0; i<SYS_DEVICE_COUNT; i++)
++	{
++		gpsSysData->sDeviceID[i].uiID = i;
++		gpsSysData->sDeviceID[i].bInUse = IMG_FALSE;
++	}
++
++	gpsSysData->psDeviceNodeList = IMG_NULL;
++	gpsSysData->psQueueList = IMG_NULL;
++
++	eError = SysInitialiseCommon(gpsSysData);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed in SysInitialiseCommon"));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++
++	TimerRegPhysBase.uiAddr = SYS_OMAP3430_GP11TIMER_REGS_SYS_PHYS_BASE;
++	gpsSysData->pvSOCTimerRegisterKM = IMG_NULL;
++	gpsSysData->hSOCTimerRegisterOSMemHandle = 0;
++	OSReservePhys(TimerRegPhysBase,
++				  4,
++				  PVRSRV_HAP_MULTI_PROCESS|PVRSRV_HAP_UNCACHED,
++				  (IMG_VOID **)&gpsSysData->pvSOCTimerRegisterKM,
++				  &gpsSysData->hSOCTimerRegisterOSMemHandle);
++
++#if !defined(SGX_DYNAMIC_TIMING_INFO)
++	
++	psTimingInfo = &gsSGXDeviceMap.sTimingInfo;
++	psTimingInfo->ui32CoreClockSpeed = SYS_SGX_CLOCK_SPEED;
++	psTimingInfo->ui32HWRecoveryFreq = SYS_SGX_HWRECOVERY_TIMEOUT_FREQ; 
++	psTimingInfo->ui32ActivePowManLatencyms = SYS_SGX_ACTIVE_POWER_LATENCY_MS; 
++	psTimingInfo->ui32uKernelFreq = SYS_SGX_PDS_TIMER_FREQ; 
++#endif
++
++	
++
++	gpsSysSpecificData->ui32SrcClockDiv = 3;
++
++	
++
++
++
++	eError = SysLocateDevices(gpsSysData);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to locate devices"));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_LOCATEDEV);
++
++	
++
++
++	eError = PVRSRVRegisterDevice(gpsSysData, SGXRegisterDevice,
++								  DEVICE_SGX_INTERRUPT, &gui32SGXDeviceID);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to register device!"));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_REGDEV);
++
++	
++
++
++	
++	psDeviceNode = gpsSysData->psDeviceNodeList;
++	while(psDeviceNode)
++	{
++		
++		switch(psDeviceNode->sDevId.eDeviceType)
++		{
++			case PVRSRV_DEVICE_TYPE_SGX:
++			{
++				DEVICE_MEMORY_INFO *psDevMemoryInfo;
++				DEVICE_MEMORY_HEAP_INFO *psDeviceMemoryHeap;
++
++				
++
++
++				psDeviceNode->psLocalDevMemArena = IMG_NULL;
++
++				
++				psDevMemoryInfo = &psDeviceNode->sDevMemoryInfo;
++				psDeviceMemoryHeap = psDevMemoryInfo->psDeviceMemoryHeap;
++
++				
++				for(i=0; i<psDevMemoryInfo->ui32HeapCount; i++)
++				{
++					psDeviceMemoryHeap[i].ui32Attribs |= PVRSRV_BACKINGSTORE_SYSMEM_NONCONTIG;
++				}
++
++				gpsSGXDevNode = psDeviceNode;
++				gsSysSpecificData.psSGXDevNode = psDeviceNode;
++
++				break;
++			}
++			default:
++				PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to find SGX device node!"));
++				return PVRSRV_ERROR_INIT_FAILURE;
++		}
++
++		
++		psDeviceNode = psDeviceNode->psNext;
++	}
++
++	PDUMPINIT();
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_PDUMPINIT);
++
++	eError = EnableSystemClocks(gpsSysData);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to Enable system clocks (%d)", eError));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_SYSCLOCKS);
++
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	eError = EnableSGXClocks(gpsSysData);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to Enable SGX clocks (%d)", eError));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++#endif	
++
++	eError = PVRSRVInitialiseDevice(gui32SGXDeviceID);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to initialise device!"));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_INITDEV);
++
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	
++	DisableSGXClocks(gpsSysData);
++#endif	
++
++	return PVRSRV_OK;
++}
++
++
++PVRSRV_ERROR SysFinalise(IMG_VOID)
++{
++	PVRSRV_ERROR eError = PVRSRV_OK;
++	
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	eError = EnableSGXClocks(gpsSysData);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysInitialise: Failed to Enable SGX clocks (%d)", eError));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++#endif	
++
++#if defined(SYS_USING_INTERRUPTS)
++
++	eError = OSInstallMISR(gpsSysData);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysFinalise: Failed to install MISR"));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_MISR);
++
++	
++	eError = OSInstallDeviceLISR(gpsSysData, gsSGXDeviceMap.ui32IRQ, "SGX ISR", gpsSGXDevNode);
++	if (eError != PVRSRV_OK)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysFinalise: Failed to install ISR"));
++		SysDeinitialise(gpsSysData);
++		gpsSysData = IMG_NULL;
++		return eError;
++	}
++	SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_LISR);
++#endif 
++
++	
++	gpsSysData->pszVersionString = SysCreateVersionString(gsSGXDeviceMap.sRegsCpuPBase);
++	if (!gpsSysData->pszVersionString)
++	{
++		PVR_DPF((PVR_DBG_ERROR,"SysFinalise: Failed to create a system version string"));
++	}
++	else
++	{
++		PVR_DPF((PVR_DBG_WARNING, "SysFinalise: Version string: %s", gpsSysData->pszVersionString));
++	}
++
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	
++	DisableSGXClocks(gpsSysData);
++#endif	
++
++	gpsSysSpecificData->bSGXInitComplete = IMG_TRUE;
++
++	return eError;
++}
++
++
++PVRSRV_ERROR SysDeinitialise (SYS_DATA *psSysData)
++{
++	PVRSRV_ERROR eError;
++	
++#if defined(SYS_USING_INTERRUPTS)
++	if (SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_LISR))
++	{
++		eError = OSUninstallDeviceLISR(psSysData);
++		if (eError != PVRSRV_OK)
++		{
++			PVR_DPF((PVR_DBG_ERROR,"SysDeinitialise: OSUninstallDeviceLISR failed"));
++			return eError;
++		}
++	}
++
++	if (SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_MISR))
++	{
++		eError = OSUninstallMISR(psSysData);
++		if (eError != PVRSRV_OK)
++		{
++			PVR_DPF((PVR_DBG_ERROR,"SysDeinitialise: OSUninstallMISR failed"));
++			return eError;
++		}
++	}
++#else
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++#endif 
++
++	if (SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_INITDEV))
++	{
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++		PVR_ASSERT(SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_SYSCLOCKS));
++		
++		eError = EnableSGXClocks(gpsSysData);
++		if (eError != PVRSRV_OK)
++		{
++			PVR_DPF((PVR_DBG_ERROR,"SysDeinitialise: EnableSGXClocks failed"));
++			return eError;
++		}
++#endif	
++
++		
++		eError = PVRSRVDeinitialiseDevice (gui32SGXDeviceID);
++		if (eError != PVRSRV_OK)
++		{
++			PVR_DPF((PVR_DBG_ERROR,"SysDeinitialise: failed to de-init the device"));
++			return eError;
++		}
++	}
++	
++	
++
++	if (SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_SYSCLOCKS))
++	{
++		DisableSystemClocks(gpsSysData);
++	}
++
++	if (SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_ENVDATA))
++	{	
++		eError = OSDeInitEnvData(gpsSysData->pvEnvSpecificData);
++		if (eError != PVRSRV_OK)
++		{
++			PVR_DPF((PVR_DBG_ERROR,"SysDeinitialise: failed to de-init env structure"));
++			return eError;
++		}
++	}
++
++	if(gpsSysData->pvSOCTimerRegisterKM)
++	{
++		OSUnReservePhys(gpsSysData->pvSOCTimerRegisterKM,
++						4,
++						PVRSRV_HAP_MULTI_PROCESS|PVRSRV_HAP_UNCACHED,
++						gpsSysData->hSOCTimerRegisterOSMemHandle);
++	}
++
++	SysDeinitialiseCommon(gpsSysData);
++
++#if defined(NO_HARDWARE)
++	if(SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_LOCATEDEV))
++	{
++		
++		OSBaseFreeContigMemory(SYS_OMAP3430_SGX_REGS_SIZE, gsSGXRegsCPUVAddr, gsSGXDeviceMap.sRegsCpuPBase);
++	}
++#endif
++
++	
++	if(SYS_SPECIFIC_DATA_TEST(gpsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_PDUMPINIT))
++	{
++		PDUMPDEINIT();
++	}
++
++	gpsSysSpecificData->ui32SysSpecificData = 0;
++	gpsSysSpecificData->bSGXInitComplete = IMG_FALSE;
++
++	gpsSysData = IMG_NULL;
++
++	return PVRSRV_OK;
++}
++
++
++PVRSRV_ERROR SysGetDeviceMemoryMap(PVRSRV_DEVICE_TYPE	eDeviceType,
++								   IMG_VOID				**ppvDeviceMap)
++{
++
++	switch(eDeviceType)
++	{
++		case PVRSRV_DEVICE_TYPE_SGX:
++		{
++			
++			*ppvDeviceMap = (IMG_VOID*)&gsSGXDeviceMap;
++
++			break;
++		}
++		default:
++		{
++			PVR_DPF((PVR_DBG_ERROR,"SysGetDeviceMemoryMap: unsupported device type"));
++		}
++	}
++	return PVRSRV_OK;
++}
++
++
++IMG_DEV_PHYADDR SysCpuPAddrToDevPAddr(PVRSRV_DEVICE_TYPE	eDeviceType,
++									  IMG_CPU_PHYADDR		CpuPAddr)
++{
++	IMG_DEV_PHYADDR DevPAddr;
++
++	PVR_UNREFERENCED_PARAMETER(eDeviceType);
++
++	
++	DevPAddr.uiAddr = CpuPAddr.uiAddr;
++	
++	return DevPAddr;
++}
++
++IMG_CPU_PHYADDR SysSysPAddrToCpuPAddr (IMG_SYS_PHYADDR sys_paddr)
++{
++	IMG_CPU_PHYADDR cpu_paddr;
++
++	
++	cpu_paddr.uiAddr = sys_paddr.uiAddr;
++	return cpu_paddr;
++}
++
++IMG_SYS_PHYADDR SysCpuPAddrToSysPAddr (IMG_CPU_PHYADDR cpu_paddr)
++{
++	IMG_SYS_PHYADDR sys_paddr;
++
++	
++	sys_paddr.uiAddr = cpu_paddr.uiAddr;
++	return sys_paddr;
++}
++
++
++IMG_DEV_PHYADDR SysSysPAddrToDevPAddr(PVRSRV_DEVICE_TYPE eDeviceType, IMG_SYS_PHYADDR SysPAddr)
++{
++	IMG_DEV_PHYADDR DevPAddr;
++
++	PVR_UNREFERENCED_PARAMETER(eDeviceType);
++
++	
++	DevPAddr.uiAddr = SysPAddr.uiAddr;
++
++	return DevPAddr;
++}
++
++
++IMG_SYS_PHYADDR SysDevPAddrToSysPAddr(PVRSRV_DEVICE_TYPE eDeviceType, IMG_DEV_PHYADDR DevPAddr)
++{
++	IMG_SYS_PHYADDR SysPAddr;
++
++	PVR_UNREFERENCED_PARAMETER(eDeviceType);
++
++	
++	SysPAddr.uiAddr = DevPAddr.uiAddr;
++
++	return SysPAddr;
++}
++
++
++IMG_VOID SysRegisterExternalDevice(PVRSRV_DEVICE_NODE *psDeviceNode)
++{
++	PVR_UNREFERENCED_PARAMETER(psDeviceNode);
++}
++
++
++IMG_VOID SysRemoveExternalDevice(PVRSRV_DEVICE_NODE *psDeviceNode)
++{
++	PVR_UNREFERENCED_PARAMETER(psDeviceNode);
++}
++
++
++IMG_UINT32 SysGetInterruptSource(SYS_DATA			*psSysData,
++								 PVRSRV_DEVICE_NODE	*psDeviceNode)
++{
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++#if defined(NO_HARDWARE)
++	
++	return 0xFFFFFFFF;
++#else
++	
++	return psDeviceNode->ui32SOCInterruptBit;
++#endif
++}
++
++
++IMG_VOID SysClearInterrupts(SYS_DATA* psSysData, IMG_UINT32 ui32ClearBits)
++{
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++	PVR_UNREFERENCED_PARAMETER(ui32ClearBits);
++
++	
++	OSReadHWReg(((PVRSRV_SGXDEV_INFO *)gpsSGXDevNode->pvDevice)->pvRegsBaseKM,
++										EUR_CR_EVENT_HOST_CLEAR);
++}
++
++
++PVRSRV_ERROR SysSystemPrePowerState(PVR_POWER_STATE eNewPowerState)
++{
++	PVRSRV_ERROR eError = PVRSRV_OK;
++
++	if (eNewPowerState == PVRSRV_POWER_STATE_D3)
++	{
++		PVR_TRACE(("SysSystemPrePowerState: Entering state D3"));
++
++#if defined(SYS_USING_INTERRUPTS)
++		if (SYS_SPECIFIC_DATA_TEST(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_LISR))
++		{
++#if defined(SYS_CUSTOM_POWERLOCK_WRAP)
++			IMG_BOOL bWrapped = WrapSystemPowerChange(&gsSysSpecificData);
++#endif
++			eError = OSUninstallDeviceLISR(gpsSysData);
++#if defined(SYS_CUSTOM_POWERLOCK_WRAP)
++			if (bWrapped)
++			{
++				UnwrapSystemPowerChange(&gsSysSpecificData);
++			}
++#endif
++			if (eError != PVRSRV_OK)
++			{
++				PVR_DPF((PVR_DBG_ERROR,"SysSystemPrePowerState: OSUninstallDeviceLISR failed (%d)", eError));
++				return eError;
++			}
++			SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_PM_UNINSTALL_LISR);
++			SYS_SPECIFIC_DATA_CLEAR(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_LISR);
++		}
++#endif
++
++		if (SYS_SPECIFIC_DATA_TEST(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_SYSCLOCKS))
++		{
++			DisableSystemClocks(gpsSysData);
++
++			SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_PM_DISABLE_SYSCLOCKS);
++			SYS_SPECIFIC_DATA_CLEAR(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_SYSCLOCKS);
++		}
++	}
++
++	return eError;
++}
++
++
++PVRSRV_ERROR SysSystemPostPowerState(PVR_POWER_STATE eNewPowerState)
++{
++	PVRSRV_ERROR eError = PVRSRV_OK;
++
++	if (eNewPowerState == PVRSRV_POWER_STATE_D0)
++	{
++		PVR_TRACE(("SysSystemPostPowerState: Entering state D0"));
++
++		if (SYS_SPECIFIC_DATA_TEST(&gsSysSpecificData, SYS_SPECIFIC_DATA_PM_DISABLE_SYSCLOCKS))
++		{
++			eError = EnableSystemClocks(gpsSysData);
++			if (eError != PVRSRV_OK)
++			{
++				PVR_DPF((PVR_DBG_ERROR,"SysSystemPostPowerState: EnableSystemClocks failed (%d)", eError));
++				return eError;
++			}
++			SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_SYSCLOCKS);
++			SYS_SPECIFIC_DATA_CLEAR(&gsSysSpecificData, SYS_SPECIFIC_DATA_PM_DISABLE_SYSCLOCKS);
++		}
++
++#if defined(SYS_USING_INTERRUPTS)
++		if (SYS_SPECIFIC_DATA_TEST(&gsSysSpecificData, SYS_SPECIFIC_DATA_PM_UNINSTALL_LISR))
++		{
++#if defined(SYS_CUSTOM_POWERLOCK_WRAP)
++			IMG_BOOL bWrapped = WrapSystemPowerChange(&gsSysSpecificData);
++#endif
++
++			eError = OSInstallDeviceLISR(gpsSysData, gsSGXDeviceMap.ui32IRQ, "SGX ISR", gpsSGXDevNode);
++#if defined(SYS_CUSTOM_POWERLOCK_WRAP)
++			if (bWrapped)
++			{
++				UnwrapSystemPowerChange(&gsSysSpecificData);
++			}
++#endif
++			if (eError != PVRSRV_OK)
++			{
++				PVR_DPF((PVR_DBG_ERROR,"SysSystemPostPowerState: OSInstallDeviceLISR failed to install ISR (%d)", eError));
++				return eError;
++			}
++			SYS_SPECIFIC_DATA_SET(&gsSysSpecificData, SYS_SPECIFIC_DATA_ENABLE_LISR);
++			SYS_SPECIFIC_DATA_CLEAR(&gsSysSpecificData, SYS_SPECIFIC_DATA_PM_UNINSTALL_LISR);
++		}
++#endif
++	}
++	return eError;
++}
++
++
++PVRSRV_ERROR SysDevicePrePowerState(IMG_UINT32			ui32DeviceIndex,
++									PVR_POWER_STATE		eNewPowerState,
++									PVR_POWER_STATE		eCurrentPowerState)
++{
++	PVR_UNREFERENCED_PARAMETER(eCurrentPowerState);
++
++	if (ui32DeviceIndex != gui32SGXDeviceID)
++	{
++		return PVRSRV_OK;
++	}
++
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	if (eNewPowerState == PVRSRV_POWER_STATE_D3)
++	{
++		PVR_DPF((PVR_DBG_MESSAGE, "SysDevicePrePowerState: SGX Entering state D3"));
++		DisableSGXClocks(gpsSysData);
++		PVRSRVSetDCState(DC_STATE_SUSPEND_COMMANDS);
++	}
++#else	
++	PVR_UNREFERENCED_PARAMETER(eNewPowerState );
++#endif 
++	return PVRSRV_OK;
++}
++
++
++PVRSRV_ERROR SysDevicePostPowerState(IMG_UINT32			ui32DeviceIndex,
++									 PVR_POWER_STATE	eNewPowerState,
++									 PVR_POWER_STATE	eCurrentPowerState)
++{
++	PVRSRV_ERROR eError = PVRSRV_OK;
++
++	PVR_UNREFERENCED_PARAMETER(eNewPowerState);
++
++	if (ui32DeviceIndex != gui32SGXDeviceID)
++	{
++		return eError;
++	}
++
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	if (eCurrentPowerState == PVRSRV_POWER_STATE_D3)
++	{
++		PVR_DPF((PVR_DBG_MESSAGE, "SysDevicePostPowerState: SGX Leaving state D3"));
++		PVRSRVSetDCState(DC_STATE_RESUME_COMMANDS);
++		eError = EnableSGXClocks(gpsSysData);
++	}
++#else	
++	PVR_UNREFERENCED_PARAMETER(eCurrentPowerState);
++#endif	
++
++	return eError;
++}
++
++
++PVRSRV_ERROR SysOEMFunction (	IMG_UINT32	ui32ID,
++								IMG_VOID	*pvIn,
++								IMG_UINT32	ulInSize,
++								IMG_VOID	*pvOut,
++								IMG_UINT32	ulOutSize)
++{
++	PVR_UNREFERENCED_PARAMETER(ui32ID);
++	PVR_UNREFERENCED_PARAMETER(pvIn);
++	PVR_UNREFERENCED_PARAMETER(ulInSize);
++	PVR_UNREFERENCED_PARAMETER(pvOut);
++	PVR_UNREFERENCED_PARAMETER(ulOutSize);
++
++	if ((ui32ID == OEM_GET_EXT_FUNCS) &&
++		(ulOutSize == sizeof(PVRSRV_DC_OEM_JTABLE)))
++	{
++		
++		PVRSRV_DC_OEM_JTABLE *psOEMJTable = (PVRSRV_DC_OEM_JTABLE*) pvOut;
++		psOEMJTable->pfnOEMBridgeDispatch = &PVRSRV_BridgeDispatchKM;
++		return PVRSRV_OK;
++	}
++
++	return PVRSRV_ERROR_INVALID_PARAMS;
++}
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.h b/drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.h
+new file mode 100644
+index 0000000..dfb6078
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti8168/sysconfig.h
+@@ -0,0 +1,53 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#if !defined(__SOCCONFIG_H__)
++#define __SOCCONFIG_H__
++
++#include "syscommon.h"
++
++#define VS_PRODUCT_NAME	"OMAP3630"
++
++#define SYS_SGX_CLOCK_SPEED	330000000
++#define SYS_SGX_HWRECOVERY_TIMEOUT_FREQ		(100)	
++#define SYS_SGX_PDS_TIMER_FREQ			(1000)	
++#define SYS_SGX_ACTIVE_POWER_LATENCY_MS		(1)
++
++
++#define	SYS_OMAP3430_VDD2_OPP3_SGX_CLOCK_SPEED SYS_SGX_CLOCK_SPEED
++#define SYS_OMAP3430_VDD2_OPP2_SGX_CLOCK_SPEED (SYS_SGX_CLOCK_SPEED / 2)
++
++#define SYS_OMAP3430_SGX_REGS_SYS_PHYS_BASE  0x56000000
++#define SYS_OMAP3430_SGX_REGS_SIZE           0x10000
++
++#define SYS_OMAP3430_SGX_IRQ				37 
++
++#define SYS_OMAP3430_GP11TIMER_ENABLE_SYS_PHYS_BASE      0x48048038
++#define SYS_OMAP3430_GP11TIMER_REGS_SYS_PHYS_BASE	 0x4804803C
++#define SYS_OMAP3430_GP11TIMER_TSICR_SYS_PHYS_BASE	 0x48048054
++
++ 
++#endif	
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti8168/sysinfo.h b/drivers/staging/omap3-sgx/services4/system/ti8168/sysinfo.h
+new file mode 100644
+index 0000000..89622fe
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti8168/sysinfo.h
+@@ -0,0 +1,98 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#if !defined(__SYSINFO_H__)
++#define __SYSINFO_H__
++
++#define MAX_HW_TIME_US				(500000)
++#define WAIT_TRY_COUNT				(10000)
++
++typedef enum _SYS_DEVICE_TYPE_
++{
++	SYS_DEVICE_SGX						= 0,
++
++	SYS_DEVICE_FORCE_I16 				= 0x7fff
++
++} SYS_DEVICE_TYPE;
++
++#define SYS_DEVICE_COUNT 3 
++
++#define PRM_REG32(offset)	  (offset)
++#define CM_REG32(offset)	  (offset)
++
++#define CM_FCLKEN_SGX		CM_REG32(0xB00)
++#define		CM_FCLKEN_SGX_EN_3D					0x00000002
++
++#define CM_ICLKEN_SGX		CM_REG32(0xB10)
++#define		CM_ICLKEN_SGX_EN_SGX				0x00000001
++
++#define CM_IDLEST_SGX		CM_REG32(0xB20)
++#define		CM_IDLEST_SGX_ST_SGX				0x00000001
++
++#define CM_CLKSEL_SGX		CM_REG32(0xB40)
++#define		CM_CLKSEL_SGX_MASK					0x0000000f
++#define		CM_CLKSEL_SGX_L3DIV3				0x00000000
++#define		CM_CLKSEL_SGX_L3DIV4				0x00000001
++#define		CM_CLKSEL_SGX_L3DIV6				0x00000002
++#define		CM_CLKSEL_SGX_96M					0x00000003
++
++#define CM_SLEEPDEP_SGX		CM_REG32(0xB44)
++#define CM_CLKSTCTRL_SGX	CM_REG32(0xB48)
++#define 	CM_CLKSTCTRL_SGX_AUTOSTATE			0x00008001
++
++#define CM_CLKSTST_SGX		CM_REG32(0xB4C)
++#define 	CM_CLKSTST_SGX_STATUS_VALID			0x00000001
++
++#define RM_RSTST_SGX		PRM_REG32(0xB58)
++#define 	RM_RSTST_SGX_RST_MASK				0x0000000F
++#define 	RM_RSTST_SGX_COREDOMAINWKUP_RST		0x00000008
++#define 	RM_RSTST_SGX_DOMAINWKUP_RST			0x00000004
++#define 	RM_RSTST_SGX_GLOBALWARM_RST			0x00000002
++#define 	RM_RSTST_SGX_GLOBALCOLD_RST			0x00000001
++
++#define PM_WKDEP_SGX		PRM_REG32(0xBC8)
++#define 	PM_WKDEP_SGX_EN_WAKEUP				0x00000010
++#define 	PM_WKDEP_SGX_EN_MPU					0x00000002
++#define 	PM_WKDEP_SGX_EN_CORE				0x00000001
++
++#define PM_PWSTCTRL_SGX		PRM_REG32(0xBE0)
++#define		PM_PWSTCTRL_SGX_POWERSTATE_MASK		0x00000003
++#define			PM_PWSTCTRL_SGX_OFF				0x00000000
++#define			PM_PWSTCTRL_SGX_RETENTION		0x00000001
++#define			PM_PWSTCTRL_SGX_ON				0x00000003
++
++#define PM_PWSTST_SGX		PRM_REG32(0xBE4)
++#define		PM_PWSTST_SGX_INTRANSITION			0x00100000
++#define		PM_PWSTST_SGX_CLKACTIVITY			0x00080000
++#define		PM_PWSTST_SGX_POWERSTATE_MASK		0x00000003
++#define			PM_PWSTST_SGX_OFF				0x00000003
++#define			PM_PWSTST_SGX_RETENTION			0x00000001
++#define			PM_PWSTST_SGX_ON				0x00000000
++
++#define PM_PREPWSTST_SGX	PRM_REG32(0xBE8)
++
++
++#endif	
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti8168/syslocal.h b/drivers/staging/omap3-sgx/services4/system/ti8168/syslocal.h
+new file mode 100644
+index 0000000..b97c0e2
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti8168/syslocal.h
+@@ -0,0 +1,128 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#if !defined(__SYSLOCAL_H__)
++#define __SYSLOCAL_H__
++
++#if defined(__linux__)
++
++#include <linux/version.h>
++#include <linux/clk.h>
++#include <linux/spinlock.h>
++#include <asm/atomic.h>
++
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,26))
++#include <linux/semaphore.h>
++#include <linux/resource.h>
++#else 
++#include <asm/semaphore.h>
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22))
++#include <asm/arch/resource.h>
++#endif 
++#endif 
++
++#endif 
++
++#if defined (__cplusplus)
++extern "C" {
++#endif
++
++ 
++ 
++IMG_CHAR *SysCreateVersionString(IMG_CPU_PHYADDR sRegRegion);
++
++IMG_VOID DisableSystemClocks(SYS_DATA *psSysData);
++PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData);
++
++IMG_VOID DisableSGXClocks(SYS_DATA *psSysData);
++PVRSRV_ERROR EnableSGXClocks(SYS_DATA *psSysData);
++
++#define SYS_SPECIFIC_DATA_ENABLE_SYSCLOCKS	0x00000001
++#define SYS_SPECIFIC_DATA_ENABLE_LISR		0x00000002
++#define SYS_SPECIFIC_DATA_ENABLE_MISR		0x00000004
++#define SYS_SPECIFIC_DATA_ENABLE_ENVDATA	0x00000008
++#define SYS_SPECIFIC_DATA_ENABLE_LOCDEV		0x00000010
++#define SYS_SPECIFIC_DATA_ENABLE_REGDEV		0x00000020
++#define SYS_SPECIFIC_DATA_ENABLE_PDUMPINIT	0x00000040
++#define SYS_SPECIFIC_DATA_ENABLE_INITDEV	0x00000080
++#define SYS_SPECIFIC_DATA_ENABLE_LOCATEDEV	0x00000100
++
++#define	SYS_SPECIFIC_DATA_PM_UNINSTALL_LISR	0x00000200
++#define	SYS_SPECIFIC_DATA_PM_DISABLE_SYSCLOCKS	0x00000400
++
++#define	SYS_SPECIFIC_DATA_SET(psSysSpecData, flag) ((IMG_VOID)((psSysSpecData)->ui32SysSpecificData |= (flag)))
++
++#define	SYS_SPECIFIC_DATA_CLEAR(psSysSpecData, flag) ((IMG_VOID)((psSysSpecData)->ui32SysSpecificData &= ~(flag)))
++
++#define	SYS_SPECIFIC_DATA_TEST(psSysSpecData, flag) (((psSysSpecData)->ui32SysSpecificData & (flag)) != 0)
++ 
++typedef struct _SYS_SPECIFIC_DATA_TAG_
++{
++	IMG_UINT32	ui32SysSpecificData;
++	PVRSRV_DEVICE_NODE *psSGXDevNode;
++	IMG_BOOL	bSGXInitComplete;
++#if !defined(__linux__)
++	IMG_BOOL	bSGXClocksEnabled;
++#endif
++	IMG_UINT32	ui32SrcClockDiv;
++#if defined(__linux__)
++	IMG_BOOL	bSysClocksOneTimeInit;
++	IMG_BOOL	bConstraintNotificationsEnabled;
++	atomic_t	sSGXClocksEnabled;
++	spinlock_t	sPowerLock;
++	atomic_t	sPowerLockCPU;
++	spinlock_t	sNotifyLock;
++	atomic_t	sNotifyLockCPU;
++	IMG_BOOL	bCallVDD2PostFunc;
++
++	struct clk	*psCORE_CK;
++	struct clk	*psSGX_FCK;
++	struct clk	*psSGX_ICK;
++	struct clk	*psMPU_CK;
++#if defined(DEBUG) || defined(TIMING)
++	struct clk	*psGPT11_FCK;
++	struct clk	*psGPT11_ICK;
++#endif
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22))		
++	struct constraint_handle *pVdd2Handle;
++#endif	
++#endif	
++} SYS_SPECIFIC_DATA;
++
++extern SYS_SPECIFIC_DATA *gpsSysSpecificData;
++
++#if defined(SYS_CUSTOM_POWERLOCK_WRAP)
++IMG_BOOL WrapSystemPowerChange(SYS_SPECIFIC_DATA *psSysSpecData);
++IMG_VOID UnwrapSystemPowerChange(SYS_SPECIFIC_DATA *psSysSpecData);
++#endif
++
++#if defined(__cplusplus)
++}
++#endif
++
++#endif	
++
++
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti8168/sysutils.c b/drivers/staging/omap3-sgx/services4/system/ti8168/sysutils.c
+new file mode 100644
+index 0000000..3d3def0
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti8168/sysutils.c
+@@ -0,0 +1,30 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#if defined(__linux__)
++#include "sysutils_linux.c"
++#endif
++
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti8168/sysutils_linux.c b/drivers/staging/omap3-sgx/services4/system/ti8168/sysutils_linux.c
+new file mode 100644
+index 0000000..94a70b2
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti8168/sysutils_linux.c
+@@ -0,0 +1,738 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful but, except
++ * as otherwise stated in writing, without any warranty; without even the
++ * implied warranty of merchantability or fitness for a particular purpose.
++ * See the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK
++ *
++ ******************************************************************************/
++
++#include <linux/version.h>
++#include <linux/clk.h>
++#include <linux/err.h>
++#include <linux/hardirq.h>
++#include <linux/spinlock.h>
++#include <asm/bug.h>
++#include <linux/platform_device.h>
++
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,31))
++#include <linux/semaphore.h>
++//#include <plat/resource.h>
++#include <plat/omap-pm.h>
++#else
++
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,26))
++#include <linux/semaphore.h>
++#include <mach/resource.h>
++#include <mach/omap-pm.h>
++#else
++#include <asm/semaphore.h>
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22))
++#include <asm/arch/resource.h>
++#endif
++#endif
++#endif
++
++#if	(LINUX_VERSION_CODE >  KERNEL_VERSION(2,6,27)) && \
++	(LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,29))
++#define CONSTRAINT_NOTIFICATIONS
++#endif
++#include "sgxdefs.h"
++#include "services_headers.h"
++#include "sysinfo.h"
++#include "sgxapi_km.h"
++#include "sysconfig.h"
++#include "sgxinfokm.h"
++#include "syslocal.h"
++void set_vdd2_constraint(void);
++void remove_vdd2_constraint(void);
++#define	ONE_MHZ	1000000
++#define	HZ_TO_MHZ(m) ((m) / ONE_MHZ)
++
++#if defined(SUPPORT_OMAP3630_SGXFCLK_96M)
++#define SGX_PARENT_CLOCK "cm_96m_fck"
++#elif defined(SUPPORT_OMAP3630_SGXFCLK_192M)
++#define SGX_PARENT_CLOCK "omap_192m_alwon_ck"
++#elif defined(SUPPORT_OMAP3630_SGXFCLK_corex2)
++#define SGX_PARENT_CLOCK "corex2_fck"
++#else
++#define SGX_PARENT_CLOCK "core_ck"
++#endif
++
++#if !defined(PDUMP) && !defined(NO_HARDWARE)
++struct sgx_platform_data {
++          void(*set_min_bus_tput)(struct device *dev, u8 agent_id, unsigned long r);
++};
++
++static struct sgx_platform_data pdata = {
++
++	//.set_min_bus_tput = &omap_pm_set_min_bus_tput,
++          .set_min_bus_tput = NULL,
++};
++
++static struct platform_device sgx_dev = {
++         .name = "sgx_dev",
++         .id = 1,
++         .dev.platform_data = &pdata,
++};
++void set_vdd2_constraint(void)
++{
++	if(pdata.set_min_bus_tput){
++		pdata.set_min_bus_tput(&(sgx_dev.dev), OCP_INITIATOR_AGENT,800000);
++	}
++}
++
++void remove_vdd2_constraint(void)
++{
++	if(pdata.set_min_bus_tput)
++		pdata.set_min_bus_tput(&(sgx_dev.dev), OCP_INITIATOR_AGENT, 0);
++
++}
++#endif
++#if !defined(PDUMP) && !defined(NO_HARDWARE)
++static IMG_BOOL PowerLockWrappedOnCPU(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	IMG_INT iCPU;
++	IMG_BOOL bLocked = IMG_FALSE;
++
++	if (!in_interrupt())
++	{
++		iCPU = get_cpu();
++		bLocked = (iCPU == atomic_read(&psSysSpecData->sPowerLockCPU));
++
++		put_cpu();
++	}
++
++	return bLocked;
++}
++
++static IMG_VOID PowerLockWrap(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	IMG_INT iCPU;
++
++	if (!in_interrupt())
++	{
++
++		iCPU = get_cpu();
++
++
++		PVR_ASSERT(iCPU != -1);
++
++		PVR_ASSERT(!PowerLockWrappedOnCPU(psSysSpecData));
++
++		spin_lock(&psSysSpecData->sPowerLock);
++
++		atomic_set(&psSysSpecData->sPowerLockCPU, iCPU);
++	}
++}
++
++static IMG_VOID PowerLockUnwrap(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	if (!in_interrupt())
++	{
++		PVR_ASSERT(PowerLockWrappedOnCPU(psSysSpecData));
++
++		atomic_set(&psSysSpecData->sPowerLockCPU, -1);
++
++		spin_unlock(&psSysSpecData->sPowerLock);
++
++		put_cpu();
++	}
++}
++
++PVRSRV_ERROR SysPowerLockWrap(SYS_DATA *psSysData)
++{
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++
++	PowerLockWrap(psSysSpecData);
++
++	return PVRSRV_OK;
++}
++
++IMG_VOID SysPowerLockUnwrap(SYS_DATA *psSysData)
++{
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++
++	PowerLockUnwrap(psSysSpecData);
++}
++#else
++static IMG_BOOL PowerLockWrappedOnCPU(SYS_SPECIFIC_DATA unref__ *psSysSpecData)
++{
++	return IMG_FALSE;
++}
++
++static IMG_VOID PowerLockWrap(SYS_SPECIFIC_DATA unref__ *psSysSpecData)
++{
++}
++
++static IMG_VOID PowerLockUnwrap(SYS_SPECIFIC_DATA unref__ *psSysSpecData)
++{
++}
++
++PVRSRV_ERROR SysPowerLockWrap(SYS_DATA unref__ *psSysData)
++{
++	return PVRSRV_OK;
++}
++
++IMG_VOID SysPowerLockUnwrap(SYS_DATA unref__ *psSysData)
++{
++}
++#endif
++
++IMG_BOOL WrapSystemPowerChange(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	IMG_BOOL bPowerLock = PowerLockWrappedOnCPU(psSysSpecData);
++
++	if (bPowerLock)
++	{
++		PowerLockUnwrap(psSysSpecData);
++	}
++
++	return bPowerLock;
++}
++
++IMG_VOID UnwrapSystemPowerChange(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	PowerLockWrap(psSysSpecData);
++}
++
++static inline IMG_UINT32 scale_by_rate(IMG_UINT32 val, IMG_UINT32 rate1, IMG_UINT32 rate2)
++{
++	if (rate1 >= rate2)
++	{
++		return val * (rate1 / rate2);
++	}
++
++	return val / (rate2 / rate1);
++}
++
++static inline IMG_UINT32 scale_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
++{
++	return scale_by_rate(val, rate, SYS_SGX_CLOCK_SPEED);
++}
++
++static inline IMG_UINT32 scale_inv_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
++{
++	return scale_by_rate(val, SYS_SGX_CLOCK_SPEED, rate);
++}
++
++IMG_VOID SysGetSGXTimingInformation(SGX_TIMING_INFORMATION *psTimingInfo)
++{
++	IMG_UINT32 rate;
++
++#if defined(NO_HARDWARE)
++	rate = SYS_SGX_CLOCK_SPEED;
++#else
++	PVR_ASSERT(atomic_read(&gpsSysSpecificData->sSGXClocksEnabled) != 0);
++
++	rate = clk_get_rate(gpsSysSpecificData->psSGX_FCK);
++	PVR_ASSERT(rate != 0);
++#endif
++	psTimingInfo->ui32CoreClockSpeed = rate;
++	psTimingInfo->ui32HWRecoveryFreq = scale_prop_to_SGX_clock(SYS_SGX_HWRECOVERY_TIMEOUT_FREQ, rate);
++	psTimingInfo->ui32uKernelFreq = scale_prop_to_SGX_clock(SYS_SGX_PDS_TIMER_FREQ, rate);
++	psTimingInfo->ui32ActivePowManLatencyms = SYS_SGX_ACTIVE_POWER_LATENCY_MS;
++}
++
++#if defined(CONSTRAINT_NOTIFICATIONS)
++#if !defined(SGX_DYNAMIC_TIMING_INFO)
++#error "SGX_DYNAMIC_TIMING_INFO must be defined for this platform"
++#endif
++
++#if !defined(PDUMP) && !defined(NO_HARDWARE)
++static inline IMG_BOOL ConstraintNotificationsEnabled(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	return (atomic_read(&psSysSpecData->sSGXClocksEnabled) != 0) && psSysSpecData->bSGXInitComplete && psSysSpecData->bConstraintNotificationsEnabled;
++
++}
++
++static IMG_BOOL NotifyLockedOnCPU(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	IMG_INT iCPU = get_cpu();
++	IMG_BOOL bLocked = (iCPU == atomic_read(&psSysSpecData->sNotifyLockCPU));
++
++	put_cpu();
++
++	return bLocked;
++}
++
++static IMG_VOID NotifyLock(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	IMG_INT iCPU;
++
++	BUG_ON(in_interrupt());
++
++
++	iCPU = get_cpu();
++
++
++	PVR_ASSERT(iCPU != -1);
++
++	PVR_ASSERT(!NotifyLockedOnCPU(psSysSpecData));
++
++	spin_lock(&psSysSpecData->sNotifyLock);
++
++	atomic_set(&psSysSpecData->sNotifyLockCPU, iCPU);
++
++}
++
++static IMG_VOID NotifyUnlock(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	PVR_ASSERT(NotifyLockedOnCPU(psSysSpecData));
++
++	atomic_set(&psSysSpecData->sNotifyLockCPU, -1);
++
++	spin_unlock(&psSysSpecData->sNotifyLock);
++
++	put_cpu();
++}
++
++static IMG_INT VDD2PostFunc(struct notifier_block *n, IMG_UINT32 event, IMG_VOID *ptr)
++{
++	PVR_UNREFERENCED_PARAMETER(n);
++	PVR_UNREFERENCED_PARAMETER(event);
++	PVR_UNREFERENCED_PARAMETER(ptr);
++
++	if (in_interrupt())
++	{
++		PVR_DPF((PVR_DBG_ERROR, "%s Called in interrupt context.  Ignoring.", __FUNCTION__));
++		return 0;
++	}
++
++
++	if (!NotifyLockedOnCPU(gpsSysSpecificData))
++	{
++		return 0;
++	}
++
++#if defined(DEBUG)
++	if (ConstraintNotificationsEnabled(gpsSysSpecificData))
++	{
++		IMG_UINT32 rate;
++
++		rate = clk_get_rate(gpsSysSpecificData->psSGX_FCK);
++
++		PVR_ASSERT(rate != 0);
++
++		PVR_DPF((PVR_DBG_MESSAGE, "%s: SGX clock rate: %dMHz", __FUNCTION__, HZ_TO_MHZ(rate)));
++	}
++#endif
++	if (gpsSysSpecificData->bCallVDD2PostFunc)
++	{
++		PVRSRVDevicePostClockSpeedChange(gpsSysSpecificData->psSGXDevNode->sDevId.ui32DeviceIndex, IMG_TRUE, IMG_NULL);
++
++		gpsSysSpecificData->bCallVDD2PostFunc = IMG_FALSE;
++	}
++	else
++	{
++		if (ConstraintNotificationsEnabled(gpsSysSpecificData))
++		{
++			PVR_TRACE(("%s: Not calling PVR clock speed notification functions", __FUNCTION__));
++		}
++	}
++
++	NotifyUnlock(gpsSysSpecificData);
++
++	return 0;
++}
++
++static IMG_INT VDD2PreFunc(struct notifier_block *n, IMG_UINT32 event, IMG_VOID *ptr)
++{
++	PVR_UNREFERENCED_PARAMETER(n);
++	PVR_UNREFERENCED_PARAMETER(event);
++	PVR_UNREFERENCED_PARAMETER(ptr);
++
++	if (in_interrupt())
++	{
++		PVR_DPF((PVR_DBG_WARNING, "%s Called in interrupt context.  Ignoring.", __FUNCTION__));
++		return 0;
++	}
++
++	if (PowerLockWrappedOnCPU(gpsSysSpecificData))
++	{
++		PVR_DPF((PVR_DBG_WARNING, "%s Called from within a power transition.  Ignoring.", __FUNCTION__));
++		return 0;
++	}
++
++	NotifyLock(gpsSysSpecificData);
++
++	PVR_ASSERT(!gpsSysSpecificData->bCallVDD2PostFunc);
++
++	if (ConstraintNotificationsEnabled(gpsSysSpecificData))
++	{
++		PVRSRV_ERROR eError;
++
++		eError = PVRSRVDevicePreClockSpeedChange(gpsSysSpecificData->psSGXDevNode->sDevId.ui32DeviceIndex, IMG_TRUE, IMG_NULL);
++
++		gpsSysSpecificData->bCallVDD2PostFunc = (eError == PVRSRV_OK);
++
++	}
++
++	return 0;
++}
++static IMG_VOID RegisterConstraintNotifications(IMG_VOID)
++{
++	PVR_TRACE(("Registering constraint notifications"));
++
++	PVR_ASSERT(!gpsSysSpecificData->bConstraintNotificationsEnabled);
++
++
++	NotifyLock(gpsSysSpecificData);
++	gpsSysSpecificData->bConstraintNotificationsEnabled = IMG_TRUE;
++	NotifyUnlock(gpsSysSpecificData);
++
++	PVR_TRACE(("VDD2 constraint notifications registered"));
++}
++
++static IMG_VOID UnRegisterConstraintNotifications(IMG_VOID)
++{
++	PVR_TRACE(("Unregistering constraint notifications"));
++
++
++	NotifyLock(gpsSysSpecificData);
++	gpsSysSpecificData->bConstraintNotificationsEnabled = IMG_FALSE;
++	NotifyUnlock(gpsSysSpecificData);
++
++}
++#else
++static IMG_VOID RegisterConstraintNotifications(IMG_VOID)
++{
++}
++
++static IMG_VOID UnRegisterConstraintNotifications(IMG_VOID)
++{
++}
++#endif
++#endif
++
++PVRSRV_ERROR EnableSGXClocks(SYS_DATA *psSysData)
++{
++#if !defined(NO_HARDWARE)
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++	long lNewRate;
++	IMG_INT res;
++
++
++	if (atomic_read(&psSysSpecData->sSGXClocksEnabled) != 0)
++	{
++		return PVRSRV_OK;
++	}
++
++	PVR_DPF((PVR_DBG_MESSAGE, "EnableSGXClocks: Enabling SGX Clocks"));
++
++	res = clk_enable(psSysSpecData->psSGX_FCK);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Couldn't enable SGX functional clock (%d)", res));
++		return PVRSRV_ERROR_GENERIC;
++	}
++
++#if 0 
++	lNewRate = clk_round_rate(psSysSpecData->psSGX_FCK, SYS_SGX_CLOCK_SPEED + ONE_MHZ);
++        PVR_DPF((PVR_DBG_MESSAGE, "New SGXClocks: CPU Clock is %dMhz", HZ_TO_MHZ(lNewRate)));
++	//PVR_DPF((PVR_DBG_WARNING, "EnableSGXClocks: New SGX Func Clk = (%d)", lNewRate));
++	if (lNewRate <= 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Couldn't round SGX functional clock rate"));
++		return PVRSRV_ERROR_GENERIC;
++	}
++
++	res = clk_set_rate(psSysSpecData->psSGX_FCK, lNewRate);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Couldn't set SGX function clock rate (%d)", res));
++		return PVRSRV_ERROR_GENERIC;
++	}
++#endif
++#if defined(DEBUG)
++	{
++
++		IMG_UINT32 rate = clk_get_rate(psSysSpecData->psSGX_FCK);
++		PVR_DPF((PVR_DBG_MESSAGE, "EnableSGXClocks: SGX Functional Clock is %dMhz", HZ_TO_MHZ(rate)));
++	}
++#endif
++
++	set_vdd2_constraint();
++
++	lNewRate  = clk_get_rate(psSysSpecData->psSGX_FCK);
++	atomic_set(&psSysSpecData->sSGXClocksEnabled, 1);
++	PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Final SGX Func Clk = (%d)", lNewRate));
++#else
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++#endif
++	return PVRSRV_OK;
++}
++
++
++IMG_VOID DisableSGXClocks(SYS_DATA *psSysData)
++{
++#if !defined(NO_HARDWARE)
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++
++	if (atomic_read(&psSysSpecData->sSGXClocksEnabled) == 0)
++	{
++		return;
++	}
++
++	PVR_DPF((PVR_DBG_MESSAGE, "DisableSGXClocks: Disabling SGX Clocks"));
++
++	if (psSysSpecData->psSGX_FCK)
++	{
++		clk_disable(psSysSpecData->psSGX_FCK);
++	}
++
++	remove_vdd2_constraint();
++
++	atomic_set(&psSysSpecData->sSGXClocksEnabled, 0);
++
++#else
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++#endif
++}
++
++PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
++{
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++	struct clk *psCLK;
++	IMG_INT res;
++	PVRSRV_ERROR eError;
++	IMG_BOOL bPowerLock;
++
++#if defined(DEBUG) || defined(TIMING)
++	IMG_INT rate;
++	struct clk *sys_ck;
++	IMG_CPU_PHYADDR     TimerRegPhysBase;
++	IMG_HANDLE hTimerEnable;
++	IMG_UINT32 *pui32TimerEnable;
++
++#endif
++
++	PVR_TRACE(("EnableSystemClocks: Enabling System Clocks"));
++
++	if (!psSysSpecData->bSysClocksOneTimeInit)
++	{
++		bPowerLock = IMG_FALSE;
++
++		spin_lock_init(&psSysSpecData->sPowerLock);
++		atomic_set(&psSysSpecData->sPowerLockCPU, -1);
++		spin_lock_init(&psSysSpecData->sNotifyLock);
++		atomic_set(&psSysSpecData->sNotifyLockCPU, -1);
++
++		atomic_set(&psSysSpecData->sSGXClocksEnabled, 0);
++
++                psCLK = clk_get(NULL, "sgx_ck");
++		if (IS_ERR(psCLK))
++		{
++			PVR_DPF((PVR_DBG_ERROR, "EnableSsystemClocks: Couldn't get SGX Functional Clock"));
++			goto ExitError;
++		}
++		psSysSpecData->psSGX_FCK = psCLK;
++
++		psSysSpecData->bSysClocksOneTimeInit = IMG_TRUE;
++	}
++	else
++	{
++
++		bPowerLock = PowerLockWrappedOnCPU(psSysSpecData);
++		if (bPowerLock)
++		{
++			PowerLockUnwrap(psSysSpecData);
++		}
++	}
++
++#if defined(CONSTRAINT_NOTIFICATIONS)
++
++	RegisterConstraintNotifications();
++#endif
++
++#if defined(DEBUG) || defined(TIMING)
++
++	psCLK = clk_get(NULL, "gpt7_fck");
++	if (IS_ERR(psCLK))
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 functional clock"));
++		goto ExitUnRegisterConstraintNotifications;
++	}
++	psSysSpecData->psGPT11_FCK = psCLK;
++
++	psCLK = clk_get(NULL, "gpt7_ick");
++	if (IS_ERR(psCLK))
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 interface clock"));
++		goto ExitUnRegisterConstraintNotifications;
++	}
++	psSysSpecData->psGPT11_ICK = psCLK;
++
++	rate = clk_get_rate(psSysSpecData->psGPT11_FCK);
++	PVR_TRACE(("GPTIMER11 clock is %dMHz", HZ_TO_MHZ(rate)));
++
++	res = clk_enable(psSysSpecData->psGPT11_FCK);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't enable GPTIMER11 functional clock (%d)", res));
++		goto ExitUnRegisterConstraintNotifications;
++	}
++
++	res = clk_enable(psSysSpecData->psGPT11_ICK);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't enable GPTIMER11 interface clock (%d)", res));
++		goto ExitDisableGPT11FCK;
++	}
++
++
++	TimerRegPhysBase.uiAddr = SYS_OMAP3430_GP11TIMER_TSICR_SYS_PHYS_BASE;
++	pui32TimerEnable = OSMapPhysToLin(TimerRegPhysBase,
++                  4,
++                  PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++                  &hTimerEnable);
++
++	if (pui32TimerEnable == IMG_NULL)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: OSMapPhysToLin failed"));
++		goto ExitDisableGPT11ICK;
++	}
++
++	rate = *pui32TimerEnable;
++	if(!(rate & 4))
++	{
++		PVR_TRACE(("Setting GPTIMER11 mode to posted (currently is non-posted)"));
++
++
++		*pui32TimerEnable = rate | 4;
++	}
++
++	OSUnMapPhysToLin(pui32TimerEnable,
++		    4,
++		    PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++		    hTimerEnable);
++
++
++	TimerRegPhysBase.uiAddr = SYS_OMAP3430_GP11TIMER_ENABLE_SYS_PHYS_BASE;
++	pui32TimerEnable = OSMapPhysToLin(TimerRegPhysBase,
++                  4,
++                  PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++                  &hTimerEnable);
++
++	if (pui32TimerEnable == IMG_NULL)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: OSMapPhysToLin failed"));
++		goto ExitDisableGPT11ICK;
++	}
++
++
++	*pui32TimerEnable = 3;
++
++	OSUnMapPhysToLin(pui32TimerEnable,
++		    4,
++		    PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++		    hTimerEnable);
++
++#endif
++
++	eError = PVRSRV_OK;
++	goto Exit;
++
++#if defined(DEBUG) || defined(TIMING)
++ExitDisableGPT11ICK:
++	clk_disable(psSysSpecData->psGPT11_ICK);
++ExitDisableGPT11FCK:
++	clk_disable(psSysSpecData->psGPT11_FCK);
++ExitUnRegisterConstraintNotifications:
++#endif
++#if defined(CONSTRAINT_NOTIFICATIONS)
++	UnRegisterConstraintNotifications();
++
++#endif
++ExitError:
++	eError = PVRSRV_ERROR_GENERIC;
++Exit:
++	if (bPowerLock)
++	{
++		PowerLockWrap(psSysSpecData);
++	}
++
++#if !defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	if (eError == PVRSRV_OK)
++	{
++
++		eError = EnableSGXClocks(psSysData);
++	}
++#endif
++	return eError;
++}
++
++IMG_VOID DisableSystemClocks(SYS_DATA *psSysData)
++{
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++	IMG_BOOL bPowerLock;
++#if defined(DEBUG) || defined(TIMING)
++	IMG_CPU_PHYADDR TimerRegPhysBase;
++	IMG_HANDLE hTimerDisable;
++	IMG_UINT32 *pui32TimerDisable;
++#endif
++
++	PVR_TRACE(("DisableSystemClocks: Disabling System Clocks"));
++
++	DisableSGXClocks(psSysData);
++
++	bPowerLock = PowerLockWrappedOnCPU(psSysSpecData);
++	if (bPowerLock)
++	{
++
++		PowerLockUnwrap(psSysSpecData);
++	}
++
++#if defined(CONSTRAINT_NOTIFICATIONS)
++	UnRegisterConstraintNotifications();
++#endif
++
++#if defined(DEBUG) || defined(TIMING)
++
++	TimerRegPhysBase.uiAddr = SYS_OMAP3430_GP11TIMER_ENABLE_SYS_PHYS_BASE;
++	pui32TimerDisable = OSMapPhysToLin(TimerRegPhysBase,
++				4,
++				PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++				&hTimerDisable);
++
++	if (pui32TimerDisable == IMG_NULL)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "DisableSystemClocks: OSMapPhysToLin failed"));
++	}
++	else
++	{
++		*pui32TimerDisable = 0;
++
++		OSUnMapPhysToLin(pui32TimerDisable,
++				4,
++				PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++				hTimerDisable);
++	}
++
++	clk_disable(psSysSpecData->psGPT11_ICK);
++
++	clk_disable(psSysSpecData->psGPT11_FCK);
++
++#endif
++	if (bPowerLock)
++	{
++		PowerLockWrap(psSysSpecData);
++	}
++}
+-- 
+1.7.1
+

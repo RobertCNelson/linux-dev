@@ -1,0 +1,20 @@
+--- a/drivers/net/ks8851.h	2010-03-31 18:31:24.000000000 -0700
++++ b/drivers/net/ks8851.h	2010-03-31 18:32:51.000000000 -0700
+@@ -323,3 +323,17 @@
+ #define KS_SPIOP_WR				(0x40)
+ #define KS_SPIOP_RXFIFO				(0x80)
+ #define KS_SPIOP_TXFIFO				(0xC0)
++
++/**
++ * union ks8851_tx_hdr - tx header data
++ * @txb: The header as bytes
++ * @txw: The header as 16bit, little-endian words
++ *
++ * A dual representation of the tx header data to allow
++ * access to individual bytes, and to allow 16bit accesses
++ * with 16bit alignment.
++ */
++union ks8851_tx_hdr {
++	u8	txb[6];
++	__le16	txw[3];
++};

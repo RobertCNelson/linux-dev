@@ -1,0 +1,208 @@
+From 73c4a060c2806a269e715ff1d8d1ffe2946b4fa0 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 16 Sep 2010 15:48:27 -0500
+Subject: [PATCH 17/22] ARM OMAP Touchbook upstream add bq27x00 battery driver
+
+---
+ drivers/power/bq27x00_battery.c |   63 +++++++++++++++++++++++++++++++++++---
+ include/linux/i2c/bq27x00.h     |   35 +++++++++++++++++++++
+ 2 files changed, 93 insertions(+), 5 deletions(-)
+ create mode 100644 include/linux/i2c/bq27x00.h
+
+diff --git a/drivers/power/bq27x00_battery.c b/drivers/power/bq27x00_battery.c
+index 3ec9c6a..17ca4e4 100644
+--- a/drivers/power/bq27x00_battery.c
++++ b/drivers/power/bq27x00_battery.c
+@@ -24,11 +24,13 @@
+ #include <linux/power_supply.h>
+ #include <linux/idr.h>
+ #include <linux/i2c.h>
++#include <linux/i2c/bq27x00.h>
+ #include <linux/slab.h>
+ #include <asm/unaligned.h>
+ 
+-#define DRIVER_VERSION			"1.1.0"
++#define DRIVER_VERSION			"1.2.1"
+ 
++#define BQ27x00_REG_MODE		0x00
+ #define BQ27x00_REG_TEMP		0x06
+ #define BQ27x00_REG_VOLT		0x08
+ #define BQ27x00_REG_AI			0x14
+@@ -71,13 +73,20 @@ struct bq27x00_device_info {
+ static enum power_supply_property bq27x00_battery_props[] = {
+ 	POWER_SUPPLY_PROP_STATUS,
+ 	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_ONLINE,
+ 	POWER_SUPPLY_PROP_VOLTAGE_NOW,
+ 	POWER_SUPPLY_PROP_CURRENT_NOW,
+ 	POWER_SUPPLY_PROP_CAPACITY,
+ 	POWER_SUPPLY_PROP_TEMP,
++	POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN,
++	POWER_SUPPLY_PROP_ENERGY_FULL,
++	POWER_SUPPLY_PROP_ENERGY_NOW,
+ 	POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW,
+ 	POWER_SUPPLY_PROP_TIME_TO_EMPTY_AVG,
+ 	POWER_SUPPLY_PROP_TIME_TO_FULL_NOW,
++	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_MANUFACTURER,
++	POWER_SUPPLY_PROP_TECHNOLOGY,
+ };
+ 
+ /*
+@@ -91,6 +100,22 @@ static int bq27x00_read(u8 reg, int *rt_value, int b_single,
+ }
+ 
+ /*
++ * Return the GPIO status (0 or 1)
++ * Or < 0 if something fails.
++ */
++static int bq27x00_gpio(struct bq27x00_device_info *di)
++{
++	int ret;
++	int gpio = 0;
++
++	ret = bq27x00_read(BQ27x00_REG_MODE, &gpio, 0, di);
++	if (ret)
++		return ret;
++
++	return (gpio & 0x40) >> 6;
++ }
++
++/*
+  * Return the battery temperature in tenths of degree Celsius
+  * Or < 0 if something fails.
+  */
+@@ -101,7 +126,7 @@ static int bq27x00_battery_temperature(struct bq27x00_device_info *di)
+ 
+ 	ret = bq27x00_read(BQ27x00_REG_TEMP, &temp, 0, di);
+ 	if (ret) {
+-		dev_err(di->dev, "error reading temperature\n");
++//		dev_err(di->dev, "error reading temperature\n");
+ 		return ret;
+ 	}
+ 
+@@ -122,7 +147,6 @@ static int bq27x00_battery_voltage(struct bq27x00_device_info *di)
+ 
+ 	ret = bq27x00_read(BQ27x00_REG_VOLT, &volt, 0, di);
+ 	if (ret) {
+-		dev_err(di->dev, "error reading voltage\n");
+ 		return ret;
+ 	}
+ 
+@@ -130,7 +154,7 @@ static int bq27x00_battery_voltage(struct bq27x00_device_info *di)
+ }
+ 
+ /*
+- * Return the battery average current
++ * Return the battery average current in miliampers
+  * Note that current can be negative signed as well
+  * Or 0 if something fails.
+  */
+@@ -248,19 +272,26 @@ static int bq27x00_battery_get_property(struct power_supply *psy,
+ {
+ 	int ret = 0;
+ 	struct bq27x00_device_info *di = to_bq27x00_device_info(psy);
++	struct bq27x00_platform_data *pdata = psy->dev->parent->platform_data;
+ 
+ 	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = (bq27x00_battery_voltage(di) > 0) ? 1 : 0;
++		break;
++	case POWER_SUPPLY_PROP_ONLINE:
+ 	case POWER_SUPPLY_PROP_STATUS:
+ 		ret = bq27x00_battery_status(di, val);
+ 		break;
+ 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
++		val->intval = bq27x00_battery_voltage(di) * 1000;
++		break;
+ 	case POWER_SUPPLY_PROP_PRESENT:
+ 		val->intval = bq27x00_battery_voltage(di);
+ 		if (psp == POWER_SUPPLY_PROP_PRESENT)
+ 			val->intval = val->intval <= 0 ? 0 : 1;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CURRENT_NOW:
+-		val->intval = bq27x00_battery_current(di);
++		val->intval = bq27x00_battery_current(di) * bq27x00_battery_voltage(di);
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+ 		val->intval = bq27x00_battery_rsoc(di);
+@@ -268,6 +299,19 @@ static int bq27x00_battery_get_property(struct power_supply *psy,
+ 	case POWER_SUPPLY_PROP_TEMP:
+ 		val->intval = bq27x00_battery_temperature(di);
+ 		break;
++	case POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN:
++		val->intval = pdata->energy_full_design * 1000;
++		break;
++	case POWER_SUPPLY_PROP_ENERGY_FULL:
++		val->intval = pdata->energy_full_design * 1000;
++		break;
++	case POWER_SUPPLY_PROP_ENERGY_NOW:
++		val->intval = bq27x00_battery_rsoc(di) * pdata->energy_full_design * 10;
++		if (val->intval > pdata->energy_full_design * 1000)
++			val->intval = pdata->energy_full_design * 1000;
++		if (val->intval < 0)
++			val->intval = 0;
++		break;
+ 	case POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW:
+ 		ret = bq27x00_battery_time(di, BQ27x00_REG_TTE, val);
+ 		break;
+@@ -277,6 +321,15 @@ static int bq27x00_battery_get_property(struct power_supply *psy,
+ 	case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
+ 		ret = bq27x00_battery_time(di, BQ27x00_REG_TTF, val);
+ 		break;
++	case POWER_SUPPLY_PROP_MODEL_NAME:
++		val->strval = pdata->model_name;
++		break;
++	case POWER_SUPPLY_PROP_MANUFACTURER:
++		val->strval = pdata->manufacturer;
++		break;
++	case POWER_SUPPLY_PROP_TECHNOLOGY:
++		val->intval = pdata->technology;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+diff --git a/include/linux/i2c/bq27x00.h b/include/linux/i2c/bq27x00.h
+new file mode 100644
+index 0000000..38174f9
+--- /dev/null
++++ b/include/linux/i2c/bq27x00.h
+@@ -0,0 +1,35 @@
++/* Linux kernel driver for the Chacha touchscreen I2C controller
++ *
++ * Copyright (C) 2010 by Always Innovating, Inc.
++ * Author: Gregoire Gentil <gregoire@gentil.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ *
++ */
++
++#ifndef __BQ27X00_H_
++#define __BQ27X00_H_
++
++#include <linux/power_supply.h>
++
++struct bq27x00_platform_data {
++	const char *manufacturer;
++	const char *model_name;
++	int technology;
++	int energy_full_design;
++};
++
++#endif
+-- 
+1.7.1
+

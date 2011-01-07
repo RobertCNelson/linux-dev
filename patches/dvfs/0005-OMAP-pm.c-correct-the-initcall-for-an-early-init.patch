@@ -1,0 +1,31 @@
+From 76855b6b9c28b837e042b806292e3e9bff220786 Mon Sep 17 00:00:00 2001
+From: Thara Gopinath <thara@ti.com>
+Date: Sat, 29 May 2010 22:02:25 +0530
+Subject: [PATCH 05/20] OMAP: pm.c correct the initcall for an early init.
+
+omap2_common_pm_init is the API where generic system devices like
+mpu, l3 etc get initialized. This has to happen really early on
+during the boot and not at a later time. This is especially important
+with the new opp changes as these devices need to be built before the
+opp tables init happen. Today both are device initcalls and it works
+just because of the order of compilation
+
+Signed-off-by: Thara Gopinath <thara@ti.com>
+---
+ arch/arm/mach-omap2/pm.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index 59ca03b..6ec2ee1 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -143,5 +143,5 @@ static int __init omap2_common_pm_init(void)
+ 
+ 	return 0;
+ }
+-device_initcall(omap2_common_pm_init);
++postcore_initcall(omap2_common_pm_init);
+ 
+-- 
+1.7.1
+

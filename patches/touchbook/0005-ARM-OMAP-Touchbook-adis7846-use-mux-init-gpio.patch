@@ -1,0 +1,25 @@
+From 967217abcab06648aa473a36468942b350afc1b2 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 9 Sep 2010 13:44:46 -0500
+Subject: [PATCH 05/22] ARM OMAP Touchbook adis7846 use mux init gpio
+
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index 098a3b0..7706005 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -373,6 +373,8 @@ static int __init omap3_touchbook_i2c_init(void)
+ 
+ static void __init omap3_ads7846_init(void)
+ {
++	omap_mux_init_gpio(OMAP3_TS_GPIO, OMAP_PIN_INPUT_PULLUP);
++
+ 	if (gpio_request(OMAP3_TS_GPIO, "ads7846_pen_down")) {
+ 		printk(KERN_ERR "Failed to request GPIO %d for "
+ 				"ads7846 pen down IRQ\n", OMAP3_TS_GPIO);
+-- 
+1.7.1
+

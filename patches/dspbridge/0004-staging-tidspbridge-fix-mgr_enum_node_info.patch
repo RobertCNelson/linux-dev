@@ -1,0 +1,37 @@
+From 356be372017d3fcbe6fab3078a19b25c971c7a78 Mon Sep 17 00:00:00 2001
+From: Felipe Contreras <felipe.contreras@gmail.com>
+Date: Fri, 5 Nov 2010 17:01:48 +0000
+Subject: [PATCH 04/25] staging: tidspbridge: fix mgr_enum_node_info
+
+The current code was always returning a non-zero status value
+to userspace applications when this ioctl was called.
+
+The error code was ENODATA, which isn't actually an error,
+it's always returned by dcd_enumerate_object() when it hits the
+end of list.
+
+Signed-off-by: Felipe Contreras <felipe.contreras@gmail.com>
+Signed-off-by: Omar Ramirez Luna <omar.ramirez@ti.com>
+---
+ drivers/staging/tidspbridge/rmgr/mgr.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/staging/tidspbridge/rmgr/mgr.c b/drivers/staging/tidspbridge/rmgr/mgr.c
+index 0ea89a1..2eab6a5 100644
+--- a/drivers/staging/tidspbridge/rmgr/mgr.c
++++ b/drivers/staging/tidspbridge/rmgr/mgr.c
+@@ -169,6 +169,11 @@ int mgr_enum_node_info(u32 node_id, struct dsp_ndbprops *pndb_props,
+ 
+ 		}
+ 	}
++
++	/* the last status is not 0, but neither an error */
++	if (status > 0)
++		status = 0;
++
+ 	if (!status) {
+ 		if (node_id > (node_index - 1)) {
+ 			status = -EINVAL;
+-- 
+1.7.1
+

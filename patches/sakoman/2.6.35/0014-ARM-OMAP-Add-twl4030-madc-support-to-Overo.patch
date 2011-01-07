@@ -1,0 +1,32 @@
+From 7aa80608104c157988fa5a76955298f19d29645b Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Thu, 17 Dec 2009 14:27:15 -0800
+Subject: [PATCH 14/31] ARM: OMAP: Add twl4030 madc support to Overo
+
+---
+ arch/arm/mach-omap2/board-overo.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index 4ceeb56..5a40683 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -390,10 +390,15 @@ static struct twl4030_codec_data overo_codec_data = {
+ 
+ /* mmc2 (WLAN) and Bluetooth don't use twl4030 regulators */
+ 
++static struct twl4030_madc_platform_data overo_madc_data = {
++	.irq_line	= 1,
++};
++
+ static struct twl4030_platform_data overo_twldata = {
+ 	.irq_base	= TWL4030_IRQ_BASE,
+ 	.irq_end	= TWL4030_IRQ_END,
+ 	.gpio		= &overo_gpio_data,
++	.madc		= &overo_madc_data,
+ 	.usb		= &overo_usb_data,
+ 	.codec		= &overo_codec_data,
+ 	.vmmc1		= &overo_vmmc1,
+-- 
+1.7.1
+

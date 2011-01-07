@@ -1,0 +1,49 @@
+From a1945cec356ffcef54288943b3eeaba98b60e1f4 Mon Sep 17 00:00:00 2001
+From: Thara Gopinath <thara@ti.com>
+Date: Sat, 29 May 2010 22:02:25 +0530
+Subject: [PATCH 18/20] OMAP4: PM: Program correct init voltages for scalable VDDs
+
+By default the system boots up at nominal voltage for every
+voltage domain in the system. This patch puts vdd_mpu, vdd_iva
+and vdd_core to the correct boot up voltage as per the opp tables
+specified. This patch implements this by matching the rate of
+the main clock of the voltage domain with the opp table and
+picking up the correct voltage.
+
+Signed-off-by: Thara Gopinath <thara@ti.com>
+---
+ arch/arm/mach-omap2/pm.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index 9727c02..7473aae 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -210,6 +210,16 @@ static void __init omap3_init_voltages(void)
+ 	omap2_set_init_voltage("core", "l3_ick", l3_dev);
+ }
+ 
++static void __init omap4_init_voltages(void)
++{
++	if (!cpu_is_omap44xx())
++		return;
++
++	omap2_set_init_voltage("mpu", "dpll_mpu_ck", mpu_dev);
++	omap2_set_init_voltage("core", "l3_div_ck", l3_dev);
++	omap2_set_init_voltage("iva", "dpll_iva_m5x2_ck", iva_dev);
++}
++
+ static int __init omap2_common_pm_init(void)
+ {
+ 	omap2_init_processor_devices();
+@@ -230,6 +240,7 @@ static int __init omap2_common_pm_late_init(void)
+ 
+ 	/* Initialize the voltages */
+ 	omap3_init_voltages();
++	omap4_init_voltages();
+ 
+ 	/* Smartreflex device init */
+ 	omap_devinit_smartreflex();
+-- 
+1.7.1
+

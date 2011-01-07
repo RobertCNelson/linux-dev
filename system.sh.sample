@@ -1,0 +1,41 @@
+#!/bin/bash
+#copy as "system.sh" and tweak for your system
+
+ARCH=$(uname -m)
+
+#Ubuntu Maverick:
+#gcc-4.4
+#sudo apt-get install gcc-4.4-arm-linux-gnueabi
+#or gcc-4.5
+#sudo apt-get install gcc-4.5-arm-linux-gnueabi
+
+#Use CodeSourcery: http://www.codesourcery.com/sgpp/lite/arm/portal/subscription?@template=lite (GNU/Linux)
+#Just download and extract...
+
+if test "-$ARCH-" = "-armv7l-"
+then
+ #using native gcc
+ CC=
+else
+ #ubuntu:
+ #CC=arm-linux-gnueabi-
+fi
+
+#USE git for downloading source
+#To minimize bandwidth, clone this in a directory of your choice
+#git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6-stable.git
+
+#LINUX_GIT=~/git_repo/linux-2.6-stable
+
+#Enable ability to do a full patch bisect
+#BISECT=1
+
+#Use with Caution, mount locations can change... This define's SD/MMC card mount location for load_uImage.sh script.
+#MMC=/dev/sde
+
+#Old Stuff, Such as: Debian Lenny, Ubuntu Jaunty, Ubuntu Karmic need this:
+#NO_DEVTMPS=1
+
+#local patches
+#LOCAL_PATCH_DIR=/full/path/to/dir/
+
