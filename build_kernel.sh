@@ -186,6 +186,7 @@ function make_headers {
 if [ -e ${DIR}/system.sh ]; then
 	. system.sh
 	. version.sh
+if [ "-${LINUX_GIT}-" != "--" ]; then
 
 if [ "${IS_LUCID}" ] ; then
 	echo ""
