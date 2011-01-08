@@ -12,7 +12,8 @@ function bugs_trivial {
 echo "bugs and trivial stuff"
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-rt2860.patch"
-patch -s -p1 < "${DIR}/patches/trivial/0001-OMAP4-enable-smc-instruction-in-new-assembler-versio.patch"
+#2.6.37-git2
+#patch -s -p1 < "${DIR}/patches/trivial/0001-OMAP4-enable-smc-instruction-in-new-assembler-versio.patch"
 
 }
 
@@ -29,13 +30,13 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.36/0008-ASoC-enable-audio-capture-by-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0011-ARM-OMAP-Make-beagle-u-boot-partition-writable.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.37/0012-MFD-enable-madc-clock.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.36/0013-MFD-add-twl4030-madc-driver.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0013-MFD-add-twl4030-madc-driver.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0014-ARM-OMAP-Add-twl4030-madc-support-to-Overo.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0015-ARM-OMAP-Add-twl4030-madc-support-to-Beagle.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0016-OMAP-DSS2-Add-support-for-Samsung-LTE430WQ-F0C-panel.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0017-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0018-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0018-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0019-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0020-ARM-OMAP2-mmc-twl4030-move-clock-input-selection-pri.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0021-RTC-add-support-for-backup-battery-recharge.patch"
@@ -63,7 +64,7 @@ echo "micrel patches"
 patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/01_eeprom_93cx6_2.6.35.patch"
 patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/02_eeprom_93cx6_2.6.35.patch"
 patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/03_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/04_ksz8851_2.6.35.patch"
+patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.38/04_ksz8851_2.6.38.patch"
 
 patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/06_ksz8851_2.6.35.patch"
 patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/07_ksz8851_2.6.35.patch"
@@ -92,7 +93,8 @@ function beagle {
 echo "beagle patches"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap-Beagle-detect-new-xM-revision-B.patch"
 patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
-patch -s -p1 < "${DIR}/patches/arago-project/0001-AM37x-Switch-SGX-clocks-to-200MHz.patch"
+#2.6.37-git2
+#patch -s -p1 < "${DIR}/patches/arago-project/0001-AM37x-Switch-SGX-clocks-to-200MHz.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap-beagle-use-GPIO2-on-the-xM-A3-to-turn-DVI-on.patch"
 #patch -s -p1 < "${DIR}/patches/beagle/0001-revert-audio-seems-to-work-on-the-beagle-with-gone.patch"
 }
@@ -128,22 +130,23 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.37-rc1-use-s
 function omap4 {
 echo "omap4 related patches"
 
+#2.6.37-git2
 #ehci for omap4 from: http://dev.omapzoom.org/?p=anand/linux-omap-usb.git;a=shortlog;h=refs/heads/omap4-ehci-upstream-v1
-patch -s -p1 < "${DIR}/patches/panda/0001-usb-ehci-omap-update-clock-names-to-be-more-generic.patch"
-patch -s -p1 < "${DIR}/patches/panda/0002-usb-ehci-omap-don-t-hard-code-TLL-channel-count.patch"
-patch -s -p1 < "${DIR}/patches/panda/0003-usb-ehci-introduce-CONFIG_USB_EHCI_HCD_OMAP.patch"
-patch -s -p1 < "${DIR}/patches/panda/0004-omap-clock-add-clkdev-aliases-for-EHCI-clocks.patch"
-patch -s -p1 < "${DIR}/patches/panda/0005-usb-ehci-omap-use-clkdev-aliases-for-functional-cloc.patch"
-patch -s -p1 < "${DIR}/patches/panda/0006-usb-ehci-omap-add-helpers-for-checking-port-mode.patch"
-patch -s -p1 < "${DIR}/patches/panda/0007-omap-usb-ehci-introduce-HSIC-mode.patch"
-patch -s -p1 < "${DIR}/patches/panda/0008-usb-ehci-omap-Add-OMAP4-support.patch"
-patch -s -p1 < "${DIR}/patches/panda/0009-arm-omap4-add-USBHOST-and-related-base-addresses.patch"
-patch -s -p1 < "${DIR}/patches/panda/0010-arm-omap4-usb-add-platform-init-code-for-EHCI.patch"
-patch -s -p1 < "${DIR}/patches/panda/0011-arm-omap4-select-USB_ARCH_HAS_EHCI.patch"
-patch -s -p1 < "${DIR}/patches/panda/0012-omap4-4430sdp-enable-the-ehci-port-on-4430SDP.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0001-usb-ehci-omap-update-clock-names-to-be-more-generic.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0002-usb-ehci-omap-don-t-hard-code-TLL-channel-count.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0003-usb-ehci-introduce-CONFIG_USB_EHCI_HCD_OMAP.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0004-omap-clock-add-clkdev-aliases-for-EHCI-clocks.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0005-usb-ehci-omap-use-clkdev-aliases-for-functional-cloc.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0006-usb-ehci-omap-add-helpers-for-checking-port-mode.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0007-omap-usb-ehci-introduce-HSIC-mode.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0008-usb-ehci-omap-Add-OMAP4-support.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0009-arm-omap4-add-USBHOST-and-related-base-addresses.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0010-arm-omap4-usb-add-platform-init-code-for-EHCI.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0011-arm-omap4-select-USB_ARCH_HAS_EHCI.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0012-omap4-4430sdp-enable-the-ehci-port-on-4430SDP.patch"
 
-patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-Pandaboard-Fixing-MMC-card-detect-gpio-line.patch"
-patch -s -p1 < "${DIR}/patches/panda/0002-OMAP4-Pandaboad-Add-omap_reserve-functionality.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-Pandaboard-Fixing-MMC-card-detect-gpio-line.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0002-OMAP4-Pandaboad-Add-omap_reserve-functionality.patch"
 
 }
 
@@ -194,26 +197,27 @@ patch -s -p1 < "${DIR}/patches/dspbridge/0025-staging-tidspbridge-remove-code-re
 function dvfs {
 echo "dvfs from dev.omapzoom"
 
-patch -s -p1 < "${DIR}/patches/dvfs/0001-omap-opp-add-OMAP3-OPP-table-data-and-common-init.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0002-omap4-opp-add-OPP-table-data-fixup-ehci.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0003-OMAP3-remove-OPP-interfaces-from-OMAP-PM-layer.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0004-OMAP4-clock-data-Add-missing-DPLL-x2-clock-nodes-fixup-ehci.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0005-OMAP-pm.c-correct-the-initcall-for-an-early-init.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0006-OMAP3-PM-Adding-voltage-driver-support-for-OMAP3.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0007-OMAP-Introduce-voltage-domain-information-in-the-hwm.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0008-OMAP3-PM-Adding-smartreflex-driver-support.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0009-OMAP3-PM-Adding-smartreflex-device-file.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0010-OMAP3-PM-Adding-smartreflex-hwmod-data.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0011-OMAP3-PM-Adding-smartreflex-class3-driver.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0012-OMAP3-PM-Adding-T2-enabling-of-smartreflex-support.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0013-OMAP3-PM-Register-TWL4030-pmic-info-with-the-voltage.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0014-OMAP3-PM-Adding-debug-support-to-Voltage-and-Smartre.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0015-OMAP3-PM-Program-correct-init-voltages-for-VDD1-and-.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0016-OMAP4-Register-voltage-PMIC-parameters-with-the-volt.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0017-OMAP4-Adding-voltage-driver-support.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0018-OMAP4-PM-Program-correct-init-voltages-for-scalable-.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0019-OMAP4-hwmod-Add-inital-data-for-smartreflex-modules.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0020-OMAP4-Smartreflex-framework-extensions.patch"
+#2.6.37-git2
+#patch -s -p1 < "${DIR}/patches/dvfs/0001-omap-opp-add-OMAP3-OPP-table-data-and-common-init.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0002-omap4-opp-add-OPP-table-data-fixup-ehci.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0003-OMAP3-remove-OPP-interfaces-from-OMAP-PM-layer.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0004-OMAP4-clock-data-Add-missing-DPLL-x2-clock-nodes-fixup-ehci.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0005-OMAP-pm.c-correct-the-initcall-for-an-early-init.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0006-OMAP3-PM-Adding-voltage-driver-support-for-OMAP3.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0007-OMAP-Introduce-voltage-domain-information-in-the-hwm.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0008-OMAP3-PM-Adding-smartreflex-driver-support.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0009-OMAP3-PM-Adding-smartreflex-device-file.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0010-OMAP3-PM-Adding-smartreflex-hwmod-data.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0011-OMAP3-PM-Adding-smartreflex-class3-driver.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0012-OMAP3-PM-Adding-T2-enabling-of-smartreflex-support.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0013-OMAP3-PM-Register-TWL4030-pmic-info-with-the-voltage.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0014-OMAP3-PM-Adding-debug-support-to-Voltage-and-Smartre.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0015-OMAP3-PM-Program-correct-init-voltages-for-VDD1-and-.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0016-OMAP4-Register-voltage-PMIC-parameters-with-the-volt.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0017-OMAP4-Adding-voltage-driver-support.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0018-OMAP4-PM-Program-correct-init-voltages-for-scalable-.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0019-OMAP4-hwmod-Add-inital-data-for-smartreflex-modules.patch"
+#patch -s -p1 < "${DIR}/patches/dvfs/0020-OMAP4-Smartreflex-framework-extensions.patch"
 
 #patch -s -p1 < "${DIR}/patches/dspbridge/0001-omap-mailbox-fix-detection-for-previously-supported-.patch"
 

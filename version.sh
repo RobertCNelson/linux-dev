@@ -4,15 +4,15 @@ unset BUILD
 
 KERNEL_REL=2.6.37
 #STABLE_PATCH=.1
-PRE_RC=2.6.37-git1
+PRE_RC=2.6.37-git2
 #RC_KERNEL=2.6.37
 #RC_PATCH=-rc8
 ABI=0
 
 if [ "${NO_DEVTMPS}" ] ; then
-BUILD+=old${ABI}
+BUILD=dold${ABI}
 else
-BUILD+=x${ABI}
+BUILD=d${ABI}
 fi
 
 BUILDREV=1.0
