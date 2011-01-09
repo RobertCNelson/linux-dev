@@ -14,6 +14,8 @@ echo "bugs and trivial stuff"
 patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-rt2860.patch"
 #2.6.37-git2
 #patch -s -p1 < "${DIR}/patches/trivial/0001-OMAP4-enable-smc-instruction-in-new-assembler-versio.patch"
+#2.6.37-git3
+patch -s -p1 < "${DIR}/patches/trivial/0001-omap3-clocks-Fix-build-error-CK_3430ES2-undeclared-h.patch"
 
 }
 
@@ -56,7 +58,7 @@ echo "dss2 patches"
 
 function musb {
 echo "musb patches"
-patch -s -p1 < "${DIR}/patches/musb/force-fifo_mode-5.diff"
+patch -s -p1 < "${DIR}/patches/musb/0001-default-to-fifo-mode-5-for-old-musb-beagles.patch"
 }
 
 function micrel {
