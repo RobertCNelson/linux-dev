@@ -122,11 +122,14 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-3.01.00.06-use-omap3630.dif
 #dropped with 4.00.00.01
 #patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-3.01.00.06-Compile-Fixes.patch"
 
-#3.01.00.06 + 2.6.36-rc1; untested as dss2 is currently broke
+#3.01.00.06 + 2.6.36-rc1
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-3.01.00.06-2.6.36-rc1-Compile-Fixes.patch"
 
 #4.00.00.01 + 2.6.37-rc1
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.37-rc1-use-semaphore-ove.patch"
+
+#4.00.00.01 + 2.6.38-merge (2.6.37-git5): so needs to be tested... (jan 10 rcn-ee)
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP4-SGX-TI-4.00.00.01-2.6.38-merge-AUTOCONF_INCLUD.patch"
 }
 
 function omap4 {
