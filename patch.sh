@@ -21,7 +21,11 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-omap3-clocks-Fix-build-error-CK_3430
 
 function sakoman {
 echo "sakoman's patches"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0001-video-add-timings-for-hd720.patch"
+
+#2.6.37-git10
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0001-video-add-timings-for-hd720.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0001-video-add-timings-for-hd720.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.36/0003-Don-t-turn-SDIO-cards-off-to-save-power.-Doing-so-wi.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0004-mmc-don-t-display-single-block-read-console-messages.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0005-scripts-Makefile.fwinst-fix-typo-missing-space-in-se.patch"
@@ -37,7 +41,11 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0013-MFD-add-twl4030-madc-driver.p
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0014-ARM-OMAP-Add-twl4030-madc-support-to-Overo.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0015-ARM-OMAP-Add-twl4030-madc-support-to-Beagle.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0016-OMAP-DSS2-Add-support-for-Samsung-LTE430WQ-F0C-panel.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0017-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
+
+#2.6.37-git10
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0017-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0017-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0018-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0019-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0020-ARM-OMAP2-mmc-twl4030-move-clock-input-selection-pri.patch"
@@ -99,6 +107,8 @@ patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootar
 #patch -s -p1 < "${DIR}/patches/arago-project/0001-AM37x-Switch-SGX-clocks-to-200MHz.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap-beagle-use-GPIO2-on-the-xM-A3-to-turn-DVI-on.patch"
 #patch -s -p1 < "${DIR}/patches/beagle/0001-revert-audio-seems-to-work-on-the-beagle-with-gone.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-omap-hsmmc-increase-dto-value-and-print-value-to-dme.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-xM-audio-fix-from-Ashok.patch"
 }
 
 function sgx {
@@ -166,7 +176,10 @@ echo "devkit8000"
 #patch -s -p1 < "${DIR}/patches/devkit8000/0001-OMAP2-Devkit8000-Fix-mmc-regulator-failure.patch"
 
 #noticed by Robert Skretkowicz
-patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel.patch"
+
+#2.6.37-git10
+#patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel.patch"
+patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel-2.6.37-git10.patch"
 }
 
 function dspbridge {

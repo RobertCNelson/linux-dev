@@ -1,0 +1,29 @@
+From ac9cc5a0642fcec8f1a3c6dfc4853918a453c87e Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 13 Jan 2011 11:33:44 -0600
+Subject: [PATCH] omap hsmmc increase dto value and print value to dmesg
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/mmc/host/omap_hsmmc.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
+index e868bbe..62d2d3a 100644
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -1419,9 +1419,11 @@ static void set_data_timeout(struct omap_hsmmc_host *host,
+ 			dto -= 13;
+ 		else
+ 			dto = 0;
++		dto++;
+ 		if (dto > 14)
+ 			dto = 14;
+ 	}
++	printk_once(KERN_INFO "MMC: Debug dto value: %d\n", dto);
+ 
+ 	reg &= ~DTO_MASK;
+ 	reg |= dto << DTO_SHIFT;
+-- 
+1.7.1
+
