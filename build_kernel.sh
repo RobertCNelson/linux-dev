@@ -94,7 +94,7 @@ function patch_kernel {
         fi
         export DIR BISECT
         /bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
-#exit
+
         git add .
         if [ "${PRE_RC}" ]; then
                 git commit -a -m ''$PRE_RC'-'$BUILD' patchset'
@@ -107,6 +107,7 @@ function patch_kernel {
         fi
         fi
         fi
+#Testing patch.sh patches
 #exit
         if [ "${LOCAL_PATCH_DIR}" ]; then
                 for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
