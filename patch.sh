@@ -112,8 +112,8 @@ patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootar
 #2.6.37-git12
 #patch -s -p1 < "${DIR}/patches/beagle/0001-omap-beagle-use-GPIO2-on-the-xM-A3-to-turn-DVI-on.patch"
 
-patch -s -p1 < "${DIR}/patches/beagle/0001-omap-hsmmc-increase-dto-value-and-print-value-to-dme.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-xM-audio-fix-from-Ashok.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 }
 
 function sgx {

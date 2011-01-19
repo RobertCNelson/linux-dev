@@ -1,7 +1,7 @@
 #!/bin/bash -e
 #yeah, i'm getting lazy..
 
-unset IS_LUCID
+unset NO_DEVTMPS
 REPO=2.6.38-devel
 
 DIR=$PWD
