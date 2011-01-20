@@ -1,0 +1,127 @@
+From 10f6042601e541a6d859de2735aac12f4db45050 Mon Sep 17 00:00:00 2001
+From: Ming Lei <tom.leiming@gmail.com>
+Date: Thu, 20 Jan 2011 00:47:21 +0800
+Subject: [PATCH] arm: fix oops in sched_clock_poll
+
+The patch fixes one oops in sched_clock_poll, tested on
+beagle xm, follows the oops message:
+
+[    0.000000] OMAP clockevent source: GPTIMER12 at 32768 Hz
+[    0.000000] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[    0.000000] pgd = c0004000
+[    0.000000] [00000000] *pgd=00000000
+[    0.000000] Internal error: Oops: 80000005 [#1] PREEMPT SMP
+[    0.000000] last sysfs file:
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0    Not tainted  (2.6.38-rc1 #233)
+[    0.000000] PC is at 0x0
+[    0.000000] LR is at sched_clock_poll+0x2c/0x3c
+[    0.000000] pc : [<00000000>]    lr : [<c0052dd4>]    psr: 400001d3
+[    0.000000] sp : c0533fd0  ip : ffff6a00  fp : 00000000
+[    0.000000] r10: 00000000  r9 : 413fc082  r8 : 8002cb20
+[    0.000000] r7 : c0544ae0  r6 : c0532000  r5 : c057ac40  r4 : c002e68c
+[    0.000000] r3 : c057ae34  r2 : c0544e4c  r1 : a00001d3  r0 : 00000000
+[    0.000000] Flags: nZcv  IRQs off  FIQs off  Mode SVC_32  ISA ARM  Segment kernel
+[    0.000000] Control: 10c5387f  Table: 80004019  DAC: 00000015
+[    0.000000] Process swapper (pid: 0, stack limit = 0xc05322f8)
+[    0.000000] Stack: (0xc0533fd0 to 0xc0534000)
+[    0.000000] 3fc0:                                     c002e68c c0008c28 c0008844 0000060a
+[    0.000000] 3fe0: 80000100 c002e68c 10c5387d c0540b6c c002e688 80008038 00000000 00000000
+[    0.000000] [<c0052dd4>] (sched_clock_poll+0x2c/0x3c) from [<c0008c28>] (start_kernel+0x198/0x2e0)
+[    0.000000] [<c0008c28>] (start_kernel+0x198/0x2e0) from [<80008038>] (0x80008038)
+[    0.000000] Code: bad PC value
+[    0.000000] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[    0.000000] pgd = c0004000
+[    0.000000] [00000000] *pgd=00000000
+[    0.000000] Internal error: Oops: 80000005 [#2] PREEMPT SMP
+[    0.000000] last sysfs file:
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0    Tainted: G      D      (2.6.38-rc1 #233)
+[    0.000000] PC is at 0x0
+[    0.000000] LR is at sched_clock_poll+0x2c/0x3c
+[    0.000000] pc : [<00000000>]    lr : [<c0052dd4>]    psr: 40000153
+[    0.000000] sp : c0533d08  ip : ffff6a01  fp : c067d734
+[    0.000000] r10: c067db34  r9 : c067d934  r8 : 00000000
+[    0.000000] r7 : c0532000  r6 : c0052da8  r5 : c067cd20  r4 : 00000104
+[    0.000000] r3 : c057ae34  r2 : c0544e4c  r1 : a0000153  r0 : 00000000
+[    0.000000] Flags: nZcv  IRQs on  FIQs off  Mode SVC_32  ISA ARM  Segment kernel
+[    0.000000] Control: 10c5387f  Table: 80004019  DAC: 00000015
+[    0.000000] Process swapper (pid: 0, stack limit = 0xc05322f8)
+[    0.000000] Stack: (0xc0533d08 to 0xc0534000)
+[    0.000000] 3d00:                   00000104 c00892c4 c0545ec0 c0532000 00000000 c067d534
+[    0.000000] 3d20: c0533d20 c0533d20 c057c680 c0532000 00000104 00000004 00000101 00000001
+[    0.000000] 3d40: 0000000a c0534040 00000000 c0084b84 c05370c4 c0546000 c067cb60 0000005f
+[    0.000000] 3d60: 00000000 fffffff0 00000003 00000002 c0532000 c0532000 00000008 c0084c60
+[    0.000000] 3d80: 0000005f c0043090 ffffffff fa200000 fffffff0 c03d2b8c c057adf0 c057c230
+[    0.000000] 3da0: 00000080 c0533de0 fffffff8 c0533f88 fffffff0 fffffffc c0533df3 00000000
+[    0.000000] 3dc0: c0532000 00000008 00000000 c0533de0 c0051bb0 c03d2224 60000153 ffffffff
+[    0.000000] 3de0: c05322f8 0000000b 00000000 00000000 62000001 50206461 61762043 0065756c
+[    0.000000] 3e00: 00000000 00000000 80000005 00000000 c0533f88 00000000 80000005 00000000
+[    0.000000] 3e20: 00000000 00000000 80000005 00000000 c0533f88 00000000 80000005 00000000
+[    0.000000] 3e40: 00000000 00000000 80000005 c0057424 00000000 c054518c c0533f88 c0543880
+[    0.000000] 3e60: 00000000 c03d4d74 00000004 0000ffff c054aed8 3638ffff 32333237 30306661
+[    0.000000] 3e80: 30303030 00333332 00000000 c054a524 c0548a34 00000000 fa004d10 c0533f10
+[    0.000000] 3ea0: c0533ece c0533f8b 0000ffff c0533f20 c0533f3d 00000005 c04b1512 c04b1514
+[    0.000000] 3ec0: c0533e66 c054513c c054518c 00000005 c0533f88 00000000 000001d3 00000000
+[    0.000000] 3ee0: 00000000 c00433d0 00000000 00000000 00000000 00000000 ffffffff 00000000
+[    0.000000] 3f00: c067e300 c009f478 00000000 00000000 c054f040 c057b43c c055d370 00000002
+[    0.000000] 3f20: ffffff00 c006f2b4 00000002 c0545ec0 00000000 c00a2018 00000000 00000000
+[    0.000000] 3f40: 00000000 c00a250c c054f040 c0064c20 c03da2ac c03da2ac 800001d3 c0ab2670
+[    0.000000] 3f60: 00000000 00000000 c055d370 00000000 0000040f 00000005 c0532000 c0544ae0
+[    0.000000] 3f80: 8002cb20 c03d2d54 00000000 a00001d3 c0544e4c c057ae34 c002e68c c057ac40
+[    0.000000] 3fa0: c0532000 c0544ae0 8002cb20 413fc082 00000000 00000000 ffff6a00 c0533fd0
+[    0.000000] 3fc0: c0052dd4 00000000 400001d3 ffffffff c002e68c c0008c28 c0008844 0000060a
+[    0.000000] 3fe0: 80000100 c002e68c 10c5387d c0540b6c c002e688 80008038 00000000 00000000
+[    0.000000] [<c0052dd4>] (sched_clock_poll+0x2c/0x3c) from [<c00892c4>] (run_timer_softirq+0x194/0x
+244)
+[    0.000000] [<c00892c4>] (run_timer_softirq+0x194/0x244) from [<c0084b84>] (__do_softirq+0x88/0x11c
+)
+[    0.000000] [<c0084b84>] (__do_softirq+0x88/0x11c) from [<c0084c60>] (irq_exit+0x48/0xac)
+[    0.000000] [<c0084c60>] (irq_exit+0x48/0xac) from [<c0043090>] (asm_do_IRQ+0x90/0xcc)
+[    0.000000] [<c0043090>] (asm_do_IRQ+0x90/0xcc) from [<c03d2b8c>] (__irq_svc+0x4c/0x11c)
+[    0.000000] Exception stack(0xc0533d98 to 0xc0533de0)
+[    0.000000] 3d80:                                                       c057adf0 c057c230
+[    0.000000] 3da0: 00000080 c0533de0 fffffff8 c0533f88 fffffff0 fffffffc c0533df3 00000000
+[    0.000000] 3dc0: c0532000 00000008 00000000 c0533de0 c0051bb0 c03d2224 60000153 ffffffff
+[    0.000000] [<c03d2b8c>] (__irq_svc+0x4c/0x11c) from [<c03d2224>] (_raw_spin_unlock_irq+0x1c/0x40)
+[    0.000000] [<c03d2224>] (_raw_spin_unlock_irq+0x1c/0x40) from [<c0051bb0>] (die+0x234/0x2cc)
+[    0.000000] [<c0051bb0>] (die+0x234/0x2cc) from [<c0057424>] (__do_kernel_fault+0x64/0x84)
+[    0.000000] [<c0057424>] (__do_kernel_fault+0x64/0x84) from [<c03d4d74>] (do_page_fault+0x2e4/0x30c
+)
+[    0.000000] [<c03d4d74>] (do_page_fault+0x2e4/0x30c) from [<c00433d0>] (do_PrefetchAbort+0x34/0x94)
+[    0.000000] [<c00433d0>] (do_PrefetchAbort+0x34/0x94) from [<c03d2d54>] (__pabt_svc+0x74/0xc0)
+[    0.000000] Exception stack(0xc0533f88 to 0xc0533fd0)
+[    0.000000] 3f80:                   00000000 a00001d3 c0544e4c c057ae34 c002e68c c057ac40
+[    0.000000] 3fa0: c0532000 c0544ae0 8002cb20 413fc082 00000000 00000000 ffff6a00 c0533fd0
+[    0.000000] 3fc0: c0052dd4 00000000 400001d3 ffffffff
+[    0.000000] [<c03d2d54>] (__pabt_svc+0x74/0xc0) from [<c0052dd4>] (sched_clock_poll+0x2c/0x3c)
+[    0.000000] [<c0052dd4>] (sched_clock_poll+0x2c/0x3c) from [<c0008c28>] (start_kernel+0x198/0x2e0)
+[    0.000000] [<c0008c28>] (start_kernel+0x198/0x2e0) from [<80008038>] (0x80008038)
+[    0.000000] Code: bad PC value
+[    0.000000] ---[ end trace 1b75b31a2719ed1c ]---
+[    0.000000] Kernel panic - not syncing: Fatal exception in interrupt
+
+Cc: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: Ming Lei <tom.leiming@gmail.com>
+---
+ arch/arm/kernel/sched_clock.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/kernel/sched_clock.c b/arch/arm/kernel/sched_clock.c
+index 9a46370..782dd08 100644
+--- a/arch/arm/kernel/sched_clock.c
++++ b/arch/arm/kernel/sched_clock.c
+@@ -21,7 +21,9 @@ static void (*sched_clock_update_fn)(void);
+ static void sched_clock_poll(unsigned long wrap_ticks)
+ {
+ 	mod_timer(&sched_clock_timer, round_jiffies(jiffies + wrap_ticks));
+-	sched_clock_update_fn();
++
++	if (sched_clock_update_fn)
++		sched_clock_update_fn();
+ }
+ 
+ void __init init_sched_clock(struct clock_data *cd, void (*update)(void),
+-- 
+1.7.1
+
