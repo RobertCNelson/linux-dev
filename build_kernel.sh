@@ -48,7 +48,7 @@ function git_kernel {
         git checkout master
         git pull
 
-        #git remote | grep torvalds_remote && git fetch --tags torvalds_remote master
+        git remote | grep torvalds_remote && git fetch --tags torvalds_remote master
 
         if [ "${PRE_RC}" ]; then
                 wget -c --directory-prefix=${DIR}/patches/ http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-${PRE_RC}.bz2
