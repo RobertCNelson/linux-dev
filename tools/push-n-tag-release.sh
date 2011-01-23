@@ -2,7 +2,6 @@
 #yeah, i'm getting lazy..
 
 unset NO_DEVTMPS
-REPO=2.6.38-devel
 
 DIR=$PWD
 
@@ -10,17 +9,17 @@ if [ -e ${DIR}/version.sh ]; then
 	. version.sh
 
         if [ "${RC_PATCH}" ]; then
-		bzr commit -m "${RC_KERNEL}${RC_PATCH}-${BUILD} release"
-		bzr tag "${RC_KERNEL}${RC_PATCH}-${BUILD}"
-		bzr push lp:~beagleboard-kernel/+junk/${REPO}
+		git commit -a -m "${RC_KERNEL}${RC_PATCH}-${BUILD} release" -s
+		git tag -a "${RC_KERNEL}${RC_PATCH}-${BUILD}"
+		git push origin --tags
 	else if [ "${STABLE_PATCH}" ] ; then
-		bzr commit -m "${KERNEL_REL}.${STABLE_PATCH}-${BUILD} release"
-		bzr tag "${KERNEL_REL}.${STABLE_PATCH}-${BUILD}"
-		bzr push lp:~beagleboard-kernel/+junk/${REPO}
+		git commit -a -m "${KERNEL_REL}.${STABLE_PATCH}-${BUILD} release" -s
+		git tag -a "${KERNEL_REL}.${STABLE_PATCH}-${BUILD}"
+		git push origin --tags
 	else
-		bzr commit -m "${KERNEL_REL}-${BUILD} release"
-		bzr tag "${KERNEL_REL}.${STABLE_PATCH}"
-		bzr push lp:~beagleboard-kernel/+junk/${REPO}
+		git commit -a -m "${KERNEL_REL}-${BUILD} release" -s
+		git tag -a "${KERNEL_REL}.${STABLE_PATCH}"
+		git push origin --tags
 	fi
 	fi
 fi
