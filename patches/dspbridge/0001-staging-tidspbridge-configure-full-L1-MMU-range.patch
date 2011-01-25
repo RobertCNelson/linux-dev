@@ -1,0 +1,45 @@
+From 8e290fd41a15e392af87a33c9c4db3daffcd558b Mon Sep 17 00:00:00 2001
+From: Guzman Lugo, Fernando <fernando.lugo@ti.com>
+Date: Thu, 13 Jan 2011 23:34:52 -0600
+Subject: [PATCH] staging: tidspbridge: configure full L1 MMU range
+
+IVA MMU can manage up to 4GB of address space through its page tables,
+given that it's L1 is divided into 1MB sections it requires at least
+16KB for its table which represents 4096 entries of 32 bits each.
+
+Previously, only 1GB was being handled by setting the page table size
+to 4KB, any virtual address beyond of the L1 size used, would fall
+into memory that does not belong to L1 translation tables, leading to
+unpredictable results.
+
+So, set the L1 table size to cover the entire MMU range (4GB) whether
+is meant to be used or not.
+
+Reported-by: Felipe Contreras <felipe.contreras@nokia.com>
+Signed-off-by: Fernando Guzman Lugo <fernando.lugo@ti.com>
+Signed-off-by: Felipe Contreras <felipe.contreras@nokia.com>
+Signed-off-by: Omar Ramirez Luna <omar.ramirez@ti.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/staging/tidspbridge/core/tiomap3430.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/staging/tidspbridge/core/tiomap3430.c b/drivers/staging/tidspbridge/core/tiomap3430.c
+index a3b0a18..c3126e2 100644
+--- a/drivers/staging/tidspbridge/core/tiomap3430.c
++++ b/drivers/staging/tidspbridge/core/tiomap3430.c
+@@ -786,10 +786,7 @@ static int bridge_dev_create(struct bridge_dev_context
+ 
+ 	pt_attrs = kzalloc(sizeof(struct pg_table_attrs), GFP_KERNEL);
+ 	if (pt_attrs != NULL) {
+-		/* Assuming that we use only DSP's memory map
+-		 * until 0x4000:0000 , we would need only 1024
+-		 * L1 enties i.e L1 size = 4K */
+-		pt_attrs->l1_size = 0x1000;
++		pt_attrs->l1_size = SZ_16K; /* 4096 entries of 32 bits */
+ 		align_size = pt_attrs->l1_size;
+ 		/* Align sizes are expected to be power of 2 */
+ 		/* we like to get aligned on L1 table size */
+-- 
+1.7.1
+
