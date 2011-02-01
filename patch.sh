@@ -102,6 +102,7 @@ patch -s -p1 < "${DIR}/patches/rcn/beagle-zippy-dont-load-i2c-on-boards-with-noz
 
 #needed for 2.6.36-git7 + local patchset
 patch -s -p1 < "${DIR}/patches/beagle/0001-arm-omap-beagle-use-caps-over-wires.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-beaglexm-fix-DVI-initialization.patch"
 }
 
 function beagle {
@@ -191,36 +192,14 @@ patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-s
 
 function dspbridge {
 echo "dspbridge from staging"
-patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-configure-full-L1-MMU-range.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-replace-mbox-callback-with-notif.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-configure-full-L1-MMU-range.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-replace-mbox-callback-with-notif.patch"
 }
 
 function dvfs {
 echo "dvfs from dev.omapzoom"
 
-#2.6.37-git2
-#patch -s -p1 < "${DIR}/patches/dvfs/0001-omap-opp-add-OMAP3-OPP-table-data-and-common-init.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0002-omap4-opp-add-OPP-table-data-fixup-ehci.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0003-OMAP3-remove-OPP-interfaces-from-OMAP-PM-layer.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0004-OMAP4-clock-data-Add-missing-DPLL-x2-clock-nodes-fixup-ehci.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0005-OMAP-pm.c-correct-the-initcall-for-an-early-init.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0006-OMAP3-PM-Adding-voltage-driver-support-for-OMAP3.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0007-OMAP-Introduce-voltage-domain-information-in-the-hwm.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0008-OMAP3-PM-Adding-smartreflex-driver-support.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0009-OMAP3-PM-Adding-smartreflex-device-file.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0010-OMAP3-PM-Adding-smartreflex-hwmod-data.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0011-OMAP3-PM-Adding-smartreflex-class3-driver.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0012-OMAP3-PM-Adding-T2-enabling-of-smartreflex-support.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0013-OMAP3-PM-Register-TWL4030-pmic-info-with-the-voltage.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0014-OMAP3-PM-Adding-debug-support-to-Voltage-and-Smartre.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0015-OMAP3-PM-Program-correct-init-voltages-for-VDD1-and-.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0016-OMAP4-Register-voltage-PMIC-parameters-with-the-volt.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0017-OMAP4-Adding-voltage-driver-support.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0018-OMAP4-PM-Program-correct-init-voltages-for-scalable-.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0019-OMAP4-hwmod-Add-inital-data-for-smartreflex-modules.patch"
-#patch -s -p1 < "${DIR}/patches/dvfs/0020-OMAP4-Smartreflex-framework-extensions.patch"
-
-#patch -s -p1 < "${DIR}/patches/dspbridge/0001-omap-mailbox-fix-detection-for-previously-supported-.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/0001-omap3-Add-basic-support-for-720MHz-part.patch"
 
 }
 
@@ -231,7 +210,7 @@ dss2
 musb
 micrel
 zippy
-sgx
+#sgx
 igepv2
 omap4
 devkit8000
