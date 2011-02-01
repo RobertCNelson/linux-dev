@@ -192,8 +192,6 @@ patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-s
 
 function dspbridge {
 echo "dspbridge from staging"
-#patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-configure-full-L1-MMU-range.patch"
-#patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-replace-mbox-callback-with-notif.patch"
 }
 
 function dvfs {
