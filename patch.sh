@@ -147,7 +147,11 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-3.01.00.06-2.6.36-rc1-Compi
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.37-rc1-use-semaphore-ove.patch"
 
 #4.00.00.01 + 2.6.38-merge (2.6.37-git5): so needs to be tested... (jan 10 rcn-ee)
-patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP4-SGX-TI-4.00.00.01-2.6.38-merge-AUTOCONF_INCLUD.patch"
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-merge-AUTOCONF_INCLUD.patch"
+
+#4.00.00.01 + 2.6.38-rc3
+#http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ac751efa6a0d70f2c9daef5c7e3a92270f5c2dff
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-rc3-_console_sem-to-c.patch"
 }
 
 function omap4 {
@@ -208,7 +212,7 @@ dss2
 musb
 micrel
 zippy
-#sgx
+sgx
 igepv2
 omap4
 devkit8000
