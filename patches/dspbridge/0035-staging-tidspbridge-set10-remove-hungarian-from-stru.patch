@@ -1,0 +1,1558 @@
+From 7c609438ee466c6906327d06698e433b4095d516 Mon Sep 17 00:00:00 2001
+From: Rene Sapiens <rene.sapiens@ti.com>
+Date: Tue, 18 Jan 2011 03:19:12 +0000
+Subject: [PATCH 35/37] staging: tidspbridge: set10 remove hungarian from structs
+
+hungarian notation will be removed from the elements inside
+structures, the next varibles will be renamed:
+
+Original:               Replacement:
+hnext                   next
+hnode                   node
+hprev                   prev
+hroot                   root
+hstream                 stream
+pbuf                    buf
+pcb_arg                 cb_arg
+pdspheap_list           dspheap_list
+pmsg                    msg
+ps_name                 name
+pstr_create_phase_fxn   str_create_phase_fxn
+pstr_delete_phase_fxn   str_delete_phase_fxn
+pstr_dev_name           str_dev_name
+pstr_event_name         str_event_name
+pstr_execute_phase_fxn  str_execute_phase_fxn
+pstr_i_alg_name         str_i_alg_name
+udma_chnl_id            dma_chnl_id
+un_bufs_in_strm         bufs_in_strm
+usm_buf_size            sm_buf_size
+
+Signed-off-by: Rene Sapiens <rene.sapiens@ti.com>
+Signed-off-by: Armando Uribe <x0095078@ti.com>
+Signed-off-by: Omar Ramirez Luna <omar.ramirez@ti.com>
+---
+ drivers/staging/tidspbridge/core/chnl_sm.c         |   12 +-
+ drivers/staging/tidspbridge/core/io_sm.c           |   32 +++---
+ drivers/staging/tidspbridge/dynload/cload.c        |   42 ++++----
+ .../staging/tidspbridge/dynload/dload_internal.h   |    6 +-
+ .../tidspbridge/include/dspbridge/_chnl_sm.h       |    2 +-
+ .../tidspbridge/include/dspbridge/chnldefs.h       |    6 +-
+ .../tidspbridge/include/dspbridge/dbdcddef.h       |    8 +-
+ .../staging/tidspbridge/include/dspbridge/dbdefs.h |    6 +-
+ .../staging/tidspbridge/include/dspbridge/drv.h    |    4 +-
+ .../tidspbridge/include/dspbridge/dspapi-ioctl.h   |   54 +++++-----
+ .../tidspbridge/include/dspbridge/strmdefs.h       |    2 +-
+ drivers/staging/tidspbridge/pmgr/dspapi.c          |  108 ++++++++++----------
+ drivers/staging/tidspbridge/rmgr/dbdcd.c           |   32 +++---
+ drivers/staging/tidspbridge/rmgr/disp.c            |   24 ++--
+ drivers/staging/tidspbridge/rmgr/drv.c             |   12 +-
+ drivers/staging/tidspbridge/rmgr/nldr.c            |    8 +-
+ drivers/staging/tidspbridge/rmgr/node.c            |   58 +++++-----
+ drivers/staging/tidspbridge/rmgr/strm.c            |   24 ++--
+ 18 files changed, 220 insertions(+), 220 deletions(-)
+
+diff --git a/drivers/staging/tidspbridge/core/chnl_sm.c b/drivers/staging/tidspbridge/core/chnl_sm.c
+index c9470d3..0986d87 100644
+--- a/drivers/staging/tidspbridge/core/chnl_sm.c
++++ b/drivers/staging/tidspbridge/core/chnl_sm.c
+@@ -604,7 +604,7 @@ int bridge_chnl_get_ioc(struct chnl_object *chnl_obj, u32 timeout,
+ 		 * translated to user's virtual addr later.
+ 		 */
+ 		host_sys_buf = chnl_packet_obj->host_sys_buf;
+-		ioc.pbuf = chnl_packet_obj->host_user_buf;
++		ioc.buf = chnl_packet_obj->host_user_buf;
+ 		ioc.byte_size = chnl_packet_obj->byte_size;
+ 		ioc.buf_size = chnl_packet_obj->buf_size;
+ 		ioc.arg = chnl_packet_obj->arg;
+@@ -613,7 +613,7 @@ int bridge_chnl_get_ioc(struct chnl_object *chnl_obj, u32 timeout,
+ 		list_add_tail(&chnl_packet_obj->link,
+ 				&pchnl->free_packets_list);
+ 	} else {
+-		ioc.pbuf = NULL;
++		ioc.buf = NULL;
+ 		ioc.byte_size = 0;
+ 		ioc.arg = 0;
+ 		ioc.buf_size = 0;
+@@ -640,11 +640,11 @@ int bridge_chnl_get_ioc(struct chnl_object *chnl_obj, u32 timeout,
+ 	spin_unlock_bh(&pchnl->chnl_mgr_obj->chnl_mgr_lock);
+ 	if (dequeue_ioc
+ 	    && (pchnl->chnl_type == CHNL_PCPY && pchnl->chnl_id > 1)) {
+-		if (!(ioc.pbuf < (void *)USERMODE_ADDR))
++		if (!(ioc.buf < (void *)USERMODE_ADDR))
+ 			goto func_cont;
+ 
+ 		/* If the addr is in user mode, then copy it */
+-		if (!host_sys_buf || !ioc.pbuf) {
++		if (!host_sys_buf || !ioc.buf) {
+ 			status = -EFAULT;
+ 			goto func_cont;
+ 		}
+@@ -652,7 +652,7 @@ int bridge_chnl_get_ioc(struct chnl_object *chnl_obj, u32 timeout,
+ 			goto func_cont1;
+ 
+ 		/*host_user_buf */
+-		status = copy_to_user(ioc.pbuf, host_sys_buf, ioc.byte_size);
++		status = copy_to_user(ioc.buf, host_sys_buf, ioc.byte_size);
+ 		if (status) {
+ 			if (current->flags & PF_EXITING)
+ 				status = 0;
+@@ -806,7 +806,7 @@ int bridge_chnl_open(struct chnl_object **chnl,
+ 	pchnl->sync_event = sync_event;
+ 	/* Get the process handle */
+ 	pchnl->process = current->tgid;
+-	pchnl->pcb_arg = 0;
++	pchnl->cb_arg = 0;
+ 	pchnl->bytes_moved = 0;
+ 	/* Default to proc-copy */
+ 	pchnl->chnl_type = CHNL_PCPY;
+diff --git a/drivers/staging/tidspbridge/core/io_sm.c b/drivers/staging/tidspbridge/core/io_sm.c
+index 96dbe1a..db8a438 100644
+--- a/drivers/staging/tidspbridge/core/io_sm.c
++++ b/drivers/staging/tidspbridge/core/io_sm.c
+@@ -106,7 +106,7 @@ struct io_mgr {
+ 	struct msg_ctrl *msg_output_ctrl;
+ 	u8 *msg_input;		/* Address of input messages */
+ 	u8 *msg_output;		/* Address of output messages */
+-	u32 usm_buf_size;	/* Size of a shared memory I/O channel */
++	u32 sm_buf_size;	/* Size of a shared memory I/O channel */
+ 	bool shared_irq;	/* Is this IRQ shared? */
+ 	u32 word_size;		/* Size in bytes of DSP word */
+ 	u16 intr_val;		/* Interrupt value */
+@@ -119,7 +119,7 @@ struct io_mgr {
+ 	u32 trace_buffer_end;	/* Trace message end address */
+ 	u32 trace_buffer_current;	/* Trace message current address */
+ 	u32 gpp_read_pointer;		/* GPP Read pointer to Trace buffer */
+-	u8 *pmsg;
++	u8 *msg;
+ 	u32 gpp_va;
+ 	u32 dsp_va;
+ #endif
+@@ -247,7 +247,7 @@ int bridge_io_destroy(struct io_mgr *hio_mgr)
+ 		tasklet_kill(&hio_mgr->dpc_tasklet);
+ 
+ #if defined(CONFIG_TIDSPBRIDGE_BACKTRACE) || defined(CONFIG_TIDSPBRIDGE_DEBUG)
+-		kfree(hio_mgr->pmsg);
++		kfree(hio_mgr->msg);
+ #endif
+ 		dsp_wdt_exit();
+ 		/* Free this IO manager object */
+@@ -705,7 +705,7 @@ int bridge_io_on_loaded(struct io_mgr *hio_mgr)
+ 	hio_mgr->input = (u8 *) hio_mgr->shared_mem + sizeof(struct shm);
+ 	hio_mgr->output = hio_mgr->input + (ul_shm_length -
+ 					    sizeof(struct shm)) / 2;
+-	hio_mgr->usm_buf_size = hio_mgr->output - hio_mgr->input;
++	hio_mgr->sm_buf_size = hio_mgr->output - hio_mgr->input;
+ 
+ 	/*  Set up Shared memory addresses for messaging. */
+ 	hio_mgr->msg_input_ctrl = (struct msg_ctrl *)((u8 *) hio_mgr->shared_mem
+@@ -764,11 +764,11 @@ int bridge_io_on_loaded(struct io_mgr *hio_mgr)
+ 	    (ul_gpp_va + ul_seg1_size + ul_pad_size) +
+ 	    (hio_mgr->trace_buffer_current - ul_dsp_va);
+ 	/* Calculate the size of trace buffer */
+-	kfree(hio_mgr->pmsg);
+-	hio_mgr->pmsg = kmalloc(((hio_mgr->trace_buffer_end -
++	kfree(hio_mgr->msg);
++	hio_mgr->msg = kmalloc(((hio_mgr->trace_buffer_end -
+ 				hio_mgr->trace_buffer_begin) *
+ 				hio_mgr->word_size) + 2, GFP_KERNEL);
+-	if (!hio_mgr->pmsg)
++	if (!hio_mgr->msg)
+ 		status = -ENOMEM;
+ 
+ 	hio_mgr->dsp_va = ul_dsp_va;
+@@ -786,7 +786,7 @@ func_end:
+ u32 io_buf_size(struct io_mgr *hio_mgr)
+ {
+ 	if (hio_mgr)
+-		return hio_mgr->usm_buf_size;
++		return hio_mgr->sm_buf_size;
+ 	else
+ 		return 0;
+ }
+@@ -1361,7 +1361,7 @@ static void output_chnl(struct io_mgr *pio_mgr, struct chnl_object *pchnl,
+ 		chnl_mgr_obj->output_mask &= ~(1 << chnl_id);
+ 
+ 	/* Transfer buffer to DSP side */
+-	chnl_packet_obj->byte_size = min(pio_mgr->usm_buf_size,
++	chnl_packet_obj->byte_size = min(pio_mgr->sm_buf_size,
+ 					chnl_packet_obj->byte_size);
+ 	memcpy(pio_mgr->output,	chnl_packet_obj->host_sys_buf,
+ 					chnl_packet_obj->byte_size);
+@@ -1704,30 +1704,30 @@ void print_dsp_debug_trace(struct io_mgr *hio_mgr)
+ 			ul_new_message_length =
+ 			    ul_gpp_cur_pointer - hio_mgr->gpp_read_pointer;
+ 
+-			memcpy(hio_mgr->pmsg,
++			memcpy(hio_mgr->msg,
+ 			       (char *)hio_mgr->gpp_read_pointer,
+ 			       ul_new_message_length);
+-			hio_mgr->pmsg[ul_new_message_length] = '\0';
++			hio_mgr->msg[ul_new_message_length] = '\0';
+ 			/*
+ 			 * Advance the GPP trace pointer to DSP current
+ 			 * pointer.
+ 			 */
+ 			hio_mgr->gpp_read_pointer += ul_new_message_length;
+ 			/* Print the trace messages */
+-			pr_info("DSPTrace: %s\n", hio_mgr->pmsg);
++			pr_info("DSPTrace: %s\n", hio_mgr->msg);
+ 		} else if (ul_gpp_cur_pointer < hio_mgr->gpp_read_pointer) {
+ 			/* Handle trace buffer wraparound */
+-			memcpy(hio_mgr->pmsg,
++			memcpy(hio_mgr->msg,
+ 			       (char *)hio_mgr->gpp_read_pointer,
+ 			       hio_mgr->trace_buffer_end -
+ 			       hio_mgr->gpp_read_pointer);
+ 			ul_new_message_length =
+ 			    ul_gpp_cur_pointer - hio_mgr->trace_buffer_begin;
+-			memcpy(&hio_mgr->pmsg[hio_mgr->trace_buffer_end -
++			memcpy(&hio_mgr->msg[hio_mgr->trace_buffer_end -
+ 					      hio_mgr->gpp_read_pointer],
+ 			       (char *)hio_mgr->trace_buffer_begin,
+ 			       ul_new_message_length);
+-			hio_mgr->pmsg[hio_mgr->trace_buffer_end -
++			hio_mgr->msg[hio_mgr->trace_buffer_end -
+ 				      hio_mgr->gpp_read_pointer +
+ 				      ul_new_message_length] = '\0';
+ 			/*
+@@ -1738,7 +1738,7 @@ void print_dsp_debug_trace(struct io_mgr *hio_mgr)
+ 			    hio_mgr->trace_buffer_begin +
+ 			    ul_new_message_length;
+ 			/* Print the trace messages */
+-			pr_info("DSPTrace: %s\n", hio_mgr->pmsg);
++			pr_info("DSPTrace: %s\n", hio_mgr->msg);
+ 		}
+ 	}
+ }
+diff --git a/drivers/staging/tidspbridge/dynload/cload.c b/drivers/staging/tidspbridge/dynload/cload.c
+index d0cd445..3900409 100644
+--- a/drivers/staging/tidspbridge/dynload/cload.c
++++ b/drivers/staging/tidspbridge/dynload/cload.c
+@@ -498,8 +498,8 @@ static void allocate_sections(struct dload_state *dlthis)
+ 		return;
+ 	}
+ 	/* initialize the handle header */
+-	hndl->dm.hnext = hndl->dm.hprev = hndl;	/* circular list */
+-	hndl->dm.hroot = NULL;
++	hndl->dm.next = hndl->dm.prev = hndl;	/* circular list */
++	hndl->dm.root = NULL;
+ 	hndl->dm.dbthis = 0;
+ 	dlthis->myhandle = hndl;	/* save away for return */
+ 	/* pointer to the section list of allocated sections */
+@@ -1626,7 +1626,7 @@ static void init_module_handle(struct dload_state *dlthis)
+ 			DL_ERROR(err_alloc, sizeof(struct dbg_mirror_root));
+ 			return;
+ 		}
+-		mlst->hnext = NULL;
++		mlst->next = NULL;
+ 		mlst->changes = 0;
+ 		mlst->refcount = 0;
+ 		mlst->dbthis = TDATA_TO_TADDR(dlmodsym->value);
+@@ -1651,7 +1651,7 @@ static void init_module_handle(struct dload_state *dlthis)
+ #else
+ 	mlist = (struct dbg_mirror_root *)&debug_list_header;
+ #endif
+-	hndl->dm.hroot = mlist;	/* set pointer to root into our handle */
++	hndl->dm.root = mlist;	/* set pointer to root into our handle */
+ 	if (!dlthis->allocated_secn_count)
+ 		return;		/* no load addresses to be recorded */
+ 	/* reuse temporary symbol storage */
+@@ -1702,9 +1702,9 @@ static void init_module_handle(struct dload_state *dlthis)
+ 	dllview_info.context = 0;
+ 	hndl->dm.context = 0;
+ 	/* fill in next pointer and size */
+-	if (mlist->hnext) {
+-		dbmod->next_module = TADDR_TO_TDATA(mlist->hnext->dm.dbthis);
+-		dbmod->next_module_size = mlist->hnext->dm.dbsiz;
++	if (mlist->next) {
++		dbmod->next_module = TADDR_TO_TDATA(mlist->next->dm.dbthis);
++		dbmod->next_module_size = mlist->next->dm.dbsiz;
+ 	} else {
+ 		dbmod->next_module_size = 0;
+ 		dbmod->next_module = 0;
+@@ -1750,11 +1750,11 @@ static void init_module_handle(struct dload_state *dlthis)
+ 	}
+ 	/* Add the module handle to this processor's list
+ 	   of handles with debug info */
+-	hndl->dm.hnext = mlist->hnext;
+-	if (hndl->dm.hnext)
+-		hndl->dm.hnext->dm.hprev = hndl;
+-	hndl->dm.hprev = (struct my_handle *)mlist;
+-	mlist->hnext = hndl;	/* insert after root */
++	hndl->dm.next = mlist->next;
++	if (hndl->dm.next)
++		hndl->dm.next->dm.prev = hndl;
++	hndl->dm.prev = (struct my_handle *)mlist;
++	mlist->next = hndl;	/* insert after root */
+ }				/* init_module_handle */
+ 
+ /*************************************************************************
+@@ -1810,7 +1810,7 @@ int dynamic_unload_module(void *mhandle,
+ 			asecs->name = NULL;
+ 			alloc->dload_deallocate(alloc, asecs++);
+ 		}
+-	root = hndl->dm.hroot;
++	root = hndl->dm.root;
+ 	if (!root) {
+ 		/* there is a debug list containing this module */
+ 		goto func_end;
+@@ -1820,20 +1820,20 @@ int dynamic_unload_module(void *mhandle,
+ 	}
+ 	/* Retrieve memory context in which .dllview was allocated */
+ 	dllview_info.context = hndl->dm.context;
+-	if (hndl->dm.hprev == hndl)
++	if (hndl->dm.prev == hndl)
+ 		goto exitunltgt;
+ 
+ 	/* target-side dllview record is in list */
+ 	/* dequeue this record from our GPP-side mirror list */
+-	hndl->dm.hprev->dm.hnext = hndl->dm.hnext;
+-	if (hndl->dm.hnext)
+-		hndl->dm.hnext->dm.hprev = hndl->dm.hprev;
++	hndl->dm.prev->dm.next = hndl->dm.next;
++	if (hndl->dm.next)
++		hndl->dm.next->dm.prev = hndl->dm.prev;
+ 	/* Update next_module of previous entry in target list
+ 	 * We are using mhdr here as a surrogate for either a
+ 	 struct modules_header or a dll_module */
+-	if (hndl->dm.hnext) {
+-		mhdr.first_module = TADDR_TO_TDATA(hndl->dm.hnext->dm.dbthis);
+-		mhdr.first_module_size = hndl->dm.hnext->dm.dbsiz;
++	if (hndl->dm.next) {
++		mhdr.first_module = TADDR_TO_TDATA(hndl->dm.next->dm.dbthis);
++		mhdr.first_module_size = hndl->dm.next->dm.dbsiz;
+ 	} else {
+ 		mhdr.first_module = 0;
+ 		mhdr.first_module_size = 0;
+@@ -1851,7 +1851,7 @@ int dynamic_unload_module(void *mhandle,
+ 		swap_words(&mhdr, sizeof(struct modules_header) - sizeof(u16),
+ 			   MODULES_HEADER_BITMAP);
+ 	}
+-	if (!init->writemem(init, &mhdr, hndl->dm.hprev->dm.dbthis,
++	if (!init->writemem(init, &mhdr, hndl->dm.prev->dm.dbthis,
+ 			    &dllview_info, sizeof(struct modules_header) -
+ 			    sizeof(mhdr.update_flag))) {
+ 		dload_syms_error(syms, dlvwrite);
+diff --git a/drivers/staging/tidspbridge/dynload/dload_internal.h b/drivers/staging/tidspbridge/dynload/dload_internal.h
+index 302a7c5..7b77573 100644
+--- a/drivers/staging/tidspbridge/dynload/dload_internal.h
++++ b/drivers/staging/tidspbridge/dynload/dload_internal.h
+@@ -78,15 +78,15 @@ struct my_handle;
+ struct dbg_mirror_root {
+ 	/* must be same as dbg_mirror_list; __DLModules address on target */
+ 	u32 dbthis;
+-	struct my_handle *hnext;	/* must be same as dbg_mirror_list */
++	struct my_handle *next;	/* must be same as dbg_mirror_list */
+ 	u16 changes;		/* change counter */
+ 	u16 refcount;		/* number of modules referencing this root */
+ };
+ 
+ struct dbg_mirror_list {
+ 	u32 dbthis;
+-	struct my_handle *hnext, *hprev;
+-	struct dbg_mirror_root *hroot;
++	struct my_handle *next, *prev;
++	struct dbg_mirror_root *root;
+ 	u16 dbsiz;
+ 	u32 context;	/* Save context for .dllview memory allocation */
+ };
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/_chnl_sm.h b/drivers/staging/tidspbridge/include/dspbridge/_chnl_sm.h
+index 49326a6..9110cab 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/_chnl_sm.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/_chnl_sm.h
+@@ -147,7 +147,7 @@ struct chnl_object {
+ 	/* Abstract syncronization object */
+ 	struct sync_object *sync_event;
+ 	u32 process;		/* Process which created this channel */
+-	u32 pcb_arg;		/* Argument to use with callback */
++	u32 cb_arg;		/* Argument to use with callback */
+ 	struct list_head pio_requests;	/* List of IOR's to driver */
+ 	s32 cio_cs;		/* Number of IOC's in queue */
+ 	s32 cio_reqs;		/* Number of IORequests in queue */
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/chnldefs.h b/drivers/staging/tidspbridge/include/dspbridge/chnldefs.h
+index 2cc27b5..cb67c30 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/chnldefs.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/chnldefs.h
+@@ -45,7 +45,7 @@
+ struct chnl_attr {
+ 	u32 uio_reqs;		/* Max # of preallocated I/O requests. */
+ 	void *event_obj;	/* User supplied auto-reset event object. */
+-	char *pstr_event_name;	/* Ptr to name of user event object. */
++	char *str_event_name;	/* Ptr to name of user event object. */
+ 	void *reserved1;	/* Reserved for future use. */
+ 	u32 reserved2;		/* Reserved for future use. */
+ 
+@@ -53,11 +53,11 @@ struct chnl_attr {
+ 
+ /* I/O completion record: */
+ struct chnl_ioc {
+-	void *pbuf;		/* Buffer to be filled/emptied. */
++	void *buf;		/* Buffer to be filled/emptied. */
+ 	u32 byte_size;		/* Bytes transferred. */
+ 	u32 buf_size;		/* Actual buffer size in bytes */
+ 	u32 status;		/* Status of IO completion. */
+-	u32 arg;		/* User argument associated with pbuf. */
++	u32 arg;		/* User argument associated with buf. */
+ };
+ 
+ #endif /* CHNLDEFS_ */
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/dbdcddef.h b/drivers/staging/tidspbridge/include/dspbridge/dbdcddef.h
+index f97266c..bc201b3 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/dbdcddef.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/dbdcddef.h
+@@ -48,10 +48,10 @@ struct dcd_nodeprops {
+ 	struct dsp_ndbprops ndb_props;
+ 	u32 msg_segid;
+ 	u32 msg_notify_type;
+-	char *pstr_create_phase_fxn;
+-	char *pstr_delete_phase_fxn;
+-	char *pstr_execute_phase_fxn;
+-	char *pstr_i_alg_name;
++	char *str_create_phase_fxn;
++	char *str_delete_phase_fxn;
++	char *str_execute_phase_fxn;
++	char *str_i_alg_name;
+ 
+ 	/* Dynamic load properties */
+ 	u16 load_type;	/* Static, dynamic, overlay */
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/dbdefs.h b/drivers/staging/tidspbridge/include/dspbridge/dbdefs.h
+index 592c16d..c8f4645 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/dbdefs.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/dbdefs.h
+@@ -232,7 +232,7 @@ struct dsp_strmattr {
+ 	u32 timeout;		/* Timeout for blocking STRM calls */
+ 	enum dsp_strmmode strm_mode;	/* mode of stream when opened */
+ 	/* DMA chnl id if dsp_strmmode is LDMA or RDMA */
+-	u32 udma_chnl_id;
++	u32 dma_chnl_id;
+ 	u32 dma_priority;	/* DMA channel priority 0=lowest, >0=high */
+ };
+ 
+@@ -340,7 +340,7 @@ struct dsp_nodeattr {
+  *  window handle.
+  */
+ struct dsp_notification {
+-	char *ps_name;
++	char *name;
+ 	void *handle;
+ };
+ 
+@@ -406,7 +406,7 @@ struct dsp_streamattrin {
+ 	u32 buf_alignment;
+ 	u32 num_bufs;
+ 	enum dsp_strmmode strm_mode;
+-	u32 udma_chnl_id;
++	u32 dma_chnl_id;
+ 	u32 dma_priority;
+ };
+ 
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/drv.h b/drivers/staging/tidspbridge/include/dspbridge/drv.h
+index 3b98c1a..bb04409 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/drv.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/drv.h
+@@ -62,7 +62,7 @@ struct drv_object;
+ 
+ /* New structure (member of process context) abstracts NODE resource info */
+ struct node_res_object {
+-	void *hnode;
++	void *node;
+ 	s32 node_allocated;	/* Node status */
+ 	s32 heap_allocated;	/* Heap status */
+ 	s32 streams_allocated;	/* Streams status */
+@@ -101,7 +101,7 @@ struct dmm_rsv_object {
+ /* New structure (member of process context) abstracts stream resource info */
+ struct strm_res_object {
+ 	s32 stream_allocated;	/* Stream status */
+-	void *hstream;
++	void *stream;
+ 	u32 num_bufs;
+ 	u32 dir;
+ 	int id;
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/dspapi-ioctl.h b/drivers/staging/tidspbridge/include/dspbridge/dspapi-ioctl.h
+index 1511922..f43b3ed 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/dspapi-ioctl.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/dspapi-ioctl.h
+@@ -99,7 +99,7 @@ union trapped_args {
+ 
+ 	struct {
+ 		void *processor;
+-		u8 __user *pbuf;
++		u8 __user *buf;
+ 		u8 __user *psize;
+ 		u32 max_size;
+ 	} args_proc_gettrace;
+@@ -175,19 +175,19 @@ union trapped_args {
+ 	} args_node_allocate;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		u32 usize;
+ 		struct dsp_bufferattr __user *pattr;
+-		u8 *__user *pbuffer;
++		u8 *__user *buffer;
+ 	} args_node_allocmsgbuf;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		s32 prio;
+ 	} args_node_changepriority;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		u32 stream_id;
+ 		void *other_node;
+ 		u32 other_stream;
+@@ -196,54 +196,54 @@ union trapped_args {
+ 	} args_node_connect;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 	} args_node_create;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 	} args_node_delete;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		struct dsp_bufferattr __user *pattr;
+-		u8 *pbuffer;
++		u8 *buffer;
+ 	} args_node_freemsgbuf;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		struct dsp_nodeattr __user *pattr;
+ 		u32 attr_size;
+ 	} args_node_getattr;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		struct dsp_msg __user *message;
+ 		u32 timeout;
+ 	} args_node_getmessage;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 	} args_node_pause;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		struct dsp_msg __user *message;
+ 		u32 timeout;
+ 	} args_node_putmessage;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		u32 event_mask;
+ 		u32 notify_type;
+ 		struct dsp_notification __user *hnotification;
+ 	} args_node_registernotify;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 	} args_node_run;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		int __user *pstatus;
+ 	} args_node_terminate;
+ 
+@@ -256,48 +256,48 @@ union trapped_args {
+ 	/* STRM module */
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 		u32 usize;
+ 		u8 *__user *ap_buffer;
+ 		u32 num_bufs;
+ 	} args_strm_allocatebuffer;
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 	} args_strm_close;
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 		u8 *__user *ap_buffer;
+ 		u32 num_bufs;
+ 	} args_strm_freebuffer;
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 		void **ph_event;
+ 	} args_strm_geteventhandle;
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 		struct stream_info __user *stream_info;
+ 		u32 stream_info_size;
+ 	} args_strm_getinfo;
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 		bool flush_flag;
+ 	} args_strm_idle;
+ 
+ 	struct {
+-		void *hstream;
+-		u8 *pbuffer;
++		void *stream;
++		u8 *buffer;
+ 		u32 dw_bytes;
+ 		u32 dw_buf_size;
+ 		u32 arg;
+ 	} args_strm_issue;
+ 
+ 	struct {
+-		void *hnode;
++		void *node;
+ 		u32 direction;
+ 		u32 index;
+ 		struct strm_attr __user *attr_in;
+@@ -305,7 +305,7 @@ union trapped_args {
+ 	} args_strm_open;
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 		u8 *__user *buf_ptr;
+ 		u32 __user *bytes;
+ 		u32 __user *buf_size_ptr;
+@@ -313,7 +313,7 @@ union trapped_args {
+ 	} args_strm_reclaim;
+ 
+ 	struct {
+-		void *hstream;
++		void *stream;
+ 		u32 event_mask;
+ 		u32 notify_type;
+ 		struct dsp_notification __user *hnotification;
+diff --git a/drivers/staging/tidspbridge/include/dspbridge/strmdefs.h b/drivers/staging/tidspbridge/include/dspbridge/strmdefs.h
+index 046259c..4f90e6b 100644
+--- a/drivers/staging/tidspbridge/include/dspbridge/strmdefs.h
++++ b/drivers/staging/tidspbridge/include/dspbridge/strmdefs.h
+@@ -25,7 +25,7 @@ struct strm_object;
+ 
+ struct strm_attr {
+ 	void *user_event;
+-	char *pstr_event_name;
++	char *str_event_name;
+ 	void *virt_base;	/* Process virtual base address of
+ 				 * mapped SM */
+ 	u32 virt_size;		/* Size of virtual space in bytes */
+diff --git a/drivers/staging/tidspbridge/pmgr/dspapi.c b/drivers/staging/tidspbridge/pmgr/dspapi.c
+index 912a1f9..1d86bd1 100644
+--- a/drivers/staging/tidspbridge/pmgr/dspapi.c
++++ b/drivers/staging/tidspbridge/pmgr/dspapi.c
+@@ -813,7 +813,7 @@ u32 procwrap_get_trace(union trapped_args *args, void *pr_ctxt)
+ 	} else {
+ 		status = -ENOMEM;
+ 	}
+-	CP_TO_USR(args->args_proc_gettrace.pbuf, pbuf, status,
++	CP_TO_USR(args->args_proc_gettrace.buf, pbuf, status,
+ 		  args->args_proc_gettrace.max_size);
+ 	kfree(pbuf);
+ 
+@@ -978,7 +978,7 @@ u32 procwrap_register_notify(union trapped_args *args, void *pr_ctxt)
+ 	void *hprocessor = ((struct process_context *)pr_ctxt)->processor;
+ 
+ 	/* Initialize the notification data structure */
+-	notification.ps_name = NULL;
++	notification.name = NULL;
+ 	notification.handle = NULL;
+ 
+ 	status = proc_register_notify(hprocessor,
+@@ -1154,7 +1154,7 @@ u32 nodewrap_alloc_msg_buf(union trapped_args *args, void *pr_ctxt)
+ 	struct node_res_object *node_res;
+ 
+ 	find_node_handle(&node_res,  pr_ctxt,
+-				args->args_node_allocmsgbuf.hnode);
++				args->args_node_allocmsgbuf.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+@@ -1169,13 +1169,13 @@ u32 nodewrap_alloc_msg_buf(union trapped_args *args, void *pr_ctxt)
+ 
+ 	}
+ 	/* argument */
+-	CP_FM_USR(&pbuffer, args->args_node_allocmsgbuf.pbuffer, status, 1);
++	CP_FM_USR(&pbuffer, args->args_node_allocmsgbuf.buffer, status, 1);
+ 	if (!status) {
+-		status = node_alloc_msg_buf(node_res->hnode,
++		status = node_alloc_msg_buf(node_res->node,
+ 					    args->args_node_allocmsgbuf.usize,
+ 					    pattr, &pbuffer);
+ 	}
+-	CP_TO_USR(args->args_node_allocmsgbuf.pbuffer, &pbuffer, status, 1);
++	CP_TO_USR(args->args_node_allocmsgbuf.buffer, &pbuffer, status, 1);
+ 	return status;
+ }
+ 
+@@ -1188,12 +1188,12 @@ u32 nodewrap_change_priority(union trapped_args *args, void *pr_ctxt)
+ 	struct node_res_object *node_res;
+ 
+ 	find_node_handle(&node_res, pr_ctxt,
+-				args->args_node_changepriority.hnode);
++				args->args_node_changepriority.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+-	ret = node_change_priority(node_res->hnode,
++	ret = node_change_priority(node_res->node,
+ 				   args->args_node_changepriority.prio);
+ 
+ 	return ret;
+@@ -1213,20 +1213,20 @@ u32 nodewrap_connect(union trapped_args *args, void *pr_ctxt)
+ 	struct node_res_object *node_res1, *node_res2;
+ 	struct node_object *node1 = NULL, *node2 = NULL;
+ 
+-	if ((int)args->args_node_connect.hnode != DSP_HGPPNODE) {
++	if ((int)args->args_node_connect.node != DSP_HGPPNODE) {
+ 		find_node_handle(&node_res1, pr_ctxt,
+-				args->args_node_connect.hnode);
++				args->args_node_connect.node);
+ 		if (node_res1)
+-			node1 = node_res1->hnode;
++			node1 = node_res1->node;
+ 	} else {
+-		node1 = args->args_node_connect.hnode;
++		node1 = args->args_node_connect.node;
+ 	}
+ 
+ 	if ((int)args->args_node_connect.other_node != DSP_HGPPNODE) {
+ 		find_node_handle(&node_res2, pr_ctxt,
+ 				args->args_node_connect.other_node);
+ 		if (node_res2)
+-			node2 = node_res2->hnode;
++			node2 = node_res2->node;
+ 	} else {
+ 		node2 = args->args_node_connect.other_node;
+ 	}
+@@ -1280,12 +1280,12 @@ u32 nodewrap_create(union trapped_args *args, void *pr_ctxt)
+ 	u32 ret;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_create.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_create.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+-	ret = node_create(node_res->hnode);
++	ret = node_create(node_res->node);
+ 
+ 	return ret;
+ }
+@@ -1298,7 +1298,7 @@ u32 nodewrap_delete(union trapped_args *args, void *pr_ctxt)
+ 	u32 ret;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_delete.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_delete.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+@@ -1318,7 +1318,7 @@ u32 nodewrap_free_msg_buf(union trapped_args *args, void *pr_ctxt)
+ 	struct dsp_bufferattr attr;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_freemsgbuf.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_freemsgbuf.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+@@ -1330,12 +1330,12 @@ u32 nodewrap_free_msg_buf(union trapped_args *args, void *pr_ctxt)
+ 
+ 	}
+ 
+-	if (!args->args_node_freemsgbuf.pbuffer)
++	if (!args->args_node_freemsgbuf.buffer)
+ 		return -EFAULT;
+ 
+ 	if (!status) {
+-		status = node_free_msg_buf(node_res->hnode,
+-					   args->args_node_freemsgbuf.pbuffer,
++		status = node_free_msg_buf(node_res->node,
++					   args->args_node_freemsgbuf.buffer,
+ 					   pattr);
+ 	}
+ 
+@@ -1351,12 +1351,12 @@ u32 nodewrap_get_attr(union trapped_args *args, void *pr_ctxt)
+ 	struct dsp_nodeattr attr;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_getattr.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_getattr.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+-	status = node_get_attr(node_res->hnode, &attr,
++	status = node_get_attr(node_res->node, &attr,
+ 			       args->args_node_getattr.attr_size);
+ 	CP_TO_USR(args->args_node_getattr.pattr, &attr, status, 1);
+ 
+@@ -1372,12 +1372,12 @@ u32 nodewrap_get_message(union trapped_args *args, void *pr_ctxt)
+ 	struct dsp_msg msg;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_getmessage.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_getmessage.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+-	status = node_get_message(node_res->hnode, &msg,
++	status = node_get_message(node_res->node, &msg,
+ 				  args->args_node_getmessage.timeout);
+ 
+ 	CP_TO_USR(args->args_node_getmessage.message, &msg, status, 1);
+@@ -1393,12 +1393,12 @@ u32 nodewrap_pause(union trapped_args *args, void *pr_ctxt)
+ 	u32 ret;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_pause.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_pause.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+-	ret = node_pause(node_res->hnode);
++	ret = node_pause(node_res->node);
+ 
+ 	return ret;
+ }
+@@ -1412,7 +1412,7 @@ u32 nodewrap_put_message(union trapped_args *args, void *pr_ctxt)
+ 	struct dsp_msg msg;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_putmessage.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_putmessage.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+@@ -1421,7 +1421,7 @@ u32 nodewrap_put_message(union trapped_args *args, void *pr_ctxt)
+ 
+ 	if (!status) {
+ 		status =
+-		    node_put_message(node_res->hnode, &msg,
++		    node_put_message(node_res->node, &msg,
+ 				     args->args_node_putmessage.timeout);
+ 	}
+ 
+@@ -1438,13 +1438,13 @@ u32 nodewrap_register_notify(union trapped_args *args, void *pr_ctxt)
+ 	struct node_res_object *node_res;
+ 
+ 	find_node_handle(&node_res, pr_ctxt,
+-			args->args_node_registernotify.hnode);
++			args->args_node_registernotify.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+ 	/* Initialize the notification data structure */
+-	notification.ps_name = NULL;
++	notification.name = NULL;
+ 	notification.handle = NULL;
+ 
+ 	if (!args->args_proc_register_notify.event_mask)
+@@ -1452,7 +1452,7 @@ u32 nodewrap_register_notify(union trapped_args *args, void *pr_ctxt)
+ 			  args->args_proc_register_notify.hnotification,
+ 			  status, 1);
+ 
+-	status = node_register_notify(node_res->hnode,
++	status = node_register_notify(node_res->node,
+ 				      args->args_node_registernotify.event_mask,
+ 				      args->args_node_registernotify.
+ 				      notify_type, &notification);
+@@ -1469,12 +1469,12 @@ u32 nodewrap_run(union trapped_args *args, void *pr_ctxt)
+ 	u32 ret;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_run.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_run.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+-	ret = node_run(node_res->hnode);
++	ret = node_run(node_res->node);
+ 
+ 	return ret;
+ }
+@@ -1488,12 +1488,12 @@ u32 nodewrap_terminate(union trapped_args *args, void *pr_ctxt)
+ 	int tempstatus;
+ 	struct node_res_object *node_res;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_node_terminate.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_node_terminate.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+ 
+-	status = node_terminate(node_res->hnode, &tempstatus);
++	status = node_terminate(node_res->node, &tempstatus);
+ 
+ 	CP_TO_USR(args->args_node_terminate.pstatus, &tempstatus, status, 1);
+ 
+@@ -1551,7 +1551,7 @@ u32 strmwrap_allocate_buffer(union trapped_args *args, void *pr_ctxt)
+ 	struct strm_res_object *strm_res;
+ 
+ 	find_strm_handle(&strm_res, pr_ctxt,
+-		args->args_strm_allocatebuffer.hstream);
++		args->args_strm_allocatebuffer.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+@@ -1587,7 +1587,7 @@ u32 strmwrap_close(union trapped_args *args, void *pr_ctxt)
+ {
+ 	struct strm_res_object *strm_res;
+ 
+-	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_close.hstream);
++	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_close.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+@@ -1606,7 +1606,7 @@ u32 strmwrap_free_buffer(union trapped_args *args, void *pr_ctxt)
+ 	struct strm_res_object *strm_res;
+ 
+ 	find_strm_handle(&strm_res, pr_ctxt,
+-			args->args_strm_freebuffer.hstream);
++			args->args_strm_freebuffer.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+@@ -1654,7 +1654,7 @@ u32 strmwrap_get_info(union trapped_args *args, void *pr_ctxt)
+ 	struct strm_res_object *strm_res;
+ 
+ 	find_strm_handle(&strm_res, pr_ctxt,
+-			args->args_strm_getinfo.hstream);
++			args->args_strm_getinfo.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+@@ -1665,7 +1665,7 @@ u32 strmwrap_get_info(union trapped_args *args, void *pr_ctxt)
+ 	strm_info.user_strm = &user;
+ 
+ 	if (!status) {
+-		status = strm_get_info(strm_res->hstream,
++		status = strm_get_info(strm_res->stream,
+ 				       &strm_info,
+ 				       args->args_strm_getinfo.
+ 				       stream_info_size);
+@@ -1684,12 +1684,12 @@ u32 strmwrap_idle(union trapped_args *args, void *pr_ctxt)
+ 	u32 ret;
+ 	struct strm_res_object *strm_res;
+ 
+-	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_idle.hstream);
++	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_idle.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+ 
+-	ret = strm_idle(strm_res->hstream, args->args_strm_idle.flush_flag);
++	ret = strm_idle(strm_res->stream, args->args_strm_idle.flush_flag);
+ 
+ 	return ret;
+ }
+@@ -1702,19 +1702,19 @@ u32 strmwrap_issue(union trapped_args *args, void *pr_ctxt)
+ 	int status = 0;
+ 	struct strm_res_object *strm_res;
+ 
+-	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_issue.hstream);
++	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_issue.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+ 
+-	if (!args->args_strm_issue.pbuffer)
++	if (!args->args_strm_issue.buffer)
+ 		return -EFAULT;
+ 
+ 	/* No need of doing CP_FM_USR for the user buffer (pbuffer)
+ 	   as this is done in Bridge internal function bridge_chnl_add_io_req
+ 	   in chnl_sm.c */
+-	status = strm_issue(strm_res->hstream,
+-			    args->args_strm_issue.pbuffer,
++	status = strm_issue(strm_res->stream,
++			    args->args_strm_issue.buffer,
+ 			    args->args_strm_issue.dw_bytes,
+ 			    args->args_strm_issue.dw_buf_size,
+ 			    args->args_strm_issue.arg);
+@@ -1734,7 +1734,7 @@ u32 strmwrap_open(union trapped_args *args, void *pr_ctxt)
+ 	struct node_res_object *node_res;
+ 	int strmid;
+ 
+-	find_node_handle(&node_res, pr_ctxt, args->args_strm_open.hnode);
++	find_node_handle(&node_res, pr_ctxt, args->args_strm_open.node);
+ 
+ 	if (!node_res)
+ 		return -EFAULT;
+@@ -1750,7 +1750,7 @@ u32 strmwrap_open(union trapped_args *args, void *pr_ctxt)
+ 		}
+ 
+ 	}
+-	status = strm_open(node_res->hnode,
++	status = strm_open(node_res->node,
+ 			   args->args_strm_open.direction,
+ 			   args->args_strm_open.index, &attr, &strm_res_obj,
+ 			   pr_ctxt);
+@@ -1773,12 +1773,12 @@ u32 strmwrap_reclaim(union trapped_args *args, void *pr_ctxt)
+ 	u32 ul_buf_size;
+ 	struct strm_res_object *strm_res;
+ 
+-	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_reclaim.hstream);
++	find_strm_handle(&strm_res, pr_ctxt, args->args_strm_reclaim.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+ 
+-	status = strm_reclaim(strm_res->hstream, &buf_ptr,
++	status = strm_reclaim(strm_res->stream, &buf_ptr,
+ 			      &ul_bytes, &ul_buf_size, &dw_arg);
+ 	CP_TO_USR(args->args_strm_reclaim.buf_ptr, &buf_ptr, status, 1);
+ 	CP_TO_USR(args->args_strm_reclaim.bytes, &ul_bytes, status, 1);
+@@ -1802,16 +1802,16 @@ u32 strmwrap_register_notify(union trapped_args *args, void *pr_ctxt)
+ 	struct strm_res_object *strm_res;
+ 
+ 	find_strm_handle(&strm_res, pr_ctxt,
+-			args->args_strm_registernotify.hstream);
++			args->args_strm_registernotify.stream);
+ 
+ 	if (!strm_res)
+ 		return -EFAULT;
+ 
+ 	/* Initialize the notification data structure */
+-	notification.ps_name = NULL;
++	notification.name = NULL;
+ 	notification.handle = NULL;
+ 
+-	status = strm_register_notify(strm_res->hstream,
++	status = strm_register_notify(strm_res->stream,
+ 				      args->args_strm_registernotify.event_mask,
+ 				      args->args_strm_registernotify.
+ 				      notify_type, &notification);
+@@ -1848,7 +1848,7 @@ u32 strmwrap_select(union trapped_args *args, void *pr_ctxt)
+ 		if (!strm_res)
+ 			return -EFAULT;
+ 
+-		strm_tab[i] = strm_res->hstream;
++		strm_tab[i] = strm_res->stream;
+ 	}
+ 
+ 	if (!status) {
+diff --git a/drivers/staging/tidspbridge/rmgr/dbdcd.c b/drivers/staging/tidspbridge/rmgr/dbdcd.c
+index 1e77c12..a7e407e 100644
+--- a/drivers/staging/tidspbridge/rmgr/dbdcd.c
++++ b/drivers/staging/tidspbridge/rmgr/dbdcd.c
+@@ -1166,36 +1166,36 @@ static int get_attrs_from_buf(char *psz_buf, u32 ul_buf_size,
+ 		gen_obj->obj_data.node_obj.ndb_props.timeout = atoi(token);
+ 		token = strsep(&psz_cur, seps);
+ 
+-		/* char *pstr_create_phase_fxn */
++		/* char *str_create_phase_fxn */
+ 		DBC_REQUIRE(token);
+ 		token_len = strlen(token);
+-		gen_obj->obj_data.node_obj.pstr_create_phase_fxn =
++		gen_obj->obj_data.node_obj.str_create_phase_fxn =
+ 					kzalloc(token_len + 1, GFP_KERNEL);
+-		strncpy(gen_obj->obj_data.node_obj.pstr_create_phase_fxn,
++		strncpy(gen_obj->obj_data.node_obj.str_create_phase_fxn,
+ 			token, token_len);
+-		gen_obj->obj_data.node_obj.pstr_create_phase_fxn[token_len] =
++		gen_obj->obj_data.node_obj.str_create_phase_fxn[token_len] =
+ 		    '\0';
+ 		token = strsep(&psz_cur, seps);
+ 
+-		/* char *pstr_execute_phase_fxn */
++		/* char *str_execute_phase_fxn */
+ 		DBC_REQUIRE(token);
+ 		token_len = strlen(token);
+-		gen_obj->obj_data.node_obj.pstr_execute_phase_fxn =
++		gen_obj->obj_data.node_obj.str_execute_phase_fxn =
+ 					kzalloc(token_len + 1, GFP_KERNEL);
+-		strncpy(gen_obj->obj_data.node_obj.pstr_execute_phase_fxn,
++		strncpy(gen_obj->obj_data.node_obj.str_execute_phase_fxn,
+ 			token, token_len);
+-		gen_obj->obj_data.node_obj.pstr_execute_phase_fxn[token_len] =
++		gen_obj->obj_data.node_obj.str_execute_phase_fxn[token_len] =
+ 		    '\0';
+ 		token = strsep(&psz_cur, seps);
+ 
+-		/* char *pstr_delete_phase_fxn */
++		/* char *str_delete_phase_fxn */
+ 		DBC_REQUIRE(token);
+ 		token_len = strlen(token);
+-		gen_obj->obj_data.node_obj.pstr_delete_phase_fxn =
++		gen_obj->obj_data.node_obj.str_delete_phase_fxn =
+ 					kzalloc(token_len + 1, GFP_KERNEL);
+-		strncpy(gen_obj->obj_data.node_obj.pstr_delete_phase_fxn,
++		strncpy(gen_obj->obj_data.node_obj.str_delete_phase_fxn,
+ 			token, token_len);
+-		gen_obj->obj_data.node_obj.pstr_delete_phase_fxn[token_len] =
++		gen_obj->obj_data.node_obj.str_delete_phase_fxn[token_len] =
+ 		    '\0';
+ 		token = strsep(&psz_cur, seps);
+ 
+@@ -1207,14 +1207,14 @@ static int get_attrs_from_buf(char *psz_buf, u32 ul_buf_size,
+ 		gen_obj->obj_data.node_obj.msg_notify_type = atoi(token);
+ 		token = strsep(&psz_cur, seps);
+ 
+-		/* char *pstr_i_alg_name */
++		/* char *str_i_alg_name */
+ 		if (token) {
+ 			token_len = strlen(token);
+-			gen_obj->obj_data.node_obj.pstr_i_alg_name =
++			gen_obj->obj_data.node_obj.str_i_alg_name =
+ 					kzalloc(token_len + 1, GFP_KERNEL);
+-			strncpy(gen_obj->obj_data.node_obj.pstr_i_alg_name,
++			strncpy(gen_obj->obj_data.node_obj.str_i_alg_name,
+ 				token, token_len);
+-			gen_obj->obj_data.node_obj.pstr_i_alg_name[token_len] =
++			gen_obj->obj_data.node_obj.str_i_alg_name[token_len] =
+ 			    '\0';
+ 			token = strsep(&psz_cur, seps);
+ 		}
+diff --git a/drivers/staging/tidspbridge/rmgr/disp.c b/drivers/staging/tidspbridge/rmgr/disp.c
+index d38ea2d..a9aa22f 100644
+--- a/drivers/staging/tidspbridge/rmgr/disp.c
++++ b/drivers/staging/tidspbridge/rmgr/disp.c
+@@ -64,7 +64,7 @@ struct disp_object {
+ 	struct chnl_mgr *chnl_mgr;	/* Channel manager */
+ 	struct chnl_object *chnl_to_dsp;	/* Chnl for commands to RMS */
+ 	struct chnl_object *chnl_from_dsp;	/* Chnl for replies from RMS */
+-	u8 *pbuf;		/* Buffer for commands, replies */
++	u8 *buf;		/* Buffer for commands, replies */
+ 	u32 bufsize;		/* buf size in bytes */
+ 	u32 bufsize_rms;	/* buf size in RMS words */
+ 	u32 char_size;		/* Size of DSP character */
+@@ -158,8 +158,8 @@ int disp_create(struct disp_object **dispatch_obj,
+ 		/* Allocate buffer for commands, replies */
+ 		disp_obj->bufsize = disp_attrs->chnl_buf_size;
+ 		disp_obj->bufsize_rms = RMS_COMMANDBUFSIZE;
+-		disp_obj->pbuf = kzalloc(disp_obj->bufsize, GFP_KERNEL);
+-		if (disp_obj->pbuf == NULL)
++		disp_obj->buf = kzalloc(disp_obj->bufsize, GFP_KERNEL);
++		if (disp_obj->buf == NULL)
+ 			status = -ENOMEM;
+ 	}
+ func_cont:
+@@ -232,7 +232,7 @@ int disp_node_change_priority(struct disp_object *disp_obj,
+ 	DBC_REQUIRE(hnode != NULL);
+ 
+ 	/* Send message to RMS to change priority */
+-	rms_cmd = (struct rms_command *)(disp_obj->pbuf);
++	rms_cmd = (struct rms_command *)(disp_obj->buf);
+ 	rms_cmd->fxn = (rms_word) (rms_fxn);
+ 	rms_cmd->arg1 = (rms_word) node_env;
+ 	rms_cmd->arg2 = prio;
+@@ -347,7 +347,7 @@ int disp_node_create(struct disp_object *disp_obj,
+ 	 */
+ 	if (!status) {
+ 		total = 0;	/* Total number of words in buffer so far */
+-		pdw_buf = (rms_word *) disp_obj->pbuf;
++		pdw_buf = (rms_word *) disp_obj->buf;
+ 		rms_cmd = (struct rms_command *)pdw_buf;
+ 		rms_cmd->fxn = (rms_word) (rms_fxn);
+ 		rms_cmd->arg1 = (rms_word) (ul_create_fxn);
+@@ -493,7 +493,7 @@ int disp_node_delete(struct disp_object *disp_obj,
+ 			/*
+ 			 *  Fill in buffer to send to RMS
+ 			 */
+-			rms_cmd = (struct rms_command *)disp_obj->pbuf;
++			rms_cmd = (struct rms_command *)disp_obj->buf;
+ 			rms_cmd->fxn = (rms_word) (rms_fxn);
+ 			rms_cmd->arg1 = (rms_word) node_env;
+ 			rms_cmd->arg2 = (rms_word) (ul_delete_fxn);
+@@ -534,7 +534,7 @@ int disp_node_run(struct disp_object *disp_obj,
+ 			/*
+ 			 *  Fill in buffer to send to RMS.
+ 			 */
+-			rms_cmd = (struct rms_command *)disp_obj->pbuf;
++			rms_cmd = (struct rms_command *)disp_obj->buf;
+ 			rms_cmd->fxn = (rms_word) (rms_fxn);
+ 			rms_cmd->arg1 = (rms_word) node_env;
+ 			rms_cmd->arg2 = (rms_word) (ul_execute_fxn);
+@@ -582,7 +582,7 @@ static void delete_disp(struct disp_object *disp_obj)
+ 					" RMS: 0x%x\n", __func__, status);
+ 			}
+ 		}
+-		kfree(disp_obj->pbuf);
++		kfree(disp_obj->buf);
+ 
+ 		kfree(disp_obj);
+ 	}
+@@ -664,7 +664,7 @@ static int send_message(struct disp_object *disp_obj, u32 timeout,
+ 	*pdw_arg = (u32) NULL;
+ 	intf_fxns = disp_obj->intf_fxns;
+ 	chnl_obj = disp_obj->chnl_to_dsp;
+-	pbuf = disp_obj->pbuf;
++	pbuf = disp_obj->buf;
+ 
+ 	/* Send the command */
+ 	status = (*intf_fxns->chnl_add_io_req) (chnl_obj, pbuf, ul_bytes, 0,
+@@ -703,8 +703,8 @@ static int send_message(struct disp_object *disp_obj, u32 timeout,
+ 			status = -EPERM;
+ 		} else {
+ 			if (CHNL_IS_IO_COMPLETE(chnl_ioc_obj)) {
+-				DBC_ASSERT(chnl_ioc_obj.pbuf == pbuf);
+-				if (*((int *)chnl_ioc_obj.pbuf) < 0) {
++				DBC_ASSERT(chnl_ioc_obj.buf == pbuf);
++				if (*((int *)chnl_ioc_obj.buf) < 0) {
+ 					/* Translate DSP's to kernel error */
+ 					status = -EREMOTEIO;
+ 					dev_dbg(bridge, "%s: DSP-side failed:"
+@@ -713,7 +713,7 @@ static int send_message(struct disp_object *disp_obj, u32 timeout,
+ 						*(int *)pbuf, status);
+ 				}
+ 				*pdw_arg =
+-				    (((rms_word *) (chnl_ioc_obj.pbuf))[1]);
++				    (((rms_word *) (chnl_ioc_obj.buf))[1]);
+ 			} else {
+ 				status = -EPERM;
+ 			}
+diff --git a/drivers/staging/tidspbridge/rmgr/drv.c b/drivers/staging/tidspbridge/rmgr/drv.c
+index ce5f398..8c88583 100644
+--- a/drivers/staging/tidspbridge/rmgr/drv.c
++++ b/drivers/staging/tidspbridge/rmgr/drv.c
+@@ -89,7 +89,7 @@ int drv_insert_node_res_element(void *hnode, void *node_resource,
+ 		goto func_end;
+ 	}
+ 
+-	(*node_res_obj)->hnode = hnode;
++	(*node_res_obj)->node = hnode;
+ 	retval = idr_get_new(ctxt->node_id, *node_res_obj,
+ 						&(*node_res_obj)->id);
+ 	if (retval == -EAGAIN) {
+@@ -123,13 +123,13 @@ static int drv_proc_free_node_res(int id, void *p, void *data)
+ 	u32 node_state;
+ 
+ 	if (node_res_obj->node_allocated) {
+-		node_state = node_get_state(node_res_obj->hnode);
++		node_state = node_get_state(node_res_obj->node);
+ 		if (node_state <= NODE_DELETING) {
+ 			if ((node_state == NODE_RUNNING) ||
+ 			    (node_state == NODE_PAUSED) ||
+ 			    (node_state == NODE_TERMINATING))
+ 				node_terminate
+-				    (node_res_obj->hnode, &status);
++				    (node_res_obj->node, &status);
+ 
+ 			node_delete(node_res_obj, ctxt);
+ 		}
+@@ -216,7 +216,7 @@ int drv_proc_insert_strm_res_element(void *stream_obj,
+ 		goto func_end;
+ 	}
+ 
+-	(*pstrm_res)->hstream = stream_obj;
++	(*pstrm_res)->stream = stream_obj;
+ 	retval = idr_get_new(ctxt->stream_id, *pstrm_res,
+ 						&(*pstrm_res)->id);
+ 	if (retval == -EAGAIN) {
+@@ -263,9 +263,9 @@ static int drv_proc_free_strm_res(int id, void *p, void *process_ctxt)
+ 	}
+ 	strm_info.user_strm = &user;
+ 	user.number_bufs_in_stream = 0;
+-	strm_get_info(strm_res->hstream, &strm_info, sizeof(strm_info));
++	strm_get_info(strm_res->stream, &strm_info, sizeof(strm_info));
+ 	while (user.number_bufs_in_stream--)
+-		strm_reclaim(strm_res->hstream, &buf_ptr, &ul_bytes,
++		strm_reclaim(strm_res->stream, &buf_ptr, &ul_bytes,
+ 			     (u32 *) &ul_buf_size, &dw_arg);
+ 	strm_close(strm_res, ctxt);
+ 	return 0;
+diff --git a/drivers/staging/tidspbridge/rmgr/nldr.c b/drivers/staging/tidspbridge/rmgr/nldr.c
+index e711970..fb5c2ba 100644
+--- a/drivers/staging/tidspbridge/rmgr/nldr.c
++++ b/drivers/staging/tidspbridge/rmgr/nldr.c
+@@ -1035,13 +1035,13 @@ static int add_ovly_node(struct dsp_uuid *uuid_obj,
+ 		}
+ 	}
+ 	/* These were allocated in dcd_get_object_def */
+-	kfree(obj_def.obj_data.node_obj.pstr_create_phase_fxn);
++	kfree(obj_def.obj_data.node_obj.str_create_phase_fxn);
+ 
+-	kfree(obj_def.obj_data.node_obj.pstr_execute_phase_fxn);
++	kfree(obj_def.obj_data.node_obj.str_execute_phase_fxn);
+ 
+-	kfree(obj_def.obj_data.node_obj.pstr_delete_phase_fxn);
++	kfree(obj_def.obj_data.node_obj.str_delete_phase_fxn);
+ 
+-	kfree(obj_def.obj_data.node_obj.pstr_i_alg_name);
++	kfree(obj_def.obj_data.node_obj.str_i_alg_name);
+ 
+ func_end:
+ 	return status;
+diff --git a/drivers/staging/tidspbridge/rmgr/node.c b/drivers/staging/tidspbridge/rmgr/node.c
+index c627560..5653837 100644
+--- a/drivers/staging/tidspbridge/rmgr/node.c
++++ b/drivers/staging/tidspbridge/rmgr/node.c
+@@ -209,7 +209,7 @@ struct node_object {
+ 	struct dcd_genericobj dcd_props;	/* Node properties from DCD */
+ 	struct dsp_cbdata *pargs;	/* Optional args to pass to node */
+ 	struct ntfy_object *ntfy_obj;	/* Manages registered notifications */
+-	char *pstr_dev_name;	/* device name, if device node */
++	char *str_dev_name;	/* device name, if device node */
+ 	struct sync_object *sync_done;	/* Synchronize node_terminate */
+ 	s32 exit_status;	/* execute function return status */
+ 
+@@ -1060,7 +1060,7 @@ int node_connect(struct node_object *node1, u32 stream1,
+ 		}
+ 		/* Set up create args */
+ 		pstream->type = DEVICECONNECT;
+-		dw_length = strlen(dev_node_obj->pstr_dev_name);
++		dw_length = strlen(dev_node_obj->str_dev_name);
+ 		if (conn_param)
+ 			pstrm_def->sz_device = kzalloc(dw_length + 1 +
+ 					conn_param->cb_data,
+@@ -1074,7 +1074,7 @@ int node_connect(struct node_object *node1, u32 stream1,
+ 		}
+ 		/* Copy device name */
+ 		strncpy(pstrm_def->sz_device,
+-				dev_node_obj->pstr_dev_name, dw_length);
++				dev_node_obj->str_dev_name, dw_length);
+ 		if (conn_param)
+ 			strncat(pstrm_def->sz_device,
+ 					(char *)conn_param->node_data,
+@@ -1214,7 +1214,7 @@ int node_create(struct node_object *hnode)
+ 				status = hnode_mgr->nldr_fxns.get_fxn_addr
+ 				    (hnode->nldr_node_obj,
+ 				     hnode->dcd_props.obj_data.node_obj.
+-				     pstr_i_alg_name,
++				     str_i_alg_name,
+ 				     &hnode->create_args.asa.
+ 				     task_arg_obj.dais_arg);
+ 			}
+@@ -1393,7 +1393,7 @@ out_err:
+ int node_delete(struct node_res_object *noderes,
+ 		       struct process_context *pr_ctxt)
+ {
+-	struct node_object *pnode = noderes->hnode;
++	struct node_object *pnode = noderes->node;
+ 	struct node_mgr *hnode_mgr;
+ 	struct proc_object *hprocessor;
+ 	struct disp_object *disp_obj;
+@@ -2541,8 +2541,8 @@ static void delete_node(struct node_object *hnode,
+ 		kfree(hnode->stream_connect);
+ 		hnode->stream_connect = NULL;
+ 	}
+-	kfree(hnode->pstr_dev_name);
+-	hnode->pstr_dev_name = NULL;
++	kfree(hnode->str_dev_name);
++	hnode->str_dev_name = NULL;
+ 
+ 	if (hnode->ntfy_obj) {
+ 		ntfy_delete(hnode->ntfy_obj);
+@@ -2551,17 +2551,17 @@ static void delete_node(struct node_object *hnode,
+ 	}
+ 
+ 	/* These were allocated in dcd_get_object_def (via node_allocate) */
+-	kfree(hnode->dcd_props.obj_data.node_obj.pstr_create_phase_fxn);
+-	hnode->dcd_props.obj_data.node_obj.pstr_create_phase_fxn = NULL;
++	kfree(hnode->dcd_props.obj_data.node_obj.str_create_phase_fxn);
++	hnode->dcd_props.obj_data.node_obj.str_create_phase_fxn = NULL;
+ 
+-	kfree(hnode->dcd_props.obj_data.node_obj.pstr_execute_phase_fxn);
+-	hnode->dcd_props.obj_data.node_obj.pstr_execute_phase_fxn = NULL;
++	kfree(hnode->dcd_props.obj_data.node_obj.str_execute_phase_fxn);
++	hnode->dcd_props.obj_data.node_obj.str_execute_phase_fxn = NULL;
+ 
+-	kfree(hnode->dcd_props.obj_data.node_obj.pstr_delete_phase_fxn);
+-	hnode->dcd_props.obj_data.node_obj.pstr_delete_phase_fxn = NULL;
++	kfree(hnode->dcd_props.obj_data.node_obj.str_delete_phase_fxn);
++	hnode->dcd_props.obj_data.node_obj.str_delete_phase_fxn = NULL;
+ 
+-	kfree(hnode->dcd_props.obj_data.node_obj.pstr_i_alg_name);
+-	hnode->dcd_props.obj_data.node_obj.pstr_i_alg_name = NULL;
++	kfree(hnode->dcd_props.obj_data.node_obj.str_i_alg_name);
++	hnode->dcd_props.obj_data.node_obj.str_i_alg_name = NULL;
+ 
+ 	/* Free all SM address translator resources */
+ 	kfree(hnode->xlator);
+@@ -2755,15 +2755,15 @@ static int get_fxn_address(struct node_object *hnode, u32 * fxn_addr,
+ 	switch (phase) {
+ 	case CREATEPHASE:
+ 		pstr_fxn_name =
+-		    hnode->dcd_props.obj_data.node_obj.pstr_create_phase_fxn;
++		    hnode->dcd_props.obj_data.node_obj.str_create_phase_fxn;
+ 		break;
+ 	case EXECUTEPHASE:
+ 		pstr_fxn_name =
+-		    hnode->dcd_props.obj_data.node_obj.pstr_execute_phase_fxn;
++		    hnode->dcd_props.obj_data.node_obj.str_execute_phase_fxn;
+ 		break;
+ 	case DELETEPHASE:
+ 		pstr_fxn_name =
+-		    hnode->dcd_props.obj_data.node_obj.pstr_delete_phase_fxn;
++		    hnode->dcd_props.obj_data.node_obj.str_delete_phase_fxn;
+ 		break;
+ 	default:
+ 		/* Should never get here */
+@@ -2851,11 +2851,11 @@ static int get_node_props(struct dcd_manager *hdcd_mgr,
+ 			DBC_REQUIRE(pndb_props->ac_name);
+ 			len = strlen(pndb_props->ac_name);
+ 			DBC_ASSERT(len < MAXDEVNAMELEN);
+-			hnode->pstr_dev_name = kzalloc(len + 1, GFP_KERNEL);
+-			if (hnode->pstr_dev_name == NULL) {
++			hnode->str_dev_name = kzalloc(len + 1, GFP_KERNEL);
++			if (hnode->str_dev_name == NULL) {
+ 				status = -ENOMEM;
+ 			} else {
+-				strncpy(hnode->pstr_dev_name,
++				strncpy(hnode->str_dev_name,
+ 					pndb_props->ac_name, len);
+ 			}
+ 		}
+@@ -2974,10 +2974,10 @@ int node_get_uuid_props(void *hprocessor,
+ 	 */
+ 	mutex_lock(&hnode_mgr->node_mgr_lock);
+ 
+-	dcd_node_props.pstr_create_phase_fxn = NULL;
+-	dcd_node_props.pstr_execute_phase_fxn = NULL;
+-	dcd_node_props.pstr_delete_phase_fxn = NULL;
+-	dcd_node_props.pstr_i_alg_name = NULL;
++	dcd_node_props.str_create_phase_fxn = NULL;
++	dcd_node_props.str_execute_phase_fxn = NULL;
++	dcd_node_props.str_delete_phase_fxn = NULL;
++	dcd_node_props.str_i_alg_name = NULL;
+ 
+ 	status = dcd_get_object_def(hnode_mgr->dcd_mgr,
+ 		(struct dsp_uuid *)node_uuid, DSP_DCDNODETYPE,
+@@ -2985,13 +2985,13 @@ int node_get_uuid_props(void *hprocessor,
+ 
+ 	if (!status) {
+ 		*node_props = dcd_node_props.ndb_props;
+-		kfree(dcd_node_props.pstr_create_phase_fxn);
++		kfree(dcd_node_props.str_create_phase_fxn);
+ 
+-		kfree(dcd_node_props.pstr_execute_phase_fxn);
++		kfree(dcd_node_props.str_execute_phase_fxn);
+ 
+-		kfree(dcd_node_props.pstr_delete_phase_fxn);
++		kfree(dcd_node_props.str_delete_phase_fxn);
+ 
+-		kfree(dcd_node_props.pstr_i_alg_name);
++		kfree(dcd_node_props.str_i_alg_name);
+ 	}
+ 	/*  Leave the critical section, we're done. */
+ 	mutex_unlock(&hnode_mgr->node_mgr_lock);
+diff --git a/drivers/staging/tidspbridge/rmgr/strm.c b/drivers/staging/tidspbridge/rmgr/strm.c
+index cc7370c..3fae0e9 100644
+--- a/drivers/staging/tidspbridge/rmgr/strm.c
++++ b/drivers/staging/tidspbridge/rmgr/strm.c
+@@ -70,13 +70,13 @@ struct strm_object {
+ 	u32 dir;		/* DSP_TONODE or DSP_FROMNODE */
+ 	u32 timeout;
+ 	u32 num_bufs;		/* Max # of bufs allowed in stream */
+-	u32 un_bufs_in_strm;	/* Current # of bufs in stream */
++	u32 bufs_in_strm;	/* Current # of bufs in stream */
+ 	u32 bytes;		/* bytes transferred since idled */
+ 	/* STREAM_IDLE, STREAM_READY, ... */
+ 	enum dsp_streamstate strm_state;
+ 	void *user_event;	/* Saved for strm_get_info() */
+ 	enum dsp_strmmode strm_mode;	/* STRMMODE_[PROCCOPY][ZEROCOPY]... */
+-	u32 udma_chnl_id;	/* DMA chnl id */
++	u32 dma_chnl_id;	/* DMA chnl id */
+ 	u32 dma_priority;	/* DMA priority:DMAPRI_[LOW][HIGH] */
+ 	u32 segment_id;		/* >0 is SM segment.=0 is local heap */
+ 	u32 buf_alignment;	/* Alignment for stream bufs */
+@@ -102,7 +102,7 @@ int strm_allocate_buffer(struct strm_res_object *strmres, u32 usize,
+ 	int status = 0;
+ 	u32 alloc_cnt = 0;
+ 	u32 i;
+-	struct strm_object *stream_obj = strmres->hstream;
++	struct strm_object *stream_obj = strmres->stream;
+ 
+ 	DBC_REQUIRE(refs > 0);
+ 	DBC_REQUIRE(ap_buffer != NULL);
+@@ -154,7 +154,7 @@ int strm_close(struct strm_res_object *strmres,
+ 	struct bridge_drv_interface *intf_fxns;
+ 	struct chnl_info chnl_info_obj;
+ 	int status = 0;
+-	struct strm_object *stream_obj = strmres->hstream;
++	struct strm_object *stream_obj = strmres->stream;
+ 
+ 	DBC_REQUIRE(refs > 0);
+ 
+@@ -268,7 +268,7 @@ int strm_free_buffer(struct strm_res_object *strmres, u8 ** ap_buffer,
+ {
+ 	int status = 0;
+ 	u32 i = 0;
+-	struct strm_object *stream_obj = strmres->hstream;
++	struct strm_object *stream_obj = strmres->stream;
+ 
+ 	DBC_REQUIRE(refs > 0);
+ 	DBC_REQUIRE(ap_buffer != NULL);
+@@ -504,8 +504,8 @@ int strm_open(struct node_object *hnode, u32 dir, u32 index,
+ 				    pattr->stream_attr_in->segment_id;
+ 				strm_obj->buf_alignment =
+ 				    pattr->stream_attr_in->buf_alignment;
+-				strm_obj->udma_chnl_id =
+-				    pattr->stream_attr_in->udma_chnl_id;
++				strm_obj->dma_chnl_id =
++				    pattr->stream_attr_in->dma_chnl_id;
+ 				strm_obj->dma_priority =
+ 				    pattr->stream_attr_in->dma_priority;
+ 				chnl_attr_obj.uio_reqs =
+@@ -516,7 +516,7 @@ int strm_open(struct node_object *hnode, u32 dir, u32 index,
+ 				strm_obj->strm_mode = STRMMODE_PROCCOPY;
+ 				strm_obj->segment_id = 0;	/* local mem */
+ 				strm_obj->buf_alignment = 0;
+-				strm_obj->udma_chnl_id = 0;
++				strm_obj->dma_chnl_id = 0;
+ 				strm_obj->dma_priority = 0;
+ 				chnl_attr_obj.uio_reqs = DEFAULTNUMBUFS;
+ 			}
+@@ -655,14 +655,14 @@ int strm_reclaim(struct strm_object *stream_obj, u8 ** buf_ptr,
+ 		    && (!CHNL_IS_IO_CANCELLED(chnl_ioc_obj))
+ 		    && (stream_obj->strm_mode == STRMMODE_ZEROCOPY)) {
+ 			/*
+-			 *  This is a zero-copy channel so chnl_ioc_obj.pbuf
++			 *  This is a zero-copy channel so chnl_ioc_obj.buf
+ 			 *  contains the DSP address of SM. We need to
+ 			 *  translate it to a virtual address for the user
+ 			 *  thread to access.
+ 			 *  Note: Could add CMM_DSPPA2VA to CMM in the future.
+ 			 */
+ 			tmp_buf = cmm_xlator_translate(stream_obj->xlator,
+-						       chnl_ioc_obj.pbuf,
++						       chnl_ioc_obj.buf,
+ 						       CMM_DSPPA2PA);
+ 			if (tmp_buf != NULL) {
+ 				/* now convert this GPP Pa to Va */
+@@ -674,9 +674,9 @@ int strm_reclaim(struct strm_object *stream_obj, u8 ** buf_ptr,
+ 			if (tmp_buf == NULL)
+ 				status = -ESRCH;
+ 
+-			chnl_ioc_obj.pbuf = tmp_buf;
++			chnl_ioc_obj.buf = tmp_buf;
+ 		}
+-		*buf_ptr = chnl_ioc_obj.pbuf;
++		*buf_ptr = chnl_ioc_obj.buf;
+ 	}
+ func_end:
+ 	/* ensure we return a documented return code */
+-- 
+1.7.1
+

@@ -1,0 +1,53 @@
+From 7ed5e514af13c7938a6097e3c6d259c95cf6c436 Mon Sep 17 00:00:00 2001
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Date: Sun, 12 Dec 2010 13:39:37 +0000
+Subject: [PATCH 19/37] staging: tidspbridge: Fix atoi to support hexadecimal numbers correctly
+
+For some strange reason, the DSP base image node/object properties
+description string stores hexadecimal numbers with a 'h' or 'H' suffix
+instead of a '0x' prefix. This causes parsing issue because the
+dspbridge atoi() implementation relies on strict_strtoul(), which will
+return an error because of the trailing 'h' character.
+
+As the atoi() return value is never checked for an error anyway, replace
+strict_strtoul() with simple_strtoul() to ignore the suffix.
+
+This fix gets rid of the following assertion failed messages that were
+printed when running the dsp-dummy test application.
+
+drivers/staging/tidspbridge/rmgr/nldr.c, line 1691:
+Assertion (segid == MEMINTERNALID || segid == MEMEXTERNALID) failed.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Omar Ramirez Luna <omar.ramirez@ti.com>
+---
+ drivers/staging/tidspbridge/rmgr/dbdcd.c |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/staging/tidspbridge/rmgr/dbdcd.c b/drivers/staging/tidspbridge/rmgr/dbdcd.c
+index 3581a55..b76f26c 100644
+--- a/drivers/staging/tidspbridge/rmgr/dbdcd.c
++++ b/drivers/staging/tidspbridge/rmgr/dbdcd.c
+@@ -1020,8 +1020,6 @@ static s32 atoi(char *psz_buf)
+ {
+ 	char *pch = psz_buf;
+ 	s32 base = 0;
+-	unsigned long res;
+-	int ret_val;
+ 
+ 	while (isspace(*pch))
+ 		pch++;
+@@ -1033,9 +1031,7 @@ static s32 atoi(char *psz_buf)
+ 		base = 16;
+ 	}
+ 
+-	ret_val = strict_strtoul(pch, base, &res);
+-
+-	return ret_val ? : res;
++	return simple_strtoul(pch, NULL, base);
+ }
+ 
+ /*
+-- 
+1.7.1
+
