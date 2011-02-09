@@ -157,23 +157,46 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-rc3-_cons
 function omap4 {
 echo "omap4 related patches"
 
-#2.6.37-git2
-#ehci for omap4 from: http://dev.omapzoom.org/?p=anand/linux-omap-usb.git;a=shortlog;h=refs/heads/omap4-ehci-upstream-v1
-#patch -s -p1 < "${DIR}/patches/panda/0001-usb-ehci-omap-update-clock-names-to-be-more-generic.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0002-usb-ehci-omap-don-t-hard-code-TLL-channel-count.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0003-usb-ehci-introduce-CONFIG_USB_EHCI_HCD_OMAP.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0004-omap-clock-add-clkdev-aliases-for-EHCI-clocks.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0005-usb-ehci-omap-use-clkdev-aliases-for-functional-cloc.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0006-usb-ehci-omap-add-helpers-for-checking-port-mode.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0007-omap-usb-ehci-introduce-HSIC-mode.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0008-usb-ehci-omap-Add-OMAP4-support.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0009-arm-omap4-add-USBHOST-and-related-base-addresses.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0010-arm-omap4-usb-add-platform-init-code-for-EHCI.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0011-arm-omap4-select-USB_ARCH_HAS_EHCI.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0012-omap4-4430sdp-enable-the-ehci-port-on-4430SDP.patch"
+#panda display from: http://dev.omapzoom.org/?p=anand/linux-omap-usb.git;a=shortlog;h=refs/heads/display-patches-for-v2.6.38-rc4
+patch -s -p1 < "${DIR}/patches/panda/0001-OMAP2-3-DSS2-remove-forced-clk-disable-from-omap_dss.patch"
+patch -s -p1 < "${DIR}/patches/panda/0002-OMAP2420-hwmod-data-add-DSS-DISPC-RFBI-VENC.patch"
+patch -s -p1 < "${DIR}/patches/panda/0003-OMAP2430-hwmod-data-add-DSS-DISPC-RFBI-VENC.patch"
+patch -s -p1 < "${DIR}/patches/panda/0004-OMAP3-hwmod-data-add-DSS-DISPC-RFBI-DSI-VENC.patch"
+patch -s -p1 < "${DIR}/patches/panda/0005-OMAP2-3-DSS2-Change-driver-name-to-omap_display.patch"
+patch -s -p1 < "${DIR}/patches/panda/0006-OMAP2-3-DSS2-Use-Regulator-init-with-driver-name.patch"
+patch -s -p1 < "${DIR}/patches/panda/0007-OMAP2-3-DSS2-Create-new-file-display.c-for-central-d.patch"
+patch -s -p1 < "${DIR}/patches/panda/0008-OMAP2-3-DSS2-board-files-replace-platform_device_reg.patch"
+patch -s -p1 < "${DIR}/patches/panda/0009-OMAP2-3-DSS2-Build-omap_device-for-each-DSS-HWIP.patch"
+patch -s -p1 < "${DIR}/patches/panda/0010-OMAP2-3-DSS2-DSS-create-platform_driver-move-init-ex.patch"
+patch -s -p1 < "${DIR}/patches/panda/0011-OMAP2-3-DSS2-Move-clocks-from-core-driver-to-dss-dri.patch"
+patch -s -p1 < "${DIR}/patches/panda/0012-OMAP2-3-DSS2-RFBI-create-platform_driver-move-init-e.patch"
+patch -s -p1 < "${DIR}/patches/panda/0013-OMAP2-3-DSS2-DISPC-create-platform_driver-move-init-.patch"
+patch -s -p1 < "${DIR}/patches/panda/0014-OMAP2-3-DSS2-VENC-create-platform_driver-move-init-e.patch"
+patch -s -p1 < "${DIR}/patches/panda/0015-OMAP2-3-DSS2-DSI-create-platform_driver-move-init-ex.patch"
+patch -s -p1 < "${DIR}/patches/panda/0016-OMAP2-3-DSS2-replace-printk-with-dev_dbg-in-init.patch"
+patch -s -p1 < "${DIR}/patches/panda/0017-OMAP2-3-DSS2-Use-platform-device-to-get-baseaddr.patch"
+patch -s -p1 < "${DIR}/patches/panda/0018-OMAP2-3-DSS2-Get-DSS-IRQ-from-platform-device.patch"
+patch -s -p1 < "${DIR}/patches/panda/0019-OMAP2PLUS-clocks-Align-DSS-clock-names-and-roles.patch"
 
-#patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-Pandaboard-Fixing-MMC-card-detect-gpio-line.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0002-OMAP4-Pandaboad-Add-omap_reserve-functionality.patch"
+#the omap36xx dpi.c change from steve really needs to upstream..
+#patch -s -p1 < "${DIR}/patches/panda/0020-OMAP2PLUS-DSS2-Generalize-naming-of-PRCM-related-clo.patch"
+patch -s -p1 < "${DIR}/patches/panda/0020-OMAP2PLUS-DSS2-Generalize-naming-of-PRCM-related-clo-fixup.patch"
+
+patch -s -p1 < "${DIR}/patches/panda/0021-OMAP2PLUS-DSS2-Generalize-external-clock-names-in-st.patch"
+patch -s -p1 < "${DIR}/patches/panda/0022-OMAP4-DSS2-clocks-Add-ick-as-dummy-clock.patch"
+patch -s -p1 < "${DIR}/patches/panda/0023-OMAP2PLUS-DSS2-Add-OMAP4-Kconfig-support.patch"
+patch -s -p1 < "${DIR}/patches/panda/0024-OMAP4-hwmod-data-add-DSS-DISPC-DSI1-2-RFBI-HDMI-VENC.patch"
+patch -s -p1 < "${DIR}/patches/panda/0025-OMAP4-DSS2-Add-hwmod-device-names-for-OMAP4.patch"
+patch -s -p1 < "${DIR}/patches/panda/0026-OMAP-DSS2-Common-IRQ-handler-for-all-OMAPs.patch"
+patch -s -p1 < "${DIR}/patches/panda/0027-OMAP-DSS2-Add-dss_feature-for-variable-DPLL-fclk.patch"
+patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
+patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
+patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
+patch -s -p1 < "${DIR}/patches/panda/0031-OMAP-DSS2-Adding-dss_features-for-independent-core-c.patch"
+patch -s -p1 < "${DIR}/patches/panda/0032-OMAP-DSS2-Renaming-register-macro-DISPC_DIVISOR-ch.patch"
+patch -s -p1 < "${DIR}/patches/panda/0033-OMAP-DSS2-Adding-macro-for-DISPC_DIVISOR-register.patch"
+patch -s -p1 < "${DIR}/patches/panda/0034-OMAP4-DSS2-Using-dss_features-to-set-independent-cor.patch"
+patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
 
 }
 

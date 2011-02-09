@@ -1,0 +1,140 @@
+From d977ab3f785a52f6d5f5b4ebd1744254d90c4ec9 Mon Sep 17 00:00:00 2001
+From: Senthilvadivu Guruswamy <svadivu@ti.com>
+Date: Mon, 24 Jan 2011 06:21:53 +0000
+Subject: [PATCH 06/35] OMAP2,3 DSS2 Use Regulator init with driver name
+
+Use driver name in regulator inits needed for display instead of using device
+structure name.
+
+Reviewed-by: Kevin Hilman <khilman@ti.com>
+Tested-by: Kevin Hilman <khilman@ti.com>
+Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
+Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
+---
+ arch/arm/mach-omap2/board-3430sdp.c      |   11 +++--------
+ arch/arm/mach-omap2/board-cm-t35.c       |   12 ++++--------
+ arch/arm/mach-omap2/board-igep0020.c     |    6 ++----
+ arch/arm/mach-omap2/board-omap3evm.c     |    6 ++----
+ arch/arm/mach-omap2/board-omap3stalker.c |   12 ++++--------
+ 5 files changed, 15 insertions(+), 32 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-3430sdp.c b/arch/arm/mach-omap2/board-3430sdp.c
+index 6f4e7cf..d99902c 100644
+--- a/arch/arm/mach-omap2/board-3430sdp.c
++++ b/arch/arm/mach-omap2/board-3430sdp.c
+@@ -315,10 +315,8 @@ static struct platform_device sdp3430_dss_device = {
+ 	},
+ };
+ 
+-static struct regulator_consumer_supply sdp3430_vdda_dac_supply = {
+-	.supply		= "vdda_dac",
+-	.dev		= &sdp3430_dss_device.dev,
+-};
++static struct regulator_consumer_supply sdp3430_vdda_dac_supply =
++	REGULATOR_SUPPLY("vdda_dac", "omap_display");
+ 
+ static struct platform_device *sdp3430_devices[] __initdata = {
+ 	&sdp3430_dss_device,
+@@ -546,10 +544,7 @@ static struct regulator_init_data sdp3430_vdac = {
+ 
+ /* VPLL2 for digital video outputs */
+ static struct regulator_consumer_supply sdp3430_vpll2_supplies[] = {
+-	{
+-		.supply		= "vdds_dsi",
+-		.dev		= &sdp3430_dss_device.dev,
+-	}
++	REGULATOR_SUPPLY("vdds_dsi", "omap_display"),
+ };
+ 
+ static struct regulator_init_data sdp3430_vpll2 = {
+diff --git a/arch/arm/mach-omap2/board-cm-t35.c b/arch/arm/mach-omap2/board-cm-t35.c
+index 79f87ec..22322d1 100644
+--- a/arch/arm/mach-omap2/board-cm-t35.c
++++ b/arch/arm/mach-omap2/board-cm-t35.c
+@@ -495,15 +495,11 @@ static struct regulator_consumer_supply cm_t35_vsim_supply = {
+ 	.supply			= "vmmc_aux",
+ };
+ 
+-static struct regulator_consumer_supply cm_t35_vdac_supply = {
+-	.supply		= "vdda_dac",
+-	.dev		= &cm_t35_dss_device.dev,
+-};
++static struct regulator_consumer_supply cm_t35_vdac_supply =
++	REGULATOR_SUPPLY("vdda_dac", "omap_display");
+ 
+-static struct regulator_consumer_supply cm_t35_vdvi_supply = {
+-	.supply		= "vdvi",
+-	.dev		= &cm_t35_dss_device.dev,
+-};
++static struct regulator_consumer_supply cm_t35_vdvi_supply =
++	REGULATOR_SUPPLY("vdvi", "omap_display");
+ 
+ /* VMMC1 for MMC1 pins CMD, CLK, DAT0..DAT3 (20 mA, plus card == max 220 mA) */
+ static struct regulator_init_data cm_t35_vmmc1 = {
+diff --git a/arch/arm/mach-omap2/board-igep0020.c b/arch/arm/mach-omap2/board-igep0020.c
+index 23abfa3..238c69e 100644
+--- a/arch/arm/mach-omap2/board-igep0020.c
++++ b/arch/arm/mach-omap2/board-igep0020.c
+@@ -493,10 +493,8 @@ static struct platform_device igep2_dss_device = {
+ 	},
+ };
+ 
+-static struct regulator_consumer_supply igep2_vpll2_supply = {
+-	.supply	= "vdds_dsi",
+-	.dev	= &igep2_dss_device.dev,
+-};
++static struct regulator_consumer_supply igep2_vpll2_supply =
++	REGULATOR_SUPPLY("vdds_dsi", "omap_display");
+ 
+ static struct regulator_init_data igep2_vpll2 = {
+ 	.constraints = {
+diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-omap2/board-omap3evm.c
+index 4ad3c4d..32ac816 100644
+--- a/arch/arm/mach-omap2/board-omap3evm.c
++++ b/arch/arm/mach-omap2/board-omap3evm.c
+@@ -500,10 +500,8 @@ static struct twl4030_codec_data omap3evm_codec_data = {
+ 	.audio = &omap3evm_audio_data,
+ };
+ 
+-static struct regulator_consumer_supply omap3_evm_vdda_dac_supply = {
+-	.supply		= "vdda_dac",
+-	.dev		= &omap3_evm_dss_device.dev,
+-};
++static struct regulator_consumer_supply omap3_evm_vdda_dac_supply =
++	REGULATOR_SUPPLY("vdda_dac", "omap_display");
+ 
+ /* VDAC for DSS driving S-Video */
+ static struct regulator_init_data omap3_evm_vdac = {
+diff --git a/arch/arm/mach-omap2/board-omap3stalker.c b/arch/arm/mach-omap2/board-omap3stalker.c
+index 51c010c..7b675cb 100644
+--- a/arch/arm/mach-omap2/board-omap3stalker.c
++++ b/arch/arm/mach-omap2/board-omap3stalker.c
+@@ -448,10 +448,8 @@ static struct twl4030_codec_data omap3stalker_codec_data = {
+ 	.audio		= &omap3stalker_audio_data,
+ };
+ 
+-static struct regulator_consumer_supply omap3_stalker_vdda_dac_supply = {
+-	.supply		= "vdda_dac",
+-	.dev		= &omap3_stalker_dss_device.dev,
+-};
++static struct regulator_consumer_supply omap3_stalker_vdda_dac_supply =
++	REGULATOR_SUPPLY("vdda_dac", "omap_display");
+ 
+ /* VDAC for DSS driving S-Video */
+ static struct regulator_init_data omap3_stalker_vdac = {
+@@ -469,10 +467,8 @@ static struct regulator_init_data omap3_stalker_vdac = {
+ };
+ 
+ /* VPLL2 for digital video outputs */
+-static struct regulator_consumer_supply omap3_stalker_vpll2_supply = {
+-	.supply		= "vdds_dsi",
+-	.dev		= &omap3_stalker_lcd_device.dev,
+-};
++static struct regulator_consumer_supply omap3_stalker_vpll2_supply =
++	REGULATOR_SUPPLY("vdds_dsi", "omap_display");
+ 
+ static struct regulator_init_data omap3_stalker_vpll2 = {
+ 	.constraints		= {
+-- 
+1.7.1
+
