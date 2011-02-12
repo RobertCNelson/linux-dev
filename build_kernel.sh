@@ -9,6 +9,7 @@ unset CC
 unset LINUX_GIT
 unset BISECT
 unset NO_DEVTMPS
+unset LATEST_GIT
 
 unset LOCAL_PATCH_DIR
 
@@ -33,42 +34,58 @@ function git_remote_add {
 
 function git_kernel {
 
-        cd ${LINUX_GIT}/
-        git fetch
-        cd -
+  cd ${LINUX_GIT}/
+  git fetch
+  cd -
 
-        if [[ ! -a ${DIR}/KERNEL ]]; then
-                git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
-        fi
+  if [[ ! -a ${DIR}/KERNEL ]]; then
+    git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
+  fi
 
-        cd ${DIR}/KERNEL
+  cd ${DIR}/KERNEL
 
-        git reset --hard
-        git fetch
-        git checkout master
-        git pull
+  git reset --hard
+  git fetch
+  git checkout master
+  git pull
 
-        git remote | grep torvalds_remote && git fetch --tags torvalds_remote master
+  git remote | grep torvalds_remote && git fetch --tags torvalds_remote master
 
-        if [ "${PRE_RC}" ]; then
-                wget -c --directory-prefix=${DIR}/patches/ http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-${PRE_RC}.bz2
-                git branch -D v${PRE_RC}-${BUILD} || true
-                git checkout v${KERNEL_REL} -b v${PRE_RC}-${BUILD}
-        else if [ "${RC_PATCH}" ]; then
-                git tag | grep v${RC_KERNEL}${RC_PATCH} || git_remote_add
-                git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} || true
-                git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
-        else if [ "${STABLE_PATCH}" ] ; then
-                git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
-                git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
-        else
-                git branch -D v${KERNEL_REL}-${BUILD} || true
-                git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
-        fi
-        fi
-        fi
+  if [ "${PRE_RC}" ]; then
+    git branch -D v${PRE_RC}-${BUILD} || true
+    if [ ! "${LATEST_GIT}" ] ; then
+      wget -c --directory-prefix=${DIR}/patches/ http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-${PRE_RC}.bz2
+      git checkout v${KERNEL_REL} -b v${PRE_RC}-${BUILD}
+    else
+      git checkout origin/master -b v${PRE_RC}-${BUILD}
+    fi
+  elif [ "${RC_PATCH}" ]; then
+    git tag | grep v${RC_KERNEL}${RC_PATCH} || git_remote_add
+    git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} || true
+    if [ ! "${LATEST_GIT}" ] ; then
+      git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
+    else
+      git checkout origin/master -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
+    fi
+  elif [ "${STABLE_PATCH}" ] ; then
+    git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
+    if [ "${LATEST_GIT}" ] ; then
+      git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
+    else
+      git checkout origin/master -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
+    fi
+  else
+    git branch -D v${KERNEL_REL}-${BUILD} || true
+    if [ "${LATEST_GIT}" ] ; then
+      git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
+    else
+      git checkout origin/master -b v${KERNEL_REL}-${BUILD}
+    fi
+  fi
 
-        cd ${DIR}/
+  git describe
+
+  cd ${DIR}/
 }
 
 function git_bisect {
@@ -192,6 +209,12 @@ if [ "-${LINUX_GIT}-" != "--" ]; then
 if [ "${IS_LUCID}" ] ; then
 	echo ""
 	echo "IS_LUCID setting in system.sh is Depreciated"
+	echo ""
+fi
+
+if [ "${LATEST_GIT}" ] ; then
+	echo ""
+	echo "Warning LATEST_GIT is enabled from system.sh i hope you know what your doing.."
 	echo ""
 fi
 
