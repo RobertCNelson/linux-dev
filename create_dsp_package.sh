@@ -194,8 +194,6 @@ function create_DSP_package {
 	mkdir -p ${DIR}/DSP/lib/dsp
 	mkdir -p ${DIR}/DSP/opt/
 
-#	sudo cp -rv ${DIR}/dl/userspace-dspbridge/source/target/dspbridge/ ${DIR}/DSP/opt/
-#	sudo cp -v ${DIR}/dl/userspace-dspbridge/source/target/lib/* ${DIR}/DSP/lib/
 	sudo cp -v ${DIR}/dl/TI_DSP_${TI_DSP_BIN}/binaries/* ${DIR}/DSP/lib/dsp
 
 file-DSP-startup
@@ -224,16 +222,8 @@ file-install-gst-dsp
 }
 
 
-if [ -e ${DIR}/system.sh ]; then
-	. system.sh
+libstd_dependicy
+ti_DSP_binaries
 
-	libstd_dependicy
-	ti_DSP_binaries
+create_DSP_package
 
-	create_DSP_package
-
-else
-	echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
-	echo "cp system.sh.sample system.sh"
-	echo "gedit system.sh"
-fi

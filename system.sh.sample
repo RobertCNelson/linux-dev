@@ -14,11 +14,22 @@ ARCH=$(uname -m)
 
 if test "-$ARCH-" = "-armv7l-"
 then
- #using native gcc
+ echo "Using: Native armv7l Compiler"
  CC=
 else
- #ubuntu:
+ echo "Using: Cross Compiler"
+ #For ubuntu, if you apt-get the gcc-"version"-arm-linux-gnueabi from above..:
  #CC=arm-linux-gnueabi-
+
+ #Test that user actually modified the above CC line:
+ if test "-$CC-" = "--"
+ then
+  echo ""
+  echo "Error: You haven't setup the Cross Compiler (CC variable) in system.sh"
+  echo ""
+  echo "with a (sane editor) open system.sh and modify the commented Line 22: #CC=arm-linux-gnueabi-"
+  exit
+ fi
 fi
 
 #USE git for downloading source
