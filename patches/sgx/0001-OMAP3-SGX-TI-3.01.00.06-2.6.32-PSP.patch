@@ -1,0 +1,41 @@
+From 2e7cf5f1a6436466953fd8e1a6029d42de26ef31 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 15 Feb 2011 12:24:36 -0600
+Subject: [PATCH] OMAP3 SGX TI 3.01.00.06 2.6.32 PSP
+
+Using Koen better version from here:
+http://cgit.openembedded.org/cgit.cgi/openembedded/commit/?id=db4c0d8df9ed828e916e471753d2e041b5e69bbd
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../services4/system/omap3630/sysutils_linux.c     |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/staging/omap3-sgx/services4/system/omap3630/sysutils_linux.c b/drivers/staging/omap3-sgx/services4/system/omap3630/sysutils_linux.c
+index 159b4da..396a95a 100644
+--- a/drivers/staging/omap3-sgx/services4/system/omap3630/sysutils_linux.c
++++ b/drivers/staging/omap3-sgx/services4/system/omap3630/sysutils_linux.c
+@@ -32,6 +32,12 @@
+ #include <asm/bug.h>
+ #include <linux/platform_device.h>
+ 
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,33))
++#include <linux/semaphore.h>
++#include <asm-generic/resource.h>
++#include <plat/omap-pm.h>
++#else
++
+ #if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,31))
+ #include <linux/semaphore.h>
+ #include <plat/resource.h>
+@@ -49,6 +55,7 @@
+ #endif
+ #endif
+ #endif
++#endif
+ 
+ #if	(LINUX_VERSION_CODE >  KERNEL_VERSION(2,6,27)) && \
+ 	(LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,29))
+-- 
+1.7.1
+
