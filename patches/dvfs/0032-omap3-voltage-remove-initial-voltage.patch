@@ -1,0 +1,38 @@
+From 92d5ad0d721eb8cf1a33c25f9877d02023ffc67c Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Tue, 15 Feb 2011 09:37:18 +0530
+Subject: [PATCH 32/45] omap3+: voltage: remove initial voltage
+
+omap2_set_init_voltage should setup the curr_volt based on which OPP
+the system is functioning at. blindly setting a 1.2v setting in the
+initial structure may not even match the voltages supported for the
+domain (e.g. 3430 core).
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/voltage.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
+index f5d591a..ed6d22e 100644
+--- a/arch/arm/mach-omap2/voltage.c
++++ b/arch/arm/mach-omap2/voltage.c
+@@ -784,7 +784,6 @@ static int __init omap3_vdd_data_configure(struct omap_vdd_info *vdd)
+ 	sys_clk_speed /= 1000;
+ 
+ 	/* Generic voltage parameters */
+-	vdd->curr_volt = 1200000;
+ 	vdd->ocp_mod = OCP_MOD;
+ 	vdd->prm_irqst_reg = OMAP3_PRM_IRQSTATUS_MPU_OFFSET;
+ 	vdd->read_reg = omap3_voltage_read_reg;
+@@ -975,7 +974,6 @@ static int __init omap4_vdd_data_configure(struct omap_vdd_info *vdd)
+ 	sys_clk_speed /= 1000;
+ 
+ 	/* Generic voltage parameters */
+-	vdd->curr_volt = 1200000;
+ 	vdd->ocp_mod = OMAP4430_PRM_OCP_SOCKET_INST;
+ 	vdd->read_reg = omap4_voltage_read_reg;
+ 	vdd->write_reg = omap4_voltage_write_reg;
+-- 
+1.7.1
+

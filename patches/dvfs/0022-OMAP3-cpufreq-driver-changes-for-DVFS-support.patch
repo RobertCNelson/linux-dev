@@ -1,0 +1,85 @@
+From b174b652fb610e5f6ab8160e710cc547ee22eda1 Mon Sep 17 00:00:00 2001
+From: Vishwanath BS <vishwanath.bs@ti.com>
+Date: Mon, 27 Dec 2010 18:26:15 +0530
+Subject: [PATCH 22/45] OMAP3: cpufreq driver changes for DVFS support
+
+Changes in the omap cpufreq driver for DVFS support.
+
+Signed-off-by: Vishwanath BS <vishwanath.bs@ti.com>
+Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
+---
+ arch/arm/plat-omap/cpu-omap.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 files changed, 32 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/plat-omap/cpu-omap.c b/arch/arm/plat-omap/cpu-omap.c
+index 1c1b80b..d965220 100644
+--- a/arch/arm/plat-omap/cpu-omap.c
++++ b/arch/arm/plat-omap/cpu-omap.c
+@@ -30,10 +30,12 @@
+ #include <mach/hardware.h>
+ #include <plat/clock.h>
+ #include <asm/system.h>
++#include <asm/cpu.h>
+ 
+ #if defined(CONFIG_ARCH_OMAP3) && !defined(CONFIG_OMAP_PM_NONE)
+ #include <plat/omap-pm.h>
+ #include <plat/common.h>
++#include <plat/dvfs.h>
+ #endif
+ 
+ #define VERY_HI_RATE	900000000
+@@ -85,11 +87,11 @@ static int omap_target(struct cpufreq_policy *policy,
+ 		       unsigned int target_freq,
+ 		       unsigned int relation)
+ {
+-#ifdef CONFIG_ARCH_OMAP1
+ 	struct cpufreq_freqs freqs;
+-#endif
+ #if defined(CONFIG_ARCH_OMAP3) && !defined(CONFIG_OMAP_PM_NONE)
+ 	unsigned long freq;
++	int i;
++	struct cpufreq_freqs freqs_notify;
+ 	struct device *mpu_dev = omap2_get_mpuss_device();
+ #endif
+ 	int ret = 0;
+@@ -116,9 +118,36 @@ static int omap_target(struct cpufreq_policy *policy,
+ 	ret = clk_set_rate(mpu_clk, freqs.new * 1000);
+ 	cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
+ #elif defined(CONFIG_ARCH_OMAP3) && !defined(CONFIG_OMAP_PM_NONE)
++	freqs.old = omap_getspeed(policy->cpu);;
++	freqs_notify.new = clk_round_rate(mpu_clk, target_freq * 1000) / 1000;
++	freqs.cpu = policy->cpu;
++
++	if (freqs.old == freqs.new)
++		return ret;
++
++	/* pre notifiers */
++	for_each_cpu(i, policy->cpus) {
++		freqs.cpu = i;
++		cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
++	}
++
++	/* scale the frequency */
+ 	freq = target_freq * 1000;
+ 	if (opp_find_freq_ceil(mpu_dev, &freq))
+-		omap_pm_cpu_set_freq(freq);
++		omap_device_scale(mpu_dev, mpu_dev, freq);
++
++	/* Update loops per jiffy */
++	freqs.new = omap_getspeed(policy->cpu);
++	for_each_cpu(i, policy->cpus)
++		per_cpu(cpu_data, i).loops_per_jiffy =
++		cpufreq_scale(per_cpu(cpu_data, i).loops_per_jiffy,
++				freqs.old, freqs.new);
++
++	/* post notifiers */
++	for_each_cpu(i, policy->cpus) {
++		freqs.cpu = i;
++		cpufreq_notify_transition(&freqs, CPUFREQ_POSTCHANGE);
++	}
+ #endif
+ 	return ret;
+ }
+-- 
+1.7.1
+
