@@ -1,0 +1,105 @@
+From 5972b752379a46dd8c5f4d095a7bddb2ae7fcb98 Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Sat, 30 Oct 2010 10:57:05 -0500
+Subject: [PATCH 30/31] Revert "Input: ads7846 - add regulator support"
+
+This reverts commit 91143379b01b2020d8878d627ebe9dfb9d6eb4c8.
+
+Conflicts:
+
+	drivers/input/touchscreen/ads7846.c
+---
+ drivers/input/touchscreen/ads7846.c |   28 +++-------------------------
+ 1 files changed, 3 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 783287c..79ca457 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -29,7 +29,6 @@
+ #include <linux/gpio.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/ads7846.h>
+-#include <linux/regulator/consumer.h>
+ #include <asm/irq.h>
+ 
+ /*
+@@ -94,7 +93,6 @@ struct ads7846 {
+ 	char			name[32];
+ 
+ 	struct spi_device	*spi;
+-	struct regulator	*reg;
+ 
+ #if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
+ 	struct attribute_group	*attr_group;
+@@ -222,7 +220,7 @@ static void ads7846_restart(struct ads7846 *ts)
+ static void __ads7846_disable(struct ads7846 *ts)
+ {
+ 	ads7846_stop(ts);
+-	regulator_disable(ts->reg);
++	//regulator_disable(ts->reg);
+ 
+ 	/*
+ 	 * We know the chip's in low power mode since we always
+@@ -233,7 +231,7 @@ static void __ads7846_disable(struct ads7846 *ts)
+ /* Must be called with ts->lock held */
+ static void __ads7846_enable(struct ads7846 *ts)
+ {
+-	regulator_enable(ts->reg);
++	//regulator_enable(ts->reg);
+ 	ads7846_restart(ts);
+ }
+ 
+@@ -1283,19 +1281,6 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 
+ 	ads7846_setup_spi_msg(ts, pdata);
+ 
+-	ts->reg = regulator_get(&spi->dev, "vcc");
+-	if (IS_ERR(ts->reg)) {
+-		err = PTR_ERR(ts->reg);
+-		dev_err(&spi->dev, "unable to get regulator: %d\n", err);
+-		goto err_free_gpio;
+-	}
+-
+-	err = regulator_enable(ts->reg);
+-	if (err) {
+-		dev_err(&spi->dev, "unable to enable regulator: %d\n", err);
+-		goto err_put_regulator;
+-	}
+-
+ 	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
+ 	irq_flags |= IRQF_ONESHOT;
+ 
+@@ -1312,7 +1297,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 
+ 	if (err) {
+ 		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+-		goto err_disable_regulator;
++		goto err_free_gpio;
+ 	}
+ 
+ 	err = ads784x_hwmon_register(spi, ts);
+@@ -1356,10 +1341,6 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 	ads784x_hwmon_unregister(spi, ts);
+  err_free_irq:
+ 	free_irq(spi->irq, ts);
+- err_disable_regulator:
+-	regulator_disable(ts->reg);
+- err_put_regulator:
+-	regulator_put(ts->reg);
+  err_free_gpio:
+ 	if (!ts->get_pendown_state)
+ 		gpio_free(ts->gpio_pendown);
+@@ -1388,9 +1369,6 @@ static int __devexit ads7846_remove(struct spi_device *spi)
+ 
+ 	ads784x_hwmon_unregister(spi, ts);
+ 
+-	regulator_disable(ts->reg);
+-	regulator_put(ts->reg);
+-
+ 	if (!ts->get_pendown_state) {
+ 		/*
+ 		 * If we are not using specialized pendown method we must
+-- 
+1.7.1
+

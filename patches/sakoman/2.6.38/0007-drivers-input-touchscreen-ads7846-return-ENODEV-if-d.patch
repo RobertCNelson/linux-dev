@@ -1,0 +1,36 @@
+From 32dbd77f72446d493e16f5beb2b2e64b00694623 Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <sakoman@gmail.com>
+Date: Tue, 15 Dec 2009 15:24:10 -0800
+Subject: [PATCH 07/31] drivers: input: touchscreen: ads7846: return ENODEV if device is not found
+
+Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+Tweaked-for-2.6.38-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/input/touchscreen/ads7846.c |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 4bf2316..783287c 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1328,9 +1328,16 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 	if (ts->model == 7845)
+ 		ads7845_read12_ser(&spi->dev, PWRDOWN);
+ 	else
+-		(void) ads7846_read12_ser(&spi->dev,
++		err = ads7846_read12_ser(&spi->dev,
+ 				READ_12BIT_SER(vaux) | ADS_PD10_ALL_ON);
+ 
++	/* if sample is all 0's or all 1's then there is no device on spi */
++	if ( (err == 0x000) || (err == 0xfff)) {
++		dev_info(&spi->dev, "no device detected, test read result was 0x%08X\n", err);
++		err = -ENODEV;
++		goto err_free_irq;
++	}
++
+ 	err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
+ 	if (err)
+ 		goto err_remove_hwmon;
+-- 
+1.7.1
+

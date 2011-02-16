@@ -33,7 +33,11 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.36/0003-Don-t-turn-SDIO-cards-off-to-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0004-mmc-don-t-display-single-block-read-console-messages.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0005-scripts-Makefile.fwinst-fix-typo-missing-space-in-se.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0006-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.36/0007-drivers-input-touchscreen-ads7846-return-ENODEV-if-d.patch"
+
+#2.6.38-rc5
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.36/0007-drivers-input-touchscreen-ads7846-return-ENODEV-if-d.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0007-drivers-input-touchscreen-ads7846-return-ENODEV-if-d.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.36/0008-ASoC-enable-audio-capture-by-default-for-twl4030.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0011-ARM-OMAP-Make-beagle-u-boot-partition-writable.patch"
@@ -61,7 +65,10 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0028-OMAP-DSS2-enable-hsclk-in-dsi
 #2.6.37-git12
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0029-ARM-OMAP-Beagle-support-twl-gpio-differences-on-xM.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.37/0030-Revert-Input-ads7846-add-regulator-support.patch"
+#2.6.38-rc5
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.37/0030-Revert-Input-ads7846-add-regulator-support.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0030-Revert-Input-ads7846-add-regulator-support.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0031-Revert-omap2_mcspi-Flush-posted-writes.patch"
 }
 
