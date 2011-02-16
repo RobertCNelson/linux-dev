@@ -315,8 +315,10 @@ patch -s -p1 < "${DIR}/patches/dvfs/0042-omap3-sr-enable-disable-SR-only-on-need
 patch -s -p1 < "${DIR}/patches/dvfs/0043-omap3-sr-introduce-notifiers-flags.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0044-omap3-sr-introduce-notifier_control.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0045-omap3-sr-disable-spamming-interrupts.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/0046-omap3-sr_device-warn-in-log-that-sr-ntargets-are-not.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/0047-omap3-sr-make-enable-patch-use-volt_data-pointer.patch"
 
-#patch -s -p1 < "${DIR}/patches/dvfs/0001-omap3-Add-basic-support-for-720MHz-part.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/0001-omap3-Add-basic-support-for-720MHz-part.patch"
 
 }
 

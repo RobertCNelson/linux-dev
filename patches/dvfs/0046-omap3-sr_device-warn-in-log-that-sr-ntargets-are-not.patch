@@ -1,0 +1,63 @@
+From f57a774b042e39c333a8cb66fb1b1900513fdb31 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Wed, 16 Feb 2011 08:48:33 +0530
+Subject: [PATCH 46/47] omap3+: sr_device: warn in log that sr ntargets are not set
+
+if all ntargets are NULL, then we should give a warning
+to developers bringing up the board to use s/w ntargets
+if needed.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/sr_device.c |   14 +++++++++++---
+ 1 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/sr_device.c b/arch/arm/mach-omap2/sr_device.c
+index b1e0af1..69f754f 100644
+--- a/arch/arm/mach-omap2/sr_device.c
++++ b/arch/arm/mach-omap2/sr_device.c
+@@ -40,11 +40,12 @@ static struct omap_device_pm_latency omap_sr_latency[] = {
+ };
+ 
+ /* Read EFUSE values from control registers for OMAP3430 */
+-static void __init sr_set_nvalues(struct omap_volt_data *volt_data,
+-				struct omap_sr_data *sr_data)
++static void __init sr_set_nvalues(char *dom_name,
++		struct omap_volt_data *volt_data, struct omap_sr_data *sr_data)
+ {
+ 	struct omap_sr_nvalue_table *nvalue_table;
+ 	int i, count = 0;
++	u32 check_n = 0;
+ 
+ 	while (volt_data[count].volt_nominal)
+ 		count++;
+@@ -71,10 +72,17 @@ static void __init sr_set_nvalues(struct omap_volt_data *volt_data,
+ 
+ 		nvalue_table[i].efuse_offs = volt_data[i].sr_efuse_offs;
+ 		nvalue_table[i].nvalue = v;
++		pr_err("%s:domain %s: offset=0x%08x value=0x%08x\n",
++			__func__, dom_name, nvalue_table[i].efuse_offs, v);
++		check_n |= v;
+ 	}
+ 
+ 	sr_data->nvalue_table = nvalue_table;
+ 	sr_data->nvalue_count = count;
++	if (!check_n)
++		pr_err("%s: domain %s: no nTargets in any Efuses\n",
++				__func__, dom_name);
++	pr_err("%s: domain %s: was called\n",__func__, dom_name);
+ }
+ 
+ static int sr_dev_init(struct omap_hwmod *oh, void *user)
+@@ -116,7 +124,7 @@ static int sr_dev_init(struct omap_hwmod *oh, void *user)
+ 		goto exit;
+ 	}
+ 
+-	sr_set_nvalues(volt_data, sr_data);
++	sr_set_nvalues(oh->vdd_name, volt_data, sr_data);
+ 
+ 	sr_data->enable_on_init = sr_enable_on_init;
+ 
+-- 
+1.7.1
+

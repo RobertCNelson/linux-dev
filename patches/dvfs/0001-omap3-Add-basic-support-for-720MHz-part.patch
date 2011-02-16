@@ -1,4 +1,4 @@
-From 317a7f1bcf588ee7bcf7b6c00e640090f483f709 Mon Sep 17 00:00:00 2001
+From 5b57c45a8f721195b87f5ab171658fbae03eee38 Mon Sep 17 00:00:00 2001
 From: Sanjeev Premi <premi@ti.com>
 Date: Thu, 27 Jan 2011 16:41:27 +0530
 Subject: [PATCH] omap3: Add basic support for 720MHz part
@@ -36,18 +36,20 @@ CAUTION: This should be done for identified parts only.
 
 Signed-off-by: Sanjeev Premi <premi@ti.com>
 Reviewed-by: G, Manjunath Kondaiah <manjugk@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/control.h         |    6 +++
- arch/arm/mach-omap2/id.c              |    5 +++
- arch/arm/mach-omap2/opp3xxx_data.c    |   63 ++++++++++++++++++++++++++++++++-
- arch/arm/plat-omap/include/plat/cpu.h |    2 +
- 4 files changed, 75 insertions(+), 1 deletions(-)
+ arch/arm/mach-omap2/control.h             |    6 +++
+ arch/arm/mach-omap2/id.c                  |    5 ++
+ arch/arm/mach-omap2/opp3xxx_data.c        |   63 ++++++++++++++++++++++++++++-
+ arch/arm/plat-omap/include/plat/cpu.h     |    2 +
+ arch/arm/plat-omap/include/plat/voltage.h |    1 +
+ 5 files changed, 76 insertions(+), 1 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/control.h b/arch/arm/mach-omap2/control.h
-index 8ed6d5d..70e8d86 100644
+index f0629ae..c338466 100644
 --- a/arch/arm/mach-omap2/control.h
 +++ b/arch/arm/mach-omap2/control.h
-@@ -359,6 +359,12 @@
+@@ -365,6 +365,12 @@
  #define		FEAT_NEON		0
  #define		FEAT_NEON_NONE		1
  
@@ -84,7 +86,7 @@ index 5f9086c..8c4500f 100644
  	printk(")\n");
  }
 diff --git a/arch/arm/mach-omap2/opp3xxx_data.c b/arch/arm/mach-omap2/opp3xxx_data.c
-index 0486fce..cba17f7 100644
+index e3ea9ba..4a70607 100644
 --- a/arch/arm/mach-omap2/opp3xxx_data.c
 +++ b/arch/arm/mach-omap2/opp3xxx_data.c
 @@ -17,8 +17,10 @@
@@ -95,29 +97,29 @@ index 0486fce..cba17f7 100644
  
  #include <plat/cpu.h>
 +#include <plat/omap_device.h>
+ #include <plat/voltage.h>
  
  #include "omap_opp_data.h"
- 
-@@ -33,6 +35,8 @@ static struct omap_opp_def __initdata omap34xx_opp_def_list[] = {
- 	OPP_INITIALIZER("mpu", true, 550000000, 1270000),
+@@ -35,6 +37,8 @@ static struct omap_opp_def __initdata omap34xx_opp_def_list[] = {
+ 	OPP_INITIALIZER("mpu", true, 550000000, OMAP3430_VDD_MPU_OPP4_UV),
  	/* MPU OPP5 */
- 	OPP_INITIALIZER("mpu", true, 600000000, 1350000),
+ 	OPP_INITIALIZER("mpu", true, 600000000, OMAP3430_VDD_MPU_OPP5_UV),
 +	/* MPU OPP6 */
-+	OPP_INITIALIZER("mpu", false, 720000000, 1350000),
++	OPP_INITIALIZER("mpu", false, 720000000, OMAP3430_VDD_MPU_OPP6_UV),
  
  	/*
  	 * L3 OPP1 - 41.5 MHz is disabled because: The voltage for that OPP is
-@@ -58,6 +62,8 @@ static struct omap_opp_def __initdata omap34xx_opp_def_list[] = {
- 	OPP_INITIALIZER("iva", true, 400000000, 1270000),
+@@ -60,6 +64,8 @@ static struct omap_opp_def __initdata omap34xx_opp_def_list[] = {
+ 	OPP_INITIALIZER("iva", true, 400000000, OMAP3430_VDD_MPU_OPP4_UV),
  	/* DSP OPP5 */
- 	OPP_INITIALIZER("iva", true, 430000000, 1350000),
+ 	OPP_INITIALIZER("iva", true, 430000000, OMAP3430_VDD_MPU_OPP5_UV),
 +	/* DSP OPP6 */
-+	OPP_INITIALIZER("iva", false, 520000000, 1350000),
++	OPP_INITIALIZER("iva", false, 520000000, OMAP3430_VDD_MPU_OPP6_UV),
  };
  
  static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
-@@ -85,6 +91,57 @@ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
- 	OPP_INITIALIZER("iva", false, 800000000, 1375000),
+@@ -87,6 +93,57 @@ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
+ 	OPP_INITIALIZER("iva", false, 800000000, OMAP3630_VDD_MPU_OPP1G_UV),
  };
  
 +
@@ -174,7 +176,7 @@ index 0486fce..cba17f7 100644
  /**
   * omap3_opp_init() - initialize omap3 opp table
   */
-@@ -98,10 +155,14 @@ static int __init omap3_opp_init(void)
+@@ -100,10 +157,14 @@ int __init omap3_opp_init(void)
  	if (cpu_is_omap3630())
  		r = omap_init_opp_table(omap36xx_opp_def_list,
  			ARRAY_SIZE(omap36xx_opp_def_list));
@@ -209,6 +211,18 @@ index 7cfaad1..f98151c 100644
 +OMAP3_HAS_FEATURE(720mhz, 720MHZ)
  
  #endif
+diff --git a/arch/arm/plat-omap/include/plat/voltage.h b/arch/arm/plat-omap/include/plat/voltage.h
+index 80544a7..2711ba1 100644
+--- a/arch/arm/plat-omap/include/plat/voltage.h
++++ b/arch/arm/plat-omap/include/plat/voltage.h
+@@ -33,6 +33,7 @@
+ #define OMAP3430_VDD_MPU_OPP3_UV		1200000
+ #define OMAP3430_VDD_MPU_OPP4_UV		1270000
+ #define OMAP3430_VDD_MPU_OPP5_UV		1350000
++#define OMAP3430_VDD_MPU_OPP6_UV		1350000
+ 
+ #define OMAP3430_VDD_CORE_OPP1_UV		975000
+ #define OMAP3430_VDD_CORE_OPP2_UV		1050000
 -- 
 1.7.1
 
