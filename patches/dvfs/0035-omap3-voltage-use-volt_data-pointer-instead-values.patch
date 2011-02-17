@@ -1,7 +1,7 @@
-From 423c6f181af411eea2dd420abf683acff5846c68 Mon Sep 17 00:00:00 2001
+From b0438b1a5797d759229ec10c30a0d142a71cebbf Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Sun, 13 Feb 2011 21:27:30 +0530
-Subject: [PATCH 34/47] omap3+: voltage: use volt_data pointer instead values
+Subject: [PATCH 35/48] omap3+: voltage: use volt_data pointer instead values
 
 Voltage values can get confusing in meaning with various Smartreflex
 classes being active. Depending on the class used, the actual voltage
@@ -17,10 +17,10 @@ Signed-off-by: Nishanth Menon <nm@ti.com>
  5 files changed, 58 insertions(+), 41 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/dvfs.c b/arch/arm/mach-omap2/dvfs.c
-index 1e5492c..6966794 100644
+index 526e0af..ac32593 100644
 --- a/arch/arm/mach-omap2/dvfs.c
 +++ b/arch/arm/mach-omap2/dvfs.c
-@@ -527,7 +527,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
+@@ -528,7 +528,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
  	node = plist_last(&dvfs_info->user_list);
  	volt = node->prio;
  
@@ -29,8 +29,8 @@ index 1e5492c..6966794 100644
 +			omap_voltage_get_nom_volt(voltdm));
  
  	/* Disable smartreflex module across voltage and frequency scaling */
- 	omap_sr_disable(voltdm);
-@@ -535,7 +536,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
+ 	if (curr_volt != volt) {
+@@ -539,7 +540,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
  	if (curr_volt == volt) {
  		is_volt_scaled = 1;
  	} else if (curr_volt < volt) {
@@ -40,7 +40,7 @@ index 1e5492c..6966794 100644
  		if (ret) {
  			pr_warning("%s: Unable to scale the %s to %ld volt\n",
  						__func__, voltdm->name, volt);
-@@ -572,7 +574,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
+@@ -577,7 +579,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
  	}
  
  	if (!is_volt_scaled && !ret)
@@ -49,7 +49,7 @@ index 1e5492c..6966794 100644
 +				omap_voltage_get_voltdata(voltdm, volt));
  
  	/* Enable Smartreflex module */
- 	omap_sr_enable(voltdm);
+ 	if (is_sr_disabled)
 diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
 index 1b94ad4..bd9454b 100644
 --- a/arch/arm/mach-omap2/pm.c

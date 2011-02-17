@@ -1,7 +1,7 @@
-From 40432b7fd81e38cf64349cb55e4c15e06a99c65f Mon Sep 17 00:00:00 2001
+From 9465a1091ee361a6ade9f1ca6c278b962db88db4 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Wed, 16 Feb 2011 10:50:13 +0530
-Subject: [PATCH 47/47] omap3+: sr: make enable patch use volt_data pointer
+Subject: [PATCH 48/48] omap3+: sr: make enable patch use volt_data pointer
 
 passing the volt_data pointers accross allows us to save
 looking up the voltage at multiple layers, we already
@@ -9,32 +9,33 @@ look at the voltage data in dvfs layer already.
 
 Signed-off-by: Nishanth Menon <nm@ti.com>
 ---
- arch/arm/mach-omap2/dvfs.c                    |    5 +++--
+ arch/arm/mach-omap2/dvfs.c                    |    6 ++++--
  arch/arm/mach-omap2/smartreflex-class3.c      |   13 +++----------
  arch/arm/mach-omap2/smartreflex.c             |   25 ++++++++++++-------------
  arch/arm/plat-omap/include/plat/smartreflex.h |    8 +++++---
- 4 files changed, 23 insertions(+), 28 deletions(-)
+ 4 files changed, 24 insertions(+), 28 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/dvfs.c b/arch/arm/mach-omap2/dvfs.c
-index 6966794..2bd6bb3 100644
+index ac32593..a00ab95 100644
 --- a/arch/arm/mach-omap2/dvfs.c
 +++ b/arch/arm/mach-omap2/dvfs.c
-@@ -541,7 +541,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
- 		if (ret) {
+@@ -546,7 +546,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
  			pr_warning("%s: Unable to scale the %s to %ld volt\n",
  						__func__, voltdm->name, volt);
--			omap_sr_enable(voltdm);
-+			omap_sr_enable(voltdm,
+ 			if (is_sr_disabled)
+-				omap_sr_enable(voltdm);
++				omap_sr_enable(voltdm,
 +					omap_voltage_get_voltdata(voltdm, volt));
  			mutex_unlock(&dvfs_info->scaling_mutex);
  			return ret;
  		}
-@@ -578,7 +579,7 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
- 				omap_voltage_get_voltdata(voltdm, volt));
+@@ -584,7 +585,8 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
  
  	/* Enable Smartreflex module */
--	omap_sr_enable(voltdm);
-+	omap_sr_enable(voltdm, omap_voltage_get_voltdata(voltdm, volt));
+ 	if (is_sr_disabled)
+-		omap_sr_enable(voltdm);
++		omap_sr_enable(voltdm,
++			omap_voltage_get_voltdata(voltdm, volt));
  
  	mutex_unlock(&dvfs_info->scaling_mutex);
  
