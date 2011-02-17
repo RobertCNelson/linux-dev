@@ -1,0 +1,30 @@
+From 9f9e960616c9239d77e32450141b8574df1a20d0 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 16 Feb 2011 19:51:16 -0600
+Subject: [PATCH] OMAP3 SGX TI 4.00.00.01 remove proc without debug
+
+Based on patch by: Ricardo Salveti de Araujo <ricardo.salveti@canonical.com> 
+http://bazaar.launchpad.net/~ubuntu-branches/ubuntu/natty/powervr-omap3/natty/view/head:/debian/patches/03-fixing-remove-proc-without-debug.patch
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../omap3-sgx/services4/srvkm/env/linux/mmap.c     |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/mmap.c b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/mmap.c
+index 774d5ea..0372148 100644
+--- a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/mmap.c
++++ b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/mmap.c
+@@ -978,7 +978,9 @@ PVRMMapCleanup(IMG_VOID)
+     }
+     PVR_ASSERT(list_empty((&g_sMMapAreaList)));
+ 
++#if defined(DEBUG_LINUX_MMAP_AREAS)
+     RemoveProcEntry("mmap");
++#endif
+ 
+     if(g_psMemmapCache)
+     {
+-- 
+1.7.1
+
