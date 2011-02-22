@@ -20,6 +20,8 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 
 #http://www.spinics.net/lists/linux-omap/msg44289.html
 patch -s -p1 < "${DIR}/patches/trivial/0001-arm-fix-oops-in-sched_clock_poll.patch"
+
+patch -s -p1 < "${DIR}/patches/trivial/0001-carl9170-add-AirLive-X.USB-vid-pid.patch"
 }
 
 function sakoman {
