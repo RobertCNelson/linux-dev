@@ -1,0 +1,30 @@
+From c77db80c91e29d72983c8c301d4c8148c111b172 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Mon, 14 Feb 2011 12:41:10 +0530
+Subject: [PATCH 43/53] omap3+: sr: disable interrupt by default
+
+we will enable and disable interrupt on a need basis. we need
+to keep the irq disabled by default else the forceupdate or
+vcbypass events could trigger events that we dont need to handle.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/smartreflex.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
+index 7931fcd..3102240 100644
+--- a/arch/arm/mach-omap2/smartreflex.c
++++ b/arch/arm/mach-omap2/smartreflex.c
+@@ -281,6 +281,8 @@ static int sr_late_init(struct omap_sr *sr_info)
+ 				IRQF_DISABLED, name, (void *)sr_info);
+ 		if (ret)
+ 			goto error;
++		else
++			disable_irq(sr_info->irq);
+ 	}
+ 
+ 	if (pdata && pdata->enable_on_init)
+-- 
+1.7.1
+

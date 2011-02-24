@@ -1,0 +1,906 @@
+From a950738cc675ee550cdba1734f4b88bc5c2615ce Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 17 Feb 2011 21:26:34 +0530
+Subject: [PATCH 53/53] omap3+: add sr1.5
+
+WORK IN PROGRESS _ UNDER TEST
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/Makefile                  |    1 +
+ arch/arm/mach-omap2/dvfs.c                    |    2 +-
+ arch/arm/mach-omap2/smartreflex-class1p5.c    |  541 +++++++++++++++++++++++++
+ arch/arm/mach-omap2/smartreflex-class3.c      |    4 +-
+ arch/arm/mach-omap2/smartreflex.c             |   34 ++-
+ arch/arm/mach-omap2/voltage.c                 |   61 +++
+ arch/arm/plat-omap/Kconfig                    |    9 +
+ arch/arm/plat-omap/include/plat/smartreflex.h |   13 +-
+ arch/arm/plat-omap/include/plat/voltage.h     |   23 +-
+ 9 files changed, 679 insertions(+), 9 deletions(-)
+ create mode 100644 arch/arm/mach-omap2/smartreflex-class1p5.c
+
+diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
+index 625087e..61b9daf 100644
+--- a/arch/arm/mach-omap2/Makefile
++++ b/arch/arm/mach-omap2/Makefile
+@@ -66,6 +66,7 @@ obj-$(CONFIG_ARCH_OMAP4)		+= pm44xx.o voltage.o pm_bus.o
+ obj-$(CONFIG_PM_DEBUG)			+= pm-debug.o
+ obj-$(CONFIG_OMAP_SMARTREFLEX)          += sr_device.o smartreflex.o
+ obj-$(CONFIG_OMAP_SMARTREFLEX_CLASS3)	+= smartreflex-class3.o
++obj-$(CONFIG_OMAP_SMARTREFLEX_CLASS1P5)	+= smartreflex-class1p5.o
+ 
+ AFLAGS_sleep24xx.o			:=-Wa,-march=armv6
+ AFLAGS_sleep34xx.o			:=-Wa,-march=armv7-a
+diff --git a/arch/arm/mach-omap2/dvfs.c b/arch/arm/mach-omap2/dvfs.c
+index 302d654..d0f56c8 100644
+--- a/arch/arm/mach-omap2/dvfs.c
++++ b/arch/arm/mach-omap2/dvfs.c
+@@ -533,7 +533,7 @@ static int omap_dvfs_voltage_scale(struct omap_vdd_dvfs_info *dvfs_info)
+ 
+ 	/* Disable smartreflex module across voltage and frequency scaling */
+ 	if (curr_volt != volt) {
+-		omap_sr_disable(voltdm);
++		omap_sr_disable(voltdm, omap_voltage_get_nom_volt(voltdm));
+ 		is_sr_disabled = true;
+ 	}
+ 
+diff --git a/arch/arm/mach-omap2/smartreflex-class1p5.c b/arch/arm/mach-omap2/smartreflex-class1p5.c
+new file mode 100644
+index 0000000..179e2fb
+--- /dev/null
++++ b/arch/arm/mach-omap2/smartreflex-class1p5.c
+@@ -0,0 +1,541 @@
++/*
++ * Smart reflex Class 1.5 specific implementations
++ *
++ * Copyright (C) 2010-2011 Texas Instruments, Inc.
++ * Nishanth Menon <nm@ti.com>
++ *
++ * Smart reflex class 1.5 is also called periodic SW Calibration
++ * Some of the highlights are as follows:
++ * – Host CPU triggers OPP calibration when transitioning to non calibrated
++ *   OPP
++ * – SR-AVS + VP modules are used to perform calibration
++ * – Once completed, the SmartReflex-AVS module can be disabled
++ * – Enables savings based on process, supply DC accuracy and aging
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++#include <linux/kernel.h>
++#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/io.h>
++#include <linux/fs.h>
++#include <linux/string.h>
++#include <linux/uaccess.h>
++#include <linux/kobject.h>
++#include <linux/workqueue.h>
++#include <linux/opp.h>
++
++#include <plat/smartreflex.h>
++#include <plat/voltage.h>
++#include <plat/dvfs.h>
++
++#define MAX_VDDS 3
++#define SR1P5_SAMPLING_DELAY_MS	1
++#define SR1P5_STABLE_SAMPLES	5
++#define SR1P5_MAX_TRIGGERS	5
++
++#define RECALIBRATION_TIMEOUT_MS	(24 * 3600 * 1000)
++
++/*
++ * we expect events in 10uS, if we dont get 2wice times as much,
++ * we could kind of ignore this as a missed event.
++ */
++#define MAX_CHECK_VPTRANS_US	20
++
++/**
++ * struct sr_class1p5_work_data - data meant to be used by calibration work
++ * @work:	calibration work
++ * @voltdm:		voltage domain for which we are triggering
++ * @vdata:	voltage data we are calibrating
++ * @num_calib_triggers:	number of triggers from calibration loop
++ * @num_osc_samples:	number of samples collected by isr
++ * @work_active:	have we scheduled a work item?
++ * @recal_jtimeout:	timeout for recalibration
++ */
++struct sr_class1p5_work_data {
++	struct delayed_work work;
++	struct voltagedomain *voltdm;
++	struct omap_volt_data *vdata;
++	u8 num_calib_triggers;
++	u8 num_osc_samples;
++	bool work_active;
++	unsigned long recal_jtimeout;
++};
++
++/**
++ * struct sr_class1p5_data - private data for class 1p5
++ * @work_data:		work item data per voltage domain
++ */
++struct sr_class1p5_data {
++	struct sr_class1p5_work_data work_data[MAX_VDDS];
++};
++
++static void sr_class1p5_reset_calib(struct voltagedomain *voltdm, bool reset,
++				    bool recal);
++
++/* our instance of class 1p5 private data */
++static struct sr_class1p5_data class_1p5_data;
++
++static struct sr_class1p5_work_data *get_sr1p5_work(struct voltagedomain
++						    *voltdm)
++{
++	int idx;
++	for (idx = 0; idx < MAX_VDDS; idx++) {
++		if (class_1p5_data.work_data[idx].voltdm && !strcmp
++		    (class_1p5_data.work_data[idx].voltdm->name, voltdm->name))
++			return &class_1p5_data.work_data[idx];
++	}
++	return ERR_PTR(-ENODATA);
++}
++
++/**
++ * sr_class1p5_notify() - isr notifier for status events
++ * @voltdm:	voltage domain for which we were triggered
++ * @status:	notifier event to use
++ *
++ * This basically collects data for the work to use.
++ */
++static int sr_class1p5_notify(struct voltagedomain *voltdm, u32 status)
++{
++	struct sr_class1p5_work_data *work_data;
++	int idx = 0;
++	work_data = get_sr1p5_work(voltdm);
++
++	if (unlikely(!work_data)) {
++		pr_err("%s:%s no work data!!\n", __func__, voltdm->name);
++		return -EINVAL;
++	}
++
++	/* Wait for transdone so that we know the voltage to read */
++	do {
++		if (omap_vp_is_transdone(voltdm))
++			break;
++		idx++;
++		/* get some constant delay */
++		udelay(1);
++	} while (idx < MAX_CHECK_VPTRANS_US);
++
++	/*
++	 * If we timeout, we still read the data,
++	 * if we are oscillating+irq latencies are too high, we could
++	 * have scenarios where we miss transdone event. since
++	 * we waited long enough, it is still safe to read the voltage
++	 * as we would have waited long enough - still flag it..
++	 */
++	if (idx >= MAX_CHECK_VPTRANS_US)
++		pr_warning("%s: timed out waiting for transdone!!\n", __func__);
++
++	omap_vp_clear_transdone(voltdm);
++
++	idx = (work_data->num_osc_samples) % SR1P5_STABLE_SAMPLES;
++	work_data->num_osc_samples++;
++
++	return 0;
++}
++
++/**
++ * do_calibrate() - work which actually does the calibration
++ * @work: pointer to the work
++ *
++ * calibration routine uses the following logic:
++ * on the first trigger, we start the isr to collect sr voltages
++ * wait for stabilization delay (reschdule self instead of sleeping)
++ * after the delay, see if we collected any isr events
++ * if none, we have calibrated voltage.
++ * if there are any, we retry untill we giveup.
++ * on retry timeout, select a voltage to use as safe voltage.
++ */
++static void do_calibrate(struct work_struct *work)
++{
++	struct sr_class1p5_work_data *work_data =
++	    container_of(work, struct sr_class1p5_work_data, work.work);
++	unsigned long u_volt_safe = 0, u_volt_current = 0;
++	struct omap_volt_data *volt_data;
++	struct voltagedomain *voltdm;
++
++	if (unlikely(!work_data)) {
++		pr_err("%s: ooops.. null work_data?\n", __func__);
++		return;
++	}
++
++	/*
++	 * Handle the case where we might have just been scheduled AND
++	 * 1.5 disable was called.
++	 */
++	if (omap_dvfs_pause(work_data->voltdm, true)) {
++		schedule_delayed_work(&work_data->work,
++				      msecs_to_jiffies(SR1P5_SAMPLING_DELAY_MS *
++						       SR1P5_STABLE_SAMPLES));
++		return;
++	}
++	voltdm = work_data->voltdm;
++	/*
++	 * In the unlikely case that we did get through when unplanned,
++	 * flag and return.
++	 */
++	if (unlikely(!work_data->work_active)) {
++		pr_err("%s:%s unplanned work invocation!\n", __func__,
++		       voltdm->name);
++		omap_dvfs_unpause(work_data->voltdm);
++		return;
++	}
++
++	work_data->num_calib_triggers++;
++	/* if we are triggered first time, we need to start isr to sample */
++	if (work_data->num_calib_triggers == 1)
++		goto start_sampling;
++
++	/* Stop isr from interrupting our measurements :) */
++	sr_notifier_control(voltdm, false);
++
++	volt_data = work_data->vdata;
++
++	/* if there are no samples captured.. SR is silent, aka stability! */
++	if (!work_data->num_osc_samples) {
++		u_volt_safe = omap_vp_get_curr_volt(voltdm);
++		u_volt_current = u_volt_safe;
++		goto done_calib;
++	}
++	if (work_data->num_calib_triggers == SR1P5_MAX_TRIGGERS) {
++		pr_warning("%s: %s recalib timeout!\n", __func__,
++			   work_data->voltdm->name);
++		goto oscillating_calib;
++	}
++
++	/* we have potential oscillations/first sample */
++start_sampling:
++	work_data->num_osc_samples = 0;
++	/* Clear pending events */
++	sr_notifier_control(voltdm, false);
++	/* Clear all transdones */
++	while (omap_vp_is_transdone(voltdm))
++		omap_vp_clear_transdone(voltdm);
++	/* trigger sampling */
++	sr_notifier_control(voltdm, true);
++	schedule_delayed_work(&work_data->work,
++			      msecs_to_jiffies(SR1P5_SAMPLING_DELAY_MS *
++					       SR1P5_STABLE_SAMPLES));
++	omap_dvfs_unpause(work_data->voltdm);
++	return;
++
++oscillating_calib:
++	/* Use the nominal voltage as the safe voltage */
++	u_volt_safe = volt_data->volt_nominal;
++	/* pick up current voltage to switch if needed */
++	u_volt_current = omap_vp_get_curr_volt(voltdm);
++
++	/* Fall through to close up common stuff */
++done_calib:
++	omap_vp_disable(voltdm);
++	sr_disable(voltdm);
++
++	volt_data->volt_calibrated = u_volt_safe;
++	/* Setup my dynamic voltage for the next calibration for this opp */
++	volt_data->volt_dynamic_nominal = omap_get_dyn_nominal(volt_data);
++
++	/*
++	 * if the voltage we decided as safe is not the current voltage,
++	 * switch
++	 */
++	if (volt_data->volt_calibrated != u_volt_current) {
++		pr_debug("%s:%s reconfiguring to voltage %d\n",
++			 __func__, voltdm->name, volt_data->volt_calibrated);
++		omap_voltage_scale_vdd(voltdm, volt_data);
++	}
++
++	/*
++	 * TODO: Setup my wakeup voltage to allow immediate going to OFF and
++	 * on - Pending twl and voltage layer cleanups.
++	 * This is necessary, as this is not done as part of regular
++	 * Dvfs flow.
++	 * vc_setup_on_voltage(voltdm, volt_data->volt_calibrated);
++	 */
++	work_data->work_active = false;
++	omap_dvfs_unpause(work_data->voltdm);
++}
++
++/**
++ * sr_class1p5_enable() - class 1.5 mode of enable
++ * @voltdm:		voltage domain to enable SR for
++ * @volt_data:	voltdata to the voltage transition taking place
++ *
++ * when this gets called, we use the h/w loop to setup our voltages
++ * to an calibrated voltage, detect any oscillations, recover from the same
++ * and finally store the optimized voltage as the calibrated voltage in the
++ * system
++ */
++static int sr_class1p5_enable(struct voltagedomain *voltdm,
++			      struct omap_volt_data *volt_data)
++{
++	int r;
++	struct sr_class1p5_work_data *work_data;
++	/* if already calibrated, nothing to do here.. */
++	if (volt_data->volt_calibrated)
++		return 0;
++
++	work_data = get_sr1p5_work(voltdm);
++	if (unlikely(!work_data)) {
++		pr_err("%s: aieeee.. bad work data??\n", __func__);
++		return -EINVAL;
++	}
++
++	if (work_data->work_active)
++		return 0;
++
++	omap_vp_enable(voltdm);
++	r = sr_enable(voltdm, volt_data);
++	if (r) {
++		pr_err("%s: sr[%s] failed\n", __func__, voltdm->name);
++		omap_vp_disable(voltdm);
++		return r;
++	}
++	work_data->vdata = volt_data;
++	work_data->work_active = true;
++	work_data->num_calib_triggers = 0;
++	/* program the workqueue and leave it to calibrate offline.. */
++	schedule_delayed_work(&work_data->work,
++			      msecs_to_jiffies(SR1P5_SAMPLING_DELAY_MS *
++					       SR1P5_STABLE_SAMPLES));
++
++	return 0;
++}
++
++/**
++ * sr_class1p5_disable() - disable for class 1p5
++ * @voltdm: voltage domain for the sr which needs disabling
++ * @volt_data:	voltagedata to disable
++ * @is_volt_reset: reset the voltage?
++ *
++ * we dont do anything if the class 1p5 is being used. this is because we
++ * already disable sr at the end of calibration and no h/w loop is actually
++ * active when this is called.
++ */
++static int sr_class1p5_disable(struct voltagedomain *voltdm,
++			       struct omap_volt_data *volt_data,
++			       int is_volt_reset)
++{
++	struct sr_class1p5_work_data *work_data;
++
++	work_data = get_sr1p5_work(voltdm);
++	if (work_data->work_active) {
++		/* if volt reset and work is active, we dont allow this */
++		if (is_volt_reset)
++			return -EBUSY;
++		/* flag work is dead and remove the old work */
++		work_data->work_active = false;
++		cancel_delayed_work_sync(&work_data->work);
++		sr_notifier_control(voltdm, false);
++		omap_vp_disable(voltdm);
++		sr_disable(voltdm);
++	}
++
++	/* if already calibrated, see if we need to reset calib.. */
++	if (volt_data->volt_calibrated) {
++		/*
++		 * Skip the recal check if we are in ret path,
++		 * do it later
++		 */
++		if (is_volt_reset)
++			return 0;
++		/*
++		 * we now do a check if time is appropriate to do a
++		 * recalibration for this vdd or not
++		 * NOTE: i dont need to reset the voltage OR enable sr here,
++		 * because I will be doing this anyway further down the flow
++		 * forceupdate, enable sr.
++		 */
++		if (!time_is_after_jiffies(work_data->recal_jtimeout))
++			sr_class1p5_reset_calib(voltdm, false, false);
++
++		return 0;
++	}
++
++	if (is_volt_reset)
++		omap_voltage_reset(voltdm);
++	return 0;
++}
++
++/**
++ * sr_class1p5_configure() - configuration function
++ * @voldm:	configure for which voltage domain
++ *
++ * we dont do much here other than setup some registers for
++ * the sr module involved.
++ */
++static int sr_class1p5_configure(struct voltagedomain *voltdm)
++{
++	return sr_configure_errgen(voltdm);
++}
++
++/**
++ * sr_class1p5_reset_calib() - reset all calibrated voltages
++ * @srid:	srid to reset the calibration for
++ * @reset:	reset voltage before we recal?
++ * @recal:	should I recalibrate my current opp?
++ *
++ * if we call this, it means either periodic calibration trigger was
++ * fired(either from sysfs or other mechanisms) or we have disabled class 1p5,
++ * meaning we cant trust the calib voltages anymore, it is better to use
++ * nominal in the system
++ */
++static void sr_class1p5_reset_calib(struct voltagedomain *voltdm, bool reset,
++				    bool recal)
++{
++	unsigned long freq;
++	struct sr_class1p5_work_data *work_data;
++	struct omap_vdd_info *vdd;
++
++	freq = 0;
++	/* I dont need to go further if sr is not present */
++	if (!is_sr_enabled(voltdm))
++		return;
++
++	vdd = container_of(voltdm, struct omap_vdd_info, voltdm);
++
++	work_data = get_sr1p5_work(voltdm);
++	/* setup a new timeout value */
++	work_data->recal_jtimeout = jiffies +
++	    msecs_to_jiffies(RECALIBRATION_TIMEOUT_MS);
++
++	if (work_data->work_active)
++		sr_class1p5_disable(voltdm, work_data->vdata, 0);
++
++	omap_voltage_calib_reset(voltdm);
++
++	/*
++	 * I should now reset the voltages to my nominal to be safe
++	 */
++	if (reset)
++		omap_voltage_reset(voltdm);
++
++	/*
++	 * I should fire a recalibration for current opp if needed
++	 * Note: i have just reset my calibrated voltages, and if
++	 * i call sr_enable equivalent, I will cause a recalibration
++	 * loop, even though the function is called sr_enable.. we
++	 * are in class 1.5 ;)
++	 */
++	if (reset && recal)
++		sr_class1p5_enable(voltdm, work_data->vdata);
++}
++
++/**
++ * sr_class1p5_cinit() - class 1p5 init
++ * @voltdm:		sr voltage domain
++ * @class_priv_data:	private data for the class
++ *
++ * we do class specific initialization like creating sysfs/debugfs entries
++ * needed, spawning of a kthread if needed etc.
++ */
++static int sr_class1p5_cinit(struct voltagedomain *voltdm,
++			     void *class_priv_data)
++{
++	struct sr_class1p5_work_data *work_data;
++	int idx;
++
++	if (!class_priv_data) {
++		pr_err("%s: bad param? no priv data!\n", __func__);
++		return -EINVAL;
++	}
++
++	/* setup our work params */
++	work_data = get_sr1p5_work(voltdm);
++	if (!IS_ERR_OR_NULL(work_data)) {
++		pr_err("%s: ooopps.. class already initialized for %s! bug??\n",
++		       __func__, voltdm->name);
++		return -EINVAL;
++	}
++	work_data = NULL;
++	/* get the next spare work_data */
++	for (idx = 0; idx < MAX_VDDS; idx++) {
++		if (!class_1p5_data.work_data[idx].voltdm) {
++			work_data = &class_1p5_data.work_data[idx];
++			break;
++		}
++	}
++	if (!work_data) {
++		pr_err("%s: no more space for work data for domains!\n",
++			__func__);
++		return -ENOMEM;
++	}
++	work_data->voltdm = voltdm;
++	work_data->recal_jtimeout = jiffies +
++	    msecs_to_jiffies(RECALIBRATION_TIMEOUT_MS);
++	INIT_DELAYED_WORK_DEFERRABLE(&work_data->work, do_calibrate);
++
++	return 0;
++}
++
++/**
++ * sr_class1p5_cdeinit() - class 1p5 deinitialization
++ * @voltdm:	voltage domain for which to do this.
++ * @class_priv_data: class private data for deinitialiation
++ *
++ * currently only resets the calibrated voltage forcing dvfs voltages
++ * to be used in the system
++ */
++static int sr_class1p5_cdeinit(struct voltagedomain *voltdm,
++			       void *class_priv_data)
++{
++	struct sr_class1p5_work_data *work_data;
++
++	/* setup our work params */
++	work_data = get_sr1p5_work(voltdm);
++	if (IS_ERR_OR_NULL(work_data)) {
++		pr_err("%s: ooopps.. class not initialized for %s! bug??\n",
++		       __func__, voltdm->name);
++		return -EINVAL;
++	}
++
++	/*
++	 * we dont have SR periodic calib anymore.. so reset calibs
++	 * we are already protected by sr debugfs lock, so no lock needed
++	 * here.
++	 */
++	sr_class1p5_reset_calib(voltdm, true, false);
++
++	/* reset all data for this work data */
++	memset(work_data, 0, sizeof(*work_data));
++
++	return 0;
++}
++
++/* SR class1p5 structure */
++static struct omap_sr_class_data class1p5_data = {
++	.enable = sr_class1p5_enable,
++	.disable = sr_class1p5_disable,
++	.configure = sr_class1p5_configure,
++	.class_type = SR_CLASS1P5,
++	.class_init = sr_class1p5_cinit,
++	.class_deinit = sr_class1p5_cdeinit,
++	.notify = sr_class1p5_notify,
++	/*
++	 * trigger for bound - this tells VP that SR has a voltage
++	 * change. we should ensure transdone is set before reading
++	 * vp voltage.
++	 */
++	.notify_flags = SR_NOTIFY_MCUBOUND,
++	.class_priv_data = (void *)&class_1p5_data,
++};
++
++/**
++ * sr_class1p5_init() - register class 1p5 as default
++ *
++ * board files call this function to use class 1p5, we register with the
++ * smartreflex subsystem
++ */
++static int __init sr_class1p5_init(void)
++{
++	int r;
++	r = sr_register_class(&class1p5_data);
++	if (r)
++		pr_err("SmartReflex class 1.5 driver: "
++		       "failed to register with %d\n", r);
++	else
++		pr_info("SmartReflex class 1.5 driver: initialized\n");
++	return r;
++}
++
++late_initcall(sr_class1p5_init);
+diff --git a/arch/arm/mach-omap2/smartreflex-class3.c b/arch/arm/mach-omap2/smartreflex-class3.c
+index 7ac88da..5f7a33e 100644
+--- a/arch/arm/mach-omap2/smartreflex-class3.c
++++ b/arch/arm/mach-omap2/smartreflex-class3.c
+@@ -21,7 +21,9 @@ static int sr_class3_enable(struct voltagedomain *voltdm,
+ 	return sr_enable(voltdm, volt_data);
+ }
+ 
+-static int sr_class3_disable(struct voltagedomain *voltdm, int is_volt_reset)
++static int sr_class3_disable(struct voltagedomain *voltdm,
++				struct omap_volt_data *vdata,
++				int is_volt_reset)
+ {
+ 	omap_vp_disable(voltdm);
+ 	sr_disable(voltdm);
+diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
+index 6ffc1a0..09f65a0 100644
+--- a/arch/arm/mach-omap2/smartreflex.c
++++ b/arch/arm/mach-omap2/smartreflex.c
+@@ -318,7 +318,9 @@ static void sr_stop_vddautocomp(struct omap_sr *sr)
+ 	}
+ 
+ 	if (sr->autocomp_active) {
+-		sr_class->disable(sr->voltdm, 1);
++		sr_class->disable(sr->voltdm,
++				omap_voltage_get_nom_volt(sr->voltdm),
++				1);
+ 		if (sr_class->class_deinit &&
+ 		    sr_class->class_deinit(sr->voltdm,
+ 			    sr_class->class_priv_data)) {
+@@ -474,6 +476,28 @@ static u32 sr_retrieve_nvalue(struct omap_sr *sr, u32 efuse_offs)
+ /* Public Functions */
+ 
+ /**
++ * is_sr_enabled() - is Smart reflex enabled for this domain?
++ * @voltdm: voltage domain to check
++ *
++ * Returns 0 if SR is enabled for this domain, else returns err
++ */
++bool is_sr_enabled(struct voltagedomain *voltdm)
++{
++	struct omap_sr *sr;
++	if (IS_ERR_OR_NULL(voltdm)) {
++		pr_warning("%s: invalid param voltdm\n", __func__);
++		return -EINVAL;
++	}
++	sr = _sr_lookup(voltdm);
++	if (IS_ERR(sr)) {
++		pr_warning("%s: omap_sr struct for sr_%s not found\n",
++			__func__, voltdm->name);
++		return -EINVAL;
++	}
++	return sr->autocomp_active;
++}
++
++/**
+  * sr_configure_errgen() - Configures the smrtreflex to perform AVS using the
+  *			 error generator module.
+  * @voltdm:	VDD pointer to which the SR module to be configured belongs to.
+@@ -842,6 +866,7 @@ void omap_sr_enable(struct voltagedomain *voltdm,
+  * omap_sr_disable() - API to disable SR without resetting the voltage
+  *			processor voltage
+  * @voltdm:	VDD pointer to which the SR module to be configured belongs to.
++ * @volt_data:	Voltage data to go to
+  *
+  * This API is to be called from the kernel in order to disable
+  * a particular smartreflex module. This API will in turn call
+@@ -849,7 +874,8 @@ void omap_sr_enable(struct voltagedomain *voltdm,
+  * the smartreflex class disable not to reset the VP voltage after
+  * disabling smartreflex.
+  */
+-void omap_sr_disable(struct voltagedomain *voltdm)
++void omap_sr_disable(struct voltagedomain *voltdm,
++		struct omap_volt_data *vdata)
+ {
+ 	struct omap_sr *sr = _sr_lookup(voltdm);
+ 
+@@ -868,7 +894,7 @@ void omap_sr_disable(struct voltagedomain *voltdm)
+ 		return;
+ 	}
+ 
+-	sr_class->disable(voltdm, 0);
++	sr_class->disable(voltdm, vdata, 0);
+ }
+ 
+ /**
+@@ -901,7 +927,7 @@ void omap_sr_disable_reset_volt(struct voltagedomain *voltdm)
+ 		return;
+ 	}
+ 
+-	sr_class->disable(voltdm, 1);
++	sr_class->disable(voltdm, omap_voltage_get_nom_volt(voltdm), 1);
+ }
+ 
+ /**
+diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
+index 15eed85..5675a13 100644
+--- a/arch/arm/mach-omap2/voltage.c
++++ b/arch/arm/mach-omap2/voltage.c
+@@ -290,9 +290,45 @@ static int nom_volt_debug_get(void *data, u64 *val)
+ 	return 0;
+ }
+ 
++static int dyn_volt_debug_get(void *data, u64 *val)
++{
++	struct omap_vdd_info *vdd = (struct omap_vdd_info *) data;
++	struct omap_volt_data *volt_data;
++
++	if (!vdd) {
++		pr_warning("Wrong paramater passed\n");
++		return -EINVAL;
++	}
++	volt_data = omap_voltage_get_nom_volt(&vdd->voltdm);
++
++	*val = volt_data->volt_dynamic_nominal;
++
++	return 0;
++}
++
++static int calib_volt_debug_get(void *data, u64 *val)
++{
++	struct omap_vdd_info *vdd = (struct omap_vdd_info *) data;
++	struct omap_volt_data *volt_data;
++
++	if (!vdd) {
++		pr_warning("Wrong paramater passed\n");
++		return -EINVAL;
++	}
++	volt_data = omap_voltage_get_nom_volt(&vdd->voltdm);
++
++	*val = volt_data->volt_calibrated;
++
++	return 0;
++}
++
+ DEFINE_SIMPLE_ATTRIBUTE(vp_volt_debug_fops, vp_volt_debug_get, NULL, "%llu\n");
+ DEFINE_SIMPLE_ATTRIBUTE(nom_volt_debug_fops, nom_volt_debug_get, NULL,
+ 								"%llu\n");
++DEFINE_SIMPLE_ATTRIBUTE(dyn_volt_debug_fops, dyn_volt_debug_get, NULL,
++								"%llu\n");
++DEFINE_SIMPLE_ATTRIBUTE(calib_volt_debug_fops, calib_volt_debug_get, NULL,
++								"%llu\n");
+ static void vp_latch_vsel(struct omap_vdd_info *vdd)
+ {
+ 	u32 vpconfig;
+@@ -420,6 +456,12 @@ static void __init vdd_debugfs_init(struct omap_vdd_info *vdd)
+ 	(void) debugfs_create_file("curr_nominal_volt", S_IRUGO,
+ 				vdd->debug_dir, (void *) vdd,
+ 				&nom_volt_debug_fops);
++	(void) debugfs_create_file("curr_dyn_nominal_volt", S_IRUGO,
++				vdd->debug_dir, (void *) vdd,
++				&dyn_volt_debug_fops);
++	(void) debugfs_create_file("curr_calibrated_volt", S_IRUGO,
++				vdd->debug_dir, (void *) vdd,
++				&calib_volt_debug_fops);
+ }
+ 
+ /* Voltage scale and accessory APIs */
+@@ -1052,6 +1094,25 @@ struct omap_volt_data *omap_voltage_get_nom_volt(struct voltagedomain *voltdm)
+ 	return vdd->curr_volt;
+ }
+ 
++int omap_voltage_calib_reset(struct voltagedomain *voltdm)
++{
++	struct omap_vdd_info *vdd;
++	struct omap_volt_data *volt_data;
++
++	if (IS_ERR_OR_NULL(voltdm)) {
++		pr_warning("%s: VDD specified does not exist!\n", __func__);
++		return -EINVAL;
++	}
++
++	vdd = container_of(voltdm, struct omap_vdd_info, voltdm);
++	volt_data = vdd->volt_data;
++	/* reset the calibrated voltages as 0 */
++	while (volt_data->volt_nominal) {
++		volt_data->volt_calibrated = 0;
++		volt_data++;
++	}
++	return 0;
++}
+ /**
+  * omap_vp_get_curr_volt() - API to get the current vp voltage.
+  * @voltdm:	pointer to the VDD.
+diff --git a/arch/arm/plat-omap/Kconfig b/arch/arm/plat-omap/Kconfig
+index b6333ae..8943e14 100644
+--- a/arch/arm/plat-omap/Kconfig
++++ b/arch/arm/plat-omap/Kconfig
+@@ -67,6 +67,15 @@ config OMAP_SMARTREFLEX_CLASS3
+ 	  Class 3 implementation of Smartreflex employs continuous hardware
+ 	  voltage calibration.
+ 
++config OMAP_SMARTREFLEX_CLASS1P5
++	bool "Class 1.5 mode of Smartreflex Implementation"
++	depends on OMAP_SMARTREFLEX && TWL4030_CORE
++	help
++	  Say Y to enable Class 1.5 implementation of Smartreflex
++
++	  Class 1.5 implementation of Smartreflex employs software controlled
++	  hardware voltage calibration.
++
+ config OMAP_RESET_CLOCKS
+ 	bool "Reset unused clocks during boot"
+ 	depends on ARCH_OMAP
+diff --git a/arch/arm/plat-omap/include/plat/smartreflex.h b/arch/arm/plat-omap/include/plat/smartreflex.h
+index 07f35b2..192cb06 100644
+--- a/arch/arm/plat-omap/include/plat/smartreflex.h
++++ b/arch/arm/plat-omap/include/plat/smartreflex.h
+@@ -167,6 +167,7 @@ struct omap_sr_pmic_data {
+ #define SR_CLASS1	0x1
+ #define SR_CLASS2	0x2
+ #define SR_CLASS3	0x3
++#define SR_CLASS1P5	0x4
+ 
+ /**
+  * struct omap_sr_class_data - Smartreflex class driver info
+@@ -187,7 +188,9 @@ struct omap_sr_pmic_data {
+ struct omap_sr_class_data {
+ 	int (*enable)(struct voltagedomain *voltdm,
+ 			struct omap_volt_data *volt_data);
+-	int (*disable)(struct voltagedomain *voltdm, int is_volt_reset);
++	int (*disable)(struct voltagedomain *voltdm,
++			struct omap_volt_data *volt_data,
++			int is_volt_reset);
+ 	int (*class_init)(struct voltagedomain *voltdm, void *class_priv_data);
+ 	int (*class_deinit)(struct voltagedomain *voltdm,
+ 			void *class_priv_data);
+@@ -235,7 +238,8 @@ struct omap_sr_data {
+ /* Smartreflex module enable/disable interface */
+ void omap_sr_enable(struct voltagedomain *voltdm,
+ 			struct omap_volt_data *volt_data);
+-void omap_sr_disable(struct voltagedomain *voltdm);
++void omap_sr_disable(struct voltagedomain *voltdm,
++			struct omap_volt_data *volt_data);
+ void omap_sr_disable_reset_volt(struct voltagedomain *voltdm);
+ 
+ /* API to register the pmic specific data with the smartreflex driver. */
+@@ -250,6 +254,7 @@ int sr_configure_minmax(struct voltagedomain *voltdm);
+ 
+ /* API to register the smartreflex class driver with the smartreflex driver */
+ int sr_register_class(struct omap_sr_class_data *class_data);
++bool is_sr_enabled(struct voltagedomain *voltdm);
+ #else
+ static inline void omap_sr_enable(struct voltagedomain *voltdm) {}
+ static inline void omap_sr_disable(struct voltagedomain *voltdm) {}
+@@ -264,5 +269,9 @@ static inline void omap_sr_disable_reset_volt(
+ 		struct voltagedomain *voltdm) {}
+ static inline void omap_sr_register_pmic(
+ 		struct omap_sr_pmic_data *pmic_data) {}
++static bool is_sr_enabled(struct voltagedomain *voltdm)
++{
++	return false;
++}
+ #endif
+ #endif
+diff --git a/arch/arm/plat-omap/include/plat/voltage.h b/arch/arm/plat-omap/include/plat/voltage.h
+index 6f310f2..3553b89 100644
+--- a/arch/arm/plat-omap/include/plat/voltage.h
++++ b/arch/arm/plat-omap/include/plat/voltage.h
+@@ -58,6 +58,8 @@
+ #define OMAP4430_VDD_CORE_OPP50_UV		930000
+ #define OMAP4430_VDD_CORE_OPP100_UV		1100000
+ 
++#define OMAP4PLUS_DYNAMIC_NOMINAL_MARGIN_UV	50000
++
+ /**
+  * struct voltagedomain - omap voltage domain global structure.
+  * @name:	Name of the voltage domain which can be used as a unique
+@@ -81,6 +83,8 @@ struct voltagedomain {
+  */
+ struct omap_volt_data {
+ 	u32	volt_nominal;
++	u32	volt_calibrated;
++	u32	volt_dynamic_nominal;
+ 	u32	sr_efuse_offs;
+ 	u8	sr_errminlimit;
+ 	u8	vp_errgain;
+@@ -275,6 +279,7 @@ struct omap_volt_data *omap_voltage_get_nom_volt(struct voltagedomain *voltdm);
+ bool omap_vp_is_transdone(struct voltagedomain *voltdm);
+ bool omap_vp_clear_transdone(struct voltagedomain *voltdm);
+ struct dentry *omap_voltage_get_dbgdir(struct voltagedomain *voltdm);
++int omap_voltage_calib_reset(struct voltagedomain *voltdm);
+ #ifdef CONFIG_PM
+ int omap_voltage_register_pmic(struct voltagedomain *voltdm,
+ 		struct omap_volt_pmic_info *pmic_info);
+@@ -308,7 +313,23 @@ static inline unsigned long omap_get_operation_voltage(
+ {
+ 	if (IS_ERR_OR_NULL(vdata))
+ 		return 0;
+-	return vdata->volt_nominal;
++	return (vdata->volt_calibrated) ? vdata->volt_calibrated :
++		(vdata->volt_dynamic_nominal) ? vdata->volt_dynamic_nominal :
++			vdata->volt_nominal;
+ }
+ 
++/* what is my dynamic nominal? */
++static inline unsigned long omap_get_dyn_nominal(struct omap_volt_data *vdata)
++{
++	if (IS_ERR_OR_NULL(vdata))
++		return 0;
++	if (vdata->volt_calibrated) {
++		unsigned long v = vdata->volt_calibrated +
++			OMAP4PLUS_DYNAMIC_NOMINAL_MARGIN_UV;
++		if (v > vdata->volt_nominal)
++			return vdata->volt_nominal;
++		return v;
++	}
++	return vdata->volt_nominal;
++}
+ #endif
+-- 
+1.7.1
+

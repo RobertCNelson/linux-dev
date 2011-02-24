@@ -1,0 +1,36 @@
+From 24a13547ea9e861e40cdc56f5d3cf5c5dd4c7125 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Tue, 15 Feb 2011 10:47:09 +0530
+Subject: [PATCH 31/53] omap3430: voltage: fix depedency table
+
+dependency table is wrong - it should be for 34xx not omap4.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/voltage.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
+index a0bd73b..f5d591a 100644
+--- a/arch/arm/mach-omap2/voltage.c
++++ b/arch/arm/mach-omap2/voltage.c
+@@ -193,11 +193,11 @@ static struct omap_volt_data omap44xx_vdd_core_volt_data[] = {
+ 
+ /* OMAP 3430 MPU Core VDD dependency table */
+ static struct omap_vdd_dep_volt omap34xx_vdd1_vdd2_data[] = {
+-	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP1_UV, .dep_vdd_volt = OMAP4430_VDD_CORE_OPP50_UV},
+-	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP2_UV, .dep_vdd_volt = OMAP4430_VDD_CORE_OPP50_UV},
+-	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP3_UV, .dep_vdd_volt = OMAP4430_VDD_CORE_OPP100_UV},
+-	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP4_UV, .dep_vdd_volt = OMAP4430_VDD_CORE_OPP100_UV},
+-	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP5_UV, .dep_vdd_volt = OMAP4430_VDD_CORE_OPP100_UV},
++	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP1_UV, .dep_vdd_volt = OMAP3430_VDD_CORE_OPP2_UV},
++	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP2_UV, .dep_vdd_volt = OMAP3430_VDD_CORE_OPP2_UV},
++	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP3_UV, .dep_vdd_volt = OMAP3430_VDD_CORE_OPP3_UV},
++	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP4_UV, .dep_vdd_volt = OMAP3430_VDD_CORE_OPP3_UV},
++	{.main_vdd_volt = OMAP3430_VDD_MPU_OPP5_UV, .dep_vdd_volt = OMAP3430_VDD_CORE_OPP3_UV},
+ 	{.main_vdd_volt = 0, .dep_vdd_volt = 0},
+ };
+ 
+-- 
+1.7.1
+

@@ -1,0 +1,47 @@
+From 3f45fb7b89fd08ba2289ed74fab48e1fafcdc2b0 Mon Sep 17 00:00:00 2001
+From: Ricardo Salveti de Araujo <ricardo.salveti@canonical.com>
+Date: Mon, 31 Jan 2011 11:35:25 -0200
+Subject: [PATCH 10/53] OMAP3630: PM: don't warn the user with a trace in case of PM34XX_ERRATUM
+
+In case in user has a OMAP3630 < ES1.2 the kernel should warn the user
+about the ERRATUM, but using pr_warn instead of WARN_ON is already
+enough, as there is nothing else the user can do besides changing the
+board.
+
+Signed-off-by: Ricardo Salveti de Araujo <ricardo.salveti@canonical.com>
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/cpuidle34xx.c |    2 +-
+ arch/arm/mach-omap2/pm34xx.c      |    3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/cpuidle34xx.c b/arch/arm/mach-omap2/cpuidle34xx.c
+index b2d4e20..f8e35b3 100644
+--- a/arch/arm/mach-omap2/cpuidle34xx.c
++++ b/arch/arm/mach-omap2/cpuidle34xx.c
+@@ -496,7 +496,7 @@ void omap_init_power_states(void)
+ 	if (IS_PM34XX_ERRATUM(PM_SDRC_WAKEUP_ERRATUM_i583)) {
+ 		omap3_power_states[OMAP3_STATE_C7].valid = 0;
+ 		cpuidle_params_table[OMAP3_STATE_C7].valid = 0;
+-		WARN_ONCE(1, "%s: core off state C7 disabled due to i583\n",
++		pr_warn("%s: core off state C7 disabled due to i583\n",
+ 				__func__);
+ 	}
+ }
+diff --git a/arch/arm/mach-omap2/pm34xx.c b/arch/arm/mach-omap2/pm34xx.c
+index 2f864e4..6ade4ea 100644
+--- a/arch/arm/mach-omap2/pm34xx.c
++++ b/arch/arm/mach-omap2/pm34xx.c
+@@ -928,8 +928,7 @@ void omap3_pm_off_mode_enable(int enable)
+ 				pwrst->pwrdm == core_pwrdm &&
+ 				state == PWRDM_POWER_OFF) {
+ 			pwrst->next_state = PWRDM_POWER_RET;
+-			WARN_ONCE(1,
+-				"%s: Core OFF disabled due to errata i583\n",
++			pr_warn("%s: Core OFF disabled due to errata i583\n",
+ 				__func__);
+ 		} else {
+ 			pwrst->next_state = state;
+-- 
+1.7.1
+

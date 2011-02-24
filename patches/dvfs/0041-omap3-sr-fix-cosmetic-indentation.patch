@@ -1,0 +1,45 @@
+From 844b92a45dab13c6505e019c4b2dcde813a89055 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Mon, 14 Feb 2011 12:33:13 +0530
+Subject: [PATCH 41/53] omap3+: sr: fix cosmetic indentation
+
+exit case seems to have a 2 tab indentation when just 1 is necessary.
+fix the same
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/smartreflex.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
+index fb675c0..1fe8b95 100644
+--- a/arch/arm/mach-omap2/smartreflex.c
++++ b/arch/arm/mach-omap2/smartreflex.c
+@@ -289,15 +289,15 @@ static int sr_late_init(struct omap_sr *sr_info)
+ 	return ret;
+ 
+ error:
+-		iounmap(sr_info->base);
+-		mem = platform_get_resource(sr_info->pdev, IORESOURCE_MEM, 0);
+-		release_mem_region(mem->start, resource_size(mem));
+-		list_del(&sr_info->node);
+-		dev_err(&sr_info->pdev->dev, "%s: ERROR in registering"
+-			"interrupt handler. Smartreflex will"
+-			"not function as desired\n", __func__);
+-		kfree(sr_info);
+-		return ret;
++	iounmap(sr_info->base);
++	mem = platform_get_resource(sr_info->pdev, IORESOURCE_MEM, 0);
++	release_mem_region(mem->start, resource_size(mem));
++	list_del(&sr_info->node);
++	dev_err(&sr_info->pdev->dev, "%s: ERROR in registering"
++		"interrupt handler. Smartreflex will"
++		"not function as desired\n", __func__);
++	kfree(sr_info);
++	return ret;
+ }
+ 
+ static void sr_v1_disable(struct omap_sr *sr)
+-- 
+1.7.1
+

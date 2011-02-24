@@ -1,0 +1,45 @@
+From c721a8da0907553381446f6c489d1e85cf3af4a5 Mon Sep 17 00:00:00 2001
+From: Thara Gopinath <thara@ti.com>
+Date: Wed, 18 Aug 2010 16:22:43 +0530
+Subject: [PATCH 25/53] OMAP3: Introduce voltage domain info in the hwmod structures.
+
+This patch adds voltage domain info in the relevant
+device hwmod structures so as to enable OMAP3 DVFS
+support.
+
+Signed-off-by: Thara Gopinath <thara@ti.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+index 8d81813..c57f34d 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+@@ -94,6 +94,7 @@ static struct omap_hwmod_ocp_if *omap3xxx_l3_main_masters[] = {
+ static struct omap_hwmod omap3xxx_l3_main_hwmod = {
+ 	.name		= "l3_main",
+ 	.class		= &l3_hwmod_class,
++	.vdd_name	= "core",
+ 	.masters	= omap3xxx_l3_main_masters,
+ 	.masters_cnt	= ARRAY_SIZE(omap3xxx_l3_main_masters),
+ 	.slaves		= omap3xxx_l3_main_slaves,
+@@ -384,6 +385,7 @@ static struct omap_hwmod omap3xxx_mpu_hwmod = {
+ 	.name		= "mpu",
+ 	.class		= &mpu_hwmod_class,
+ 	.main_clk	= "arm_fck",
++	.vdd_name	= "mpu",
+ 	.masters	= omap3xxx_mpu_masters,
+ 	.masters_cnt	= ARRAY_SIZE(omap3xxx_mpu_masters),
+ 	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP3430),
+@@ -412,6 +414,7 @@ static struct omap_hwmod_ocp_if *omap3xxx_iva_masters[] = {
+ static struct omap_hwmod omap3xxx_iva_hwmod = {
+ 	.name		= "iva",
+ 	.class		= &iva_hwmod_class,
++	.vdd_name	= "mpu",
+ 	.masters	= omap3xxx_iva_masters,
+ 	.masters_cnt	= ARRAY_SIZE(omap3xxx_iva_masters),
+ 	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP3430)
+-- 
+1.7.1
+

@@ -1,0 +1,143 @@
+From c72e5882429a840c41243b8f208cbdd839dda70e Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Fri, 18 Feb 2011 10:43:25 +0530
+Subject: [PATCH 51/53] omap3+: voltage: add transdone apis
+
+transdone in Voltage processor gives us fine grained status on what
+the current status of the voltage communication with the PMIC is.
+Unfortunately, irq generation by VP is based on the start of the
+transmission to VC from VP, not at the end (or the completion of
+the voltage setting). Hence any users of voltage layer who need
+to know fine grained if the voltage is actually send to PMIC
+needs to depend on this status.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/voltage.c             |   64 ++++++++++++++++++++++-------
+ arch/arm/plat-omap/include/plat/voltage.h |    2 +
+ 2 files changed, 51 insertions(+), 15 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
+index 639f645..15eed85 100644
+--- a/arch/arm/mach-omap2/voltage.c
++++ b/arch/arm/mach-omap2/voltage.c
+@@ -555,8 +555,8 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+ 		struct omap_volt_data *target_volt)
+ {
+ 	u32 vpconfig;
+-	u16 mod, ocp_mod;
+-	u8 target_vsel, current_vsel, prm_irqst_reg;
++	u16 mod;
++	u8 target_vsel, current_vsel;
+ 	int ret, timeout = 0;
+ 
+ 	ret = _pre_volt_scale(vdd, target_volt, &target_vsel, &current_vsel);
+@@ -564,18 +564,13 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+ 		return ret;
+ 
+ 	mod = vdd->vp_reg.prm_mod;
+-	ocp_mod = vdd->ocp_mod;
+-	prm_irqst_reg = vdd->prm_irqst_reg;
+-
+ 	/*
+ 	 * Clear all pending TransactionDone interrupt/status. Typical latency
+ 	 * is <3us
+ 	 */
+ 	while (timeout++ < VP_TRANXDONE_TIMEOUT) {
+-		vdd->write_reg(vdd->vp_reg.tranxdone_status,
+-				ocp_mod, prm_irqst_reg);
+-		if (!(vdd->read_reg(ocp_mod, prm_irqst_reg) &
+-				vdd->vp_reg.tranxdone_status))
++		omap_vp_clear_transdone(&vdd->voltdm);
++		if (!omap_vp_is_transdone(&vdd->voltdm))
+ 				break;
+ 		udelay(1);
+ 	}
+@@ -607,7 +602,7 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+ 	 * Depends on SMPSWAITTIMEMIN/MAX and voltage change
+ 	 */
+ 	timeout = 0;
+-	omap_test_timeout((vdd->read_reg(ocp_mod, prm_irqst_reg) &
++	omap_test_timeout((vdd->read_reg(vdd->ocp_mod, vdd->prm_irqst_reg) &
+ 			vdd->vp_reg.tranxdone_status),
+ 			VP_TRANXDONE_TIMEOUT, timeout);
+ 	if (timeout >= VP_TRANXDONE_TIMEOUT)
+@@ -623,11 +618,9 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+ 	 */
+ 	timeout = 0;
+ 	while (timeout++ < VP_TRANXDONE_TIMEOUT) {
+-		vdd->write_reg(vdd->vp_reg.tranxdone_status,
+-				ocp_mod, prm_irqst_reg);
+-		if (!(vdd->read_reg(ocp_mod, prm_irqst_reg) &
+-				vdd->vp_reg.tranxdone_status))
+-				break;
++		omap_vp_clear_transdone(&vdd->voltdm);
++		if (!omap_vp_is_transdone(&vdd->voltdm))
++			break;
+ 		udelay(1);
+ 	}
+ 
+@@ -1190,6 +1183,47 @@ void omap_vp_disable(struct voltagedomain *voltdm)
+ }
+ 
+ /**
++ * omap_vp_is_transdone() - is voltage transfer done on vp?
++ * @voltdm:	pointer to the VDD which is to be scaled.
++ *
++ * VP's transdone bit is the only way to ensure that the transfer
++ * of the voltage value has actually been send over to the PMIC
++ * This is hence useful for all users of voltage domain to precisely
++ * identify once the PMIC voltage has been set by the voltage processor
++ */
++bool omap_vp_is_transdone(struct voltagedomain *voltdm)
++{
++	struct omap_vdd_info *vdd;
++
++	if (IS_ERR_OR_NULL(voltdm)) {
++		pr_warning("%s: Bad Params vdm=%p\n", __func__, voltdm);
++		return false;
++	}
++
++	vdd = container_of(voltdm, struct omap_vdd_info, voltdm);
++	return (vdd->read_reg(vdd->ocp_mod, vdd->prm_irqst_reg) &
++			vdd->vp_reg.tranxdone_status) ? true : false;
++}
++
++/**
++ * omap_vp_clear_transdone() - clear voltage transfer done status on vp
++ * @voltdm:	pointer to the VDD which is to be scaled.
++ */
++bool omap_vp_clear_transdone(struct voltagedomain *voltdm)
++{
++	struct omap_vdd_info *vdd;
++
++	if (IS_ERR_OR_NULL(voltdm)) {
++		pr_warning("%s: Bad Params vdm=%p\n", __func__, voltdm);
++		return false;
++	}
++
++	vdd = container_of(voltdm, struct omap_vdd_info, voltdm);
++	vdd->write_reg(vdd->vp_reg.tranxdone_status,
++			vdd->ocp_mod, vdd->prm_irqst_reg);
++	return true;
++}
++/**
+  * omap_voltage_scale_vdd() - API to scale voltage of a particular
+  *				voltage domain.
+  * @voltdm:	pointer to the VDD which is to be scaled.
+diff --git a/arch/arm/plat-omap/include/plat/voltage.h b/arch/arm/plat-omap/include/plat/voltage.h
+index 80544a7..6f310f2 100644
+--- a/arch/arm/plat-omap/include/plat/voltage.h
++++ b/arch/arm/plat-omap/include/plat/voltage.h
+@@ -272,6 +272,8 @@ void omap_voltage_get_volttable(struct voltagedomain *voltdm,
+ struct omap_volt_data *omap_voltage_get_voltdata(struct voltagedomain *voltdm,
+ 		unsigned long volt);
+ struct omap_volt_data *omap_voltage_get_nom_volt(struct voltagedomain *voltdm);
++bool omap_vp_is_transdone(struct voltagedomain *voltdm);
++bool omap_vp_clear_transdone(struct voltagedomain *voltdm);
+ struct dentry *omap_voltage_get_dbgdir(struct voltagedomain *voltdm);
+ #ifdef CONFIG_PM
+ int omap_voltage_register_pmic(struct voltagedomain *voltdm,
+-- 
+1.7.1
+

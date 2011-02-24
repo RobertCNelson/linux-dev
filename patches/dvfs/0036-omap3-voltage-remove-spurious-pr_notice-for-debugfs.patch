@@ -1,0 +1,28 @@
+From e3fa6a78011ea8916eaf8699b4fc6b16b8f93fcb Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Sat, 12 Feb 2011 17:27:14 +0530
+Subject: [PATCH 36/53] omap3+: voltage: remove spurious pr_notice for debugfs
+
+cat of debugfs is already providing data back to userspace
+remove redundant pr_notice dump to the log
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/mach-omap2/voltage.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
+index ed6d22e..1db3349 100644
+--- a/arch/arm/mach-omap2/voltage.c
++++ b/arch/arm/mach-omap2/voltage.c
+@@ -263,7 +263,6 @@ static int vp_volt_debug_get(void *data, u64 *val)
+ 	}
+ 
+ 	vsel = vdd->read_reg(vdd->vp_reg.prm_mod, vdd->vp_offs.voltage);
+-	pr_notice("curr_vsel = %x\n", vsel);
+ 
+ 	if (!vdd->pmic_info->vsel_to_uv) {
+ 		pr_warning("PMIC function to convert vsel to voltage"
+-- 
+1.7.1
+
