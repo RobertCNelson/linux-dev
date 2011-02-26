@@ -109,7 +109,7 @@ function patch_kernel {
         else if [ "${RC_PATCH}" ]; then
                 git commit -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
         else if [ "${STABLE_PATCH}" ] ; then
-                git commit -a -m ''$KERNEL_REL''$STABLE_PATCH'-'$BUILD' patchset'
+                git commit -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
         else
                 git commit -a -m ''$KERNEL_REL'-'$BUILD' patchset'
         fi
