@@ -60,14 +60,14 @@ function git_kernel {
     fi
   elif [ "${STABLE_PATCH}" ] ; then
     git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
-    if [ "${LATEST_GIT}" ] ; then
+    if [ ! "${LATEST_GIT}" ] ; then
       git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
     else
       git checkout origin/master -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
     fi
   else
     git branch -D v${KERNEL_REL}-${BUILD} || true
-    if [ "${LATEST_GIT}" ] ; then
+    if [ ! "${LATEST_GIT}" ] ; then
       git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
     else
       git checkout origin/master -b v${KERNEL_REL}-${BUILD}
