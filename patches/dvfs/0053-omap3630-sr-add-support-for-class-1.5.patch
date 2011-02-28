@@ -1,22 +1,118 @@
-From a950738cc675ee550cdba1734f4b88bc5c2615ce Mon Sep 17 00:00:00 2001
+From 22b9ec33e30e4edee18c59b07acc910fed02c777 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
 Date: Thu, 17 Feb 2011 21:26:34 +0530
-Subject: [PATCH 53/53] omap3+: add sr1.5
+Subject: [PATCH 53/56] omap3630+: sr: add support for class 1.5
 
-WORK IN PROGRESS _ UNDER TEST
+TEST VERSION - includes locks used for DVFS
+Traditional SmartReflex AVS(Automatic Voltage Scaling) classes are:
+* Class 0 - Product test calibration
+	Silicon is calibration at production floor and fused with voltages
+	for each OPP
+* Class 1 - Boot time calibration
+	Silicon is calibrated once at boot time and voltages are stored for
+	the lifetime of operation.
+* Class 2 - continuous s/w calibration
+	SR module notifies s/w for any change in the system which is desired
+	and the s/w makes runtime decisions in terms of setting the voltage,
+	this mechanism could be used in the system which does not have PMIC
+	capable of SR without using the voltage controller and voltage
+	processor blocks.
+* Class 3 - continuous h/w calibration
+	SR module is switch on after reaching a voltage level and SR
+	continuously monitors the system and makes runtime adjustments without
+	s/w involvement.
+
+OMAP3430 has used SmartReflex AVS and with a a PMIC which understands the SR
+protocol, Class 3 has been used. With OMAP3630 onwards, a new SmartReflex AVS
+class of operation Class 1.5 was introduced.
+* Class 1.5 - periodic s/w calibration
+	This uses the h/w calibration loop and at the end of calibration
+	stores the voltages to be used run time, periodic recalibration is
+	performed as well.
+
+The operational mode is describes as the following:
+* SmartReflex AVS h/w calibration loop is essential to identify the optimal
+	voltage for a given OPP.
+* Once this optimal voltage is detected, SmartReflex AVS loop is disabled in
+	class 1.5 mode of operation.
+* Until there is a need for a recalibration, any further transition to an OPP
+	voltage which is calibrated can use the calibrated voltage and does not
+	require enabling the SR AVS h/w loop.
+* On a periodic basis (recommendation being once approximately every 24 hours),
+	software is expected to perform a recalibration to find a new optimal
+	voltage which is compensated for device aging.
+	- For performing this recalibration, the start voltage does not need to
+	be the nominal voltage anymore. instead, the system can start with a
+	voltage which is 50mV higher than the previously calibrated voltage to
+	identify the new optimal voltage as the aging factor within a period of
+	1 day is not going to be anywhere close to 50mV.
+	- This "new starting point" for recalibration is called a dynamic
+	nominal voltage for that voltage point.
+In short, with the introduction of SmartReflex class 1.5, there are three new
+voltages possible in a system's dvfs transition:
+* Nominal Voltage - The maximum voltage needed for a worst possible device
+	in the worst possible conditions. This is the voltage we choose as
+	the starting point for the h/w loop to optimize for the first time
+	calibration on system bootup.
+* Dynamic Nominal Voltage - Worst case voltage for a specific device in
+	considering the system aging on the worst process device.
+* Calibrated Voltage - Best voltage for the current device at a given point
+	of time.
+
+In terms of the implementation, doing calibration involves waiting for the
+smartreflex h/w loop to settle down, and doing this as part of the dvfs flow
+itself is to increase the latency of dvfs transition when there is a need to
+calibrate that opp. instead, the calibration is performed "out of path" using
+a workqueue statemachine. The workqueue waits for the system stabilization,
+then enables VP interrupts to monitor for system instability interms of voltage
+oscillations that are reported back to the system as interrupts, in case of
+prolonged system oscillations, nominal voltage is chosen as a safe voltage and
+this event is logged in the system log for developer debug and fixing.
+
+For the recalibration, a common workqueue for all domains is started at the
+start of the class initialization and it resets the calibrated voltages
+on a periodic basis. For distros that may choose not to do the recommended
+periodic recalibration, instead choose to perform boot time calibration,
+kconfig configuration option is provided to do so.
+
+TODO:
+a) Cpuidle and suspend paths are not integrated with SmartReflex driver at
+   this point.
+b) Since the SR registers are accessed and controlled in parallel to DVFS
+   some sort of mechanism is necessary to be introduced along with OMAP
+   dvfs layer to ensure mutual exclusivity
+c) Additional debug interfaces for vmin analysis for platform characterization
+   and addition of system margin needs to be introduced from smartreflex
+   perspective.
+
+This implementation also includes the following contributors:
+Tony Lindgren for suggestion on using interrupt based mechanism instead of
+polling to detect voltage oscillations.
+Peter 'p2' De Schrijver for debating alternatives on recalibration mechanisms
+Paul Walmsey, Eduardo Valentin, Ambresh K, Igor Dmitriev and quiet a few others
+for patient review, testing and reporting of issues of a previous incarnation
+of this implemenation. Last, but not the least, the TI H/w team in introducing
+this new SR AVS class and patiently debating it's various facets.
+
+Cc: Ambresh K <ambresh@ti.com>
+Cc: Eduardo Valentin <eduardo.valentin@nokia.com>
+Cc: Igor Dmitriev <ext-dmitriev.igor@nokia.com>
+Cc: Paul <paul@pwsan.com>
+Cc: Peter 'p2' De Schrijver <Peter.De-Schrijver@nokia.com>
+Cc: Tony Lindgren <tony@atomide.com>
 
 Signed-off-by: Nishanth Menon <nm@ti.com>
 ---
  arch/arm/mach-omap2/Makefile                  |    1 +
  arch/arm/mach-omap2/dvfs.c                    |    2 +-
- arch/arm/mach-omap2/smartreflex-class1p5.c    |  541 +++++++++++++++++++++++++
+ arch/arm/mach-omap2/smartreflex-class1p5.c    |  562 +++++++++++++++++++++++++
  arch/arm/mach-omap2/smartreflex-class3.c      |    4 +-
  arch/arm/mach-omap2/smartreflex.c             |   34 ++-
  arch/arm/mach-omap2/voltage.c                 |   61 +++
- arch/arm/plat-omap/Kconfig                    |    9 +
+ arch/arm/plat-omap/Kconfig                    |   19 +
  arch/arm/plat-omap/include/plat/smartreflex.h |   13 +-
  arch/arm/plat-omap/include/plat/voltage.h     |   23 +-
- 9 files changed, 679 insertions(+), 9 deletions(-)
+ 9 files changed, 710 insertions(+), 9 deletions(-)
  create mode 100644 arch/arm/mach-omap2/smartreflex-class1p5.c
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
@@ -46,10 +142,10 @@ index 302d654..d0f56c8 100644
  
 diff --git a/arch/arm/mach-omap2/smartreflex-class1p5.c b/arch/arm/mach-omap2/smartreflex-class1p5.c
 new file mode 100644
-index 0000000..179e2fb
+index 0000000..6bddce0
 --- /dev/null
 +++ b/arch/arm/mach-omap2/smartreflex-class1p5.c
-@@ -0,0 +1,541 @@
+@@ -0,0 +1,562 @@
 +/*
 + * Smart reflex Class 1.5 specific implementations
 + *
@@ -88,8 +184,6 @@ index 0000000..179e2fb
 +#define SR1P5_STABLE_SAMPLES	5
 +#define SR1P5_MAX_TRIGGERS	5
 +
-+#define RECALIBRATION_TIMEOUT_MS	(24 * 3600 * 1000)
-+
 +/*
 + * we expect events in 10uS, if we dont get 2wice times as much,
 + * we could kind of ignore this as a missed event.
@@ -104,7 +198,6 @@ index 0000000..179e2fb
 + * @num_calib_triggers:	number of triggers from calibration loop
 + * @num_osc_samples:	number of samples collected by isr
 + * @work_active:	have we scheduled a work item?
-+ * @recal_jtimeout:	timeout for recalibration
 + */
 +struct sr_class1p5_work_data {
 +	struct delayed_work work;
@@ -113,8 +206,12 @@ index 0000000..179e2fb
 +	u8 num_calib_triggers;
 +	u8 num_osc_samples;
 +	bool work_active;
-+	unsigned long recal_jtimeout;
 +};
++
++#if CONFIG_OMAP_SR_CLASS1P5_RECALIBRATION_DELAY
++/* recal_work:	recalibration calibration work */
++static struct delayed_work recal_work;
++#endif
 +
 +/**
 + * struct sr_class1p5_data - private data for class 1p5
@@ -308,6 +405,43 @@ index 0000000..179e2fb
 +	omap_dvfs_unpause(work_data->voltdm);
 +}
 +
++#if CONFIG_OMAP_SR_CLASS1P5_RECALIBRATION_DELAY
++/**
++ * do_recalibrate() - work which actually does the calibration
++ * @work: pointer to the work
++ *
++ * on a periodic basis, we come and reset our calibration setup
++ * so that a recalibration of the OPPs take place. This takes
++ * care of aging factor in the system.
++ */
++static void do_recalibrate(struct work_struct *work)
++{
++	struct voltagedomain *voltdm;
++	int idx;
++	static struct sr_class1p5_work_data *work_data;
++
++	for (idx = 0; idx < MAX_VDDS; idx++) {
++		work_data = &class_1p5_data.work_data[idx];
++		voltdm = work_data->voltdm;
++		if (voltdm) {
++			/* if sr is not enabled, we check later */
++			if (!is_sr_enabled(voltdm))
++				continue;
++			/* TODO: Pause the dvfs transitions */
++			/* if sr is not enabled, we check later */
++
++			/* Reset and force a recalibration for current opp */
++			sr_class1p5_reset_calib(voltdm, true, true);
++
++			/* TODO: unpause DVFS transitions */
++		}
++	}
++	/* We come back again after time the usual delay */
++	schedule_delayed_work(&recal_work,
++	      msecs_to_jiffies(CONFIG_OMAP_SR_CLASS1P5_RECALIBRATION_DELAY));
++}
++#endif /* CONFIG_OMAP_SR_CLASS1P5_RECALIBRATION_DELAY */
++
 +/**
 + * sr_class1p5_enable() - class 1.5 mode of enable
 + * @voltdm:		voltage domain to enable SR for
@@ -383,26 +517,9 @@ index 0000000..179e2fb
 +		sr_disable(voltdm);
 +	}
 +
-+	/* if already calibrated, see if we need to reset calib.. */
-+	if (volt_data->volt_calibrated) {
-+		/*
-+		 * Skip the recal check if we are in ret path,
-+		 * do it later
-+		 */
-+		if (is_volt_reset)
-+			return 0;
-+		/*
-+		 * we now do a check if time is appropriate to do a
-+		 * recalibration for this vdd or not
-+		 * NOTE: i dont need to reset the voltage OR enable sr here,
-+		 * because I will be doing this anyway further down the flow
-+		 * forceupdate, enable sr.
-+		 */
-+		if (!time_is_after_jiffies(work_data->recal_jtimeout))
-+			sr_class1p5_reset_calib(voltdm, false, false);
-+
++	/* if already calibrated, nothin special to do here.. */
++	if (volt_data->volt_calibrated)
 +		return 0;
-+	}
 +
 +	if (is_volt_reset)
 +		omap_voltage_reset(voltdm);
@@ -435,21 +552,13 @@ index 0000000..179e2fb
 +static void sr_class1p5_reset_calib(struct voltagedomain *voltdm, bool reset,
 +				    bool recal)
 +{
-+	unsigned long freq;
 +	struct sr_class1p5_work_data *work_data;
-+	struct omap_vdd_info *vdd;
 +
-+	freq = 0;
 +	/* I dont need to go further if sr is not present */
 +	if (!is_sr_enabled(voltdm))
 +		return;
 +
-+	vdd = container_of(voltdm, struct omap_vdd_info, voltdm);
-+
 +	work_data = get_sr1p5_work(voltdm);
-+	/* setup a new timeout value */
-+	work_data->recal_jtimeout = jiffies +
-+	    msecs_to_jiffies(RECALIBRATION_TIMEOUT_MS);
 +
 +	if (work_data->work_active)
 +		sr_class1p5_disable(voltdm, work_data->vdata, 0);
@@ -513,10 +622,7 @@ index 0000000..179e2fb
 +		return -ENOMEM;
 +	}
 +	work_data->voltdm = voltdm;
-+	work_data->recal_jtimeout = jiffies +
-+	    msecs_to_jiffies(RECALIBRATION_TIMEOUT_MS);
 +	INIT_DELAYED_WORK_DEFERRABLE(&work_data->work, do_calibrate);
-+
 +	return 0;
 +}
 +
@@ -581,15 +687,26 @@ index 0000000..179e2fb
 +static int __init sr_class1p5_init(void)
 +{
 +	int r;
++
++	/* Enable this class only for OMAP3630 and OMAP4 */
++	if (!(cpu_is_omap3630() || cpu_is_omap44xx()))
++		return -EINVAL;
++
 +	r = sr_register_class(&class1p5_data);
-+	if (r)
++	if (r) {
 +		pr_err("SmartReflex class 1.5 driver: "
 +		       "failed to register with %d\n", r);
-+	else
-+		pr_info("SmartReflex class 1.5 driver: initialized\n");
++	} else {
++#if CONFIG_OMAP_SR_CLASS1P5_RECALIBRATION_DELAY
++		INIT_DELAYED_WORK_DEFERRABLE(&recal_work, do_recalibrate);
++		schedule_delayed_work(&recal_work, msecs_to_jiffies(
++				CONFIG_OMAP_SR_CLASS1P5_RECALIBRATION_DELAY));
++#endif
++		pr_info("SmartReflex class 1.5 driver: initialized (%dms)\n",
++			CONFIG_OMAP_SR_CLASS1P5_RECALIBRATION_DELAY);
++	}
 +	return r;
 +}
-+
 +late_initcall(sr_class1p5_init);
 diff --git a/arch/arm/mach-omap2/smartreflex-class3.c b/arch/arm/mach-omap2/smartreflex-class3.c
 index 7ac88da..5f7a33e 100644
@@ -776,10 +893,10 @@ index 15eed85..5675a13 100644
   * omap_vp_get_curr_volt() - API to get the current vp voltage.
   * @voltdm:	pointer to the VDD.
 diff --git a/arch/arm/plat-omap/Kconfig b/arch/arm/plat-omap/Kconfig
-index b6333ae..8943e14 100644
+index b6333ae..121756a 100644
 --- a/arch/arm/plat-omap/Kconfig
 +++ b/arch/arm/plat-omap/Kconfig
-@@ -67,6 +67,15 @@ config OMAP_SMARTREFLEX_CLASS3
+@@ -67,6 +67,25 @@ config OMAP_SMARTREFLEX_CLASS3
  	  Class 3 implementation of Smartreflex employs continuous hardware
  	  voltage calibration.
  
@@ -791,6 +908,16 @@ index b6333ae..8943e14 100644
 +
 +	  Class 1.5 implementation of Smartreflex employs software controlled
 +	  hardware voltage calibration.
++
++config OMAP_SR_CLASS1P5_RECALIBRATION_DELAY
++	int "Class 1.5 mode recalibration recalibration delay(ms)"
++	depends on OMAP_SMARTREFLEX_CLASS1P5
++	default 86400000
++	help
++	  Setup the recalibration delay in milliseconds. Use 0 for never doing
++	  a recalibration. Defaults to recommended recalibration every 24hrs.
++	  If you do not understand this, use the default.
++
 +
  config OMAP_RESET_CLOCKS
  	bool "Reset unused clocks during boot"
