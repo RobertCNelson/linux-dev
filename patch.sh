@@ -141,7 +141,7 @@ echo "touchbook patches"
 patch -s -p1 < "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp.patch"
 patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
 patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
-patch -s -p1 < "${DIR}/patches/touchbook/0004-omap3-touchbook-tesing-lcd-display.patch"
+#patch -s -p1 < "${DIR}/patches/touchbook/0004-omap3-touchbook-tesing-lcd-display.patch"
 }
 
 function sgx {
