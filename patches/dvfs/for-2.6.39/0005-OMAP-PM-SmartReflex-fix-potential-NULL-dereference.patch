@@ -1,7 +1,7 @@
-From 9f1c7c58af2c9725c4347a4e4a171884ba191da0 Mon Sep 17 00:00:00 2001
+From 538b274aaac2a84c13401759aca6b2e571fb1cdd Mon Sep 17 00:00:00 2001
 From: Vasiliy Kulikov <segoon@openwall.com>
 Date: Wed, 19 Jan 2011 15:57:22 +0300
-Subject: [PATCH 13/56] OMAP: PM: SmartReflex: fix potential NULL dereference
+Subject: [PATCH 05/10] OMAP: PM: SmartReflex: fix potential NULL dereference
 
 kzalloc() may fail, if so return -ENOMEM.  Also Walter Harms suggested
 to use kasprintf() instead of kzalloc+strcpy+strcat.
@@ -13,7 +13,7 @@ Signed-off-by: Kevin Hilman <khilman@ti.com>
  1 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
-index c37e823..eba90a4 100644
+index 95ac336..a1f532e 100644
 --- a/arch/arm/mach-omap2/smartreflex.c
 +++ b/arch/arm/mach-omap2/smartreflex.c
 @@ -260,9 +260,11 @@ static int sr_late_init(struct omap_sr *sr_info)

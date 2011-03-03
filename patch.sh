@@ -290,8 +290,19 @@ patch -s -p1 < "${DIR}/patches/dspbridge/0037-staging-tidspbridge-set12-remove-h
 function dvfs {
 echo "dvfs"
 
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0001-MAINTAINERS-update-Kevin-s-email-for-OMAP-PM-section.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0002-OMAP3630-PM-don-t-warn-the-user-with-a-trace-in-case.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0003-OMAP3-4-OPP-make-omapx_opp_init-non-static.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0004-OMAP3-beagle-xm-enable-up-to-800MHz-OPP.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0005-OMAP-PM-SmartReflex-fix-potential-NULL-dereference.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0006-OMAP2-remove-unused-UART-base-addresses-from-omap_gl.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0007-OMAP2-3-PM-remove-unnecessary-wakeup-sleep-dependenc.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0008-omap3-pm-Use-exported-set_cr-instead-of-a-custom-one.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0009-omap3-cpuidle-Add-description-field-to-each-C-state.patch"
+patch -s -p1 < "${DIR}/patches/dvfs/for-2.6.39/0010-OMAP3-PM-Set-clear-T2-bit-for-Smartreflex-on-TWL.patch"
+
+
 #from:http://gitorious.org/linux-omap-nm-sr/linux-omap-sr/commits/sr-dvfs-1.5
-patch -s -p1 < "${DIR}/patches/dvfs/0001-MAINTAINERS-change-Kevin-s-email-for-OMAP-PM-section.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0002-OMAP3-CPUIdle-prevent-CORE-from-going-off-if-doing-s.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0003-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0004-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
@@ -300,13 +311,7 @@ patch -s -p1 < "${DIR}/patches/dvfs/0006-OMAP-PM-CPUFREQ-Fix-conditional-compila
 patch -s -p1 < "${DIR}/patches/dvfs/0007-cpufreq-fixup-after-new-OPP-layer-merged.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0008-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0009-cpufreq-fixup-after-new-OPP-layer-merged.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0010-OMAP3630-PM-don-t-warn-the-user-with-a-trace-in-case.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0011-OMAP3-4-OPP-make-omapx_opp_init-non-static.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0012-OMAP3-beagle-xm-enable-up-to-800MHz-OPP.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0013-OMAP-PM-SmartReflex-fix-potential-NULL-dereference.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0014-OMAP2-remove-unused-UART-base-addresses-from-omap_gl.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0015-perf-add-OMAP-support-for-the-new-power-events.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0016-OMAP2-3-PM-remove-unnecessary-wakeup-sleep-dependenc.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0017-OMAP-Introduce-accessory-APIs-for-DVFS.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0018-OMAP-Introduce-device-specific-set-rate-and-get-rate.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0019-OMAP-Implement-Basic-DVFS.patch"
@@ -320,7 +325,6 @@ patch -s -p1 < "${DIR}/patches/dvfs/0026-OMAP3-Add-voltage-dependency-table-for-
 patch -s -p1 < "${DIR}/patches/dvfs/0027-OMAP2PLUS-Replace-voltage-values-with-Macros.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0028-OMAP2PLUS-Enable-various-options-in-defconfig.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0029-OMAP-Add-DVFS-Documentation.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0030-OMAP3-PM-Set-clear-T2-bit-for-Smartreflex-on-TWL.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0031-omap3430-voltage-fix-depedency-table.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0032-omap2-dvfs-fix-up-SR-enable-disable.patch"
 patch -s -p1 < "${DIR}/patches/dvfs/0033-omap3-hwmod-add-smartreflex-irqs.patch"
