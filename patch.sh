@@ -19,9 +19,10 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #patch -s -p1 < "${DIR}/patches/trivial/0001-omap3-clocks-Fix-build-error-CK_3430ES2-undeclared-h.patch"
 
 #http://www.spinics.net/lists/linux-omap/msg44289.html
-patch -s -p1 < "${DIR}/patches/trivial/0001-arm-fix-oops-in-sched_clock_poll.patch"
+#patch -s -p1 < "${DIR}/patches/trivial/0001-arm-fix-oops-in-sched_clock_poll.patch"
 
-patch -s -p1 < "${DIR}/patches/trivial/0001-carl9170-add-AirLive-X.USB-vid-pid.patch"
+#2.6.38-rc8
+#patch -s -p1 < "${DIR}/patches/trivial/0001-carl9170-add-AirLive-X.USB-vid-pid.patch"
 
 #Bisected from 2.6.35 -> 2.6.36 to find this..
 #This commit breaks some lcd monitors..
@@ -178,7 +179,7 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-remove-proc-with
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-merge-AUTOCONF_INCLUD.patch"
 
 #4.00.00.01 + 2.6.38-rc3
-#http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ac751efa6a0d70f2c9daef5c7e3a92270f5c2dff
+#http://git.kernel.org/?p=linux/kernel/git/torval/opt/git_repo/2.6.38-devel/patches/dvfsds/linux-2.6.git;a=commitdiff;h=ac751efa6a0d70f2c9daef5c7e3a92270f5c2dff
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-rc3-_console_sem-to-c.patch"
 }
 

@@ -35,7 +35,7 @@ CONFIG_ARM_THUMBEE=y
 https://lists.ubuntu.com/archives/kernel-team/2010-January/008561.html
 
 #rcn-ee's notes for comparing to ubuntu's config..
-#ubuntu git://kernel.ubuntu.com/ubuntu/ubuntu-maverick.git
+#ubuntu git clone git://kernel.ubuntu.com/ubuntu/ubuntu-natty.git
 
 sudo apt-get install fakeroot build-essential
 sudo apt-get install crash kexec-tools makedumpfile kernel-wedge
@@ -45,5 +45,7 @@ sudo apt-get install libelf-dev asciidoc binutils-dev
 
 fakeroot debian/rules clean
 debian/rules updateconfigs
-debian/rules editconfigsdebian/rules editconfigs
+debian/rules editconfigs
+(n) to all execpt omap:
+defconfig should be in:  gedit /tmp/tmp.<random>/CONFIGS/armel-config.flavour.omap
 
