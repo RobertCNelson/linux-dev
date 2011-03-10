@@ -18,8 +18,9 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #2.6.37-git12
 #patch -s -p1 < "${DIR}/patches/trivial/0001-omap3-clocks-Fix-build-error-CK_3430ES2-undeclared-h.patch"
 
+#still needed with 2.6.38-rc8
 #http://www.spinics.net/lists/linux-omap/msg44289.html
-#patch -s -p1 < "${DIR}/patches/trivial/0001-arm-fix-oops-in-sched_clock_poll.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0001-arm-fix-oops-in-sched_clock_poll.patch"
 
 #2.6.38-rc8
 #patch -s -p1 < "${DIR}/patches/trivial/0001-carl9170-add-AirLive-X.USB-vid-pid.patch"
@@ -121,6 +122,7 @@ patch -s -p1 < "${DIR}/patches/rcn/beagle-zippy-dont-load-i2c-on-boards-with-noz
 #needed for 2.6.36-git7 + local patchset
 patch -s -p1 < "${DIR}/patches/beagle/0001-arm-omap-beagle-use-caps-over-wires.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-beaglexm-fix-DVI-initialization.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-beaglexm-fix-DVI-updated-for-xMC.patch"
 }
 
 function beagle {
@@ -135,6 +137,7 @@ patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootar
 
 patch -s -p1 < "${DIR}/patches/beagle/0001-xM-audio-fix-from-Ashok.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-beagleboard-hack-in-support-from-xM-rev-C-from-Koen.patch"
 }
 
 function touchbook {
