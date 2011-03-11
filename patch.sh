@@ -197,10 +197,13 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-merge-AUT
 #patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.38-merge-AUTOCONF_INCLUD.patch"
 
 #4.00.00.01 + 2.6.38-rc3
-#http://git.kernel.org/?p=linux/kernel/git/torval/opt/git_repo/2.6.38-devel/patches/dvfsds/linux-2.6.git;a=commitdiff;h=ac751efa6a0d70f2c9daef5c7e3a92270f5c2dff
+#http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ac751efa6a0d70f2c9daef5c7e3a92270f5c2dff
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-rc3-_console_sem-to-c.patch"
 #tuned for 4.03.00.02
 #patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.38-rc3-_console_sem-to-c.patch"
+
+#4.03.00.01
+#patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.01-add-outer_cache.clean_all.patch"
 
 }
 
