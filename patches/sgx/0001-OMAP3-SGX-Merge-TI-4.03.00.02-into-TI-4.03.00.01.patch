@@ -1,0 +1,1045 @@
+From a1b07b8e991db76106f13a03a5992d9c895e35cb Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 10 Mar 2011 20:03:12 -0600
+Subject: [PATCH] OMAP3 SGX Merge TI 4.03.00.02 into TI 4.03.00.01
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/staging/omap3-sgx/Kbuild                   |   16 +-
+ drivers/staging/omap3-sgx/Kconfig                  |    4 +-
+ drivers/staging/omap3-sgx/Makefile                 |   14 +-
+ drivers/staging/omap3-sgx/include4/servicesext.h   |    1 -
+ .../services4/3rdparty/bufferclass_ti/bc_cat.c     |   16 +
+ .../omap3-sgx/services4/srvkm/env/linux/osfunc.c   |    4 +-
+ .../omap3-sgx/services4/srvkm/hwdefs/sgxerrata.h   |    5 +-
+ .../omap3-sgx/services4/system/ti81xx/sysconfig.c  |   10 +-
+ .../omap3-sgx/services4/system/ti81xx/sysconfig.h  |    4 +-
+ .../services4/system/ti81xx/sysutils_linux.c       |   56 ++-
+ .../system/ti81xx/sysutils_linux_wqueue_compat.c   |   87 +++-
+ .../ti81xx/sysutils_linux_wqueue_compat_orig.c     |  472 ++++++++++++++++++++
+ 12 files changed, 647 insertions(+), 42 deletions(-)
+ create mode 100644 drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat_orig.c
+
+diff --git a/drivers/staging/omap3-sgx/Kbuild b/drivers/staging/omap3-sgx/Kbuild
+index e449044..1661e19 100644
+--- a/drivers/staging/omap3-sgx/Kbuild
++++ b/drivers/staging/omap3-sgx/Kbuild
+@@ -37,7 +37,13 @@ else
+ ifeq ($(TI_PLATFORM),omap3630)
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=125
+ else
++ifeq ($(TI_PLATFORM),omap3)
++ifeq ($(OMAPES),3.x)
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=121
++else
++CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=103
++endif
++endif
+ endif
+ endif
+ 
+@@ -58,8 +64,12 @@ LDM_PLATFORM ?= 1
+ # passive power management isn't enabled, the driver won't see the
+ # system suspend/resume events, and so won't take appropriate action.
+ ifeq ($(LDM_PLATFORM),1)
++ifeq ($(TI_PLATFORM),ti81xx)
+ SUPPORT_ACTIVE_POWER_MANAGEMENT ?= 0
+ else
++SUPPORT_ACTIVE_POWER_MANAGEMENT = 1
++endif
++else
+ SUPPORT_ACTIVE_POWER_MANAGEMENT = 0
+ endif
+ 
+@@ -178,7 +188,7 @@ SUPPORT_MEMINFO_IDS ?= 0
+ 
+ SUPPORT_PVR_PDP_LINUX_FB ?= $(SUPPORT_XWS)
+ 
+-SUPPORT_LINUX_USING_WORKQUEUES ?= 0
++SUPPORT_LINUX_USING_WORKQUEUES ?= 1
+ ifeq ($(SUPPORT_OMAP3430_OMAPFB3),1)
+ SUPPORT_LINUX_USING_WORKQUEUES = 1
+ endif
+@@ -339,7 +349,7 @@ SYS_CFLAGS.$(SUPPORT_PVR_PDP_LINUX_FB) += -DPVR_PDP_LINUX_FB
+ 
+ #SYS_CFLAGS.$(SUPPORT_LINUX_USING_WORKQUEUES) += -DPVR_LINUX_USING_WORKQUEUES \
+                                 -DPVR_LINUX_MISR_USING_PRIVATE_WORKQUEUE 
+-#SYS_CFLAGS.$(SUPPORT_LINUX_USING_WORKQUEUES) += -DPVR_LINUX_USING_WORKQUEUES \
++SYS_CFLAGS.$(SUPPORT_LINUX_USING_WORKQUEUES) += -DPVR_LINUX_USING_WORKQUEUES \
+                                 -DPVR_LINUX_MISR_USING_PRIVATE_WORKQUEUE \
+                                 -DPVR_LINUX_TIMERS_USING_WORKQUEUES \
+                                 -DSYS_CUSTOM_POWERLOCK_WRAP
+@@ -416,7 +426,7 @@ services4/srvkm/devices/sgx/sgxpower.c \
+ services4/srvkm/bridged/bridged_pvr_bridge.c \
+ services4/srvkm/bridged/bridged_support.c \
+ services4/srvkm/bridged/sgx/bridged_sgx_bridge.c \
+-services4/system/$(TI_PLATFORM)/sysutils_linux.c \
++services4/system/$(TI_PLATFORM)/sysutils.c \
+ services4/system/$(TI_PLATFORM)/sysconfig.c \
+ 
+ EXTRA_CFLAGS += -I$(src)/include4
+diff --git a/drivers/staging/omap3-sgx/Kconfig b/drivers/staging/omap3-sgx/Kconfig
+index deddf59..7e3bdb6 100644
+--- a/drivers/staging/omap3-sgx/Kconfig
++++ b/drivers/staging/omap3-sgx/Kconfig
+@@ -3,7 +3,7 @@
+ #
+ 
+ config OMAP3_SGX
+-	bool "OMAP3 SGX support (TI: 4.03.00.01)"
++	bool "OMAP3 SGX support (TI: 4.03.00.02)"
+ 	depends on OMAP2_DSS && m
+ 	help
+-	  This is TI's OMAP3 SGX Kernel Modules 4.03.00.01
++	  This is TI's OMAP3 SGX Kernel Modules 4.03.00.02
+diff --git a/drivers/staging/omap3-sgx/Makefile b/drivers/staging/omap3-sgx/Makefile
+index cd65c48..7fe1828 100644
+--- a/drivers/staging/omap3-sgx/Makefile
++++ b/drivers/staging/omap3-sgx/Makefile
+@@ -34,7 +34,13 @@ else
+ ifeq ($(TI_PLATFORM),omap3630)
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=125
+ else
++ifeq ($(TI_PLATFORM),omap3)
++ifeq ($(OMAPES),3.x)
+ CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=121
++else
++CORE = -DSGX530 -DSUPPORT_SGX530 -DSGX_CORE_REV=103
++endif
++endif
+ endif
+ endif
+ 
+@@ -55,8 +61,12 @@ LDM_PLATFORM ?= 1
+ # passive power management isn't enabled, the driver won't see the
+ # system suspend/resume events, and so won't take appropriate action.
+ ifeq ($(LDM_PLATFORM),1)
++ifeq ($(TI_PLATFORM),ti81xx)
+ SUPPORT_ACTIVE_POWER_MANAGEMENT ?= 0
+ else
++SUPPORT_ACTIVE_POWER_MANAGEMENT = 1
++endif
++else
+ SUPPORT_ACTIVE_POWER_MANAGEMENT = 0
+ endif
+ 
+@@ -175,7 +185,7 @@ SUPPORT_MEMINFO_IDS ?= 0
+ 
+ SUPPORT_PVR_PDP_LINUX_FB ?= $(SUPPORT_XWS)
+ 
+-SUPPORT_LINUX_USING_WORKQUEUES ?= 0
++SUPPORT_LINUX_USING_WORKQUEUES ?= 1
+ ifeq ($(SUPPORT_OMAP3430_OMAPFB3),1)
+ SUPPORT_LINUX_USING_WORKQUEUES = 1
+ endif
+@@ -336,7 +346,7 @@ SYS_CFLAGS.$(SUPPORT_PVR_PDP_LINUX_FB) += -DPVR_PDP_LINUX_FB
+ 
+ #SYS_CFLAGS.$(SUPPORT_LINUX_USING_WORKQUEUES) += -DPVR_LINUX_USING_WORKQUEUES \
+                                 -DPVR_LINUX_MISR_USING_PRIVATE_WORKQUEUE 
+-#SYS_CFLAGS.$(SUPPORT_LINUX_USING_WORKQUEUES) += -DPVR_LINUX_USING_WORKQUEUES \
++SYS_CFLAGS.$(SUPPORT_LINUX_USING_WORKQUEUES) += -DPVR_LINUX_USING_WORKQUEUES \
+                                 -DPVR_LINUX_MISR_USING_PRIVATE_WORKQUEUE \
+                                 -DPVR_LINUX_TIMERS_USING_WORKQUEUES \
+                                 -DSYS_CUSTOM_POWERLOCK_WRAP
+diff --git a/drivers/staging/omap3-sgx/include4/servicesext.h b/drivers/staging/omap3-sgx/include4/servicesext.h
+index b4b497b..2f81b11 100644
+--- a/drivers/staging/omap3-sgx/include4/servicesext.h
++++ b/drivers/staging/omap3-sgx/include4/servicesext.h
+@@ -32,7 +32,6 @@
+ typedef enum _PVRSRV_ERROR_
+ {
+ 	PVRSRV_OK = 0,
+-        PVRSRV_ERROR_GENERIC,
+ 	PVRSRV_ERROR_OUT_OF_MEMORY,
+ 	PVRSRV_ERROR_TOO_FEW_BUFFERS,
+ 	PVRSRV_ERROR_INVALID_PARAMS,
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c b/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c
+index bf1b517..79e7b85 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/bufferclass_ti/bc_cat.c
+@@ -106,8 +106,13 @@ extern IMG_IMPORT IMG_BOOL PVRGetBufferClassJTable(
+ 
+ static int bc_open(struct inode *i, struct file *f);
+ static int bc_release(struct inode *i, struct file *f);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
++static int bc_ioctl(struct inode *inode, struct file *file,
++                    unsigned int cmd, unsigned long arg);
++#else
+ static int bc_ioctl(struct file *file,
+                     unsigned int cmd, unsigned long arg);
++#endif
+ static int bc_mmap(struct file *filp, struct vm_area_struct *vma);
+ 
+ static int BC_CreateBuffers(int id, bc_buf_params_t *p);
+@@ -883,6 +888,12 @@ static int bc_release(struct inode *i, struct file *f)
+     if ((devinfo = GetAnchorPtr(id)) == IMG_NULL)
+         return -ENODEV;
+ 
++    for (id = 0; id < DEVICE_COUNT; id++) {
++        if (BC_DestroyBuffers(id) != PVRSRV_OK) {
++            printk(KERN_ERR DRVNAME ": can't free texture buffer \n");
++        }
++    }
++
+     if (devinfo->ref)
+         devinfo->ref--;
+     return 0;
+@@ -907,8 +918,13 @@ static int bc_mmap(struct file *filp, struct vm_area_struct *vma)
+     return 0;
+ }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36)
++static int bc_ioctl(struct inode *inode, struct file *file,
++                    unsigned int cmd, unsigned long arg)
++#else
+ static int bc_ioctl(struct file *file,
+                     unsigned int cmd, unsigned long arg)
++#endif
+ {
+     BC_CAT_DEVINFO *devinfo;
+     int id = file_to_id (file);
+diff --git a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
+index e4e2acd..81970c6 100644
+--- a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
++++ b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
+@@ -76,11 +76,11 @@
+ #else
+ #define ON_EACH_CPU(func, info, wait) on_each_cpu(func, info, 0, wait)
+ #endif
+-
++/*
+ #if defined(PVR_LINUX_USING_WORKQUEUES) && !defined(CONFIG_PREEMPT)
+ #error "A preemptible Linux kernel is required when using workqueues"
+ #endif
+-
++*/
+ #define EVENT_OBJECT_TIMEOUT_MS		(100)
+ 
+ #define HOST_ALLOC_MEM_USING_KMALLOC ((IMG_HANDLE)0)
+diff --git a/drivers/staging/omap3-sgx/services4/srvkm/hwdefs/sgxerrata.h b/drivers/staging/omap3-sgx/services4/srvkm/hwdefs/sgxerrata.h
+index a635ec1..9b34224 100644
+--- a/drivers/staging/omap3-sgx/services4/srvkm/hwdefs/sgxerrata.h
++++ b/drivers/staging/omap3-sgx/services4/srvkm/hwdefs/sgxerrata.h
+@@ -59,6 +59,9 @@
+ 		
+ 		#define SGX_CORE_REV	SGX_CORE_REV_HEAD
+ 	#endif
++        #if SGX_CORE_REV == 103
++               #define FIX_HW_BRN_22934
++        #else
+ 
+ 	#if SGX_CORE_REV == 110
+ 		#define FIX_HW_BRN_22934
+@@ -90,7 +93,7 @@
+ 	#endif
+ #endif
+         #endif
+-	
++        #endif	
+ 	#define SGX_CORE_DEFINED
+ #endif
+ 
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.c b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.c
+index c59a7da..7dcb359 100644
+--- a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.c
++++ b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.c
+@@ -376,7 +376,15 @@ PVRSRV_ERROR SysInitialise(IMG_VOID)
+ #if !defined(SGX_DYNAMIC_TIMING_INFO)
+ 	
+ 	psTimingInfo = &gsSGXDeviceMap.sTimingInfo;
+-	psTimingInfo->ui32CoreClockSpeed = SYS_SGX_CLOCK_SPEED;
++	if(cpu_is_ti816x())
++	{
++		psTimingInfo->ui32CoreClockSpeed = SYS_389x_SGX_CLOCK_SPEED;
++	}
++	else
++	{
++		psTimingInfo->ui32CoreClockSpeed = SYS_387x_SGX_CLOCK_SPEED;
++	}
++
+ 	psTimingInfo->ui32HWRecoveryFreq = SYS_SGX_HWRECOVERY_TIMEOUT_FREQ; 
+ #if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
+ 	psTimingInfo->bEnableActivePM = IMG_TRUE;
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.h b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.h
+index f696b97..8b8f05a 100644
+--- a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.h
++++ b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysconfig.h
+@@ -31,7 +31,9 @@
+ 
+ #define VS_PRODUCT_NAME	"TI81xx"
+ 
+-#define SYS_SGX_CLOCK_SPEED		200000000
++//#define SYS_SGX_CLOCK_SPEED		200000000
++#define SYS_387x_SGX_CLOCK_SPEED		200000000
++#define SYS_389x_SGX_CLOCK_SPEED		333000000
+ 
+ #define SYS_SGX_HWRECOVERY_TIMEOUT_FREQ		(100)	
+ #define SYS_SGX_PDS_TIMER_FREQ				(1000)	
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux.c b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux.c
+index b032532..b3300fe 100644
+--- a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux.c
++++ b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux.c
+@@ -187,12 +187,27 @@ static inline IMG_UINT32 scale_by_rate(IMG_UINT32 val, IMG_UINT32 rate1, IMG_UIN
+ 
+ static inline IMG_UINT32 scale_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
+ {
+-	return scale_by_rate(val, rate, SYS_SGX_CLOCK_SPEED);
++
++        if(cpu_is_ti816x())
++        {
++		return scale_by_rate(val, rate, SYS_389x_SGX_CLOCK_SPEED);
++        }
++        else
++        {
++		return scale_by_rate(val, rate, SYS_387x_SGX_CLOCK_SPEED);
++        }
+ }
+ 
+ static inline IMG_UINT32 scale_inv_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
+ {
+-	return scale_by_rate(val, SYS_SGX_CLOCK_SPEED, rate);
++        if(cpu_is_ti816x())
++        {
++		return scale_by_rate(val, SYS_389x_SGX_CLOCK_SPEED, rate);
++	}
++	else
++	{
++		return scale_by_rate(val, SYS_387x_SGX_CLOCK_SPEED, rate);
++	}
+ }
+ 
+ IMG_VOID SysGetSGXTimingInformation(SGX_TIMING_INFORMATION *psTimingInfo)
+@@ -200,7 +215,15 @@ IMG_VOID SysGetSGXTimingInformation(SGX_TIMING_INFORMATION *psTimingInfo)
+ 	IMG_UINT32 rate;
+ 
+ #if defined(NO_HARDWARE)
+-	rate = SYS_SGX_CLOCK_SPEED;
++        if(cpu_is_ti816x())
++        {
++		rate = SYS_389x_SGX_CLOCK_SPEED;
++	}
++	else
++	{
++		rate = SYS_387x_SGX_CLOCK_SPEED;
++	}
++
+ #else
+ 	PVR_ASSERT(atomic_read(&gpsSysSpecificData->sSGXClocksEnabled) != 0);
+ 
+@@ -534,13 +557,9 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ 
+ 		atomic_set(&psSysSpecData->sSGXClocksEnabled, 0);
+                 
+-                if(cpu_is_ti816x())
+-                {
+-		  psCLK = clk_get(NULL, "sgx_ck");
+-                } else {
+-                  psCLK = clk_get(NULL, "gfx_fck");
+-                }
+-		if (IS_ERR(psCLK))
++		psCLK = clk_get(NULL, "sgx_ck");
++		
++                if (IS_ERR(psCLK))
+ 		{
+ 			PVR_DPF((PVR_DBG_ERROR, "EnableSsystemClocks: Couldn't get SGX Functional Clock"));
+ 			goto ExitError;
+@@ -571,8 +590,11 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ #endif
+ 
+ #if defined(DEBUG) || defined(TIMING)
+-	
+-	psCLK = clk_get(NULL, "gpt7_fck");
++        if(cpu_is_ti816x()) {
++                psCLK = clk_get(NULL, "gpt6_fck");
++        } else {
++                psCLK = clk_get(NULL, "gpt7_fck");
++        }
+ 	if (IS_ERR(psCLK))
+ 	{
+ 		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 functional clock"));
+@@ -580,7 +602,11 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ 	}
+ 	psSysSpecData->psGPT11_FCK = psCLK;
+ 
+-	psCLK = clk_get(NULL, "gpt7_ick");
++        if(cpu_is_ti816x()) {
++                psCLK = clk_get(NULL, "gpt6_ick");
++        } else {
++                psCLK = clk_get(NULL, "gpt7_ick");
++        }
+ 	if (IS_ERR(psCLK))
+ 	{
+ 		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 interface clock"));
+@@ -683,14 +709,14 @@ ExitUnRegisterConstraintNotifications:
+ 	UnRegisterConstraintNotifications();
+ 	constraint_put(psSysSpecData->pVdd2Handle);
+ #endif
+-ExitError:
+-	eError = PVRSRV_ERROR_DISABLE_CLOCK_FAILURE;
+ Exit:
+ 	if (bPowerLock)
+ 	{
+ 		PowerLockWrap(psSysSpecData);
+ 	}
+ 
++ExitError:
++	eError = PVRSRV_ERROR_DISABLE_CLOCK_FAILURE;
+ 	return eError;
+ }
+ 
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat.c b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat.c
+index f94ec0e..248da05 100644
+--- a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat.c
++++ b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat.c
+@@ -105,12 +105,27 @@ static inline IMG_UINT32 scale_by_rate(IMG_UINT32 val, IMG_UINT32 rate1, IMG_UIN
+ 
+ static inline IMG_UINT32 scale_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
+ {
+-	return scale_by_rate(val, rate, SYS_SGX_CLOCK_SPEED);
++	if(cpu_is_ti816x())
++	{
++		return scale_by_rate(val, rate, SYS_389x_SGX_CLOCK_SPEED);
++	}
++	else
++	{
++	
++		return scale_by_rate(val, rate, SYS_387x_SGX_CLOCK_SPEED);
++	}
+ }
+ 
+ static inline IMG_UINT32 scale_inv_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
+ {
+-	return scale_by_rate(val, SYS_SGX_CLOCK_SPEED, rate);
++	if(cpu_is_ti816x())
++	{
++		return scale_by_rate(val, SYS_389x_SGX_CLOCK_SPEED, rate);
++ 	}
++	else
++	{
++		return scale_by_rate(val, SYS_387x_SGX_CLOCK_SPEED, rate);
++	}
+ }
+ 
+ IMG_VOID SysGetSGXTimingInformation(SGX_TIMING_INFORMATION *psTimingInfo)
+@@ -118,7 +133,15 @@ IMG_VOID SysGetSGXTimingInformation(SGX_TIMING_INFORMATION *psTimingInfo)
+ 	IMG_UINT32 rate;
+ 
+ #if defined(NO_HARDWARE)
+-	rate = SYS_SGX_CLOCK_SPEED;
++	if(cpu_is_ti816x())
++	{
++		rate = SYS_389x_SGX_CLOCK_SPEED;
++	}
++	else
++	{
++		rate = SYS_387x_SGX_CLOCK_SPEED;
++	}
++
+ #else
+ 	PVR_ASSERT(atomic_read(&gpsSysSpecificData->sSGXClocksEnabled) != 0);
+ 
+@@ -166,7 +189,7 @@ PVRSRV_ERROR EnableSGXClocks(SYS_DATA *psSysData)
+ 		PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Couldn't enable SGX functional clock (%d)", res));
+ 		return PVRSRV_ERROR_UNABLE_TO_ENABLE_CLOCK;
+ 	}
+-
++/*
+ 	res = clk_enable(psSysSpecData->psSGX_ICK);
+ 	if (res < 0)
+ 	{
+@@ -193,7 +216,7 @@ PVRSRV_ERROR EnableSGXClocks(SYS_DATA *psSysData)
+ 			PVR_DPF((PVR_DBG_WARNING, "EnableSGXClocks: Couldn't set SGX functional clock rate (%d)", res));
+ 		}
+ 	}
+-
++*/
+ #if defined(DEBUG)
+ 	{
+ 		IMG_UINT32 rate = clk_get_rate(psSysSpecData->psSGX_FCK);
+@@ -224,11 +247,11 @@ IMG_VOID DisableSGXClocks(SYS_DATA *psSysData)
+ 
+ 	PVR_DPF((PVR_DBG_MESSAGE, "DisableSGXClocks: Disabling SGX Clocks"));
+ 
+-	if (psSysSpecData->psSGX_ICK)
++/*	if (psSysSpecData->psSGX_ICK)
+ 	{
+ 		clk_disable(psSysSpecData->psSGX_ICK);
+ 	}
+-
++*/
+ 	if (psSysSpecData->psSGX_FCK)
+ 	{
+ 		clk_disable(psSysSpecData->psSGX_FCK);
+@@ -247,6 +270,7 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ 	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
+ 	struct clk *psCLK;
+ 	IMG_INT res;
++        IMG_BOOL bPowerLock;
+ 	PVRSRV_ERROR eError;
+ 
+ #if defined(DEBUG) || defined(TIMING)
+@@ -266,7 +290,35 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ 
+ 		atomic_set(&psSysSpecData->sSGXClocksEnabled, 0);
+ 
+-		psCLK = clk_get(NULL, SGX_PARENT_CLOCK);
++            //    if(cpu_is_ti816x())
++            //    {
++                  psCLK = clk_get(NULL, "sgx_ck");
++            //    } else {
++            //      psCLK = clk_get(NULL, "gfx_fck");
++            //    }
++               if (IS_ERR(psCLK))
++                {
++                        PVR_DPF((PVR_DBG_ERROR, "EnableSsystemClocks: Couldn't get SGX Functional Clock"));
++                        goto ExitError;
++                }
++                psSysSpecData->psSGX_FCK = psCLK;
++
++                psSysSpecData->bSysClocksOneTimeInit = IMG_TRUE;
++        }
++/*        else
++        {
++
++                bPowerLock = PowerLockWrappedOnCPU(psSysSpecData);
++                if (bPowerLock)
++                {
++                        PowerLockUnwrap(psSysSpecData);
++                }
++        }
++
++*/
++
++/*		
++                psCLK = clk_get(NULL, SGX_PARENT_CLOCK);
+ 		if (IS_ERR(psCLK))
+ 		{
+ 			PVR_DPF((PVR_DBG_ERROR, "EnableSsystemClocks: Couldn't get Core Clock"));
+@@ -308,10 +360,13 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ 
+ 		psSysSpecData->bSysClocksOneTimeInit = IMG_TRUE;
+ 	}
+-
++*/
+ #if defined(DEBUG) || defined(TIMING)
+-	
+-	psCLK = clk_get(NULL, "gpt11_fck");
++        if(cpu_is_ti816x()) {
++                psCLK = clk_get(NULL, "gpt6_fck");
++        } else {
++                psCLK = clk_get(NULL, "gpt7_fck");
++        }
+ 	if (IS_ERR(psCLK))
+ 	{
+ 		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 functional clock"));
+@@ -319,14 +374,18 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ 	}
+ 	psSysSpecData->psGPT11_FCK = psCLK;
+ 
+-	psCLK = clk_get(NULL, "gpt11_ick");
++        if(cpu_is_ti816x()) {
++                psCLK = clk_get(NULL, "gpt6_ick");
++        } else {
++                psCLK = clk_get(NULL, "gpt7_ick");
++        }
+ 	if (IS_ERR(psCLK))
+ 	{
+ 		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 interface clock"));
+ 		goto ExitUnRegisterConstraintNotifications;
+ 	}
+ 	psSysSpecData->psGPT11_ICK = psCLK;
+-
++/*
+ 	sys_ck = clk_get(NULL, "sys_ck");
+ 	if (IS_ERR(sys_ck))
+ 	{
+@@ -344,7 +403,7 @@ PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
+ 		goto ExitUnRegisterConstraintNotifications;
+ 		}
+ 	}
+-
++*/
+ 	rate = clk_get_rate(psSysSpecData->psGPT11_FCK);
+ 	PVR_TRACE(("GPTIMER11 clock is %dMHz", HZ_TO_MHZ(rate)));
+ 
+diff --git a/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat_orig.c b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat_orig.c
+new file mode 100644
+index 0000000..f94ec0e
+--- /dev/null
++++ b/drivers/staging/omap3-sgx/services4/system/ti81xx/sysutils_linux_wqueue_compat_orig.c
+@@ -0,0 +1,472 @@
++/**********************************************************************
++ *
++ * Copyright(c) 2008 Imagination Technologies Ltd. All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ * 
++ * This program is distributed in the hope it will be useful but, except 
++ * as otherwise stated in writing, without any warranty; without even the 
++ * implied warranty of merchantability or fitness for a particular purpose. 
++ * See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ * 
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Contact Information:
++ * Imagination Technologies Ltd. <gpl-support@imgtec.com>
++ * Home Park Estate, Kings Langley, Herts, WD4 8LZ, UK 
++ *
++ ******************************************************************************/
++
++#include <linux/version.h>
++#include <linux/clk.h>
++#include <linux/err.h>
++#include <linux/hardirq.h>
++#include <linux/mutex.h>
++
++#include "sgxdefs.h"
++#include "services_headers.h"
++#include "sysinfo.h"
++#include "sgxapi_km.h"
++#include "sysconfig.h"
++#include "sgxinfokm.h"
++#include "syslocal.h"
++
++#if !defined(PVR_LINUX_USING_WORKQUEUES)
++#error "PVR_LINUX_USING_WORKQUEUES must be defined"
++#endif
++
++#define	ONE_MHZ	1000000
++#define	HZ_TO_MHZ(m) ((m) / ONE_MHZ)
++
++#if defined(SUPPORT_OMAP3430_SGXFCLK_96M)
++#define SGX_PARENT_CLOCK "cm_96m_fck"
++#else
++#define SGX_PARENT_CLOCK "core_ck"
++#endif
++
++static IMG_VOID PowerLockWrap(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	if (!in_interrupt())
++	{
++		mutex_lock(&psSysSpecData->sPowerLock);
++
++	}
++}
++
++static IMG_VOID PowerLockUnwrap(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	if (!in_interrupt())
++	{
++		mutex_unlock(&psSysSpecData->sPowerLock);
++	}
++}
++
++PVRSRV_ERROR SysPowerLockWrap(SYS_DATA *psSysData)
++{
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++
++	PowerLockWrap(psSysSpecData);
++
++	return PVRSRV_OK;
++}
++
++IMG_VOID SysPowerLockUnwrap(SYS_DATA *psSysData)
++{
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++
++	PowerLockUnwrap(psSysSpecData);
++}
++
++IMG_BOOL WrapSystemPowerChange(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++	return IMG_TRUE;
++}
++
++IMG_VOID UnwrapSystemPowerChange(SYS_SPECIFIC_DATA *psSysSpecData)
++{
++}
++
++static inline IMG_UINT32 scale_by_rate(IMG_UINT32 val, IMG_UINT32 rate1, IMG_UINT32 rate2)
++{
++	if (rate1 >= rate2)
++	{
++		return val * (rate1 / rate2);
++	}
++
++	return val / (rate2 / rate1);
++}
++
++static inline IMG_UINT32 scale_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
++{
++	return scale_by_rate(val, rate, SYS_SGX_CLOCK_SPEED);
++}
++
++static inline IMG_UINT32 scale_inv_prop_to_SGX_clock(IMG_UINT32 val, IMG_UINT32 rate)
++{
++	return scale_by_rate(val, SYS_SGX_CLOCK_SPEED, rate);
++}
++
++IMG_VOID SysGetSGXTimingInformation(SGX_TIMING_INFORMATION *psTimingInfo)
++{
++	IMG_UINT32 rate;
++
++#if defined(NO_HARDWARE)
++	rate = SYS_SGX_CLOCK_SPEED;
++#else
++	PVR_ASSERT(atomic_read(&gpsSysSpecificData->sSGXClocksEnabled) != 0);
++
++	rate = clk_get_rate(gpsSysSpecificData->psSGX_FCK);
++	PVR_ASSERT(rate != 0);
++#endif
++	psTimingInfo->ui32CoreClockSpeed = rate;
++	psTimingInfo->ui32HWRecoveryFreq = scale_prop_to_SGX_clock(SYS_SGX_HWRECOVERY_TIMEOUT_FREQ, rate);
++	psTimingInfo->ui32uKernelFreq = scale_prop_to_SGX_clock(SYS_SGX_PDS_TIMER_FREQ, rate);
++#if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
++	psTimingInfo->bEnableActivePM = IMG_TRUE;
++#else
++	psTimingInfo->bEnableActivePM = IMG_FALSE;
++#endif 
++	psTimingInfo->ui32ActivePowManLatencyms = SYS_SGX_ACTIVE_POWER_LATENCY_MS;
++}
++
++PVRSRV_ERROR EnableSGXClocks(SYS_DATA *psSysData)
++{
++#if !defined(NO_HARDWARE)
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++	long lNewRate;
++	long lRate;
++	IMG_INT res;
++
++	
++	if (atomic_read(&psSysSpecData->sSGXClocksEnabled) != 0)
++	{
++		return PVRSRV_OK;
++	}
++
++	PVR_DPF((PVR_DBG_MESSAGE, "EnableSGXClocks: Enabling SGX Clocks"));
++
++#if defined(DEBUG)
++	{
++
++		IMG_UINT32 rate = clk_get_rate(psSysSpecData->psMPU_CK);
++		PVR_DPF((PVR_DBG_MESSAGE, "EnableSGXClocks: CPU Clock is %dMhz", HZ_TO_MHZ(rate)));
++	}
++#endif
++
++	res = clk_enable(psSysSpecData->psSGX_FCK);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Couldn't enable SGX functional clock (%d)", res));
++		return PVRSRV_ERROR_UNABLE_TO_ENABLE_CLOCK;
++	}
++
++	res = clk_enable(psSysSpecData->psSGX_ICK);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Couldn't enable SGX interface clock (%d)", res));
++
++		clk_disable(psSysSpecData->psSGX_FCK);
++		return PVRSRV_ERROR_UNABLE_TO_ENABLE_CLOCK;
++	}
++
++	lNewRate = clk_round_rate(psSysSpecData->psSGX_FCK, SYS_SGX_CLOCK_SPEED + ONE_MHZ);
++	if (lNewRate <= 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSGXClocks: Couldn't round SGX functional clock rate"));
++		return PVRSRV_ERROR_UNABLE_TO_ROUND_CLOCK_RATE;
++	}
++
++	
++	lRate = clk_get_rate(psSysSpecData->psSGX_FCK);
++	if (lRate != lNewRate)
++	{
++		res = clk_set_rate(psSysSpecData->psSGX_FCK, lNewRate);
++		if (res < 0)
++		{
++			PVR_DPF((PVR_DBG_WARNING, "EnableSGXClocks: Couldn't set SGX functional clock rate (%d)", res));
++		}
++	}
++
++#if defined(DEBUG)
++	{
++		IMG_UINT32 rate = clk_get_rate(psSysSpecData->psSGX_FCK);
++		PVR_DPF((PVR_DBG_MESSAGE, "EnableSGXClocks: SGX Functional Clock is %dMhz", HZ_TO_MHZ(rate)));
++	}
++#endif
++
++	
++	atomic_set(&psSysSpecData->sSGXClocksEnabled, 1);
++
++#else	
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++#endif	
++	return PVRSRV_OK;
++}
++
++
++IMG_VOID DisableSGXClocks(SYS_DATA *psSysData)
++{
++#if !defined(NO_HARDWARE)
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++
++	
++	if (atomic_read(&psSysSpecData->sSGXClocksEnabled) == 0)
++	{
++		return;
++	}
++
++	PVR_DPF((PVR_DBG_MESSAGE, "DisableSGXClocks: Disabling SGX Clocks"));
++
++	if (psSysSpecData->psSGX_ICK)
++	{
++		clk_disable(psSysSpecData->psSGX_ICK);
++	}
++
++	if (psSysSpecData->psSGX_FCK)
++	{
++		clk_disable(psSysSpecData->psSGX_FCK);
++	}
++
++	
++	atomic_set(&psSysSpecData->sSGXClocksEnabled, 0);
++
++#else	
++	PVR_UNREFERENCED_PARAMETER(psSysData);
++#endif	
++}
++
++PVRSRV_ERROR EnableSystemClocks(SYS_DATA *psSysData)
++{
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++	struct clk *psCLK;
++	IMG_INT res;
++	PVRSRV_ERROR eError;
++
++#if defined(DEBUG) || defined(TIMING)
++	IMG_INT rate;
++	struct clk *sys_ck;
++	IMG_CPU_PHYADDR     TimerRegPhysBase;
++	IMG_HANDLE hTimerEnable;
++	IMG_UINT32 *pui32TimerEnable;
++
++#endif	
++
++	PVR_TRACE(("EnableSystemClocks: Enabling System Clocks"));
++
++	if (!psSysSpecData->bSysClocksOneTimeInit)
++	{
++		mutex_init(&psSysSpecData->sPowerLock);
++
++		atomic_set(&psSysSpecData->sSGXClocksEnabled, 0);
++
++		psCLK = clk_get(NULL, SGX_PARENT_CLOCK);
++		if (IS_ERR(psCLK))
++		{
++			PVR_DPF((PVR_DBG_ERROR, "EnableSsystemClocks: Couldn't get Core Clock"));
++			goto ExitError;
++		}
++		psSysSpecData->psCORE_CK = psCLK;
++
++		psCLK = clk_get(NULL, "sgx_fck");
++		if (IS_ERR(psCLK))
++		{
++			PVR_DPF((PVR_DBG_ERROR, "EnableSsystemClocks: Couldn't get SGX Functional Clock"));
++			goto ExitError;
++		}
++		psSysSpecData->psSGX_FCK = psCLK;
++
++		psCLK = clk_get(NULL, "sgx_ick");
++		if (IS_ERR(psCLK))
++		{
++			PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get SGX Interface Clock"));
++			goto ExitError;
++		}
++		psSysSpecData->psSGX_ICK = psCLK;
++
++#if defined(DEBUG)
++		psCLK = clk_get(NULL, "mpu_ck");
++		if (IS_ERR(psCLK))
++		{
++			PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get MPU Clock"));
++			goto ExitError;
++		}
++		psSysSpecData->psMPU_CK = psCLK;
++#endif
++		res = clk_set_parent(psSysSpecData->psSGX_FCK, psSysSpecData->psCORE_CK);
++		if (res < 0)
++		{
++			PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't set SGX parent clock (%d)", res));
++			goto ExitError;
++		}
++
++		psSysSpecData->bSysClocksOneTimeInit = IMG_TRUE;
++	}
++
++#if defined(DEBUG) || defined(TIMING)
++	
++	psCLK = clk_get(NULL, "gpt11_fck");
++	if (IS_ERR(psCLK))
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 functional clock"));
++		goto ExitUnRegisterConstraintNotifications;
++	}
++	psSysSpecData->psGPT11_FCK = psCLK;
++
++	psCLK = clk_get(NULL, "gpt11_ick");
++	if (IS_ERR(psCLK))
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get GPTIMER11 interface clock"));
++		goto ExitUnRegisterConstraintNotifications;
++	}
++	psSysSpecData->psGPT11_ICK = psCLK;
++
++	sys_ck = clk_get(NULL, "sys_ck");
++	if (IS_ERR(sys_ck))
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't get System clock"));
++		goto ExitUnRegisterConstraintNotifications;
++	}
++
++	if(clk_get_parent(psSysSpecData->psGPT11_FCK) != sys_ck)
++	{
++		PVR_TRACE(("Setting GPTIMER11 parent to System Clock"));
++		res = clk_set_parent(psSysSpecData->psGPT11_FCK, sys_ck);
++		if (res < 0)
++		{
++			PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't set GPTIMER11 parent clock (%d)", res));
++		goto ExitUnRegisterConstraintNotifications;
++		}
++	}
++
++	rate = clk_get_rate(psSysSpecData->psGPT11_FCK);
++	PVR_TRACE(("GPTIMER11 clock is %dMHz", HZ_TO_MHZ(rate)));
++
++	res = clk_enable(psSysSpecData->psGPT11_FCK);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't enable GPTIMER11 functional clock (%d)", res));
++		goto ExitUnRegisterConstraintNotifications;
++	}
++
++	res = clk_enable(psSysSpecData->psGPT11_ICK);
++	if (res < 0)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: Couldn't enable GPTIMER11 interface clock (%d)", res));
++		goto ExitDisableGPT11FCK;
++	}
++
++	
++	TimerRegPhysBase.uiAddr = SYS_TI81xx_GP7TIMER_TSICR_SYS_PHYS_BASE;
++	pui32TimerEnable = OSMapPhysToLin(TimerRegPhysBase,
++                  4,
++                  PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++                  &hTimerEnable);
++
++	if (pui32TimerEnable == IMG_NULL)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: OSMapPhysToLin failed"));
++		goto ExitDisableGPT11ICK;
++	}
++
++	rate = *pui32TimerEnable;
++	if(!(rate & 4))
++	{
++		PVR_TRACE(("Setting GPTIMER11 mode to posted (currently is non-posted)"));
++
++		
++		*pui32TimerEnable = rate | 4;
++	}
++
++	OSUnMapPhysToLin(pui32TimerEnable,
++		    4,
++		    PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++		    hTimerEnable);
++
++	
++	TimerRegPhysBase.uiAddr = SYS_TI81xx_GP7TIMER_ENABLE_SYS_PHYS_BASE;
++	pui32TimerEnable = OSMapPhysToLin(TimerRegPhysBase,
++                  4,
++                  PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++                  &hTimerEnable);
++
++	if (pui32TimerEnable == IMG_NULL)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "EnableSystemClocks: OSMapPhysToLin failed"));
++		goto ExitDisableGPT11ICK;
++	}
++
++	
++	*pui32TimerEnable = 3;
++
++	OSUnMapPhysToLin(pui32TimerEnable,
++		    4,
++		    PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++		    hTimerEnable);
++
++#endif 
++
++	eError = PVRSRV_OK;
++	goto Exit;
++
++#if defined(DEBUG) || defined(TIMING)
++ExitDisableGPT11ICK:
++	clk_disable(psSysSpecData->psGPT11_ICK);
++ExitDisableGPT11FCK:
++	clk_disable(psSysSpecData->psGPT11_FCK);
++ExitUnRegisterConstraintNotifications:
++#endif	
++ExitError:
++	eError = PVRSRV_ERROR_DISABLE_CLOCK_FAILURE;
++Exit:
++	return eError;
++}
++
++IMG_VOID DisableSystemClocks(SYS_DATA *psSysData)
++{
++#if defined(DEBUG) || defined(TIMING)
++	SYS_SPECIFIC_DATA *psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
++	IMG_CPU_PHYADDR TimerRegPhysBase;
++	IMG_HANDLE hTimerDisable;
++	IMG_UINT32 *pui32TimerDisable;
++#endif	
++
++	PVR_TRACE(("DisableSystemClocks: Disabling System Clocks"));
++
++	
++	DisableSGXClocks(psSysData);
++
++#if defined(DEBUG) || defined(TIMING)
++	
++	TimerRegPhysBase.uiAddr = SYS_TI81xx_GP7TIMER_ENABLE_SYS_PHYS_BASE;
++	pui32TimerDisable = OSMapPhysToLin(TimerRegPhysBase,
++				4,
++				PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++				&hTimerDisable);
++
++	if (pui32TimerDisable == IMG_NULL)
++	{
++		PVR_DPF((PVR_DBG_ERROR, "DisableSystemClocks: OSMapPhysToLin failed"));
++	}
++	else
++	{
++		*pui32TimerDisable = 0;
++
++		OSUnMapPhysToLin(pui32TimerDisable,
++				4,
++				PVRSRV_HAP_KERNEL_ONLY|PVRSRV_HAP_UNCACHED,
++				hTimerDisable);
++	}
++
++	clk_disable(psSysSpecData->psGPT11_ICK);
++
++	clk_disable(psSysSpecData->psGPT11_FCK);
++
++#endif 
++}
+-- 
+1.7.1
+

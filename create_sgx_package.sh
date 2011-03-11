@@ -26,10 +26,11 @@ fi
 #SGX_BIN_NAME="OMAP35x_Graphics_SDK_setuplinux"
 
 SGX_VERSION=4_00_00_01
+#SGX_VERSION=4_03_00_01
+#SGX_VERSION=4_03_00_02
 SGX_BIN_NAME="Graphics_SDK_setuplinux"
 
 SGX_BIN=${SGX_BIN_NAME}_${SGX_VERSION}.bin
-
 
 sudo rm -rfd ${DIR}/SDK/ || true
 mkdir -p ${DIR}/SDK/
