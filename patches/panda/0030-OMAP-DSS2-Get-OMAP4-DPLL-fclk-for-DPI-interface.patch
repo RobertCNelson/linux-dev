@@ -6,17 +6,18 @@ Subject: [PATCH 30/35] OMAP: DSS2: Get OMAP4 DPLL fclk for DPI interface
 DSS DPLL fclk pointer is set, to configure pixel clock for DPI interface.
 
 Signed-off-by: Raghuveer Murthy <raghuveer.murthy@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  drivers/video/omap2/dss/dss.c |    7 +++++++
  1 files changed, 7 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/video/omap2/dss/dss.c b/drivers/video/omap2/dss/dss.c
-index 654f5e6..d76bc26 100644
+index 1a11430..3d113b1 100644
 --- a/drivers/video/omap2/dss/dss.c
 +++ b/drivers/video/omap2/dss/dss.c
-@@ -628,6 +628,13 @@ static int dss_init(bool skip_init)
+@@ -614,6 +614,13 @@ static int dss_init(void)
  			r = PTR_ERR(dss.dpll_per_mx_ck);
- 			goto fail2;
+ 			goto fail1;
  		}
 +	} else if (cpu_is_omap44xx()) {
 +		dss.dpll_per_mx_ck = clk_get(NULL, "dpll_per_m5x2_ck");
@@ -27,7 +28,7 @@ index 654f5e6..d76bc26 100644
 +		}
  	}
  
- 	dss.dsi_clk_source = DSS_SRC_DSS1_ALWON_FCLK;
+ 	dss.dsi_clk_source = DSS_CLK_SRC_FCK;
 -- 
 1.7.1
 

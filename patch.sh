@@ -502,42 +502,11 @@ patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 
 function omap4 {
 echo "omap4 related patches"
-
-#panda display from: http://dev.omapzoom.org/?p=anand/linux-omap-usb.git;a=shortlog;h=refs/heads/display-patches-for-v2.6.38-rc4
-patch -s -p1 < "${DIR}/patches/panda/0001-OMAP2-3-DSS2-remove-forced-clk-disable-from-omap_dss.patch"
-patch -s -p1 < "${DIR}/patches/panda/0005-OMAP2-3-DSS2-Change-driver-name-to-omap_display.patch"
-patch -s -p1 < "${DIR}/patches/panda/0006-OMAP2-3-DSS2-Use-Regulator-init-with-driver-name.patch"
-patch -s -p1 < "${DIR}/patches/panda/0007-OMAP2-3-DSS2-Create-new-file-display.c-for-central-d.patch"
-patch -s -p1 < "${DIR}/patches/panda/0009-OMAP2-3-DSS2-Build-omap_device-for-each-DSS-HWIP.patch"
-patch -s -p1 < "${DIR}/patches/panda/0010-OMAP2-3-DSS2-DSS-create-platform_driver-move-init-ex.patch"
-patch -s -p1 < "${DIR}/patches/panda/0011-OMAP2-3-DSS2-Move-clocks-from-core-driver-to-dss-dri.patch"
-patch -s -p1 < "${DIR}/patches/panda/0012-OMAP2-3-DSS2-RFBI-create-platform_driver-move-init-e.patch"
-patch -s -p1 < "${DIR}/patches/panda/0013-OMAP2-3-DSS2-DISPC-create-platform_driver-move-init-.patch"
-patch -s -p1 < "${DIR}/patches/panda/0014-OMAP2-3-DSS2-VENC-create-platform_driver-move-init-e.patch"
-patch -s -p1 < "${DIR}/patches/panda/0015-OMAP2-3-DSS2-DSI-create-platform_driver-move-init-ex.patch"
-patch -s -p1 < "${DIR}/patches/panda/0016-OMAP2-3-DSS2-replace-printk-with-dev_dbg-in-init.patch"
-patch -s -p1 < "${DIR}/patches/panda/0017-OMAP2-3-DSS2-Use-platform-device-to-get-baseaddr.patch"
-patch -s -p1 < "${DIR}/patches/panda/0018-OMAP2-3-DSS2-Get-DSS-IRQ-from-platform-device.patch"
-patch -s -p1 < "${DIR}/patches/panda/0019-OMAP2PLUS-clocks-Align-DSS-clock-names-and-roles.patch"
-
-#the omap36xx dpi.c change from steve really needs to upstream..
-patch -s -p1 < "${DIR}/patches/panda/0020-OMAP2PLUS-DSS2-Generalize-naming-of-PRCM-related-clo-fixup.patch"
-
-patch -s -p1 < "${DIR}/patches/panda/0021-OMAP2PLUS-DSS2-Generalize-external-clock-names-in-st.patch"
-patch -s -p1 < "${DIR}/patches/panda/0022-OMAP4-DSS2-clocks-Add-ick-as-dummy-clock.patch"
-patch -s -p1 < "${DIR}/patches/panda/0023-OMAP2PLUS-DSS2-Add-OMAP4-Kconfig-support.patch"
-patch -s -p1 < "${DIR}/patches/panda/0025-OMAP4-DSS2-Add-hwmod-device-names-for-OMAP4.patch"
-patch -s -p1 < "${DIR}/patches/panda/0026-OMAP-DSS2-Common-IRQ-handler-for-all-OMAPs.patch"
-patch -s -p1 < "${DIR}/patches/panda/0027-OMAP-DSS2-Add-dss_feature-for-variable-DPLL-fclk.patch"
+#needs more testing..
 patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
 patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
 patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
-patch -s -p1 < "${DIR}/patches/panda/0031-OMAP-DSS2-Adding-dss_features-for-independent-core-c.patch"
-patch -s -p1 < "${DIR}/patches/panda/0032-OMAP-DSS2-Renaming-register-macro-DISPC_DIVISOR-ch.patch"
-patch -s -p1 < "${DIR}/patches/panda/0033-OMAP-DSS2-Adding-macro-for-DISPC_DIVISOR-register.patch"
-patch -s -p1 < "${DIR}/patches/panda/0034-OMAP4-DSS2-Using-dss_features-to-set-independent-cor.patch"
 patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
-
 }
 
 function sgx {
@@ -677,12 +646,12 @@ igepv2
 devkit8000
 touchbook
 
+#omap4/dvfs still needs more testing..
 #omap4
+#dvfs
 
 #no chance of being pushed ever tree's
 sgx
-
-#dvfs
 
 echo "patch.sh ran successful"
 

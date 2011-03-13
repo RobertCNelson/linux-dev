@@ -8,17 +8,18 @@ generic for OMAP3xxx and OMAP44xx platforms. Variable and function
 names containing dpll4/ dpll4_m4 are also renamed.
 
 Signed-off-by: Raghuveer Murthy <raghuveer.murthy@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  drivers/video/omap2/dss/dss.c |   43 +++++++++++++++++++++--------------------
  1 files changed, 22 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/video/omap2/dss/dss.c b/drivers/video/omap2/dss/dss.c
-index 24d6f98..add82e6 100644
+index 2be4d03..dc4841b 100644
 --- a/drivers/video/omap2/dss/dss.c
 +++ b/drivers/video/omap2/dss/dss.c
-@@ -64,7 +64,8 @@ static struct {
+@@ -62,7 +62,8 @@ static struct {
+ 	void __iomem    *base;
  	int             ctx_id;
- 	int		irq;
  
 -	struct clk	*dpll4_m4_ck;
 +	/* Points to DPLL4_M4 in OMAP3xxx, and DPLL_PER_M5 in OMAP44xx */
@@ -26,7 +27,7 @@ index 24d6f98..add82e6 100644
  	struct clk	*dss_ick;
  	struct clk	*dss_fck;
  	struct clk	*dss_sys_clk;
-@@ -225,27 +226,27 @@ void dss_sdi_disable(void)
+@@ -236,31 +237,31 @@ const char *dss_get_generic_clk_source_name(enum dss_clk_source clk_src)
  
  void dss_dump_clocks(struct seq_file *s)
  {
@@ -48,14 +49,18 @@ index 24d6f98..add82e6 100644
 +	seq_printf(s, "dpll_per_ck %lu\n", dpll_per_ck_rate);
  
  	if (cpu_is_omap3630())
- 		seq_printf(s, "dss1_alwon_fclk = %lu / %lu  = %lu\n",
+ 		seq_printf(s, "%s (%s) = %lu / %lu  = %lu\n",
+ 			dss_get_generic_clk_source_name(DSS_CLK_SRC_FCK),
+ 			dss_feat_get_clk_source_name(DSS_CLK_SRC_FCK),
 -			dpll4_ck_rate,
 -			dpll4_ck_rate / dpll4_m4_ck_rate,
 +			dpll_per_ck_rate,
 +			dpll_per_ck_rate / dpll_per_mx_ck_rate,
  			dss_clk_get_rate(DSS_CLK_FCK));
  	else
- 		seq_printf(s, "dss1_alwon_fclk = %lu / %lu * 2 = %lu\n",
+ 		seq_printf(s, "%s (%s) = %lu / %lu * 2 = %lu\n",
+ 			dss_get_generic_clk_source_name(DSS_CLK_SRC_FCK),
+ 			dss_feat_get_clk_source_name(DSS_CLK_SRC_FCK),
 -			dpll4_ck_rate,
 -			dpll4_ck_rate / dpll4_m4_ck_rate,
 +			dpll_per_ck_rate,
@@ -63,7 +68,7 @@ index 24d6f98..add82e6 100644
  			dss_clk_get_rate(DSS_CLK_FCK));
  
  	dss_clk_disable(DSS_CLK_ICK | DSS_CLK_FCK);
-@@ -323,7 +324,7 @@ int dss_calc_clock_rates(struct dss_clock_info *cinfo)
+@@ -342,7 +343,7 @@ int dss_calc_clock_rates(struct dss_clock_info *cinfo)
  						cinfo->fck_div == 0)
  		return -EINVAL;
  
@@ -72,7 +77,7 @@ index 24d6f98..add82e6 100644
  
  	cinfo->fck = prate / cinfo->fck_div;
  
-@@ -336,10 +337,10 @@ int dss_set_clock_div(struct dss_clock_info *cinfo)
+@@ -355,10 +356,10 @@ int dss_set_clock_div(struct dss_clock_info *cinfo)
  	int r;
  
  	if (cpu_is_omap34xx()) {
@@ -85,7 +90,7 @@ index 24d6f98..add82e6 100644
  		if (r)
  			return r;
  	}
-@@ -355,7 +356,7 @@ int dss_get_clock_div(struct dss_clock_info *cinfo)
+@@ -374,7 +375,7 @@ int dss_get_clock_div(struct dss_clock_info *cinfo)
  
  	if (cpu_is_omap34xx()) {
  		unsigned long prate;
@@ -94,7 +99,7 @@ index 24d6f98..add82e6 100644
  		if (cpu_is_omap3630())
  			cinfo->fck_div = prate / (cinfo->fck);
  		else
-@@ -367,10 +368,10 @@ int dss_get_clock_div(struct dss_clock_info *cinfo)
+@@ -386,10 +387,10 @@ int dss_get_clock_div(struct dss_clock_info *cinfo)
  	return 0;
  }
  
@@ -107,17 +112,17 @@ index 24d6f98..add82e6 100644
  	else
  		return 0;
  }
-@@ -390,7 +391,7 @@ int dss_calc_clock_div(bool is_tft, unsigned long req_pck,
+@@ -409,7 +410,7 @@ int dss_calc_clock_div(bool is_tft, unsigned long req_pck,
  	int match = 0;
  	int min_fck_per_pck;
  
 -	prate = dss_get_dpll4_rate();
 +	prate = dss_get_dpll_per_rate();
  
- 	fck = dss_clk_get_rate(DSS_CLK_FCK);
- 	if (req_pck == dss.cache_req_pck &&
-@@ -620,10 +621,10 @@ static int dss_init(bool skip_init)
- 	}
+ 	max_dss_fck = dss_feat_get_max_dss_fck();
+ 
+@@ -606,10 +607,10 @@ static int dss_init(void)
+ #endif
  
  	if (cpu_is_omap34xx()) {
 -		dss.dpll4_m4_ck = clk_get(NULL, "dpll4_m4_ck");
@@ -127,18 +132,18 @@ index 24d6f98..add82e6 100644
  			DSSERR("Failed to get dpll4_m4_ck\n");
 -			r = PTR_ERR(dss.dpll4_m4_ck);
 +			r = PTR_ERR(dss.dpll_per_mx_ck);
- 			goto fail2;
+ 			goto fail1;
  		}
  	}
-@@ -650,7 +651,7 @@ fail0:
+@@ -634,7 +635,7 @@ fail0:
  static void dss_exit(void)
  {
  	if (cpu_is_omap34xx())
 -		clk_put(dss.dpll4_m4_ck);
 +		clk_put(dss.dpll_per_mx_ck);
  
- 	free_irq(dss.irq, NULL);
- 
+ 	iounmap(dss.base);
+ }
 -- 
 1.7.1
 

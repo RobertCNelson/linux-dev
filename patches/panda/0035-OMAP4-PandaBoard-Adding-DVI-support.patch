@@ -29,7 +29,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 files changed, 136 insertions(+), 1 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index 3dd241b..163cfa5 100644
+index 1dd4401..65e6226 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
 @@ -39,6 +39,7 @@
@@ -40,8 +40,8 @@ index 3dd241b..163cfa5 100644
  #include "timer-gp.h"
  
  #include "hsmmc.h"
-@@ -80,6 +81,60 @@ static struct platform_device *panda_devices[] __initdata = {
- 	&leds_gpio,
+@@ -91,6 +92,60 @@ static struct platform_device *panda_devices[] __initdata = {
+ 	&wl1271_device,
  };
  
 +/* Display DVI */
@@ -101,7 +101,7 @@ index 3dd241b..163cfa5 100644
  static void __init omap4_panda_init_early(void)
  {
  	omap2_init_common_infrastructure();
-@@ -421,6 +476,17 @@ static struct i2c_board_info __initdata omap4_panda_i2c_boardinfo[] = {
+@@ -432,6 +487,17 @@ static struct i2c_board_info __initdata omap4_panda_i2c_boardinfo[] = {
  		.platform_data = &omap4_panda_twldata,
  	},
  };
@@ -119,7 +119,7 @@ index 3dd241b..163cfa5 100644
  static int __init omap4_panda_i2c_init(void)
  {
  	/*
-@@ -430,7 +496,12 @@ static int __init omap4_panda_i2c_init(void)
+@@ -441,7 +507,12 @@ static int __init omap4_panda_i2c_init(void)
  	omap_register_i2c_bus(1, 400, omap4_panda_i2c_boardinfo,
  			ARRAY_SIZE(omap4_panda_i2c_boardinfo));
  	omap_register_i2c_bus(2, 400, NULL, 0);
@@ -133,7 +133,7 @@ index 3dd241b..163cfa5 100644
  	omap_register_i2c_bus(4, 400, NULL, 0);
  	return 0;
  }
-@@ -450,6 +521,64 @@ static struct omap_board_mux board_mux[] __initdata = {
+@@ -461,6 +532,64 @@ static struct omap_board_mux board_mux[] __initdata = {
  	OMAP4_MUX(SDMMC5_DAT1, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
  	OMAP4_MUX(SDMMC5_DAT2, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
  	OMAP4_MUX(SDMMC5_DAT3, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
@@ -197,8 +197,8 @@ index 3dd241b..163cfa5 100644
 +	OMAP4_MUX(DPM_EMU19, OMAP_PIN_OUTPUT | OMAP_MUX_MODE5),
  	{ .reg_offset = OMAP_MUX_TERMINATOR },
  };
- #else
-@@ -459,6 +588,7 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 
+@@ -537,6 +666,7 @@ static inline void board_serial_init(void)
  static void __init omap4_panda_init(void)
  {
  	int package = OMAP_PACKAGE_CBS;
@@ -206,7 +206,7 @@ index 3dd241b..163cfa5 100644
  
  	if (omap_rev() == OMAP4430_REV_ES1_0)
  		package = OMAP_PACKAGE_CBL;
-@@ -474,6 +604,11 @@ static void __init omap4_panda_init(void)
+@@ -552,6 +682,11 @@ static void __init omap4_panda_init(void)
  	omap4_twl6030_hsmmc_init(mmc);
  	omap4_ehci_init();
  	usb_musb_init(&musb_board_data);
