@@ -37,6 +37,7 @@ rework.
 
 Signed-off-by: Vishwanath BS <vishwanath.bs@ti.com>
 Cc: Thara Gopinath <thara@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/Makefile           |    2 +-
  arch/arm/mach-omap2/dvfs.c             |  456 ++++++++++++++++++++++++++++++++
@@ -47,21 +48,21 @@ Cc: Thara Gopinath <thara@ti.com>
  create mode 100644 arch/arm/plat-omap/include/plat/dvfs.h
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index 1c0c2b0..625087e 100644
+index 989ae13..ac91025 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
 @@ -61,7 +61,7 @@ ifeq ($(CONFIG_PM),y)
  obj-$(CONFIG_ARCH_OMAP2)		+= pm24xx.o
- obj-$(CONFIG_ARCH_OMAP2)		+= sleep24xx.o pm_bus.o voltage.o
- obj-$(CONFIG_ARCH_OMAP3)		+= pm34xx.o sleep34xx.o voltage.o \
+ obj-$(CONFIG_ARCH_OMAP2)		+= sleep24xx.o pm_bus.o
+ obj-$(CONFIG_ARCH_OMAP3)		+= pm34xx.o sleep34xx.o \
 -					   cpuidle34xx.o pm_bus.o
 +					   cpuidle34xx.o pm_bus.o dvfs.o
- obj-$(CONFIG_ARCH_OMAP4)		+= pm44xx.o voltage.o pm_bus.o
+ obj-$(CONFIG_ARCH_OMAP4)		+= pm44xx.o pm_bus.o
  obj-$(CONFIG_PM_DEBUG)			+= pm-debug.o
  obj-$(CONFIG_OMAP_SMARTREFLEX)          += sr_device.o smartreflex.o
 diff --git a/arch/arm/mach-omap2/dvfs.c b/arch/arm/mach-omap2/dvfs.c
 new file mode 100644
-index 0000000..8832e4a
+index 0000000..9fc4041
 --- /dev/null
 +++ b/arch/arm/mach-omap2/dvfs.c
 @@ -0,0 +1,456 @@
@@ -84,7 +85,7 @@ index 0000000..8832e4a
 +#include <linux/slab.h>
 +#include <linux/opp.h>
 +#include <plat/common.h>
-+#include <plat/voltage.h>
++#include "voltage.h"
 +#include <plat/omap_device.h>
 +
 +/**
@@ -523,7 +524,7 @@ index 0000000..8832e4a
 +core_initcall(omap_dvfs_init);
 diff --git a/arch/arm/plat-omap/include/plat/dvfs.h b/arch/arm/plat-omap/include/plat/dvfs.h
 new file mode 100644
-index 0000000..1302990
+index 0000000..cb810f2
 --- /dev/null
 +++ b/arch/arm/plat-omap/include/plat/dvfs.h
 @@ -0,0 +1,27 @@
@@ -542,7 +543,7 @@ index 0000000..1302990
 +
 +#ifndef __ARCH_ARM_MACH_OMAP2_DVFS_H
 +#define __ARCH_ARM_MACH_OMAP2_DVFS_H
-+#include <plat/voltage.h>
++#include "voltage.h"
 +
 +#ifdef CONFIG_PM
 +int omap_dvfs_register_device(struct voltagedomain *voltdm, struct device *dev);
@@ -555,21 +556,21 @@ index 0000000..1302990
 +#endif
 +#endif
 diff --git a/arch/arm/plat-omap/omap_device.c b/arch/arm/plat-omap/omap_device.c
-index 57adb27..a84e849 100644
+index 9bbda9a..50131ac 100644
 --- a/arch/arm/plat-omap/omap_device.c
 +++ b/arch/arm/plat-omap/omap_device.c
-@@ -86,6 +86,7 @@
+@@ -87,6 +87,7 @@
  
  #include <plat/omap_device.h>
  #include <plat/omap_hwmod.h>
 +#include <plat/dvfs.h>
+ #include <plat/clock.h>
  
  /* These parameters are passed to _omap_device_{de,}activate() */
- #define USE_WAKEUP_LAT			0
-@@ -481,6 +482,14 @@ struct omap_device *omap_device_build_ss(const char *pdev_name, int pdev_id,
+@@ -497,6 +498,14 @@ struct omap_device *omap_device_build_ss(const char *pdev_name, int pdev_id,
  	for (i = 0; i < oh_cnt; i++) {
  		hwmods[i]->od = od;
- 		_add_optional_clock_alias(od, hwmods[i]);
+ 		_add_optional_clock_clkdev(od, hwmods[i]);
 +		if (!is_early_device && hwmods[i]->vdd_name) {
 +			struct omap_hwmod *oh = hwmods[i];
 +			struct voltagedomain *voltdm;

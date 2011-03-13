@@ -1,0 +1,33 @@
+From 41e2a921d455d74dfeabab4cffc6a814b4f247be Mon Sep 17 00:00:00 2001
+From: Felipe Balbi <balbi@ti.com>
+Date: Sun, 16 Jan 2011 13:22:03 +0200
+Subject: [PATCH 028/254] arm: omap2: clksel: fix compile warningOrganization: Texas Instruments\n
+
+Fix the following compile warning:
+arch/arm/mach-omap2/clkt_clksel.c: In function '_get_div_and_fieldval':
+arch/arm/mach-omap2/clkt_clksel.c:100:35: warning: 'max_clkr' may be
+used uninitialized in this function
+
+Acked-by: Paul Walmsley <paul@pwsan.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/clkt_clksel.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/clkt_clksel.c b/arch/arm/mach-omap2/clkt_clksel.c
+index a781cd6..e25364d 100644
+--- a/arch/arm/mach-omap2/clkt_clksel.c
++++ b/arch/arm/mach-omap2/clkt_clksel.c
+@@ -97,7 +97,7 @@ static u8 _get_div_and_fieldval(struct clk *src_clk, struct clk *clk,
+ 				u32 *field_val)
+ {
+ 	const struct clksel *clks;
+-	const struct clksel_rate *clkr, *max_clkr;
++	const struct clksel_rate *clkr, *max_clkr = NULL;
+ 	u8 max_div = 0;
+ 
+ 	clks = _get_clksel_by_parent(clk, src_clk);
+-- 
+1.7.1
+

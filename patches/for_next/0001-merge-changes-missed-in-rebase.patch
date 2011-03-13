@@ -1,0 +1,230 @@
+From b4f5adde25a2e491f71c7915a85451a540e58474 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sat, 12 Mar 2011 19:58:07 -0600
+Subject: [PATCH] merge changes missed in rebase
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-3430sdp.c          |    9 +--
+ arch/arm/mach-omap2/omap_hwmod_2430_data.c   |    4 +
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c   |    9 ++
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c   |    1 +
+ arch/arm/mach-omap2/pm34xx.c                 |  102 +-------------------------
+ arch/arm/mach-omap2/timer-gp.c               |    1 +
+ arch/arm/plat-omap/include/plat/omap_hwmod.h |    1 +
+ 7 files changed, 19 insertions(+), 108 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-3430sdp.c b/arch/arm/mach-omap2/board-3430sdp.c
+index 5f33ed4..b391804 100644
+--- a/arch/arm/mach-omap2/board-3430sdp.c
++++ b/arch/arm/mach-omap2/board-3430sdp.c
+@@ -533,13 +533,8 @@ static struct regulator_init_data sdp3430_vdac = {
+ 		.valid_ops_mask		= REGULATOR_CHANGE_MODE
+ 					| REGULATOR_CHANGE_STATUS,
+ 	},
+-	.num_consumer_supplies	= 1,
+-	.consumer_supplies	= &sdp3430_vdda_dac_supply,
+-};
+-
+-/* VPLL2 for digital video outputs */
+-static struct regulator_consumer_supply sdp3430_vpll2_supplies[] = {
+-	REGULATOR_SUPPLY("vdds_dsi", "omapdss"),
++	.num_consumer_supplies	= ARRAY_SIZE(sdp3430_vdda_dac_supplies),
++	.consumer_supplies	= sdp3430_vdda_dac_supplies,
+ };
+ 
+ static struct regulator_init_data sdp3430_vpll2 = {
+diff --git a/arch/arm/mach-omap2/omap_hwmod_2430_data.c b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+index 5afe27d..0fdf2ca 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_2430_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+@@ -2723,6 +2723,10 @@ static __initdata struct omap_hwmod *omap2430_hwmods[] = {
+ 	&omap2430_mcspi1_hwmod,
+ 	&omap2430_mcspi2_hwmod,
+ 	&omap2430_mcspi3_hwmod,
++
++	/* usbotg class*/
++	&omap2430_usbhsotg_hwmod,
++
+ 	NULL,
+ };
+ 
+diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+index 1d05660..c819c30 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+@@ -22,6 +22,8 @@
+ #include <plat/l4_3xxx.h>
+ #include <plat/i2c.h>
+ #include <plat/gpio.h>
++#include <plat/mmc.h>
++#include <plat/mcbsp.h>
+ #include <plat/mcspi.h>
+ #include <plat/dmtimer.h>
+ 
+@@ -3638,6 +3640,13 @@ static __initdata struct omap_hwmod *omap3xxx_hwmods[] = {
+ 	&omap34xx_mcspi2,
+ 	&omap34xx_mcspi3,
+ 	&omap34xx_mcspi4,
++
++	/* usbotg class */
++	&omap3xxx_usbhsotg_hwmod,
++
++	/* usbotg for am35x */
++	&am35xx_usbhsotg_hwmod,
++
+ 	NULL,
+ };
+ 
+diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+index eaef28f..3e88dd3 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+@@ -25,6 +25,7 @@
+ #include <plat/gpio.h>
+ #include <plat/dma.h>
+ #include <plat/mcspi.h>
++#include <plat/mcbsp.h>
+ #include <plat/mmc.h>
+ 
+ #include "omap_hwmod_common_data.h"
+diff --git a/arch/arm/mach-omap2/pm34xx.c b/arch/arm/mach-omap2/pm34xx.c
+index bab0343..0c5e3a4 100644
+--- a/arch/arm/mach-omap2/pm34xx.c
++++ b/arch/arm/mach-omap2/pm34xx.c
+@@ -695,107 +695,7 @@ static void __init prcm_setup_regs(void)
+ 	u32 omap3630_grpsel_uart4_mask = cpu_is_omap3630() ?
+ 					OMAP3630_GRPSEL_UART4_MASK : 0;
+ 
+-	/*
+-	 * Enable interface clock autoidle for all modules.
+-	 * Note that in the long run this should be done by clockfw
+-	 */
+-	omap2_cm_write_mod_reg(
+-		OMAP3430_AUTO_MODEM_MASK |
+-		OMAP3430ES2_AUTO_MMC3_MASK |
+-		OMAP3430ES2_AUTO_ICR_MASK |
+-		OMAP3430_AUTO_AES2_MASK |
+-		OMAP3430_AUTO_SHA12_MASK |
+-		OMAP3430_AUTO_DES2_MASK |
+-		OMAP3430_AUTO_MMC2_MASK |
+-		OMAP3430_AUTO_MMC1_MASK |
+-		OMAP3430_AUTO_MSPRO_MASK |
+-		OMAP3430_AUTO_HDQ_MASK |
+-		OMAP3430_AUTO_MCSPI4_MASK |
+-		OMAP3430_AUTO_MCSPI3_MASK |
+-		OMAP3430_AUTO_MCSPI2_MASK |
+-		OMAP3430_AUTO_MCSPI1_MASK |
+-		OMAP3430_AUTO_I2C3_MASK |
+-		OMAP3430_AUTO_I2C2_MASK |
+-		OMAP3430_AUTO_I2C1_MASK |
+-		OMAP3430_AUTO_UART2_MASK |
+-		OMAP3430_AUTO_UART1_MASK |
+-		OMAP3430_AUTO_GPT11_MASK |
+-		OMAP3430_AUTO_GPT10_MASK |
+-		OMAP3430_AUTO_MCBSP5_MASK |
+-		OMAP3430_AUTO_MCBSP1_MASK |
+-		OMAP3430ES1_AUTO_FAC_MASK | /* This is es1 only */
+-		OMAP3430_AUTO_MAILBOXES_MASK |
+-		OMAP3430_AUTO_OMAPCTRL_MASK |
+-		OMAP3430ES1_AUTO_FSHOSTUSB_MASK |
+-		OMAP3430_AUTO_HSOTGUSB_MASK |
+-		OMAP3430_AUTO_SAD2D_MASK |
+-		OMAP3430_AUTO_SSI_MASK,
+-		CORE_MOD, CM_AUTOIDLE1);
+-
+-	omap2_cm_write_mod_reg(
+-		OMAP3430_AUTO_PKA_MASK |
+-		OMAP3430_AUTO_AES1_MASK |
+-		OMAP3430_AUTO_RNG_MASK |
+-		OMAP3430_AUTO_SHA11_MASK |
+-		OMAP3430_AUTO_DES1_MASK,
+-		CORE_MOD, CM_AUTOIDLE2);
+-
+-	if (omap_rev() > OMAP3430_REV_ES1_0) {
+-		omap2_cm_write_mod_reg(
+-			OMAP3430_AUTO_MAD2D_MASK |
+-			OMAP3430ES2_AUTO_USBTLL_MASK,
+-			CORE_MOD, CM_AUTOIDLE3);
+-	}
+-
+-	omap2_cm_write_mod_reg(
+-		OMAP3430_AUTO_WDT2_MASK |
+-		OMAP3430_AUTO_WDT1_MASK |
+-		OMAP3430_AUTO_GPIO1_MASK |
+-		OMAP3430_AUTO_32KSYNC_MASK |
+-		OMAP3430_AUTO_GPT12_MASK |
+-		OMAP3430_AUTO_GPT1_MASK,
+-		WKUP_MOD, CM_AUTOIDLE);
+-
+-	omap2_cm_write_mod_reg(
+-		OMAP3430_AUTO_DSS_MASK,
+-		OMAP3430_DSS_MOD,
+-		CM_AUTOIDLE);
+-
+-	omap2_cm_write_mod_reg(
+-		OMAP3430_AUTO_CAM_MASK,
+-		OMAP3430_CAM_MOD,
+-		CM_AUTOIDLE);
+-
+-	omap2_cm_write_mod_reg(
+-		omap3630_auto_uart4_mask |
+-		OMAP3430_AUTO_GPIO6_MASK |
+-		OMAP3430_AUTO_GPIO5_MASK |
+-		OMAP3430_AUTO_GPIO4_MASK |
+-		OMAP3430_AUTO_GPIO3_MASK |
+-		OMAP3430_AUTO_GPIO2_MASK |
+-		OMAP3430_AUTO_WDT3_MASK |
+-		OMAP3430_AUTO_UART3_MASK |
+-		OMAP3430_AUTO_GPT9_MASK |
+-		OMAP3430_AUTO_GPT8_MASK |
+-		OMAP3430_AUTO_GPT7_MASK |
+-		OMAP3430_AUTO_GPT6_MASK |
+-		OMAP3430_AUTO_GPT5_MASK |
+-		OMAP3430_AUTO_GPT4_MASK |
+-		OMAP3430_AUTO_GPT3_MASK |
+-		OMAP3430_AUTO_GPT2_MASK |
+-		OMAP3430_AUTO_MCBSP4_MASK |
+-		OMAP3430_AUTO_MCBSP3_MASK |
+-		OMAP3430_AUTO_MCBSP2_MASK,
+-		OMAP3430_PER_MOD,
+-		CM_AUTOIDLE);
+-
+-	if (omap_rev() > OMAP3430_REV_ES1_0) {
+-		omap2_cm_write_mod_reg(
+-			OMAP3430ES2_AUTO_USBHOST_MASK,
+-			OMAP3430ES2_USBHOST_MOD,
+-			CM_AUTOIDLE);
+-	}
+-
++	/* XXX This should be handled by hwmod code or SCM init code */
+ 	omap_ctrl_writel(OMAP3430_AUTOIDLE_MASK, OMAP2_CONTROL_SYSCONFIG);
+ 
+ 	/*
+diff --git a/arch/arm/mach-omap2/timer-gp.c b/arch/arm/mach-omap2/timer-gp.c
+index 1887dd0..3b9cf85 100644
+--- a/arch/arm/mach-omap2/timer-gp.c
++++ b/arch/arm/mach-omap2/timer-gp.c
+@@ -39,6 +39,7 @@
+ #include <asm/mach/time.h>
+ #include <plat/dmtimer.h>
+ #include <asm/localtimer.h>
++#include <asm/sched_clock.h>
+ #include <plat/common.h>
+ #include <plat/omap_hwmod.h>
+ 
+diff --git a/arch/arm/plat-omap/include/plat/omap_hwmod.h b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+index aef7081..1adea9c 100644
+--- a/arch/arm/plat-omap/include/plat/omap_hwmod.h
++++ b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+@@ -380,6 +380,7 @@ struct omap_hwmod_omap4_prcm {
+  *     XXX Should be HWMOD_SETUP_NO_RESET
+  * HWMOD_INIT_NO_IDLE: don't idle this module at boot - important for SDRAM
+  *     controller, etc. XXX probably belongs outside the main hwmod file
++ *     XXX Should be HWMOD_SETUP_NO_IDLE
+  * HWMOD_NO_OCP_AUTOIDLE: disable module autoidle (OCP_SYSCONFIG.AUTOIDLE)
+  *     when module is enabled, rather than the default, which is to
+  *     enable autoidle
+-- 
+1.7.1
+

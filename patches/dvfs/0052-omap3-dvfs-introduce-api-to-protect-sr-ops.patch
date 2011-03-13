@@ -10,6 +10,7 @@ dvfs operations untill we are done with enabling/disabling
 SR
 
 Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/dvfs.c             |   50 ++++++++++++++++++++++++++++++++
  arch/arm/mach-omap2/smartreflex.c      |   12 +++++++
@@ -78,18 +79,18 @@ index a00ab95..302d654 100644
   *
   * Initalizes omap dvfs layer. It basically allocates memory for
 diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
-index ddd78ce..6ffc1a0 100644
+index 99cbfba..87fff94 100644
 --- a/arch/arm/mach-omap2/smartreflex.c
 +++ b/arch/arm/mach-omap2/smartreflex.c
-@@ -27,6 +27,7 @@
+@@ -26,6 +26,7 @@
+ #include <linux/pm_runtime.h>
  
  #include <plat/common.h>
- #include <plat/smartreflex.h>
 +#include <plat/dvfs.h>
  
  #include "pm.h"
- 
-@@ -940,6 +941,7 @@ static int omap_sr_autocomp_show(void *data, u64 *val)
+ #include "smartreflex.h"
+@@ -941,6 +942,7 @@ static int omap_sr_autocomp_show(void *data, u64 *val)
  static int omap_sr_autocomp_store(void *data, u64 val)
  {
  	struct omap_sr *sr_info = (struct omap_sr *) data;
@@ -97,7 +98,7 @@ index ddd78ce..6ffc1a0 100644
  
  	if (!sr_info) {
  		pr_warning("%s: omap_sr struct not found\n", __func__);
-@@ -954,10 +956,20 @@ static int omap_sr_autocomp_store(void *data, u64 val)
+@@ -955,10 +957,20 @@ static int omap_sr_autocomp_store(void *data, u64 val)
  
  	/* control enable/disable only if there is a delta in value */
  	if (sr_info->autocomp_active ^ val) {

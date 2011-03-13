@@ -1,0 +1,41 @@
+From 4c3489a6baf3e6e89729e9d1724e06f4f78c30bb Mon Sep 17 00:00:00 2001
+From: Ilkka Koskinen <ilkka.koskinen@nokia.com>
+Date: Wed, 2 Mar 2011 13:24:06 +0000
+Subject: [PATCH 166/254] mfd: twl4030_codec: Remove unused and duplicate audio_mclk fields
+
+audio_mclk can be queried from mfd driver. Therefore, it is not
+needed in twl4030_codec_audio_data or in twl4030_codec_vibra_data
+anymore.
+
+Signed-off-by: Ilkka Koskinen <ilkka.koskinen@nokia.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@nokia.com>
+Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Acked-by: Samuel Ortiz <sameo@linux.intel.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ include/linux/i2c/twl.h |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/i2c/twl.h b/include/linux/i2c/twl.h
+index 61b9609..9d88b71 100644
+--- a/include/linux/i2c/twl.h
++++ b/include/linux/i2c/twl.h
+@@ -637,7 +637,6 @@ extern void twl4030_power_init(struct twl4030_power_data *triton2_scripts);
+ extern int twl4030_remove_script(u8 flags);
+ 
+ struct twl4030_codec_audio_data {
+-	unsigned int audio_mclk; /* not used, will be removed */
+ 	unsigned int digimic_delay; /* in ms */
+ 	unsigned int ramp_delay_value;
+ 	unsigned int offset_cncl_path;
+@@ -648,7 +647,6 @@ struct twl4030_codec_audio_data {
+ };
+ 
+ struct twl4030_codec_vibra_data {
+-	unsigned int	audio_mclk;
+ 	unsigned int	coexist;
+ };
+ 
+-- 
+1.7.1
+

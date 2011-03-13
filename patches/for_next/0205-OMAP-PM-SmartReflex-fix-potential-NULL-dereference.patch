@@ -1,0 +1,36 @@
+From 95b25a406404005a183b95c22ddd06aa7a875ac3 Mon Sep 17 00:00:00 2001
+From: Vasiliy Kulikov <segoon@openwall.com>
+Date: Wed, 19 Jan 2011 15:57:22 +0300
+Subject: [PATCH 205/254] OMAP: PM: SmartReflex: fix potential NULL dereference
+
+kzalloc() may fail, if so return -ENOMEM.  Also Walter Harms suggested
+to use kasprintf() instead of kzalloc+strcpy+strcat.
+
+Signed-off-by: Vasiliy Kulikov <segoon@openwall.com>
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/smartreflex.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
+index 81e23eb..2566552 100644
+--- a/arch/arm/mach-omap2/smartreflex.c
++++ b/arch/arm/mach-omap2/smartreflex.c
+@@ -260,9 +260,11 @@ static int sr_late_init(struct omap_sr *sr_info)
+ 	if (sr_class->class_type == SR_CLASS2 &&
+ 		sr_class->notify_flags && sr_info->irq) {
+ 
+-		name = kzalloc(SMARTREFLEX_NAME_LEN + 1, GFP_KERNEL);
+-		strcpy(name, "sr_");
+-		strcat(name, sr_info->voltdm->name);
++		name = kasprintf(GFP_KERNEL, "sr_%s", sr_info->voltdm->name);
++		if (name == NULL) {
++			ret = -ENOMEM;
++			goto error;
++		}
+ 		ret = request_irq(sr_info->irq, sr_interrupt,
+ 				0, name, (void *)sr_info);
+ 		if (ret)
+-- 
+1.7.1
+

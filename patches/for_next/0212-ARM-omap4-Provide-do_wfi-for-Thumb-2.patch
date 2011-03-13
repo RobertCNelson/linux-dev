@@ -1,0 +1,39 @@
+From e44b0ec7409ecfbd8ed12797ec8da82d243c7daf Mon Sep 17 00:00:00 2001
+From: Dave Martin <dave.martin@linaro.org>
+Date: Fri, 4 Mar 2011 15:33:53 +0000
+Subject: [PATCH 212/254] ARM: omap4: Provide do_wfi() for Thumb-2
+
+For CONFIG_THUMB2_KERNEL, the existing definition of do_wfi() will
+insert invalid code into the instruction stream.
+
+Any assembler which can assemble Thumb-2 is guaranteed to accept
+the "wfi" mnemonic, so for the Thumb-2 case, just use the mnemonic.
+
+The ARM case is left as-is.
+
+Signed-off-by: Dave Martin <dave.martin@linaro.org>
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/include/mach/omap4-common.h |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/include/mach/omap4-common.h b/arch/arm/mach-omap2/include/mach/omap4-common.h
+index 5b0270b..de441c0 100644
+--- a/arch/arm/mach-omap2/include/mach/omap4-common.h
++++ b/arch/arm/mach-omap2/include/mach/omap4-common.h
+@@ -17,8 +17,12 @@
+  * wfi used in low power code. Directly opcode is used instead
+  * of instruction to avoid mulit-omap build break
+  */
++#ifdef CONFIG_THUMB2_KERNEL
++#define do_wfi() __asm__ __volatile__ ("wfi" : : : "memory")
++#else
+ #define do_wfi()			\
+ 		__asm__ __volatile__ (".word	0xe320f003" : : : "memory")
++#endif
+ 
+ #ifdef CONFIG_CACHE_L2X0
+ extern void __iomem *l2cache_base;
+-- 
+1.7.1
+

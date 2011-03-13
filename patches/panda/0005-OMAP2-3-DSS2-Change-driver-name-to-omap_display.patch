@@ -15,79 +15,25 @@ for: The clkdev changes in clock2420_data.c, clock2430_data.c, clock3xxx_data.c
 Reviewed-by: Kevin Hilman <khilman@ti.com>
 Tested-by: Kevin Hilman <khilman@ti.com>
 Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-3430sdp.c          |    2 +-
- arch/arm/mach-omap2/board-am3517evm.c        |    2 +-
- arch/arm/mach-omap2/board-cm-t35.c           |    2 +-
- arch/arm/mach-omap2/board-devkit8000.c       |    6 +++---
- arch/arm/mach-omap2/board-igep0020.c         |    2 +-
- arch/arm/mach-omap2/board-omap3beagle.c      |    6 +++---
- arch/arm/mach-omap2/board-omap3evm.c         |    4 ++--
- arch/arm/mach-omap2/board-omap3pandora.c     |    8 ++++----
- arch/arm/mach-omap2/board-omap3stalker.c     |    2 +-
+ arch/arm/mach-omap2/board-devkit8000.c       |    4 ++--
+ arch/arm/mach-omap2/board-omap3beagle.c      |    4 ++--
+ arch/arm/mach-omap2/board-omap3evm.c         |    2 +-
+ arch/arm/mach-omap2/board-omap3pandora.c     |    6 +++---
  arch/arm/mach-omap2/board-rx51-peripherals.c |    4 ++--
- arch/arm/mach-omap2/board-rx51-video.c       |    2 +-
- arch/arm/mach-omap2/board-zoom-display.c     |    2 +-
  arch/arm/mach-omap2/board-zoom-peripherals.c |    4 ++--
  arch/arm/mach-omap2/clock2420_data.c         |    8 ++++----
  arch/arm/mach-omap2/clock2430_data.c         |    8 ++++----
  arch/arm/mach-omap2/clock3xxx_data.c         |   14 +++++++-------
  drivers/video/omap2/dss/core.c               |    2 +-
- 17 files changed, 39 insertions(+), 39 deletions(-)
+ 10 files changed, 28 insertions(+), 28 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/board-3430sdp.c b/arch/arm/mach-omap2/board-3430sdp.c
-index d4e41ef..6f4e7cf 100644
---- a/arch/arm/mach-omap2/board-3430sdp.c
-+++ b/arch/arm/mach-omap2/board-3430sdp.c
-@@ -308,7 +308,7 @@ static struct omap_dss_board_info sdp3430_dss_data = {
- };
- 
- static struct platform_device sdp3430_dss_device = {
--	.name		= "omapdss",
-+	.name		= "omap_display",
- 	.id		= -1,
- 	.dev		= {
- 		.platform_data = &sdp3430_dss_data,
-diff --git a/arch/arm/mach-omap2/board-am3517evm.c b/arch/arm/mach-omap2/board-am3517evm.c
-index 10d60b7..6bb5f53 100644
---- a/arch/arm/mach-omap2/board-am3517evm.c
-+++ b/arch/arm/mach-omap2/board-am3517evm.c
-@@ -379,7 +379,7 @@ static struct omap_dss_board_info am3517_evm_dss_data = {
- };
- 
- static struct platform_device am3517_evm_dss_device = {
--	.name		= "omapdss",
-+	.name		= "omap_display",
- 	.id		= -1,
- 	.dev		= {
- 		.platform_data	= &am3517_evm_dss_data,
-diff --git a/arch/arm/mach-omap2/board-cm-t35.c b/arch/arm/mach-omap2/board-cm-t35.c
-index dac1416..79f87ec 100644
---- a/arch/arm/mach-omap2/board-cm-t35.c
-+++ b/arch/arm/mach-omap2/board-cm-t35.c
-@@ -402,7 +402,7 @@ static struct omap_dss_board_info cm_t35_dss_data = {
- };
- 
- static struct platform_device cm_t35_dss_device = {
--	.name		= "omapdss",
-+	.name		= "omap_display",
- 	.id		= -1,
- 	.dev		= {
- 		.platform_data = &cm_t35_dss_data,
 diff --git a/arch/arm/mach-omap2/board-devkit8000.c b/arch/arm/mach-omap2/board-devkit8000.c
-index 9a2a31e..e8cde27 100644
+index 54abdd0..9c08ade 100644
 --- a/arch/arm/mach-omap2/board-devkit8000.c
 +++ b/arch/arm/mach-omap2/board-devkit8000.c
 @@ -196,7 +196,7 @@ static struct omap_dss_board_info devkit8000_dss_data = {
- };
- 
- static struct platform_device devkit8000_dss_device = {
--	.name		= "omapdss",
-+	.name		= "omap_display",
- 	.id		= -1,
- 	.dev		= {
- 		.platform_data = &devkit8000_dss_data,
-@@ -204,7 +204,7 @@ static struct platform_device devkit8000_dss_device = {
  };
  
  static struct regulator_consumer_supply devkit8000_vdda_dac_supply =
@@ -96,7 +42,7 @@ index 9a2a31e..e8cde27 100644
  
  static uint32_t board_keymap[] = {
  	KEY(0, 0, KEY_1),
-@@ -286,7 +286,7 @@ static struct twl4030_gpio_platform_data devkit8000_gpio_data = {
+@@ -278,7 +278,7 @@ static struct twl4030_gpio_platform_data devkit8000_gpio_data = {
  };
  
  static struct regulator_consumer_supply devkit8000_vpll1_supply =
@@ -105,33 +51,11 @@ index 9a2a31e..e8cde27 100644
  
  /* VMMC1 for MMC1 pins CMD, CLK, DAT0..DAT3 (20 mA, plus card == max 220 mA) */
  static struct regulator_init_data devkit8000_vmmc1 = {
-diff --git a/arch/arm/mach-omap2/board-igep0020.c b/arch/arm/mach-omap2/board-igep0020.c
-index 3be85a1..23abfa3 100644
---- a/arch/arm/mach-omap2/board-igep0020.c
-+++ b/arch/arm/mach-omap2/board-igep0020.c
-@@ -486,7 +486,7 @@ static struct omap_dss_board_info igep2_dss_data = {
- };
- 
- static struct platform_device igep2_dss_device = {
--	.name	= "omapdss",
-+	.name	= "omap_display",
- 	.id	= -1,
- 	.dev	= {
- 		.platform_data = &igep2_dss_data,
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 46d814a..fd6b4b8 100644
+index f6792f2..de04e07 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -229,7 +229,7 @@ static struct omap_dss_board_info beagle_dss_data = {
- };
- 
- static struct platform_device beagle_dss_device = {
--	.name          = "omapdss",
-+	.name          = "omap_display",
- 	.id            = -1,
- 	.dev            = {
- 		.platform_data = &beagle_dss_data,
-@@ -237,10 +237,10 @@ static struct platform_device beagle_dss_device = {
+@@ -326,10 +326,10 @@ static struct omap_dss_board_info beagle_dss_data = {
  };
  
  static struct regulator_consumer_supply beagle_vdac_supply =
@@ -145,19 +69,10 @@ index 46d814a..fd6b4b8 100644
  static void __init beagle_display_init(void)
  {
 diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-omap2/board-omap3evm.c
-index 323c380..4ad3c4d 100644
+index 3d9b58a..cf0cd1e 100644
 --- a/arch/arm/mach-omap2/board-omap3evm.c
 +++ b/arch/arm/mach-omap2/board-omap3evm.c
-@@ -329,7 +329,7 @@ static struct omap_dss_board_info omap3_evm_dss_data = {
- };
- 
- static struct platform_device omap3_evm_dss_device = {
--	.name		= "omapdss",
-+	.name		= "omap_display",
- 	.id		= -1,
- 	.dev		= {
- 		.platform_data = &omap3_evm_dss_data,
-@@ -522,7 +522,7 @@ static struct regulator_init_data omap3_evm_vdac = {
+@@ -563,7 +563,7 @@ static struct regulator_init_data omap3_evm_vdac = {
  
  /* VPLL2 for digital video outputs */
  static struct regulator_consumer_supply omap3_evm_vpll2_supply =
@@ -167,19 +82,10 @@ index 323c380..4ad3c4d 100644
  static struct regulator_init_data omap3_evm_vpll2 = {
  	.constraints = {
 diff --git a/arch/arm/mach-omap2/board-omap3pandora.c b/arch/arm/mach-omap2/board-omap3pandora.c
-index 0b34bed..9e8faf2 100644
+index 17ef547..89e0468 100644
 --- a/arch/arm/mach-omap2/board-omap3pandora.c
 +++ b/arch/arm/mach-omap2/board-omap3pandora.c
-@@ -254,7 +254,7 @@ static struct omap_dss_board_info pandora_dss_data = {
- };
- 
- static struct platform_device pandora_dss_device = {
--	.name		= "omapdss",
-+	.name		= "omap_display",
- 	.id		= -1,
- 	.dev		= {
- 		.platform_data = &pandora_dss_data,
-@@ -350,11 +350,11 @@ static struct regulator_consumer_supply pandora_vmmc3_supply =
+@@ -342,11 +342,11 @@ static struct regulator_consumer_supply pandora_vmmc3_supply =
  	REGULATOR_SUPPLY("vmmc", "mmci-omap-hs.2");
  
  static struct regulator_consumer_supply pandora_vdda_dac_supply =
@@ -194,29 +100,18 @@ index 0b34bed..9e8faf2 100644
  };
  
  static struct regulator_consumer_supply pandora_vcc_lcd_supply =
-diff --git a/arch/arm/mach-omap2/board-omap3stalker.c b/arch/arm/mach-omap2/board-omap3stalker.c
-index 2a2dad4..51c010c 100644
---- a/arch/arm/mach-omap2/board-omap3stalker.c
-+++ b/arch/arm/mach-omap2/board-omap3stalker.c
-@@ -241,7 +241,7 @@ static struct omap_dss_board_info omap3_stalker_dss_data = {
- };
- 
- static struct platform_device omap3_stalker_dss_device = {
--	.name	= "omapdss",
-+	.name	= "omap_display",
- 	.id	= -1,
- 	.dev	= {
- 		.platform_data	= &omap3_stalker_dss_data,
 diff --git a/arch/arm/mach-omap2/board-rx51-peripherals.c b/arch/arm/mach-omap2/board-rx51-peripherals.c
-index e75e240..7aedafd 100644
+index d0998f8..5b2bb59 100644
 --- a/arch/arm/mach-omap2/board-rx51-peripherals.c
 +++ b/arch/arm/mach-omap2/board-rx51-peripherals.c
-@@ -360,11 +360,11 @@ static struct regulator_consumer_supply rx51_vio_supplies[] = {
+@@ -366,13 +366,13 @@ static struct regulator_consumer_supply rx51_vio_supplies[] = {
  };
  
  static struct regulator_consumer_supply rx51_vaux1_consumers[] = {
 -	REGULATOR_SUPPLY("vdds_sdi", "omapdss"),
 +	REGULATOR_SUPPLY("vdds_sdi", "omap_display"),
+ 	/* Si4713 supply */
+ 	REGULATOR_SUPPLY("vdd", "2-0063"),
  };
  
  static struct regulator_consumer_supply rx51_vdac_supply[] = {
@@ -225,32 +120,6 @@ index e75e240..7aedafd 100644
  };
  
  static struct regulator_init_data rx51_vaux1 = {
-diff --git a/arch/arm/mach-omap2/board-rx51-video.c b/arch/arm/mach-omap2/board-rx51-video.c
-index acd6700..8140d05 100644
---- a/arch/arm/mach-omap2/board-rx51-video.c
-+++ b/arch/arm/mach-omap2/board-rx51-video.c
-@@ -67,7 +67,7 @@ static struct omap_dss_board_info rx51_dss_board_info = {
- };
- 
- struct platform_device rx51_display_device = {
--	.name	= "omapdss",
-+	.name	= "omap_display",
- 	.id	= -1,
- 	.dev	= {
- 		.platform_data = &rx51_dss_board_info,
-diff --git a/arch/arm/mach-omap2/board-zoom-display.c b/arch/arm/mach-omap2/board-zoom-display.c
-index 6bcd436..d6b949d 100644
---- a/arch/arm/mach-omap2/board-zoom-display.c
-+++ b/arch/arm/mach-omap2/board-zoom-display.c
-@@ -131,7 +131,7 @@ static struct omap_dss_board_info zoom_dss_data = {
- };
- 
- static struct platform_device zoom_dss_device = {
--	.name				= "omapdss",
-+	.name				= "omap_display",
- 	.id				= -1,
- 	.dev				= {
- 		.platform_data		= &zoom_dss_data,
 diff --git a/arch/arm/mach-omap2/board-zoom-peripherals.c b/arch/arm/mach-omap2/board-zoom-peripherals.c
 index e0e040f..d52fc7b 100644
 --- a/arch/arm/mach-omap2/board-zoom-peripherals.c
@@ -307,7 +176,7 @@ index c047dcd..039155e 100644
  	CLK(NULL,	"core_l3_ck",	&core_l3_ck,	CK_243X),
  	CLK(NULL,	"ssi_fck",	&ssi_ssr_sst_fck, CK_243X),
 diff --git a/arch/arm/mach-omap2/clock3xxx_data.c b/arch/arm/mach-omap2/clock3xxx_data.c
-index 403a4a1..8618262 100644
+index f14d986..84a6c23 100644
 --- a/arch/arm/mach-omap2/clock3xxx_data.c
 +++ b/arch/arm/mach-omap2/clock3xxx_data.c
 @@ -3357,13 +3357,13 @@ static struct omap_clk omap3xxx_clks[] = {

@@ -1,0 +1,1310 @@
+From 877cd32ff0c6b9f0a0f638a98595329a503c71be Mon Sep 17 00:00:00 2001
+From: Ohad Ben-Cohen <ohad@wizery.com>
+Date: Thu, 17 Feb 2011 09:52:03 -0800
+Subject: [PATCH 045/254] drivers: hwspinlock: add framework
+
+Add a platform-independent hwspinlock framework.
+
+Hardware spinlock devices are needed, e.g., in order to access data
+that is shared between remote processors, that otherwise have no
+alternative mechanism to accomplish synchronization and mutual exclusion
+operations.
+
+Signed-off-by: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Hari Kanigeri <h-kanigeri2@ti.com>
+Cc: Benoit Cousson <b-cousson@ti.com>
+Cc: Kevin Hilman <khilman@ti.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Russell King <linux@arm.linux.org.uk>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ Documentation/hwspinlock.txt             |  293 ++++++++++++++++
+ drivers/Kconfig                          |    2 +
+ drivers/Makefile                         |    2 +
+ drivers/hwspinlock/Kconfig               |   13 +
+ drivers/hwspinlock/Makefile              |    5 +
+ drivers/hwspinlock/hwspinlock_core.c     |  548 ++++++++++++++++++++++++++++++
+ drivers/hwspinlock/hwspinlock_internal.h |   61 ++++
+ include/linux/hwspinlock.h               |  292 ++++++++++++++++
+ 8 files changed, 1216 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/hwspinlock.txt
+ create mode 100644 drivers/hwspinlock/Kconfig
+ create mode 100644 drivers/hwspinlock/Makefile
+ create mode 100644 drivers/hwspinlock/hwspinlock_core.c
+ create mode 100644 drivers/hwspinlock/hwspinlock_internal.h
+ create mode 100644 include/linux/hwspinlock.h
+
+diff --git a/Documentation/hwspinlock.txt b/Documentation/hwspinlock.txt
+new file mode 100644
+index 0000000..7dcd1a4
+--- /dev/null
++++ b/Documentation/hwspinlock.txt
+@@ -0,0 +1,293 @@
++Hardware Spinlock Framework
++
++1. Introduction
++
++Hardware spinlock modules provide hardware assistance for synchronization
++and mutual exclusion between heterogeneous processors and those not operating
++under a single, shared operating system.
++
++For example, OMAP4 has dual Cortex-A9, dual Cortex-M3 and a C64x+ DSP,
++each of which is running a different Operating System (the master, A9,
++is usually running Linux and the slave processors, the M3 and the DSP,
++are running some flavor of RTOS).
++
++A generic hwspinlock framework allows platform-independent drivers to use
++the hwspinlock device in order to access data structures that are shared
++between remote processors, that otherwise have no alternative mechanism
++to accomplish synchronization and mutual exclusion operations.
++
++This is necessary, for example, for Inter-processor communications:
++on OMAP4, cpu-intensive multimedia tasks are offloaded by the host to the
++remote M3 and/or C64x+ slave processors (by an IPC subsystem called Syslink).
++
++To achieve fast message-based communications, a minimal kernel support
++is needed to deliver messages arriving from a remote processor to the
++appropriate user process.
++
++This communication is based on simple data structures that is shared between
++the remote processors, and access to it is synchronized using the hwspinlock
++module (remote processor directly places new messages in this shared data
++structure).
++
++A common hwspinlock interface makes it possible to have generic, platform-
++independent, drivers.
++
++2. User API
++
++  struct hwspinlock *hwspin_lock_request(void);
++   - dynamically assign an hwspinlock and return its address, or NULL
++     in case an unused hwspinlock isn't available. Users of this
++     API will usually want to communicate the lock's id to the remote core
++     before it can be used to achieve synchronization.
++     Can be called from an atomic context (this function will not sleep) but
++     not from within interrupt context.
++
++  struct hwspinlock *hwspin_lock_request_specific(unsigned int id);
++   - assign a specific hwspinlock id and return its address, or NULL
++     if that hwspinlock is already in use. Usually board code will
++     be calling this function in order to reserve specific hwspinlock
++     ids for predefined purposes.
++     Can be called from an atomic context (this function will not sleep) but
++     not from within interrupt context.
++
++  int hwspin_lock_free(struct hwspinlock *hwlock);
++   - free a previously-assigned hwspinlock; returns 0 on success, or an
++     appropriate error code on failure (e.g. -EINVAL if the hwspinlock
++     is already free).
++     Can be called from an atomic context (this function will not sleep) but
++     not from within interrupt context.
++
++  int hwspin_lock_timeout(struct hwspinlock *hwlock, unsigned int timeout);
++   - lock a previously-assigned hwspinlock with a timeout limit (specified in
++     msecs). If the hwspinlock is already taken, the function will busy loop
++     waiting for it to be released, but give up when the timeout elapses.
++     Upon a successful return from this function, preemption is disabled so
++     the caller must not sleep, and is advised to release the hwspinlock as
++     soon as possible, in order to minimize remote cores polling on the
++     hardware interconnect.
++     Returns 0 when successful and an appropriate error code otherwise (most
++     notably -ETIMEDOUT if the hwspinlock is still busy after timeout msecs).
++     The function will never sleep.
++
++  int hwspin_lock_timeout_irq(struct hwspinlock *hwlock, unsigned int timeout);
++   - lock a previously-assigned hwspinlock with a timeout limit (specified in
++     msecs). If the hwspinlock is already taken, the function will busy loop
++     waiting for it to be released, but give up when the timeout elapses.
++     Upon a successful return from this function, preemption and the local
++     interrupts are disabled, so the caller must not sleep, and is advised to
++     release the hwspinlock as soon as possible.
++     Returns 0 when successful and an appropriate error code otherwise (most
++     notably -ETIMEDOUT if the hwspinlock is still busy after timeout msecs).
++     The function will never sleep.
++
++  int hwspin_lock_timeout_irqsave(struct hwspinlock *hwlock, unsigned int to,
++							unsigned long *flags);
++   - lock a previously-assigned hwspinlock with a timeout limit (specified in
++     msecs). If the hwspinlock is already taken, the function will busy loop
++     waiting for it to be released, but give up when the timeout elapses.
++     Upon a successful return from this function, preemption is disabled,
++     local interrupts are disabled and their previous state is saved at the
++     given flags placeholder. The caller must not sleep, and is advised to
++     release the hwspinlock as soon as possible.
++     Returns 0 when successful and an appropriate error code otherwise (most
++     notably -ETIMEDOUT if the hwspinlock is still busy after timeout msecs).
++     The function will never sleep.
++
++  int hwspin_trylock(struct hwspinlock *hwlock);
++   - attempt to lock a previously-assigned hwspinlock, but immediately fail if
++     it is already taken.
++     Upon a successful return from this function, preemption is disabled so
++     caller must not sleep, and is advised to release the hwspinlock as soon as
++     possible, in order to minimize remote cores polling on the hardware
++     interconnect.
++     Returns 0 on success and an appropriate error code otherwise (most
++     notably -EBUSY if the hwspinlock was already taken).
++     The function will never sleep.
++
++  int hwspin_trylock_irq(struct hwspinlock *hwlock);
++   - attempt to lock a previously-assigned hwspinlock, but immediately fail if
++     it is already taken.
++     Upon a successful return from this function, preemption and the local
++     interrupts are disabled so caller must not sleep, and is advised to
++     release the hwspinlock as soon as possible.
++     Returns 0 on success and an appropriate error code otherwise (most
++     notably -EBUSY if the hwspinlock was already taken).
++     The function will never sleep.
++
++  int hwspin_trylock_irqsave(struct hwspinlock *hwlock, unsigned long *flags);
++   - attempt to lock a previously-assigned hwspinlock, but immediately fail if
++     it is already taken.
++     Upon a successful return from this function, preemption is disabled,
++     the local interrupts are disabled and their previous state is saved
++     at the given flags placeholder. The caller must not sleep, and is advised
++     to release the hwspinlock as soon as possible.
++     Returns 0 on success and an appropriate error code otherwise (most
++     notably -EBUSY if the hwspinlock was already taken).
++     The function will never sleep.
++
++  void hwspin_unlock(struct hwspinlock *hwlock);
++   - unlock a previously-locked hwspinlock. Always succeed, and can be called
++     from any context (the function never sleeps). Note: code should _never_
++     unlock an hwspinlock which is already unlocked (there is no protection
++     against this).
++
++  void hwspin_unlock_irq(struct hwspinlock *hwlock);
++   - unlock a previously-locked hwspinlock and enable local interrupts.
++     The caller should _never_ unlock an hwspinlock which is already unlocked.
++     Doing so is considered a bug (there is no protection against this).
++     Upon a successful return from this function, preemption and local
++     interrupts are enabled. This function will never sleep.
++
++  void
++  hwspin_unlock_irqrestore(struct hwspinlock *hwlock, unsigned long *flags);
++   - unlock a previously-locked hwspinlock.
++     The caller should _never_ unlock an hwspinlock which is already unlocked.
++     Doing so is considered a bug (there is no protection against this).
++     Upon a successful return from this function, preemption is reenabled,
++     and the state of the local interrupts is restored to the state saved at
++     the given flags. This function will never sleep.
++
++  int hwspin_lock_get_id(struct hwspinlock *hwlock);
++   - retrieve id number of a given hwspinlock. This is needed when an
++     hwspinlock is dynamically assigned: before it can be used to achieve
++     mutual exclusion with a remote cpu, the id number should be communicated
++     to the remote task with which we want to synchronize.
++     Returns the hwspinlock id number, or -EINVAL if hwlock is null.
++
++3. Typical usage
++
++#include <linux/hwspinlock.h>
++#include <linux/err.h>
++
++int hwspinlock_example1(void)
++{
++	struct hwspinlock *hwlock;
++	int ret;
++
++	/* dynamically assign a hwspinlock */
++	hwlock = hwspin_lock_request();
++	if (!hwlock)
++		...
++
++	id = hwspin_lock_get_id(hwlock);
++	/* probably need to communicate id to a remote processor now */
++
++	/* take the lock, spin for 1 sec if it's already taken */
++	ret = hwspin_lock_timeout(hwlock, 1000);
++	if (ret)
++		...
++
++	/*
++	 * we took the lock, do our thing now, but do NOT sleep
++	 */
++
++	/* release the lock */
++	hwspin_unlock(hwlock);
++
++	/* free the lock */
++	ret = hwspin_lock_free(hwlock);
++	if (ret)
++		...
++
++	return ret;
++}
++
++int hwspinlock_example2(void)
++{
++	struct hwspinlock *hwlock;
++	int ret;
++
++	/*
++	 * assign a specific hwspinlock id - this should be called early
++	 * by board init code.
++	 */
++	hwlock = hwspin_lock_request_specific(PREDEFINED_LOCK_ID);
++	if (!hwlock)
++		...
++
++	/* try to take it, but don't spin on it */
++	ret = hwspin_trylock(hwlock);
++	if (!ret) {
++		pr_info("lock is already taken\n");
++		return -EBUSY;
++	}
++
++	/*
++	 * we took the lock, do our thing now, but do NOT sleep
++	 */
++
++	/* release the lock */
++	hwspin_unlock(hwlock);
++
++	/* free the lock */
++	ret = hwspin_lock_free(hwlock);
++	if (ret)
++		...
++
++	return ret;
++}
++
++
++4. API for implementors
++
++  int hwspin_lock_register(struct hwspinlock *hwlock);
++   - to be called from the underlying platform-specific implementation, in
++     order to register a new hwspinlock instance. Can be called from an atomic
++     context (this function will not sleep) but not from within interrupt
++     context. Returns 0 on success, or appropriate error code on failure.
++
++  struct hwspinlock *hwspin_lock_unregister(unsigned int id);
++   - to be called from the underlying vendor-specific implementation, in order
++     to unregister an existing (and unused) hwspinlock instance.
++     Can be called from an atomic context (will not sleep) but not from
++     within interrupt context.
++     Returns the address of hwspinlock on success, or NULL on error (e.g.
++     if the hwspinlock is sill in use).
++
++5. struct hwspinlock
++
++This struct represents an hwspinlock instance. It is registered by the
++underlying hwspinlock implementation using the hwspin_lock_register() API.
++
++/**
++ * struct hwspinlock - vendor-specific hwspinlock implementation
++ *
++ * @dev: underlying device, will be used with runtime PM api
++ * @ops: vendor-specific hwspinlock handlers
++ * @id: a global, unique, system-wide, index of the lock.
++ * @lock: initialized and used by hwspinlock core
++ * @owner: underlying implementation module, used to maintain module ref count
++ */
++struct hwspinlock {
++	struct device *dev;
++	const struct hwspinlock_ops *ops;
++	int id;
++	spinlock_t lock;
++	struct module *owner;
++};
++
++The underlying implementation is responsible to assign the dev, ops, id and
++owner members. The lock member, OTOH, is initialized and used by the hwspinlock
++core.
++
++6. Implementation callbacks
++
++There are three possible callbacks defined in 'struct hwspinlock_ops':
++
++struct hwspinlock_ops {
++	int (*trylock)(struct hwspinlock *lock);
++	void (*unlock)(struct hwspinlock *lock);
++	void (*relax)(struct hwspinlock *lock);
++};
++
++The first two callbacks are mandatory:
++
++The ->trylock() callback should make a single attempt to take the lock, and
++return 0 on failure and 1 on success. This callback may _not_ sleep.
++
++The ->unlock() callback releases the lock. It always succeed, and it, too,
++may _not_ sleep.
++
++The ->relax() callback is optional. It is called by hwspinlock core while
++spinning on a lock, and can be used by the underlying implementation to force
++a delay between two successive invocations of ->trylock(). It may _not_ sleep.
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index 9bfb71f..177c7d1 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -117,4 +117,6 @@ source "drivers/staging/Kconfig"
+ source "drivers/platform/Kconfig"
+ 
+ source "drivers/clk/Kconfig"
++
++source "drivers/hwspinlock/Kconfig"
+ endmenu
+diff --git a/drivers/Makefile b/drivers/Makefile
+index b423bb1..3f135b6 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -117,3 +117,5 @@ obj-y				+= platform/
+ obj-y				+= ieee802154/
+ #common clk code
+ obj-y				+= clk/
++
++obj-$(CONFIG_HWSPINLOCK)	+= hwspinlock/
+diff --git a/drivers/hwspinlock/Kconfig b/drivers/hwspinlock/Kconfig
+new file mode 100644
+index 0000000..9dd8db4
+--- /dev/null
++++ b/drivers/hwspinlock/Kconfig
+@@ -0,0 +1,13 @@
++#
++# Generic HWSPINLOCK framework
++#
++
++config HWSPINLOCK
++	tristate "Generic Hardware Spinlock framework"
++	help
++	  Say y here to support the generic hardware spinlock framework.
++	  You only need to enable this if you have hardware spinlock module
++	  on your system (usually only relevant if your system has remote slave
++	  coprocessors).
++
++	  If unsure, say N.
+diff --git a/drivers/hwspinlock/Makefile b/drivers/hwspinlock/Makefile
+new file mode 100644
+index 0000000..b9d2b9f
+--- /dev/null
++++ b/drivers/hwspinlock/Makefile
+@@ -0,0 +1,5 @@
++#
++# Generic Hardware Spinlock framework
++#
++
++obj-$(CONFIG_HWSPINLOCK)		+= hwspinlock_core.o
+diff --git a/drivers/hwspinlock/hwspinlock_core.c b/drivers/hwspinlock/hwspinlock_core.c
+new file mode 100644
+index 0000000..43a6271
+--- /dev/null
++++ b/drivers/hwspinlock/hwspinlock_core.c
+@@ -0,0 +1,548 @@
++/*
++ * Hardware spinlock framework
++ *
++ * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com
++ *
++ * Contact: Ohad Ben-Cohen <ohad@wizery.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published
++ * by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#define pr_fmt(fmt)    "%s: " fmt, __func__
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/spinlock.h>
++#include <linux/types.h>
++#include <linux/err.h>
++#include <linux/jiffies.h>
++#include <linux/radix-tree.h>
++#include <linux/hwspinlock.h>
++#include <linux/pm_runtime.h>
++
++#include "hwspinlock_internal.h"
++
++/* radix tree tags */
++#define HWSPINLOCK_UNUSED	(0) /* tags an hwspinlock as unused */
++
++/*
++ * A radix tree is used to maintain the available hwspinlock instances.
++ * The tree associates hwspinlock pointers with their integer key id,
++ * and provides easy-to-use API which makes the hwspinlock core code simple
++ * and easy to read.
++ *
++ * Radix trees are quick on lookups, and reasonably efficient in terms of
++ * storage, especially with high density usages such as this framework
++ * requires (a continuous range of integer keys, beginning with zero, is
++ * used as the ID's of the hwspinlock instances).
++ *
++ * The radix tree API supports tagging items in the tree, which this
++ * framework uses to mark unused hwspinlock instances (see the
++ * HWSPINLOCK_UNUSED tag above). As a result, the process of querying the
++ * tree, looking for an unused hwspinlock instance, is now reduced to a
++ * single radix tree API call.
++ */
++static RADIX_TREE(hwspinlock_tree, GFP_KERNEL);
++
++/*
++ * Synchronization of access to the tree is achieved using this spinlock,
++ * as the radix-tree API requires that users provide all synchronisation.
++ */
++static DEFINE_SPINLOCK(hwspinlock_tree_lock);
++
++/**
++ * __hwspin_trylock() - attempt to lock a specific hwspinlock
++ * @hwlock: an hwspinlock which we want to trylock
++ * @mode: controls whether local interrupts are disabled or not
++ * @flags: a pointer where the caller's interrupt state will be saved at (if
++ *         requested)
++ *
++ * This function attempts to lock an hwspinlock, and will immediately
++ * fail if the hwspinlock is already taken.
++ *
++ * Upon a successful return from this function, preemption (and possibly
++ * interrupts) is disabled, so the caller must not sleep, and is advised to
++ * release the hwspinlock as soon as possible. This is required in order to
++ * minimize remote cores polling on the hardware interconnect.
++ *
++ * The user decides whether local interrupts are disabled or not, and if yes,
++ * whether he wants their previous state to be saved. It is up to the user
++ * to choose the appropriate @mode of operation, exactly the same way users
++ * should decide between spin_trylock, spin_trylock_irq and
++ * spin_trylock_irqsave.
++ *
++ * Returns 0 if we successfully locked the hwspinlock or -EBUSY if
++ * the hwspinlock was already taken.
++ * This function will never sleep.
++ */
++int __hwspin_trylock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
++{
++	int ret;
++
++	BUG_ON(!hwlock);
++	BUG_ON(!flags && mode == HWLOCK_IRQSTATE);
++
++	/*
++	 * This spin_lock{_irq, _irqsave} serves three purposes:
++	 *
++	 * 1. Disable preemption, in order to minimize the period of time
++	 *    in which the hwspinlock is taken. This is important in order
++	 *    to minimize the possible polling on the hardware interconnect
++	 *    by a remote user of this lock.
++	 * 2. Make the hwspinlock SMP-safe (so we can take it from
++	 *    additional contexts on the local host).
++	 * 3. Ensure that in_atomic/might_sleep checks catch potential
++	 *    problems with hwspinlock usage (e.g. scheduler checks like
++	 *    'scheduling while atomic' etc.)
++	 */
++	if (mode == HWLOCK_IRQSTATE)
++		ret = spin_trylock_irqsave(&hwlock->lock, *flags);
++	else if (mode == HWLOCK_IRQ)
++		ret = spin_trylock_irq(&hwlock->lock);
++	else
++		ret = spin_trylock(&hwlock->lock);
++
++	/* is lock already taken by another context on the local cpu ? */
++	if (!ret)
++		return -EBUSY;
++
++	/* try to take the hwspinlock device */
++	ret = hwlock->ops->trylock(hwlock);
++
++	/* if hwlock is already taken, undo spin_trylock_* and exit */
++	if (!ret) {
++		if (mode == HWLOCK_IRQSTATE)
++			spin_unlock_irqrestore(&hwlock->lock, *flags);
++		else if (mode == HWLOCK_IRQ)
++			spin_unlock_irq(&hwlock->lock);
++		else
++			spin_unlock(&hwlock->lock);
++
++		return -EBUSY;
++	}
++
++	/*
++	 * We can be sure the other core's memory operations
++	 * are observable to us only _after_ we successfully take
++	 * the hwspinlock, and we must make sure that subsequent memory
++	 * operations (both reads and writes) will not be reordered before
++	 * we actually took the hwspinlock.
++	 *
++	 * Note: the implicit memory barrier of the spinlock above is too
++	 * early, so we need this additional explicit memory barrier.
++	 */
++	mb();
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(__hwspin_trylock);
++
++/**
++ * __hwspin_lock_timeout() - lock an hwspinlock with timeout limit
++ * @hwlock: the hwspinlock to be locked
++ * @timeout: timeout value in msecs
++ * @mode: mode which controls whether local interrupts are disabled or not
++ * @flags: a pointer to where the caller's interrupt state will be saved at (if
++ *         requested)
++ *
++ * This function locks the given @hwlock. If the @hwlock
++ * is already taken, the function will busy loop waiting for it to
++ * be released, but give up after @timeout msecs have elapsed.
++ *
++ * Upon a successful return from this function, preemption is disabled
++ * (and possibly local interrupts, too), so the caller must not sleep,
++ * and is advised to release the hwspinlock as soon as possible.
++ * This is required in order to minimize remote cores polling on the
++ * hardware interconnect.
++ *
++ * The user decides whether local interrupts are disabled or not, and if yes,
++ * whether he wants their previous state to be saved. It is up to the user
++ * to choose the appropriate @mode of operation, exactly the same way users
++ * should decide between spin_lock, spin_lock_irq and spin_lock_irqsave.
++ *
++ * Returns 0 when the @hwlock was successfully taken, and an appropriate
++ * error code otherwise (most notably -ETIMEDOUT if the @hwlock is still
++ * busy after @timeout msecs). The function will never sleep.
++ */
++int __hwspin_lock_timeout(struct hwspinlock *hwlock, unsigned int to,
++					int mode, unsigned long *flags)
++{
++	int ret;
++	unsigned long expire;
++
++	expire = msecs_to_jiffies(to) + jiffies;
++
++	for (;;) {
++		/* Try to take the hwspinlock */
++		ret = __hwspin_trylock(hwlock, mode, flags);
++		if (ret != -EBUSY)
++			break;
++
++		/*
++		 * The lock is already taken, let's check if the user wants
++		 * us to try again
++		 */
++		if (time_is_before_eq_jiffies(expire))
++			return -ETIMEDOUT;
++
++		/*
++		 * Allow platform-specific relax handlers to prevent
++		 * hogging the interconnect (no sleeping, though)
++		 */
++		if (hwlock->ops->relax)
++			hwlock->ops->relax(hwlock);
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(__hwspin_lock_timeout);
++
++/**
++ * __hwspin_unlock() - unlock a specific hwspinlock
++ * @hwlock: a previously-acquired hwspinlock which we want to unlock
++ * @mode: controls whether local interrupts needs to be restored or not
++ * @flags: previous caller's interrupt state to restore (if requested)
++ *
++ * This function will unlock a specific hwspinlock, enable preemption and
++ * (possibly) enable interrupts or restore their previous state.
++ * @hwlock must be already locked before calling this function: it is a bug
++ * to call unlock on a @hwlock that is already unlocked.
++ *
++ * The user decides whether local interrupts should be enabled or not, and
++ * if yes, whether he wants their previous state to be restored. It is up
++ * to the user to choose the appropriate @mode of operation, exactly the
++ * same way users decide between spin_unlock, spin_unlock_irq and
++ * spin_unlock_irqrestore.
++ *
++ * The function will never sleep.
++ */
++void __hwspin_unlock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
++{
++	BUG_ON(!hwlock);
++	BUG_ON(!flags && mode == HWLOCK_IRQSTATE);
++
++	/*
++	 * We must make sure that memory operations (both reads and writes),
++	 * done before unlocking the hwspinlock, will not be reordered
++	 * after the lock is released.
++	 *
++	 * That's the purpose of this explicit memory barrier.
++	 *
++	 * Note: the memory barrier induced by the spin_unlock below is too
++	 * late; the other core is going to access memory soon after it will
++	 * take the hwspinlock, and by then we want to be sure our memory
++	 * operations are already observable.
++	 */
++	mb();
++
++	hwlock->ops->unlock(hwlock);
++
++	/* Undo the spin_trylock{_irq, _irqsave} called while locking */
++	if (mode == HWLOCK_IRQSTATE)
++		spin_unlock_irqrestore(&hwlock->lock, *flags);
++	else if (mode == HWLOCK_IRQ)
++		spin_unlock_irq(&hwlock->lock);
++	else
++		spin_unlock(&hwlock->lock);
++}
++EXPORT_SYMBOL_GPL(__hwspin_unlock);
++
++/**
++ * hwspin_lock_register() - register a new hw spinlock
++ * @hwlock: hwspinlock to register.
++ *
++ * This function should be called from the underlying platform-specific
++ * implementation, to register a new hwspinlock instance.
++ *
++ * Can be called from an atomic context (will not sleep) but not from
++ * within interrupt context.
++ *
++ * Returns 0 on success, or an appropriate error code on failure
++ */
++int hwspin_lock_register(struct hwspinlock *hwlock)
++{
++	struct hwspinlock *tmp;
++	int ret;
++
++	if (!hwlock || !hwlock->ops ||
++		!hwlock->ops->trylock || !hwlock->ops->unlock) {
++		pr_err("invalid parameters\n");
++		return -EINVAL;
++	}
++
++	spin_lock_init(&hwlock->lock);
++
++	spin_lock(&hwspinlock_tree_lock);
++
++	ret = radix_tree_insert(&hwspinlock_tree, hwlock->id, hwlock);
++	if (ret)
++		goto out;
++
++	/* mark this hwspinlock as available */
++	tmp = radix_tree_tag_set(&hwspinlock_tree, hwlock->id,
++							HWSPINLOCK_UNUSED);
++
++	/* self-sanity check which should never fail */
++	WARN_ON(tmp != hwlock);
++
++out:
++	spin_unlock(&hwspinlock_tree_lock);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(hwspin_lock_register);
++
++/**
++ * hwspin_lock_unregister() - unregister an hw spinlock
++ * @id: index of the specific hwspinlock to unregister
++ *
++ * This function should be called from the underlying platform-specific
++ * implementation, to unregister an existing (and unused) hwspinlock.
++ *
++ * Can be called from an atomic context (will not sleep) but not from
++ * within interrupt context.
++ *
++ * Returns the address of hwspinlock @id on success, or NULL on failure
++ */
++struct hwspinlock *hwspin_lock_unregister(unsigned int id)
++{
++	struct hwspinlock *hwlock = NULL;
++	int ret;
++
++	spin_lock(&hwspinlock_tree_lock);
++
++	/* make sure the hwspinlock is not in use (tag is set) */
++	ret = radix_tree_tag_get(&hwspinlock_tree, id, HWSPINLOCK_UNUSED);
++	if (ret == 0) {
++		pr_err("hwspinlock %d still in use (or not present)\n", id);
++		goto out;
++	}
++
++	hwlock = radix_tree_delete(&hwspinlock_tree, id);
++	if (!hwlock) {
++		pr_err("failed to delete hwspinlock %d\n", id);
++		goto out;
++	}
++
++out:
++	spin_unlock(&hwspinlock_tree_lock);
++	return hwlock;
++}
++EXPORT_SYMBOL_GPL(hwspin_lock_unregister);
++
++/**
++ * __hwspin_lock_request() - tag an hwspinlock as used and power it up
++ *
++ * This is an internal function that prepares an hwspinlock instance
++ * before it is given to the user. The function assumes that
++ * hwspinlock_tree_lock is taken.
++ *
++ * Returns 0 or positive to indicate success, and a negative value to
++ * indicate an error (with the appropriate error code)
++ */
++static int __hwspin_lock_request(struct hwspinlock *hwlock)
++{
++	struct hwspinlock *tmp;
++	int ret;
++
++	/* prevent underlying implementation from being removed */
++	if (!try_module_get(hwlock->owner)) {
++		dev_err(hwlock->dev, "%s: can't get owner\n", __func__);
++		return -EINVAL;
++	}
++
++	/* notify PM core that power is now needed */
++	ret = pm_runtime_get_sync(hwlock->dev);
++	if (ret < 0) {
++		dev_err(hwlock->dev, "%s: can't power on device\n", __func__);
++		return ret;
++	}
++
++	/* mark hwspinlock as used, should not fail */
++	tmp = radix_tree_tag_clear(&hwspinlock_tree, hwlock->id,
++							HWSPINLOCK_UNUSED);
++
++	/* self-sanity check that should never fail */
++	WARN_ON(tmp != hwlock);
++
++	return ret;
++}
++
++/**
++ * hwspin_lock_get_id() - retrieve id number of a given hwspinlock
++ * @hwlock: a valid hwspinlock instance
++ *
++ * Returns the id number of a given @hwlock, or -EINVAL if @hwlock is invalid.
++ */
++int hwspin_lock_get_id(struct hwspinlock *hwlock)
++{
++	if (!hwlock) {
++		pr_err("invalid hwlock\n");
++		return -EINVAL;
++	}
++
++	return hwlock->id;
++}
++EXPORT_SYMBOL_GPL(hwspin_lock_get_id);
++
++/**
++ * hwspin_lock_request() - request an hwspinlock
++ *
++ * This function should be called by users of the hwspinlock device,
++ * in order to dynamically assign them an unused hwspinlock.
++ * Usually the user of this lock will then have to communicate the lock's id
++ * to the remote core before it can be used for synchronization (to get the
++ * id of a given hwlock, use hwspin_lock_get_id()).
++ *
++ * Can be called from an atomic context (will not sleep) but not from
++ * within interrupt context (simply because there is no use case for
++ * that yet).
++ *
++ * Returns the address of the assigned hwspinlock, or NULL on error
++ */
++struct hwspinlock *hwspin_lock_request(void)
++{
++	struct hwspinlock *hwlock;
++	int ret;
++
++	spin_lock(&hwspinlock_tree_lock);
++
++	/* look for an unused lock */
++	ret = radix_tree_gang_lookup_tag(&hwspinlock_tree, (void **)&hwlock,
++						0, 1, HWSPINLOCK_UNUSED);
++	if (ret == 0) {
++		pr_warn("a free hwspinlock is not available\n");
++		hwlock = NULL;
++		goto out;
++	}
++
++	/* sanity check that should never fail */
++	WARN_ON(ret > 1);
++
++	/* mark as used and power up */
++	ret = __hwspin_lock_request(hwlock);
++	if (ret < 0)
++		hwlock = NULL;
++
++out:
++	spin_unlock(&hwspinlock_tree_lock);
++	return hwlock;
++}
++EXPORT_SYMBOL_GPL(hwspin_lock_request);
++
++/**
++ * hwspin_lock_request_specific() - request for a specific hwspinlock
++ * @id: index of the specific hwspinlock that is requested
++ *
++ * This function should be called by users of the hwspinlock module,
++ * in order to assign them a specific hwspinlock.
++ * Usually early board code will be calling this function in order to
++ * reserve specific hwspinlock ids for predefined purposes.
++ *
++ * Can be called from an atomic context (will not sleep) but not from
++ * within interrupt context (simply because there is no use case for
++ * that yet).
++ *
++ * Returns the address of the assigned hwspinlock, or NULL on error
++ */
++struct hwspinlock *hwspin_lock_request_specific(unsigned int id)
++{
++	struct hwspinlock *hwlock;
++	int ret;
++
++	spin_lock(&hwspinlock_tree_lock);
++
++	/* make sure this hwspinlock exists */
++	hwlock = radix_tree_lookup(&hwspinlock_tree, id);
++	if (!hwlock) {
++		pr_warn("hwspinlock %u does not exist\n", id);
++		goto out;
++	}
++
++	/* sanity check (this shouldn't happen) */
++	WARN_ON(hwlock->id != id);
++
++	/* make sure this hwspinlock is unused */
++	ret = radix_tree_tag_get(&hwspinlock_tree, id, HWSPINLOCK_UNUSED);
++	if (ret == 0) {
++		pr_warn("hwspinlock %u is already in use\n", id);
++		hwlock = NULL;
++		goto out;
++	}
++
++	/* mark as used and power up */
++	ret = __hwspin_lock_request(hwlock);
++	if (ret < 0)
++		hwlock = NULL;
++
++out:
++	spin_unlock(&hwspinlock_tree_lock);
++	return hwlock;
++}
++EXPORT_SYMBOL_GPL(hwspin_lock_request_specific);
++
++/**
++ * hwspin_lock_free() - free a specific hwspinlock
++ * @hwlock: the specific hwspinlock to free
++ *
++ * This function mark @hwlock as free again.
++ * Should only be called with an @hwlock that was retrieved from
++ * an earlier call to omap_hwspin_lock_request{_specific}.
++ *
++ * Can be called from an atomic context (will not sleep) but not from
++ * within interrupt context (simply because there is no use case for
++ * that yet).
++ *
++ * Returns 0 on success, or an appropriate error code on failure
++ */
++int hwspin_lock_free(struct hwspinlock *hwlock)
++{
++	struct hwspinlock *tmp;
++	int ret;
++
++	if (!hwlock) {
++		pr_err("invalid hwlock\n");
++		return -EINVAL;
++	}
++
++	spin_lock(&hwspinlock_tree_lock);
++
++	/* make sure the hwspinlock is used */
++	ret = radix_tree_tag_get(&hwspinlock_tree, hwlock->id,
++							HWSPINLOCK_UNUSED);
++	if (ret == 1) {
++		dev_err(hwlock->dev, "%s: hwlock is already free\n", __func__);
++		dump_stack();
++		ret = -EINVAL;
++		goto out;
++	}
++
++	/* notify the underlying device that power is not needed */
++	ret = pm_runtime_put(hwlock->dev);
++	if (ret < 0)
++		goto out;
++
++	/* mark this hwspinlock as available */
++	tmp = radix_tree_tag_set(&hwspinlock_tree, hwlock->id,
++							HWSPINLOCK_UNUSED);
++
++	/* sanity check (this shouldn't happen) */
++	WARN_ON(tmp != hwlock);
++
++	module_put(hwlock->owner);
++
++out:
++	spin_unlock(&hwspinlock_tree_lock);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(hwspin_lock_free);
++
++MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("Hardware spinlock interface");
++MODULE_AUTHOR("Ohad Ben-Cohen <ohad@wizery.com>");
+diff --git a/drivers/hwspinlock/hwspinlock_internal.h b/drivers/hwspinlock/hwspinlock_internal.h
+new file mode 100644
+index 0000000..69935e6
+--- /dev/null
++++ b/drivers/hwspinlock/hwspinlock_internal.h
+@@ -0,0 +1,61 @@
++/*
++ * Hardware spinlocks internal header
++ *
++ * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com
++ *
++ * Contact: Ohad Ben-Cohen <ohad@wizery.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published
++ * by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef __HWSPINLOCK_HWSPINLOCK_H
++#define __HWSPINLOCK_HWSPINLOCK_H
++
++#include <linux/spinlock.h>
++#include <linux/device.h>
++
++/**
++ * struct hwspinlock_ops - platform-specific hwspinlock handlers
++ *
++ * @trylock: make a single attempt to take the lock. returns 0 on
++ *	     failure and true on success. may _not_ sleep.
++ * @unlock:  release the lock. always succeed. may _not_ sleep.
++ * @relax:   optional, platform-specific relax handler, called by hwspinlock
++ *	     core while spinning on a lock, between two successive
++ *	     invocations of @trylock. may _not_ sleep.
++ */
++struct hwspinlock_ops {
++	int (*trylock)(struct hwspinlock *lock);
++	void (*unlock)(struct hwspinlock *lock);
++	void (*relax)(struct hwspinlock *lock);
++};
++
++/**
++ * struct hwspinlock - this struct represents a single hwspinlock instance
++ *
++ * @dev: underlying device, will be used to invoke runtime PM api
++ * @ops: platform-specific hwspinlock handlers
++ * @id: a global, unique, system-wide, index of the lock.
++ * @lock: initialized and used by hwspinlock core
++ * @owner: underlying implementation module, used to maintain module ref count
++ *
++ * Note: currently simplicity was opted for, but later we can squeeze some
++ * memory bytes by grouping the dev, ops and owner members in a single
++ * per-platform struct, and have all hwspinlocks point at it.
++ */
++struct hwspinlock {
++	struct device *dev;
++	const struct hwspinlock_ops *ops;
++	int id;
++	spinlock_t lock;
++	struct module *owner;
++};
++
++#endif /* __HWSPINLOCK_HWSPINLOCK_H */
+diff --git a/include/linux/hwspinlock.h b/include/linux/hwspinlock.h
+new file mode 100644
+index 0000000..8390efc
+--- /dev/null
++++ b/include/linux/hwspinlock.h
+@@ -0,0 +1,292 @@
++/*
++ * Hardware spinlock public header
++ *
++ * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com
++ *
++ * Contact: Ohad Ben-Cohen <ohad@wizery.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published
++ * by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef __LINUX_HWSPINLOCK_H
++#define __LINUX_HWSPINLOCK_H
++
++#include <linux/err.h>
++#include <linux/sched.h>
++
++/* hwspinlock mode argument */
++#define HWLOCK_IRQSTATE	0x01	/* Disable interrupts, save state */
++#define HWLOCK_IRQ	0x02	/* Disable interrupts, don't save state */
++
++struct hwspinlock;
++
++#if defined(CONFIG_HWSPINLOCK) || defined(CONFIG_HWSPINLOCK_MODULE)
++
++int hwspin_lock_register(struct hwspinlock *lock);
++struct hwspinlock *hwspin_lock_unregister(unsigned int id);
++struct hwspinlock *hwspin_lock_request(void);
++struct hwspinlock *hwspin_lock_request_specific(unsigned int id);
++int hwspin_lock_free(struct hwspinlock *hwlock);
++int hwspin_lock_get_id(struct hwspinlock *hwlock);
++int __hwspin_lock_timeout(struct hwspinlock *, unsigned int, int,
++							unsigned long *);
++int __hwspin_trylock(struct hwspinlock *, int, unsigned long *);
++void __hwspin_unlock(struct hwspinlock *, int, unsigned long *);
++
++#else /* !CONFIG_HWSPINLOCK */
++
++/*
++ * We don't want these functions to fail if CONFIG_HWSPINLOCK is not
++ * enabled. We prefer to silently succeed in this case, and let the
++ * code path get compiled away. This way, if CONFIG_HWSPINLOCK is not
++ * required on a given setup, users will still work.
++ *
++ * The only exception is hwspin_lock_register/hwspin_lock_unregister, with which
++ * we _do_ want users to fail (no point in registering hwspinlock instances if
++ * the framework is not available).
++ *
++ * Note: ERR_PTR(-ENODEV) will still be considered a success for NULL-checking
++ * users. Others, which care, can still check this with IS_ERR.
++ */
++static inline struct hwspinlock *hwspin_lock_request(void)
++{
++	return ERR_PTR(-ENODEV);
++}
++
++static inline struct hwspinlock *hwspin_lock_request_specific(unsigned int id)
++{
++	return ERR_PTR(-ENODEV);
++}
++
++static inline int hwspin_lock_free(struct hwspinlock *hwlock)
++{
++	return 0;
++}
++
++static inline
++int __hwspin_lock_timeout(struct hwspinlock *hwlock, unsigned int to,
++					int mode, unsigned long *flags)
++{
++	return 0;
++}
++
++static inline
++int __hwspin_trylock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
++{
++	return 0;
++}
++
++static inline
++void __hwspin_unlock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
++{
++	return 0;
++}
++
++static inline int hwspin_lock_get_id(struct hwspinlock *hwlock)
++{
++	return 0;
++}
++
++static inline int hwspin_lock_register(struct hwspinlock *hwlock)
++{
++	return -ENODEV;
++}
++
++static inline struct hwspinlock *hwspin_lock_unregister(unsigned int id)
++{
++	return NULL;
++}
++
++#endif /* !CONFIG_HWSPINLOCK */
++
++/**
++ * hwspin_trylock_irqsave() - try to lock an hwspinlock, disable interrupts
++ * @hwlock: an hwspinlock which we want to trylock
++ * @flags: a pointer to where the caller's interrupt state will be saved at
++ *
++ * This function attempts to lock the underlying hwspinlock, and will
++ * immediately fail if the hwspinlock is already locked.
++ *
++ * Upon a successful return from this function, preemption and local
++ * interrupts are disabled (previous interrupts state is saved at @flags),
++ * so the caller must not sleep, and is advised to release the hwspinlock
++ * as soon as possible.
++ *
++ * Returns 0 if we successfully locked the hwspinlock, -EBUSY if
++ * the hwspinlock was already taken, and -EINVAL if @hwlock is invalid.
++ */
++static inline
++int hwspin_trylock_irqsave(struct hwspinlock *hwlock, unsigned long *flags)
++{
++	return __hwspin_trylock(hwlock, HWLOCK_IRQSTATE, flags);
++}
++
++/**
++ * hwspin_trylock_irq() - try to lock an hwspinlock, disable interrupts
++ * @hwlock: an hwspinlock which we want to trylock
++ *
++ * This function attempts to lock the underlying hwspinlock, and will
++ * immediately fail if the hwspinlock is already locked.
++ *
++ * Upon a successful return from this function, preemption and local
++ * interrupts are disabled, so the caller must not sleep, and is advised
++ * to release the hwspinlock as soon as possible.
++ *
++ * Returns 0 if we successfully locked the hwspinlock, -EBUSY if
++ * the hwspinlock was already taken, and -EINVAL if @hwlock is invalid.
++ */
++static inline int hwspin_trylock_irq(struct hwspinlock *hwlock)
++{
++	return __hwspin_trylock(hwlock, HWLOCK_IRQ, NULL);
++}
++
++/**
++ * hwspin_trylock() - attempt to lock a specific hwspinlock
++ * @hwlock: an hwspinlock which we want to trylock
++ *
++ * This function attempts to lock an hwspinlock, and will immediately fail
++ * if the hwspinlock is already taken.
++ *
++ * Upon a successful return from this function, preemption is disabled,
++ * so the caller must not sleep, and is advised to release the hwspinlock
++ * as soon as possible. This is required in order to minimize remote cores
++ * polling on the hardware interconnect.
++ *
++ * Returns 0 if we successfully locked the hwspinlock, -EBUSY if
++ * the hwspinlock was already taken, and -EINVAL if @hwlock is invalid.
++ */
++static inline int hwspin_trylock(struct hwspinlock *hwlock)
++{
++	return __hwspin_trylock(hwlock, 0, NULL);
++}
++
++/**
++ * hwspin_lock_timeout_irqsave() - lock hwspinlock, with timeout, disable irqs
++ * @hwlock: the hwspinlock to be locked
++ * @to: timeout value in msecs
++ * @flags: a pointer to where the caller's interrupt state will be saved at
++ *
++ * This function locks the underlying @hwlock. If the @hwlock
++ * is already taken, the function will busy loop waiting for it to
++ * be released, but give up when @timeout msecs have elapsed.
++ *
++ * Upon a successful return from this function, preemption and local interrupts
++ * are disabled (plus previous interrupt state is saved), so the caller must
++ * not sleep, and is advised to release the hwspinlock as soon as possible.
++ *
++ * Returns 0 when the @hwlock was successfully taken, and an appropriate
++ * error code otherwise (most notably an -ETIMEDOUT if the @hwlock is still
++ * busy after @timeout msecs). The function will never sleep.
++ */
++static inline int hwspin_lock_timeout_irqsave(struct hwspinlock *hwlock,
++				unsigned int to, unsigned long *flags)
++{
++	return __hwspin_lock_timeout(hwlock, to, HWLOCK_IRQSTATE, flags);
++}
++
++/**
++ * hwspin_lock_timeout_irq() - lock hwspinlock, with timeout, disable irqs
++ * @hwlock: the hwspinlock to be locked
++ * @to: timeout value in msecs
++ *
++ * This function locks the underlying @hwlock. If the @hwlock
++ * is already taken, the function will busy loop waiting for it to
++ * be released, but give up when @timeout msecs have elapsed.
++ *
++ * Upon a successful return from this function, preemption and local interrupts
++ * are disabled so the caller must not sleep, and is advised to release the
++ * hwspinlock as soon as possible.
++ *
++ * Returns 0 when the @hwlock was successfully taken, and an appropriate
++ * error code otherwise (most notably an -ETIMEDOUT if the @hwlock is still
++ * busy after @timeout msecs). The function will never sleep.
++ */
++static inline
++int hwspin_lock_timeout_irq(struct hwspinlock *hwlock, unsigned int to)
++{
++	return __hwspin_lock_timeout(hwlock, to, HWLOCK_IRQ, NULL);
++}
++
++/**
++ * hwspin_lock_timeout() - lock an hwspinlock with timeout limit
++ * @hwlock: the hwspinlock to be locked
++ * @to: timeout value in msecs
++ *
++ * This function locks the underlying @hwlock. If the @hwlock
++ * is already taken, the function will busy loop waiting for it to
++ * be released, but give up when @timeout msecs have elapsed.
++ *
++ * Upon a successful return from this function, preemption is disabled
++ * so the caller must not sleep, and is advised to release the hwspinlock
++ * as soon as possible.
++ * This is required in order to minimize remote cores polling on the
++ * hardware interconnect.
++ *
++ * Returns 0 when the @hwlock was successfully taken, and an appropriate
++ * error code otherwise (most notably an -ETIMEDOUT if the @hwlock is still
++ * busy after @timeout msecs). The function will never sleep.
++ */
++static inline
++int hwspin_lock_timeout(struct hwspinlock *hwlock, unsigned int to)
++{
++	return __hwspin_lock_timeout(hwlock, to, 0, NULL);
++}
++
++/**
++ * hwspin_unlock_irqrestore() - unlock hwspinlock, restore irq state
++ * @hwlock: a previously-acquired hwspinlock which we want to unlock
++ * @flags: previous caller's interrupt state to restore
++ *
++ * This function will unlock a specific hwspinlock, enable preemption and
++ * restore the previous state of the local interrupts. It should be used
++ * to undo, e.g., hwspin_trylock_irqsave().
++ *
++ * @hwlock must be already locked before calling this function: it is a bug
++ * to call unlock on a @hwlock that is already unlocked.
++ */
++static inline void hwspin_unlock_irqrestore(struct hwspinlock *hwlock,
++							unsigned long *flags)
++{
++	__hwspin_unlock(hwlock, HWLOCK_IRQSTATE, flags);
++}
++
++/**
++ * hwspin_unlock_irq() - unlock hwspinlock, enable interrupts
++ * @hwlock: a previously-acquired hwspinlock which we want to unlock
++ *
++ * This function will unlock a specific hwspinlock, enable preemption and
++ * enable local interrupts. Should be used to undo hwspin_lock_irq().
++ *
++ * @hwlock must be already locked (e.g. by hwspin_trylock_irq()) before
++ * calling this function: it is a bug to call unlock on a @hwlock that is
++ * already unlocked.
++ */
++static inline void hwspin_unlock_irq(struct hwspinlock *hwlock)
++{
++	__hwspin_unlock(hwlock, HWLOCK_IRQ, NULL);
++}
++
++/**
++ * hwspin_unlock() - unlock hwspinlock
++ * @hwlock: a previously-acquired hwspinlock which we want to unlock
++ *
++ * This function will unlock a specific hwspinlock and enable preemption
++ * back.
++ *
++ * @hwlock must be already locked (e.g. by hwspin_trylock()) before calling
++ * this function: it is a bug to call unlock on a @hwlock that is already
++ * unlocked.
++ */
++static inline void hwspin_unlock(struct hwspinlock *hwlock)
++{
++	__hwspin_unlock(hwlock, 0, NULL);
++}
++
++#endif /* __LINUX_HWSPINLOCK_H */
+-- 
+1.7.1
+

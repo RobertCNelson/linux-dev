@@ -15,6 +15,7 @@ Reviewed-by: Kevin Hilman <khilman@ti.com>
 Tested-by: Kevin Hilman <khilman@ti.com>
 Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
 Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/board-3430sdp.c          |    2 +-
  arch/arm/mach-omap2/board-cm-t35.c           |    2 +-
@@ -31,20 +32,20 @@ Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
  12 files changed, 93 insertions(+), 78 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-3430sdp.c b/arch/arm/mach-omap2/board-3430sdp.c
-index d00f356..e0d13ae 100644
+index 19a36a3..6497868 100644
 --- a/arch/arm/mach-omap2/board-3430sdp.c
 +++ b/arch/arm/mach-omap2/board-3430sdp.c
-@@ -308,7 +308,7 @@ static struct omap_dss_board_info sdp3430_dss_data = {
+@@ -398,7 +398,7 @@ static struct regulator_consumer_supply sdp3430_vaux3_supplies[] = {
  };
  
- static struct regulator_consumer_supply sdp3430_vdda_dac_supply =
--	REGULATOR_SUPPLY("vdda_dac", "omap_display");
-+	REGULATOR_SUPPLY("vdda_dac", "omap_venc");
- 
- static struct omap_board_config_kernel sdp3430_config[] __initdata = {
+ static struct regulator_consumer_supply sdp3430_vdda_dac_supplies[] = {
+-	REGULATOR_SUPPLY("vdda_dac", "omapdss"),
++	REGULATOR_SUPPLY("vdda_dac", "omap_venc"),
  };
+ 
+ /* VPLL2 for digital video outputs */
 diff --git a/arch/arm/mach-omap2/board-cm-t35.c b/arch/arm/mach-omap2/board-cm-t35.c
-index 1c36ec8..2e9265e 100644
+index 19fc4e0..862fe5f 100644
 --- a/arch/arm/mach-omap2/board-cm-t35.c
 +++ b/arch/arm/mach-omap2/board-cm-t35.c
 @@ -488,7 +488,7 @@ static struct regulator_consumer_supply cm_t35_vsim_supply = {
@@ -57,7 +58,7 @@ index 1c36ec8..2e9265e 100644
  static struct regulator_consumer_supply cm_t35_vdvi_supply =
  	REGULATOR_SUPPLY("vdvi", "omap_display");
 diff --git a/arch/arm/mach-omap2/board-devkit8000.c b/arch/arm/mach-omap2/board-devkit8000.c
-index 84ff6b0..d387c8d 100644
+index 9c08ade..6b2b18f 100644
 --- a/arch/arm/mach-omap2/board-devkit8000.c
 +++ b/arch/arm/mach-omap2/board-devkit8000.c
 @@ -196,7 +196,7 @@ static struct omap_dss_board_info devkit8000_dss_data = {
@@ -70,10 +71,10 @@ index 84ff6b0..d387c8d 100644
  static uint32_t board_keymap[] = {
  	KEY(0, 0, KEY_1),
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index c0a5066..4dd1475 100644
+index de04e07..e29e345 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -229,7 +229,7 @@ static struct omap_dss_board_info beagle_dss_data = {
+@@ -326,7 +326,7 @@ static struct omap_dss_board_info beagle_dss_data = {
  };
  
  static struct regulator_consumer_supply beagle_vdac_supply =
@@ -83,10 +84,10 @@ index c0a5066..4dd1475 100644
  static struct regulator_consumer_supply beagle_vdvi_supply =
  	REGULATOR_SUPPLY("vdds_dsi", "omap_display");
 diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-omap2/board-omap3evm.c
-index 5f156fe..ec45575 100644
+index 9e003f8..8e5b7e2 100644
 --- a/arch/arm/mach-omap2/board-omap3evm.c
 +++ b/arch/arm/mach-omap2/board-omap3evm.c
-@@ -493,7 +493,7 @@ static struct twl4030_codec_data omap3evm_codec_data = {
+@@ -544,7 +544,7 @@ static struct twl4030_codec_data omap3evm_codec_data = {
  };
  
  static struct regulator_consumer_supply omap3_evm_vdda_dac_supply =
@@ -96,7 +97,7 @@ index 5f156fe..ec45575 100644
  /* VDAC for DSS driving S-Video */
  static struct regulator_init_data omap3_evm_vdac = {
 diff --git a/arch/arm/mach-omap2/board-omap3pandora.c b/arch/arm/mach-omap2/board-omap3pandora.c
-index 613ab58..b44e604 100644
+index 89e0468..58bdf99 100644
 --- a/arch/arm/mach-omap2/board-omap3pandora.c
 +++ b/arch/arm/mach-omap2/board-omap3pandora.c
 @@ -342,7 +342,7 @@ static struct regulator_consumer_supply pandora_vmmc3_supply =
@@ -109,7 +110,7 @@ index 613ab58..b44e604 100644
  static struct regulator_consumer_supply pandora_vdds_supplies[] = {
  	REGULATOR_SUPPLY("vdds_sdi", "omap_display"),
 diff --git a/arch/arm/mach-omap2/board-omap3stalker.c b/arch/arm/mach-omap2/board-omap3stalker.c
-index 7671218..ab98a64 100644
+index 739aa12..bd12f40 100644
 --- a/arch/arm/mach-omap2/board-omap3stalker.c
 +++ b/arch/arm/mach-omap2/board-omap3stalker.c
 @@ -441,7 +441,7 @@ static struct twl4030_codec_data omap3stalker_codec_data = {
@@ -256,10 +257,10 @@ index f4835c8..9313851 100644
  }
  #endif
 diff --git a/drivers/video/omap2/dss/venc.c b/drivers/video/omap2/dss/venc.c
-index eff3505..935ae8e 100644
+index e1f4aab..e15a468 100644
 --- a/drivers/video/omap2/dss/venc.c
 +++ b/drivers/video/omap2/dss/venc.c
-@@ -289,6 +289,7 @@ const struct omap_video_timings omap_dss_ntsc_timings = {
+@@ -294,6 +294,7 @@ const struct omap_video_timings omap_dss_ntsc_timings = {
  EXPORT_SYMBOL(omap_dss_ntsc_timings);
  
  static struct {
@@ -267,7 +268,7 @@ index eff3505..935ae8e 100644
  	void __iomem *base;
  	struct mutex venc_lock;
  	u32 wss_data;
-@@ -306,6 +307,17 @@ static inline u32 venc_read_reg(int idx)
+@@ -311,6 +312,17 @@ static inline u32 venc_read_reg(int idx)
  	return l;
  }
  
@@ -285,7 +286,7 @@ index eff3505..935ae8e 100644
  static void venc_write_config(const struct venc_config *config)
  {
  	DSSDBG("write venc conf\n");
-@@ -641,46 +653,6 @@ static struct omap_dss_driver venc_driver = {
+@@ -663,46 +675,6 @@ static struct omap_dss_driver venc_driver = {
  };
  /* driver end */
  
@@ -332,7 +333,7 @@ index eff3505..935ae8e 100644
  int venc_init_display(struct omap_dss_device *dssdev)
  {
  	DSSDBG("init_display\n");
-@@ -740,3 +712,67 @@ void venc_dump_regs(struct seq_file *s)
+@@ -762,3 +734,67 @@ void venc_dump_regs(struct seq_file *s)
  
  #undef DUMPREG
  }

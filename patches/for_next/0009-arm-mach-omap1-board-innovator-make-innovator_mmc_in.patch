@@ -1,0 +1,31 @@
+From 6c33dc17b5b01f7743bc41a4a044042389d0bf71 Mon Sep 17 00:00:00 2001
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Date: Thu, 27 Jan 2011 16:39:44 -0800
+Subject: [PATCH 009/254] arm: mach-omap1: board-innovator: make innovator_mmc_init() static
+
+Eliminates the following sparse warning:
+
+	arch/arm/mach-omap1/board-innovator.c:368:13: warning: symbol 'innovator_mmc_init' was not declared. Should it be static?
+
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap1/board-innovator.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap1/board-innovator.c b/arch/arm/mach-omap1/board-innovator.c
+index a36e674..2d9b8cb 100644
+--- a/arch/arm/mach-omap1/board-innovator.c
++++ b/arch/arm/mach-omap1/board-innovator.c
+@@ -365,7 +365,7 @@ static struct omap_mmc_platform_data mmc1_data = {
+ 
+ static struct omap_mmc_platform_data *mmc_data[OMAP16XX_NR_MMC];
+ 
+-void __init innovator_mmc_init(void)
++static void __init innovator_mmc_init(void)
+ {
+ 	mmc_data[0] = &mmc1_data;
+ 	omap1_init_mmc(mmc_data, OMAP15XX_NR_MMC);
+-- 
+1.7.1
+

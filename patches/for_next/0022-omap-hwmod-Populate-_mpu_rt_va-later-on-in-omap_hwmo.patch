@@ -1,0 +1,71 @@
+From b31023f929176983e9d0046165009c827533946a Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Mon, 14 Feb 2011 15:40:21 -0800
+Subject: [PATCH 022/254] omap: hwmod: Populate _mpu_rt_va later on in omap_hwmod_late_init
+
+Otherwise ioremap can fail with early_init patch unless we have
+a static mapping for everything.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/omap_hwmod.c |   28 ++++++++++++++++++++++++----
+ 1 files changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index eacdfd3..9e89a58 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -1467,12 +1467,10 @@ static int __init _register(struct omap_hwmod *oh)
+ 		return -EEXIST;
+ 
+ 	ms_id = _find_mpu_port_index(oh);
+-	if (!IS_ERR_VALUE(ms_id)) {
++	if (!IS_ERR_VALUE(ms_id))
+ 		oh->_mpu_port_index = ms_id;
+-		oh->_mpu_rt_va = _find_mpu_rt_base(oh, oh->_mpu_port_index);
+-	} else {
++	else
+ 		oh->_int_flags |= _HWMOD_NO_MPU_PORT;
+-	}
+ 
+ 	list_add_tail(&oh->node, &omap_hwmod_list);
+ 
+@@ -1621,6 +1619,26 @@ int __init omap_hwmod_init(struct omap_hwmod **ohs)
+ 	return 0;
+ }
+ 
++/*
++ * _populate_mpu_rt_base - populate the virtual address for a hwmod
++ *
++ * Must be called only from omap_hwmod_late_init so ioremap works properly.
++ * Assumes the caller takes care of locking if needed.
++ *
++ */
++static int __init _populate_mpu_rt_base(struct omap_hwmod *oh, void *data)
++{
++	if (oh->_int_flags & _HWMOD_NO_MPU_PORT)
++		return 0;
++
++	oh->_mpu_rt_va = _find_mpu_rt_base(oh, oh->_mpu_port_index);
++	if (!oh->_mpu_rt_va)
++		pr_warning("omap_hwmod: %s found no _mpu_rt_va for %s\n",
++				__func__, oh->name);
++
++	return 0;
++}
++
+ /**
+  * omap_hwmod_late_init - do some post-clock framework initialization
+  *
+@@ -1632,6 +1650,8 @@ static int __init omap_hwmod_late_init(void)
+ {
+ 	int r;
+ 
++	r = omap_hwmod_for_each(_populate_mpu_rt_base, NULL);
++
+ 	/* XXX check return value */
+ 	r = omap_hwmod_for_each(_init_clocks, NULL);
+ 	WARN(r, "omap_hwmod: omap_hwmod_late_init(): _init_clocks failed\n");
+-- 
+1.7.1
+

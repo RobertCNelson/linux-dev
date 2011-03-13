@@ -102,21 +102,22 @@ Cc: Peter 'p2' De Schrijver <Peter.De-Schrijver@nokia.com>
 Cc: Tony Lindgren <tony@atomide.com>
 
 Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/Makefile                  |    1 +
- arch/arm/mach-omap2/dvfs.c                    |    2 +-
- arch/arm/mach-omap2/smartreflex-class1p5.c    |  562 +++++++++++++++++++++++++
- arch/arm/mach-omap2/smartreflex-class3.c      |    4 +-
- arch/arm/mach-omap2/smartreflex.c             |   34 ++-
- arch/arm/mach-omap2/voltage.c                 |   61 +++
- arch/arm/plat-omap/Kconfig                    |   19 +
- arch/arm/plat-omap/include/plat/smartreflex.h |   13 +-
- arch/arm/plat-omap/include/plat/voltage.h     |   23 +-
- 9 files changed, 710 insertions(+), 9 deletions(-)
+ arch/arm/mach-omap2/Makefile               |    1 +
+ arch/arm/mach-omap2/dvfs.c                 |    2 +-
+ arch/arm/mach-omap2/smartreflex-class1p5.c |  562 ++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/smartreflex-class3.c   |    4 +-
+ arch/arm/mach-omap2/smartreflex.c          |   34 ++-
+ arch/arm/mach-omap2/smartreflex.h          |   13 +-
+ arch/arm/mach-omap2/voltage.c              |   61 +++
+ arch/arm/mach-omap2/voltage.h              |   23 ++
+ arch/arm/plat-omap/Kconfig                 |   19 +
+ 9 files changed, 711 insertions(+), 8 deletions(-)
  create mode 100644 arch/arm/mach-omap2/smartreflex-class1p5.c
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index 625087e..61b9daf 100644
+index b550381..5613318 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
 @@ -66,6 +66,7 @@ obj-$(CONFIG_ARCH_OMAP4)		+= pm44xx.o voltage.o pm_bus.o
@@ -175,8 +176,8 @@ index 0000000..6bddce0
 +#include <linux/workqueue.h>
 +#include <linux/opp.h>
 +
-+#include <plat/smartreflex.h>
-+#include <plat/voltage.h>
++#include "smartreflex.h"
++#include "voltage.h"
 +#include <plat/dvfs.h>
 +
 +#define MAX_VDDS 3
@@ -709,7 +710,7 @@ index 0000000..6bddce0
 +}
 +late_initcall(sr_class1p5_init);
 diff --git a/arch/arm/mach-omap2/smartreflex-class3.c b/arch/arm/mach-omap2/smartreflex-class3.c
-index 7ac88da..5f7a33e 100644
+index 1d3eb11..0136afb 100644
 --- a/arch/arm/mach-omap2/smartreflex-class3.c
 +++ b/arch/arm/mach-omap2/smartreflex-class3.c
 @@ -21,7 +21,9 @@ static int sr_class3_enable(struct voltagedomain *voltdm,
@@ -724,7 +725,7 @@ index 7ac88da..5f7a33e 100644
  	omap_vp_disable(voltdm);
  	sr_disable(voltdm);
 diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
-index 6ffc1a0..09f65a0 100644
+index 87fff94..be161a0 100644
 --- a/arch/arm/mach-omap2/smartreflex.c
 +++ b/arch/arm/mach-omap2/smartreflex.c
 @@ -318,7 +318,9 @@ static void sr_stop_vddautocomp(struct omap_sr *sr)
@@ -738,7 +739,7 @@ index 6ffc1a0..09f65a0 100644
  		if (sr_class->class_deinit &&
  		    sr_class->class_deinit(sr->voltdm,
  			    sr_class->class_priv_data)) {
-@@ -474,6 +476,28 @@ static u32 sr_retrieve_nvalue(struct omap_sr *sr, u32 efuse_offs)
+@@ -475,6 +477,28 @@ static u32 sr_retrieve_nvalue(struct omap_sr *sr, u32 efuse_offs)
  /* Public Functions */
  
  /**
@@ -767,7 +768,7 @@ index 6ffc1a0..09f65a0 100644
   * sr_configure_errgen() - Configures the smrtreflex to perform AVS using the
   *			 error generator module.
   * @voltdm:	VDD pointer to which the SR module to be configured belongs to.
-@@ -842,6 +866,7 @@ void omap_sr_enable(struct voltagedomain *voltdm,
+@@ -843,6 +867,7 @@ void omap_sr_enable(struct voltagedomain *voltdm,
   * omap_sr_disable() - API to disable SR without resetting the voltage
   *			processor voltage
   * @voltdm:	VDD pointer to which the SR module to be configured belongs to.
@@ -775,7 +776,7 @@ index 6ffc1a0..09f65a0 100644
   *
   * This API is to be called from the kernel in order to disable
   * a particular smartreflex module. This API will in turn call
-@@ -849,7 +874,8 @@ void omap_sr_enable(struct voltagedomain *voltdm,
+@@ -850,7 +875,8 @@ void omap_sr_enable(struct voltagedomain *voltdm,
   * the smartreflex class disable not to reset the VP voltage after
   * disabling smartreflex.
   */
@@ -785,7 +786,7 @@ index 6ffc1a0..09f65a0 100644
  {
  	struct omap_sr *sr = _sr_lookup(voltdm);
  
-@@ -868,7 +894,7 @@ void omap_sr_disable(struct voltagedomain *voltdm)
+@@ -869,7 +895,7 @@ void omap_sr_disable(struct voltagedomain *voltdm)
  		return;
  	}
  
@@ -794,7 +795,7 @@ index 6ffc1a0..09f65a0 100644
  }
  
  /**
-@@ -901,7 +927,7 @@ void omap_sr_disable_reset_volt(struct voltagedomain *voltdm)
+@@ -902,7 +928,7 @@ void omap_sr_disable_reset_volt(struct voltagedomain *voltdm)
  		return;
  	}
  
@@ -803,11 +804,62 @@ index 6ffc1a0..09f65a0 100644
  }
  
  /**
+diff --git a/arch/arm/mach-omap2/smartreflex.h b/arch/arm/mach-omap2/smartreflex.h
+index 78d409a..eb3c87f 100644
+--- a/arch/arm/mach-omap2/smartreflex.h
++++ b/arch/arm/mach-omap2/smartreflex.h
+@@ -168,6 +168,7 @@ struct omap_sr_pmic_data {
+ #define SR_CLASS1	0x1
+ #define SR_CLASS2	0x2
+ #define SR_CLASS3	0x3
++#define SR_CLASS1P5	0x4
+ 
+ /**
+  * struct omap_sr_class_data - Smartreflex class driver info
+@@ -188,7 +189,9 @@ struct omap_sr_pmic_data {
+ struct omap_sr_class_data {
+ 	int (*enable)(struct voltagedomain *voltdm,
+ 			struct omap_volt_data *volt_data);
+-	int (*disable)(struct voltagedomain *voltdm, int is_volt_reset);
++	int (*disable)(struct voltagedomain *voltdm,
++			struct omap_volt_data *volt_data,
++			int is_volt_reset);
+ 	int (*class_init)(struct voltagedomain *voltdm, void *class_priv_data);
+ 	int (*class_deinit)(struct voltagedomain *voltdm,
+ 			void *class_priv_data);
+@@ -236,7 +239,8 @@ struct omap_sr_data {
+ /* Smartreflex module enable/disable interface */
+ void omap_sr_enable(struct voltagedomain *voltdm,
+ 			struct omap_volt_data *volt_data);
+-void omap_sr_disable(struct voltagedomain *voltdm);
++void omap_sr_disable(struct voltagedomain *voltdm,
++			struct omap_volt_data *volt_data);
+ void omap_sr_disable_reset_volt(struct voltagedomain *voltdm);
+ 
+ /* API to register the pmic specific data with the smartreflex driver. */
+@@ -251,6 +255,7 @@ int sr_configure_minmax(struct voltagedomain *voltdm);
+ 
+ /* API to register the smartreflex class driver with the smartreflex driver */
+ int sr_register_class(struct omap_sr_class_data *class_data);
++bool is_sr_enabled(struct voltagedomain *voltdm);
+ #else
+ static inline void omap_sr_enable(struct voltagedomain *voltdm) {}
+ static inline void omap_sr_disable(struct voltagedomain *voltdm) {}
+@@ -265,5 +270,9 @@ static inline void omap_sr_disable_reset_volt(
+ 		struct voltagedomain *voltdm) {}
+ static inline void omap_sr_register_pmic(
+ 		struct omap_sr_pmic_data *pmic_data) {}
++static bool is_sr_enabled(struct voltagedomain *voltdm)
++{
++	return false;
++}
+ #endif
+ #endif
 diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
-index 15eed85..5675a13 100644
+index 02d7072..8533c4a 100644
 --- a/arch/arm/mach-omap2/voltage.c
 +++ b/arch/arm/mach-omap2/voltage.c
-@@ -290,9 +290,45 @@ static int nom_volt_debug_get(void *data, u64 *val)
+@@ -291,9 +291,45 @@ static int nom_volt_debug_get(void *data, u64 *val)
  	return 0;
  }
  
@@ -853,7 +905,7 @@ index 15eed85..5675a13 100644
  static void vp_latch_vsel(struct omap_vdd_info *vdd)
  {
  	u32 vpconfig;
-@@ -420,6 +456,12 @@ static void __init vdd_debugfs_init(struct omap_vdd_info *vdd)
+@@ -421,6 +457,12 @@ static void __init vdd_debugfs_init(struct omap_vdd_info *vdd)
  	(void) debugfs_create_file("curr_nominal_volt", S_IRUGO,
  				vdd->debug_dir, (void *) vdd,
  				&nom_volt_debug_fops);
@@ -866,7 +918,7 @@ index 15eed85..5675a13 100644
  }
  
  /* Voltage scale and accessory APIs */
-@@ -1052,6 +1094,25 @@ struct omap_volt_data *omap_voltage_get_nom_volt(struct voltagedomain *voltdm)
+@@ -1053,6 +1095,25 @@ struct omap_volt_data *omap_voltage_get_nom_volt(struct voltagedomain *voltdm)
  	return vdd->curr_volt;
  }
  
@@ -892,6 +944,62 @@ index 15eed85..5675a13 100644
  /**
   * omap_vp_get_curr_volt() - API to get the current vp voltage.
   * @voltdm:	pointer to the VDD.
+diff --git a/arch/arm/mach-omap2/voltage.h b/arch/arm/mach-omap2/voltage.h
+index 6f310f2..c8f69e4 100644
+--- a/arch/arm/mach-omap2/voltage.h
++++ b/arch/arm/mach-omap2/voltage.h
+@@ -58,6 +58,8 @@
+ #define OMAP4430_VDD_CORE_OPP50_UV		930000
+ #define OMAP4430_VDD_CORE_OPP100_UV		1100000
+ 
++#define OMAP4PLUS_DYNAMIC_NOMINAL_MARGIN_UV	50000
++
+ /**
+  * struct voltagedomain - omap voltage domain global structure.
+  * @name:	Name of the voltage domain which can be used as a unique
+@@ -81,6 +83,8 @@ struct voltagedomain {
+  */
+ struct omap_volt_data {
+ 	u32	volt_nominal;
++	u32	volt_calibrated;
++	u32	volt_dynamic_nominal;
+ 	u32	sr_efuse_offs;
+ 	u8	sr_errminlimit;
+ 	u8	vp_errgain;
+@@ -275,6 +279,7 @@ struct omap_volt_data *omap_voltage_get_nom_volt(struct voltagedomain *voltdm);
+ bool omap_vp_is_transdone(struct voltagedomain *voltdm);
+ bool omap_vp_clear_transdone(struct voltagedomain *voltdm);
+ struct dentry *omap_voltage_get_dbgdir(struct voltagedomain *voltdm);
++int omap_voltage_calib_reset(struct voltagedomain *voltdm);
+ #ifdef CONFIG_PM
+ int omap_voltage_register_pmic(struct voltagedomain *voltdm,
+ 		struct omap_volt_pmic_info *pmic_info);
+@@ -308,7 +313,25 @@ static inline unsigned long omap_get_operation_voltage(
+ {
+ 	if (IS_ERR_OR_NULL(vdata))
+ 		return 0;
++	return (vdata->volt_calibrated) ? vdata->volt_calibrated :
++		(vdata->volt_dynamic_nominal) ? vdata->volt_dynamic_nominal :
++			vdata->volt_nominal;
++}
++
++/* what is my dynamic nominal? */
++static inline unsigned long omap_get_dyn_nominal(struct omap_volt_data *vdata)
++{
++	if (IS_ERR_OR_NULL(vdata))
++		return 0;
++	if (vdata->volt_calibrated) {
++		unsigned long v = vdata->volt_calibrated +
++			OMAP4PLUS_DYNAMIC_NOMINAL_MARGIN_UV;
++		if (v > vdata->volt_nominal)
++			return vdata->volt_nominal;
++		return v;
++	}
+ 	return vdata->volt_nominal;
+ }
+ 
+ #endif
++
 diff --git a/arch/arm/plat-omap/Kconfig b/arch/arm/plat-omap/Kconfig
 index b6333ae..121756a 100644
 --- a/arch/arm/plat-omap/Kconfig
@@ -922,112 +1030,6 @@ index b6333ae..121756a 100644
  config OMAP_RESET_CLOCKS
  	bool "Reset unused clocks during boot"
  	depends on ARCH_OMAP
-diff --git a/arch/arm/plat-omap/include/plat/smartreflex.h b/arch/arm/plat-omap/include/plat/smartreflex.h
-index 07f35b2..192cb06 100644
---- a/arch/arm/plat-omap/include/plat/smartreflex.h
-+++ b/arch/arm/plat-omap/include/plat/smartreflex.h
-@@ -167,6 +167,7 @@ struct omap_sr_pmic_data {
- #define SR_CLASS1	0x1
- #define SR_CLASS2	0x2
- #define SR_CLASS3	0x3
-+#define SR_CLASS1P5	0x4
- 
- /**
-  * struct omap_sr_class_data - Smartreflex class driver info
-@@ -187,7 +188,9 @@ struct omap_sr_pmic_data {
- struct omap_sr_class_data {
- 	int (*enable)(struct voltagedomain *voltdm,
- 			struct omap_volt_data *volt_data);
--	int (*disable)(struct voltagedomain *voltdm, int is_volt_reset);
-+	int (*disable)(struct voltagedomain *voltdm,
-+			struct omap_volt_data *volt_data,
-+			int is_volt_reset);
- 	int (*class_init)(struct voltagedomain *voltdm, void *class_priv_data);
- 	int (*class_deinit)(struct voltagedomain *voltdm,
- 			void *class_priv_data);
-@@ -235,7 +238,8 @@ struct omap_sr_data {
- /* Smartreflex module enable/disable interface */
- void omap_sr_enable(struct voltagedomain *voltdm,
- 			struct omap_volt_data *volt_data);
--void omap_sr_disable(struct voltagedomain *voltdm);
-+void omap_sr_disable(struct voltagedomain *voltdm,
-+			struct omap_volt_data *volt_data);
- void omap_sr_disable_reset_volt(struct voltagedomain *voltdm);
- 
- /* API to register the pmic specific data with the smartreflex driver. */
-@@ -250,6 +254,7 @@ int sr_configure_minmax(struct voltagedomain *voltdm);
- 
- /* API to register the smartreflex class driver with the smartreflex driver */
- int sr_register_class(struct omap_sr_class_data *class_data);
-+bool is_sr_enabled(struct voltagedomain *voltdm);
- #else
- static inline void omap_sr_enable(struct voltagedomain *voltdm) {}
- static inline void omap_sr_disable(struct voltagedomain *voltdm) {}
-@@ -264,5 +269,9 @@ static inline void omap_sr_disable_reset_volt(
- 		struct voltagedomain *voltdm) {}
- static inline void omap_sr_register_pmic(
- 		struct omap_sr_pmic_data *pmic_data) {}
-+static bool is_sr_enabled(struct voltagedomain *voltdm)
-+{
-+	return false;
-+}
- #endif
- #endif
-diff --git a/arch/arm/plat-omap/include/plat/voltage.h b/arch/arm/plat-omap/include/plat/voltage.h
-index 6f310f2..3553b89 100644
---- a/arch/arm/plat-omap/include/plat/voltage.h
-+++ b/arch/arm/plat-omap/include/plat/voltage.h
-@@ -58,6 +58,8 @@
- #define OMAP4430_VDD_CORE_OPP50_UV		930000
- #define OMAP4430_VDD_CORE_OPP100_UV		1100000
- 
-+#define OMAP4PLUS_DYNAMIC_NOMINAL_MARGIN_UV	50000
-+
- /**
-  * struct voltagedomain - omap voltage domain global structure.
-  * @name:	Name of the voltage domain which can be used as a unique
-@@ -81,6 +83,8 @@ struct voltagedomain {
-  */
- struct omap_volt_data {
- 	u32	volt_nominal;
-+	u32	volt_calibrated;
-+	u32	volt_dynamic_nominal;
- 	u32	sr_efuse_offs;
- 	u8	sr_errminlimit;
- 	u8	vp_errgain;
-@@ -275,6 +279,7 @@ struct omap_volt_data *omap_voltage_get_nom_volt(struct voltagedomain *voltdm);
- bool omap_vp_is_transdone(struct voltagedomain *voltdm);
- bool omap_vp_clear_transdone(struct voltagedomain *voltdm);
- struct dentry *omap_voltage_get_dbgdir(struct voltagedomain *voltdm);
-+int omap_voltage_calib_reset(struct voltagedomain *voltdm);
- #ifdef CONFIG_PM
- int omap_voltage_register_pmic(struct voltagedomain *voltdm,
- 		struct omap_volt_pmic_info *pmic_info);
-@@ -308,7 +313,23 @@ static inline unsigned long omap_get_operation_voltage(
- {
- 	if (IS_ERR_OR_NULL(vdata))
- 		return 0;
--	return vdata->volt_nominal;
-+	return (vdata->volt_calibrated) ? vdata->volt_calibrated :
-+		(vdata->volt_dynamic_nominal) ? vdata->volt_dynamic_nominal :
-+			vdata->volt_nominal;
- }
- 
-+/* what is my dynamic nominal? */
-+static inline unsigned long omap_get_dyn_nominal(struct omap_volt_data *vdata)
-+{
-+	if (IS_ERR_OR_NULL(vdata))
-+		return 0;
-+	if (vdata->volt_calibrated) {
-+		unsigned long v = vdata->volt_calibrated +
-+			OMAP4PLUS_DYNAMIC_NOMINAL_MARGIN_UV;
-+		if (v > vdata->volt_nominal)
-+			return vdata->volt_nominal;
-+		return v;
-+	}
-+	return vdata->volt_nominal;
-+}
- #endif
 -- 
 1.7.1
 

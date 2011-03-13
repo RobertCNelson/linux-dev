@@ -1,0 +1,67 @@
+From 52c9e4106e6502660458a12af47bc1598a91b756 Mon Sep 17 00:00:00 2001
+From: Rajendra Nayak <rnayak@ti.com>
+Date: Fri, 25 Feb 2011 15:48:14 -0700
+Subject: [PATCH 127/254] OMAP4: CM: Add CM accesor api for bitwise control
+
+Add new OMAP4 CM accesor apis to set/clear and read
+bitfields (based on mask) from CM registers.
+
+Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/cminst44xx.c |   21 +++++++++++++++++++++
+ arch/arm/mach-omap2/cminst44xx.h |    6 ++++++
+ 2 files changed, 27 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/cminst44xx.c b/arch/arm/mach-omap2/cminst44xx.c
+index c04bbbe..a482bfa 100644
+--- a/arch/arm/mach-omap2/cminst44xx.c
++++ b/arch/arm/mach-omap2/cminst44xx.c
+@@ -73,6 +73,27 @@ u32 omap4_cminst_rmw_inst_reg_bits(u32 mask, u32 bits, u8 part, s16 inst,
+ 	return v;
+ }
+ 
++u32 omap4_cminst_set_inst_reg_bits(u32 bits, u8 part, s16 inst, s16 idx)
++{
++	return omap4_cminst_rmw_inst_reg_bits(bits, bits, part, inst, idx);
++}
++
++u32 omap4_cminst_clear_inst_reg_bits(u32 bits, u8 part, s16 inst, s16 idx)
++{
++	return omap4_cminst_rmw_inst_reg_bits(bits, 0x0, part, inst, idx);
++}
++
++u32 omap4_cminst_read_inst_reg_bits(u8 part, u16 inst, s16 idx, u32 mask)
++{
++	u32 v;
++
++	v = omap4_cminst_read_inst_reg(part, inst, idx);
++	v &= mask;
++	v >>= __ffs(mask);
++
++	return v;
++}
++
+ /*
+  *
+  */
+diff --git a/arch/arm/mach-omap2/cminst44xx.h b/arch/arm/mach-omap2/cminst44xx.h
+index a6abd0a..2b32c18 100644
+--- a/arch/arm/mach-omap2/cminst44xx.h
++++ b/arch/arm/mach-omap2/cminst44xx.h
+@@ -25,6 +25,12 @@ extern u32 omap4_cminst_read_inst_reg(u8 part, s16 inst, u16 idx);
+ extern void omap4_cminst_write_inst_reg(u32 val, u8 part, s16 inst, u16 idx);
+ extern u32 omap4_cminst_rmw_inst_reg_bits(u32 mask, u32 bits, u8 part,
+ 					   s16 inst, s16 idx);
++extern u32 omap4_cminst_set_inst_reg_bits(u32 bits, u8 part, s16 inst,
++					   s16 idx);
++extern u32 omap4_cminst_clear_inst_reg_bits(u32 bits, u8 part, s16 inst,
++					   s16 idx);
++extern u32 omap4_cminst_read_inst_reg_bits(u8 part, u16 inst, s16 idx,
++					   u32 mask);
+ 
+ extern int omap4_cm_wait_module_ready(void __iomem *clkctrl_reg);
+ 
+-- 
+1.7.1
+

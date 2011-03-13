@@ -1,0 +1,63 @@
+From 279a1282af89b1e65de1d17e8f9ec34406ee2bc7 Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Mon, 14 Feb 2011 15:40:20 -0800
+Subject: [PATCH 020/254] omap2+: Make omap_hwmod_late_init into core_initcall
+
+Otherwise things will fail with early_init changes.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/io.c                     |    2 --
+ arch/arm/mach-omap2/omap_hwmod.c             |    3 ++-
+ arch/arm/plat-omap/include/plat/omap_hwmod.h |    1 -
+ 3 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/io.c b/arch/arm/mach-omap2/io.c
+index 11decd8..bbfb0c8 100644
+--- a/arch/arm/mach-omap2/io.c
++++ b/arch/arm/mach-omap2/io.c
+@@ -400,8 +400,6 @@ void __init omap2_init_common_devices(struct omap_sdrc_params *sdrc_cs0,
+ {
+ 	omap_serial_early_init();
+ 
+-	omap_hwmod_late_init();
+-
+ 	if (cpu_is_omap24xx() || cpu_is_omap34xx()) {
+ 		omap2_sdrc_init(sdrc_cs0, sdrc_cs1);
+ 		_omap2_init_reprogram_sdrc();
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index e282e35..eacdfd3 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -1628,7 +1628,7 @@ int __init omap_hwmod_init(struct omap_hwmod **ohs)
+  * to struct clk pointers for each registered omap_hwmod.  Also calls
+  * _setup() on each hwmod.  Returns 0.
+  */
+-int omap_hwmod_late_init(void)
++static int __init omap_hwmod_late_init(void)
+ {
+ 	int r;
+ 
+@@ -1644,6 +1644,7 @@ int omap_hwmod_late_init(void)
+ 
+ 	return 0;
+ }
++core_initcall(omap_hwmod_late_init);
+ 
+ /**
+  * omap_hwmod_enable - enable an omap_hwmod
+diff --git a/arch/arm/plat-omap/include/plat/omap_hwmod.h b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+index 1eee85a..fedd829 100644
+--- a/arch/arm/plat-omap/include/plat/omap_hwmod.h
++++ b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+@@ -539,7 +539,6 @@ int omap_hwmod_init(struct omap_hwmod **ohs);
+ struct omap_hwmod *omap_hwmod_lookup(const char *name);
+ int omap_hwmod_for_each(int (*fn)(struct omap_hwmod *oh, void *data),
+ 			void *data);
+-int omap_hwmod_late_init(void);
+ 
+ int omap_hwmod_enable(struct omap_hwmod *oh);
+ int _omap_hwmod_enable(struct omap_hwmod *oh);
+-- 
+1.7.1
+

@@ -1,0 +1,180 @@
+From 7b331c16a12fc252c3279a07eca5b938e65cf0d3 Mon Sep 17 00:00:00 2001
+From: Avinash.H.M <avinashhm@ti.com>
+Date: Thu, 3 Mar 2011 14:22:46 -0700
+Subject: [PATCH 223/254] omap: hwmod: add syss reset done flags to omap2, omap3 hwmods
+
+Some of the omap2, omap3 peripherals support software reset. This
+can be done through the softreset bit in sysconfig register.
+The reset status can be checked through resetdone bit of
+sysstatus register. syss_has_reset_status is added to the hwmod
+database of peripherals which have resetdone bit in sysstatus register.
+
+Cc: Rajendra Nayak <rnayak@ti.com>
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Benoit Cousson <b-cousson@ti.com>
+Cc: Kevin Hilman <khilman@ti.com>
+Reviewed-by: Govindraj.R <govindraj.raja@ti.com>
+Signed-off-by: Avinash.H.M <avinashhm@ti.com>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_2420_data.c |   11 ++++++-----
+ arch/arm/mach-omap2/omap_hwmod_2430_data.c |   12 +++++++-----
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |   13 ++++++++-----
+ 3 files changed, 21 insertions(+), 15 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_2420_data.c b/arch/arm/mach-omap2/omap_hwmod_2420_data.c
+index 61e58bd..6282346 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_2420_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_2420_data.c
+@@ -988,7 +988,7 @@ static struct omap_hwmod_class_sysconfig omap2420_wd_timer_sysc = {
+ 	.sysc_offs	= 0x0010,
+ 	.syss_offs	= 0x0014,
+ 	.sysc_flags	= (SYSC_HAS_EMUFREE | SYSC_HAS_SOFTRESET |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+ 
+@@ -1029,7 +1029,7 @@ static struct omap_hwmod_class_sysconfig uart_sysc = {
+ 	.syss_offs	= 0x58,
+ 	.sysc_flags	= (SYSC_HAS_SIDLEMODE |
+ 			   SYSC_HAS_ENAWAKEUP | SYSC_HAS_SOFTRESET |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -1441,7 +1441,7 @@ static struct omap_hwmod_class_sysconfig i2c_sysc = {
+ 	.rev_offs	= 0x00,
+ 	.sysc_offs	= 0x20,
+ 	.syss_offs	= 0x10,
+-	.sysc_flags	= SYSC_HAS_SOFTRESET,
++	.sysc_flags	= (SYSC_HAS_SOFTRESET | SYSS_HAS_RESET_STATUS),
+ 	.sysc_fields	= &omap_hwmod_sysc_type1,
+ };
+ 
+@@ -1613,7 +1613,8 @@ static struct omap_hwmod_class_sysconfig omap242x_gpio_sysc = {
+ 	.sysc_offs	= 0x0010,
+ 	.syss_offs	= 0x0014,
+ 	.sysc_flags	= (SYSC_HAS_ENAWAKEUP | SYSC_HAS_SIDLEMODE |
+-			   SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE |
++			   SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -1755,7 +1756,7 @@ static struct omap_hwmod_class_sysconfig omap2420_dma_sysc = {
+ 	.syss_offs	= 0x0028,
+ 	.sysc_flags	= (SYSC_HAS_SOFTRESET | SYSC_HAS_MIDLEMODE |
+ 			   SYSC_HAS_CLOCKACTIVITY | SYSC_HAS_EMUFREE |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (MSTANDBY_FORCE | MSTANDBY_NO | MSTANDBY_SMART),
+ 	.sysc_fields	= &omap_hwmod_sysc_type1,
+ };
+diff --git a/arch/arm/mach-omap2/omap_hwmod_2430_data.c b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+index 0da754e..5afe27d 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_2430_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+@@ -1088,7 +1088,7 @@ static struct omap_hwmod_class_sysconfig omap2430_wd_timer_sysc = {
+ 	.sysc_offs	= 0x0010,
+ 	.syss_offs	= 0x0014,
+ 	.sysc_flags	= (SYSC_HAS_EMUFREE | SYSC_HAS_SOFTRESET |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+ 
+@@ -1129,7 +1129,7 @@ static struct omap_hwmod_class_sysconfig uart_sysc = {
+ 	.syss_offs	= 0x58,
+ 	.sysc_flags	= (SYSC_HAS_SIDLEMODE |
+ 			   SYSC_HAS_ENAWAKEUP | SYSC_HAS_SOFTRESET |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -1516,7 +1516,8 @@ static struct omap_hwmod_class_sysconfig i2c_sysc = {
+ 	.rev_offs	= 0x00,
+ 	.sysc_offs	= 0x20,
+ 	.syss_offs	= 0x10,
+-	.sysc_flags	= (SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE),
++	.sysc_flags	= (SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE |
++			   SYSS_HAS_RESET_STATUS),
+ 	.sysc_fields	= &omap_hwmod_sysc_type1,
+ };
+ 
+@@ -1714,7 +1715,8 @@ static struct omap_hwmod_class_sysconfig omap243x_gpio_sysc = {
+ 	.sysc_offs	= 0x0010,
+ 	.syss_offs	= 0x0014,
+ 	.sysc_flags	= (SYSC_HAS_ENAWAKEUP | SYSC_HAS_SIDLEMODE |
+-			   SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE |
++			   SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -1886,7 +1888,7 @@ static struct omap_hwmod_class_sysconfig omap2430_dma_sysc = {
+ 	.syss_offs	= 0x0028,
+ 	.sysc_flags	= (SYSC_HAS_SOFTRESET | SYSC_HAS_MIDLEMODE |
+ 			   SYSC_HAS_CLOCKACTIVITY | SYSC_HAS_EMUFREE |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (MSTANDBY_FORCE | MSTANDBY_NO | MSTANDBY_SMART),
+ 	.sysc_fields	= &omap_hwmod_sysc_type1,
+ };
+diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+index 11f4a24..6a5de99 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+@@ -1237,7 +1237,8 @@ static struct omap_hwmod_class_sysconfig omap3xxx_wd_timer_sysc = {
+ 	.syss_offs	= 0x0014,
+ 	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_EMUFREE |
+ 			   SYSC_HAS_ENAWAKEUP | SYSC_HAS_SOFTRESET |
+-			   SYSC_HAS_AUTOIDLE | SYSC_HAS_CLOCKACTIVITY),
++			   SYSC_HAS_AUTOIDLE | SYSC_HAS_CLOCKACTIVITY |
++			   SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -1249,7 +1250,7 @@ static struct omap_hwmod_class_sysconfig i2c_sysc = {
+ 	.syss_offs	= 0x10,
+ 	.sysc_flags	= (SYSC_HAS_CLOCKACTIVITY | SYSC_HAS_SIDLEMODE |
+ 			   SYSC_HAS_ENAWAKEUP | SYSC_HAS_SOFTRESET |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -1291,7 +1292,7 @@ static struct omap_hwmod_class_sysconfig uart_sysc = {
+ 	.syss_offs	= 0x58,
+ 	.sysc_flags	= (SYSC_HAS_SIDLEMODE |
+ 			   SYSC_HAS_ENAWAKEUP | SYSC_HAS_SOFTRESET |
+-			   SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_AUTOIDLE | SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -2097,7 +2098,8 @@ static struct omap_hwmod_class_sysconfig omap3xxx_gpio_sysc = {
+ 	.sysc_offs	= 0x0010,
+ 	.syss_offs	= 0x0014,
+ 	.sysc_flags	= (SYSC_HAS_ENAWAKEUP | SYSC_HAS_SIDLEMODE |
+-			   SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_SOFTRESET | SYSC_HAS_AUTOIDLE |
++			   SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields    = &omap_hwmod_sysc_type1,
+ };
+@@ -2351,7 +2353,8 @@ static struct omap_hwmod_class_sysconfig omap3xxx_dma_sysc = {
+ 	.syss_offs	= 0x0028,
+ 	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
+ 			   SYSC_HAS_MIDLEMODE | SYSC_HAS_CLOCKACTIVITY |
+-			   SYSC_HAS_EMUFREE | SYSC_HAS_AUTOIDLE),
++			   SYSC_HAS_EMUFREE | SYSC_HAS_AUTOIDLE |
++			   SYSS_HAS_RESET_STATUS),
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART |
+ 			   MSTANDBY_FORCE | MSTANDBY_NO | MSTANDBY_SMART),
+ 	.sysc_fields	= &omap_hwmod_sysc_type1,
+-- 
+1.7.1
+

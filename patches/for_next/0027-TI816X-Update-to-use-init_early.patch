@@ -1,0 +1,45 @@
+From 2d0431646aaacd07a607c16bc543fb110f21d0bc Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Wed, 16 Feb 2011 08:45:46 -0800
+Subject: [PATCH 027/254] TI816X: Update to use init_early
+
+Update to use init_early
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-ti8168evm.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-ti8168evm.c b/arch/arm/mach-omap2/board-ti8168evm.c
+index 6282cc4..f2b0971 100644
+--- a/arch/arm/mach-omap2/board-ti8168evm.c
++++ b/arch/arm/mach-omap2/board-ti8168evm.c
+@@ -27,12 +27,16 @@
+ static struct omap_board_config_kernel ti8168_evm_config[] __initdata = {
+ };
+ 
+-static void __init ti8168_evm_init_irq(void)
++static void __init ti8168_init_early(void)
+ {
+ 	omap_board_config = ti8168_evm_config;
+ 	omap_board_config_size = ARRAY_SIZE(ti8168_evm_config);
+ 	omap2_init_common_infrastructure();
+ 	omap2_init_common_devices(NULL, NULL);
++}
++
++static void __init ti8168_evm_init_irq(void)
++{
+ 	omap_init_irq();
+ }
+ 
+@@ -51,6 +55,7 @@ MACHINE_START(TI8168EVM, "ti8168evm")
+ 	/* Maintainer: Texas Instruments */
+ 	.boot_params	= 0x80000100,
+ 	.map_io		= ti8168_evm_map_io,
++	.init_early	= ti8168_init_early,
+ 	.init_irq	= ti8168_evm_init_irq,
+ 	.timer		= &omap_timer,
+ 	.init_machine	= ti8168_evm_init,
+-- 
+1.7.1
+

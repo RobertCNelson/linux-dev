@@ -1,0 +1,71 @@
+From 137e1c6a6fc4027b696fb076af972a4c890e5476 Mon Sep 17 00:00:00 2001
+From: Sanjeev Premi <premi@ti.com>
+Date: Tue, 15 Feb 2011 10:57:32 +0000
+Subject: [PATCH 077/254] omap3: flash: use pr_err instead of printk
+
+Change all occurences of printf() to pr_err().
+Includes minor formatting changes as result of
+this change.
+
+Signed-off-by: Sanjeev Premi <premi@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-flash.c |   15 ++++++---------
+ 1 files changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-flash.c b/arch/arm/mach-omap2/board-flash.c
+index 32e353f..c32c068 100644
+--- a/arch/arm/mach-omap2/board-flash.c
++++ b/arch/arm/mach-omap2/board-flash.c
+@@ -74,11 +74,11 @@ __init board_nor_init(struct mtd_partition *nor_parts, u8 nr_parts, u8 cs)
+ 					+ FLASH_SIZE_SDPV1 - 1;
+ 	}
+ 	if (err < 0) {
+-		printk(KERN_ERR "NOR: Can't request GPMC CS\n");
++		pr_err("NOR: Can't request GPMC CS\n");
+ 		return;
+ 	}
+ 	if (platform_device_register(&board_nor_device) < 0)
+-		printk(KERN_ERR	"Unable to register NOR device\n");
++		pr_err("Unable to register NOR device\n");
+ }
+ 
+ #if defined(CONFIG_MTD_ONENAND_OMAP2) || \
+@@ -213,7 +213,7 @@ void board_flash_init(struct flash_partitions partition_info[],
+ 	 */
+ 	idx = get_gpmc0_type();
+ 	if (idx >= MAX_SUPPORTED_GPMC_CONFIG) {
+-		printk(KERN_ERR "%s: Invalid chip select: %d\n", __func__, cs);
++		pr_err("%s: Invalid chip select: %d\n", __func__, cs);
+ 		return;
+ 	}
+ 	config_sel = (unsigned char *)(chip_sel_board[idx]);
+@@ -237,22 +237,19 @@ void board_flash_init(struct flash_partitions partition_info[],
+ 	}
+ 
+ 	if (norcs > GPMC_CS_NUM)
+-		printk(KERN_INFO "NOR: Unable to find configuration "
+-				"in GPMC\n");
++		pr_err("NOR: Unable to find configuration in GPMC\n");
+ 	else
+ 		board_nor_init(partition_info[0].parts,
+ 				partition_info[0].nr_parts, norcs);
+ 
+ 	if (onenandcs > GPMC_CS_NUM)
+-		printk(KERN_INFO "OneNAND: Unable to find configuration "
+-				"in GPMC\n");
++		pr_err("OneNAND: Unable to find configuration in GPMC\n");
+ 	else
+ 		board_onenand_init(partition_info[1].parts,
+ 					partition_info[1].nr_parts, onenandcs);
+ 
+ 	if (nandcs > GPMC_CS_NUM)
+-		printk(KERN_INFO "NAND: Unable to find configuration "
+-				"in GPMC\n");
++		pr_err("NAND: Unable to find configuration in GPMC\n");
+ 	else
+ 		board_nand_init(partition_info[2].parts,
+ 			partition_info[2].nr_parts, nandcs, nand_type);
+-- 
+1.7.1
+

@@ -1,0 +1,32 @@
+From 0d20c22cd173e914b20dd84f60dc685365b58bd3 Mon Sep 17 00:00:00 2001
+From: Martin Hostettler <martin@neutronstar.dyndns.org>
+Date: Thu, 24 Feb 2011 12:51:31 -0800
+Subject: [PATCH 095/254] omap: iommu: Gracefully fail iommu_enable if no arch_iommu is registered
+
+In a modular build of the iommu code it's possible that the arch iommu code
+isn't loaded when trying to enable the iommu. Instead of blindly following a
+null pointer return -NODEV in that case.
+
+Signed-off-by: Martin Hostettler <martin@neutronstar.dyndns.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/plat-omap/iommu.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/plat-omap/iommu.c b/arch/arm/plat-omap/iommu.c
+index b1107c0..3d8f55e 100644
+--- a/arch/arm/plat-omap/iommu.c
++++ b/arch/arm/plat-omap/iommu.c
+@@ -104,6 +104,9 @@ static int iommu_enable(struct iommu *obj)
+ 	if (!obj)
+ 		return -EINVAL;
+ 
++	if (!arch_iommu)
++		return -ENODEV;
++
+ 	clk_enable(obj->clk);
+ 
+ 	err = arch_iommu->enable(obj);
+-- 
+1.7.1
+

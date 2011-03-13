@@ -1,0 +1,45 @@
+From e75bcb8e2f2bca1ed09cbf4e2e4a156a4601e49c Mon Sep 17 00:00:00 2001
+From: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Date: Fri, 11 Feb 2011 20:42:11 +0530
+Subject: [PATCH 208/254] omap3: pm: Use exported set_cr() instead of a custom one.
+
+Remove the custom restore_control_register() and use the exported
+set_cr() instead to set the system control register(SCTRL) value.
+
+No functional change.
+
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Cc: Kevin Hilman <khilman@ti.com>
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/pm34xx.c |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm34xx.c b/arch/arm/mach-omap2/pm34xx.c
+index 4f50cac..abc551e 100644
+--- a/arch/arm/mach-omap2/pm34xx.c
++++ b/arch/arm/mach-omap2/pm34xx.c
+@@ -311,11 +311,6 @@ static irqreturn_t prcm_interrupt_handler (int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void restore_control_register(u32 val)
+-{
+-	__asm__ __volatile__ ("mcr p15, 0, %0, c1, c0, 0" : : "r" (val));
+-}
+-
+ /* Function to restore the table entry that was modified for enabling MMU */
+ static void restore_table_entry(void)
+ {
+@@ -337,7 +332,7 @@ static void restore_table_entry(void)
+ 	control_reg_value = __raw_readl(scratchpad_address
+ 					+ OMAP343X_CONTROL_REG_VALUE_OFFSET);
+ 	/* This will enable caches and prediction */
+-	restore_control_register(control_reg_value);
++	set_cr(control_reg_value);
+ }
+ 
+ void omap_sram_idle(void)
+-- 
+1.7.1
+

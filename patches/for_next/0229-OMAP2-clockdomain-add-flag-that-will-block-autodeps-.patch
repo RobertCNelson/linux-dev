@@ -1,0 +1,135 @@
+From 8c8007cdc97c24fac64e3ff5fec163a6366780c7 Mon Sep 17 00:00:00 2001
+From: Paul Walmsley <paul@pwsan.com>
+Date: Thu, 10 Mar 2011 03:50:09 -0700
+Subject: [PATCH 229/254] OMAP2+: clockdomain: add flag that will block autodeps from being added for a clockdomain
+
+Add a new clockdomain flag, CLKDM_NO_AUTODEPS, which, when marked on a
+clockdomain, will prevent "autodeps" from being associated with the
+clockdomain.  ("Autodeps" are sleep dependencies and wakeup
+dependencies from/to processor modules that are automatically added to
+a clockdomain when it is in hardware-supervised idle mode.  They are
+deprecated -- a relic from the old CDP trees -- but are still in use
+for OMAP3.)
+
+Also, prevent the hwmod code from adding or removing initiator
+dependencies for clockdomains with this flag set.
+
+This patch should allow others to test which clockdomains actually
+still need autodeps.
+
+Thanks to Kevin Hilman <khilman@ti.com> for noting that the original
+version should also modify the hwmod code.
+
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Cc: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/clockdomain.c |    4 ++--
+ arch/arm/mach-omap2/clockdomain.h |   12 ++++++++++--
+ arch/arm/mach-omap2/omap_hwmod.c  |   16 ++++++++++++----
+ 3 files changed, 24 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/clockdomain.c b/arch/arm/mach-omap2/clockdomain.c
+index a0341de..ab87854 100644
+--- a/arch/arm/mach-omap2/clockdomain.c
++++ b/arch/arm/mach-omap2/clockdomain.c
+@@ -173,7 +173,7 @@ void _clkdm_add_autodeps(struct clockdomain *clkdm)
+ {
+ 	struct clkdm_autodep *autodep;
+ 
+-	if (!autodeps)
++	if (!autodeps || clkdm->flags & CLKDM_NO_AUTODEPS)
+ 		return;
+ 
+ 	for (autodep = autodeps; autodep->clkdm.ptr; autodep++) {
+@@ -207,7 +207,7 @@ void _clkdm_del_autodeps(struct clockdomain *clkdm)
+ {
+ 	struct clkdm_autodep *autodep;
+ 
+-	if (!autodeps)
++	if (!autodeps || clkdm->flags & CLKDM_NO_AUTODEPS)
+ 		return;
+ 
+ 	for (autodep = autodeps; autodep->clkdm.ptr; autodep++) {
+diff --git a/arch/arm/mach-omap2/clockdomain.h b/arch/arm/mach-omap2/clockdomain.h
+index de52f05..85b3dce 100644
+--- a/arch/arm/mach-omap2/clockdomain.h
++++ b/arch/arm/mach-omap2/clockdomain.h
+@@ -4,7 +4,7 @@
+  * OMAP2/3 clockdomain framework functions
+  *
+  * Copyright (C) 2008 Texas Instruments, Inc.
+- * Copyright (C) 2008-2010 Nokia Corporation
++ * Copyright (C) 2008-2011 Nokia Corporation
+  *
+  * Paul Walmsley
+  *
+@@ -22,11 +22,19 @@
+ #include <plat/clock.h>
+ #include <plat/cpu.h>
+ 
+-/* Clockdomain capability flags */
++/*
++ * Clockdomain flags
++ *
++ * XXX Document CLKDM_CAN_* flags
++ *
++ * CLKDM_NO_AUTODEPS: Prevent "autodeps" from being added/removed from this
++ *     clockdomain.  (Currently, this applies to OMAP3 clockdomains only.)
++ */
+ #define CLKDM_CAN_FORCE_SLEEP			(1 << 0)
+ #define CLKDM_CAN_FORCE_WAKEUP			(1 << 1)
+ #define CLKDM_CAN_ENABLE_AUTO			(1 << 2)
+ #define CLKDM_CAN_DISABLE_AUTO			(1 << 3)
++#define CLKDM_NO_AUTODEPS			(1 << 4)
+ 
+ #define CLKDM_CAN_HWSUP		(CLKDM_CAN_ENABLE_AUTO | CLKDM_CAN_DISABLE_AUTO)
+ #define CLKDM_CAN_SWSUP		(CLKDM_CAN_FORCE_SLEEP | CLKDM_CAN_FORCE_WAKEUP)
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index a60ac38..4c8329e 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -457,14 +457,18 @@ static int _disable_wakeup(struct omap_hwmod *oh, u32 *v)
+  * will be accessed by a particular initiator (e.g., if a module will
+  * be accessed by the IVA, there should be a sleepdep between the IVA
+  * initiator and the module).  Only applies to modules in smart-idle
+- * mode.  Returns -EINVAL upon error or passes along
+- * clkdm_add_sleepdep() value upon success.
++ * mode.  If the clockdomain is marked as not needing autodeps, return
++ * 0 without doing anything.  Otherwise, returns -EINVAL upon error or
++ * passes along clkdm_add_sleepdep() value upon success.
+  */
+ static int _add_initiator_dep(struct omap_hwmod *oh, struct omap_hwmod *init_oh)
+ {
+ 	if (!oh->_clk)
+ 		return -EINVAL;
+ 
++	if (oh->_clk->clkdm && oh->_clk->clkdm->flags & CLKDM_NO_AUTODEPS)
++		return 0;
++
+ 	return clkdm_add_sleepdep(oh->_clk->clkdm, init_oh->_clk->clkdm);
+ }
+ 
+@@ -477,14 +481,18 @@ static int _add_initiator_dep(struct omap_hwmod *oh, struct omap_hwmod *init_oh)
+  * be accessed by a particular initiator (e.g., if a module will not
+  * be accessed by the IVA, there should be no sleepdep between the IVA
+  * initiator and the module).  Only applies to modules in smart-idle
+- * mode.  Returns -EINVAL upon error or passes along
+- * clkdm_del_sleepdep() value upon success.
++ * mode.  If the clockdomain is marked as not needing autodeps, return
++ * 0 without doing anything.  Returns -EINVAL upon error or passes
++ * along clkdm_del_sleepdep() value upon success.
+  */
+ static int _del_initiator_dep(struct omap_hwmod *oh, struct omap_hwmod *init_oh)
+ {
+ 	if (!oh->_clk)
+ 		return -EINVAL;
+ 
++	if (oh->_clk->clkdm && oh->_clk->clkdm->flags & CLKDM_NO_AUTODEPS)
++		return 0;
++
+ 	return clkdm_del_sleepdep(oh->_clk->clkdm, init_oh->_clk->clkdm);
+ }
+ 
+-- 
+1.7.1
+

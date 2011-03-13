@@ -1,0 +1,58 @@
+From fa7664e9c95633c686c32812d113d91e7c66dda1 Mon Sep 17 00:00:00 2001
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Date: Thu, 24 Feb 2011 15:16:57 +0530
+Subject: [PATCH 113/254] OMAP: hwmod: Removal of macros for data that is obtained from hwmod database
+
+Information like base address and DMA channel nubers should no longer
+be obtained using macros. These information should be obtained from
+hwmod database. Hence the macros that define the base address are removed.
+
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Charulatha V <charu@ti.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@nokia.com>
+Acked-by: Jarkko Nikula <jhnikula@gmail.com>
+Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/plat-omap/include/plat/mcbsp.h |   25 +------------------------
+ 1 files changed, 1 insertions(+), 24 deletions(-)
+
+diff --git a/arch/arm/plat-omap/include/plat/mcbsp.h b/arch/arm/plat-omap/include/plat/mcbsp.h
+index 21c9b10..f8f690a 100644
+--- a/arch/arm/plat-omap/include/plat/mcbsp.h
++++ b/arch/arm/plat-omap/include/plat/mcbsp.h
+@@ -52,30 +52,7 @@ static struct platform_device omap_mcbsp##port_nr = {	\
+ #define OMAP1610_MCBSP2_BASE	0xfffb1000
+ #define OMAP1610_MCBSP3_BASE	0xe1017000
+ 
+-#define OMAP24XX_MCBSP1_BASE	0x48074000
+-#define OMAP24XX_MCBSP2_BASE	0x48076000
+-#define OMAP2430_MCBSP3_BASE	0x4808c000
+-#define OMAP2430_MCBSP4_BASE	0x4808e000
+-#define OMAP2430_MCBSP5_BASE	0x48096000
+-
+-#define OMAP34XX_MCBSP1_BASE	0x48074000
+-#define OMAP34XX_MCBSP2_BASE	0x49022000
+-#define OMAP34XX_MCBSP2_ST_BASE	0x49028000
+-#define OMAP34XX_MCBSP3_BASE	0x49024000
+-#define OMAP34XX_MCBSP3_ST_BASE	0x4902A000
+-#define OMAP34XX_MCBSP3_BASE	0x49024000
+-#define OMAP34XX_MCBSP4_BASE	0x49026000
+-#define OMAP34XX_MCBSP5_BASE	0x48096000
+-
+-#define OMAP44XX_MCBSP1_BASE	0x40122000
+-#define OMAP44XX_MCBSP1_DMA_BASE	0x49022000
+-#define OMAP44XX_MCBSP2_BASE	0x40124000
+-#define OMAP44XX_MCBSP2_DMA_BASE	0x49024000
+-#define OMAP44XX_MCBSP3_BASE	0x40126000
+-#define OMAP44XX_MCBSP3_DMA_BASE	0x49026000
+-#define OMAP44XX_MCBSP4_BASE	0x48096000
+-
+-#if defined(CONFIG_ARCH_OMAP15XX) || defined(CONFIG_ARCH_OMAP16XX) || defined(CONFIG_ARCH_OMAP730) || defined(CONFIG_ARCH_OMAP850)
++#ifdef CONFIG_ARCH_OMAP1
+ 
+ #define OMAP_MCBSP_REG_DRR2	0x00
+ #define OMAP_MCBSP_REG_DRR1	0x02
+-- 
+1.7.1
+

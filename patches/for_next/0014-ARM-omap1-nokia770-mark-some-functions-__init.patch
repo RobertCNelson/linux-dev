@@ -1,0 +1,50 @@
+From 6a80aec5d5ec32289a3a726cfa0c6a2d628fcfba Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Date: Wed, 9 Feb 2011 21:40:07 +0100
+Subject: [PATCH 014/254] ARM: omap1/nokia770: mark some functions __init
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+These are only called from omap_nokia770_init which is in .init.text, too.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap1/board-nokia770.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap1/board-nokia770.c b/arch/arm/mach-omap1/board-nokia770.c
+index d21f09d..cfd0849 100644
+--- a/arch/arm/mach-omap1/board-nokia770.c
++++ b/arch/arm/mach-omap1/board-nokia770.c
+@@ -115,7 +115,7 @@ static struct mipid_platform_data nokia770_mipid_platform_data = {
+ 	.shutdown = mipid_shutdown,
+ };
+ 
+-static void mipid_dev_init(void)
++static void __init mipid_dev_init(void)
+ {
+ 	const struct omap_lcd_config *conf;
+ 
+@@ -126,7 +126,7 @@ static void mipid_dev_init(void)
+ 	}
+ }
+ 
+-static void ads7846_dev_init(void)
++static void __init ads7846_dev_init(void)
+ {
+ 	if (gpio_request(ADS7846_PENDOWN_GPIO, "ADS7846 pendown") < 0)
+ 		printk(KERN_ERR "can't get ads7846 pen down GPIO\n");
+@@ -170,7 +170,7 @@ static struct hwa742_platform_data nokia770_hwa742_platform_data = {
+ 	.te_connected		= 1,
+ };
+ 
+-static void hwa742_dev_init(void)
++static void __init hwa742_dev_init(void)
+ {
+ 	clk_add_alias("hwa_sys_ck", NULL, "bclk", NULL);
+ 	omapfb_set_ctrl_platform_data(&nokia770_hwa742_platform_data);
+-- 
+1.7.1
+

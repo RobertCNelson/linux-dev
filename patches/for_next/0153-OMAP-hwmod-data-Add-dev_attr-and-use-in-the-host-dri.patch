@@ -1,0 +1,154 @@
+From b399860936ec7779e694201a068487977e4eb558 Mon Sep 17 00:00:00 2001
+From: Kishore Kadiyala <kishore.kadiyala@ti.com>
+Date: Tue, 1 Mar 2011 13:12:56 -0800
+Subject: [PATCH 153/254] OMAP: hwmod data: Add dev_attr and use in the host driver
+
+Add a device attribute to hwmod data of omap2430, omap3, omap4.
+Currently the device attribute holds information regarding dual volt MMC card
+support by the controller which will be later passed to the host driver via
+platform data.
+
+Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+Signed-off-by: Kishore Kadiyala <kishore.kadiyala@ti.com>
+Acked-by: Benoit Cousson<b-cousson@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_2430_data.c |    6 ++++++
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |    6 ++++++
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    9 ++++++++-
+ arch/arm/plat-omap/include/plat/mmc.h      |    9 +++++++++
+ 4 files changed, 29 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_2430_data.c b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+index a0f67c6..abb3574 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_2430_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+@@ -21,6 +21,7 @@
+ #include <plat/mcbsp.h>
+ #include <plat/mcspi.h>
+ #include <plat/dmtimer.h>
++#include <plat/mmc.h>
+ #include <plat/l3_2xxx.h>
+ 
+ #include "omap_hwmod_common_data.h"
+@@ -2586,6 +2587,10 @@ static struct omap_hwmod_ocp_if *omap2430_mmc1_slaves[] = {
+ 	&omap2430_l4_core__mmc1,
+ };
+ 
++static struct omap_mmc_dev_attr mmc1_dev_attr = {
++	.flags = OMAP_HSMMC_SUPPORTS_DUAL_VOLT,
++};
++
+ static struct omap_hwmod omap2430_mmc1_hwmod = {
+ 	.name		= "mmc1",
+ 	.flags		= HWMOD_CONTROL_OPT_CLKS_IN_RESET,
+@@ -2605,6 +2610,7 @@ static struct omap_hwmod omap2430_mmc1_hwmod = {
+ 			.idlest_idle_bit = OMAP2430_ST_MMCHS1_SHIFT,
+ 		},
+ 	},
++	.dev_attr	= &mmc1_dev_attr,
+ 	.slaves		= omap2430_mmc1_slaves,
+ 	.slaves_cnt	= ARRAY_SIZE(omap2430_mmc1_slaves),
+ 	.class		= &omap2430_mmc_class,
+diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+index 1726a1a..05c8305 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+@@ -22,6 +22,7 @@
+ #include <plat/l4_3xxx.h>
+ #include <plat/i2c.h>
+ #include <plat/gpio.h>
++#include <plat/mmc.h>
+ #include <plat/smartreflex.h>
+ #include <plat/mcbsp.h>
+ #include <plat/mcspi.h>
+@@ -3452,6 +3453,10 @@ static struct omap_hwmod_ocp_if *omap3xxx_mmc1_slaves[] = {
+ 	&omap3xxx_l4_core__mmc1,
+ };
+ 
++static struct omap_mmc_dev_attr mmc1_dev_attr = {
++	.flags = OMAP_HSMMC_SUPPORTS_DUAL_VOLT,
++};
++
+ static struct omap_hwmod omap3xxx_mmc1_hwmod = {
+ 	.name		= "mmc1",
+ 	.mpu_irqs	= omap34xx_mmc1_mpu_irqs,
+@@ -3470,6 +3475,7 @@ static struct omap_hwmod omap3xxx_mmc1_hwmod = {
+ 			.idlest_idle_bit = OMAP3430_ST_MMC1_SHIFT,
+ 		},
+ 	},
++	.dev_attr	= &mmc1_dev_attr,
+ 	.slaves		= omap3xxx_mmc1_slaves,
+ 	.slaves_cnt	= ARRAY_SIZE(omap3xxx_mmc1_slaves),
+ 	.class		= &omap34xx_mmc_class,
+diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+index 2c6537e..1b38ed1 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+@@ -25,7 +25,7 @@
+ #include <plat/gpio.h>
+ #include <plat/dma.h>
+ #include <plat/mcspi.h>
+-#include <plat/mcbsp.h>
++#include <plat/mmc.h>
+ 
+ #include "omap_hwmod_common_data.h"
+ 
+@@ -3391,6 +3391,7 @@ static struct omap_hwmod_class omap44xx_mmc_hwmod_class = {
+ };
+ 
+ /* mmc1 */
++
+ static struct omap_hwmod_irq_info omap44xx_mmc1_irqs[] = {
+ 	{ .irq = 83 + OMAP44XX_IRQ_GIC_START },
+ };
+@@ -3428,6 +3429,11 @@ static struct omap_hwmod_ocp_if *omap44xx_mmc1_slaves[] = {
+ 	&omap44xx_l4_per__mmc1,
+ };
+ 
++/* mmc1 dev_attr */
++static struct omap_mmc_dev_attr mmc1_dev_attr = {
++	.flags	= OMAP_HSMMC_SUPPORTS_DUAL_VOLT,
++};
++
+ static struct omap_hwmod omap44xx_mmc1_hwmod = {
+ 	.name		= "mmc1",
+ 	.class		= &omap44xx_mmc_hwmod_class,
+@@ -3441,6 +3447,7 @@ static struct omap_hwmod omap44xx_mmc1_hwmod = {
+ 			.clkctrl_reg = OMAP4430_CM_L3INIT_MMC1_CLKCTRL,
+ 		},
+ 	},
++	.dev_attr	= &mmc1_dev_attr,
+ 	.slaves		= omap44xx_mmc1_slaves,
+ 	.slaves_cnt	= ARRAY_SIZE(omap44xx_mmc1_slaves),
+ 	.masters	= omap44xx_mmc1_masters,
+diff --git a/arch/arm/plat-omap/include/plat/mmc.h b/arch/arm/plat-omap/include/plat/mmc.h
+index e5de5d4..a7afab0 100644
+--- a/arch/arm/plat-omap/include/plat/mmc.h
++++ b/arch/arm/plat-omap/include/plat/mmc.h
+@@ -43,6 +43,12 @@
+ 
+ #define OMAP_MMC_MAX_SLOTS	2
+ 
++#define OMAP_HSMMC_SUPPORTS_DUAL_VOLT	BIT(1)
++
++struct omap_mmc_dev_attr {
++	u8 flags;
++};
++
+ struct omap_mmc_platform_data {
+ 	/* back-link to device */
+ 	struct device *dev;
+@@ -71,6 +77,9 @@ struct omap_mmc_platform_data {
+ 
+ 	u64 dma_mask;
+ 
++	/* Integrating attributes from the omap_hwmod layer */
++	u8 controller_flags;
++
+ 	/* Register offset deviation */
+ 	u16 reg_offset;
+ 
+-- 
+1.7.1
+

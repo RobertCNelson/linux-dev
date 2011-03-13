@@ -1,0 +1,28 @@
+From 9282d558819d302dcba426434d5acf3b00d8113b Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Fri, 25 Feb 2011 10:11:15 -0800
+Subject: [PATCH 116/254] omap: Fix compile if MTD_NAND_OMAP2 is not selected
+
+Fix compile if MTD_NAND_OMAP2 is not selected
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-flash.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-flash.c b/arch/arm/mach-omap2/board-flash.c
+index c32c068..729892f 100644
+--- a/arch/arm/mach-omap2/board-flash.c
++++ b/arch/arm/mach-omap2/board-flash.c
+@@ -154,7 +154,7 @@ __init board_nand_init(struct mtd_partition *nand_parts,
+ }
+ #else
+ void
+-__init board_nand_init(struct mtd_partition *nand_parts, u8 nr_parts, u8 cs)
++__init board_nand_init(struct mtd_partition *nand_parts, u8 nr_parts, u8 cs, int nand_type)
+ {
+ }
+ #endif /* CONFIG_MTD_NAND_OMAP2 || CONFIG_MTD_NAND_OMAP2_MODULE */
+-- 
+1.7.1
+

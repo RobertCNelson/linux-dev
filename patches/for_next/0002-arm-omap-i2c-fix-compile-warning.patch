@@ -1,0 +1,40 @@
+From 3f6fc0447e76c8e94f9e8a8f05a68c281f841ae1 Mon Sep 17 00:00:00 2001
+From: Felipe Balbi <balbi@ti.com>
+Date: Thu, 27 Jan 2011 16:39:41 -0800
+Subject: [PATCH 002/254] arm: omap: i2c: fix compile warning
+
+Fix the following compile warning:
+arch/arm/plat-omap/i2c.c:120:13: warning:
+'omap_pm_set_max_mpu_wakeup_lat_compat' defined but not used
+arch/arm/plat-omap/i2c.c:125:38: warning: 'omap_i2c_latency'
+defined but not used
+
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/plat-omap/i2c.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
+index a4f8003..3341ca4 100644
+--- a/arch/arm/plat-omap/i2c.c
++++ b/arch/arm/plat-omap/i2c.c
+@@ -112,6 +112,7 @@ static inline int omap1_i2c_add_bus(int bus_id)
+ }
+ 
+ 
++#ifdef CONFIG_ARCH_OMAP2PLUS
+ /*
+  * XXX This function is a temporary compatibility wrapper - only
+  * needed until the I2C driver can be converted to call
+@@ -130,7 +131,6 @@ static struct omap_device_pm_latency omap_i2c_latency[] = {
+ 	},
+ };
+ 
+-#ifdef CONFIG_ARCH_OMAP2PLUS
+ static inline int omap2_i2c_add_bus(int bus_id)
+ {
+ 	int l;
+-- 
+1.7.1
+

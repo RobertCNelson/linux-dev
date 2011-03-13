@@ -1,0 +1,112 @@
+From acb9c5266165bb6a2867ea477ee1b71d66f049b6 Mon Sep 17 00:00:00 2001
+From: Paul Walmsley <paul@pwsan.com>
+Date: Fri, 4 Mar 2011 22:36:46 +0000
+Subject: [PATCH 192/254] OMAP1: McBSP: fix build break for non-multi-OMAP1 configs
+
+Commit 3cf32bba8ca0e0052ca41d74d455a5805b7fea85 ("OMAP: McBSP: Convert
+McBSP to platform device model") breaks compilation with non-multi-OMAP1
+configs:
+
+  CC      arch/arm/mach-omap1/mcbsp.o
+arch/arm/mach-omap1/mcbsp.c: In function 'omap1_mcbsp_init':
+arch/arm/mach-omap1/mcbsp.c:384: warning: dereferencing 'void *' pointer
+arch/arm/mach-omap1/mcbsp.c:387: error: invalid use of void expression
+arch/arm/mach-omap1/mcbsp.c:390: warning: dereferencing 'void *' pointer
+arch/arm/mach-omap1/mcbsp.c:393: error: invalid use of void expression
+
+Fix by avoiding NULL dereferences.
+
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Cc: Kishon Vijay Abraham I <kishon@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Acked-by: Jarkko Nikula <jhnikula@gmail.com>
+[tony@atomide.com: updated description not to remove unnecessary branch name]
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap1/mcbsp.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/mach-omap1/mcbsp.c b/arch/arm/mach-omap1/mcbsp.c
+index e68f6c0..d9af981 100644
+--- a/arch/arm/mach-omap1/mcbsp.c
++++ b/arch/arm/mach-omap1/mcbsp.c
+@@ -136,6 +136,8 @@ struct resource omap7xx_mcbsp_res[][6] = {
+ 	},
+ };
+ 
++#define omap7xx_mcbsp_res_0		omap7xx_mcbsp_res[0]
++
+ static struct omap_mcbsp_platform_data omap7xx_mcbsp_pdata[] = {
+ 	{
+ 		.ops		= &omap1_mcbsp_ops,
+@@ -147,7 +149,7 @@ static struct omap_mcbsp_platform_data omap7xx_mcbsp_pdata[] = {
+ #define OMAP7XX_MCBSP_RES_SZ		ARRAY_SIZE(omap7xx_mcbsp_res[1])
+ #define OMAP7XX_MCBSP_COUNT		ARRAY_SIZE(omap7xx_mcbsp_res)
+ #else
+-#define omap7xx_mcbsp_res		NULL
++#define omap7xx_mcbsp_res_0		NULL
+ #define omap7xx_mcbsp_pdata		NULL
+ #define OMAP7XX_MCBSP_RES_SZ		0
+ #define OMAP7XX_MCBSP_COUNT		0
+@@ -238,6 +240,8 @@ struct resource omap15xx_mcbsp_res[][6] = {
+ 	},
+ };
+ 
++#define omap15xx_mcbsp_res_0		omap15xx_mcbsp_res[0]
++
+ static struct omap_mcbsp_platform_data omap15xx_mcbsp_pdata[] = {
+ 	{
+ 		.ops		= &omap1_mcbsp_ops,
+@@ -252,7 +256,7 @@ static struct omap_mcbsp_platform_data omap15xx_mcbsp_pdata[] = {
+ #define OMAP15XX_MCBSP_RES_SZ		ARRAY_SIZE(omap15xx_mcbsp_res[1])
+ #define OMAP15XX_MCBSP_COUNT		ARRAY_SIZE(omap15xx_mcbsp_res)
+ #else
+-#define omap15xx_mcbsp_res		NULL
++#define omap15xx_mcbsp_res_0		NULL
+ #define omap15xx_mcbsp_pdata		NULL
+ #define OMAP15XX_MCBSP_RES_SZ		0
+ #define OMAP15XX_MCBSP_COUNT		0
+@@ -343,6 +347,8 @@ struct resource omap16xx_mcbsp_res[][6] = {
+ 	},
+ };
+ 
++#define omap16xx_mcbsp_res_0		omap16xx_mcbsp_res[0]
++
+ static struct omap_mcbsp_platform_data omap16xx_mcbsp_pdata[] = {
+ 	{
+ 		.ops		= &omap1_mcbsp_ops,
+@@ -357,7 +363,7 @@ static struct omap_mcbsp_platform_data omap16xx_mcbsp_pdata[] = {
+ #define OMAP16XX_MCBSP_RES_SZ		ARRAY_SIZE(omap16xx_mcbsp_res[1])
+ #define OMAP16XX_MCBSP_COUNT		ARRAY_SIZE(omap16xx_mcbsp_res)
+ #else
+-#define omap16xx_mcbsp_res		NULL
++#define omap16xx_mcbsp_res_0		NULL
+ #define omap16xx_mcbsp_pdata		NULL
+ #define OMAP16XX_MCBSP_RES_SZ		0
+ #define OMAP16XX_MCBSP_COUNT		0
+@@ -381,19 +387,19 @@ static int __init omap1_mcbsp_init(void)
+ 		return -ENOMEM;
+ 
+ 	if (cpu_is_omap7xx())
+-		omap_mcbsp_register_board_cfg(omap7xx_mcbsp_res[0],
++		omap_mcbsp_register_board_cfg(omap7xx_mcbsp_res_0,
+ 					OMAP7XX_MCBSP_RES_SZ,
+ 					omap7xx_mcbsp_pdata,
+ 					OMAP7XX_MCBSP_COUNT);
+ 
+ 	if (cpu_is_omap15xx())
+-		omap_mcbsp_register_board_cfg(omap15xx_mcbsp_res[0],
++		omap_mcbsp_register_board_cfg(omap15xx_mcbsp_res_0,
+ 					OMAP15XX_MCBSP_RES_SZ,
+ 					omap15xx_mcbsp_pdata,
+ 					OMAP15XX_MCBSP_COUNT);
+ 
+ 	if (cpu_is_omap16xx())
+-		omap_mcbsp_register_board_cfg(omap16xx_mcbsp_res[0],
++		omap_mcbsp_register_board_cfg(omap16xx_mcbsp_res_0,
+ 					OMAP16XX_MCBSP_RES_SZ,
+ 					omap16xx_mcbsp_pdata,
+ 					OMAP16XX_MCBSP_COUNT);
+-- 
+1.7.1
+

@@ -12,13 +12,14 @@ As part of this change, we will now call the notifier iff we get
 a match with the notifier flags that the class driver requested.
 
 Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/smartreflex.c             |   73 ++++++++++++++++++++++++-
- arch/arm/plat-omap/include/plat/smartreflex.h |    6 ++
+ arch/arm/mach-omap2/smartreflex.c |   73 +++++++++++++++++++++++++++++++++++--
+ arch/arm/mach-omap2/smartreflex.h |    6 +++
  2 files changed, 76 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
-index 210293a..37de7e8 100644
+index bf2d5bf..c38c0cc 100644
 --- a/arch/arm/mach-omap2/smartreflex.c
 +++ b/arch/arm/mach-omap2/smartreflex.c
 @@ -123,27 +123,94 @@ static struct omap_sr *_sr_lookup(struct voltagedomain *voltdm)
@@ -119,11 +120,11 @@ index 210293a..37de7e8 100644
  
  	return IRQ_HANDLED;
  }
-diff --git a/arch/arm/plat-omap/include/plat/smartreflex.h b/arch/arm/plat-omap/include/plat/smartreflex.h
-index 8b6ecd9..ff07d1e 100644
---- a/arch/arm/plat-omap/include/plat/smartreflex.h
-+++ b/arch/arm/plat-omap/include/plat/smartreflex.h
-@@ -141,6 +141,12 @@
+diff --git a/arch/arm/mach-omap2/smartreflex.h b/arch/arm/mach-omap2/smartreflex.h
+index 1679cbc..0e6dedb 100644
+--- a/arch/arm/mach-omap2/smartreflex.h
++++ b/arch/arm/mach-omap2/smartreflex.h
+@@ -142,6 +142,12 @@
  #define OMAP3430_SR_ERRWEIGHT		0x04
  #define OMAP3430_SR_ERRMAXLIMIT		0x02
  

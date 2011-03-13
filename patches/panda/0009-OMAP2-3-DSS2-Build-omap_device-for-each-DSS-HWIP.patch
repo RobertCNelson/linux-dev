@@ -10,13 +10,14 @@ Reviewed-by: Kevin Hilman <khilman@ti.com>
 Tested-by: Kevin Hilman <khilman@ti.com>
 Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
 Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/display.c             |   50 +++++++++++++++++++++++++++++
  arch/arm/plat-omap/include/plat/display.h |    5 +++
  2 files changed, 55 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-index 6e21cb8..5c0a78b 100644
+index b18db84..3494185 100644
 --- a/arch/arm/mach-omap2/display.c
 +++ b/arch/arm/mach-omap2/display.c
 @@ -23,6 +23,8 @@
@@ -27,8 +28,8 @@ index 6e21cb8..5c0a78b 100644
 +#include <plat/omap_device.h>
  
  static struct platform_device omap_display_device = {
- 	.name          = "omap_display",
-@@ -32,10 +34,58 @@ static struct platform_device omap_display_device = {
+ 	.name          = "omapdss",
+@@ -32,9 +34,57 @@ static struct platform_device omap_display_device = {
  	},
  };
  
@@ -40,8 +41,7 @@ index 6e21cb8..5c0a78b 100644
 +	},
 +};
 +
- int __init omap_display_init(struct omap_dss_board_info
- 					*board_data)
+ int __init omap_display_init(struct omap_dss_board_info *board_data)
  {
  	int r = 0;
 +	struct omap_hwmod *oh;
@@ -88,10 +88,10 @@ index 6e21cb8..5c0a78b 100644
  
  	r = platform_device_register(&omap_display_device);
 diff --git a/arch/arm/plat-omap/include/plat/display.h b/arch/arm/plat-omap/include/plat/display.h
-index 0f140ec..2fb057e 100644
+index 50a20d0..ff2c6d7 100644
 --- a/arch/arm/plat-omap/include/plat/display.h
 +++ b/arch/arm/plat-omap/include/plat/display.h
-@@ -237,6 +237,11 @@ static inline int omap_display_init(struct omap_dss_board_info *board_data)
+@@ -247,6 +247,11 @@ static inline int omap_display_init(struct omap_dss_board_info *board_data)
  }
  #endif
  

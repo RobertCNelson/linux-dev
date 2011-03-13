@@ -1,0 +1,115 @@
+From 01c5a8193d9a9377a1654542f001f7fac0ff3b70 Mon Sep 17 00:00:00 2001
+From: Sumit Semwal <sumit.semwal@ti.com>
+Date: Mon, 24 Jan 2011 06:21:54 +0000
+Subject: [PATCH 093/254] OMAP2, 3: DSS2: Create new file display.c for central dss driver registration.
+
+A new file display.c is introduced for display driver init, which adds a function
+omap_display_init to do the DSS driver registration. This is the first step in moving
+away registration of DSS from board files into a common place.
+
+Reviewed-by: Kevin Hilman <khilman@ti.com>
+Tested-by: Kevin Hilman <khilman@ti.com>
+Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
+Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/mach-omap2/Makefile              |    3 ++
+ arch/arm/mach-omap2/display.c             |   45 +++++++++++++++++++++++++++++
+ arch/arm/plat-omap/include/plat/display.h |   11 +++++++
+ 3 files changed, 59 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/mach-omap2/display.c
+
+diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
+index ee72a97..1c3635d 100644
+--- a/arch/arm/mach-omap2/Makefile
++++ b/arch/arm/mach-omap2/Makefile
+@@ -245,3 +245,6 @@ obj-y					+= $(smc91x-m) $(smc91x-y)
+ smsc911x-$(CONFIG_SMSC911X)		:= gpmc-smsc911x.o
+ obj-y					+= $(smsc911x-m) $(smsc911x-y)
+ obj-$(CONFIG_ARCH_OMAP4)		+= hwspinlock.o
++
++disp-$(CONFIG_OMAP2_DSS)		:= display.o
++obj-y					+= $(disp-m) $(disp-y)
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+new file mode 100644
+index 0000000..b18db84
+--- /dev/null
++++ b/arch/arm/mach-omap2/display.c
+@@ -0,0 +1,45 @@
++/*
++ * OMAP2plus display device setup / initialization.
++ *
++ * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
++ *	Senthilvadivu Guruswamy
++ *	Sumit Semwal
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
++ * kind, whether express or implied; without even the implied warranty
++ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++#include <linux/clk.h>
++#include <linux/err.h>
++
++#include <plat/display.h>
++
++static struct platform_device omap_display_device = {
++	.name          = "omapdss",
++	.id            = -1,
++	.dev            = {
++		.platform_data = NULL,
++	},
++};
++
++int __init omap_display_init(struct omap_dss_board_info *board_data)
++{
++	int r = 0;
++	omap_display_device.dev.platform_data = board_data;
++
++	r = platform_device_register(&omap_display_device);
++	if (r < 0)
++		printk(KERN_ERR "Unable to register OMAP-Display device\n");
++
++	return r;
++}
+diff --git a/arch/arm/plat-omap/include/plat/display.h b/arch/arm/plat-omap/include/plat/display.h
+index 537f4e4..0f140ec 100644
+--- a/arch/arm/plat-omap/include/plat/display.h
++++ b/arch/arm/plat-omap/include/plat/display.h
+@@ -23,6 +23,7 @@
+ #include <linux/list.h>
+ #include <linux/kobject.h>
+ #include <linux/device.h>
++#include <linux/platform_device.h>
+ #include <asm/atomic.h>
+ 
+ #define DISPC_IRQ_FRAMEDONE		(1 << 0)
+@@ -226,6 +227,16 @@ struct omap_dss_board_info {
+ 	struct omap_dss_device *default_device;
+ };
+ 
++#if defined(CONFIG_OMAP2_DSS_MODULE) || defined(CONFIG_OMAP2_DSS)
++/* Init with the board info */
++extern int omap_display_init(struct omap_dss_board_info *board_data);
++#else
++static inline int omap_display_init(struct omap_dss_board_info *board_data)
++{
++	return 0;
++}
++#endif
++
+ struct omap_video_timings {
+ 	/* Unit: pixels */
+ 	u16 x_res;
+-- 
+1.7.1
+

@@ -1,0 +1,48 @@
+From 3becd628e4531e2bc40ba6d67b9d1bc9b8986218 Mon Sep 17 00:00:00 2001
+From: Vaibhav Hiremath <hvaibhav@ti.com>
+Date: Tue, 25 Jan 2011 17:37:40 +0000
+Subject: [PATCH 061/254] OMAP3EVM: Made backlight GPIO default state to off
+
+If you choose default output to DVI, the LCD backlight used to
+stay on, since panel->disable function never gets called.
+
+So, during init put backlight GPIO to off state and the driver
+code will decide which output to enable.
+
+Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-omap3evm.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-omap2/board-omap3evm.c
+index 36dac55..4f2574c 100644
+--- a/arch/arm/mach-omap2/board-omap3evm.c
++++ b/arch/arm/mach-omap2/board-omap3evm.c
+@@ -456,6 +456,8 @@ static struct platform_device leds_gpio = {
+ static int omap3evm_twl_gpio_setup(struct device *dev,
+ 		unsigned gpio, unsigned ngpio)
+ {
++	int r;
++
+ 	/* gpio + 0 is "mmc0_cd" (input/IRQ) */
+ 	omap_mux_init_gpio(63, OMAP_PIN_INPUT);
+ 	mmc[0].gpio_cd = gpio + 0;
+@@ -471,8 +473,12 @@ static int omap3evm_twl_gpio_setup(struct device *dev,
+ 	 */
+ 
+ 	/* TWL4030_GPIO_MAX + 0 == ledA, LCD Backlight control */
+-	gpio_request(gpio + TWL4030_GPIO_MAX, "EN_LCD_BKL");
+-	gpio_direction_output(gpio + TWL4030_GPIO_MAX, 0);
++	r = gpio_request(gpio + TWL4030_GPIO_MAX, "EN_LCD_BKL");
++	if (!r)
++		r = gpio_direction_output(gpio + TWL4030_GPIO_MAX,
++			(get_omap3_evm_rev() >= OMAP3EVM_BOARD_GEN_2) ? 1 : 0);
++	if (r)
++		printk(KERN_ERR "failed to get/set lcd_bkl gpio\n");
+ 
+ 	/* gpio + 7 == DVI Enable */
+ 	gpio_request(gpio + 7, "EN_DVI");
+-- 
+1.7.1
+

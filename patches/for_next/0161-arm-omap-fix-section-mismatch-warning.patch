@@ -1,0 +1,34 @@
+From 88a7b674e965ef190f47bc65d88ea39259e99916 Mon Sep 17 00:00:00 2001
+From: Ming Lei <tom.leiming@gmail.com>
+Date: Thu, 3 Mar 2011 06:41:46 +0800
+Subject: [PATCH 161/254] arm: omap: fix section mismatch warning
+
+WARNING: arch/arm/plat-omap/built-in.o(.data+0x6d4): Section mismatch in reference from the variable omap_driver to the function .init.text:omap_cpu_init()
+The variable omap_driver references
+the function __init omap_cpu_init()
+If the reference is valid then annotate the
+variable with __init* or __refdata (see linux/init.h) or name the variable:
+*_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console,
+
+Signed-off-by: Ming Lei <tom.leiming@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/plat-omap/cpu-omap.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/plat-omap/cpu-omap.c b/arch/arm/plat-omap/cpu-omap.c
+index 11c54ec..da4f68d 100644
+--- a/arch/arm/plat-omap/cpu-omap.c
++++ b/arch/arm/plat-omap/cpu-omap.c
+@@ -101,7 +101,7 @@ static int omap_target(struct cpufreq_policy *policy,
+ 	return ret;
+ }
+ 
+-static int __init omap_cpu_init(struct cpufreq_policy *policy)
++static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
+ {
+ 	int result = 0;
+ 
+-- 
+1.7.1
+

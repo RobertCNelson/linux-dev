@@ -1,0 +1,43 @@
+From c22ac8abe697d4f26d1294a722940af5dcad38b7 Mon Sep 17 00:00:00 2001
+From: Ilkka Koskinen <ilkka.koskinen@nokia.com>
+Date: Fri, 25 Feb 2011 08:46:23 +0000
+Subject: [PATCH 164/254] omap: rx51: Add support for vibra
+
+Add support for vibra
+
+Signed-off-by: Ilkka Koskinen <ilkka.koskinen@nokia.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-rx51-peripherals.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-rx51-peripherals.c b/arch/arm/mach-omap2/board-rx51-peripherals.c
+index f4881a7..5f1900c 100644
+--- a/arch/arm/mach-omap2/board-rx51-peripherals.c
++++ b/arch/arm/mach-omap2/board-rx51-peripherals.c
+@@ -742,6 +742,14 @@ static struct twl4030_power_data rx51_t2scripts_data __initdata = {
+ 	.resource_config = twl4030_rconfig,
+ };
+ 
++struct twl4030_codec_vibra_data rx51_vibra_data __initdata = {
++	.coexist	= 0,
++};
++
++struct twl4030_codec_data rx51_codec_data __initdata = {
++	.audio_mclk	= 26000000,
++	.vibra		= &rx51_vibra_data,
++};
+ 
+ static struct twl4030_platform_data rx51_twldata __initdata = {
+ 	.irq_base		= TWL4030_IRQ_BASE,
+@@ -753,6 +761,7 @@ static struct twl4030_platform_data rx51_twldata __initdata = {
+ 	.madc			= &rx51_madc_data,
+ 	.usb			= &rx51_usb_data,
+ 	.power			= &rx51_t2scripts_data,
++	.codec			= &rx51_codec_data,
+ 
+ 	.vaux1			= &rx51_vaux1,
+ 	.vaux2			= &rx51_vaux2,
+-- 
+1.7.1
+

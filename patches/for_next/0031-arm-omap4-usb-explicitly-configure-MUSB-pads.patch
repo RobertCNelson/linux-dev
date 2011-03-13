@@ -1,0 +1,85 @@
+From 8ace0283bc31cec3b631789cee54720b109b7fa5 Mon Sep 17 00:00:00 2001
+From: Anand Gadiyar <gadiyar@ti.com>
+Date: Wed, 16 Feb 2011 15:42:15 +0530
+Subject: [PATCH 031/254] arm: omap4: usb: explicitly configure MUSB pads
+
+Use the mux framework APIs to explicitly configure
+the MUSB pads. The MUSB controller in OMAP4 can use
+either the old ULPI interface, or the new internal PHY.
+Configure the pads accordingly.
+
+Signed-off-by: Anand Gadiyar <gadiyar@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+---
+ arch/arm/mach-omap2/usb-musb.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 40 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/usb-musb.c b/arch/arm/mach-omap2/usb-musb.c
+index 9107883..9788b49 100644
+--- a/arch/arm/mach-omap2/usb-musb.c
++++ b/arch/arm/mach-omap2/usb-musb.c
+@@ -30,6 +30,7 @@
+ #include <mach/irqs.h>
+ #include <mach/am35xx.h>
+ #include <plat/usb.h>
++#include "mux.h"
+ 
+ #if defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined (CONFIG_USB_MUSB_AM35X)
+ 
+@@ -88,6 +89,43 @@ static struct platform_device musb_device = {
+ 	.resource	= musb_resources,
+ };
+ 
++static void usb_musb_mux_init(struct omap_musb_board_data *board_data)
++{
++	switch (board_data->interface_type) {
++	case MUSB_INTERFACE_UTMI:
++		omap_mux_init_signal("usba0_otg_dp", OMAP_PIN_INPUT);
++		omap_mux_init_signal("usba0_otg_dm", OMAP_PIN_INPUT);
++		break;
++	case MUSB_INTERFACE_ULPI:
++		omap_mux_init_signal("usba0_ulpiphy_clk",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_stp",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dir",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_nxt",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat0",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat1",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat2",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat3",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat4",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat5",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat6",
++						OMAP_PIN_INPUT_PULLDOWN);
++		omap_mux_init_signal("usba0_ulpiphy_dat7",
++						OMAP_PIN_INPUT_PULLDOWN);
++		break;
++	default:
++		break;
++	}
++}
+ void __init usb_musb_init(struct omap_musb_board_data *board_data)
+ {
+ 	if (cpu_is_omap243x()) {
+@@ -102,6 +140,8 @@ void __init usb_musb_init(struct omap_musb_board_data *board_data)
+ 		musb_resources[0].start = OMAP44XX_HSUSB_OTG_BASE;
+ 		musb_resources[1].start = OMAP44XX_IRQ_HS_USB_MC_N;
+ 		musb_resources[2].start = OMAP44XX_IRQ_HS_USB_DMA_N;
++
++		usb_musb_mux_init(board_data);
+ 	}
+ 	musb_resources[0].end = musb_resources[0].start + SZ_4K - 1;
+ 
+-- 
+1.7.1
+

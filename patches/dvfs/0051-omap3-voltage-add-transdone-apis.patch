@@ -12,16 +12,17 @@ to know fine grained if the voltage is actually send to PMIC
 needs to depend on this status.
 
 Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/voltage.c             |   64 ++++++++++++++++++++++-------
- arch/arm/plat-omap/include/plat/voltage.h |    2 +
+ arch/arm/mach-omap2/voltage.c |   64 +++++++++++++++++++++++++++++++---------
+ arch/arm/mach-omap2/voltage.h |    2 +
  2 files changed, 51 insertions(+), 15 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
-index 639f645..15eed85 100644
+index b291227..02d7072 100644
 --- a/arch/arm/mach-omap2/voltage.c
 +++ b/arch/arm/mach-omap2/voltage.c
-@@ -555,8 +555,8 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+@@ -556,8 +556,8 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
  		struct omap_volt_data *target_volt)
  {
  	u32 vpconfig;
@@ -32,7 +33,7 @@ index 639f645..15eed85 100644
  	int ret, timeout = 0;
  
  	ret = _pre_volt_scale(vdd, target_volt, &target_vsel, &current_vsel);
-@@ -564,18 +564,13 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+@@ -565,18 +565,13 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
  		return ret;
  
  	mod = vdd->vp_reg.prm_mod;
@@ -53,7 +54,7 @@ index 639f645..15eed85 100644
  				break;
  		udelay(1);
  	}
-@@ -607,7 +602,7 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+@@ -608,7 +603,7 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
  	 * Depends on SMPSWAITTIMEMIN/MAX and voltage change
  	 */
  	timeout = 0;
@@ -62,7 +63,7 @@ index 639f645..15eed85 100644
  			vdd->vp_reg.tranxdone_status),
  			VP_TRANXDONE_TIMEOUT, timeout);
  	if (timeout >= VP_TRANXDONE_TIMEOUT)
-@@ -623,11 +618,9 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
+@@ -624,11 +619,9 @@ static int vp_forceupdate_scale_voltage(struct omap_vdd_info *vdd,
  	 */
  	timeout = 0;
  	while (timeout++ < VP_TRANXDONE_TIMEOUT) {
@@ -77,7 +78,7 @@ index 639f645..15eed85 100644
  		udelay(1);
  	}
  
-@@ -1190,6 +1183,47 @@ void omap_vp_disable(struct voltagedomain *voltdm)
+@@ -1191,6 +1184,47 @@ void omap_vp_disable(struct voltagedomain *voltdm)
  }
  
  /**
@@ -125,10 +126,10 @@ index 639f645..15eed85 100644
   * omap_voltage_scale_vdd() - API to scale voltage of a particular
   *				voltage domain.
   * @voltdm:	pointer to the VDD which is to be scaled.
-diff --git a/arch/arm/plat-omap/include/plat/voltage.h b/arch/arm/plat-omap/include/plat/voltage.h
+diff --git a/arch/arm/mach-omap2/voltage.h b/arch/arm/mach-omap2/voltage.h
 index 80544a7..6f310f2 100644
---- a/arch/arm/plat-omap/include/plat/voltage.h
-+++ b/arch/arm/plat-omap/include/plat/voltage.h
+--- a/arch/arm/mach-omap2/voltage.h
++++ b/arch/arm/mach-omap2/voltage.h
 @@ -272,6 +272,8 @@ void omap_voltage_get_volttable(struct voltagedomain *voltdm,
  struct omap_volt_data *omap_voltage_get_voltdata(struct voltagedomain *voltdm,
  		unsigned long volt);

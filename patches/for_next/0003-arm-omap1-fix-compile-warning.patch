@@ -1,0 +1,42 @@
+From e2109d9b9ac200cc28e5b4fa899817387c2bc5ea Mon Sep 17 00:00:00 2001
+From: Felipe Balbi <balbi@ti.com>
+Date: Thu, 27 Jan 2011 16:39:41 -0800
+Subject: [PATCH 003/254] arm: omap1: fix compile warning
+
+Fix the following compile warning:
+arch/arm/mach-omap1/board-palmte.c:233:13: warning:
+'palmte_headphones_detect' defined but not used
+
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap1/board-palmte.c |   13 -------------
+ 1 files changed, 0 insertions(+), 13 deletions(-)
+
+diff --git a/arch/arm/mach-omap1/board-palmte.c b/arch/arm/mach-omap1/board-palmte.c
+index fb51ce6..c9d38f4 100644
+--- a/arch/arm/mach-omap1/board-palmte.c
++++ b/arch/arm/mach-omap1/board-palmte.c
+@@ -230,19 +230,6 @@ static struct spi_board_info palmte_spi_info[] __initdata = {
+ 	},
+ };
+ 
+-static void palmte_headphones_detect(void *data, int state)
+-{
+-	if (state) {
+-		/* Headphones connected, disable speaker */
+-		gpio_set_value(PALMTE_SPEAKER_GPIO, 0);
+-		printk(KERN_INFO "PM: speaker off\n");
+-	} else {
+-		/* Headphones unplugged, re-enable speaker */
+-		gpio_set_value(PALMTE_SPEAKER_GPIO, 1);
+-		printk(KERN_INFO "PM: speaker on\n");
+-	}
+-}
+-
+ static void __init palmte_misc_gpio_setup(void)
+ {
+ 	/* Set TSC2102 PINTDAV pin as input (used by TSC2102 driver) */
+-- 
+1.7.1
+

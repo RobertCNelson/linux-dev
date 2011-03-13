@@ -1,0 +1,33 @@
+From 8f75c0ed7780513fd045e59a4d987fc69d98b2f3 Mon Sep 17 00:00:00 2001
+From: Rajendra Nayak <rnayak@ti.com>
+Date: Fri, 25 Feb 2011 15:48:37 -0700
+Subject: [PATCH 131/254] omap3: dpll: Populate clkops for dpll1_ck
+
+DPLL1 on omap3 is very similar to the rest of
+the non-core dpll's.
+Hence populate clkops_omap3_noncore_dpll_ops
+as the clkops for it, instead of the
+currently populated clkops_null.
+
+Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/clock3xxx_data.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/clock3xxx_data.c b/arch/arm/mach-omap2/clock3xxx_data.c
+index f14d986..0cdb834 100644
+--- a/arch/arm/mach-omap2/clock3xxx_data.c
++++ b/arch/arm/mach-omap2/clock3xxx_data.c
+@@ -296,7 +296,7 @@ static struct dpll_data dpll1_dd = {
+ 
+ static struct clk dpll1_ck = {
+ 	.name		= "dpll1_ck",
+-	.ops		= &clkops_null,
++	.ops		= &clkops_omap3_noncore_dpll_ops,
+ 	.parent		= &sys_ck,
+ 	.dpll_data	= &dpll1_dd,
+ 	.round_rate	= &omap2_dpll_round_rate,
+-- 
+1.7.1
+

@@ -38,18 +38,18 @@ Signed-off-by: Sanjeev Premi <premi@ti.com>
 Reviewed-by: G, Manjunath Kondaiah <manjugk@ti.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/control.h             |    6 +++
- arch/arm/mach-omap2/id.c                  |    5 ++
- arch/arm/mach-omap2/opp3xxx_data.c        |   63 ++++++++++++++++++++++++++++-
- arch/arm/plat-omap/include/plat/cpu.h     |    2 +
- arch/arm/plat-omap/include/plat/voltage.h |    1 +
+ arch/arm/mach-omap2/control.h         |    6 +++
+ arch/arm/mach-omap2/id.c              |    5 +++
+ arch/arm/mach-omap2/opp3xxx_data.c    |   63 ++++++++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/voltage.h         |    1 +
+ arch/arm/plat-omap/include/plat/cpu.h |    2 +
  5 files changed, 76 insertions(+), 1 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/control.h b/arch/arm/mach-omap2/control.h
-index f0629ae..c338466 100644
+index c2804c1..b52bf34 100644
 --- a/arch/arm/mach-omap2/control.h
 +++ b/arch/arm/mach-omap2/control.h
-@@ -365,6 +365,12 @@
+@@ -371,6 +371,12 @@
  #define		FEAT_NEON		0
  #define		FEAT_NEON_NONE		1
  
@@ -63,12 +63,12 @@ index f0629ae..c338466 100644
  #ifndef __ASSEMBLY__
  #ifdef CONFIG_ARCH_OMAP2PLUS
 diff --git a/arch/arm/mach-omap2/id.c b/arch/arm/mach-omap2/id.c
-index 5f9086c..8c4500f 100644
+index 3168b17..b361209 100644
 --- a/arch/arm/mach-omap2/id.c
 +++ b/arch/arm/mach-omap2/id.c
-@@ -191,6 +191,10 @@ static void __init omap3_check_features(void)
- 	if (!cpu_is_omap3505() && !cpu_is_omap3517())
- 		omap3_features |= OMAP3_HAS_IO_WAKEUP;
+@@ -193,6 +193,10 @@ static void __init omap3_check_features(void)
+ 
+ 	omap3_features |= OMAP3_HAS_SDRC;
  
 +	status = (OMAP3_SKUID_MASK & read_tap_reg(OMAP3_PRODID));
 +	if (status & OMAP3_SKUID_720MHZ)
@@ -77,7 +77,7 @@ index 5f9086c..8c4500f 100644
  	/*
  	 * TODO: Get additional info (where applicable)
  	 *       e.g. Size of L2 cache.
-@@ -445,6 +449,7 @@ static void __init omap3_cpuinfo(void)
+@@ -477,6 +481,7 @@ static void __init omap3_cpuinfo(void)
  	OMAP3_SHOW_FEATURE(neon);
  	OMAP3_SHOW_FEATURE(isp);
  	OMAP3_SHOW_FEATURE(192mhz_clk);
@@ -97,7 +97,7 @@ index e3ea9ba..4a70607 100644
  
  #include <plat/cpu.h>
 +#include <plat/omap_device.h>
- #include <plat/voltage.h>
+ #include "voltage.h"
  
  #include "omap_opp_data.h"
 @@ -35,6 +37,8 @@ static struct omap_opp_def __initdata omap34xx_opp_def_list[] = {
@@ -192,29 +192,10 @@ index e3ea9ba..4a70607 100644
  	return r;
  }
  device_initcall(omap3_opp_init);
-diff --git a/arch/arm/plat-omap/include/plat/cpu.h b/arch/arm/plat-omap/include/plat/cpu.h
-index 7cfaad1..f98151c 100644
---- a/arch/arm/plat-omap/include/plat/cpu.h
-+++ b/arch/arm/plat-omap/include/plat/cpu.h
-@@ -511,6 +511,7 @@ extern u32 omap3_features;
- #define OMAP3_HAS_ISP			BIT(4)
- #define OMAP3_HAS_192MHZ_CLK		BIT(5)
- #define OMAP3_HAS_IO_WAKEUP		BIT(6)
-+#define OMAP3_HAS_720MHZ		BIT(7)
- 
- #define OMAP3_HAS_FEATURE(feat,flag)			\
- static inline unsigned int omap3_has_ ##feat(void)	\
-@@ -525,5 +526,6 @@ OMAP3_HAS_FEATURE(neon, NEON)
- OMAP3_HAS_FEATURE(isp, ISP)
- OMAP3_HAS_FEATURE(192mhz_clk, 192MHZ_CLK)
- OMAP3_HAS_FEATURE(io_wakeup, IO_WAKEUP)
-+OMAP3_HAS_FEATURE(720mhz, 720MHZ)
- 
- #endif
-diff --git a/arch/arm/plat-omap/include/plat/voltage.h b/arch/arm/plat-omap/include/plat/voltage.h
-index 80544a7..2711ba1 100644
---- a/arch/arm/plat-omap/include/plat/voltage.h
-+++ b/arch/arm/plat-omap/include/plat/voltage.h
+diff --git a/arch/arm/mach-omap2/voltage.h b/arch/arm/mach-omap2/voltage.h
+index c8f69e4..fe22f32 100644
+--- a/arch/arm/mach-omap2/voltage.h
++++ b/arch/arm/mach-omap2/voltage.h
 @@ -33,6 +33,7 @@
  #define OMAP3430_VDD_MPU_OPP3_UV		1200000
  #define OMAP3430_VDD_MPU_OPP4_UV		1270000
@@ -223,6 +204,25 @@ index 80544a7..2711ba1 100644
  
  #define OMAP3430_VDD_CORE_OPP1_UV		975000
  #define OMAP3430_VDD_CORE_OPP2_UV		1050000
+diff --git a/arch/arm/plat-omap/include/plat/cpu.h b/arch/arm/plat-omap/include/plat/cpu.h
+index 5c49dd1..ab98f38 100644
+--- a/arch/arm/plat-omap/include/plat/cpu.h
++++ b/arch/arm/plat-omap/include/plat/cpu.h
+@@ -534,6 +534,7 @@ extern u32 omap3_features;
+ #define OMAP3_HAS_192MHZ_CLK		BIT(5)
+ #define OMAP3_HAS_IO_WAKEUP		BIT(6)
+ #define OMAP3_HAS_SDRC			BIT(7)
++#define OMAP3_HAS_720MHZ		BIT(8)
+ 
+ #define OMAP3_HAS_FEATURE(feat,flag)			\
+ static inline unsigned int omap3_has_ ##feat(void)	\
+@@ -549,5 +550,6 @@ OMAP3_HAS_FEATURE(isp, ISP)
+ OMAP3_HAS_FEATURE(192mhz_clk, 192MHZ_CLK)
+ OMAP3_HAS_FEATURE(io_wakeup, IO_WAKEUP)
+ OMAP3_HAS_FEATURE(sdrc, SDRC)
++OMAP3_HAS_FEATURE(720mhz, 720MHZ)
+ 
+ #endif
 -- 
 1.7.1
 

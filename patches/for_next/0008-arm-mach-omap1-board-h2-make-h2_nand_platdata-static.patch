@@ -1,0 +1,31 @@
+From 34a035edd067a06d58969eddaf84bd4699b17843 Mon Sep 17 00:00:00 2001
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Date: Thu, 27 Jan 2011 16:39:43 -0800
+Subject: [PATCH 008/254] arm: mach-omap1: board-h2: make h2_nand_platdata static
+
+Eliminates the following sparse warning:
+
+	arch/arm/mach-omap1/board-h2.c:205:27: warning: symbol 'h2_nand_platdata' was not declared. Should it be static?
+
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap1/board-h2.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap1/board-h2.c b/arch/arm/mach-omap1/board-h2.c
+index 28b84aa..ba3bd09 100644
+--- a/arch/arm/mach-omap1/board-h2.c
++++ b/arch/arm/mach-omap1/board-h2.c
+@@ -202,7 +202,7 @@ static int h2_nand_dev_ready(struct mtd_info *mtd)
+ 
+ static const char *h2_part_probes[] = { "cmdlinepart", NULL };
+ 
+-struct platform_nand_data h2_nand_platdata = {
++static struct platform_nand_data h2_nand_platdata = {
+ 	.chip	= {
+ 		.nr_chips		= 1,
+ 		.chip_offset		= 0,
+-- 
+1.7.1
+

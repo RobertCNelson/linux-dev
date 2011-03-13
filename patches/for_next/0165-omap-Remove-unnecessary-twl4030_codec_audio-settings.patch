@@ -1,0 +1,179 @@
+From 0cccaff0af21be96c602d4c0175cb4c1241d9e7b Mon Sep 17 00:00:00 2001
+From: Ilkka Koskinen <ilkka.koskinen@nokia.com>
+Date: Wed, 2 Mar 2011 13:24:05 +0000
+Subject: [PATCH 165/254] omap: Remove unnecessary twl4030_codec_audio settings from board files
+
+twl4030_codec_audio and twl4030_codec_vibra_data has unused field.
+In order to remove it, corresponding settings needs to be removed
+from board files.
+
+Signed-off-by: Ilkka Koskinen <ilkka.koskinen@nokia.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@nokia.com>
+Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-3430sdp.c          |    4 +---
+ arch/arm/mach-omap2/board-devkit8000.c       |    4 +---
+ arch/arm/mach-omap2/board-igep0020.c         |    4 +---
+ arch/arm/mach-omap2/board-omap3beagle.c      |    4 +---
+ arch/arm/mach-omap2/board-omap3evm.c         |    4 +---
+ arch/arm/mach-omap2/board-omap3pandora.c     |    4 +---
+ arch/arm/mach-omap2/board-omap3stalker.c     |    4 +---
+ arch/arm/mach-omap2/board-omap3touchbook.c   |    4 +---
+ arch/arm/mach-omap2/board-overo.c            |    4 +---
+ arch/arm/mach-omap2/board-zoom-peripherals.c |    4 +---
+ 10 files changed, 10 insertions(+), 30 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-3430sdp.c b/arch/arm/mach-omap2/board-3430sdp.c
+index 4e9e081..85c0b5c 100644
+--- a/arch/arm/mach-omap2/board-3430sdp.c
++++ b/arch/arm/mach-omap2/board-3430sdp.c
+@@ -557,9 +557,7 @@ static struct regulator_init_data sdp3430_vpll2 = {
+ 	.consumer_supplies	= sdp3430_vpll2_supplies,
+ };
+ 
+-static struct twl4030_codec_audio_data sdp3430_audio = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data sdp3430_audio;
+ 
+ static struct twl4030_codec_data sdp3430_codec = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-devkit8000.c b/arch/arm/mach-omap2/board-devkit8000.c
+index c9170f4..728f27c 100644
+--- a/arch/arm/mach-omap2/board-devkit8000.c
++++ b/arch/arm/mach-omap2/board-devkit8000.c
+@@ -342,9 +342,7 @@ static struct twl4030_usb_data devkit8000_usb_data = {
+ 	.usb_mode	= T2_USB_MODE_ULPI,
+ };
+ 
+-static struct twl4030_codec_audio_data devkit8000_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data devkit8000_audio_data;
+ 
+ static struct twl4030_codec_data devkit8000_codec_data = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-igep0020.c b/arch/arm/mach-omap2/board-igep0020.c
+index 1877c28..c4b3c1c 100644
+--- a/arch/arm/mach-omap2/board-igep0020.c
++++ b/arch/arm/mach-omap2/board-igep0020.c
+@@ -521,9 +521,7 @@ static void __init igep2_init_early(void)
+ 				  m65kxxxxam_sdrc_params);
+ }
+ 
+-static struct twl4030_codec_audio_data igep2_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data igep2_audio_data;
+ 
+ static struct twl4030_codec_data igep2_codec_data = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index a1faea3..b6752ac 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -427,9 +427,7 @@ static struct twl4030_usb_data beagle_usb_data = {
+ 	.usb_mode	= T2_USB_MODE_ULPI,
+ };
+ 
+-static struct twl4030_codec_audio_data beagle_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data beagle_audio_data;
+ 
+ static struct twl4030_codec_data beagle_codec_data = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-omap2/board-omap3evm.c
+index 7d6e2b2..b65848c 100644
+--- a/arch/arm/mach-omap2/board-omap3evm.c
++++ b/arch/arm/mach-omap2/board-omap3evm.c
+@@ -534,9 +534,7 @@ static struct twl4030_madc_platform_data omap3evm_madc_data = {
+ 	.irq_line	= 1,
+ };
+ 
+-static struct twl4030_codec_audio_data omap3evm_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data omap3evm_audio_data;
+ 
+ static struct twl4030_codec_data omap3evm_codec_data = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-omap3pandora.c b/arch/arm/mach-omap2/board-omap3pandora.c
+index ed13869..5386a81 100644
+--- a/arch/arm/mach-omap2/board-omap3pandora.c
++++ b/arch/arm/mach-omap2/board-omap3pandora.c
+@@ -516,9 +516,7 @@ static struct twl4030_usb_data omap3pandora_usb_data = {
+ 	.usb_mode	= T2_USB_MODE_ULPI,
+ };
+ 
+-static struct twl4030_codec_audio_data omap3pandora_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data omap3pandora_audio_data;
+ 
+ static struct twl4030_codec_data omap3pandora_codec_data = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-omap3stalker.c b/arch/arm/mach-omap2/board-omap3stalker.c
+index fd8b764..15ede8b 100644
+--- a/arch/arm/mach-omap2/board-omap3stalker.c
++++ b/arch/arm/mach-omap2/board-omap3stalker.c
+@@ -431,9 +431,7 @@ static struct twl4030_madc_platform_data omap3stalker_madc_data = {
+ 	.irq_line	= 1,
+ };
+ 
+-static struct twl4030_codec_audio_data omap3stalker_audio_data = {
+-	.audio_mclk	= 26000000,
+-};
++static struct twl4030_codec_audio_data omap3stalker_audio_data;
+ 
+ static struct twl4030_codec_data omap3stalker_codec_data = {
+ 	.audio_mclk	= 26000000,
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index 8e2a7ba..5554f58 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -252,9 +252,7 @@ static struct twl4030_usb_data touchbook_usb_data = {
+ 	.usb_mode	= T2_USB_MODE_ULPI,
+ };
+ 
+-static struct twl4030_codec_audio_data touchbook_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data touchbook_audio_data;
+ 
+ static struct twl4030_codec_data touchbook_codec_data = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index d480ddb..60f8db3 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -358,9 +358,7 @@ static struct regulator_init_data overo_vmmc1 = {
+ 	.consumer_supplies	= &overo_vmmc1_supply,
+ };
+ 
+-static struct twl4030_codec_audio_data overo_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data overo_audio_data;
+ 
+ static struct twl4030_codec_data overo_codec_data = {
+ 	.audio_mclk = 26000000,
+diff --git a/arch/arm/mach-omap2/board-zoom-peripherals.c b/arch/arm/mach-omap2/board-zoom-peripherals.c
+index 7a098a4..448ab60 100644
+--- a/arch/arm/mach-omap2/board-zoom-peripherals.c
++++ b/arch/arm/mach-omap2/board-zoom-peripherals.c
+@@ -322,9 +322,7 @@ static struct twl4030_madc_platform_data zoom_madc_data = {
+ 	.irq_line	= 1,
+ };
+ 
+-static struct twl4030_codec_audio_data zoom_audio_data = {
+-	.audio_mclk = 26000000,
+-};
++static struct twl4030_codec_audio_data zoom_audio_data;
+ 
+ static struct twl4030_codec_data zoom_codec_data = {
+ 	.audio_mclk = 26000000,
+-- 
+1.7.1
+

@@ -114,6 +114,7 @@ Cc: Thara Gopinath <thara@ti.com>
 Cc: Tony Lindgren <tony@atomide.com>
 
 Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/clock.h     |   14 +++++++++++++-
  arch/arm/mach-omap2/clock34xx.c |    2 ++
@@ -121,10 +122,10 @@ Signed-off-by: Nishanth Menon <nm@ti.com>
  3 files changed, 46 insertions(+), 4 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/clock.h b/arch/arm/mach-omap2/clock.h
-index 896584e..29b5cf0 100644
+index 70f8b07..569693d 100644
 --- a/arch/arm/mach-omap2/clock.h
 +++ b/arch/arm/mach-omap2/clock.h
-@@ -137,7 +137,9 @@ extern const struct clksel_rate gpt_32k_rates[];
+@@ -144,7 +144,9 @@ extern const struct clksel_rate gpt_32k_rates[];
  extern const struct clksel_rate gpt_sys_rates[];
  extern const struct clksel_rate gfx_l3_rates[];
  
@@ -135,7 +136,7 @@ index 896584e..29b5cf0 100644
  extern void omap2_clk_init_cpufreq_table(struct cpufreq_frequency_table **table);
  extern void omap2_clk_exit_cpufreq_table(struct cpufreq_frequency_table **table);
  #else
-@@ -145,6 +147,16 @@ extern void omap2_clk_exit_cpufreq_table(struct cpufreq_frequency_table **table)
+@@ -152,6 +154,16 @@ extern void omap2_clk_exit_cpufreq_table(struct cpufreq_frequency_table **table)
  #define omap2_clk_exit_cpufreq_table	0
  #endif
  
@@ -149,11 +150,11 @@ index 896584e..29b5cf0 100644
 +
 +#endif /* CONFIG_CPU_FREQ */
 +
- extern const struct clkops clkops_omap3_noncore_dpll_ops;
- 
- #endif
+ extern const struct clkops clkops_omap2_iclk_dflt_wait;
+ extern const struct clkops clkops_omap2_iclk_dflt;
+ extern const struct clkops clkops_omap2_iclk_idle_only;
 diff --git a/arch/arm/mach-omap2/clock34xx.c b/arch/arm/mach-omap2/clock34xx.c
-index 287abc4..85d3877 100644
+index 1fc96b9..119e135 100644
 --- a/arch/arm/mach-omap2/clock34xx.c
 +++ b/arch/arm/mach-omap2/clock34xx.c
 @@ -20,6 +20,8 @@
@@ -166,7 +167,7 @@ index 287abc4..85d3877 100644
  #include <plat/clock.h>
  
 diff --git a/arch/arm/plat-omap/cpu-omap.c b/arch/arm/plat-omap/cpu-omap.c
-index bfa063b..7753e86 100644
+index 1b36664..f0f9430 100644
 --- a/arch/arm/plat-omap/cpu-omap.c
 +++ b/arch/arm/plat-omap/cpu-omap.c
 @@ -8,6 +8,10 @@
@@ -242,7 +243,7 @@ index bfa063b..7753e86 100644
  	return ret;
  }
  
-@@ -114,7 +135,14 @@ static int __init omap_cpu_init(struct cpufreq_policy *policy)
+@@ -114,7 +135,14 @@ static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
  
  	policy->cur = policy->min = policy->max = omap_getspeed(0);
  

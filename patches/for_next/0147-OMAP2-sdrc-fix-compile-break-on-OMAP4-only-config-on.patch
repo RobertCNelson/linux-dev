@@ -1,0 +1,47 @@
+From fa428c7db2b8d1b7b0cc1f5304f2fdf5459bbda1 Mon Sep 17 00:00:00 2001
+From: Paul Walmsley <paul@pwsan.com>
+Date: Fri, 25 Feb 2011 17:38:25 -0700
+Subject: [PATCH 147/254] OMAP2+: sdrc: fix compile break on OMAP4-only config on current omap-for-linus
+
+On non-OMAP2 and non-OMAP3 kernel configs, turn omap2_sdrc_init() into
+a no-op.  Otherwise, compilation breaks on an OMAP4-only config with
+the current omap-for-linus branch:
+
+arch/arm/mach-omap2/built-in.o: In function `omap2_init_common_devices':
+../mach-omap2/io.c:421: undefined reference to `omap2_sdrc_init'
+
+Thanks to Sergei Shtylyov <sshtylyov@mvista.com> for suggesting the use
+of a empty static inline function rather than a macro.
+
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Sergei Shtylyov <sshtylyov@mvista.com>
+[tony@atomide.com: updated not to use __init for inline omap2_sdrc_init]
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/plat-omap/include/plat/sdrc.h |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/plat-omap/include/plat/sdrc.h b/arch/arm/plat-omap/include/plat/sdrc.h
+index efd87c8..925b12b 100644
+--- a/arch/arm/plat-omap/include/plat/sdrc.h
++++ b/arch/arm/plat-omap/include/plat/sdrc.h
+@@ -124,8 +124,14 @@ struct omap_sdrc_params {
+ 	u32 mr;
+ };
+ 
+-void __init omap2_sdrc_init(struct omap_sdrc_params *sdrc_cs0,
++#if defined(CONFIG_ARCH_OMAP2) || defined(CONFIG_ARCH_OMAP3)
++void omap2_sdrc_init(struct omap_sdrc_params *sdrc_cs0,
+ 			    struct omap_sdrc_params *sdrc_cs1);
++#else
++static inline void __init omap2_sdrc_init(struct omap_sdrc_params *sdrc_cs0,
++					  struct omap_sdrc_params *sdrc_cs1) {};
++#endif
++
+ int omap2_sdrc_get_params(unsigned long r,
+ 			  struct omap_sdrc_params **sdrc_cs0,
+ 			  struct omap_sdrc_params **sdrc_cs1);
+-- 
+1.7.1
+

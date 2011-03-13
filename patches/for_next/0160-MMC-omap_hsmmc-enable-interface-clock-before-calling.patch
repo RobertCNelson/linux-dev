@@ -1,0 +1,49 @@
+From 829c6061598db1cd06d62b609994ad719fe9b48d Mon Sep 17 00:00:00 2001
+From: Paul Walmsley <paul@pwsan.com>
+Date: Fri, 25 Feb 2011 18:22:08 -0700
+Subject: [PATCH 160/254] MMC: omap_hsmmc: enable interface clock before calling mmc_host_enable()
+
+The code path entered via mmc_host_enable() can include register
+accesses to the HSMMC IP block.  For this to work, both the device
+interface clock and functional clock need to be enabled before
+mmc_host_enable() is called.  However, omap_hsmmc_probe() calls
+mmc_host_enable() before enabling the device interface clock.
+
+Fix by calling mmc_host_enable() after the device interface clock is
+enabled.
+
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Cc: Madhusudhan Chikkature Rajashekar <madhu.cr@ti.com>
+Cc: Adrian Hunter <adrian.hunter@nokia.com>
+Cc: Kishore Kadiyala <kishore.kadiyala@ti.com>
+Cc: Tero Kristo <Tero.Kristo@nokia.com>
+Acked-by: Madhusudhan Chikkature Rajashekar <madhu.cr@ti.com>
+---
+ drivers/mmc/host/omap_hsmmc.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
+index 191332b..158c0ee 100644
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -2117,14 +2117,14 @@ static int __init omap_hsmmc_probe(struct platform_device *pdev)
+ 	/* we start off in DISABLED state */
+ 	host->dpm_state = DISABLED;
+ 
+-	if (mmc_host_enable(host->mmc) != 0) {
++	if (clk_enable(host->iclk) != 0) {
+ 		clk_put(host->iclk);
+ 		clk_put(host->fclk);
+ 		goto err1;
+ 	}
+ 
+-	if (clk_enable(host->iclk) != 0) {
+-		mmc_host_disable(host->mmc);
++	if (mmc_host_enable(host->mmc) != 0) {
++		clk_disable(host->iclk);
+ 		clk_put(host->iclk);
+ 		clk_put(host->fclk);
+ 		goto err1;
+-- 
+1.7.1
+

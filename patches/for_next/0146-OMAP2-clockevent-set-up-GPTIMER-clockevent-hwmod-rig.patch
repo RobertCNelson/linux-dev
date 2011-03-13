@@ -1,0 +1,66 @@
+From 5051bf5e7f2a57477b3be6311d66e4168ce010ff Mon Sep 17 00:00:00 2001
+From: Paul Walmsley <paul@pwsan.com>
+Date: Wed, 23 Feb 2011 00:14:08 -0700
+Subject: [PATCH 146/254] OMAP2+: clockevent: set up GPTIMER clockevent hwmod right before timer init
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Set up the GPTIMER hwmod used for the clockevent source immediately
+before it is used.  This avoids the need to set up all of the hwmods
+until the boot process is further along.  (In general, we want to defer
+as much as possible until late in the boot process.)
+
+This second version fixes a bug pointed out by Santosh Shilimkar
+<santosh.shilimkar@ti.com>, that would cause the kernel to use an
+incorrect timer hwmod name if the selected GPTIMER was not 1 or 12 -
+thanks Santosh.  Also, Tarun Kanti DebBarma <tarun.kanti@ti.com>
+pointed out that the original patch did not apply cleanly; this has
+now been fixed.
+
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Cc: Benoît Cousson <b-cousson@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Kevin Hilman <khilman@ti.com>
+Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Cc: Tarun Kanti DebBarma <tarun.kanti@ti.com>
+---
+ arch/arm/mach-omap2/timer-gp.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/timer-gp.c b/arch/arm/mach-omap2/timer-gp.c
+index 0fc550e..1887dd0 100644
+--- a/arch/arm/mach-omap2/timer-gp.c
++++ b/arch/arm/mach-omap2/timer-gp.c
+@@ -39,11 +39,11 @@
+ #include <asm/mach/time.h>
+ #include <plat/dmtimer.h>
+ #include <asm/localtimer.h>
+-#include <asm/sched_clock.h>
++#include <plat/common.h>
++#include <plat/omap_hwmod.h>
+ 
+ #include "timer-gp.h"
+ 
+-#include <plat/common.h>
+ 
+ /* MAX_GPTIMER_ID: number of GPTIMERs on the chip */
+ #define MAX_GPTIMER_ID		12
+@@ -133,9 +133,13 @@ static void __init omap2_gp_clockevent_init(void)
+ {
+ 	u32 tick_rate;
+ 	int src;
++	char clockevent_hwmod_name[8]; /* 8 = sizeof("timerXX0") */
+ 
+ 	inited = 1;
+ 
++	sprintf(clockevent_hwmod_name, "timer%d", gptimer_id);
++	omap_hwmod_setup_one(clockevent_hwmod_name);
++
+ 	gptimer = omap_dm_timer_request_specific(gptimer_id);
+ 	BUG_ON(gptimer == NULL);
+ 	gptimer_wakeup = gptimer;
+-- 
+1.7.1
+

@@ -20,10 +20,11 @@ Based on original patch from Thara.
 
 Signed-off-by: Vishwanath BS <vishwanath.bs@ti.com>
 Cc: Thara Gopinath <thara@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/dvfs.c                |   87 +++++++++++++++++
- arch/arm/mach-omap2/voltage.c             |  117 -----------------------
- arch/arm/plat-omap/include/plat/voltage.h |  148 +++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/dvfs.c    |   87 ++++++++++++++++++++++++
+ arch/arm/mach-omap2/voltage.c |  117 --------------------------------
+ arch/arm/mach-omap2/voltage.h |  148 +++++++++++++++++++++++++++++++++++++++++
  3 files changed, 235 insertions(+), 117 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/dvfs.c b/arch/arm/mach-omap2/dvfs.c
@@ -160,10 +161,10 @@ index cefc2be..c9d3894 100644
  }
  
 diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
-index 12be525..cd61e6d 100644
+index 3c9bcdc..6488573 100644
 --- a/arch/arm/mach-omap2/voltage.c
 +++ b/arch/arm/mach-omap2/voltage.c
-@@ -39,123 +39,6 @@
+@@ -40,123 +40,6 @@
  #define VP_TRANXDONE_TIMEOUT	300
  #define VOLTAGE_DIR_SIZE	16
  
@@ -287,10 +288,10 @@ index 12be525..cd61e6d 100644
  static struct omap_vdd_info *vdd_info;
  /*
   * Number of scalable voltage domains.
-diff --git a/arch/arm/plat-omap/include/plat/voltage.h b/arch/arm/plat-omap/include/plat/voltage.h
+diff --git a/arch/arm/mach-omap2/voltage.h b/arch/arm/mach-omap2/voltage.h
 index 5bd204e..e0b7f22 100644
---- a/arch/arm/plat-omap/include/plat/voltage.h
-+++ b/arch/arm/plat-omap/include/plat/voltage.h
+--- a/arch/arm/mach-omap2/voltage.h
++++ b/arch/arm/mach-omap2/voltage.h
 @@ -113,6 +113,154 @@ struct omap_volt_pmic_info {
  	u8 (*uv_to_vsel) (unsigned long uV);
  };

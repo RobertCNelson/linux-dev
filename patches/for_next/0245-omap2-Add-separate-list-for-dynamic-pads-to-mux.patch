@@ -1,0 +1,214 @@
+From d414f2ec046e7df60e6a99b08b6ef74180a0e457 Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Fri, 11 Mar 2011 11:32:25 -0800
+Subject: [PATCH 245/254] omap2+: Add separate list for dynamic pads to mux
+
+This avoids going through the list unnecessarily when
+idling devices for runtime PM.
+
+Based on an earlier patch by sricharan <r.sricharan@ti.com>.
+
+Signed-off-by: sricharan <r.sricharan@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/mux.c                    |   88 ++++++++++++++++++++++----
+ arch/arm/mach-omap2/mux.h                    |    2 +-
+ arch/arm/mach-omap2/omap_hwmod.c             |    6 +-
+ arch/arm/plat-omap/include/plat/omap_hwmod.h |    3 +
+ 4 files changed, 83 insertions(+), 16 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/mux.c b/arch/arm/mach-omap2/mux.c
+index 6c84659..8717370 100644
+--- a/arch/arm/mach-omap2/mux.c
++++ b/arch/arm/mach-omap2/mux.c
+@@ -258,7 +258,7 @@ struct omap_hwmod_mux_info * __init
+ omap_hwmod_mux_init(struct omap_device_pad *bpads, int nr_pads)
+ {
+ 	struct omap_hwmod_mux_info *hmux;
+-	int i;
++	int i, nr_pads_dynamic = 0;
+ 
+ 	if (!bpads || nr_pads < 1)
+ 		return NULL;
+@@ -302,9 +302,40 @@ omap_hwmod_mux_init(struct omap_device_pad *bpads, int nr_pads)
+ 		pad->enable = bpad->enable;
+ 		pad->idle = bpad->idle;
+ 		pad->off = bpad->off;
++
++		if (pad->flags & OMAP_DEVICE_PAD_REMUX)
++			nr_pads_dynamic++;
++
+ 		pr_debug("%s: Initialized %s\n", __func__, pad->name);
+ 	}
+ 
++	if (!nr_pads_dynamic)
++		return hmux;
++
++	/*
++	 * Add pads that need dynamic muxing into a separate list
++	 */
++
++	hmux->nr_pads_dynamic = nr_pads_dynamic;
++	hmux->pads_dynamic = kzalloc(sizeof(struct omap_device_pad *) *
++					nr_pads_dynamic, GFP_KERNEL);
++	if (!hmux->pads_dynamic) {
++		pr_err("%s: Could not allocate dynamic pads\n", __func__);
++		return hmux;
++	}
++
++	nr_pads_dynamic = 0;
++	for (i = 0; i < hmux->nr_pads; i++) {
++		struct omap_device_pad *pad = &hmux->pads[i];
++
++		if (pad->flags & OMAP_DEVICE_PAD_REMUX) {
++			pr_debug("%s: pad %s tagged dynamic\n",
++					__func__, pad->name);
++			hmux->pads_dynamic[nr_pads_dynamic] = pad;
++			nr_pads_dynamic++;
++		}
++	}
++
+ 	return hmux;
+ 
+ err3:
+@@ -322,6 +353,44 @@ void omap_hwmod_mux(struct omap_hwmod_mux_info *hmux, u8 state)
+ {
+ 	int i;
+ 
++	/* Runtime idling of dynamic pads */
++	if (state == _HWMOD_STATE_IDLE && hmux->enabled) {
++		for (i = 0; i < hmux->nr_pads_dynamic; i++) {
++			struct omap_device_pad *pad = hmux->pads_dynamic[i];
++			int val = -EINVAL;
++
++			pad->flags |= OMAP_DEVICE_PAD_IDLE;
++			val = pad->idle;
++			omap_mux_write(pad->partition, val,
++					pad->mux->reg_offset);
++		}
++
++		return;
++	}
++
++	/* Runtime enabling of dynamic pads */
++	if ((state == _HWMOD_STATE_ENABLED) && hmux->pads_dynamic) {
++		int idled = 0;
++
++		for (i = 0; i < hmux->nr_pads_dynamic; i++) {
++			struct omap_device_pad *pad = hmux->pads_dynamic[i];
++			int val = -EINVAL;
++
++			if (!(pad->flags & OMAP_DEVICE_PAD_IDLE))
++				continue;
++
++			pad->flags &= ~OMAP_DEVICE_PAD_IDLE;
++			val = pad->enable;
++			omap_mux_write(pad->partition, val,
++					pad->mux->reg_offset);
++			idled++;
++		}
++
++		if (idled)
++			return;
++	}
++
++	/* Enabling or disabling of all pads */
+ 	for (i = 0; i < hmux->nr_pads; i++) {
+ 		struct omap_device_pad *pad = &hmux->pads[i];
+ 		int flags, val = -EINVAL;
+@@ -330,21 +399,10 @@ void omap_hwmod_mux(struct omap_hwmod_mux_info *hmux, u8 state)
+ 
+ 		switch (state) {
+ 		case _HWMOD_STATE_ENABLED:
+-			if (flags & OMAP_DEVICE_PAD_ENABLED)
+-				break;
+-			flags |= OMAP_DEVICE_PAD_ENABLED;
+ 			val = pad->enable;
+ 			pr_debug("%s: Enabling %s %x\n", __func__,
+ 					pad->name, val);
+ 			break;
+-		case _HWMOD_STATE_IDLE:
+-			if (!(flags & OMAP_DEVICE_PAD_REMUX))
+-				break;
+-			flags &= ~OMAP_DEVICE_PAD_ENABLED;
+-			val = pad->idle;
+-			pr_debug("%s: Idling %s %x\n", __func__,
+-					pad->name, val);
+-			break;
+ 		case _HWMOD_STATE_DISABLED:
+ 		default:
+ 			/* Use safe mode unless OMAP_DEVICE_PAD_REMUX */
+@@ -352,7 +410,6 @@ void omap_hwmod_mux(struct omap_hwmod_mux_info *hmux, u8 state)
+ 				val = pad->off;
+ 			else
+ 				val = OMAP_MUX_MODE7;
+-			flags &= ~OMAP_DEVICE_PAD_ENABLED;
+ 			pr_debug("%s: Disabling %s %x\n", __func__,
+ 					pad->name, val);
+ 		};
+@@ -363,6 +420,11 @@ void omap_hwmod_mux(struct omap_hwmod_mux_info *hmux, u8 state)
+ 			pad->flags = flags;
+ 		}
+ 	}
++
++	if (state == _HWMOD_STATE_ENABLED)
++		hmux->enabled = true;
++	else
++		hmux->enabled = false;
+ }
+ 
+ #ifdef CONFIG_DEBUG_FS
+diff --git a/arch/arm/mach-omap2/mux.h b/arch/arm/mach-omap2/mux.h
+index a4ab17a..1d5bf42 100644
+--- a/arch/arm/mach-omap2/mux.h
++++ b/arch/arm/mach-omap2/mux.h
+@@ -159,7 +159,7 @@ struct omap_board_mux {
+ 	u16	value;
+ };
+ 
+-#define OMAP_DEVICE_PAD_ENABLED		BIT(7)	/* Not needed for board-*.c */
++#define OMAP_DEVICE_PAD_IDLE		BIT(7)	/* Not needed for board-*.c */
+ #define OMAP_DEVICE_PAD_REMUX		BIT(1)	/* Dynamically remux a pad,
+ 						   needs enable, idle and off
+ 						   values */
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 4c8329e..e034294 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -1244,7 +1244,9 @@ static int _enable(struct omap_hwmod *oh)
+ 		_deassert_hardreset(oh, oh->rst_lines[0].name);
+ 
+ 	/* Mux pins for device runtime if populated */
+-	if (oh->mux)
++	if (oh->mux && (!oh->mux->enabled ||
++			((oh->_state == _HWMOD_STATE_IDLE) &&
++			 oh->mux->pads_dynamic)))
+ 		omap_hwmod_mux(oh->mux, _HWMOD_STATE_ENABLED);
+ 
+ 	_add_initiator_dep(oh, mpu_oh);
+@@ -1293,7 +1295,7 @@ static int _idle(struct omap_hwmod *oh)
+ 	_disable_clocks(oh);
+ 
+ 	/* Mux pins for device idle if populated */
+-	if (oh->mux)
++	if (oh->mux && oh->mux->pads_dynamic)
+ 		omap_hwmod_mux(oh->mux, _HWMOD_STATE_IDLE);
+ 
+ 	oh->_state = _HWMOD_STATE_IDLE;
+diff --git a/arch/arm/plat-omap/include/plat/omap_hwmod.h b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+index d1bc1f3..aef7081 100644
+--- a/arch/arm/plat-omap/include/plat/omap_hwmod.h
++++ b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+@@ -90,6 +90,9 @@ extern struct omap_hwmod_sysc_fields omap_hwmod_sysc_type2;
+ struct omap_hwmod_mux_info {
+ 	int				nr_pads;
+ 	struct omap_device_pad		*pads;
++	int				nr_pads_dynamic;
++	struct omap_device_pad		**pads_dynamic;
++	bool				enabled;
+ };
+ 
+ /**
+-- 
+1.7.1
+

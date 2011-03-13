@@ -11,91 +11,34 @@ Reviewed-by: Kevin Hilman <khilman@ti.com>
 Tested-by: Kevin Hilman <khilman@ti.com>
 Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
 Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/Makefile              |    3 ++
- arch/arm/mach-omap2/display.c             |   46 +++++++++++++++++++++++++++++
- arch/arm/plat-omap/include/plat/display.h |   11 +++++++
- 3 files changed, 60 insertions(+), 0 deletions(-)
- create mode 100644 arch/arm/mach-omap2/display.c
+ arch/arm/mach-omap2/Makefile              |    4 ++++
+ arch/arm/plat-omap/include/plat/display.h |   10 ++++++++++
+ 2 files changed, 14 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index 1c0c2b0..2e81173 100644
+index 1c3635d..c46de95 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
-@@ -242,3 +242,6 @@ obj-y					+= $(smc91x-m) $(smc91x-y)
+@@ -244,6 +244,10 @@ obj-y					+= $(smc91x-m) $(smc91x-y)
  
  smsc911x-$(CONFIG_SMSC911X)		:= gpmc-smsc911x.o
  obj-y					+= $(smsc911x-m) $(smsc911x-y)
 +
 +disp-$(CONFIG_OMAP2_DSS)		:= display.o
 +obj-y					+= $(disp-m) $(disp-y)
-diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-new file mode 100644
-index 0000000..6e21cb8
---- /dev/null
-+++ b/arch/arm/mach-omap2/display.c
-@@ -0,0 +1,46 @@
-+/*
-+ * OMAP2plus display device setup / initialization.
-+ *
-+ * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
-+ *	Senthilvadivu Guruswamy
-+ *	Sumit Semwal
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-+ * kind, whether express or implied; without even the implied warranty
-+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
 +
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <linux/io.h>
-+#include <linux/clk.h>
-+#include <linux/err.h>
-+
-+#include <plat/display.h>
-+
-+static struct platform_device omap_display_device = {
-+	.name          = "omap_display",
-+	.id            = -1,
-+	.dev            = {
-+		.platform_data = NULL,
-+	},
-+};
-+
-+int __init omap_display_init(struct omap_dss_board_info
-+					*board_data)
-+{
-+	int r = 0;
-+	omap_display_device.dev.platform_data = board_data;
-+
-+	r = platform_device_register(&omap_display_device);
-+	if (r < 0)
-+		printk(KERN_ERR "Unable to register OMAP-Display device\n");
-+
-+	return r;
-+}
+ obj-$(CONFIG_ARCH_OMAP4)		+= hwspinlock.o
+ 
+ disp-$(CONFIG_OMAP2_DSS)		:= display.o
 diff --git a/arch/arm/plat-omap/include/plat/display.h b/arch/arm/plat-omap/include/plat/display.h
-index 537f4e4..0f140ec 100644
+index 0f140ec..50a20d0 100644
 --- a/arch/arm/plat-omap/include/plat/display.h
 +++ b/arch/arm/plat-omap/include/plat/display.h
-@@ -23,6 +23,7 @@
- #include <linux/list.h>
- #include <linux/kobject.h>
- #include <linux/device.h>
-+#include <linux/platform_device.h>
- #include <asm/atomic.h>
- 
- #define DISPC_IRQ_FRAMEDONE		(1 << 0)
-@@ -226,6 +227,16 @@ struct omap_dss_board_info {
- 	struct omap_dss_device *default_device;
- };
+@@ -237,6 +237,16 @@ static inline int omap_display_init(struct omap_dss_board_info *board_data)
+ }
+ #endif
  
 +#if defined(CONFIG_OMAP2_DSS_MODULE) || defined(CONFIG_OMAP2_DSS)
 +/* Init with the board info */

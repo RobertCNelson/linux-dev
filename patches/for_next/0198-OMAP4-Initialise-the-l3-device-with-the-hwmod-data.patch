@@ -1,0 +1,69 @@
+From 8ad7c525e55ed541e443a7abb78fd5beab30faae Mon Sep 17 00:00:00 2001
+From: sricharan <r.sricharan@ti.com>
+Date: Wed, 9 Mar 2011 16:00:29 +0530
+Subject: [PATCH 198/254] OMAP4: Initialise the l3 device with the hwmod data.
+
+The l3 interconnect device is build with all the data required
+to handle the error logging. The data is extracted from the
+hwmod data base.
+
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Signed-off-by: sricharan <r.sricharan@ti.com>
+Acked-by: Benoit Cousson <b-cousson@ti.com>
+---
+ arch/arm/mach-omap2/devices.c |   32 ++++++++++++++++++++++++++++++++
+ 1 files changed, 32 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
+index 6a320b6..0d2d6a9 100644
+--- a/arch/arm/mach-omap2/devices.c
++++ b/arch/arm/mach-omap2/devices.c
+@@ -37,6 +37,7 @@
+ #include "control.h"
+ 
+ #define L3_MODULES_MAX_LEN 12
++#define L3_MODULES 3
+ 
+ static int __init omap3_l3_init(void)
+ {
+@@ -68,6 +69,37 @@ static int __init omap3_l3_init(void)
+ }
+ postcore_initcall(omap3_l3_init);
+ 
++static int __init omap4_l3_init(void)
++{
++	int l, i;
++	struct omap_hwmod *oh[3];
++	struct omap_device *od;
++	char oh_name[L3_MODULES_MAX_LEN];
++
++	/*
++	 * To avoid code running on other OMAPs in
++	 * multi-omap builds
++	 */
++	if (!(cpu_is_omap44xx()))
++		return -ENODEV;
++
++	for (i = 0; i < L3_MODULES; i++) {
++		l = snprintf(oh_name, L3_MODULES_MAX_LEN, "l3_main_%d", i+1);
++
++		oh[i] = omap_hwmod_lookup(oh_name);
++		if (!(oh[i]))
++			pr_err("could not look up %s\n", oh_name);
++	}
++
++	od = omap_device_build_ss("omap_l3_noc", 0, oh, 3, NULL,
++						     0, NULL, 0, 0);
++
++	WARN(IS_ERR(od), "could not build omap_device for %s\n", oh_name);
++
++	return PTR_ERR(od);
++}
++postcore_initcall(omap4_l3_init);
++
+ #if defined(CONFIG_VIDEO_OMAP2) || defined(CONFIG_VIDEO_OMAP2_MODULE)
+ 
+ static struct resource cam_resources[] = {
+-- 
+1.7.1
+

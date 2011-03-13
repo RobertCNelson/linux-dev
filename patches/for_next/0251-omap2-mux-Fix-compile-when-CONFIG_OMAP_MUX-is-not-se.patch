@@ -1,0 +1,77 @@
+From 8bef3e4aff47b66f100dc4be01a8b4e17e4c1d11 Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Fri, 11 Mar 2011 11:39:51 -0800
+Subject: [PATCH 251/254] omap2+: mux: Fix compile when CONFIG_OMAP_MUX is not selected
+
+Fix compile when CONFIG_OMAP_MUX is not selected
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-cm-t35.c     |    2 ++
+ arch/arm/mach-omap2/board-cm-t3517.c   |    2 ++
+ arch/arm/mach-omap2/board-devkit8000.c |    2 ++
+ 3 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-cm-t35.c b/arch/arm/mach-omap2/board-cm-t35.c
+index 27bea54..71545c9 100644
+--- a/arch/arm/mach-omap2/board-cm-t35.c
++++ b/arch/arm/mach-omap2/board-cm-t35.c
+@@ -675,6 +675,7 @@ static void __init cm_t35_init_early(void)
+ 			     mt46h32m32lf6_sdrc_params);
+ }
+ 
++#ifdef CONFIG_OMAP_MUX
+ static struct omap_board_mux board_mux[] __initdata = {
+ 	/* nCS and IRQ for CM-T35 ethernet */
+ 	OMAP3_MUX(GPMC_NCS5, OMAP_MUX_MODE0),
+@@ -772,6 +773,7 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 
+ 	{ .reg_offset = OMAP_MUX_TERMINATOR },
+ };
++#endif
+ 
+ static struct omap_musb_board_data musb_board_data = {
+ 	.interface_type		= MUSB_INTERFACE_ULPI,
+diff --git a/arch/arm/mach-omap2/board-cm-t3517.c b/arch/arm/mach-omap2/board-cm-t3517.c
+index 9da6e82..4c737e4 100644
+--- a/arch/arm/mach-omap2/board-cm-t3517.c
++++ b/arch/arm/mach-omap2/board-cm-t3517.c
+@@ -260,6 +260,7 @@ static void __init cm_t3517_init_early(void)
+ 	omap2_init_common_devices(NULL, NULL);
+ }
+ 
++#ifdef CONFIG_OMAP_MUX
+ static struct omap_board_mux board_mux[] __initdata = {
+ 	/* GPIO186 - Green LED */
+ 	OMAP3_MUX(SYS_CLKOUT2, OMAP_MUX_MODE4 | OMAP_PIN_OUTPUT),
+@@ -285,6 +286,7 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 
+ 	{ .reg_offset = OMAP_MUX_TERMINATOR },
+ };
++#endif
+ 
+ static void __init cm_t3517_init(void)
+ {
+diff --git a/arch/arm/mach-omap2/board-devkit8000.c b/arch/arm/mach-omap2/board-devkit8000.c
+index 728f27c..472a25b 100644
+--- a/arch/arm/mach-omap2/board-devkit8000.c
++++ b/arch/arm/mach-omap2/board-devkit8000.c
+@@ -625,6 +625,7 @@ static const struct ehci_hcd_omap_platform_data ehci_pdata __initconst = {
+ 	.reset_gpio_port[2]  = -EINVAL
+ };
+ 
++#ifdef CONFIG_OMAP_MUX
+ static struct omap_board_mux board_mux[] __initdata = {
+ 	/* nCS and IRQ for Devkit8000 ethernet */
+ 	OMAP3_MUX(GPMC_NCS6, OMAP_MUX_MODE0),
+@@ -778,6 +779,7 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 
+ 	{ .reg_offset = OMAP_MUX_TERMINATOR },
+ };
++#endif
+ 
+ static void __init devkit8000_init(void)
+ {
+-- 
+1.7.1
+

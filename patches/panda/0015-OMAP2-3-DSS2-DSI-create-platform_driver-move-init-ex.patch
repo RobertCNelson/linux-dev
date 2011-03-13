@@ -18,7 +18,7 @@ Tested-by: Kevin Hilman <khilman@ti.com>
 Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
 Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
 ---
- arch/arm/mach-omap2/board-3430sdp.c          |    1 +
+ arch/arm/mach-omap2/board-3430sdp.c          |    2 +-
  arch/arm/mach-omap2/board-devkit8000.c       |   10 ++--
  arch/arm/mach-omap2/board-igep0020.c         |   10 ++--
  arch/arm/mach-omap2/board-omap3beagle.c      |   10 ++--
@@ -29,22 +29,23 @@ Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
  drivers/video/omap2/dss/core.c               |    8 ++--
  drivers/video/omap2/dss/dsi.c                |   64 ++++++++++++++++++++++++-
  drivers/video/omap2/dss/dss.h                |    8 ++--
- 11 files changed, 107 insertions(+), 35 deletions(-)
+ 11 files changed, 107 insertions(+), 36 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-3430sdp.c b/arch/arm/mach-omap2/board-3430sdp.c
-index e0d13ae..33ff4f6 100644
+index 6497868..8a606bb 100644
 --- a/arch/arm/mach-omap2/board-3430sdp.c
 +++ b/arch/arm/mach-omap2/board-3430sdp.c
-@@ -533,6 +533,7 @@ static struct regulator_init_data sdp3430_vdac = {
+@@ -403,7 +403,7 @@ static struct regulator_consumer_supply sdp3430_vdda_dac_supplies[] = {
+ 
  /* VPLL2 for digital video outputs */
  static struct regulator_consumer_supply sdp3430_vpll2_supplies[] = {
- 	REGULATOR_SUPPLY("vdds_dsi", "omap_display"),
+-	REGULATOR_SUPPLY("vdds_dsi", "omapdss"),
 +	REGULATOR_SUPPLY("vdds_dsi", "omap_dsi1"),
  };
  
- static struct regulator_init_data sdp3430_vpll2 = {
+ static struct regulator_consumer_supply sdp3430_vmmc1_supplies[] = {
 diff --git a/arch/arm/mach-omap2/board-devkit8000.c b/arch/arm/mach-omap2/board-devkit8000.c
-index d387c8d..d277143 100644
+index 6b2b18f..a57d698 100644
 --- a/arch/arm/mach-omap2/board-devkit8000.c
 +++ b/arch/arm/mach-omap2/board-devkit8000.c
 @@ -277,8 +277,10 @@ static struct twl4030_gpio_platform_data devkit8000_gpio_data = {
@@ -72,7 +73,7 @@ index d387c8d..d277143 100644
  
  /* VAUX4 for ads7846 and nubs */
 diff --git a/arch/arm/mach-omap2/board-igep0020.c b/arch/arm/mach-omap2/board-igep0020.c
-index d79dcd5..dfbe3a1 100644
+index 4fe8575..d6951bd 100644
 --- a/arch/arm/mach-omap2/board-igep0020.c
 +++ b/arch/arm/mach-omap2/board-igep0020.c
 @@ -485,8 +485,10 @@ static struct omap_dss_board_info igep2_dss_data = {
@@ -100,10 +101,10 @@ index d79dcd5..dfbe3a1 100644
  
  static void __init igep2_display_init(void)
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 4dd1475..caf6c8a 100644
+index e29e345..bec71a0 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -231,8 +231,10 @@ static struct omap_dss_board_info beagle_dss_data = {
+@@ -328,8 +328,10 @@ static struct omap_dss_board_info beagle_dss_data = {
  static struct regulator_consumer_supply beagle_vdac_supply =
  	REGULATOR_SUPPLY("vdda_dac", "omap_venc");
  
@@ -116,7 +117,7 @@ index 4dd1475..caf6c8a 100644
  
  static void __init beagle_display_init(void)
  {
-@@ -419,8 +421,8 @@ static struct regulator_init_data beagle_vpll2 = {
+@@ -530,8 +532,8 @@ static struct regulator_init_data beagle_vpll2 = {
  		.valid_ops_mask		= REGULATOR_CHANGE_MODE
  					| REGULATOR_CHANGE_STATUS,
  	},
@@ -128,10 +129,10 @@ index 4dd1475..caf6c8a 100644
  
  static struct twl4030_usb_data beagle_usb_data = {
 diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-omap2/board-omap3evm.c
-index ec45575..0c56b9e 100644
+index 8e5b7e2..8a52dfb 100644
 --- a/arch/arm/mach-omap2/board-omap3evm.c
 +++ b/arch/arm/mach-omap2/board-omap3evm.c
-@@ -511,8 +511,10 @@ static struct regulator_init_data omap3_evm_vdac = {
+@@ -562,8 +562,10 @@ static struct regulator_init_data omap3_evm_vdac = {
  };
  
  /* VPLL2 for digital video outputs */
@@ -144,7 +145,7 @@ index ec45575..0c56b9e 100644
  
  static struct regulator_init_data omap3_evm_vpll2 = {
  	.constraints = {
-@@ -524,8 +526,8 @@ static struct regulator_init_data omap3_evm_vpll2 = {
+@@ -575,8 +577,8 @@ static struct regulator_init_data omap3_evm_vpll2 = {
  		.valid_ops_mask		= REGULATOR_CHANGE_MODE
  					| REGULATOR_CHANGE_STATUS,
  	},
@@ -154,9 +155,9 @@ index ec45575..0c56b9e 100644
 +	.consumer_supplies	= omap3_evm_vpll2_supplies,
  };
  
- static struct twl4030_platform_data omap3evm_twldata = {
+ /* ads7846 on SPI */
 diff --git a/arch/arm/mach-omap2/board-omap3pandora.c b/arch/arm/mach-omap2/board-omap3pandora.c
-index b44e604..b430d2b 100644
+index 58bdf99..12df9cb 100644
 --- a/arch/arm/mach-omap2/board-omap3pandora.c
 +++ b/arch/arm/mach-omap2/board-omap3pandora.c
 @@ -347,6 +347,7 @@ static struct regulator_consumer_supply pandora_vdda_dac_supply =
@@ -168,7 +169,7 @@ index b44e604..b430d2b 100644
  
  static struct regulator_consumer_supply pandora_vcc_lcd_supply =
 diff --git a/arch/arm/mach-omap2/board-omap3stalker.c b/arch/arm/mach-omap2/board-omap3stalker.c
-index ab98a64..b5e8680 100644
+index bd12f40..2628aa7 100644
 --- a/arch/arm/mach-omap2/board-omap3stalker.c
 +++ b/arch/arm/mach-omap2/board-omap3stalker.c
 @@ -459,8 +459,10 @@ static struct regulator_init_data omap3_stalker_vdac = {

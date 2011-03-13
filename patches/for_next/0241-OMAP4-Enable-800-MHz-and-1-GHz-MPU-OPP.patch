@@ -1,0 +1,36 @@
+From 4640f1bed31b0eadbd759cc5b52eacd09b10df71 Mon Sep 17 00:00:00 2001
+From: Shweta Gulati <shweta.gulati@ti.com>
+Date: Sat, 5 Mar 2011 15:21:21 +0530
+Subject: [PATCH 241/254] OMAP4: Enable 800 MHz and 1 GHz MPU-OPP
+
+Almost all OMAP4 boards support OPP 800 MHz and OPP 1 GHz.
+Enable them in OPP Table. For small minority of boards which use
+OMAP4430-800 MHz device OPP 1GHz is not supported,
+OPP 1GHz should be disabled from board file.
+
+Signed-off-by: Shweta Gulati <shweta.gulati@ti.com>
+Acked-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/opp4xxx_data.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/opp4xxx_data.c b/arch/arm/mach-omap2/opp4xxx_data.c
+index 57f1498..93b9744 100644
+--- a/arch/arm/mach-omap2/opp4xxx_data.c
++++ b/arch/arm/mach-omap2/opp4xxx_data.c
+@@ -71,9 +71,9 @@ static struct omap_opp_def __initdata omap44xx_opp_def_list[] = {
+ 	/* MPU OPP2 - OPP100 */
+ 	OPP_INITIALIZER("mpu", true, 600000000, OMAP4430_VDD_MPU_OPP100_UV),
+ 	/* MPU OPP3 - OPP-Turbo */
+-	OPP_INITIALIZER("mpu", false, 800000000, OMAP4430_VDD_MPU_OPPTURBO_UV),
++	OPP_INITIALIZER("mpu", true, 800000000, OMAP4430_VDD_MPU_OPPTURBO_UV),
+ 	/* MPU OPP4 - OPP-SB */
+-	OPP_INITIALIZER("mpu", false, 1008000000, OMAP4430_VDD_MPU_OPPNITRO_UV),
++	OPP_INITIALIZER("mpu", true, 1008000000, OMAP4430_VDD_MPU_OPPNITRO_UV),
+ 	/* L3 OPP1 - OPP50 */
+ 	OPP_INITIALIZER("l3_main_1", true, 100000000, OMAP4430_VDD_CORE_OPP50_UV),
+ 	/* L3 OPP2 - OPP100, OPP-Turbo, OPP-SB */
+-- 
+1.7.1
+

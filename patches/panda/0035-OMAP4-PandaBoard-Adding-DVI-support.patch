@@ -23,15 +23,16 @@ for the same is taken from the kernel.org commit e3333f48dd5cb21
 (omap: Adding beagle i2c eeprom driver to read EDID)
 
 Signed-off-by: Raghuveer Murthy <raghuveer.murthy@ti.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/board-omap4panda.c |  137 +++++++++++++++++++++++++++++++-
  1 files changed, 136 insertions(+), 1 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index e944025..b09d239 100644
+index 3dd241b..163cfa5 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
-@@ -37,6 +37,7 @@
+@@ -39,6 +39,7 @@
  #include <plat/common.h>
  #include <plat/usb.h>
  #include <plat/mmc.h>
@@ -39,7 +40,7 @@ index e944025..b09d239 100644
  #include "timer-gp.h"
  
  #include "hsmmc.h"
-@@ -76,6 +77,60 @@ static struct platform_device *panda_devices[] __initdata = {
+@@ -80,6 +81,60 @@ static struct platform_device *panda_devices[] __initdata = {
  	&leds_gpio,
  };
  
@@ -97,10 +98,10 @@ index e944025..b09d239 100644
 +	.default_device	= &panda_dvi_device,
 +};
 +
- static void __init omap4_panda_init_irq(void)
+ static void __init omap4_panda_init_early(void)
  {
  	omap2_init_common_infrastructure();
-@@ -375,6 +430,17 @@ static struct i2c_board_info __initdata omap4_panda_i2c_boardinfo[] = {
+@@ -421,6 +476,17 @@ static struct i2c_board_info __initdata omap4_panda_i2c_boardinfo[] = {
  		.platform_data = &omap4_panda_twldata,
  	},
  };
@@ -118,7 +119,7 @@ index e944025..b09d239 100644
  static int __init omap4_panda_i2c_init(void)
  {
  	/*
-@@ -384,13 +450,76 @@ static int __init omap4_panda_i2c_init(void)
+@@ -430,7 +496,12 @@ static int __init omap4_panda_i2c_init(void)
  	omap_register_i2c_bus(1, 400, omap4_panda_i2c_boardinfo,
  			ARRAY_SIZE(omap4_panda_i2c_boardinfo));
  	omap_register_i2c_bus(2, 400, NULL, 0);
@@ -132,9 +133,10 @@ index e944025..b09d239 100644
  	omap_register_i2c_bus(4, 400, NULL, 0);
  	return 0;
  }
- 
- #ifdef CONFIG_OMAP_MUX
- static struct omap_board_mux board_mux[] __initdata = {
+@@ -450,6 +521,64 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 	OMAP4_MUX(SDMMC5_DAT1, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
+ 	OMAP4_MUX(SDMMC5_DAT2, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
+ 	OMAP4_MUX(SDMMC5_DAT3, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
 +	/* gpio 0 - TFP410 PD */
 +	OMAP4_MUX(KPD_COL1, OMAP_PIN_OUTPUT | OMAP_MUX_MODE3),
 +	/* dispc2_data23 */
@@ -196,7 +198,7 @@ index e944025..b09d239 100644
  	{ .reg_offset = OMAP_MUX_TERMINATOR },
  };
  #else
-@@ -400,6 +529,7 @@ static struct omap_board_mux board_mux[] __initdata = {
+@@ -459,6 +588,7 @@ static struct omap_board_mux board_mux[] __initdata = {
  static void __init omap4_panda_init(void)
  {
  	int package = OMAP_PACKAGE_CBS;
@@ -204,7 +206,7 @@ index e944025..b09d239 100644
  
  	if (omap_rev() == OMAP4430_REV_ES1_0)
  		package = OMAP_PACKAGE_CBL;
-@@ -411,6 +541,11 @@ static void __init omap4_panda_init(void)
+@@ -474,6 +604,11 @@ static void __init omap4_panda_init(void)
  	omap4_twl6030_hsmmc_init(mmc);
  	omap4_ehci_init();
  	usb_musb_init(&musb_board_data);

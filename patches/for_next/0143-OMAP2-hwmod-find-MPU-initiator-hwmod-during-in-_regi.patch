@@ -1,0 +1,86 @@
+From 516db1cca7eb0e13df8e9ec7a43c87597e46e3b2 Mon Sep 17 00:00:00 2001
+From: Paul Walmsley <paul@pwsan.com>
+Date: Wed, 23 Feb 2011 00:14:06 -0700
+Subject: [PATCH 143/254] OMAP2+: hwmod: find MPU initiator hwmod during in _register()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Move the code that looks for the MPU initiator hwmod to run during
+the individual hwmod _register() function.  (Previously, it ran after
+all hwmods were registered in the omap_hwmod_late_init() function.)
+
+This is done so code can late-initialize a few individual hwmods --
+for example, for the system timer -- before the entire set of hwmods is
+initialized later in boot via omap_hwmod_late_init().
+
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Cc: Benoît Cousson <b-cousson@ti.com>
+Cc: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/omap_hwmod.c |   23 +++++++++++++++--------
+ 1 files changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 2ce52ce..d45c9b2 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -1452,7 +1452,7 @@ static int _setup(struct omap_hwmod *oh, void *data)
+  */
+ static int __init _register(struct omap_hwmod *oh)
+ {
+-	int ret, ms_id;
++	int ms_id;
+ 
+ 	if (!oh || !oh->name || !oh->class || !oh->class->name ||
+ 	    (oh->_state != _HWMOD_STATE_UNKNOWN))
+@@ -1475,9 +1475,14 @@ static int __init _register(struct omap_hwmod *oh)
+ 
+ 	oh->_state = _HWMOD_STATE_REGISTERED;
+ 
+-	ret = 0;
++	/*
++	 * XXX Rather than doing a strcmp(), this should test a flag
++	 * set in the hwmod data, inserted by the autogenerator code.
++	 */
++	if (!strcmp(oh->name, MPU_INITIATOR_NAME))
++		mpu_oh = oh;
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ 
+@@ -1632,22 +1637,24 @@ static int __init _populate_mpu_rt_base(struct omap_hwmod *oh, void *data)
+  *
+  * Must be called after omap2_clk_init().  Resolves the struct clk names
+  * to struct clk pointers for each registered omap_hwmod.  Also calls
+- * _setup() on each hwmod.  Returns 0.
++ * _setup() on each hwmod.  Returns 0 upon success or -EINVAL upon error.
+  */
+ static int __init omap_hwmod_setup_all(void)
+ {
+ 	int r;
+ 
++	if (!mpu_oh) {
++		pr_err("omap_hwmod: %s: MPU initiator hwmod %s not yet registered\n",
++		       __func__, MPU_INITIATOR_NAME);
++		return -EINVAL;
++	}
++
+ 	r = omap_hwmod_for_each(_populate_mpu_rt_base, NULL);
+ 
+ 	/* XXX check return value */
+ 	r = omap_hwmod_for_each(_init_clocks, NULL);
+ 	WARN(r, "omap_hwmod: %s: _init_clocks failed\n", __func__);
+ 
+-	mpu_oh = omap_hwmod_lookup(MPU_INITIATOR_NAME);
+-	WARN(!mpu_oh, "omap_hwmod: could not find MPU initiator hwmod %s\n",
+-	     MPU_INITIATOR_NAME);
+-
+ 	omap_hwmod_for_each(_setup, NULL);
+ 
+ 	return 0;
+-- 
+1.7.1
+
