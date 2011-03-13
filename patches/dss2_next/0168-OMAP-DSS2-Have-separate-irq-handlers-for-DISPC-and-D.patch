@@ -1,0 +1,491 @@
+From f0a6b830db9465d040a2821f7f4db5948ac1ab00 Mon Sep 17 00:00:00 2001
+From: archit taneja <archit@ti.com>
+Date: Wed, 23 Feb 2011 08:41:03 +0000
+Subject: [PATCH 168/200] OMAP: DSS2: Have separate irq handlers for DISPC and DSI
+
+Currently, the core DSS platform device requests for an irq line for OMAP2 and
+OMAP3. Make DISPC and DSI platform devices request for a shared IRQ line.
+
+On OMAP3, the logical OR of DSI and DISPC interrupt lines goes to the MPU. There
+is a register DSS_IRQSTATUS which tells if the interrupt came from DISPC or DSI.
+
+On OMAP2, there is no DSI, only DISPC interrupts goto the MPU. There is no
+DSS_IRQSTATUS register.
+
+Hence, it makes more sense to have separate irq handlers corresponding to the
+DSS sub modules instead of having a common handler.
+
+Since on OMAP3 the logical OR of the lines goes to MPU, the irq line is shared
+among the IRQ handlers.
+
+The hwmod irq info has been removed for DSS to DISPC and DSI for OMAP2 and OMAP3
+hwmod databases. The Probes of DISPC and DSI now request for irq handlers.
+
+Signed-off-by: Archit Taneja <archit@ti.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_2420_data.c |   13 +++----
+ arch/arm/mach-omap2/omap_hwmod_2430_data.c |   12 +++---
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |   21 ++++++-----
+ drivers/video/omap2/dss/dispc.c            |   40 +++++++++++++++++++--
+ drivers/video/omap2/dss/dsi.c              |   25 ++++++++++++-
+ drivers/video/omap2/dss/dss.c              |   51 +---------------------------
+ 6 files changed, 84 insertions(+), 78 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_2420_data.c b/arch/arm/mach-omap2/omap_hwmod_2420_data.c
+index e0bc2c7..76f2f9d 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_2420_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_2420_data.c
+@@ -1168,11 +1168,6 @@ static struct omap_hwmod_class omap2420_dss_hwmod_class = {
+ 	.sysc = &omap2420_dss_sysc,
+ };
+ 
+-/* dss */
+-static struct omap_hwmod_irq_info omap2420_dss_irqs[] = {
+-	{ .irq = 25 },
+-};
+-
+ static struct omap_hwmod_dma_info omap2420_dss_sdma_chs[] = {
+ 	{ .name = "dispc", .dma_req = 5 },
+ };
+@@ -1221,8 +1216,6 @@ static struct omap_hwmod omap2420_dss_core_hwmod = {
+ 	.name		= "dss_core",
+ 	.class		= &omap2420_dss_hwmod_class,
+ 	.main_clk	= "dss1_fck", /* instead of dss_fck */
+-	.mpu_irqs	= omap2420_dss_irqs,
+-	.mpu_irqs_cnt	= ARRAY_SIZE(omap2420_dss_irqs),
+ 	.sdma_reqs	= omap2420_dss_sdma_chs,
+ 	.sdma_reqs_cnt	= ARRAY_SIZE(omap2420_dss_sdma_chs),
+ 	.prcm		= {
+@@ -1265,6 +1258,10 @@ static struct omap_hwmod_class omap2420_dispc_hwmod_class = {
+ 	.sysc = &omap2420_dispc_sysc,
+ };
+ 
++static struct omap_hwmod_irq_info omap2420_dispc_irqs[] = {
++	{ .irq = 25 },
++};
++
+ static struct omap_hwmod_addr_space omap2420_dss_dispc_addrs[] = {
+ 	{
+ 		.pa_start	= 0x48050400,
+@@ -1297,6 +1294,8 @@ static struct omap_hwmod_ocp_if *omap2420_dss_dispc_slaves[] = {
+ static struct omap_hwmod omap2420_dss_dispc_hwmod = {
+ 	.name		= "dss_dispc",
+ 	.class		= &omap2420_dispc_hwmod_class,
++	.mpu_irqs	= omap2420_dispc_irqs,
++	.mpu_irqs_cnt	= ARRAY_SIZE(omap2420_dispc_irqs),
+ 	.main_clk	= "dss1_fck",
+ 	.prcm		= {
+ 		.omap2 = {
+diff --git a/arch/arm/mach-omap2/omap_hwmod_2430_data.c b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+index abb3574..e31fd11 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_2430_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
+@@ -1268,10 +1268,6 @@ static struct omap_hwmod_class omap2430_dss_hwmod_class = {
+ 	.sysc = &omap2430_dss_sysc,
+ };
+ 
+-/* dss */
+-static struct omap_hwmod_irq_info omap2430_dss_irqs[] = {
+-	{ .irq = 25 },
+-};
+ static struct omap_hwmod_dma_info omap2430_dss_sdma_chs[] = {
+ 	{ .name = "dispc", .dma_req = 5 },
+ };
+@@ -1314,8 +1310,6 @@ static struct omap_hwmod omap2430_dss_core_hwmod = {
+ 	.name		= "dss_core",
+ 	.class		= &omap2430_dss_hwmod_class,
+ 	.main_clk	= "dss1_fck", /* instead of dss_fck */
+-	.mpu_irqs	= omap2430_dss_irqs,
+-	.mpu_irqs_cnt	= ARRAY_SIZE(omap2430_dss_irqs),
+ 	.sdma_reqs	= omap2430_dss_sdma_chs,
+ 	.sdma_reqs_cnt	= ARRAY_SIZE(omap2430_dss_sdma_chs),
+ 	.prcm		= {
+@@ -1358,6 +1352,10 @@ static struct omap_hwmod_class omap2430_dispc_hwmod_class = {
+ 	.sysc = &omap2430_dispc_sysc,
+ };
+ 
++static struct omap_hwmod_irq_info omap2430_dispc_irqs[] = {
++	{ .irq = 25 },
++};
++
+ static struct omap_hwmod_addr_space omap2430_dss_dispc_addrs[] = {
+ 	{
+ 		.pa_start	= 0x48050400,
+@@ -1384,6 +1382,8 @@ static struct omap_hwmod_ocp_if *omap2430_dss_dispc_slaves[] = {
+ static struct omap_hwmod omap2430_dss_dispc_hwmod = {
+ 	.name		= "dss_dispc",
+ 	.class		= &omap2430_dispc_hwmod_class,
++	.mpu_irqs	= omap2430_dispc_irqs,
++	.mpu_irqs_cnt	= ARRAY_SIZE(omap2430_dispc_irqs),
+ 	.main_clk	= "dss1_fck",
+ 	.prcm		= {
+ 		.omap2 = {
+diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+index d9ef3b8..5bb5c87 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+@@ -1485,11 +1485,6 @@ static struct omap_hwmod_class omap3xxx_dss_hwmod_class = {
+ 	.sysc = &omap3xxx_dss_sysc,
+ };
+ 
+-/* dss */
+-static struct omap_hwmod_irq_info omap3xxx_dss_irqs[] = {
+-	{ .irq = 25 },
+-};
+-
+ static struct omap_hwmod_dma_info omap3xxx_dss_sdma_chs[] = {
+ 	{ .name = "dispc", .dma_req = 5 },
+ 	{ .name = "dsi1", .dma_req = 74 },
+@@ -1561,8 +1556,6 @@ static struct omap_hwmod omap3430es1_dss_core_hwmod = {
+ 	.name		= "dss_core",
+ 	.class		= &omap3xxx_dss_hwmod_class,
+ 	.main_clk	= "dss1_alwon_fck", /* instead of dss_fck */
+-	.mpu_irqs	= omap3xxx_dss_irqs,
+-	.mpu_irqs_cnt	= ARRAY_SIZE(omap3xxx_dss_irqs),
+ 	.sdma_reqs	= omap3xxx_dss_sdma_chs,
+ 	.sdma_reqs_cnt	= ARRAY_SIZE(omap3xxx_dss_sdma_chs),
+ 
+@@ -1589,8 +1582,6 @@ static struct omap_hwmod omap3xxx_dss_core_hwmod = {
+ 	.name		= "dss_core",
+ 	.class		= &omap3xxx_dss_hwmod_class,
+ 	.main_clk	= "dss1_alwon_fck", /* instead of dss_fck */
+-	.mpu_irqs	= omap3xxx_dss_irqs,
+-	.mpu_irqs_cnt	= ARRAY_SIZE(omap3xxx_dss_irqs),
+ 	.sdma_reqs	= omap3xxx_dss_sdma_chs,
+ 	.sdma_reqs_cnt	= ARRAY_SIZE(omap3xxx_dss_sdma_chs),
+ 
+@@ -1636,6 +1627,10 @@ static struct omap_hwmod_class omap3xxx_dispc_hwmod_class = {
+ 	.sysc = &omap3xxx_dispc_sysc,
+ };
+ 
++static struct omap_hwmod_irq_info omap3xxx_dispc_irqs[] = {
++	{ .irq = 25 },
++};
++
+ static struct omap_hwmod_addr_space omap3xxx_dss_dispc_addrs[] = {
+ 	{
+ 		.pa_start	= 0x48050400,
+@@ -1669,6 +1664,8 @@ static struct omap_hwmod_ocp_if *omap3xxx_dss_dispc_slaves[] = {
+ static struct omap_hwmod omap3xxx_dss_dispc_hwmod = {
+ 	.name		= "dss_dispc",
+ 	.class		= &omap3xxx_dispc_hwmod_class,
++	.mpu_irqs	= omap3xxx_dispc_irqs,
++	.mpu_irqs_cnt	= ARRAY_SIZE(omap3xxx_dispc_irqs),
+ 	.main_clk	= "dss1_alwon_fck",
+ 	.prcm		= {
+ 		.omap2 = {
+@@ -1694,6 +1691,10 @@ static struct omap_hwmod_class omap3xxx_dsi_hwmod_class = {
+ 	.name = "dsi",
+ };
+ 
++static struct omap_hwmod_irq_info omap3xxx_dsi1_irqs[] = {
++	{ .irq = 25 },
++};
++
+ /* dss_dsi1 */
+ static struct omap_hwmod_addr_space omap3xxx_dss_dsi1_addrs[] = {
+ 	{
+@@ -1727,6 +1728,8 @@ static struct omap_hwmod_ocp_if *omap3xxx_dss_dsi1_slaves[] = {
+ static struct omap_hwmod omap3xxx_dss_dsi1_hwmod = {
+ 	.name		= "dss_dsi1",
+ 	.class		= &omap3xxx_dsi_hwmod_class,
++	.mpu_irqs	= omap3xxx_dsi1_irqs,
++	.mpu_irqs_cnt	= ARRAY_SIZE(omap3xxx_dsi1_irqs),
+ 	.main_clk	= "dss1_alwon_fck",
+ 	.prcm		= {
+ 		.omap2 = {
+diff --git a/drivers/video/omap2/dss/dispc.c b/drivers/video/omap2/dss/dispc.c
+index dc4518c..43f7091 100644
+--- a/drivers/video/omap2/dss/dispc.c
++++ b/drivers/video/omap2/dss/dispc.c
+@@ -32,6 +32,7 @@
+ #include <linux/delay.h>
+ #include <linux/workqueue.h>
+ #include <linux/hardirq.h>
++#include <linux/interrupt.h>
+ 
+ #include <plat/sram.h>
+ #include <plat/clock.h>
+@@ -178,6 +179,7 @@ struct dispc_irq_stats {
+ static struct {
+ 	struct platform_device *pdev;
+ 	void __iomem    *base;
++	int irq;
+ 
+ 	u32	fifo_size[3];
+ 
+@@ -2865,10 +2867,10 @@ static void print_irq_status(u32 status)
+  * but we presume they are on because we got an IRQ. However,
+  * an irq handler may turn the clocks off, so we may not have
+  * clock later in the function. */
+-void dispc_irq_handler(void)
++static irqreturn_t omap_dispc_irq_handler(int irq, void *arg)
+ {
+ 	int i;
+-	u32 irqstatus;
++	u32 irqstatus, irqenable;
+ 	u32 handledirqs = 0;
+ 	u32 unhandled_errors;
+ 	struct omap_dispc_isr_data *isr_data;
+@@ -2877,6 +2879,13 @@ void dispc_irq_handler(void)
+ 	spin_lock(&dispc.irq_lock);
+ 
+ 	irqstatus = dispc_read_reg(DISPC_IRQSTATUS);
++	irqenable = dispc_read_reg(DISPC_IRQENABLE);
++
++	/* IRQ is not for us */
++	if (!(irqstatus & irqenable)) {
++		spin_unlock(&dispc.irq_lock);
++		return IRQ_NONE;
++	}
+ 
+ #ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
+ 	spin_lock(&dispc.irq_stats_lock);
+@@ -2928,6 +2937,8 @@ void dispc_irq_handler(void)
+ 	}
+ 
+ 	spin_unlock(&dispc.irq_lock);
++
++	return IRQ_HANDLED;
+ }
+ 
+ static void dispc_error_worker(struct work_struct *work)
+@@ -3322,6 +3333,7 @@ int dispc_setup_plane(enum omap_plane plane,
+ static int omap_dispchw_probe(struct platform_device *pdev)
+ {
+ 	u32 rev;
++	int r = 0;
+ 	struct resource *dispc_mem;
+ 
+ 	dispc.pdev = pdev;
+@@ -3338,12 +3350,27 @@ static int omap_dispchw_probe(struct platform_device *pdev)
+ 	dispc_mem = platform_get_resource(dispc.pdev, IORESOURCE_MEM, 0);
+ 	if (!dispc_mem) {
+ 		DSSERR("can't get IORESOURCE_MEM DISPC\n");
+-		return -EINVAL;
++		r = -EINVAL;
++		goto fail0;
+ 	}
+ 	dispc.base = ioremap(dispc_mem->start, resource_size(dispc_mem));
+ 	if (!dispc.base) {
+ 		DSSERR("can't ioremap DISPC\n");
+-		return -ENOMEM;
++		r = -ENOMEM;
++		goto fail0;
++	}
++	dispc.irq = platform_get_irq(dispc.pdev, 0);
++	if (dispc.irq < 0) {
++		DSSERR("platform_get_irq failed\n");
++		r = -ENODEV;
++		goto fail1;
++	}
++
++	r = request_irq(dispc.irq, omap_dispc_irq_handler, IRQF_SHARED,
++		"OMAP DISPC", dispc.pdev);
++	if (r < 0) {
++		DSSERR("request_irq failed\n");
++		goto fail1;
+ 	}
+ 
+ 	enable_clocks(1);
+@@ -3361,10 +3388,15 @@ static int omap_dispchw_probe(struct platform_device *pdev)
+ 	enable_clocks(0);
+ 
+ 	return 0;
++fail1:
++	iounmap(dispc.base);
++fail0:
++	return r;
+ }
+ 
+ static int omap_dispchw_remove(struct platform_device *pdev)
+ {
++	free_irq(dispc.irq, dispc.pdev);
+ 	iounmap(dispc.base);
+ 	return 0;
+ }
+diff --git a/drivers/video/omap2/dss/dsi.c b/drivers/video/omap2/dss/dsi.c
+index 2928cdd..2f7d949 100644
+--- a/drivers/video/omap2/dss/dsi.c
++++ b/drivers/video/omap2/dss/dsi.c
+@@ -222,6 +222,7 @@ static struct
+ {
+ 	struct platform_device *pdev;
+ 	void __iomem	*base;
++	int irq;
+ 
+ 	struct dsi_clock_info current_cinfo;
+ 
+@@ -480,13 +481,17 @@ static void print_irq_status_cio(u32 status)
+ static int debug_irq;
+ 
+ /* called from dss */
+-void dsi_irq_handler(void)
++static irqreturn_t omap_dsi_irq_handler(int irq, void *arg)
+ {
+ 	u32 irqstatus, vcstatus, ciostatus;
+ 	int i;
+ 
+ 	irqstatus = dsi_read_reg(DSI_IRQSTATUS);
+ 
++	/* IRQ is not for us */
++	if (!irqstatus)
++		return IRQ_NONE;
++
+ #ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
+ 	spin_lock(&dsi.irq_stats_lock);
+ 	dsi.irq_stats.irq_count++;
+@@ -564,9 +569,9 @@ void dsi_irq_handler(void)
+ #ifdef CONFIG_OMAP2_DSS_COLLECT_IRQ_STATS
+ 	spin_unlock(&dsi.irq_stats_lock);
+ #endif
++	return IRQ_HANDLED;
+ }
+ 
+-
+ static void _dsi_initialize_irq(void)
+ {
+ 	u32 l;
+@@ -3293,6 +3298,19 @@ static int dsi_init(struct platform_device *pdev)
+ 		r = -ENOMEM;
+ 		goto err1;
+ 	}
++	dsi.irq	= platform_get_irq(dsi.pdev, 0);
++	if (dsi.irq < 0) {
++		DSSERR("platform_get_irq failed\n");
++		r = -ENODEV;
++		goto err2;
++	}
++
++	r = request_irq(dsi.irq, omap_dsi_irq_handler, IRQF_SHARED,
++		"OMAP DSI1", dsi.pdev);
++	if (r < 0) {
++		DSSERR("request_irq failed\n");
++		goto err2;
++	}
+ 
+ 	enable_clocks(1);
+ 
+@@ -3303,6 +3321,8 @@ static int dsi_init(struct platform_device *pdev)
+ 	enable_clocks(0);
+ 
+ 	return 0;
++err2:
++	iounmap(dsi.base);
+ err1:
+ 	destroy_workqueue(dsi.workqueue);
+ 	return r;
+@@ -3315,6 +3335,7 @@ static void dsi_exit(void)
+ 		dsi.vdds_dsi_reg = NULL;
+ 	}
+ 
++	free_irq(dsi.irq, dsi.pdev);
+ 	iounmap(dsi.base);
+ 
+ 	destroy_workqueue(dsi.workqueue);
+diff --git a/drivers/video/omap2/dss/dss.c b/drivers/video/omap2/dss/dss.c
+index ab82f79..dc57100 100644
+--- a/drivers/video/omap2/dss/dss.c
++++ b/drivers/video/omap2/dss/dss.c
+@@ -26,7 +26,6 @@
+ #include <linux/io.h>
+ #include <linux/err.h>
+ #include <linux/delay.h>
+-#include <linux/interrupt.h>
+ #include <linux/seq_file.h>
+ #include <linux/clk.h>
+ 
+@@ -79,7 +78,6 @@ static struct {
+ 	enum dss_clk_source dispc_clk_source;
+ 
+ 	u32		ctx[DSS_SZ_REGS / sizeof(u32)];
+-	int		dss_irq;
+ } dss;
+ 
+ static void dss_clk_enable_all_no_ctx(void);
+@@ -495,31 +493,6 @@ found:
+ 	return 0;
+ }
+ 
+-
+-
+-static irqreturn_t dss_irq_handler_omap2(int irq, void *arg)
+-{
+-	dispc_irq_handler();
+-
+-	return IRQ_HANDLED;
+-}
+-
+-static irqreturn_t dss_irq_handler_omap3(int irq, void *arg)
+-{
+-	u32 irqstatus;
+-
+-	irqstatus = dss_read_reg(DSS_IRQSTATUS);
+-
+-	if (irqstatus & (1<<0))	/* DISPC_IRQ */
+-		dispc_irq_handler();
+-#ifdef CONFIG_OMAP2_DSS_DSI
+-	if (irqstatus & (1<<1))	/* DSI_IRQ */
+-		dsi_irq_handler();
+-#endif
+-
+-	return IRQ_HANDLED;
+-}
+-
+ static int _omap_dss_wait_reset(void)
+ {
+ 	int t = 0;
+@@ -610,30 +583,12 @@ static int dss_init(bool skip_init)
+ 	REG_FLD_MOD(DSS_CONTROL, 0, 2, 2);	/* venc clock mode = normal */
+ #endif
+ 
+-	dss.dss_irq = platform_get_irq(dss.pdev, 0);
+-	if (dss.dss_irq < 0) {
+-		DSSERR("omap2 dss: platform_get_irq failed\n");
+-		r = -ENODEV;
+-		goto fail1;
+-	}
+-
+-	r = request_irq(dss.dss_irq,
+-		cpu_is_omap24xx()
+-		? dss_irq_handler_omap2
+-		: dss_irq_handler_omap3,
+-		0, "OMAP DSS", NULL);
+-
+-	if (r < 0) {
+-		DSSERR("omap2 dss: request_irq failed\n");
+-		goto fail1;
+-	}
+-
+ 	if (cpu_is_omap34xx()) {
+ 		dss.dpll4_m4_ck = clk_get(NULL, "dpll4_m4_ck");
+ 		if (IS_ERR(dss.dpll4_m4_ck)) {
+ 			DSSERR("Failed to get dpll4_m4_ck\n");
+ 			r = PTR_ERR(dss.dpll4_m4_ck);
+-			goto fail2;
++			goto fail1;
+ 		}
+ 	}
+ 
+@@ -648,8 +603,6 @@ static int dss_init(bool skip_init)
+ 
+ 	return 0;
+ 
+-fail2:
+-	free_irq(dss.dss_irq, NULL);
+ fail1:
+ 	iounmap(dss.base);
+ fail0:
+@@ -661,8 +614,6 @@ static void dss_exit(void)
+ 	if (cpu_is_omap34xx())
+ 		clk_put(dss.dpll4_m4_ck);
+ 
+-	free_irq(dss.dss_irq, NULL);
+-
+ 	iounmap(dss.base);
+ }
+ 
+-- 
+1.7.1
+

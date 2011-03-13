@@ -1,0 +1,51 @@
+From 3b7cb6ac37a7d3282ba11adbc6ae29d7d74cfbe0 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 22 Feb 2011 16:39:47 +0200
+Subject: [PATCH 166/200] OMAP: DSS2: Support for Samsung LTE430WQ-F0C
+
+Add support for Samsung LTE430WQ-F0C to panel-generic-dpi.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/displays/panel-generic-dpi.c |   25 ++++++++++++++++++++++
+ 1 files changed, 25 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/video/omap2/displays/panel-generic-dpi.c b/drivers/video/omap2/displays/panel-generic-dpi.c
+index 07eb30e..4a9b9ff 100644
+--- a/drivers/video/omap2/displays/panel-generic-dpi.c
++++ b/drivers/video/omap2/displays/panel-generic-dpi.c
+@@ -156,6 +156,31 @@ static struct panel_config generic_dpi_panels[] = {
+ 		.power_off_delay	= 0,
+ 		.name			= "toppoly_tdo35s",
+ 	},
++
++	/* Samsung LTE430WQ-F0C */
++	{
++		{
++			.x_res		= 480,
++			.y_res		= 272,
++
++			.pixel_clock	= 9200,
++
++			.hfp		= 8,
++			.hsw		= 41,
++			.hbp		= 45 - 41,
++
++			.vfp		= 4,
++			.vsw		= 10,
++			.vbp		= 12 - 10,
++		},
++		.acbi			= 0x0,
++		.acb			= 0x0,
++		.config			= OMAP_DSS_LCD_TFT | OMAP_DSS_LCD_IVS |
++						OMAP_DSS_LCD_IHS,
++		.power_on_delay		= 0,
++		.power_off_delay	= 0,
++		.name			= "samsung_lte430wq_f0c",
++	},
+ };
+ 
+ struct panel_drv_data {
+-- 
+1.7.1
+

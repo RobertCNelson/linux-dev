@@ -1,0 +1,38 @@
+From fc55f109d79e36d332adc571805d396fef2dc378 Mon Sep 17 00:00:00 2001
+From: Janorkar, Mayuresh <mayur@ti.com>
+Date: Thu, 24 Feb 2011 03:39:17 -0600
+Subject: [PATCH 175/200] OMAP: OMAPFB: Adding help for FB_OMAP_LCD_VGA option
+
+CONFIG_FB_OMAP_LCD_VGA option is present in drivers/video/omap
+There is no explaination about what this flag does.
+Lets add information about it.
+
+FB_OMAP_LCD_VGA flag sets resolution of display to VGA (640 X 480).
+The default resolution of 3430 LDP is 320 X 240.
+
+Signed-off-by: Mayuresh Janorkar <mayur@ti.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap/Kconfig |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/omap/Kconfig b/drivers/video/omap/Kconfig
+index 083c8fe..ff7049b 100644
+--- a/drivers/video/omap/Kconfig
++++ b/drivers/video/omap/Kconfig
+@@ -11,7 +11,11 @@ config FB_OMAP
+ config FB_OMAP_LCD_VGA
+         bool "Use LCD in VGA mode"
+ 	        depends on MACH_OMAP_3430SDP || MACH_OMAP_LDP
+-
++		help
++		  Set LCD resolution as VGA (640 X 480).
++		  Default resolution without this option is QVGA(320 X 240).
++		  Please take a look at drivers/video/omap/lcd_ldp.c file
++		  for lcd driver code.
+ choice
+ 	depends on FB_OMAP && MACH_OVERO
+ 	prompt "Screen resolution"
+-- 
+1.7.1
+

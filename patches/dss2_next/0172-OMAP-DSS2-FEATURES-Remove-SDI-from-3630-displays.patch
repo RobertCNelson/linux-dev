@@ -1,0 +1,63 @@
+From 0dcb8077ccad7fff85f44f2f42af86870dc42b47 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 24 Feb 2011 14:20:31 +0200
+Subject: [PATCH 172/200] OMAP: DSS2: FEATURES: Remove SDI from 3630 displays
+
+OMAP 3630 does not support SDI. Split omap3_dss_supported_displays into
+3430 and 3630 entries, and remove the SDI from 3630 entry.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/dss_features.c |   15 ++++++++++++---
+ 1 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/dss_features.c b/drivers/video/omap2/dss/dss_features.c
+index cf3ef69..f4367f6 100644
+--- a/drivers/video/omap2/dss/dss_features.c
++++ b/drivers/video/omap2/dss/dss_features.c
+@@ -73,7 +73,7 @@ static const enum omap_display_type omap2_dss_supported_displays[] = {
+ 	OMAP_DISPLAY_TYPE_VENC,
+ };
+ 
+-static const enum omap_display_type omap3_dss_supported_displays[] = {
++static const enum omap_display_type omap3430_dss_supported_displays[] = {
+ 	/* OMAP_DSS_CHANNEL_LCD */
+ 	OMAP_DISPLAY_TYPE_DPI | OMAP_DISPLAY_TYPE_DBI |
+ 	OMAP_DISPLAY_TYPE_SDI | OMAP_DISPLAY_TYPE_DSI,
+@@ -82,6 +82,15 @@ static const enum omap_display_type omap3_dss_supported_displays[] = {
+ 	OMAP_DISPLAY_TYPE_VENC,
+ };
+ 
++static const enum omap_display_type omap3630_dss_supported_displays[] = {
++	/* OMAP_DSS_CHANNEL_LCD */
++	OMAP_DISPLAY_TYPE_DPI | OMAP_DISPLAY_TYPE_DBI |
++	OMAP_DISPLAY_TYPE_DSI,
++
++	/* OMAP_DSS_CHANNEL_DIGIT */
++	OMAP_DISPLAY_TYPE_VENC,
++};
++
+ static const enum omap_display_type omap4_dss_supported_displays[] = {
+ 	/* OMAP_DSS_CHANNEL_LCD */
+ 	OMAP_DISPLAY_TYPE_DBI | OMAP_DISPLAY_TYPE_DSI,
+@@ -161,7 +170,7 @@ static struct omap_dss_features omap3430_dss_features = {
+ 
+ 	.num_mgrs = 2,
+ 	.num_ovls = 3,
+-	.supported_displays = omap3_dss_supported_displays,
++	.supported_displays = omap3430_dss_supported_displays,
+ 	.supported_color_modes = omap3_dss_supported_color_modes,
+ };
+ 
+@@ -176,7 +185,7 @@ static struct omap_dss_features omap3630_dss_features = {
+ 
+ 	.num_mgrs = 2,
+ 	.num_ovls = 3,
+-	.supported_displays = omap3_dss_supported_displays,
++	.supported_displays = omap3630_dss_supported_displays,
+ 	.supported_color_modes = omap3_dss_supported_color_modes,
+ };
+ 
+-- 
+1.7.1
+

@@ -1,0 +1,80 @@
+From 5ef87bb6f21459da7e19ca5b89012ded3cd6e577 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 24 Feb 2011 14:18:50 +0200
+Subject: [PATCH 174/200] OMAP: DSS2: Check for SDI HW before accessing SDI registers
+
+Only OMAP 3430 hardware has SDI support. The availability of SDI HW can
+be found out by checking if the LCD channel supports SDI displays.
+
+This patch checks for SDI HW support before accessing SDI registers,
+which fixes a crash on OMAP4 when SDI SW support is compiled in.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/dss.c |   29 ++++++++++++++++++-----------
+ 1 files changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/dss.c b/drivers/video/omap2/dss/dss.c
+index dc57100..50c1867 100644
+--- a/drivers/video/omap2/dss/dss.c
++++ b/drivers/video/omap2/dss/dss.c
+@@ -32,6 +32,7 @@
+ #include <plat/display.h>
+ #include <plat/clock.h>
+ #include "dss.h"
++#include "dss_features.h"
+ 
+ #define DSS_SZ_REGS			SZ_512
+ 
+@@ -110,10 +111,11 @@ void dss_save_context(void)
+ 	SR(SYSCONFIG);
+ 	SR(CONTROL);
+ 
+-#ifdef CONFIG_OMAP2_DSS_SDI
+-	SR(SDI_CONTROL);
+-	SR(PLL_CONTROL);
+-#endif
++	if (dss_feat_get_supported_displays(OMAP_DSS_CHANNEL_LCD) &
++			OMAP_DISPLAY_TYPE_SDI) {
++		SR(SDI_CONTROL);
++		SR(PLL_CONTROL);
++	}
+ }
+ 
+ void dss_restore_context(void)
+@@ -124,10 +126,11 @@ void dss_restore_context(void)
+ 	RR(SYSCONFIG);
+ 	RR(CONTROL);
+ 
+-#ifdef CONFIG_OMAP2_DSS_SDI
+-	RR(SDI_CONTROL);
+-	RR(PLL_CONTROL);
+-#endif
++	if (dss_feat_get_supported_displays(OMAP_DSS_CHANNEL_LCD) &
++			OMAP_DISPLAY_TYPE_SDI) {
++		RR(SDI_CONTROL);
++		RR(PLL_CONTROL);
++	}
+ }
+ 
+ #undef SR
+@@ -259,9 +262,13 @@ void dss_dump_regs(struct seq_file *s)
+ 	DUMPREG(DSS_SYSSTATUS);
+ 	DUMPREG(DSS_IRQSTATUS);
+ 	DUMPREG(DSS_CONTROL);
+-	DUMPREG(DSS_SDI_CONTROL);
+-	DUMPREG(DSS_PLL_CONTROL);
+-	DUMPREG(DSS_SDI_STATUS);
++
++	if (dss_feat_get_supported_displays(OMAP_DSS_CHANNEL_LCD) &
++			OMAP_DISPLAY_TYPE_SDI) {
++		DUMPREG(DSS_SDI_CONTROL);
++		DUMPREG(DSS_PLL_CONTROL);
++		DUMPREG(DSS_SDI_STATUS);
++	}
+ 
+ 	dss_clk_disable(DSS_CLK_ICK | DSS_CLK_FCK);
+ #undef DUMPREG
+-- 
+1.7.1
+

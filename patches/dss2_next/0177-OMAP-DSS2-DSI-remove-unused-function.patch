@@ -1,0 +1,42 @@
+From 96a83e10d89e76dc9f5cadf96eaab221d3991939 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Wed, 2 Jun 2010 15:09:37 +0300
+Subject: [PATCH 177/200] OMAP: DSS2: DSI: remove unused function
+
+dsi_reset_tx_fifo() was not used. Furthermore, OMAP errata states that
+TX FIFO flush is not functional, so the function wouldn't even have
+worked.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/dsi.c |   14 --------------
+ 1 files changed, 0 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/dsi.c b/drivers/video/omap2/dss/dsi.c
+index 2f7d949..c3019d9 100644
+--- a/drivers/video/omap2/dss/dsi.c
++++ b/drivers/video/omap2/dss/dsi.c
+@@ -1626,20 +1626,6 @@ static int _dsi_reset(void)
+ 	return _dsi_wait_reset();
+ }
+ 
+-static void dsi_reset_tx_fifo(int channel)
+-{
+-	u32 mask;
+-	u32 l;
+-
+-	/* set fifosize of the channel to 0, then return the old size */
+-	l = dsi_read_reg(DSI_TX_FIFO_VC_SIZE);
+-
+-	mask = FLD_MASK((8 * channel) + 7, (8 * channel) + 4);
+-	dsi_write_reg(DSI_TX_FIFO_VC_SIZE, l & ~mask);
+-
+-	dsi_write_reg(DSI_TX_FIFO_VC_SIZE, l);
+-}
+-
+ static void dsi_config_tx_fifo(enum fifo_size size1, enum fifo_size size2,
+ 		enum fifo_size size3, enum fifo_size size4)
+ {
+-- 
+1.7.1
+

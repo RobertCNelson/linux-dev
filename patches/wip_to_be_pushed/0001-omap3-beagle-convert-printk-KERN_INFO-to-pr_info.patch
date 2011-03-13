@@ -1,0 +1,73 @@
+From b839727d3a684fccd9a754a74af1302b30db2c89 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sun, 13 Mar 2011 11:42:51 -0500
+Subject: [PATCH 1/9] omap3: beagle: convert printk(KERN_INFO to pr_info(
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index e663c43..c8f99e7 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -109,23 +109,23 @@ static void __init omap3_beagle_init_rev(void)
+ 
+ 	switch (beagle_rev) {
+ 	case 7:
+-		printk(KERN_INFO "OMAP3 Beagle Rev: Ax/Bx\n");
++		pr_info("OMAP3 Beagle Rev: Ax/Bx\n");
+ 		omap3_beagle_version = OMAP3BEAGLE_BOARD_AXBX;
+ 		break;
+ 	case 6:
+-		printk(KERN_INFO "OMAP3 Beagle Rev: C1/C2/C3\n");
++		pr_info("OMAP3 Beagle Rev: C1/C2/C3\n");
+ 		omap3_beagle_version = OMAP3BEAGLE_BOARD_C1_3;
+ 		break;
+ 	case 5:
+-		printk(KERN_INFO "OMAP3 Beagle Rev: C4\n");
++		pr_info("OMAP3 Beagle Rev: C4\n");
+ 		omap3_beagle_version = OMAP3BEAGLE_BOARD_C4;
+ 		break;
+ 	case 0:
+-		printk(KERN_INFO "OMAP3 Beagle Rev: xM\n");
++		pr_info("OMAP3 Beagle Rev: xM\n");
+ 		omap3_beagle_version = OMAP3BEAGLE_BOARD_XM;
+ 		break;
+ 	default:
+-		printk(KERN_INFO "OMAP3 Beagle Rev: unknown %hd\n", beagle_rev);
++		pr_info("OMAP3 Beagle Rev: unknown %hd\n", beagle_rev);
+ 		omap3_beagle_version = OMAP3BEAGLE_BOARD_UNKN;
+ 	}
+ 
+@@ -562,7 +562,7 @@ static void __init omap3beagle_flash_init(void)
+ 		ret = gpmc_cs_read_reg(cs, GPMC_CS_CONFIG1);
+ 
+ 		if ((ret & 0xC00) == 0x800) {
+-			printk(KERN_INFO "Found NAND on CS%d\n", cs);
++			pr_info("Found NAND on CS%d\n", cs);
+ 			if (nandcs > GPMC_CS_NUM)
+ 				nandcs = cs;
+ 		}
+@@ -570,7 +570,7 @@ static void __init omap3beagle_flash_init(void)
+ 	}
+ 
+ 	if (nandcs > GPMC_CS_NUM) {
+-		printk(KERN_INFO "NAND: Unable to find configuration "
++		pr_info("NAND: Unable to find configuration "
+ 				 "in GPMC\n ");
+ 		return;
+ 	}
+@@ -578,7 +578,7 @@ static void __init omap3beagle_flash_init(void)
+ 	if (nandcs < GPMC_CS_NUM) {
+ 		omap3beagle_nand_data.cs = nandcs;
+ 
+-		printk(KERN_INFO "Registering NAND on CS%d\n", nandcs);
++		pr_info("Registering NAND on CS%d\n", nandcs);
+ 		if (gpmc_nand_init(&omap3beagle_nand_data) < 0)
+ 			printk(KERN_ERR "Unable to register NAND device\n");
+ 	}
+-- 
+1.7.1
+

@@ -1,0 +1,174 @@
+From 39621ff71b1b16c047f35feb5ea4caa6795b277a Mon Sep 17 00:00:00 2001
+From: Senthilvadivu Guruswamy <svadivu@ti.com>
+Date: Mon, 24 Jan 2011 06:21:57 +0000
+Subject: [PATCH 149/200] OMAP2, 3: DSS2: DSS: create platform_driver, move init, exit to driver
+
+Hwmod adaptation design requires each of the DSS HW IP to be a platform driver.
+So a platform_driver of DSS is created and init exit methods are moved from core.c
+to its driver probe,remove. pdev member has to be maintained by its own drivers.
+
+DSS platform driver is registered from inside omap_dss_probe, in the order desired.
+
+Signed-off-by: Senthilvadivu Guruswamy <svadivu@ti.com>
+Signed-off-by: Sumit Semwal <sumit.semwal@ti.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/core.c |   19 ++++++-------
+ drivers/video/omap2/dss/dss.c  |   55 ++++++++++++++++++++++++++++++++++++++-
+ drivers/video/omap2/dss/dss.h  |    4 +-
+ 3 files changed, 64 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/core.c b/drivers/video/omap2/dss/core.c
+index ee56859..e399ca2 100644
+--- a/drivers/video/omap2/dss/core.c
++++ b/drivers/video/omap2/dss/core.c
+@@ -517,15 +517,9 @@ static int omap_dss_probe(struct platform_device *pdev)
+ 	core.ctx_id = dss_get_ctx_id();
+ 	DSSDBG("initial ctx id %u\n", core.ctx_id);
+ 
+-#ifdef CONFIG_FB_OMAP_BOOTLOADER_INIT
+-	/* DISPC_CONTROL */
+-	if (omap_readl(0x48050440) & 1)	/* LCD enabled? */
+-		skip_init = 1;
+-#endif
+-
+-	r = dss_init(skip_init);
++	r = dss_init_platform_driver();
+ 	if (r) {
+-		DSSERR("Failed to initialize DSS\n");
++		DSSERR("Failed to initialize DSS platform driver\n");
+ 		goto err_dss;
+ 	}
+ 
+@@ -553,6 +547,11 @@ static int omap_dss_probe(struct platform_device *pdev)
+ 		goto err_venc;
+ 	}
+ 
++#ifdef CONFIG_FB_OMAP_BOOTLOADER_INIT
++	/* DISPC_CONTROL */
++	if (omap_readl(0x48050440) & 1)	/* LCD enabled? */
++		skip_init = 1;
++#endif
+ 	if (cpu_is_omap34xx()) {
+ 		r = sdi_init(skip_init);
+ 		if (r) {
+@@ -610,7 +609,7 @@ err_dispc:
+ err_dpi:
+ 	rfbi_exit();
+ err_rfbi:
+-	dss_exit();
++	dss_uninit_platform_driver();
+ err_dss:
+ 	dss_clk_disable_all_no_ctx();
+ 	dss_put_clocks();
+@@ -635,7 +634,7 @@ static int omap_dss_remove(struct platform_device *pdev)
+ 		sdi_exit();
+ 	}
+ 
+-	dss_exit();
++	dss_uninit_platform_driver();
+ 
+ 	/*
+ 	 * As part of hwmod changes, DSS is not the only controller of dss
+diff --git a/drivers/video/omap2/dss/dss.c b/drivers/video/omap2/dss/dss.c
+index 77c3621..01406f4 100644
+--- a/drivers/video/omap2/dss/dss.c
++++ b/drivers/video/omap2/dss/dss.c
+@@ -59,6 +59,7 @@ struct dss_reg {
+ 	dss_write_reg(idx, FLD_MOD(dss_read_reg(idx), val, start, end))
+ 
+ static struct {
++	struct platform_device *pdev;
+ 	void __iomem    *base;
+ 
+ 	struct clk	*dpll4_m4_ck;
+@@ -549,7 +550,7 @@ void dss_set_dac_pwrdn_bgz(bool enable)
+ 	REG_FLD_MOD(DSS_CONTROL, enable, 5, 5);	/* DAC Power-Down Control */
+ }
+ 
+-int dss_init(bool skip_init)
++static int dss_init(bool skip_init)
+ {
+ 	int r;
+ 	u32 rev;
+@@ -629,7 +630,7 @@ fail0:
+ 	return r;
+ }
+ 
+-void dss_exit(void)
++static void dss_exit(void)
+ {
+ 	if (cpu_is_omap34xx())
+ 		clk_put(dss.dpll4_m4_ck);
+@@ -639,3 +640,53 @@ void dss_exit(void)
+ 	iounmap(dss.base);
+ }
+ 
++/* DSS HW IP initialisation */
++static int omap_dsshw_probe(struct platform_device *pdev)
++{
++	int r;
++	int skip_init = 0;
++
++	dss.pdev = pdev;
++
++#ifdef CONFIG_FB_OMAP_BOOTLOADER_INIT
++	/* DISPC_CONTROL */
++	if (omap_readl(0x48050440) & 1)	/* LCD enabled? */
++		skip_init = 1;
++#endif
++
++	r = dss_init(skip_init);
++	if (r) {
++		DSSERR("Failed to initialize DSS\n");
++		goto err_dss;
++	}
++
++err_dss:
++
++	return r;
++}
++
++static int omap_dsshw_remove(struct platform_device *pdev)
++{
++	dss_exit();
++
++	return 0;
++}
++
++static struct platform_driver omap_dsshw_driver = {
++	.probe          = omap_dsshw_probe,
++	.remove         = omap_dsshw_remove,
++	.driver         = {
++		.name   = "omapdss_dss",
++		.owner  = THIS_MODULE,
++	},
++};
++
++int dss_init_platform_driver(void)
++{
++	return platform_driver_register(&omap_dsshw_driver);
++}
++
++void dss_uninit_platform_driver(void)
++{
++	return platform_driver_unregister(&omap_dsshw_driver);
++}
+diff --git a/drivers/video/omap2/dss/dss.h b/drivers/video/omap2/dss/dss.h
+index b394951..37c4544 100644
+--- a/drivers/video/omap2/dss/dss.h
++++ b/drivers/video/omap2/dss/dss.h
+@@ -214,8 +214,8 @@ void dss_overlay_setup_l4_manager(struct omap_overlay_manager *mgr);
+ void dss_recheck_connections(struct omap_dss_device *dssdev, bool force);
+ 
+ /* DSS */
+-int dss_init(bool skip_init);
+-void dss_exit(void);
++int dss_init_platform_driver(void);
++void dss_uninit_platform_driver(void);
+ 
+ void dss_save_context(void);
+ void dss_restore_context(void);
+-- 
+1.7.1
+

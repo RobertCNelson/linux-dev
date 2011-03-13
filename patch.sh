@@ -5,7 +5,7 @@ echo "Starting patch.sh"
 
 function git_add {
 git add .
-git commit -a -m 'Testing patchset'
+git commit -a -m 'testing patchset'
 }
 
 function bugs_trivial {
@@ -283,6 +283,142 @@ patch -s -p1 < "${DIR}/patches/for_next/0001-merge-changes-missed-in-rebase.patc
 
 }
 
+function dss2_next {
+echo "dss2 from for-next"
+
+patch -s -p1 < "${DIR}/patches/dss2_next/0146-OMAP-3430SDP-Remove-unused-vdda_dac-supply.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0147-OMAP2-3-DSS2-remove-forced-clk-disable-from-omap_dss.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0148-OMAP2-3-DSS2-Build-omap_device-for-each-DSS-HWIP.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0149-OMAP2-3-DSS2-DSS-create-platform_driver-move-init-ex.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0150-OMAP2-3-DSS2-Move-clocks-from-core-driver-to-dss-dri.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0151-OMAP2-3-DSS2-RFBI-create-platform_driver-move-init-e.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0152-OMAP2-3-DSS2-DISPC-create-platform_driver-move-init-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0153-OMAP2-3-DSS2-VENC-create-platform_driver-move-init-e.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0154-OMAP2-3-DSS2-DSI-create-platform_driver-move-init-ex.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0155-OMAP2-3-DSS2-replace-printk-with-dev_dbg-in-init.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0156-OMAP2-3-DSS2-Use-platform-device-to-get-baseaddr.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0157-OMAP2-3-DSS2-Get-DSS-IRQ-from-platform-device.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0158-OMAP2PLUS-clocks-Align-DSS-clock-names-and-roles.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0159-OMAP2PLUS-DSS2-Generalize-naming-of-PRCM-related-clo.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0160-OMAP2PLUS-DSS2-Generalize-external-clock-names-in-st.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0161-OMAP4-DSS2-clocks-Add-ick-as-dummy-clock.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0162-OMAP2PLUS-DSS2-Add-OMAP4-Kconfig-support.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0163-OMAP4-DSS2-Add-hwmod-device-names-for-OMAP4.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0164-OMAP-DSS2-Fix-def_disp-module-param-description.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0165-OMAP-DSS2-Delay-regulator_get-calls.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0166-OMAP-DSS2-Support-for-Samsung-LTE430WQ-F0C.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0167-OMAPFB-Adding-a-check-for-timings-in-set_def_mode.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0168-OMAP-DSS2-Have-separate-irq-handlers-for-DISPC-and-D.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0169-MAINTAINERS-Update-OMAP-DSS-maintainer.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0170-OMAP2-3-4-DSS2-Enable-Display-SubSystem-as-modules.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0171-OMAP-DSS2-Clean-up-a-switch-case.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0172-OMAP-DSS2-FEATURES-Remove-SDI-from-3630-displays.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0173-OMAP-DSS2-FEATURES-Remove-DSI-SDI-from-OMAP2.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0174-OMAP-DSS2-Check-for-SDI-HW-before-accessing-SDI-regi.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0175-OMAP-OMAPFB-Adding-help-for-FB_OMAP_LCD_VGA-option.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0176-OMAP-DSS2-Remove-unused-list.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0177-OMAP-DSS2-DSI-remove-unused-function.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0178-OMAP2PLUS-DSS2-add-opt_clock_available-in-pdata.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0179-OMAP2PLUS-DSS2-Use-opt_clock_available-from-pdata.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0180-omapfb-Fix-linker-error-in-drivers-video-omap-lcd_24.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0181-OMAP2PLUS-DSS2-FEATURES-DISPC-overlay-code-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0182-OMAP2PLUS-DSS2-FEATURES-Function-to-Provide-the-max-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0183-OMAP2PLUS-DSS2-Make-members-of-dss_clk_source-generi.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0184-OMAP2PLUS-DSS2-Use-dss-features-to-get-clock-source-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0185-OMAP2PLUS-DSS2-DSI-Generalize-DSI-PLL-Clock-Naming.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0186-OMAP-DSS2-Remove-FB_OMAP_BOOTLOADER_INIT-support.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0187-OMAP-DSS2-Remove-pdev-argument-from-dpi_init.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0188-OMAP-DSS2-Move-DPI-SDI-init-into-DSS-plat-driver.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0189-OMAP-DSS2-Remove-unneeded-cpu_is_xxx-checks.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0190-OMAP-DSS2-Functions-to-request-release-DSI-VCs.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0191-OMAP-DSS2-Use-request-release-calls-in-Taal-for-DSI-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0192-HACK-OMAP-DSS2-Fix-OMAP2_DSS_USE_DSI_PLL.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0193-HACK-OMAP-DSS2-add-delay-after-enabling-clocks.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0194-OMAP-DSS2-Adding-dss_features-for-independent-core-c.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0195-OMAP-DSS2-Renaming-register-macro-DISPC_DIVISOR-ch.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0196-OMAP4-DSS2-Using-dss_features-to-set-independent-cor.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0197-OMAP-DSS2-fix-omap_dispc_register_isr-fail-path.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0198-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0199-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
+
+#patch -s -p1 < "${DIR}/patches/dss2_next/0200-cleanup-after-rebase.patch"
+
+}
+
+function dspbridge_next {
+echo "dspbridge from for-next"
+
+patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-make-sync_wait_on_event-interrup.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0002-staging-tidspbridge-overwrite-DSP-error-codes.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0003-staging-tidspbridge-Eliminate-direct-manipulation-of.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0004-staging-tidspbridge-fix-mgr_enum_node_info.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0005-staging-tidspbridge-mgr_enum_node_info-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0006-staging-tidspbridge-fix-kernel-oops-in-bridge_io_get.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0007-staging-tidspbridge-remove-gs-memory-allocator.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0008-staging-tidspbridge-remove-utildefs.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0009-staging-tidspbridge-switch-to-linux-bitmap-API.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0010-staging-tidspbridge-remove-gb-bitmap-implementation.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0011-staging-tidspbridge-convert-core-to-list_head.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0012-staging-tidspbridge-convert-pmgr-to-list_head.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0013-staging-tidspbridge-convert-rmgr-to-list_head.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0014-staging-tidspbridge-remove-custom-linked-list.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0015-staging-tidspbridge-core-code-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0016-staging-tidspbridge-pmgr-code-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0017-staging-tidspbridge-use-the-right-type-for-list_is_l.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0018-staging-tidspbridge-rmgr-node.c-code-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0019-staging-tidspbridge-Fix-atoi-to-support-hexadecimal-.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0020-staging-tidspbridge-Remove-unused-defined-constants.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0021-staging-tidspbridge-Remove-unused-functions.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0022-staging-tidspbridge-Remove-unused-structs.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0023-staging-tidspbridge-Remove-unused-typedefs.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0024-staging-tidspbridge-Remove-trivial-header-files.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0025-staging-tidspbridge-remove-code-referred-by-OPT_ZERO.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0026-staging-tidspbridge-set1-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0027-staging-tidspbridge-set2-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0028-staging-tidspbridge-set3-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0029-staging-tidspbridge-set4-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0030-staging-tidspbridge-set5-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0031-staging-tidspbridge-set6-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0032-staging-tidspbridge-set7-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0033-staging-tidspbridge-set8-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0034-staging-tidspbridge-set9-remove-hungarian-from-struc.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0035-staging-tidspbridge-set10-remove-hungarian-from-stru.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0036-staging-tidspbridge-set11-remove-hungarian-from-stru.patch"
+patch -s -p1 < "${DIR}/patches/dspbridge/0037-staging-tidspbridge-set12-remove-hungarian-from-stru.patch"
+
+}
+
+function wip_to_be_pushed_git  {
+echo "wip patches for mainline"
+
+git_add
+git am "${DIR}/patches/wip_to_be_pushed/0001-omap3-beagle-convert-printk-KERN_INFO-to-pr_info.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0002-omap3-beagle-convert-printk-KERN_ERR-to-pr_err.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0003-omap3-beagle-detect-new-xM-revision-B.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0004-omap3-beagle-detect-new-xM-revision-C.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0005-omap3-beagle-if-rev-unknown-assume-xM-revision-C.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0006-omap3-beagle-add-i2c-bus2.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0007-omap3-beagle-add-initial-expansionboard-infrastructu.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0008-omap3-beagle-expansionboard-zippy.patch"
+git am "${DIR}/patches/wip_to_be_pushed/0009-omap3-beagle-expansionboard-zippy2.patch"
+
+}
+
+function wip_to_be_pushed  {
+echo "wip patches for mainline"
+
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0001-omap3-beagle-convert-printk-KERN_INFO-to-pr_info.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0002-omap3-beagle-convert-printk-KERN_ERR-to-pr_err.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0003-omap3-beagle-detect-new-xM-revision-B.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0004-omap3-beagle-detect-new-xM-revision-C.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0005-omap3-beagle-if-rev-unknown-assume-xM-revision-C.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0006-omap3-beagle-add-i2c-bus2.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0007-omap3-beagle-add-initial-expansionboard-infrastructu.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0008-omap3-beagle-expansionboard-zippy.patch"
+patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0009-omap3-beagle-expansionboard-zippy2.patch"
+
+}
+
 function sakoman {
 echo "sakoman's patches"
 
@@ -299,16 +435,12 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0013-MFD-add-twl4030-madc-driver.p
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0014-ARM-OMAP-Add-twl4030-madc-support-to-Overo.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0015-ARM-OMAP-Add-twl4030-madc-support-to-Beagle.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0016-OMAP-DSS2-Add-support-for-Samsung-LTE430WQ-F0C-panel.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0017-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
-
-#fixme pull in dss2 tree..
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0018-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0019-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0020-ARM-OMAP2-mmc-twl4030-move-clock-input-selection-pri.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0021-RTC-add-support-for-backup-battery-recharge.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0026-ARM-OMAP-Add-macros-for-comparing-silicon-revision.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0027-OMAP-DSS2-check-for-both-cpu-type-and-revision-rathe.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0028-OMAP-DSS2-enable-hsclk-in-dsi_pll_init-for-OMAP36XX.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0028-OMAP-DSS2-enable-hsclk-in-dsi_pll_init-for-OMAP36XX.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.38/0030-Revert-Input-ads7846-add-regulator-support.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.35/0031-Revert-omap2_mcspi-Flush-posted-writes.patch"
 
@@ -337,31 +469,27 @@ patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/18_ksz8851_2.6.35.patch"
 
 }
 
-function zippy {
-echo "zippy support"
-patch -s -p1 < "${DIR}/patches/angstrom/0003-ARM-OMAP-add-support-for-TCT-Zippy-to-Beagle-board-fixup.patch"
-patch -s -p1 < "${DIR}/patches/angstrom/0043-ARM-OMAP-beagleboard-Add-infrastructure-to-do-fixups-fixup.patch"
-patch -s -p1 < "${DIR}/patches/rcn/beagle-zippy-dont-load-i2c-on-boards-with-nozippy.diff"
-
-#needed for 2.6.36-git7 + local patchset
-patch -s -p1 < "${DIR}/patches/beagle/0001-arm-omap-beagle-use-caps-over-wires.patch"
-patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-beaglexm-fix-DVI-initialization.patch"
-patch -s -p1 < "${DIR}/patches/beagle/0001-beaglexm-fix-DVI-updated-for-xMC.patch"
-patch -s -p1 < "${DIR}/patches/beagle/0001-beaglexm-remove-extra-brace.patch"
-
-}
-
 function beagle {
 echo "beagle patches"
-patch -s -p1 < "${DIR}/patches/beagle/0001-omap-Beagle-detect-new-xM-revision-B.patch"
 patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 
 #disabled in for_next merge
 #patch -s -p1 < "${DIR}/patches/beagle/0001-xM-audio-fix-from-Ashok.patch"
 
-patch -s -p1 < "${DIR}/patches/beagle/0001-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
-patch -s -p1 < "${DIR}/patches/beagle/0001-beagleboard-hack-in-support-from-xM-rev-C-from-Koen.patch"
+#need more work
+#patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-beaglexm-fix-DVI-initialization.patch"
+#patch -s -p1 < "${DIR}/patches/beagle/0001-beaglexm-fix-DVI-updated-for-xMC.patch"
 
+}
+
+function igepv2 {
+echo "igepv2 board related patches"
+}
+
+function devkit8000 {
+echo "devkit8000"
+patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel-2.6.37-git10.patch"
 }
 
 function touchbook {
@@ -370,6 +498,45 @@ patch -s -p1 < "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp
 patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
 patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 #patch -s -p1 < "${DIR}/patches/touchbook/0004-omap3-touchbook-tesing-lcd-display.patch"
+}
+
+function omap4 {
+echo "omap4 related patches"
+
+#panda display from: http://dev.omapzoom.org/?p=anand/linux-omap-usb.git;a=shortlog;h=refs/heads/display-patches-for-v2.6.38-rc4
+patch -s -p1 < "${DIR}/patches/panda/0001-OMAP2-3-DSS2-remove-forced-clk-disable-from-omap_dss.patch"
+patch -s -p1 < "${DIR}/patches/panda/0005-OMAP2-3-DSS2-Change-driver-name-to-omap_display.patch"
+patch -s -p1 < "${DIR}/patches/panda/0006-OMAP2-3-DSS2-Use-Regulator-init-with-driver-name.patch"
+patch -s -p1 < "${DIR}/patches/panda/0007-OMAP2-3-DSS2-Create-new-file-display.c-for-central-d.patch"
+patch -s -p1 < "${DIR}/patches/panda/0009-OMAP2-3-DSS2-Build-omap_device-for-each-DSS-HWIP.patch"
+patch -s -p1 < "${DIR}/patches/panda/0010-OMAP2-3-DSS2-DSS-create-platform_driver-move-init-ex.patch"
+patch -s -p1 < "${DIR}/patches/panda/0011-OMAP2-3-DSS2-Move-clocks-from-core-driver-to-dss-dri.patch"
+patch -s -p1 < "${DIR}/patches/panda/0012-OMAP2-3-DSS2-RFBI-create-platform_driver-move-init-e.patch"
+patch -s -p1 < "${DIR}/patches/panda/0013-OMAP2-3-DSS2-DISPC-create-platform_driver-move-init-.patch"
+patch -s -p1 < "${DIR}/patches/panda/0014-OMAP2-3-DSS2-VENC-create-platform_driver-move-init-e.patch"
+patch -s -p1 < "${DIR}/patches/panda/0015-OMAP2-3-DSS2-DSI-create-platform_driver-move-init-ex.patch"
+patch -s -p1 < "${DIR}/patches/panda/0016-OMAP2-3-DSS2-replace-printk-with-dev_dbg-in-init.patch"
+patch -s -p1 < "${DIR}/patches/panda/0017-OMAP2-3-DSS2-Use-platform-device-to-get-baseaddr.patch"
+patch -s -p1 < "${DIR}/patches/panda/0018-OMAP2-3-DSS2-Get-DSS-IRQ-from-platform-device.patch"
+patch -s -p1 < "${DIR}/patches/panda/0019-OMAP2PLUS-clocks-Align-DSS-clock-names-and-roles.patch"
+
+#the omap36xx dpi.c change from steve really needs to upstream..
+patch -s -p1 < "${DIR}/patches/panda/0020-OMAP2PLUS-DSS2-Generalize-naming-of-PRCM-related-clo-fixup.patch"
+
+patch -s -p1 < "${DIR}/patches/panda/0021-OMAP2PLUS-DSS2-Generalize-external-clock-names-in-st.patch"
+patch -s -p1 < "${DIR}/patches/panda/0022-OMAP4-DSS2-clocks-Add-ick-as-dummy-clock.patch"
+patch -s -p1 < "${DIR}/patches/panda/0023-OMAP2PLUS-DSS2-Add-OMAP4-Kconfig-support.patch"
+patch -s -p1 < "${DIR}/patches/panda/0025-OMAP4-DSS2-Add-hwmod-device-names-for-OMAP4.patch"
+patch -s -p1 < "${DIR}/patches/panda/0026-OMAP-DSS2-Common-IRQ-handler-for-all-OMAPs.patch"
+patch -s -p1 < "${DIR}/patches/panda/0027-OMAP-DSS2-Add-dss_feature-for-variable-DPLL-fclk.patch"
+patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
+patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
+patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
+patch -s -p1 < "${DIR}/patches/panda/0031-OMAP-DSS2-Adding-dss_features-for-independent-core-c.patch"
+patch -s -p1 < "${DIR}/patches/panda/0032-OMAP-DSS2-Renaming-register-macro-DISPC_DIVISOR-ch.patch"
+patch -s -p1 < "${DIR}/patches/panda/0033-OMAP-DSS2-Adding-macro-for-DISPC_DIVISOR-register.patch"
+patch -s -p1 < "${DIR}/patches/panda/0034-OMAP4-DSS2-Using-dss_features-to-set-independent-cor.patch"
+patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
 
 }
 
@@ -431,100 +598,6 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-rc3-_cons
 
 }
 
-function omap4 {
-echo "omap4 related patches"
-
-#panda display from: http://dev.omapzoom.org/?p=anand/linux-omap-usb.git;a=shortlog;h=refs/heads/display-patches-for-v2.6.38-rc4
-patch -s -p1 < "${DIR}/patches/panda/0001-OMAP2-3-DSS2-remove-forced-clk-disable-from-omap_dss.patch"
-patch -s -p1 < "${DIR}/patches/panda/0005-OMAP2-3-DSS2-Change-driver-name-to-omap_display.patch"
-patch -s -p1 < "${DIR}/patches/panda/0006-OMAP2-3-DSS2-Use-Regulator-init-with-driver-name.patch"
-patch -s -p1 < "${DIR}/patches/panda/0007-OMAP2-3-DSS2-Create-new-file-display.c-for-central-d.patch"
-patch -s -p1 < "${DIR}/patches/panda/0009-OMAP2-3-DSS2-Build-omap_device-for-each-DSS-HWIP.patch"
-patch -s -p1 < "${DIR}/patches/panda/0010-OMAP2-3-DSS2-DSS-create-platform_driver-move-init-ex.patch"
-patch -s -p1 < "${DIR}/patches/panda/0011-OMAP2-3-DSS2-Move-clocks-from-core-driver-to-dss-dri.patch"
-patch -s -p1 < "${DIR}/patches/panda/0012-OMAP2-3-DSS2-RFBI-create-platform_driver-move-init-e.patch"
-patch -s -p1 < "${DIR}/patches/panda/0013-OMAP2-3-DSS2-DISPC-create-platform_driver-move-init-.patch"
-patch -s -p1 < "${DIR}/patches/panda/0014-OMAP2-3-DSS2-VENC-create-platform_driver-move-init-e.patch"
-patch -s -p1 < "${DIR}/patches/panda/0015-OMAP2-3-DSS2-DSI-create-platform_driver-move-init-ex.patch"
-patch -s -p1 < "${DIR}/patches/panda/0016-OMAP2-3-DSS2-replace-printk-with-dev_dbg-in-init.patch"
-patch -s -p1 < "${DIR}/patches/panda/0017-OMAP2-3-DSS2-Use-platform-device-to-get-baseaddr.patch"
-patch -s -p1 < "${DIR}/patches/panda/0018-OMAP2-3-DSS2-Get-DSS-IRQ-from-platform-device.patch"
-patch -s -p1 < "${DIR}/patches/panda/0019-OMAP2PLUS-clocks-Align-DSS-clock-names-and-roles.patch"
-
-#the omap36xx dpi.c change from steve really needs to upstream..
-patch -s -p1 < "${DIR}/patches/panda/0020-OMAP2PLUS-DSS2-Generalize-naming-of-PRCM-related-clo-fixup.patch"
-
-patch -s -p1 < "${DIR}/patches/panda/0021-OMAP2PLUS-DSS2-Generalize-external-clock-names-in-st.patch"
-patch -s -p1 < "${DIR}/patches/panda/0022-OMAP4-DSS2-clocks-Add-ick-as-dummy-clock.patch"
-patch -s -p1 < "${DIR}/patches/panda/0023-OMAP2PLUS-DSS2-Add-OMAP4-Kconfig-support.patch"
-patch -s -p1 < "${DIR}/patches/panda/0025-OMAP4-DSS2-Add-hwmod-device-names-for-OMAP4.patch"
-patch -s -p1 < "${DIR}/patches/panda/0026-OMAP-DSS2-Common-IRQ-handler-for-all-OMAPs.patch"
-patch -s -p1 < "${DIR}/patches/panda/0027-OMAP-DSS2-Add-dss_feature-for-variable-DPLL-fclk.patch"
-patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
-patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
-patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
-patch -s -p1 < "${DIR}/patches/panda/0031-OMAP-DSS2-Adding-dss_features-for-independent-core-c.patch"
-patch -s -p1 < "${DIR}/patches/panda/0032-OMAP-DSS2-Renaming-register-macro-DISPC_DIVISOR-ch.patch"
-patch -s -p1 < "${DIR}/patches/panda/0033-OMAP-DSS2-Adding-macro-for-DISPC_DIVISOR-register.patch"
-patch -s -p1 < "${DIR}/patches/panda/0034-OMAP4-DSS2-Using-dss_features-to-set-independent-cor.patch"
-patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
-
-}
-
-function igepv2 {
-echo "igepv2 board related patches"
-}
-
-function devkit8000 {
-echo "devkit8000"
-
-patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel-2.6.37-git10.patch"
-
-}
-
-function dspbridge {
-echo "dspbridge from staging"
-
-patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-make-sync_wait_on_event-interrup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0002-staging-tidspbridge-overwrite-DSP-error-codes.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0003-staging-tidspbridge-Eliminate-direct-manipulation-of.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0004-staging-tidspbridge-fix-mgr_enum_node_info.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0005-staging-tidspbridge-mgr_enum_node_info-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0006-staging-tidspbridge-fix-kernel-oops-in-bridge_io_get.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0007-staging-tidspbridge-remove-gs-memory-allocator.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0008-staging-tidspbridge-remove-utildefs.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0009-staging-tidspbridge-switch-to-linux-bitmap-API.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0010-staging-tidspbridge-remove-gb-bitmap-implementation.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0011-staging-tidspbridge-convert-core-to-list_head.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0012-staging-tidspbridge-convert-pmgr-to-list_head.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0013-staging-tidspbridge-convert-rmgr-to-list_head.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0014-staging-tidspbridge-remove-custom-linked-list.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0015-staging-tidspbridge-core-code-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0016-staging-tidspbridge-pmgr-code-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0017-staging-tidspbridge-use-the-right-type-for-list_is_l.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0018-staging-tidspbridge-rmgr-node.c-code-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0019-staging-tidspbridge-Fix-atoi-to-support-hexadecimal-.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0020-staging-tidspbridge-Remove-unused-defined-constants.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0021-staging-tidspbridge-Remove-unused-functions.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0022-staging-tidspbridge-Remove-unused-structs.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0023-staging-tidspbridge-Remove-unused-typedefs.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0024-staging-tidspbridge-Remove-trivial-header-files.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0025-staging-tidspbridge-remove-code-referred-by-OPT_ZERO.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0026-staging-tidspbridge-set1-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0027-staging-tidspbridge-set2-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0028-staging-tidspbridge-set3-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0029-staging-tidspbridge-set4-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0030-staging-tidspbridge-set5-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0031-staging-tidspbridge-set6-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0032-staging-tidspbridge-set7-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0033-staging-tidspbridge-set8-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0034-staging-tidspbridge-set9-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0035-staging-tidspbridge-set10-remove-hungarian-from-stru.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0036-staging-tidspbridge-set11-remove-hungarian-from-stru.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0037-staging-tidspbridge-set12-remove-hungarian-from-stru.patch"
-
-}
-
 function dvfs {
 echo "dvfs"
 
@@ -583,18 +656,32 @@ patch -s -p1 < "${DIR}/patches/dvfs/0001-omap3-Add-basic-support-for-720MHz-part
 }
 
 bugs_trivial
+
+#for_next tree's
 for_next
+dss2_next
+dspbridge_next
+
+#work in progress
+#wip_to_be_pushed_git
+wip_to_be_pushed
+
+#external tree's
 sakoman
-beagle
-touchbook
 musb
 micrel
-zippy
-sgx
+
+#random board patches
+beagle
 igepv2
-omap4
 devkit8000
-dspbridge
+touchbook
+
+#omap4
+
+#no chance of being pushed ever tree's
+sgx
+
 #dvfs
 
 echo "patch.sh ran successful"

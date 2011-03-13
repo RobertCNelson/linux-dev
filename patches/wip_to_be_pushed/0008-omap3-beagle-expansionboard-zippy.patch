@@ -1,5 +1,15 @@
+From 97fb928b63108bf1f79974c344be0c62bea71182 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sun, 13 Mar 2011 12:34:29 -0500
+Subject: [PATCH 8/9] omap3: beagle: expansionboard zippy
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |   78 +++++++++++++++++++++++++++++++
+ 1 files changed, 78 insertions(+), 0 deletions(-)
+
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index e20fc76..c9c5bbb 100644
+index cda6813..feacc5e 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -21,6 +21,7 @@
@@ -9,10 +19,10 @@ index e20fc76..c9c5bbb 100644
 +#include <linux/irq.h>
  #include <linux/input.h>
  #include <linux/gpio_keys.h>
+ #include <linux/opp.h>
+@@ -155,6 +156,48 @@ fail0:
  
-@@ -53,6 +54,49 @@
- 
- #define NAND_BLOCK_SIZE		SZ_128K
+ char expansionboard_name[16];
  
 +#if defined(CONFIG_ENC28J60) || defined(CONFIG_ENC28J60_MODULE)
 +
@@ -26,7 +36,7 @@ index e20fc76..c9c5bbb 100644
 +	.single_channel	= 1,	/* 0: slave, 1: master */
 +};
 +
-+static struct spi_board_info omap3beagle_spi_board_info[] __initdata = {
++static struct spi_board_info omap3beagle_zippy_spi_board_info[] __initdata = {
 +	{
 +		.modalias		= "enc28j60",
 +		.bus_num		= 4,
@@ -41,60 +51,48 @@ index e20fc76..c9c5bbb 100644
 +	if ((gpio_request(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, "ENC28J60_IRQ") == 0) &&
 +	    (gpio_direction_input(OMAP3BEAGLE_GPIO_ENC28J60_IRQ) == 0)) {
 +		gpio_export(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, 0);
-+		omap3beagle_spi_board_info[0].irq	= OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
-+		set_irq_type(omap3beagle_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
++		omap3beagle_zippy_spi_board_info[0].irq = OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
++		set_irq_type(omap3beagle_zippy_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
 +	} else {
-+		printk(KERN_ERR "could not obtain gpio for ENC28J60_IRQ\n");
++		pr_err("could not obtain gpio for ENC28J60_IRQ\n");
 +		return;
 +	}
 +
-+	spi_register_board_info(omap3beagle_spi_board_info,
-+			ARRAY_SIZE(omap3beagle_spi_board_info));
++	spi_register_board_info(omap3beagle_zippy_spi_board_info,
++			ARRAY_SIZE(omap3beagle_zippy_spi_board_info));
 +}
 +
 +#else
 +static inline void __init omap3beagle_enc28j60_init(void) { return; }
 +#endif
 +
-+
  static struct mtd_partition omap3beagle_nand_partitions[] = {
  	/* All the partition sizes are listed in terms of NAND block size */
  	{
-@@ -186,6 +230,14 @@ static struct omap2_hsmmc_info mmc[] = {
- 		.wires		= 8,
+@@ -273,6 +316,12 @@ static struct omap2_hsmmc_info mmc[] = {
+ 		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_8_BIT_DATA,
  		.gpio_wp	= 29,
  	},
 +	{
 +		.mmc		= 2,
-+		.wires		= 4,
-+		.gpio_wp	= 141,
-+		.gpio_cd	= 162,
++		.caps		= MMC_CAP_4_BIT_DATA,
 +		.transceiver	= true,
 +		.ocr_mask	= 0x00100000,	/* 3.3V */
 +	},
  	{}	/* Terminator */
  };
  
-@@ -330,7 +382,7 @@ static struct twl4030_platform_data beagle_twldata = {
- 	.vpll2		= &beagle_vpll2,
- };
- 
--static struct i2c_board_info __initdata beagle_i2c_boardinfo[] = {
-+static struct i2c_board_info __initdata beagle_i2c1_boardinfo[] = {
- 	{
- 		I2C_BOARD_INFO("twl4030", 0x48),
- 		.flags = I2C_CLIENT_WAKE,
-@@ -339,10 +391,24 @@ static struct i2c_board_info __initdata beagle_i2c_boardinfo[] = {
- 	},
+@@ -485,11 +534,31 @@ static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
+        },
  };
  
 +#if defined(CONFIG_RTC_DRV_DS1307) || \
 +	defined(CONFIG_RTC_DRV_DS1307_MODULE)
 +
 +static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {
-+	{
-+		I2C_BOARD_INFO("ds1307", 0x68),
-+	},
++       {
++               I2C_BOARD_INFO("ds1307", 0x68),
++       },
 +};
 +#else
 +static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {};
@@ -102,21 +100,36 @@ index e20fc76..c9c5bbb 100644
 +
  static int __init omap3_beagle_i2c_init(void)
  {
--	omap_register_i2c_bus(1, 2600, beagle_i2c_boardinfo,
--			ARRAY_SIZE(beagle_i2c_boardinfo));
-+	omap_register_i2c_bus(1, 2600, beagle_i2c1_boardinfo,
-+			ARRAY_SIZE(beagle_i2c1_boardinfo));
+ 	omap_register_i2c_bus(1, 2600, beagle_i2c_boardinfo,
+ 			ARRAY_SIZE(beagle_i2c_boardinfo));
++	if(!strcmp(expansionboard_name, "zippy"))
++	{
 +	omap_register_i2c_bus(2, 400,  beagle_i2c2_boardinfo,
 +			ARRAY_SIZE(beagle_i2c2_boardinfo));
++	}
++	else
++	{
+ 	omap_register_i2c_bus(2, 400, NULL, 0);
++	}
  	/* Bus 3 is attached to the DVI port where devices like the pico DLP
  	 * projector don't work reliably with 400kHz */
- 	omap_register_i2c_bus(3, 100, NULL, 0);
-@@ -496,6 +562,8 @@ static void __init omap3_beagle_init(void)
+ 	omap_register_i2c_bus(3, 100, beagle_i2c_eeprom, ARRAY_SIZE(beagle_i2c_eeprom));
+@@ -696,6 +765,15 @@ static void __init omap3_beagle_init(void)
  	/* REVISIT leave DVI powered down until it's needed ... */
  	gpio_direction_output(170, true);
  
-+	omap3beagle_enc28j60_init();
++	if(!strcmp(expansionboard_name, "zippy"))
++	{
++		pr_info("Beagle expansionboard: initializing enc28j60\n");
++		omap3beagle_enc28j60_init();
++		pr_info("Beagle expansionboard: assigning GPIO 141 and 162 to MMC1\n");
++		mmc[1].gpio_wp = 141;
++		mmc[1].gpio_cd = 162;
++	}
 +
  	usb_musb_init(&musb_board_data);
  	usb_ehci_init(&ehci_pdata);
  	omap3beagle_flash_init();
+-- 
+1.7.1
+

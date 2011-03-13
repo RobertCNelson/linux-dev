@@ -1,0 +1,31 @@
+From 100add4b1e36673b4f63ef817de2439fcc4309ca Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Fri, 4 Mar 2011 18:19:54 +0200
+Subject: [PATCH 197/200] OMAP: DSS2: fix omap_dispc_register_isr() fail path
+
+Fix handling of error in omap_dispc_register_isr() in case there are no
+free isr slots available.
+
+Reported-by: Ben Tucker <btucker@mpcdata.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/dispc.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/dispc.c b/drivers/video/omap2/dss/dispc.c
+index dae9686..4a368c4 100644
+--- a/drivers/video/omap2/dss/dispc.c
++++ b/drivers/video/omap2/dss/dispc.c
+@@ -2831,6 +2831,9 @@ int omap_dispc_register_isr(omap_dispc_isr_t isr, void *arg, u32 mask)
+ 		break;
+ 	}
+ 
++	if (ret)
++		goto err;
++
+ 	_omap_dispc_set_irqs();
+ 
+ 	spin_unlock_irqrestore(&dispc.irq_lock, flags);
+-- 
+1.7.1
+

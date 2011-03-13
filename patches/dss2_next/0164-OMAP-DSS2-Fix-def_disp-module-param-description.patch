@@ -1,0 +1,31 @@
+From 53b4a292142994fac26a235262e2ae396510c3ff Mon Sep 17 00:00:00 2001
+From: Jani Nikula <jani@nikula.org>
+Date: Wed, 16 Feb 2011 04:53:44 -0600
+Subject: [PATCH 164/200] OMAP: DSS2: Fix def_disp module param description
+
+MODULE_PARM_DESC() takes the name of the actual module parameter, not the
+name of the variable, as input. Fix the module parameter description for
+def_disp.
+
+Signed-off-by: Jani Nikula <jani@nikula.org>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/core.c b/drivers/video/omap2/dss/core.c
+index f56ee64..bcf69a4 100644
+--- a/drivers/video/omap2/dss/core.c
++++ b/drivers/video/omap2/dss/core.c
+@@ -47,7 +47,7 @@ static struct {
+ 
+ static char *def_disp_name;
+ module_param_named(def_disp, def_disp_name, charp, 0);
+-MODULE_PARM_DESC(def_disp_name, "default display name");
++MODULE_PARM_DESC(def_disp, "default display name");
+ 
+ #ifdef DEBUG
+ unsigned int dss_debug;
+-- 
+1.7.1
+

@@ -1,7 +1,7 @@
-From ce3e77cc8891839100460bd08bb90cc9111d467b Mon Sep 17 00:00:00 2001
+From b26500db37933d9f97d599dcaa4a02a477df6e9b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 9 Nov 2010 08:34:55 -0600
-Subject: [PATCH] omap: Beagle: detect new xM revision B
+Date: Sun, 13 Mar 2011 11:47:37 -0500
+Subject: [PATCH 3/9] omap3: beagle: detect new xM revision B
 
 The xM B uses a DM3730 ES1.1 over the ES1.0 on xM A's, no other board changes.
 
@@ -11,10 +11,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 files changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 77fb404..e981bb8 100644
+index 8672dc9..ebb90dc 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -61,7 +61,8 @@
+@@ -62,7 +62,8 @@
   *	AXBX	= GPIO173, GPIO172, GPIO171: 1 1 1
   *	C1_3	= GPIO173, GPIO172, GPIO171: 1 1 0
   *	C4	= GPIO173, GPIO172, GPIO171: 1 0 1
@@ -24,16 +24,16 @@ index 77fb404..e981bb8 100644
   */
  enum {
  	OMAP3BEAGLE_BOARD_UNKN = 0,
-@@ -120,7 +121,11 @@ static void __init omap3_beagle_init_rev(void)
+@@ -121,7 +122,11 @@ static void __init omap3_beagle_init_rev(void)
  		omap3_beagle_version = OMAP3BEAGLE_BOARD_C4;
  		break;
  	case 0:
--		printk(KERN_INFO "OMAP3 Beagle Rev: xM\n");
-+		printk(KERN_INFO "OMAP3 Beagle Rev: xM A\n");
+-		pr_info("OMAP3 Beagle Rev: xM\n");
++		pr_info("OMAP3 Beagle Rev: xM A\n");
 +		omap3_beagle_version = OMAP3BEAGLE_BOARD_XM;
 +		break;
 +	case 1:
-+		printk(KERN_INFO "OMAP3 Beagle Rev: xM B\n");
++		pr_info("OMAP3 Beagle Rev: xM B\n");
  		omap3_beagle_version = OMAP3BEAGLE_BOARD_XM;
  		break;
  	default:
