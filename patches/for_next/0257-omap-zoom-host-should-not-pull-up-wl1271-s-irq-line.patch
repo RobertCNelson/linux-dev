@@ -1,0 +1,33 @@
+From 6e0298a1b7ba50c7706297ba8c4b2fb5a1745532 Mon Sep 17 00:00:00 2001
+From: Ohad Ben-Cohen <ohad@wizery.com>
+Date: Mon, 14 Mar 2011 14:24:25 +0000
+Subject: [PATCH 257/258] omap: zoom: host should not pull up wl1271's irq line
+
+The wl1271's irq line is completely controlled by the 1271 device, and
+the host does not not need to pull it up.
+
+While there's no functional effect, letting the host pull this line up is
+just redundant, and wastes power.
+
+Signed-off-by: Ohad Ben-Cohen <ohad@wizery.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-zoom.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-zoom.c b/arch/arm/mach-omap2/board-zoom.c
+index 7e3f159..7e895ff 100644
+--- a/arch/arm/mach-omap2/board-zoom.c
++++ b/arch/arm/mach-omap2/board-zoom.c
+@@ -48,7 +48,7 @@ static void __init omap_zoom_init_early(void)
+ #ifdef CONFIG_OMAP_MUX
+ static struct omap_board_mux board_mux[] __initdata = {
+ 	/* WLAN IRQ - GPIO 162 */
+-	OMAP3_MUX(MCBSP1_CLKX, OMAP_MUX_MODE4 | OMAP_PIN_INPUT_PULLUP),
++	OMAP3_MUX(MCBSP1_CLKX, OMAP_MUX_MODE4 | OMAP_PIN_INPUT),
+ 	/* WLAN POWER ENABLE - GPIO 101 */
+ 	OMAP3_MUX(CAM_D2, OMAP_MUX_MODE4 | OMAP_PIN_OUTPUT),
+ 	/* WLAN SDIO: MMC3 CMD */
+-- 
+1.7.1
+

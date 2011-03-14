@@ -276,10 +276,13 @@ patch -s -p1 < "${DIR}/patches/for_next/0248-omap4-board-4430sdp-Initialise-the-
 patch -s -p1 < "${DIR}/patches/for_next/0249-omap3-board-3430sdp-Initialise-the-serial-pads.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0250-omap4-board-omap4panda-Initialise-the-serial-pads.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0251-omap2-mux-Fix-compile-when-CONFIG_OMAP_MUX-is-not-se.patch"
-patch -s -p1 < "${DIR}/patches/for_next/0252-omap4-mux-Remove-duplicate-mux-modes.patch"
-patch -s -p1 < "${DIR}/patches/for_next/0253-omap-iovmm-disallow-mapping-NULL-address-when-IOVMF_.patch"
-patch -s -p1 < "${DIR}/patches/for_next/0254-omap-iovmm-don-t-check-da-to-set-IOVMF_DA_FIXED-flag.patch"
-patch -s -p1 < "${DIR}/patches/for_next/0001-merge-changes-missed-in-rebase.patch"
+patch -s -p1 < "${DIR}/patches/for_next/0252-omap-iovmm-disallow-mapping-NULL-address-when-IOVMF_.patch"
+patch -s -p1 < "${DIR}/patches/for_next/0253-omap-iovmm-don-t-check-da-to-set-IOVMF_DA_FIXED-flag.patch"
+patch -s -p1 < "${DIR}/patches/for_next/0254-omap4-mux-Remove-duplicate-mux-modes.patch"
+patch -s -p1 < "${DIR}/patches/for_next/0255-OMAP2-Common-CPU-DIE-ID-reading-code-reads-wrong-reg.patch"
+patch -s -p1 < "${DIR}/patches/for_next/0256-arm-plat-omap-iommu-fix-request_mem_region-error-pat.patch"
+patch -s -p1 < "${DIR}/patches/for_next/0257-omap-zoom-host-should-not-pull-up-wl1271-s-irq-line.patch"
+patch -s -p1 < "${DIR}/patches/for_next/0258-merge-changes-missed-in-rebase.patch"
 
 }
 
@@ -503,11 +506,30 @@ patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 
 function omap4 {
 echo "omap4 related patches"
-#needs more testing..
+
 patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
-patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
-patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
-patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
+
+#from: http://dev.omapzoom.org/?p=axelcx/kernel-display.git;a=shortlog;h=refs/heads/lo-dss2-Mar15
+#patch -s -p1 < "${DIR}/patches/panda/0001-OMAP2PLUS-DSS2-Cleanup-clock-source-related-code.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0002-OMAP4-DSS2-Clock-source-changes-for-OMAP4.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0003-omap-overo-Add-regulator-for-ads7846.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0004-OMAP-Add-gpio-leds-support-for-Overo.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0005-OMAP-Add-gpio-keys-support-for-Overo.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0006-OMAP-DSS2-FEATURES-DSI-PLL-parameter-cleanup.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0007-OMAP4-DSS2-Add-display-type-HDMI-to-DSS2.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0008-OMAP4-DSS2-HDMI-Select-between-HDMI-VENC-clock-sourc.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0009-OMAP4-DSS2-HDMI-Dispc-gamma-enable-set-reset-functio.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0010-OMAP4-DSS2-HDMI-HDMI-driver-header-file-addition.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0011-OMAP4-DSS2-HDMI-HDMI-driver-addition-in-the-DSS.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0012-OMAP4-DSS2-HDMI-HDMI-panel-driver-addition-in-the-DS.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0013-OMAP4-DSS2-HDMI-Add-makefile-and-kconfig-changes-to-.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0014-OMAP4-DSS-HDMI-Call-to-HDMI-module-init-to-register-.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0015-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0016-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
+
 }
 
 function sgx {

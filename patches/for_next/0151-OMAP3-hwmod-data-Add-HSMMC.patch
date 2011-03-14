@@ -1,7 +1,7 @@
-From 380220d1b150449494cb3816c3e303214a03246b Mon Sep 17 00:00:00 2001
+From e4f8c427146d4555aad74cdd146e34f8f97d8104 Mon Sep 17 00:00:00 2001
 From: Paul Walmsley <paul@pwsan.com>
 Date: Tue, 1 Mar 2011 13:12:56 -0800
-Subject: [PATCH 151/254] OMAP3: hwmod data: Add HSMMC
+Subject: [PATCH 151/258] OMAP3: hwmod data: Add HSMMC
 
 Update the omap3 hwmod data with the HSMMC info.
 
@@ -12,19 +12,18 @@ Signed-off-by: Kishore Kadiyala <kishore.kadiyala@ti.com>
 Cc: Benoit Cousson <b-cousson@ti.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 ---
- arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |  296 +++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |  295 ++++++++++++++++++++++++++++
  arch/arm/mach-omap2/prcm-common.h          |    4 +
- 2 files changed, 299 insertions(+), 1 deletions(-)
+ 2 files changed, 299 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-index 9cd116b..1726a1a 100644
+index 8260008..1726a1a 100644
 --- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
 +++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-@@ -70,7 +70,10 @@ static struct omap_hwmod omap34xx_mcspi1;
+@@ -70,6 +70,10 @@ static struct omap_hwmod omap34xx_mcspi1;
  static struct omap_hwmod omap34xx_mcspi2;
  static struct omap_hwmod omap34xx_mcspi3;
  static struct omap_hwmod omap34xx_mcspi4;
--
 +static struct omap_hwmod omap3xxx_mmc1_hwmod;
 +static struct omap_hwmod omap3xxx_mmc2_hwmod;
 +static struct omap_hwmod omap3xxx_mmc3_hwmod;
@@ -32,7 +31,7 @@ index 9cd116b..1726a1a 100644
  
  static struct omap_hwmod omap3xxx_dma_system_hwmod;
  
-@@ -168,6 +171,63 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_core__l4_wkup = {
+@@ -167,6 +171,63 @@ static struct omap_hwmod_ocp_if omap3xxx_l4_core__l4_wkup = {
  	.user	= OCP_USER_MPU | OCP_USER_SDMA,
  };
  
@@ -96,7 +95,7 @@ index 9cd116b..1726a1a 100644
  /* L4 CORE -> UART1 interface */
  static struct omap_hwmod_addr_space omap3xxx_uart1_addr_space[] = {
  	{
-@@ -3270,11 +3330,245 @@ static struct omap_hwmod omap34xx_mcspi4 = {
+@@ -3269,11 +3330,245 @@ static struct omap_hwmod omap34xx_mcspi4 = {
  	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP3430),
  };
  
