@@ -20,7 +20,7 @@ if [ -e ${DIR}/version.sh ]; then
 		git push origin
 	else
 		git commit -a -m "${KERNEL_REL}-${BUILD} release" -s
-		git tag -a "${KERNEL_REL}.${STABLE_PATCH}" -m "${KERNEL_REL}.${STABLE_PATCH}"
+		git tag -a "${KERNEL_REL}-${BUILD}" -m "${KERNEL_REL}-${BUILD}"
 		git push origin --tags
 		git push origin
 	fi
