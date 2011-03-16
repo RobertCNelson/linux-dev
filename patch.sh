@@ -360,6 +360,17 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0013-OMAP-DSS2-DSI-use-ISR-for-BTA-in-f
 patch -s -p1 < "${DIR}/patches/dss2_next/0014-OMAP-DSS2-DSI-catch-DSI-errors-in-send_bta_sync.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0015-OMAP-DSS2-DSI-fix-IRQ-debug-prints.patch"
 
+patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP4-DSS2-Add-display-type-HDMI-to-DSS2.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0002-OMAP4-DSS2-HDMI-Select-between-HDMI-VENC-clock-sourc.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0003-OMAP4-DSS2-HDMI-Dispc-gamma-enable-set-reset-functio.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0004-OMAP4-DSS2-HDMI-HDMI-driver-header-file-addition.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0005-OMAP4-DSS2-HDMI-HDMI-driver-addition-in-the-DSS.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0006-OMAP4-DSS2-HDMI-HDMI-panel-driver-addition-in-the-DS.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0007-OMAP4-DSS2-HDMI-Add-makefile-and-kconfig-changes-to-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0008-OMAP4-DSS-HDMI-Call-to-HDMI-module-init-to-register-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0009-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
+#patch -s -p1 < "${DIR}/patches/dss2_next/0010-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
+
 }
 
 function dspbridge_next {
@@ -520,11 +531,13 @@ patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 
 function omap4 {
 echo "omap4 related patches"
+patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
+
 
 #patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
 #patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
 #patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
-patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
 
 #from: http://dev.omapzoom.org/?p=axelcx/kernel-display.git;a=shortlog;h=refs/heads/lo-dss2-Mar15
 #patch -s -p1 < "${DIR}/patches/panda/0001-OMAP2PLUS-DSS2-Cleanup-clock-source-related-code.patch"
@@ -684,7 +697,7 @@ devkit8000
 touchbook
 
 #omap4/dvfs still needs more testing..
-#omap4
+omap4
 #dvfs
 
 #no chance of being pushed ever tree's
