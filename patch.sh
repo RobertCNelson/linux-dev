@@ -344,7 +344,21 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0197-OMAP-DSS2-fix-omap_dispc_register_
 patch -s -p1 < "${DIR}/patches/dss2_next/0198-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0199-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
 
-#patch -s -p1 < "${DIR}/patches/dss2_next/0200-cleanup-after-rebase.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP2PLUS-DSS2-Cleanup-clock-source-related-code.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0002-OMAP4-DSS2-Clock-source-changes-for-OMAP4.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0003-omap-overo-Add-regulator-for-ads7846.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0004-OMAP-Add-gpio-leds-support-for-Overo.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0005-OMAP-Add-gpio-keys-support-for-Overo.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0006-HACK-OMAP-DSS2-VENC-disable-VENC-on-OMAP4-to-prevent.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0007-OMAP2PLUS-DSS2-FEATURES-Fix-usage-of-dss_reg_field-a.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0008-OMAP-DSS2-FEATURES-Functions-to-return-min-and-max-v.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0009-OMAP-DSS2-FEATURES-DSI-PLL-parameter-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0010-OMAP-DSS2-DSI-Restructure-IRQ-handler.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0011-OMAP-DSS2-DSI-Add-ISR-support.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0012-OMAP-DSS2-DSI-use-ISR-in-send_bta_sync.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0013-OMAP-DSS2-DSI-use-ISR-for-BTA-in-framedone.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0014-OMAP-DSS2-DSI-catch-DSI-errors-in-send_bta_sync.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0015-OMAP-DSS2-DSI-fix-IRQ-debug-prints.patch"
 
 }
 
@@ -507,10 +521,10 @@ patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 function omap4 {
 echo "omap4 related patches"
 
-patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
+#patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
 #patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
 #patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
-#patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
+patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
 
 #from: http://dev.omapzoom.org/?p=axelcx/kernel-display.git;a=shortlog;h=refs/heads/lo-dss2-Mar15
 #patch -s -p1 < "${DIR}/patches/panda/0001-OMAP2PLUS-DSS2-Cleanup-clock-source-related-code.patch"
