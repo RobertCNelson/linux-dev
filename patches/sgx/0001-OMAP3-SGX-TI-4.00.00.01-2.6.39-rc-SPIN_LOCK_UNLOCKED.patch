@@ -1,0 +1,26 @@
+From f0235e942b83f1888679be48712c8ece8727455e Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 16 Mar 2011 15:10:24 -0500
+Subject: [PATCH] OMAP3 SGX TI 4.00.00.01 2.6.39-rc SPIN_LOCK_UNLOCKED dropped
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../omap3-sgx/services4/srvkm/env/linux/osfunc.c   |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
+index e7f9731..b3dad32 100644
+--- a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
++++ b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
+@@ -1518,7 +1518,7 @@ typedef struct TIMER_CALLBACK_DATA_TAG
+ 
+ static TIMER_CALLBACK_DATA sTimers[OS_MAX_TIMERS];
+ 
+-static spinlock_t sTimerStructLock = SPIN_LOCK_UNLOCKED;
++static spinlock_t sTimerStructLock = __SPIN_LOCK_UNLOCKED(sTimerStructLock);
+ 
+ static IMG_VOID OSTimerCallbackWrapper(IMG_UINT32 ui32Data)
+ {
+-- 
+1.7.1
+

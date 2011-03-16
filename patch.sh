@@ -344,7 +344,32 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0197-OMAP-DSS2-fix-omap_dispc_register_
 patch -s -p1 < "${DIR}/patches/dss2_next/0198-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0199-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
 
-#patch -s -p1 < "${DIR}/patches/dss2_next/0200-cleanup-after-rebase.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP2PLUS-DSS2-Cleanup-clock-source-related-code.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0002-OMAP4-DSS2-Clock-source-changes-for-OMAP4.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0003-omap-overo-Add-regulator-for-ads7846.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0004-OMAP-Add-gpio-leds-support-for-Overo.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0005-OMAP-Add-gpio-keys-support-for-Overo.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0006-HACK-OMAP-DSS2-VENC-disable-VENC-on-OMAP4-to-prevent.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0007-OMAP2PLUS-DSS2-FEATURES-Fix-usage-of-dss_reg_field-a.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0008-OMAP-DSS2-FEATURES-Functions-to-return-min-and-max-v.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0009-OMAP-DSS2-FEATURES-DSI-PLL-parameter-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0010-OMAP-DSS2-DSI-Restructure-IRQ-handler.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0011-OMAP-DSS2-DSI-Add-ISR-support.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0012-OMAP-DSS2-DSI-use-ISR-in-send_bta_sync.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0013-OMAP-DSS2-DSI-use-ISR-for-BTA-in-framedone.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0014-OMAP-DSS2-DSI-catch-DSI-errors-in-send_bta_sync.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0015-OMAP-DSS2-DSI-fix-IRQ-debug-prints.patch"
+
+patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP4-DSS2-Add-display-type-HDMI-to-DSS2.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0002-OMAP4-DSS2-HDMI-Select-between-HDMI-VENC-clock-sourc.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0003-OMAP4-DSS2-HDMI-Dispc-gamma-enable-set-reset-functio.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0004-OMAP4-DSS2-HDMI-HDMI-driver-header-file-addition.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0005-OMAP4-DSS2-HDMI-HDMI-driver-addition-in-the-DSS.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0006-OMAP4-DSS2-HDMI-HDMI-panel-driver-addition-in-the-DS.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0007-OMAP4-DSS2-HDMI-Add-makefile-and-kconfig-changes-to-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0008-OMAP4-DSS-HDMI-Call-to-HDMI-module-init-to-register-.patch"
+patch -s -p1 < "${DIR}/patches/dss2_next/0009-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
+#patch -s -p1 < "${DIR}/patches/dss2_next/0010-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
 
 }
 
@@ -506,8 +531,10 @@ patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 
 function omap4 {
 echo "omap4 related patches"
+patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
 
-patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
+
+#patch -s -p1 < "${DIR}/patches/panda/0028-OMAP-DSS-Renaming-the-dpll-clk-pointer-in-struct-dss.patch"
 #patch -s -p1 < "${DIR}/patches/panda/0029-OMAP-DSS2-Using-dss_features-to-clean-cpu-checks-for.patch"
 #patch -s -p1 < "${DIR}/patches/panda/0030-OMAP-DSS2-Get-OMAP4-DPLL-fclk-for-DPI-interface.patch"
 #patch -s -p1 < "${DIR}/patches/panda/0035-OMAP4-PandaBoard-Adding-DVI-support.patch"
@@ -584,6 +611,9 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-merge-AUT
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.38-rc3-_console_sem-to-c.patch"
 #tuned for 4.03.00.02
 #patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.38-rc3-_console_sem-to-c.patch"
+
+#4.00.00.01 + 2.6.39 (2.6.38-git2)
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.00.00.01-2.6.39-rc-SPIN_LOCK_UNLOCKED.patch"
 
 #4.03.00.01
 #patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.01-add-outer_cache.clean_all.patch"
@@ -670,7 +700,7 @@ devkit8000
 touchbook
 
 #omap4/dvfs still needs more testing..
-#omap4
+omap4
 #dvfs
 
 #no chance of being pushed ever tree's

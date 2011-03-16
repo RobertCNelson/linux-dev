@@ -1,0 +1,40 @@
+From ba02fa37de80bea10d706f39f076dd848348320a Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Fri, 11 Mar 2011 09:28:06 +0200
+Subject: [PATCH 06/15] HACK: OMAP: DSS2: VENC: disable VENC on OMAP4 to prevent crash
+
+Something seems to be wrong with OMAP4 & VENC, and register access fails
+in omap_venchw_probe().
+
+This patch skips venc driver registration on OMAP4, thus circumventing
+the problem for now.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/venc.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/venc.c b/drivers/video/omap2/dss/venc.c
+index 43009e5..8e35a5b 100644
+--- a/drivers/video/omap2/dss/venc.c
++++ b/drivers/video/omap2/dss/venc.c
+@@ -769,10 +769,16 @@ static struct platform_driver omap_venchw_driver = {
+ 
+ int venc_init_platform_driver(void)
+ {
++	if (cpu_is_omap44xx())
++		return 0;
++
+ 	return platform_driver_register(&omap_venchw_driver);
+ }
+ 
+ void venc_uninit_platform_driver(void)
+ {
++	if (cpu_is_omap44xx())
++		return;
++
+ 	return platform_driver_unregister(&omap_venchw_driver);
+ }
+-- 
+1.7.1
+
