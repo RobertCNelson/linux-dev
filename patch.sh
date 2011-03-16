@@ -284,6 +284,9 @@ patch -s -p1 < "${DIR}/patches/for_next/0256-arm-plat-omap-iommu-fix-request_mem
 patch -s -p1 < "${DIR}/patches/for_next/0257-omap-zoom-host-should-not-pull-up-wl1271-s-irq-line.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0258-merge-changes-missed-in-rebase.patch"
 
+#patches needed after merge
+patch -s -p1 < "${DIR}/patches/trival/0001-arm-sleep34xx.o-has-smc-so-needs-plus_sec-binutils-e.patch"
+
 }
 
 function dss2_next {
