@@ -19,7 +19,7 @@ Signed-off-by: Felipe Balbi <balbi@ti.com>
  1 files changed, 44 insertions(+), 40 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/usb-musb.c b/arch/arm/mach-omap2/usb-musb.c
-index 9788b49..a9d4d14 100644
+index f9a08d2..7b89d90 100644
 --- a/arch/arm/mach-omap2/usb-musb.c
 +++ b/arch/arm/mach-omap2/usb-musb.c
 @@ -30,26 +30,11 @@
@@ -87,26 +87,26 @@ index 9788b49..a9d4d14 100644
 -		musb_resources[1].start = INT_35XX_USBOTG_IRQ;
 -	} else if (cpu_is_omap34xx()) {
 -		musb_resources[0].start = OMAP34XX_HSUSB_OTG_BASE;
--	} else if (cpu_is_omap44xx()) {
--		musb_resources[0].start = OMAP44XX_HSUSB_OTG_BASE;
--		musb_resources[1].start = OMAP44XX_IRQ_HS_USB_MC_N;
--		musb_resources[2].start = OMAP44XX_IRQ_HS_USB_DMA_N;
 +	struct omap_hwmod		*oh;
 +	struct omap_device		*od;
 +	struct platform_device		*pdev;
 +	struct device			*dev;
 +	int				bus_id = -1;
 +	const char			*oh_name, *name;
- 
++
 +	if (cpu_is_omap3517() || cpu_is_omap3505()) {
-+	} else if (cpu_is_omap44xx()) {
+ 	} else if (cpu_is_omap44xx()) {
+-		musb_resources[0].start = OMAP44XX_HSUSB_OTG_BASE;
+-		musb_resources[1].start = OMAP44XX_IRQ_HS_USB_MC_N;
+-		musb_resources[2].start = OMAP44XX_IRQ_HS_USB_DMA_N;
+-
  		usb_musb_mux_init(board_data);
  	}
 -	musb_resources[0].end = musb_resources[0].start + SZ_4K - 1;
  
  	/*
  	 * REVISIT: This line can be removed once all the platforms using
-@@ -155,8 +132,35 @@ void __init usb_musb_init(struct omap_musb_board_data *board_data)
+@@ -155,12 +132,39 @@ void __init usb_musb_init(struct omap_musb_board_data *board_data)
  	musb_plat.mode = board_data->mode;
  	musb_plat.extvbus = board_data->extvbus;
  
@@ -117,7 +117,7 @@ index 9788b49..a9d4d14 100644
 +		name = "musb-am35x";
 +	} else {
 +		oh_name = "usb_otg_hs";
-+		name = "musb-omap2430";
++		 name = "musb-omap2430";
 +	}
 +
 +	oh = omap_hwmod_lookup(oh_name);
@@ -125,7 +125,7 @@ index 9788b49..a9d4d14 100644
 +		pr_err("Could not look up %s\n", oh_name);
 +		return;
 +	}
-+
+ 
 +	od = omap_device_build(name, bus_id, oh, &musb_plat,
 +			       sizeof(musb_plat), omap_musb_latency,
 +			       ARRAY_SIZE(omap_musb_latency), false);
@@ -137,10 +137,14 @@ index 9788b49..a9d4d14 100644
 +
 +	pdev = &od->pdev;
 +	dev = &pdev->dev;
+ 	if (cpu_is_omap44xx())
+ 		omap4430_phy_init(dev);
+ 
 +	get_device(dev);
 +	dev->dma_mask = &musb_dmamask;
 +	dev->coherent_dma_mask = musb_dmamask;
 +	put_device(dev);
++
  }
  
  #else

@@ -18,11 +18,11 @@ Signed-off-by: Felipe Balbi <balbi@ti.com>
  arch/arm/mach-omap2/board-am3517evm.c   |    4 +
  arch/arm/mach-omap2/omap_phy_internal.c |   93 +++++++++++++++++++++++++++++
  arch/arm/mach-omap2/usb-musb.c          |   97 -------------------------------
- arch/arm/plat-omap/include/plat/usb.h   |    4 +
- 5 files changed, 103 insertions(+), 98 deletions(-)
+ arch/arm/plat-omap/include/plat/usb.h   |    5 ++
+ 5 files changed, 104 insertions(+), 98 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index a9e3974..4919e09 100644
+index 82c26b4..5f0e9ce 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
 @@ -218,7 +218,8 @@ obj-$(CONFIG_MACH_OMAP4_PANDA)		+= board-omap4panda.o \
@@ -36,7 +36,7 @@ index a9e3974..4919e09 100644
  obj-$(CONFIG_MACH_CRANEBOARD)		+= board-am3517crane.o
  
 diff --git a/arch/arm/mach-omap2/board-am3517evm.c b/arch/arm/mach-omap2/board-am3517evm.c
-index d0d0f55..8532d6e 100644
+index 44169c7..daa0d5b 100644
 --- a/arch/arm/mach-omap2/board-am3517evm.c
 +++ b/arch/arm/mach-omap2/board-am3517evm.c
 @@ -408,6 +408,10 @@ static struct omap_musb_board_data musb_board_data = {
@@ -51,7 +51,7 @@ index d0d0f55..8532d6e 100644
  
  static __init void am3517_evm_musb_init(void)
 diff --git a/arch/arm/mach-omap2/omap_phy_internal.c b/arch/arm/mach-omap2/omap_phy_internal.c
-index 745252c..f172ec0 100644
+index ebe33df..e2e605f 100644
 --- a/arch/arm/mach-omap2/omap_phy_internal.c
 +++ b/arch/arm/mach-omap2/omap_phy_internal.c
 @@ -29,6 +29,7 @@
@@ -62,7 +62,7 @@ index 745252c..f172ec0 100644
  
  /* OMAP control module register for UTMI PHY */
  #define CONTROL_DEV_CONF		0x300
-@@ -147,3 +148,95 @@ int omap4430_phy_exit(struct device *dev)
+@@ -162,3 +163,95 @@ int omap4430_phy_exit(struct device *dev)
  
  	return 0;
  }
@@ -159,7 +159,7 @@ index 745252c..f172ec0 100644
 +	omap_ctrl_writel(devconf2, AM35XX_CONTROL_DEVCONF2);
 +}
 diff --git a/arch/arm/mach-omap2/usb-musb.c b/arch/arm/mach-omap2/usb-musb.c
-index 5298949..9107883 100644
+index 241fc94..d441e35 100644
 --- a/arch/arm/mach-omap2/usb-musb.c
 +++ b/arch/arm/mach-omap2/usb-musb.c
 @@ -30,102 +30,9 @@
@@ -277,20 +277,21 @@ index 5298949..9107883 100644
  		musb_resources[0].start = OMAP34XX_HSUSB_OTG_BASE;
  	} else if (cpu_is_omap44xx()) {
 diff --git a/arch/arm/plat-omap/include/plat/usb.h b/arch/arm/plat-omap/include/plat/usb.h
-index 450a332..0771927 100644
+index fe449f1..02b96c8 100644
 --- a/arch/arm/plat-omap/include/plat/usb.h
 +++ b/arch/arm/plat-omap/include/plat/usb.h
-@@ -91,6 +91,10 @@ extern int omap4430_phy_exit(struct device *dev);
- 
+@@ -110,6 +110,11 @@ extern int omap4430_phy_exit(struct device *dev);
+ extern int omap4430_phy_suspend(struct device *dev, int suspend);
  #endif
  
 +extern void am35x_musb_reset(void);
 +extern void am35x_musb_phy_power(u8 on);
 +extern void am35x_musb_clear_irq(void);
 +extern void am35x_musb_set_mode(u8 musb_mode);
- 
++
  /*
   * FIXME correct answer depends on hmc_mode,
+  * as does (on omap1) any nonzero value for config->otg port number
 -- 
 1.7.1
 

@@ -25,7 +25,9 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 function for_next {
 echo "for_next from tmlind's tree.."
 
+#updated for 2.6.38-git4
 patch -s -p1 < "${DIR}/patches/for_next/0001-omap-Start-using-CONFIG_SOC_OMAP.patch"
+
 patch -s -p1 < "${DIR}/patches/for_next/0002-arm-omap-i2c-fix-compile-warning.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0003-arm-omap1-fix-compile-warning.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0004-arm-omap1-fix-compile-warnings.patch"
@@ -54,13 +56,21 @@ patch -s -p1 < "${DIR}/patches/for_next/0026-TI816X-Add-low-level-debug-support.
 patch -s -p1 < "${DIR}/patches/for_next/0027-TI816X-Update-to-use-init_early.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0028-arm-omap2-clksel-fix-compile-warningOrganization-Tex.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0029-OMAP4-hwmod-data-Add-hwspinlock.patch"
+
+#updated for 2.6.38-git4
 patch -s -p1 < "${DIR}/patches/for_next/0030-usb-musb-AM35x-moving-internal-phy-functions-out-of-.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0031-arm-omap4-usb-explicitly-configure-MUSB-pads.patch"
-patch -s -p1 < "${DIR}/patches/for_next/0032-arm-omap4-4430sdp-drop-ehci-support.patch"
+
+#dropped in 2.6.38-git4
+#patch -s -p1 < "${DIR}/patches/for_next/0032-arm-omap4-4430sdp-drop-ehci-support.patch"
+
 patch -s -p1 < "${DIR}/patches/for_next/0033-OMAP2430-hwmod-data-Add-USBOTG.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0034-OMAP3xxx-hwmod-data-Add-USBOTG.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0035-AM35xx-hwmod-data-Add-USBOTG.patch"
+
+#updated for 2.6.38-git4
 patch -s -p1 < "${DIR}/patches/for_next/0036-OMAP2-musb-hwmod-adaptation-for-musb-registration.patch"
+
 patch -s -p1 < "${DIR}/patches/for_next/0037-OMAP4-hwmod-data-Add-McSPI.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0038-OMAP4-hwmod-data-Add-timer.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0039-OMAP4-hwmod-data-Add-DSS-DISPC-DSI1-2-RFBI-HDMI-and-.patch"
@@ -118,7 +128,10 @@ patch -s -p1 < "${DIR}/patches/for_next/0090-OMAP2430-hwmod-data-add-DSS-DISPC-R
 patch -s -p1 < "${DIR}/patches/for_next/0091-OMAP3-hwmod-data-add-DSS-DISPC-RFBI-DSI-VENC.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0092-OMAP2-3-DSS2-Use-Regulator-init-with-driver-name.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0093-OMAP2-3-DSS2-Create-new-file-display.c-for-central-d.patch"
+
+#updated for 2.6.38-git4
 patch -s -p1 < "${DIR}/patches/for_next/0094-OMAP2-3-DSS2-board-files-replace-platform_device_reg.patch"
+
 patch -s -p1 < "${DIR}/patches/for_next/0095-omap-iommu-Gracefully-fail-iommu_enable-if-no-arch_i.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0096-omap-iommu-print-module-name-on-error-messages.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0097-OMAP2-hwmod-data-add-mailbox-data.patch"
@@ -180,7 +193,10 @@ patch -s -p1 < "${DIR}/patches/for_next/0152-OMAP4-hwmod-data-enable-HSMMC.patch
 patch -s -p1 < "${DIR}/patches/for_next/0153-OMAP-hwmod-data-Add-dev_attr-and-use-in-the-host-dri.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0154-OMAP-hsmmc-Move-mux-configuration-to-hsmmc.c.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0155-OMAP-adapt-hsmmc-to-hwmod-framework.patch"
+
+#updated for 2.6.38-git4
 patch -s -p1 < "${DIR}/patches/for_next/0156-OMAP-hsmmc-Rename-the-device-and-driver.patch"
+
 patch -s -p1 < "${DIR}/patches/for_next/0157-omap4-clockdomain-Fix-the-CPUx-domain-name.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0158-omap4-powerdomain-Use-intended-PWRSTS_-flags-instead.patch"
 patch -s -p1 < "${DIR}/patches/for_next/0159-OMAP2-omap_device-clock-Do-not-expect-an-entry-in-cl.patch"
@@ -345,6 +361,8 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0195-OMAP-DSS2-Renaming-register-macro-
 patch -s -p1 < "${DIR}/patches/dss2_next/0196-OMAP4-DSS2-Using-dss_features-to-set-independent-cor.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0197-OMAP-DSS2-fix-omap_dispc_register_isr-fail-path.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0198-OMAP-DSS2-Add-support-for-LG-Philips-LB035Q02-panel.patch"
+
+#updated for 2.6.38-git4
 patch -s -p1 < "${DIR}/patches/dss2_next/0199-OMAP-DSS2-Add-DSS2-support-for-Overo.patch"
 
 patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP2PLUS-DSS2-Cleanup-clock-source-related-code.patch"
@@ -379,43 +397,44 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0009-OMAP4-HDMI-Add-HDMI-structure-in-t
 function dspbridge_next {
 echo "dspbridge from for-next"
 
-patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-make-sync_wait_on_event-interrup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0002-staging-tidspbridge-overwrite-DSP-error-codes.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0003-staging-tidspbridge-Eliminate-direct-manipulation-of.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0004-staging-tidspbridge-fix-mgr_enum_node_info.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0005-staging-tidspbridge-mgr_enum_node_info-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0006-staging-tidspbridge-fix-kernel-oops-in-bridge_io_get.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0007-staging-tidspbridge-remove-gs-memory-allocator.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0008-staging-tidspbridge-remove-utildefs.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0009-staging-tidspbridge-switch-to-linux-bitmap-API.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0010-staging-tidspbridge-remove-gb-bitmap-implementation.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0011-staging-tidspbridge-convert-core-to-list_head.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0012-staging-tidspbridge-convert-pmgr-to-list_head.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0013-staging-tidspbridge-convert-rmgr-to-list_head.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0014-staging-tidspbridge-remove-custom-linked-list.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0015-staging-tidspbridge-core-code-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0016-staging-tidspbridge-pmgr-code-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0017-staging-tidspbridge-use-the-right-type-for-list_is_l.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0018-staging-tidspbridge-rmgr-node.c-code-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0019-staging-tidspbridge-Fix-atoi-to-support-hexadecimal-.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0020-staging-tidspbridge-Remove-unused-defined-constants.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0021-staging-tidspbridge-Remove-unused-functions.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0022-staging-tidspbridge-Remove-unused-structs.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0023-staging-tidspbridge-Remove-unused-typedefs.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0024-staging-tidspbridge-Remove-trivial-header-files.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0025-staging-tidspbridge-remove-code-referred-by-OPT_ZERO.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0026-staging-tidspbridge-set1-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0027-staging-tidspbridge-set2-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0028-staging-tidspbridge-set3-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0029-staging-tidspbridge-set4-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0030-staging-tidspbridge-set5-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0031-staging-tidspbridge-set6-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0032-staging-tidspbridge-set7-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0033-staging-tidspbridge-set8-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0034-staging-tidspbridge-set9-remove-hungarian-from-struc.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0035-staging-tidspbridge-set10-remove-hungarian-from-stru.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0036-staging-tidspbridge-set11-remove-hungarian-from-stru.patch"
-patch -s -p1 < "${DIR}/patches/dspbridge/0037-staging-tidspbridge-set12-remove-hungarian-from-stru.patch"
+#in 2.6.38-git4
+#patch -s -p1 < "${DIR}/patches/dspbridge/0001-staging-tidspbridge-make-sync_wait_on_event-interrup.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0002-staging-tidspbridge-overwrite-DSP-error-codes.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0003-staging-tidspbridge-Eliminate-direct-manipulation-of.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0004-staging-tidspbridge-fix-mgr_enum_node_info.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0005-staging-tidspbridge-mgr_enum_node_info-cleanup.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0006-staging-tidspbridge-fix-kernel-oops-in-bridge_io_get.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0007-staging-tidspbridge-remove-gs-memory-allocator.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0008-staging-tidspbridge-remove-utildefs.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0009-staging-tidspbridge-switch-to-linux-bitmap-API.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0010-staging-tidspbridge-remove-gb-bitmap-implementation.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0011-staging-tidspbridge-convert-core-to-list_head.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0012-staging-tidspbridge-convert-pmgr-to-list_head.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0013-staging-tidspbridge-convert-rmgr-to-list_head.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0014-staging-tidspbridge-remove-custom-linked-list.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0015-staging-tidspbridge-core-code-cleanup.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0016-staging-tidspbridge-pmgr-code-cleanup.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0017-staging-tidspbridge-use-the-right-type-for-list_is_l.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0018-staging-tidspbridge-rmgr-node.c-code-cleanup.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0019-staging-tidspbridge-Fix-atoi-to-support-hexadecimal-.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0020-staging-tidspbridge-Remove-unused-defined-constants.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0021-staging-tidspbridge-Remove-unused-functions.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0022-staging-tidspbridge-Remove-unused-structs.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0023-staging-tidspbridge-Remove-unused-typedefs.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0024-staging-tidspbridge-Remove-trivial-header-files.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0025-staging-tidspbridge-remove-code-referred-by-OPT_ZERO.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0026-staging-tidspbridge-set1-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0027-staging-tidspbridge-set2-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0028-staging-tidspbridge-set3-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0029-staging-tidspbridge-set4-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0030-staging-tidspbridge-set5-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0031-staging-tidspbridge-set6-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0032-staging-tidspbridge-set7-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0033-staging-tidspbridge-set8-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0034-staging-tidspbridge-set9-remove-hungarian-from-struc.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0035-staging-tidspbridge-set10-remove-hungarian-from-stru.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0036-staging-tidspbridge-set11-remove-hungarian-from-stru.patch"
+#patch -s -p1 < "${DIR}/patches/dspbridge/0037-staging-tidspbridge-set12-remove-hungarian-from-stru.patch"
 
 }
 
@@ -528,7 +547,7 @@ function touchbook {
 echo "touchbook patches"
 patch -s -p1 < "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp.patch"
 patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
-patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
+#patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 #patch -s -p1 < "${DIR}/patches/touchbook/0004-omap3-touchbook-tesing-lcd-display.patch"
 }
 

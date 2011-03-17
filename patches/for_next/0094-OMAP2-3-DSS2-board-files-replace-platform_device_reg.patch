@@ -27,7 +27,7 @@ Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  11 files changed, 11 insertions(+), 123 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-3430sdp.c b/arch/arm/mach-omap2/board-3430sdp.c
-index 979c05d..8465e80 100644
+index 4291275..6dc3653 100644
 --- a/arch/arm/mach-omap2/board-3430sdp.c
 +++ b/arch/arm/mach-omap2/board-3430sdp.c
 @@ -307,21 +307,9 @@ static struct omap_dss_board_info sdp3430_dss_data = {
@@ -62,7 +62,7 @@ index 979c05d..8465e80 100644
  		ts_gpio = SDP3430_TS_GPIO_IRQ_SDPV2;
  	else
 diff --git a/arch/arm/mach-omap2/board-am3517evm.c b/arch/arm/mach-omap2/board-am3517evm.c
-index 8532d6e..634fe65 100644
+index daa0d5b..6e3c41b 100644
 --- a/arch/arm/mach-omap2/board-am3517evm.c
 +++ b/arch/arm/mach-omap2/board-am3517evm.c
 @@ -378,24 +378,12 @@ static struct omap_dss_board_info am3517_evm_dss_data = {
@@ -102,7 +102,7 @@ index 8532d6e..634fe65 100644
  
  	/* Configure GPIO for EHCI port */
 diff --git a/arch/arm/mach-omap2/board-cm-t35.c b/arch/arm/mach-omap2/board-cm-t35.c
-index d650b7f..7311824 100644
+index 79adf46..b7ca998 100644
 --- a/arch/arm/mach-omap2/board-cm-t35.c
 +++ b/arch/arm/mach-omap2/board-cm-t35.c
 @@ -401,14 +401,6 @@ static struct omap_dss_board_info cm_t35_dss_data = {
@@ -130,7 +130,7 @@ index d650b7f..7311824 100644
  		pr_err("CM-T35: failed to register DSS device\n");
  		goto err_dev_reg;
 diff --git a/arch/arm/mach-omap2/board-devkit8000.c b/arch/arm/mach-omap2/board-devkit8000.c
-index af74288..54abdd0 100644
+index 595b4c0..dccd5e8 100644
 --- a/arch/arm/mach-omap2/board-devkit8000.c
 +++ b/arch/arm/mach-omap2/board-devkit8000.c
 @@ -195,14 +195,6 @@ static struct omap_dss_board_info devkit8000_dss_data = {
@@ -165,7 +165,7 @@ index af74288..54abdd0 100644
  	ARRAY_SIZE(devkit8000_spi_board_info));
  
 diff --git a/arch/arm/mach-omap2/board-igep0020.c b/arch/arm/mach-omap2/board-igep0020.c
-index c235fa2..54e6318 100644
+index 7d195be..0d3b0ad 100644
 --- a/arch/arm/mach-omap2/board-igep0020.c
 +++ b/arch/arm/mach-omap2/board-igep0020.c
 @@ -485,14 +485,6 @@ static struct omap_dss_board_info igep2_dss_data = {
@@ -198,9 +198,9 @@ index c235fa2..54e6318 100644
 +	omap_display_init(&igep2_dss_data);
  	omap_serial_init();
  	usb_musb_init(&musb_board_data);
- 	usb_ehci_init(&ehci_pdata);
+ 	usbhs_init(&usbhs_bdata);
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 19bcd00..a1faea3 100644
+index abd5215..da26631 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -228,14 +228,6 @@ static struct omap_dss_board_info beagle_dss_data = {
@@ -235,7 +235,7 @@ index 19bcd00..a1faea3 100644
  
  	omap_mux_init_gpio(170, OMAP_PIN_INPUT);
 diff --git a/arch/arm/mach-omap2/board-omap3evm.c b/arch/arm/mach-omap2/board-omap3evm.c
-index f5bf87f..5364147 100644
+index 7ed7da8..5318584 100644
 --- a/arch/arm/mach-omap2/board-omap3evm.c
 +++ b/arch/arm/mach-omap2/board-omap3evm.c
 @@ -363,14 +363,6 @@ static struct omap_dss_board_info omap3_evm_dss_data = {
@@ -261,9 +261,9 @@ index f5bf87f..5364147 100644
 -	&omap3_evm_dss_device,
 -};
 -
- static struct ehci_hcd_omap_platform_data ehci_pdata __initdata = {
+ static struct usbhs_omap_board_data usbhs_bdata __initdata = {
  
- 	.port_mode[0] = EHCI_HCD_OMAP_MODE_UNKNOWN,
+ 	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
 @@ -838,7 +826,7 @@ static void __init omap3_evm_init(void)
  
  	omap3_evm_i2c_init();
@@ -274,7 +274,7 @@ index f5bf87f..5364147 100644
  	spi_register_board_info(omap3evm_spi_board_info,
  				ARRAY_SIZE(omap3evm_spi_board_info));
 diff --git a/arch/arm/mach-omap2/board-omap3pandora.c b/arch/arm/mach-omap2/board-omap3pandora.c
-index b91f74c..17ef547 100644
+index ce978ae..ece731f 100644
 --- a/arch/arm/mach-omap2/board-omap3pandora.c
 +++ b/arch/arm/mach-omap2/board-omap3pandora.c
 @@ -253,14 +253,6 @@ static struct omap_dss_board_info pandora_dss_data = {
@@ -309,7 +309,7 @@ index b91f74c..17ef547 100644
  	spi_register_board_info(omap3pandora_spi_board_info,
  			ARRAY_SIZE(omap3pandora_spi_board_info));
 diff --git a/arch/arm/mach-omap2/board-omap3stalker.c b/arch/arm/mach-omap2/board-omap3stalker.c
-index 9c63c37..07006c3 100644
+index 9813ab1..b513192 100644
 --- a/arch/arm/mach-omap2/board-omap3stalker.c
 +++ b/arch/arm/mach-omap2/board-omap3stalker.c
 @@ -240,14 +240,6 @@ static struct omap_dss_board_info omap3_stalker_dss_data = {

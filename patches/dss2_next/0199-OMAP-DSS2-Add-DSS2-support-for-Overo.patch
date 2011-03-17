@@ -13,7 +13,7 @@ Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  1 files changed, 200 insertions(+), 37 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
-index 60f8db3..d621ee8 100644
+index d096194..7478e2e 100644
 --- a/arch/arm/mach-omap2/board-overo.c
 +++ b/arch/arm/mach-omap2/board-overo.c
 @@ -28,6 +28,7 @@
@@ -326,9 +326,9 @@ index 60f8db3..d621ee8 100644
 -	&overo_lcd_device,
 -};
 -
- static const struct ehci_hcd_omap_platform_data ehci_pdata __initconst = {
- 	.port_mode[0] = EHCI_HCD_OMAP_MODE_UNKNOWN,
- 	.port_mode[1] = EHCI_HCD_OMAP_MODE_PHY,
+ static const struct usbhs_omap_board_data usbhs_bdata __initconst = {
+ 	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
+ 	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
 @@ -444,16 +608,15 @@ static struct omap_musb_board_data musb_board_data = {
  static void __init overo_init(void)
  {
@@ -341,7 +341,7 @@ index 60f8db3..d621ee8 100644
  	omap_serial_init();
  	overo_flash_init();
  	usb_musb_init(&musb_board_data);
- 	usb_ehci_init(&ehci_pdata);
+ 	usbhs_init(&usbhs_bdata);
 -	overo_ads7846_init();
 +	overo_spi_init();
  	overo_init_smsc911x();
