@@ -285,7 +285,7 @@ patch -s -p1 < "${DIR}/patches/for_next/0257-omap-zoom-host-should-not-pull-up-w
 patch -s -p1 < "${DIR}/patches/for_next/0258-merge-changes-missed-in-rebase.patch"
 
 #patches needed after merge
-patch -s -p1 < "${DIR}/patches/trival/0001-arm-sleep34xx.o-has-smc-so-needs-plus_sec-binutils-e.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0001-arm-sleep34xx.o-has-smc-so-needs-plus_sec-binutils-e.patch"
 
 }
 
