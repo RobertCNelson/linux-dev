@@ -1,0 +1,26 @@
+From 3db7eaf37fb800b7dfdb29c2f4bad4e0f97a2513 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 16 Mar 2011 18:09:20 -0500
+Subject: [PATCH] arm sleep34xx.o has smc so needs plus_sec binutils extension
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
+index 82b2a67..dd083ae 100644
+--- a/arch/arm/mach-omap2/Makefile
++++ b/arch/arm/mach-omap2/Makefile
+@@ -68,7 +68,7 @@ obj-$(CONFIG_OMAP_SMARTREFLEX)          += sr_device.o smartreflex.o
+ obj-$(CONFIG_OMAP_SMARTREFLEX_CLASS3)	+= smartreflex-class3.o
+ 
+ AFLAGS_sleep24xx.o			:=-Wa,-march=armv6
+-AFLAGS_sleep34xx.o			:=-Wa,-march=armv7-a
++AFLAGS_sleep34xx.o			:=-Wa,-march=armv7-a$(plus_sec)
+ 
+ ifeq ($(CONFIG_PM_VERBOSE),y)
+ CFLAGS_pm_bus.o				+= -DDEBUG
+-- 
+1.7.1
+
