@@ -92,8 +92,13 @@ function git_bisect {
         cd ${DIR}/KERNEL
 
         git bisect start
-        git bisect bad v2.6.35-rc2
-        git bisect good v2.6.35-rc1
+        git bisect bad v2.6.38-rc8
+        git bisect good v2.6.38-rc7
+        git bisect good 4438a02fc4956f5f61918095708f183f5c63a9d3
+        git bisect good 862060414b7f3e6b1c20cc3cf1f2014328069f0b
+        git bisect good 1a3453035f3e55aa419aa66b7eee62ddf590c70f
+        git bisect good c0d61a7996d5511385953f9c03fa997da1d0eb4d
+        git bisect good 400b11a784b0202307b8596b0c393ca9966fd8b4
 #        git bisect good <>
 
 read -p "bisect look good... (y/n)? "
