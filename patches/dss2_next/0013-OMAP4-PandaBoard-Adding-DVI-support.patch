@@ -1,7 +1,7 @@
-From 37a72bf6ee45442d216c668b93445c71123be480 Mon Sep 17 00:00:00 2001
-From: Raghuveer Murthy <raghuveer.murthy@ti.com>
-Date: Wed, 9 Feb 2011 15:43:36 +0530
-Subject: [PATCH 35/35] OMAP4: PandaBoard: Adding DVI support
+From b295d6e593e02168fdafc5db11464b6d51cf239d Mon Sep 17 00:00:00 2001
+From: Murthy, Raghuveer <raghuveer.murthy@ti.com>
+Date: Mon, 14 Mar 2011 07:52:25 -0500
+Subject: [PATCH 13/13] OMAP4: PandaBoard: Adding DVI support
 
 Adding DVI support to OMAP4 PandaBoard.
 
@@ -9,12 +9,14 @@ PandaBoard uses TFP410 DVI Framer chip
 http://focus.ti.com/lit/ds/symlink/tfp410.pdf
 
 The TFP410 gets its power enable and display data over GPIO lines muxed
-in from OMAP4430. PandaBoard supports other LCD displays through expansion
+in from OMAP4430. PandaBoard supports other LCD displays through
+expansion
 connectors, following board rework. This will disable the DVI interface.
 However, the existing mux settings remain the same
 
 PandaBoard additionally supports display over HDMI interface. It is
-mutually exclusive to display over DVI. Hence the mux settings need to be
+mutually exclusive to display over DVI. Hence the mux settings need to
+be
 configured seperately, as and when HDMI is enabled
 
 Also, I2C3 bus used for reading EDID data from DVI Monitors is
@@ -22,17 +24,22 @@ registered here. Since the design is similar to BeagleBoard, the code
 for the same is taken from the kernel.org commit e3333f48dd5cb21
 (omap: Adding beagle i2c eeprom driver to read EDID)
 
+Reviewed-by: Manjunath G Kondaiah <manjugk@ti.com>
+Reviewed-by: Anand Gadiyar <gadiyar@ti.com>
+Reviewed-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Sumit Semwal <sumit.semwal@ti.com>
 Signed-off-by: Raghuveer Murthy <raghuveer.murthy@ti.com>
-Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+[tomi.valkeinen@ti.com: fixed conflicts with HDMI]
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- arch/arm/mach-omap2/board-omap4panda.c |  137 +++++++++++++++++++++++++++++++-
- 1 files changed, 136 insertions(+), 1 deletions(-)
+ arch/arm/mach-omap2/board-omap4panda.c |  130 +++++++++++++++++++++++++++++++-
+ 1 files changed, 128 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index 1dd4401..65e6226 100644
+index bdcfc8a..68aa9d5 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
-@@ -39,6 +39,7 @@
+@@ -40,6 +40,7 @@
  #include <plat/common.h>
  #include <plat/usb.h>
  #include <plat/mmc.h>
@@ -40,68 +47,7 @@ index 1dd4401..65e6226 100644
  #include "timer-gp.h"
  
  #include "hsmmc.h"
-@@ -91,6 +92,60 @@ static struct platform_device *panda_devices[] __initdata = {
- 	&wl1271_device,
- };
- 
-+/* Display DVI */
-+#define PANDA_DVI_TFP410_POWER_DOWN_GPIO	0
-+
-+static int panda_enable_dvi(struct omap_dss_device *dssdev)
-+{
-+	gpio_set_value(dssdev->reset_gpio, 1);
-+	return 0;
-+}
-+
-+static void panda_disable_dvi(struct omap_dss_device *dssdev)
-+{
-+	gpio_set_value(dssdev->reset_gpio, 0);
-+}
-+
-+/* Using generic display panel */
-+static struct panel_generic_dpi_data dvi_panel = {
-+	.name			= "generic",
-+	.platform_enable	= panda_enable_dvi,
-+	.platform_disable	= panda_disable_dvi,
-+};
-+
-+struct omap_dss_device panda_dvi_device = {
-+	.type			= OMAP_DISPLAY_TYPE_DPI,
-+	.name			= "dvi",
-+	.driver_name		= "generic_dpi_panel",
-+	.data			= &dvi_panel,
-+	.phy.dpi.data_lines	= 24,
-+	.reset_gpio		= PANDA_DVI_TFP410_POWER_DOWN_GPIO,
-+	.channel		= OMAP_DSS_CHANNEL_LCD2,
-+};
-+
-+int __init panda_dvi_init(void)
-+{
-+	int r;
-+
-+	/* Requesting TFP410 DVI GPIO and disabling it, at bootup */
-+	r = gpio_request_one(panda_dvi_device.reset_gpio,
-+				GPIOF_OUT_INIT_LOW, "DVI PD");
-+	if (r)
-+		pr_err("Failed to get DVI powerdown GPIO\n");
-+
-+	return r;
-+}
-+
-+static struct omap_dss_device *panda_dss_devices[] = {
-+	&panda_dvi_device,
-+};
-+
-+static struct omap_dss_board_info panda_dss_data = {
-+	.num_devices	= ARRAY_SIZE(panda_dss_devices),
-+	.devices	= panda_dss_devices,
-+	.default_device	= &panda_dvi_device,
-+};
-+
- static void __init omap4_panda_init_early(void)
- {
- 	omap2_init_common_infrastructure();
-@@ -432,6 +487,17 @@ static struct i2c_board_info __initdata omap4_panda_i2c_boardinfo[] = {
+@@ -435,6 +436,17 @@ static struct i2c_board_info __initdata omap4_panda_i2c_boardinfo[] = {
  		.platform_data = &omap4_panda_twldata,
  	},
  };
@@ -119,7 +65,7 @@ index 1dd4401..65e6226 100644
  static int __init omap4_panda_i2c_init(void)
  {
  	/*
-@@ -441,7 +507,12 @@ static int __init omap4_panda_i2c_init(void)
+@@ -444,7 +456,12 @@ static int __init omap4_panda_i2c_init(void)
  	omap_register_i2c_bus(1, 400, omap4_panda_i2c_boardinfo,
  			ARRAY_SIZE(omap4_panda_i2c_boardinfo));
  	omap_register_i2c_bus(2, 400, NULL, 0);
@@ -133,7 +79,7 @@ index 1dd4401..65e6226 100644
  	omap_register_i2c_bus(4, 400, NULL, 0);
  	return 0;
  }
-@@ -461,6 +532,64 @@ static struct omap_board_mux board_mux[] __initdata = {
+@@ -464,6 +481,64 @@ static struct omap_board_mux board_mux[] __initdata = {
  	OMAP4_MUX(SDMMC5_DAT1, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
  	OMAP4_MUX(SDMMC5_DAT2, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
  	OMAP4_MUX(SDMMC5_DAT3, OMAP_MUX_MODE0 | OMAP_PIN_INPUT_PULLUP),
@@ -198,26 +144,83 @@ index 1dd4401..65e6226 100644
  	{ .reg_offset = OMAP_MUX_TERMINATOR },
  };
  
-@@ -537,6 +666,7 @@ static inline void board_serial_init(void)
- static void __init omap4_panda_init(void)
- {
- 	int package = OMAP_PACKAGE_CBS;
-+	int err;
- 
- 	if (omap_rev() == OMAP4430_REV_ES1_0)
- 		package = OMAP_PACKAGE_CBL;
-@@ -552,6 +682,11 @@ static void __init omap4_panda_init(void)
- 	omap4_twl6030_hsmmc_init(mmc);
- 	omap4_ehci_init();
- 	usb_musb_init(&musb_board_data);
-+
-+	/* Enabling DVI Display */
-+	err = panda_dvi_init();
-+	if (!err)
-+		omap_display_init(&panda_dss_data);
+@@ -537,6 +612,50 @@ static inline void board_serial_init(void)
  }
+ #endif
  
- static void __init omap4_panda_map_io(void)
++/* Display DVI */
++#define PANDA_DVI_TFP410_POWER_DOWN_GPIO	0
++
++static int omap4_panda_enable_dvi(struct omap_dss_device *dssdev)
++{
++	gpio_set_value(dssdev->reset_gpio, 1);
++	return 0;
++}
++
++static void omap4_panda_disable_dvi(struct omap_dss_device *dssdev)
++{
++	gpio_set_value(dssdev->reset_gpio, 0);
++}
++
++/* Using generic display panel */
++static struct panel_generic_dpi_data omap4_dvi_panel = {
++	.name			= "generic",
++	.platform_enable	= omap4_panda_enable_dvi,
++	.platform_disable	= omap4_panda_disable_dvi,
++};
++
++struct omap_dss_device omap4_panda_dvi_device = {
++	.type			= OMAP_DISPLAY_TYPE_DPI,
++	.name			= "dvi",
++	.driver_name		= "generic_dpi_panel",
++	.data			= &omap4_dvi_panel,
++	.phy.dpi.data_lines	= 24,
++	.reset_gpio		= PANDA_DVI_TFP410_POWER_DOWN_GPIO,
++	.channel		= OMAP_DSS_CHANNEL_LCD2,
++};
++
++int __init omap4_panda_dvi_init(void)
++{
++	int r;
++
++	/* Requesting TFP410 DVI GPIO and disabling it, at bootup */
++	r = gpio_request_one(omap4_panda_dvi_device.reset_gpio,
++				GPIOF_OUT_INIT_LOW, "DVI PD");
++	if (r)
++		pr_err("Failed to get DVI powerdown GPIO\n");
++
++	return r;
++}
++
+ static void omap4_panda_hdmi_mux_init(void)
+ {
+ 	/* PAD0_HDMI_HPD_PAD1_HDMI_CEC */
+@@ -592,17 +711,24 @@ static struct omap_dss_device  omap4_panda_hdmi_device = {
+ };
+ 
+ static struct omap_dss_device *omap4_panda_dss_devices[] = {
++	&omap4_panda_dvi_device,
+ 	&omap4_panda_hdmi_device,
+ };
+ 
+ static struct omap_dss_board_info omap4_panda_dss_data = {
+ 	.num_devices	= ARRAY_SIZE(omap4_panda_dss_devices),
+ 	.devices	= omap4_panda_dss_devices,
+-	.default_device	= &omap4_panda_hdmi_device,
++	.default_device	= &omap4_panda_dvi_device,
+ };
+ 
+ void omap4_panda_display_init(void)
+ {
++	int r;
++
++	r = omap4_panda_dvi_init();
++	if (r)
++		pr_err("error initializing panda DVI\n");
++
+ 	omap4_panda_hdmi_mux_init();
+ 	omap_display_init(&omap4_panda_dss_data);
+ }
 -- 
 1.7.1
 
