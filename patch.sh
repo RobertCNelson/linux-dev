@@ -377,6 +377,8 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0011-OMAP-DSS2-Clean-up-for-dpll4_m4_ck
 patch -s -p1 < "${DIR}/patches/dss2_next/0012-OMAP-DSS2-Implement-OMAP4-DSS-fclk-support.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0013-OMAP4-PandaBoard-Adding-DVI-support.patch"
 
+patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP4-DSS2-Register-configuration-changes-for-DSI.patch"
+
 }
 
 function dspbridge_next {
@@ -538,6 +540,7 @@ patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 function omap4 {
 echo "omap4 related patches"
 patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
+patch -s -p1 < "${DIR}/patches/panda/0001-panda-disable-hdmi.patch"
 }
 
 function sgx {
