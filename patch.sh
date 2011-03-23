@@ -397,6 +397,8 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0011-OMAP-DSS2-Clean-up-for-dpll4_m4_ck
 patch -s -p1 < "${DIR}/patches/dss2_next/0012-OMAP-DSS2-Implement-OMAP4-DSS-fclk-support.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0013-OMAP4-PandaBoard-Adding-DVI-support.patch"
 
+patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP4-DSS2-Register-configuration-changes-for-DSI.patch"
+
 }
 
 function dspbridge_next {
@@ -529,6 +531,7 @@ echo "beagle patches"
 patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-alsa-soc-Remove-restrictive-check-for-cpu-type.patch"
+patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
 
 #disabled in for_next merge
 #patch -s -p1 < "${DIR}/patches/beagle/0001-xM-audio-fix-from-Ashok.patch"
@@ -559,6 +562,7 @@ patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readon
 function omap4 {
 echo "omap4 related patches"
 patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
+patch -s -p1 < "${DIR}/patches/panda/0001-panda-disable-hdmi.patch"
 }
 
 function sgx {
