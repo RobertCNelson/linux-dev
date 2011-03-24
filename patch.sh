@@ -20,6 +20,18 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #[   14.962829] omapdss DISPC error: GFX_FIFO_UNDERFLOW, disabling GFX
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
 
+#needed for 2.6.38-git13, in mainline for git14
+patch -s -p1 < "${DIR}/patches/trivial/0001-smp-add-missing-init.h-include.patch"
+
+#needed for 2.6.38-git13, build failure:
+#lib/lib.a(show_mem.o): In function `show_mem':
+#show_mem.c:(.text+0x15c): multiple definition of `show_mem'
+#arch/arm/mm/built-in.o:cache-l2x0.c:(.text+0xdac): first defined here
+#make: *** [vmlinux.o] Error 1
+patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0002-Revert-oom-suppress-show_mem-for-many-nodes-in-irq-c.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0003-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
+
 }
 
 function for_next {
@@ -532,6 +544,7 @@ patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootar
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-alsa-soc-Remove-restrictive-check-for-cpu-type.patch"
 patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-beaglexm-fix-user-button.patch"
 
 #disabled in for_next merge
 #patch -s -p1 < "${DIR}/patches/beagle/0001-xM-audio-fix-from-Ashok.patch"

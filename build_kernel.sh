@@ -104,11 +104,13 @@ read -p "bisect look good... (y/n)? "
 
 function patch_kernel {
         cd ${DIR}/KERNEL
+    if [ ! "${LATEST_GIT}" ] ; then
         if [ "${PRE_RC}" ]; then
                 bzip2 -dc ${DIR}/patches/patch-${PRE_RC}.bz2 | patch -p1 -s
                 git add .
                 git commit -a -m ''$PRE_RC' patchset'
         fi
+    fi
         export DIR BISECT
         /bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
