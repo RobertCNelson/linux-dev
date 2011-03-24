@@ -546,6 +546,19 @@ echo "omap4 related patches"
 patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
 #dss2 display broken
 patch -s -p1 < "${DIR}/patches/panda/0001-panda-disable-hdmi.patch"
+
+#fixes:
+#[    0.440734] Trying to install interrupt handler for IRQ402
+#[    0.440734] Trying to install interrupt handler for IRQ403
+#[    0.440765] Trying to install interrupt handler for IRQ404
+#[    0.440765] Trying to install interrupt handler for IRQ405
+#[    0.440795] Trying to install interrupt handler for IRQ406
+#[    0.440826] Trying to install interrupt handler for IRQ407
+#[    0.440826] Trying to install interrupt handler for IRQ408
+#[    0.440856] Trying to install type control for IRQ409
+#[    0.440856] Trying to set irq flags for IRQ409
+#[    0.440887] gpmc: irq-20 could not claim: err -22
+patch -s -p1 < "${DIR}/patches/panda/0001-ARM-OMAP2-Fix-warnings-for-GPMC-interrupt.patch"
 }
 
 function sgx {
