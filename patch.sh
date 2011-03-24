@@ -372,10 +372,12 @@ patch -s -p1 < "${DIR}/patches/dss2_next/0006-OMAP4-DSS2-HDMI-HDMI-panel-driver-
 patch -s -p1 < "${DIR}/patches/dss2_next/0007-OMAP4-DSS2-HDMI-Add-makefile-and-kconfig-changes-to-.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0008-OMAP4-DSS-HDMI-Call-to-HDMI-module-init-to-register-.patch"
 patch -s -p1 < "${DIR}/patches/dss2_next/0009-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
-patch -s -p1 < "${DIR}/patches/dss2_next/0010-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
-patch -s -p1 < "${DIR}/patches/dss2_next/0011-OMAP-DSS2-Clean-up-for-dpll4_m4_ck-handling.patch"
-patch -s -p1 < "${DIR}/patches/dss2_next/0012-OMAP-DSS2-Implement-OMAP4-DSS-fclk-support.patch"
-patch -s -p1 < "${DIR}/patches/dss2_next/0013-OMAP4-PandaBoard-Adding-DVI-support.patch"
+
+#panda display currently broken..
+#patch -s -p1 < "${DIR}/patches/dss2_next/0010-OMAP4-HDMI-Add-HDMI-structure-in-the-board-file-for-.patch"
+#patch -s -p1 < "${DIR}/patches/dss2_next/0011-OMAP-DSS2-Clean-up-for-dpll4_m4_ck-handling.patch"
+#patch -s -p1 < "${DIR}/patches/dss2_next/0012-OMAP-DSS2-Implement-OMAP4-DSS-fclk-support.patch"
+#patch -s -p1 < "${DIR}/patches/dss2_next/0013-OMAP4-PandaBoard-Adding-DVI-support.patch"
 
 patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP4-DSS2-Register-configuration-changes-for-DSI.patch"
 
@@ -542,7 +544,8 @@ patch -s -p1 < "${DIR}/patches/touchbook/0003-omap3-touchbook-fix-ehci.patch"
 function omap4 {
 echo "omap4 related patches"
 patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
-patch -s -p1 < "${DIR}/patches/panda/0001-panda-disable-hdmi.patch"
+#dss2 display broken
+#patch -s -p1 < "${DIR}/patches/panda/0001-panda-disable-hdmi.patch"
 }
 
 function sgx {
