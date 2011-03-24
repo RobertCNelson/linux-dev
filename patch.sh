@@ -21,7 +21,7 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
 
 #needed for 2.6.38-git13, in mainline for git14
-patch -s -p1 < "${DIR}/patches/trivial/0001-smp-add-missing-init.h-include.patch"
+#patch -s -p1 < "${DIR}/patches/trivial/0001-smp-add-missing-init.h-include.patch"
 
 #needed for 2.6.38-git13, build failure:
 #lib/lib.a(show_mem.o): In function `show_mem':
@@ -576,6 +576,19 @@ function omap4 {
 echo "omap4 related patches"
 patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
 patch -s -p1 < "${DIR}/patches/panda/0001-panda-disable-hdmi.patch"
+
+#fixes:
+#[    0.440734] Trying to install interrupt handler for IRQ402
+#[    0.440734] Trying to install interrupt handler for IRQ403
+#[    0.440765] Trying to install interrupt handler for IRQ404
+#[    0.440765] Trying to install interrupt handler for IRQ405
+#[    0.440795] Trying to install interrupt handler for IRQ406
+#[    0.440826] Trying to install interrupt handler for IRQ407
+#[    0.440826] Trying to install interrupt handler for IRQ408
+#[    0.440856] Trying to install type control for IRQ409
+#[    0.440856] Trying to set irq flags for IRQ409
+#[    0.440887] gpmc: irq-20 could not claim: err -22
+patch -s -p1 < "${DIR}/patches/panda/0001-ARM-OMAP2-Fix-warnings-for-GPMC-interrupt.patch"
 }
 
 function sgx {
