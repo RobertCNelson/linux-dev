@@ -1,0 +1,30 @@
+From 36133869c4b5b70e6acf6ff7ce25df526a6d5cae Mon Sep 17 00:00:00 2001
+From: Aaro Koskinen <aaro.koskinen@nokia.com>
+Date: Fri, 18 Mar 2011 16:53:19 -0700
+Subject: [PATCH 1/5] arm: mach-omap2: devices: fix omap3_l3_init() return value
+
+Fix the return value for the successful case.
+
+Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/devices.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
+index 0d2d6a9..d478f53 100644
+--- a/arch/arm/mach-omap2/devices.c
++++ b/arch/arm/mach-omap2/devices.c
+@@ -65,7 +65,7 @@ static int __init omap3_l3_init(void)
+ 
+ 	WARN(IS_ERR(od), "could not build omap_device for %s\n", oh_name);
+ 
+-	return PTR_ERR(od);
++	return IS_ERR(od) ? PTR_ERR(od) : 0;
+ }
+ postcore_initcall(omap3_l3_init);
+ 
+-- 
+1.7.1
+
