@@ -28,9 +28,10 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #show_mem.c:(.text+0x15c): multiple definition of `show_mem'
 #arch/arm/mm/built-in.o:cache-l2x0.c:(.text+0xdac): first defined here
 #make: *** [vmlinux.o] Error 1
-patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
-patch -s -p1 < "${DIR}/patches/trivial/0002-Revert-oom-suppress-show_mem-for-many-nodes-in-irq-c.patch"
-patch -s -p1 < "${DIR}/patches/trivial/0003-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
+#fixed in 2.6.38-git16
+#patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
+#patch -s -p1 < "${DIR}/patches/trivial/0002-Revert-oom-suppress-show_mem-for-many-nodes-in-irq-c.patch"
+#patch -s -p1 < "${DIR}/patches/trivial/0003-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
 
 }
 
@@ -457,6 +458,16 @@ echo "dspbridge from for-next"
 
 }
 
+function omap_fixes {
+echo "omap fixes"
+patch -s -p1 < "${DIR}/patches/omap-fixes/0001-arm-mach-omap2-devices-fix-omap3_l3_init-return-valu.patch"
+patch -s -p1 < "${DIR}/patches/omap-fixes/0002-arm-mach-omap2-omap_l3_smx-fix-irq-handler-setup.patch"
+patch -s -p1 < "${DIR}/patches/omap-fixes/0003-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
+patch -s -p1 < "${DIR}/patches/omap-fixes/0004-ARM-OMAP2-Fix-warnings-for-GPMC-interrupt.patch"
+patch -s -p1 < "${DIR}/patches/omap-fixes/0005-hwspinlock-depend-on-OMAP4.patch"
+
+}
+
 function wip_to_be_pushed_git  {
 echo "wip patches for mainline"
 
@@ -577,21 +588,7 @@ patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readon
 
 function omap4 {
 echo "omap4 related patches"
-patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
 patch -s -p1 < "${DIR}/patches/panda/0001-panda-disable-hdmi.patch"
-
-#fixes:
-#[    0.440734] Trying to install interrupt handler for IRQ402
-#[    0.440734] Trying to install interrupt handler for IRQ403
-#[    0.440765] Trying to install interrupt handler for IRQ404
-#[    0.440765] Trying to install interrupt handler for IRQ405
-#[    0.440795] Trying to install interrupt handler for IRQ406
-#[    0.440826] Trying to install interrupt handler for IRQ407
-#[    0.440826] Trying to install interrupt handler for IRQ408
-#[    0.440856] Trying to install type control for IRQ409
-#[    0.440856] Trying to set irq flags for IRQ409
-#[    0.440887] gpmc: irq-20 could not claim: err -22
-patch -s -p1 < "${DIR}/patches/panda/0001-ARM-OMAP2-Fix-warnings-for-GPMC-interrupt.patch"
 }
 
 function sgx {
@@ -718,6 +715,7 @@ bugs_trivial
 for_next
 dss2_next
 dspbridge_next
+omap_fixes
 
 #work in progress
 #wip_to_be_pushed_git
