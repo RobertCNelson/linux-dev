@@ -33,11 +33,17 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #patch -s -p1 < "${DIR}/patches/trivial/0002-Revert-oom-suppress-show_mem-for-many-nodes-in-irq-c.patch"
 #patch -s -p1 < "${DIR}/patches/trivial/0003-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
 
+#needed for 2.6.38-git19, build failure:
+#drivers/block/drbd/drbd_bitmap.c:1290:4: error: implicit declaration of function ‘generic___test_and_set_le_bit’
+#drivers/block/drbd/drbd_bitmap.c:1292:4: error: implicit declaration of function ‘generic___test_and_clear_le_bit’
+#drivers/block/drbd/drbd_bitmap.c: In function ‘drbd_bm_test_bit’:
+#drivers/block/drbd/drbd_bitmap.c:1441:3: error: implicit declaration of function ‘generic_test_le_bit’
+#make[3]: *** [drivers/block/drbd/drbd_bitmap.o] Error 1
+patch -s -p1 < "${DIR}/patches/trivial/0001-drbd-fix-up-merge-error.patch"
 }
 
 function for_next {
 echo "for_next from tmlind's tree.."
-
 
 #in 2.6.38-git4
 #updated for 2.6.38-git4
@@ -460,11 +466,13 @@ echo "dspbridge from for-next"
 
 function omap_fixes {
 echo "omap fixes"
-patch -s -p1 < "${DIR}/patches/omap-fixes/0001-arm-mach-omap2-devices-fix-omap3_l3_init-return-valu.patch"
-patch -s -p1 < "${DIR}/patches/omap-fixes/0002-arm-mach-omap2-omap_l3_smx-fix-irq-handler-setup.patch"
-patch -s -p1 < "${DIR}/patches/omap-fixes/0003-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
-patch -s -p1 < "${DIR}/patches/omap-fixes/0004-ARM-OMAP2-Fix-warnings-for-GPMC-interrupt.patch"
-patch -s -p1 < "${DIR}/patches/omap-fixes/0005-hwspinlock-depend-on-OMAP4.patch"
+
+#in 2.6.38-git19
+#patch -s -p1 < "${DIR}/patches/omap-fixes/0001-arm-mach-omap2-devices-fix-omap3_l3_init-return-valu.patch"
+#patch -s -p1 < "${DIR}/patches/omap-fixes/0002-arm-mach-omap2-omap_l3_smx-fix-irq-handler-setup.patch"
+#patch -s -p1 < "${DIR}/patches/omap-fixes/0003-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
+#patch -s -p1 < "${DIR}/patches/omap-fixes/0004-ARM-OMAP2-Fix-warnings-for-GPMC-interrupt.patch"
+#patch -s -p1 < "${DIR}/patches/omap-fixes/0005-hwspinlock-depend-on-OMAP4.patch"
 
 }
 
