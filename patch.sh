@@ -39,7 +39,8 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #drivers/block/drbd/drbd_bitmap.c: In function ‘drbd_bm_test_bit’:
 #drivers/block/drbd/drbd_bitmap.c:1441:3: error: implicit declaration of function ‘generic_test_le_bit’
 #make[3]: *** [drivers/block/drbd/drbd_bitmap.o] Error 1
-patch -s -p1 < "${DIR}/patches/trivial/0001-drbd-fix-up-merge-error.patch"
+#fixed in 2.6.38-git20
+#patch -s -p1 < "${DIR}/patches/trivial/0001-drbd-fix-up-merge-error.patch"
 }
 
 function for_next {
