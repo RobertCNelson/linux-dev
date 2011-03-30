@@ -7,7 +7,7 @@ STABLE_PATCH=2
 #PRE_RC=2.6.37-git18
 #RC_KERNEL=2.6.38
 #RC_PATCH=-rc8
-ABI=8.3
+ABI=8.4
 
 if [ "${NO_DEVTMPS}" ] ; then
 BUILD=dold${ABI}
