@@ -16,9 +16,7 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #Bisected from 2.6.35 -> 2.6.36 to find this..
 #This commit breaks some lcd monitors..
 #rcn-ee Feb 26, 2011...
-#Still needs more work for 2.6.38, causes:
-#[   14.962829] omapdss DISPC error: GFX_FIFO_UNDERFLOW, disabling GFX
-#patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
 
 }
 
