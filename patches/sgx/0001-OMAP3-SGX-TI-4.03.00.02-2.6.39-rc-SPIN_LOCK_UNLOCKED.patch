@@ -1,0 +1,41 @@
+From 7e71f9f771ae011676c8e8f665a6c3a1b5acccec Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 30 Mar 2011 10:21:34 -0500
+Subject: [PATCH] OMAP3 SGX TI 4.03.00.02 2.6.39-rc SPIN_LOCK_UNLOCKED dropped
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../omap3-sgx/services4/srvkm/env/linux/osfunc.c   |    2 +-
+ .../services4/srvkm/env/linux/pvr_debug.c          |    3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
+index 7d26891..613cae3 100644
+--- a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
++++ b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/osfunc.c
+@@ -1763,7 +1763,7 @@ static TIMER_CALLBACK_DATA sTimers[OS_MAX_TIMERS];
+ DEFINE_MUTEX(sTimerStructLock);
+ #else
+  
+-static spinlock_t sTimerStructLock = SPIN_LOCK_UNLOCKED;
++static spinlock_t sTimerStructLock = __SPIN_LOCK_UNLOCKED(sTimerStructLock);
+ #endif
+ 
+ static void OSTimerCallbackBody(TIMER_CALLBACK_DATA *psTimerCBData)
+diff --git a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/pvr_debug.c b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/pvr_debug.c
+index 751b030..4913a25 100644
+--- a/drivers/staging/omap3-sgx/services4/srvkm/env/linux/pvr_debug.c
++++ b/drivers/staging/omap3-sgx/services4/srvkm/env/linux/pvr_debug.c
+@@ -73,8 +73,7 @@ static IMG_CHAR gszBufferIRQ[PVR_MAX_MSG_LEN + 1];
+ 
+ static PVRSRV_LINUX_MUTEX gsDebugMutexNonIRQ;
+ 
+- 
+-static spinlock_t gsDebugLockIRQ = SPIN_LOCK_UNLOCKED;
++static spinlock_t gsDebugLockIRQ = __SPIN_LOCK_UNLOCKED(gsDebugLockIRQ);
+ 
+ #if !defined (USE_SPIN_LOCK)  
+ #define	USE_SPIN_LOCK (in_interrupt() || !preemptible())
+-- 
+1.7.1
+
