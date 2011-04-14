@@ -1,10 +1,10 @@
-From 8613a844482f485d9be01ce2ad03652d7a8cefa0 Mon Sep 17 00:00:00 2001
+From 648f55822af104a43f8f70b3513981141be26bd5 Mon Sep 17 00:00:00 2001
 From: Sanjeev Premi <premi@ti.com>
-Date: Mon, 14 Mar 2011 19:01:53 +0530
-Subject: [PATCH] omap3: alsa-soc: Remove restrictive check for cpu type
+Date: Wed, 13 Apr 2011 02:03:13 +0530
+Subject: [PATCH] omap3: alsa-soc: Remove restrictive checks for cpu type
 
-Current check for cpu type is too restrictive leading to
-failures for other silicons in same family.
+Current checks for cpu type were too restrictive leading
+to failures for other silicons in same family.
 
 The problem was found while testing audio playback on
 AM37x and AM35x processors. But should exist on OMAP36xx
@@ -12,11 +12,11 @@ as well.
 
 Signed-off-by: Sanjeev Premi <premi@ti.com>
 ---
- sound/soc/omap/omap-mcbsp.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ sound/soc/omap/omap-mcbsp.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/sound/soc/omap/omap-mcbsp.c b/sound/soc/omap/omap-mcbsp.c
-index 2175f09..84d434a 100644
+index 2175f09..a88a0bf 100644
 --- a/sound/soc/omap/omap-mcbsp.c
 +++ b/sound/soc/omap/omap-mcbsp.c
 @@ -146,7 +146,7 @@ static int omap_mcbsp_dai_startup(struct snd_pcm_substream *substream,
@@ -28,6 +28,15 @@ index 2175f09..84d434a 100644
  		/*
  		* Rule for the buffer size. We should not allow
  		* smaller buffer than the FIFO size to avoid underruns
+@@ -258,7 +258,7 @@ static int omap_mcbsp_dai_hw_params(struct snd_pcm_substream *substream,
+ 	default:
+ 		return -EINVAL;
+ 	}
+-	if (cpu_is_omap343x()) {
++	if (cpu_is_omap34xx()) {
+ 		dma_data->set_threshold = omap_mcbsp_set_threshold;
+ 		/* TODO: Currently, MODE_ELEMENT == MODE_FRAME */
+ 		if (omap_mcbsp_get_dma_op_mode(bus_id) ==
 -- 
 1.7.1
 
