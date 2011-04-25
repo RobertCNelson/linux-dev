@@ -325,9 +325,6 @@ echo "for_next from tmlind's tree.."
 #patch -s -p1 < "${DIR}/patches/for_next/0257-omap-zoom-host-should-not-pull-up-wl1271-s-irq-line.patch"
 #patch -s -p1 < "${DIR}/patches/for_next/0258-merge-changes-missed-in-rebase.patch"
 
-#patches needed after merge
-patch -s -p1 < "${DIR}/patches/trivial/0001-arm-sleep34xx.o-has-smc-so-needs-plus_sec-binutils-e.patch"
-
 }
 
 function dss2_next {
@@ -479,6 +476,27 @@ echo "omap fixes"
 #patch -s -p1 < "${DIR}/patches/omap-fixes/0005-hwspinlock-depend-on-OMAP4.patch"
 
 }
+
+function for_next_40 {
+echo "for_next from tmlind's tree.."
+patch -s -p1 < "${DIR}/patches/for_next_40/0001-OMAP4-Intialize-IVA-Device-in-addition-to-DSP-device.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0002-OMAP3-voltage-remove-initial-voltage.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0003-OMAP3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0004-OMAP4-PM-remove-redundant-ifdef-CONFIG_PM.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0005-OMAP3-smartreflex-fix-sr_late_init-error-path-in-pro.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0006-OMAP3-smartreflex-request-the-memory-region.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0007-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0008-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0009-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0010-omap-rx51-mark-reserved-memory-earlier.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0011-arm-omap2-enable-smc-instruction-for-sleep34xx.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0012-OMAP3-l3-fix-for-irq-10-nobody-cared-message.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0013-omap-gpmc-smsc911x-always-set-irq-flags-to-IORESOURC.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0014-omap-convert-boards-that-use-SMSC911x-to-use-gpmc-sm.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0015-OMAP3-4-l3-fix-omap3_l3_probe-error-path.patch"
+patch -s -p1 < "${DIR}/patches/for_next_40/0016-OMAP3-4-l3-minor-cleanup-for-parenthesis-and-extra-s.patch"
+}
+
 
 function wip_to_be_pushed_git  {
 echo "wip patches for mainline"
@@ -710,6 +728,7 @@ for_next
 dss2_next
 dspbridge_next
 omap_fixes
+for_next_40
 
 #work in progress
 #wip_to_be_pushed_git

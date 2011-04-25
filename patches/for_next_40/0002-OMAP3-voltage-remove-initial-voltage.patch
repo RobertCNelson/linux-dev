@@ -1,0 +1,39 @@
+From 83e54b97b658ed487ad6fa635f44416ab1f7017a Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Tue, 15 Feb 2011 09:37:18 +0530
+Subject: [PATCH 02/16] OMAP3+: voltage: remove initial voltage
+
+Blindly setting 1.2V in the initial structure may not even match the
+default voltages stored in the voltage table which are supported for
+the domain. For example, OMAP3430 core domain does not use 1.2V and
+ends up generating a warning on the first transition.
+
+Further, since omap2_set_init_voltage is called as part of the pm
+framework's initialization sequence to configure the voltage required
+for the current OPP, the call does(and has to) setup the system
+voltage(curr_volt as a result) using the right mechanisms appropriate
+for the system at that point of time. This also overrides
+initialization we are currently doing in voltage.c making it
+redundant. So, remove the wrong and redundant initialization.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/voltage.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
+index 6fb5209..0c1552d 100644
+--- a/arch/arm/mach-omap2/voltage.c
++++ b/arch/arm/mach-omap2/voltage.c
+@@ -114,7 +114,6 @@ static int __init _config_common_vdd_data(struct omap_vdd_info *vdd)
+ 	sys_clk_speed /= 1000;
+ 
+ 	/* Generic voltage parameters */
+-	vdd->curr_volt = 1200000;
+ 	vdd->volt_scale = vp_forceupdate_scale_voltage;
+ 	vdd->vp_enabled = false;
+ 
+-- 
+1.7.1
+
