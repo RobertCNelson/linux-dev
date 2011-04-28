@@ -527,7 +527,6 @@ patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0007-omap3-beagle-add-initial-ex
 patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0008-omap3-beagle-expansionboard-zippy.patch"
 patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0009-omap3-beagle-expansionboard-zippy2.patch"
 patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0001-omap-beagle-irq_set_irq_type-over-set_irq_type.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0001-omap36xx-enable-800Mhz.patch"
 
 }
 
@@ -722,6 +721,20 @@ patch -s -p1 < "${DIR}/patches/dvfs/0001-omap3-Add-basic-support-for-720MHz-part
 
 }
 
+function pm-wip-cpufreq {
+echo "pm-wip-cpufreq"
+
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0001-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0002-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0003-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0004-OMAP-PM-CPUFREQ-Fix-conditional-compilation.patch"
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0005-cpufreq-fixup-after-new-OPP-layer-merged.patch"
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0006-OMAP-cpufreq-Split-OMAP1-and-OMAP2PLUS-CPUfreq-drive.patch"
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0007-OMAP2PLUS-cpufreq-Add-SMP-support-to-cater-OMAP4430.patch"
+patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0008-OMAP2PLUS-cpufreq-Fix-typo-when-attempting-to-set-mp.patch"
+
+}
+
 bugs_trivial
 
 #for_next tree's
@@ -749,6 +762,7 @@ touchbook
 #omap4/dvfs still needs more testing..
 omap4
 #dvfs
+pm-wip-cpufreq
 
 #no chance of being pushed ever tree's
 sgx
