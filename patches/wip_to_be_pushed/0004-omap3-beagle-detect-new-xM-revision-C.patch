@@ -5,11 +5,11 @@ Subject: [PATCH 4/9] omap3: beagle: detect new xM revision C
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c |   18 ++++++++++++++----
- 1 files changed, 14 insertions(+), 4 deletions(-)
+ arch/arm/mach-omap2/board-omap3beagle.c |   21 ++++++++++++++++-----
+ 1 files changed, 16 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index ebb90dc..4dc7685 100644
+index dd15413..50be864 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -64,6 +64,7 @@
@@ -79,6 +79,16 @@ index ebb90dc..4dc7685 100644
  		r = gpio_request(gpio + 1, "nDVI_PWR_EN");
  		if (!r) {
  			r = gpio_direction_output(gpio + 1, 0);
+@@ -624,7 +634,8 @@ static void __init beagle_opp_init(void)
+ 	}
+ 
+ 	/* Custom OPP enabled for XM */
+-	if (omap3_beagle_get_rev() == OMAP3BEAGLE_BOARD_XM) {
++	if ((omap3_beagle_get_rev() == OMAP3BEAGLE_BOARD_XM) ||
++		(omap3_beagle_get_rev() == OMAP3BEAGLE_BOARD_XMC)) {
+ 		struct omap_hwmod *mh = omap_hwmod_lookup("mpu");
+ 		struct omap_hwmod *dh = omap_hwmod_lookup("iva");
+ 		struct device *dev;
 -- 
 1.7.1
 
