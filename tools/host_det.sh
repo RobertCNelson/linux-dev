@@ -107,12 +107,6 @@ if [ ! $(which ccache) ];then
  APT=1
 fi
 
-if [ ! $(which git) ];then
- echo "Missing git"
- PACKAGE+="git-core "
- APT=1
-fi
-
 if [ ! $(file /usr/lib/libncurses.so | grep -v ERROR | awk '{print $1}') ];then
  echo "Missing ncurses"
  PACKAGE+="libncurses5-dev "
