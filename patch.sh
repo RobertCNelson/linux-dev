@@ -20,30 +20,8 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #[   14.962829] omapdss DISPC error: GFX_FIFO_UNDERFLOW, disabling GFX
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
 
-#needed for 2.6.38-git13, in mainline for git14
-#patch -s -p1 < "${DIR}/patches/trivial/0001-smp-add-missing-init.h-include.patch"
-
-#needed for 2.6.38-git13, build failure:
-#lib/lib.a(show_mem.o): In function `show_mem':
-#show_mem.c:(.text+0x15c): multiple definition of `show_mem'
-#arch/arm/mm/built-in.o:cache-l2x0.c:(.text+0xdac): first defined here
-#make: *** [vmlinux.o] Error 1
-#fixed in 2.6.38-git16
-#patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
-#patch -s -p1 < "${DIR}/patches/trivial/0002-Revert-oom-suppress-show_mem-for-many-nodes-in-irq-c.patch"
-#patch -s -p1 < "${DIR}/patches/trivial/0003-Revert-oom-suppress-nodes-that-are-not-allowed-from-.patch"
-
-#needed for 2.6.38-git19, build failure:
-#drivers/block/drbd/drbd_bitmap.c:1290:4: error: implicit declaration of function ‘generic___test_and_set_le_bit’
-#drivers/block/drbd/drbd_bitmap.c:1292:4: error: implicit declaration of function ‘generic___test_and_clear_le_bit’
-#drivers/block/drbd/drbd_bitmap.c: In function ‘drbd_bm_test_bit’:
-#drivers/block/drbd/drbd_bitmap.c:1441:3: error: implicit declaration of function ‘generic_test_le_bit’
-#make[3]: *** [drivers/block/drbd/drbd_bitmap.o] Error 1
-#fixed in 2.6.38-git20
-#patch -s -p1 < "${DIR}/patches/trivial/0001-drbd-fix-up-merge-error.patch"
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 patch -s -p1 < "${DIR}/patches/trivial/0001-Fixed-gpio-polarity-of-gpio-USB-phy-reset.patch"
-
 }
 
 function for_next {
