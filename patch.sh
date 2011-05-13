@@ -39,13 +39,6 @@ echo "dspbridge from for-next"
 function omap_fixes {
 echo "omap fixes"
 
-#in 2.6.38-git19
-#patch -s -p1 < "${DIR}/patches/omap-fixes/0001-arm-mach-omap2-devices-fix-omap3_l3_init-return-valu.patch"
-#patch -s -p1 < "${DIR}/patches/omap-fixes/0002-arm-mach-omap2-omap_l3_smx-fix-irq-handler-setup.patch"
-#patch -s -p1 < "${DIR}/patches/omap-fixes/0003-OMAP4-PandaBoard-remove-unused-power-regulators.patch"
-#patch -s -p1 < "${DIR}/patches/omap-fixes/0004-ARM-OMAP2-Fix-warnings-for-GPMC-interrupt.patch"
-#patch -s -p1 < "${DIR}/patches/omap-fixes/0005-hwspinlock-depend-on-OMAP4.patch"
-
 }
 
 function for_next_40 {
@@ -310,8 +303,8 @@ bugs_trivial
 
 #for_next tree's
 dss2_next
+#omap_fixes
 #dspbridge_next
-omap_fixes
 for_next_40
 
 #work in progress
