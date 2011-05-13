@@ -1,4 +1,4 @@
-From 97fb928b63108bf1f79974c344be0c62bea71182 Mon Sep 17 00:00:00 2001
+From d136cdc8dad16258cf7330b9a8b2c5e6a6d47d53 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Sun, 13 Mar 2011 12:34:29 -0500
 Subject: [PATCH 8/9] omap3: beagle: expansionboard zippy
@@ -9,7 +9,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 files changed, 78 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index cda6813..feacc5e 100644
+index cde7bfd..e3a18e7 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -21,6 +21,7 @@
@@ -52,7 +52,7 @@ index cda6813..feacc5e 100644
 +	    (gpio_direction_input(OMAP3BEAGLE_GPIO_ENC28J60_IRQ) == 0)) {
 +		gpio_export(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, 0);
 +		omap3beagle_zippy_spi_board_info[0].irq = OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
-+		set_irq_type(omap3beagle_zippy_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
++		irq_set_irq_type(omap3beagle_zippy_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
 +	} else {
 +		pr_err("could not obtain gpio for ENC28J60_IRQ\n");
 +		return;
@@ -114,7 +114,7 @@ index cda6813..feacc5e 100644
  	/* Bus 3 is attached to the DVI port where devices like the pico DLP
  	 * projector don't work reliably with 400kHz */
  	omap_register_i2c_bus(3, 100, beagle_i2c_eeprom, ARRAY_SIZE(beagle_i2c_eeprom));
-@@ -696,6 +765,15 @@ static void __init omap3_beagle_init(void)
+@@ -697,6 +766,15 @@ static void __init omap3_beagle_init(void)
  	/* REVISIT leave DVI powered down until it's needed ... */
  	gpio_direction_output(170, true);
  
@@ -128,7 +128,7 @@ index cda6813..feacc5e 100644
 +	}
 +
  	usb_musb_init(&musb_board_data);
- 	usb_ehci_init(&ehci_pdata);
+ 	usbhs_init(&usbhs_bdata);
  	omap3beagle_flash_init();
 -- 
 1.7.1
