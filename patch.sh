@@ -21,7 +21,6 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
-patch -s -p1 < "${DIR}/patches/trivial/0001-Fixed-gpio-polarity-of-gpio-USB-phy-reset.patch"
 }
 
 function dss2_next {
@@ -307,7 +306,7 @@ touchbook
 #omap4/dvfs still needs more testing..
 omap4
 #dvfs
-pm-wip-cpufreq
+#pm-wip-cpufreq
 
 #no chance of being pushed ever tree's
 sgx
