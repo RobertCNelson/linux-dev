@@ -21,6 +21,18 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
+
+#for 2.6.39-git1
+#In file included from include/linux/seqlock.h:29:0,
+#                 from include/linux/time.h:8,
+#                 from include/linux/timex.h:56,
+#                 from include/linux/sched.h:57,
+#                 from arch/arm/kernel/asm-offsets.c:13:
+#include/linux/spinlock.h: In function ‘spin_unlock_wait’:
+#include/linux/spinlock.h:360:2: error: implicit declaration of function ‘cpu_relax’
+#make[1]: *** [arch/arm/kernel/asm-offsets.s] Error 1
+patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock_up.h-include-asm-processor.h-in-for-cpu_rel.patch"
+
 }
 
 function dss2_next {
