@@ -1,0 +1,25 @@
+From a554ba9d025042378d39a453790ba322da282db4 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sun, 22 May 2011 12:30:38 -0500
+Subject: [PATCH] spinlock.h needs cpu_relax too
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ include/linux/spinlock.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/spinlock.h b/include/linux/spinlock.h
+index 0b22d51..602a950 100644
+--- a/include/linux/spinlock.h
++++ b/include/linux/spinlock.h
+@@ -57,6 +57,7 @@
+ #include <linux/bottom_half.h>
+ 
+ #include <asm/system.h>
++#include <asm/processor.h>	/* for cpu_relax() */
+ 
+ /*
+  * Must define these before including other files, inline functions need them
+-- 
+1.7.4.1
+

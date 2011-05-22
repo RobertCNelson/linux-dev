@@ -32,6 +32,7 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 #include/linux/spinlock.h:360:2: error: implicit declaration of function ‘cpu_relax’
 #make[1]: *** [arch/arm/kernel/asm-offsets.s] Error 1
 patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock_up.h-include-asm-processor.h-in-for-cpu_rel.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock.h-needs-cpu_relax-too.patch"
 
 }
 
