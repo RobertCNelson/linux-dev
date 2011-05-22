@@ -36,14 +36,15 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock.h-needs-cpu_relax-too.patch"
 
 
-#for 2.6.39-git1
+#for 2.6.39-git3
 #net/sctp/bind_addr.c: In function ‘sctp_bind_addr_clean’:
 #net/sctp/bind_addr.c:148:30: error: ‘sctp_local_addr_free’ undeclared (first use in this function)
 #net/sctp/bind_addr.c:148:30: note: each undeclared identifier is reported only once for each function it appears in
 #make[2]: *** [net/sctp/bind_addr.o] Error 1
 #make[1]: *** [net/sctp] Error 2
 #make[1]: *** Waiting for unfinished jobs....
-patch -s -p1 < "${DIR}/patches/trivial/0001-sctp-Fix-build-failure.patch"
+#fixed in 2.6.39-git4
+#patch -s -p1 < "${DIR}/patches/trivial/0001-sctp-Fix-build-failure.patch"
 
 }
 
