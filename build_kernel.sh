@@ -139,6 +139,8 @@ function patch_kernel {
 function copy_defconfig {
 	cd ${DIR}/KERNEL/
 	make ARCH=arm CROSS_COMPILE=${CC} distclean
+	make ARCH=arm CROSS_COMPILE=${CC} omap2plus_defconfig
+	cp .config ${DIR}/patches/ref_omap2plus_defconfig
 if [ "${NO_DEVTMPS}" ] ; then
 	cp ${DIR}/patches/no_devtmps-defconfig .config
 else
