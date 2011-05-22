@@ -31,8 +31,19 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 #include/linux/spinlock.h: In function ‘spin_unlock_wait’:
 #include/linux/spinlock.h:360:2: error: implicit declaration of function ‘cpu_relax’
 #make[1]: *** [arch/arm/kernel/asm-offsets.s] Error 1
-patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock_up.h-include-asm-processor.h-in-for-cpu_rel.patch"
+#fixed in 2.6.39-git3
+#patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock_up.h-include-asm-processor.h-in-for-cpu_rel.patch"
 patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock.h-needs-cpu_relax-too.patch"
+
+
+#for 2.6.39-git1
+#net/sctp/bind_addr.c: In function ‘sctp_bind_addr_clean’:
+#net/sctp/bind_addr.c:148:30: error: ‘sctp_local_addr_free’ undeclared (first use in this function)
+#net/sctp/bind_addr.c:148:30: note: each undeclared identifier is reported only once for each function it appears in
+#make[2]: *** [net/sctp/bind_addr.o] Error 1
+#make[1]: *** [net/sctp] Error 2
+#make[1]: *** Waiting for unfinished jobs....
+patch -s -p1 < "${DIR}/patches/trivial/0001-sctp-Fix-build-failure.patch"
 
 }
 
