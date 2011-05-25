@@ -34,7 +34,8 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 #make[1]: *** [arch/arm/kernel/asm-offsets.s] Error 1
 #fixed in 2.6.39-git3
 #patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock_up.h-include-asm-processor.h-in-for-cpu_rel.patch"
-patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock.h-needs-cpu_relax-too.patch"
+#fixed in 2.6.39-git8
+#patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock.h-needs-cpu_relax-too.patch"
 
 
 #for 2.6.39-git3
