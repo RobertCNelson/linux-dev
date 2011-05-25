@@ -1,0 +1,52 @@
+From 1d73698debdf57f9da6c3312239459c43278e064 Mon Sep 17 00:00:00 2001
+From: David Vrabel <david.vrabel@csr.com>
+Date: Fri, 2 Apr 2010 08:41:47 -0700
+Subject: [PATCH 12/63] Don't turn SDIO cards off to save power.  Doing so will lose all
+ internal state in the card.
+
+Signed-off-by: David Vrabel <david.vrabel@csr.com>
+---
+ drivers/mmc/host/omap_hsmmc.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
+index 15a023b..83f93ab 100644
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -29,6 +29,7 @@
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/core.h>
+ #include <linux/mmc/mmc.h>
++#include <linux/mmc/card.h>
+ #include <linux/io.h>
+ #include <linux/semaphore.h>
+ #include <linux/gpio.h>
+@@ -1760,8 +1761,12 @@ static int omap_hsmmc_sleep_to_off(struct omap_hsmmc_host *host)
+ 	      mmc_slot(host).card_detect ||
+ 	      (mmc_slot(host).get_cover_state &&
+ 	       mmc_slot(host).get_cover_state(host->dev, host->slot_id)))) {
+-		mmc_release_host(host->mmc);
+-		return 0;
++		goto out;
++	}
++
++	/* Don't turn SDIO cards off. */
++	if (host->mmc->card && mmc_card_sdio(host->mmc->card)) {
++		goto out;
+ 	}
+ 
+ 	mmc_slot(host).set_power(host->dev, host->slot_id, 0, 0);
+@@ -1772,9 +1777,8 @@ static int omap_hsmmc_sleep_to_off(struct omap_hsmmc_host *host)
+ 		host->dpm_state == CARDSLEEP ? "CARDSLEEP" : "REGSLEEP");
+ 
+ 	host->dpm_state = OFF;
+-
++out:
+ 	mmc_release_host(host->mmc);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.7.4.1
+

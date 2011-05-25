@@ -1,0 +1,36 @@
+From 24fbb17fbb1b4193691b7c74f5988bcd959b84c3 Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Fri, 20 May 2011 06:34:17 -0700
+Subject: [PATCH 19/63] ARM: OMAP: Add twl4030 madc support to Beagle
+
+Signed-off-by: Steve Sakoman <steve@sakoman.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 33007fd..aad2a78 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -439,6 +439,10 @@ static struct twl4030_codec_data beagle_codec_data = {
+ 	.audio = &beagle_audio_data,
+ };
+ 
++static struct twl4030_madc_platform_data overo_madc_data = {
++	.irq_line	= 1,
++};
++
+ static struct twl4030_platform_data beagle_twldata = {
+ 	.irq_base	= TWL4030_IRQ_BASE,
+ 	.irq_end	= TWL4030_IRQ_END,
+@@ -447,6 +451,7 @@ static struct twl4030_platform_data beagle_twldata = {
+ 	.usb		= &beagle_usb_data,
+ 	.gpio		= &beagle_gpio_data,
+ 	.codec		= &beagle_codec_data,
++	.madc		= &overo_madc_data,
+ 	.vmmc1		= &beagle_vmmc1,
+ 	.vsim		= &beagle_vsim,
+ 	.vdac		= &beagle_vdac,
+-- 
+1.7.4.1
+

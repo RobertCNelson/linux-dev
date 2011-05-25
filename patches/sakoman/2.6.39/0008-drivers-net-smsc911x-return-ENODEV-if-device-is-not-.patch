@@ -1,0 +1,29 @@
+From b62ecb49cfe8978390b7c8848e13555c4c699b0f Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <sakoman@gmail.com>
+Date: Tue, 15 Dec 2009 15:17:44 -0800
+Subject: [PATCH 08/63] drivers: net: smsc911x: return ENODEV if device is not found
+
+Signed-off-by: Steve Sakoman <sakoman@gmail.com>
+---
+ drivers/net/smsc911x.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/net/smsc911x.c b/drivers/net/smsc911x.c
+index 4b42ecc..5c1202b 100644
+--- a/drivers/net/smsc911x.c
++++ b/drivers/net/smsc911x.c
+@@ -2028,8 +2028,10 @@ static int __devinit smsc911x_drv_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	retval = smsc911x_init(dev);
+-	if (retval < 0)
++	if (retval < 0) {
++		retval = -ENODEV;
+ 		goto out_unmap_io_3;
++	}
+ 
+ 	/* configure irq polarity and type before connecting isr */
+ 	if (pdata->config.irq_polarity == SMSC911X_IRQ_POLARITY_ACTIVE_HIGH)
+-- 
+1.7.4.1
+
