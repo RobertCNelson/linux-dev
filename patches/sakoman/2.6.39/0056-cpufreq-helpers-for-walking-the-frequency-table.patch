@@ -1,0 +1,134 @@
+From 514c2be94b6cf14c58b430f1a2bb8839c36a32e2 Mon Sep 17 00:00:00 2001
+From: Mike Turquette <mturquette@ti.com>
+Date: Tue, 17 May 2011 09:35:54 -0500
+Subject: [PATCH 56/63] cpufreq: helpers for walking the frequency table
+
+Two new functions for getting the next higher and next lower frequencies
+in the cpufreq table, based upon a frequency supplied in kHz.
+
+This is useful for cpufreq governors that do not target frequencies
+based upon a percentage or a pre-determined value, but instead access
+the cpufreq table directly.
+
+Signed-off-by: Mike Turquette <mturquette@ti.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ drivers/cpufreq/freq_table.c |   73 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/cpufreq.h      |    9 +++++
+ 2 files changed, 82 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/cpufreq/freq_table.c b/drivers/cpufreq/freq_table.c
+index 0543221..11a307b 100644
+--- a/drivers/cpufreq/freq_table.c
++++ b/drivers/cpufreq/freq_table.c
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/cpufreq.h>
++#include <linux/err.h>
+ 
+ #define dprintk(msg...) \
+ 	cpufreq_debug_printk(CPUFREQ_DEBUG_CORE, "freq-table", msg)
+@@ -174,6 +175,78 @@ int cpufreq_frequency_table_target(struct cpufreq_policy *policy,
+ }
+ EXPORT_SYMBOL_GPL(cpufreq_frequency_table_target);
+ 
++int cpufreq_frequency_table_next_lowest(struct cpufreq_policy *policy,
++		struct cpufreq_frequency_table *table, int *index)
++{
++	unsigned int cur_freq;
++	unsigned int next_lowest_freq;
++	int optimal_index = -1;
++	int i = 0;
++
++	if (!policy || IS_ERR(policy) || !table || IS_ERR(table) ||
++			!index || IS_ERR(index))
++		return -ENOMEM;
++
++	cur_freq = policy->cur;
++	next_lowest_freq = policy->min;
++
++	/* we're at the lowest frequency in the table already, bail out */
++	if (cur_freq == policy->min)
++		return -EINVAL;
++
++	/* walk the list, find closest freq to cur_freq that is below it */
++	while(table[i].frequency != CPUFREQ_TABLE_END) {
++		if (table[i].frequency < cur_freq &&
++				table[i].frequency >= next_lowest_freq) {
++			next_lowest_freq = table[i].frequency;
++			optimal_index = table[i].index;
++		}
++
++		i++;
++	}
++
++	*index = optimal_index;
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(cpufreq_frequency_table_next_lowest);
++
++int cpufreq_frequency_table_next_highest(struct cpufreq_policy *policy,
++		struct cpufreq_frequency_table *table, int *index)
++{
++	unsigned int cur_freq;
++	unsigned int next_higher_freq;
++	int optimal_index = -1;
++	int i = 0;
++
++	if (!policy || IS_ERR(policy) || !table || IS_ERR(table) ||
++			!index || IS_ERR(index))
++		return -ENOMEM;
++
++	cur_freq = policy->cur;
++	next_higher_freq = policy->max;
++
++	/* we're at the highest frequency in the table already, bail out */
++	if (cur_freq == policy->max)
++		return -EINVAL;
++
++	/* walk the list, find closest freq to cur_freq that is above it */
++	while(table[i].frequency != CPUFREQ_TABLE_END) {
++		if (table[i].frequency > cur_freq &&
++				table[i].frequency <= next_higher_freq) {
++			next_higher_freq = table[i].frequency;
++			optimal_index = table[i].index;
++		}
++
++		i++;
++	}
++
++	*index = optimal_index;
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(cpufreq_frequency_table_next_highest);
++
+ static DEFINE_PER_CPU(struct cpufreq_frequency_table *, cpufreq_show_table);
+ /**
+  * show_available_freqs - show available frequencies for the specified CPU
+diff --git a/include/linux/cpufreq.h b/include/linux/cpufreq.h
+index 9343dd3..a38fca8 100644
+--- a/include/linux/cpufreq.h
++++ b/include/linux/cpufreq.h
+@@ -396,6 +396,15 @@ void cpufreq_frequency_table_get_attr(struct cpufreq_frequency_table *table,
+ 
+ void cpufreq_frequency_table_put_attr(unsigned int cpu);
+ 
++/* the following are for use in governors, or anywhere else */
++extern int cpufreq_frequency_table_next_lowest(struct cpufreq_policy *policy,
++					struct cpufreq_frequency_table *table,
++					int *index);
++
++extern int cpufreq_frequency_table_next_highest(struct cpufreq_policy *policy,
++					struct cpufreq_frequency_table *table,
++					int *index);
++
+ 
+ /*********************************************************************
+  *                     UNIFIED DEBUG HELPERS                         *
+-- 
+1.7.4.1
+

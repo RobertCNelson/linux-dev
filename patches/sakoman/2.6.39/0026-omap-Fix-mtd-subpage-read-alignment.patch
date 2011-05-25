@@ -1,0 +1,95 @@
+From 5b09a4e8cc96887e4b0365349583d4b798f2474a Mon Sep 17 00:00:00 2001
+From: Charles Manning <cdhmanning@gmail.com>
+Date: Tue, 18 Jan 2011 11:25:25 +1300
+Subject: [PATCH 26/63] omap: Fix mtd subpage read alignment
+
+This allows the omap2 prefetch engine to work properly for subpage
+reads. Without this ECC errors will stop UBIFS from working.
+
+Signed-off-by: Charles Manning <cdhmanning@gmail.com>
+---
+ drivers/mtd/nand/nand_base.c |   19 +++++++++++++++++++
+ drivers/mtd/nand/omap2.c     |    1 +
+ include/linux/mtd/nand.h     |    3 +++
+ 3 files changed, 23 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/mtd/nand/nand_base.c b/drivers/mtd/nand/nand_base.c
+index c54a4cb..6ca7098 100644
+--- a/drivers/mtd/nand/nand_base.c
++++ b/drivers/mtd/nand/nand_base.c
+@@ -1157,6 +1157,22 @@ static int nand_read_page_swecc(struct mtd_info *mtd, struct nand_chip *chip,
+ }
+ 
+ /**
++ * nand_align_subpage32 - function to align subpage read to 32-bits
++ * @mtd:	mtd info structure
++ * @buf:	pointer to offset that needs to be aligned
++ * @len:	pointer to length that needs to be aligned.
++ */
++
++void nand_align_subpage32(int *offs, int *len)
++{
++	int diff = *offs & 3;
++
++	*offs =  *offs - diff;
++	*len = (*len + diff + 3) & ~3;
++}
++EXPORT_SYMBOL(nand_align_subpage32);
++
++/**
+  * nand_read_subpage - [REPLACABLE] software ecc based sub-page read function
+  * @mtd:	mtd info structure
+  * @chip:	nand chip info structure
+@@ -1221,6 +1237,9 @@ static int nand_read_subpage(struct mtd_info *mtd, struct nand_chip *chip,
+ 		if (eccpos[index + (num_steps * chip->ecc.bytes)] & (busw - 1))
+ 			aligned_len++;
+ 
++		if(chip->align_subpage)
++			chip->align_subpage(&aligned_pos, &aligned_len);
++
+ 		chip->cmdfunc(mtd, NAND_CMD_RNDOUT,
+ 					mtd->writesize + aligned_pos, -1);
+ 		chip->read_buf(mtd, &chip->oob_poi[aligned_pos], aligned_len);
+diff --git a/drivers/mtd/nand/omap2.c b/drivers/mtd/nand/omap2.c
+index da9a351..bb89c65 100644
+--- a/drivers/mtd/nand/omap2.c
++++ b/drivers/mtd/nand/omap2.c
+@@ -1069,6 +1069,7 @@ static int __devinit omap_nand_probe(struct platform_device *pdev)
+ 		info->nand.ecc.correct          = omap_correct_data;
+ 		info->nand.ecc.mode             = NAND_ECC_HW;
+ 	}
++	info->nand.align_subpage = nand_align_subpage32;
+ 
+ 	/* DIP switches on some boards change between 8 and 16 bit
+ 	 * bus widths for flash.  Try the other width if the first try fails.
+diff --git a/include/linux/mtd/nand.h b/include/linux/mtd/nand.h
+index d441927..311f211 100644
+--- a/include/linux/mtd/nand.h
++++ b/include/linux/mtd/nand.h
+@@ -479,6 +479,7 @@ struct nand_buffers {
+  *			additional error status checks (determine if errors are
+  *			correctable).
+  * @write_page:		[REPLACEABLE] High-level page write function
++ * @align_subpage:	[OPTIONAL] Aligns subpage read buffer.
+  */
+ 
+ struct nand_chip {
+@@ -507,6 +508,7 @@ struct nand_chip {
+ 	int (*write_page)(struct mtd_info *mtd, struct nand_chip *chip,
+ 			const uint8_t *buf, int page, int cached, int raw);
+ 
++	void (*align_subpage)(int *offs, int *len);
+ 	int chip_delay;
+ 	unsigned int options;
+ 
+@@ -602,6 +604,7 @@ extern int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
+ 			   int allowbbt);
+ extern int nand_do_read(struct mtd_info *mtd, loff_t from, size_t len,
+ 			size_t *retlen, uint8_t *buf);
++extern void nand_align_subpage32(int *offs, int *len);
+ 
+ /**
+  * struct platform_nand_chip - chip level device structure
+-- 
+1.7.4.1
+

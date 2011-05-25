@@ -1,0 +1,49 @@
+From ccf7f535d7e809e563812f1c4897bdb9a1ff9233 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Mon, 4 Apr 2011 10:02:53 +0300
+Subject: [PATCH 02/63] OMAP: DSS2: DSI: fix dsi_dump_clocks()
+
+On OMAP4, reading DSI_PLL_CONFIGURATION2 register requires the L3 clock
+(CIO_CLK_ICG) to PLL. Currently dsi_dump_clocks() tries to read that
+register without enabling the L3 clock, leading to crash if DSI is not
+in use.
+
+The status of the bit being read from DSI_PLL_CONFIGURATION2 is
+available from dsi_clock_info->use_sys_clk, so we can avoid the whole
+problem by just using that.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/dsi.c |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/dsi.c b/drivers/video/omap2/dss/dsi.c
+index 86041535..1464ac4 100644
+--- a/drivers/video/omap2/dss/dsi.c
++++ b/drivers/video/omap2/dss/dsi.c
+@@ -1491,7 +1491,6 @@ void dsi_pll_uninit(void)
+ 
+ void dsi_dump_clocks(struct seq_file *s)
+ {
+-	int clksel;
+ 	struct dsi_clock_info *cinfo = &dsi.current_cinfo;
+ 	enum dss_clk_source dispc_clk_src, dsi_clk_src;
+ 
+@@ -1500,13 +1499,10 @@ void dsi_dump_clocks(struct seq_file *s)
+ 
+ 	enable_clocks(1);
+ 
+-	clksel = REG_GET(DSI_PLL_CONFIGURATION2, 11, 11);
+-
+ 	seq_printf(s,	"- DSI PLL -\n");
+ 
+ 	seq_printf(s,	"dsi pll source = %s\n",
+-			clksel == 0 ?
+-			"dss_sys_clk" : "pclkfree");
++			cinfo->use_sys_clk ? "dss_sys_clk" : "pclkfree");
+ 
+ 	seq_printf(s,	"Fint\t\t%-16luregn %u\n", cinfo->fint, cinfo->regn);
+ 
+-- 
+1.7.4.1
+

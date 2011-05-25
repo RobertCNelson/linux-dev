@@ -1,0 +1,44 @@
+From 71130daedfc95ec3e09ad452cd9fddb9cdf04e54 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 12 May 2011 08:14:41 -0500
+Subject: [PATCH 59/63] OMAP2+: cpufreq: handle invalid cpufreq table
+
+Handle the case when cpufreq_frequency_table_cpuinfo fails. freq_table
+that we passed failed the internal test of cpufreq generic driver,
+so we should'nt be using the freq_table as such. Instead, warn and
+fallback to clock functions for validation and operation.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ arch/arm/mach-omap2/omap2plus-cpufreq.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap2plus-cpufreq.c b/arch/arm/mach-omap2/omap2plus-cpufreq.c
+index e38ebb8..6e3666a 100644
+--- a/arch/arm/mach-omap2/omap2plus-cpufreq.c
++++ b/arch/arm/mach-omap2/omap2plus-cpufreq.c
+@@ -182,10 +182,18 @@ static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
+ 
+ 	if (freq_table) {
+ 		result = cpufreq_frequency_table_cpuinfo(policy, freq_table);
+-		if (!result)
++		if (!result) {
+ 			cpufreq_frequency_table_get_attr(freq_table,
+ 							policy->cpu);
+-	} else {
++		} else {
++			WARN(true, "%s: fallback to clk_round(freq_table=%d)\n",
++					__func__, result);
++			kfree(freq_table);
++			freq_table = NULL;
++		}
++	}
++
++	if (!freq_table) {
+ 		policy->cpuinfo.min_freq = clk_round_rate(mpu_clk, 0) / 1000;
+ 		policy->cpuinfo.max_freq = clk_round_rate(mpu_clk,
+ 							VERY_HI_RATE) / 1000;
+-- 
+1.7.4.1
+
