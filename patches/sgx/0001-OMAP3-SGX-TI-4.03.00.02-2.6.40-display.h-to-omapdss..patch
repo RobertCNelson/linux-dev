@@ -1,0 +1,43 @@
+From 1e3fcd591579fc961856179533a6b7f0a3f99174 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 26 May 2011 11:48:44 -0500
+Subject: [PATCH] OMAP3 SGX TI 4.03.00.02 2.6.40 display.h to omapdss.h
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../3rdparty/dc_omap3430_linux/omaplfb_linux.c     |   12 +-----------
+ 1 files changed, 1 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_linux.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_linux.c
+index 16427a9..903a790 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_linux.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_linux.c
+@@ -46,16 +46,6 @@
+ #if defined (SUPPORT_TI_DSS_FW)
+ #include <asm/io.h>
+ 
+-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,26))
+-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,6,31))
+-#include <plat/display.h>
+-#else 
+-#include <mach/display.h>
+-#endif 
+-#else 
+-#include <asm/arch-omap/display.h>
+-#endif 
+-
+ #else
+ #if !defined (CONFIG_OMAP2_DSS)
+ #define DISPC_IRQ_VSYNC 0x0002
+@@ -63,7 +53,7 @@ extern int omap_dispc_request_irq(unsigned long, void (*)(void *), void *);
+ extern void omap_dispc_free_irq(unsigned long, void (*)(void *), void *);
+ extern void omap_dispc_set_plane_base(int plane, IMG_UINT32 phys_addr);
+ #else
+-#include <plat/display.h>
++#include <video/omapdss.h>
+ #include <linux/console.h>
+ #include <linux/fb.h>
+ static omap_dispc_isr_t *pOMAPLFBVSyncISRHandle = NULL;
+-- 
+1.7.4.1
+
