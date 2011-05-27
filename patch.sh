@@ -77,10 +77,11 @@ echo "for_next from tmlind's tree.."
 #patch -s -p1 < "${DIR}/patches/for_next_40/0007-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
 #patch -s -p1 < "${DIR}/patches/for_next_40/0008-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
 #patch -s -p1 < "${DIR}/patches/for_next_40/0009-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
-patch -s -p1 < "${DIR}/patches/for_next_40/0013-omap-gpmc-smsc911x-always-set-irq-flags-to-IORESOURC.patch"
-patch -s -p1 < "${DIR}/patches/for_next_40/0014-omap-convert-boards-that-use-SMSC911x-to-use-gpmc-sm.patch"
-patch -s -p1 < "${DIR}/patches/for_next_40/0015-OMAP3-4-l3-fix-omap3_l3_probe-error-path.patch"
-patch -s -p1 < "${DIR}/patches/for_next_40/0016-OMAP3-4-l3-minor-cleanup-for-parenthesis-and-extra-s.patch"
+#2.6.39-git13
+#patch -s -p1 < "${DIR}/patches/for_next_40/0013-omap-gpmc-smsc911x-always-set-irq-flags-to-IORESOURC.patch"
+#patch -s -p1 < "${DIR}/patches/for_next_40/0014-omap-convert-boards-that-use-SMSC911x-to-use-gpmc-sm.patch"
+#patch -s -p1 < "${DIR}/patches/for_next_40/0015-OMAP3-4-l3-fix-omap3_l3_probe-error-path.patch"
+#patch -s -p1 < "${DIR}/patches/for_next_40/0016-OMAP3-4-l3-minor-cleanup-for-parenthesis-and-extra-s.patch"
 }
 
 
@@ -126,7 +127,6 @@ echo "sakoman's patches"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0004-OMAP-DSS-DSI-Fix-DSI-PLL-power-bug.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0005-OMAP-DSS2-fix-panel-Kconfig-dependencies.patch"
 
-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0008-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch"
@@ -147,28 +147,38 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0020-ARM-OMAP-Add-twl4030-madc-sup
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0021-Enabling-Hwmon-driver-for-twl4030-madc.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0022-mfd-twl-core-enable-madc-clock.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0023-rtc-twl-Switch-to-using-threaded-irq.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0024-ARM-OMAP-automatically-set-musb-mode-in-platform-dat.patch"
+
+#in 2.6.39-git13
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0024-ARM-OMAP-automatically-set-musb-mode-in-platform-dat.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0026-omap-Fix-mtd-subpage-read-alignment.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0027-mtd-nand-omap2-Force-all-buffer-reads-to-u32-alignme.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0028-omap-nand-fix-subpage-ecc-issue-with-prefetch.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0029-OMAP-Overo-Add-support-for-spidev.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0030-unionfs-Add-support-for-unionfs-2.5.9.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0031-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0032-OMAP3-beagle-add-support-for-expansionboards.patch"
+
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0031-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0032-OMAP3-beagle-add-support-for-expansionboards.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0033-omap-Change-omap_device-activate-dectivate-latency-m.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0034-omap-Add-omap3_defconfig.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0035-omap-overo-Add-opp-init.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0036-OMAP3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0037-OMAP4-PM-remove-redundant-ifdef-CONFIG_PM.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0038-OMAP3-smartreflex-fix-sr_late_init-error-path-in-pro.patch"
+#in 2.6.39-git13
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0036-OMAP3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0037-OMAP4-PM-remove-redundant-ifdef-CONFIG_PM.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0038-OMAP3-smartreflex-fix-sr_late_init-error-path-in-pro.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0039-OMAP3-smartreflex-request-the-memory-region.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0040-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0041-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0042-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0043-OMAP3-cpuidle-remove-useless-SDP-specific-timings.patch"
+
+#in 2.6.39-git13
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0040-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0041-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0042-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0043-OMAP3-cpuidle-remove-useless-SDP-specific-timings.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0044-OMAP3-SR-make-notify-independent-of-class.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0045-OMAP3-SR-disable-interrupt-by-default.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0046-OMAP3-SR-enable-disable-SR-only-on-need.patch"
