@@ -4,9 +4,9 @@ unset BUILD
 
 KERNEL_REL=2.6.39
 #STABLE_PATCH=1
-PRE_RC=2.6.39-git18
-#RC_KERNEL=2.6.39
-#RC_PATCH=-rc7
+#PRE_RC=2.6.39-git18
+RC_KERNEL=3.0
+RC_PATCH=-rc1
 ABI=0
 
 if [ "${NO_DEVTMPS}" ] ; then
