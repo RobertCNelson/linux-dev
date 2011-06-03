@@ -173,7 +173,13 @@ fi
 
 cd \${DIR}/git/dsp-tools
 make clean
+git checkout master -f
 git pull
+git branch -D firmware-tmp || true
+git checkout origin/firmware -b firmware-tmp
+sudo cp -v firmware/test.dll64P /lib/dsp/
+git checkout master -f
+git branch -D firmware-tmp || true
 make CROSS_COMPILE= 
 sudo make install
 cd \${DIR}/
