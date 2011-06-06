@@ -1,0 +1,33 @@
+From a774a545cae1934755b9de0723e481192d3c9dc9 Mon Sep 17 00:00:00 2001
+From: Alexander Holler <holler@ahsoftware.de>
+Date: Tue, 5 Apr 2011 15:40:08 +0200
+Subject: [PATCH 17/21] arm: omap3: beagle: Ensure msecure is mux'd to be able to set the RTC
+
+Without msecure beeing high it isn't possible to set (or start)
+the RTC.
+
+Tested with a BeagleBoard C4.
+
+Signed-off-by: Alexander Holler <holler@ahsoftware.de>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index be71426..d64ed97 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -579,6 +579,9 @@ static void __init omap3_beagle_init(void)
+ 	omap_nand_flash_init(NAND_BUSWIDTH_16, omap3beagle_nand_partitions,
+ 			     ARRAY_SIZE(omap3beagle_nand_partitions));
+ 
++	/* Ensure msecure is mux'd to be able to set the RTC. */
++	omap_mux_init_signal("sys_drm_msecure", OMAP_PIN_OFF_OUTPUT_HIGH);
++
+ 	/* Ensure SDRC pins are mux'd for self-refresh */
+ 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);
+ 	omap_mux_init_signal("sdrc_cke1", OMAP_PIN_OUTPUT);
+-- 
+1.7.4.1
+

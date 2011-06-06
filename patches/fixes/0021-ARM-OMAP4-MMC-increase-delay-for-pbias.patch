@@ -1,0 +1,54 @@
+From 85826912969da060476b03630bebb341b55f156b Mon Sep 17 00:00:00 2001
+From: Balaji T K <balajitk@ti.com>
+Date: Wed, 1 Jun 2011 16:45:22 +0530
+Subject: [PATCH 21/21] ARM: OMAP4: MMC: increase delay for pbias
+
+4 micro seconds is not enough for PBIAS if MMC regulator is
+enabled from MMC regulator OFF.
+Increase the delay for PBIAS to stabilize.
+Wait for PBIAS and timeout if not.
+
+Resolves MMC/SD failure on OMAP4
+"Pbias Voltage is not same as LDO"
+
+Signed-off-by: Balaji T K <balajitk@ti.com>
+Acked-by:  Kishore Kadiyala <kishore.kadiyala@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/hsmmc.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/hsmmc.c b/arch/arm/mach-omap2/hsmmc.c
+index 857f7da..66868c5 100644
+--- a/arch/arm/mach-omap2/hsmmc.c
++++ b/arch/arm/mach-omap2/hsmmc.c
+@@ -145,6 +145,7 @@ static void omap4_hsmmc1_after_set_reg(struct device *dev, int slot,
+ 				 int power_on, int vdd)
+ {
+ 	u32 reg;
++	unsigned long timeout;
+ 
+ 	if (power_on) {
+ 		reg = omap4_ctrl_pad_readl(control_pbias_offset);
+@@ -157,9 +158,15 @@ static void omap4_hsmmc1_after_set_reg(struct device *dev, int slot,
+ 			OMAP4_MMC1_PWRDNZ_MASK |
+ 			OMAP4_USBC1_ICUSB_PWRDNZ_MASK);
+ 		omap4_ctrl_pad_writel(reg, control_pbias_offset);
+-		/* 4 microsec delay for comparator to generate an error*/
+-		udelay(4);
+-		reg = omap4_ctrl_pad_readl(control_pbias_offset);
++
++		timeout = jiffies + msecs_to_jiffies(5);
++		do {
++			reg = omap4_ctrl_pad_readl(control_pbias_offset);
++			if (!(reg & OMAP4_MMC1_PBIASLITE_VMODE_ERROR_MASK))
++				break;
++			usleep_range(100, 200);
++		} while (!time_after(jiffies, timeout));
++
+ 		if (reg & OMAP4_MMC1_PBIASLITE_VMODE_ERROR_MASK) {
+ 			pr_err("Pbias Voltage is not same as LDO\n");
+ 			/* Caution : On VMODE_ERROR Power Down MMC IO */
+-- 
+1.7.4.1
+

@@ -1,0 +1,35 @@
+From 3f6e2968ebce9726c9ecce94b20d052e7f1e446c Mon Sep 17 00:00:00 2001
+From: Igor Grinberg <grinberg@compulab.co.il>
+Date: Mon, 30 May 2011 00:11:45 -0700
+Subject: [PATCH 04/21] arm: omap3: cm-t3517: fix section mismatch warning
+
+WARNING: arch/arm/mach-omap2/built-in.o(.text+0x11014): Section mismatch
+in reference from the function cm_t3517_init_usbh() to the (unknown
+reference) .init.data:(unknown)
+The function cm_t3517_init_usbh() references
+the (unknown reference) __initdata (unknown).
+This is often because cm_t3517_init_usbh lacks a __initdata
+annotation or the annotation of (unknown) is wrong.
+
+Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/board-cm-t3517.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-cm-t3517.c b/arch/arm/mach-omap2/board-cm-t3517.c
+index 08f08e8..30e9c6b 100644
+--- a/arch/arm/mach-omap2/board-cm-t3517.c
++++ b/arch/arm/mach-omap2/board-cm-t3517.c
+@@ -177,7 +177,7 @@ static struct usbhs_omap_board_data cm_t3517_ehci_pdata __initdata = {
+ 	.reset_gpio_port[2]  = -EINVAL,
+ };
+ 
+-static int cm_t3517_init_usbh(void)
++static int __init cm_t3517_init_usbh(void)
+ {
+ 	int err;
+ 
+-- 
+1.7.4.1
+

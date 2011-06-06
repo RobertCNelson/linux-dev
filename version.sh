@@ -6,7 +6,7 @@ KERNEL_REL=2.6.39
 #STABLE_PATCH=1
 #PRE_RC=2.6.39-git18
 RC_KERNEL=3.0
-RC_PATCH=-rc1
+RC_PATCH=-rc2
 ABI=0
 
 if [ "${NO_DEVTMPS}" ] ; then
