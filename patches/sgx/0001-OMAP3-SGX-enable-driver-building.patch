@@ -3,6 +3,7 @@ From: Robert Nelson <robertcnelson@gmail.com>
 Date: Tue, 17 Aug 2010 09:43:20 -0500
 Subject: [PATCH] OMAP3 SGX enable driver building
 
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  drivers/staging/Kconfig                            |    2 +
  drivers/staging/Makefile                           |    1 +
@@ -14,29 +15,28 @@ Subject: [PATCH] OMAP3 SGX enable driver building
  create mode 100644 drivers/staging/omap3-sgx/Kconfig
 
 diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
-index 984a754..f873c94 100644
+index 196284d..d293f06 100644
 --- a/drivers/staging/Kconfig
 +++ b/drivers/staging/Kconfig
-@@ -147,5 +147,7 @@ source "drivers/staging/mrst-touchscreen/Kconfig"
+@@ -160,4 +160,6 @@ source "drivers/staging/mei/Kconfig"
  
- source "drivers/staging/msm/Kconfig"
+ source "drivers/staging/nvec/Kconfig"
  
 +source "drivers/staging/omap3-sgx/Kconfig"
 +
- endif # !STAGING_EXCLUDE_BUILD
  endif # STAGING
 diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
-index 9fa2513..5a154f1 100644
+index fa41b9c..87b91b3 100644
 --- a/drivers/staging/Makefile
 +++ b/drivers/staging/Makefile
-@@ -48,6 +48,7 @@ obj-$(CONFIG_FB_SM7XX)		+= sm7xx/
- obj-$(CONFIG_DT3155)		+= dt3155/
+@@ -50,6 +50,7 @@ obj-$(CONFIG_WLAGS49_H25)	+= wlags49_h25/
+ obj-$(CONFIG_FB_SM7XX)		+= sm7xx/
  obj-$(CONFIG_VIDEO_DT3155)	+= dt3155v4l/
  obj-$(CONFIG_CRYSTALHD)		+= crystalhd/
 +obj-$(CONFIG_OMAP3_SGX) 	+= omap3-sgx/
  obj-$(CONFIG_CXT1E1)		+= cxt1e1/
- obj-$(CONFIG_TI_ST)		+= ti-st/
- obj-$(CONFIG_ADIS16255)		+= adis16255/
+ obj-$(CONFIG_FB_XGI)		+= xgifb/
+ obj-$(CONFIG_MSM_STAGING)	+= msm/
 diff --git a/drivers/staging/omap3-sgx/Kbuild b/drivers/staging/omap3-sgx/Kbuild
 index 875de78..2e482f0 100644
 --- a/drivers/staging/omap3-sgx/Kbuild
@@ -231,7 +231,7 @@ index 52a6c65..52e5ba7 100644
  obj-m :=  bufferclass_ti.o
  bufferclass_ti-y := bc_cat.o
 diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/Kbuild b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/Kbuild
-index eca3626..315ac8d 100644
+index eca3626..315ac8d7 100644
 --- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/Kbuild
 +++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/Kbuild
 @@ -4,13 +4,12 @@ SUPPORT_TI_DSS_FW = 0
@@ -255,5 +255,5 @@ index eca3626..315ac8d 100644
  obj-m := omaplfb.o
  omaplfb-y := omaplfb_displayclass.o omaplfb_linux.o
 -- 
-1.7.0.4
+1.7.4.1
 
