@@ -48,6 +48,8 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 #fixed in 2.6.39-git4
 #patch -s -p1 < "${DIR}/patches/trivial/0001-sctp-Fix-build-failure.patch"
 
+#should fix gcc-4.6 ehci problems..
+patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
 }
 
 function dss2_next {
@@ -328,77 +330,6 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.39-rc-SPIN_L
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.40-display.h-to-omapdss..patch"
 }
 
-function dvfs {
-echo "dvfs"
-
-#from:http://gitorious.org/linux-omap-nm-sr/linux-omap-sr/commits/sr-dvfs-1.5
-patch -s -p1 < "${DIR}/patches/dvfs/0002-OMAP3-CPUIdle-prevent-CORE-from-going-off-if-doing-s.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0003-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0004-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0005-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0006-OMAP-PM-CPUFREQ-Fix-conditional-compilation.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0007-cpufreq-fixup-after-new-OPP-layer-merged.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0008-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0009-cpufreq-fixup-after-new-OPP-layer-merged.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0017-OMAP-Introduce-accessory-APIs-for-DVFS.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0018-OMAP-Introduce-device-specific-set-rate-and-get-rate.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0019-OMAP-Implement-Basic-DVFS.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0020-OMAP-Introduce-dependent-voltage-domain-support.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0021-OMAP-Introduce-device-scale-implementation.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0022-OMAP-Disable-Smartreflex-across-DVFS.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0023-OMAP3-Introduce-custom-set-rate-and-get-rate-APIs-fo.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0024-OMAP3-cpufreq-driver-changes-for-DVFS-support.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0025-OMAP3-Introduce-voltage-domain-info-in-the-hwmod-str.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0026-OMAP3-Add-voltage-dependency-table-for-VDD1.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0027-OMAP2PLUS-Replace-voltage-values-with-Macros.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0028-OMAP2PLUS-Enable-various-options-in-defconfig.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0029-OMAP-Add-DVFS-Documentation.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0031-omap3430-voltage-fix-depedency-table.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0032-omap2-dvfs-fix-up-SR-enable-disable.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0033-omap3-hwmod-add-smartreflex-irqs.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0034-omap3630-hwmod-sr-enable-for-higher-ES-as-well.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0035-omap3-voltage-remove-initial-voltage.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0036-omap3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0037-omap3-voltage-use-volt_data-pointer-instead-values.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0038-omap3-voltage-use-IS_ERR_OR_NULL.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0039-omap3-sr-make-notify-independent-of-class.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0040-omap3-sr-introduce-class-init-deinit-and-priv-data.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0041-omap3-sr-fix-cosmetic-indentation.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0042-omap3-sr-call-handler-with-interrupt-disabled.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0043-omap3-sr-disable-interrupt-by-default.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0044-omap3-sr-free-name-pointer-if-fail.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0045-omap3-sr-enable-disable-SR-only-on-need.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0046-omap3-sr-introduce-notifiers-flags.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0047-omap3-sr-introduce-notifier_control.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0048-omap3-sr-disable-spamming-interrupts.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0049-omap3-sr_device-warn-in-log-that-sr-ntargets-are-not.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0050-omap3-sr-make-enable-patch-use-volt_data-pointer.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0051-omap3-voltage-add-transdone-apis.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0052-omap3-dvfs-introduce-api-to-protect-sr-ops.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0053-omap3630-sr-add-support-for-class-1.5.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0054-omap3430-sr-class3-restrict-cpu-to-run-on.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0055-omap3-smartreflex-enable-disable-iff-voltage-data-pr.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0056-sr1.5-dont-trust-sr-layer.patch"
-
-#patch -s -p1 < "${DIR}/patches/dvfs/0001-OMAP3-beagle-xm-enable-upto-1GHz-OPP.patch"
-patch -s -p1 < "${DIR}/patches/dvfs/0001-omap3-Add-basic-support-for-720MHz-part.patch"
-
-}
-
-function pm-wip-cpufreq {
-echo "pm-wip-cpufreq"
-
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0001-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0002-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0003-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0004-OMAP-PM-CPUFREQ-Fix-conditional-compilation.patch"
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0005-cpufreq-fixup-after-new-OPP-layer-merged.patch"
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0006-OMAP-cpufreq-Split-OMAP1-and-OMAP2PLUS-CPUfreq-drive.patch"
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0007-OMAP2PLUS-cpufreq-Add-SMP-support-to-cater-OMAP4430.patch"
-patch -s -p1 < "${DIR}/patches/pm-wip-cpufreq/0008-OMAP2PLUS-cpufreq-Fix-typo-when-attempting-to-set-mp.patch"
-
-}
-
 bugs_trivial
 
 #for_next tree's
@@ -424,8 +355,6 @@ touchbook
 
 #omap4/dvfs still needs more testing..
 omap4
-#dvfs
-#pm-wip-cpufreq
 
 #no chance of being pushed ever tree's
 sgx
