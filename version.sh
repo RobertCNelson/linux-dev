@@ -7,7 +7,7 @@ KERNEL_REL=2.6.39
 #PRE_RC=2.6.39-git18
 RC_KERNEL=3.0
 RC_PATCH=-rc6
-ABI=1
+ABI=1.1
 
 if [ "${NO_DEVTMPS}" ] ; then
 BUILD=dold${ABI}
