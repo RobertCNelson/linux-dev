@@ -51,8 +51,9 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 #should fix gcc-4.6 ehci problems..
 patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
 
+#fixed in 3.0.0-rc7
 #ehci crashes on startup/init
-patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-mfd-Add-omap-usbhs-runtime-PM-support.patch"
+#patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-mfd-Add-omap-usbhs-runtime-PM-support.patch"
 }
 
 function dss2_next {
