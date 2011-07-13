@@ -1,0 +1,50 @@
+From 8e8349ab2518081a3e96ce02183959bf5fa306b9 Mon Sep 17 00:00:00 2001
+From: Axel Lin <axel.lin@gmail.com>
+Date: Sat, 14 May 2011 14:15:36 +0800
+Subject: [PATCH 75/87] mfd: Fix omap_usbhs_alloc_children error handling
+
+1. Return proper error if omap_usbhs_alloc_child fails
+2. In the case of goto err_ehci, we should call platform_device_unregister(ehci)
+   instead of platform_device_put(ehci) because we have already added the
+   platform device to device hierarchy.
+
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Tested-by: Keshava Munegowda <keshava_mgowda@ti.com>
+Acked-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Samuel Ortiz <sameo@linux.intel.com>
+---
+ drivers/mfd/omap-usb-host.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/mfd/omap-usb-host.c b/drivers/mfd/omap-usb-host.c
+index 55c5d47..1717144 100644
+--- a/drivers/mfd/omap-usb-host.c
++++ b/drivers/mfd/omap-usb-host.c
+@@ -281,6 +281,7 @@ static int omap_usbhs_alloc_children(struct platform_device *pdev)
+ 
+ 	if (!ehci) {
+ 		dev_err(dev, "omap_usbhs_alloc_child failed\n");
++		ret = -ENOMEM;
+ 		goto err_end;
+ 	}
+ 
+@@ -304,13 +305,14 @@ static int omap_usbhs_alloc_children(struct platform_device *pdev)
+ 		sizeof(*ohci_data), dev);
+ 	if (!ohci) {
+ 		dev_err(dev, "omap_usbhs_alloc_child failed\n");
++		ret = -ENOMEM;
+ 		goto err_ehci;
+ 	}
+ 
+ 	return 0;
+ 
+ err_ehci:
+-	platform_device_put(ehci);
++	platform_device_unregister(ehci);
+ 
+ err_end:
+ 	return ret;
+-- 
+1.7.4.1
+

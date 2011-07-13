@@ -71,45 +71,13 @@ echo "dspbridge from for-next"
 
 function omap_fixes {
 echo "omap fixes"
-#3.0-rc3
-#patch -s -p1 < "${DIR}/patches/fixes/0001-OMAP-fix-compilation-error.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0002-ARM-OMAP2-Add-missing-include-of-linux-gpio.h.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0003-OMAP2-Fix-9-section-mismatch-es-warnings-from-mach-o.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0004-arm-omap3-cm-t3517-fix-section-mismatch-warning.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0005-OMAP-SRAM-Fix-warning-format-08lx-expects-type-long-.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0006-OMAP2-mux-fix-compilation-warnings.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0007-arch-arm-mach-omap1-dma.c-Invert-calls-to-platform_d.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0008-OMAP-iovmm-fix-SW-flags-passed-by-user.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0009-OMAP4-fix-return-value-of-omap4_l3_init.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0010-ARM-omap2-mux-Allow-board-mux-settings-to-be-NULL.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0011-ARM-omap4-Pass-core-and-wakeup-mux-tables-to-omap4_m.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0012-ARM-OMAP2-Add-missing-iounmap-in-omap4430_phy_init.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0013-arm-omap2plus-fix-ads7846-pendown-gpio-request.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0014-ARM-OMAP4-MMC-no-regulator-off-during-probe-for-eMMC.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0015-omap-rx51-Set-regulator-V28_A-always-on.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0016-omap-rx51-Don-t-power-up-speaker-amplifier-at-bootup.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0017-arm-omap3-beagle-Ensure-msecure-is-mux-d-to-be-able-.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0018-omap3-Free-Beagle-rev-gpios-when-they-are-read-so-ot.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0019-omap4-hwmod-Enable-the-keypad.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0020-arm-omap2plus-move-NAND_BLOCK_SIZE-out-of-boards.patch"
-#patch -s -p1 < "${DIR}/patches/fixes/0021-ARM-OMAP4-MMC-increase-delay-for-pbias.patch"
 
 }
 
-function for_next_40 {
+function for_next {
 echo "for_next from tmlind's tree.."
-#patch -s -p1 < "${DIR}/patches/for_next_40/0003-OMAP3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0004-OMAP4-PM-remove-redundant-ifdef-CONFIG_PM.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0005-OMAP3-smartreflex-fix-sr_late_init-error-path-in-pro.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0006-OMAP3-smartreflex-request-the-memory-region.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0007-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0008-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0009-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
-#2.6.39-git13
-#patch -s -p1 < "${DIR}/patches/for_next_40/0013-omap-gpmc-smsc911x-always-set-irq-flags-to-IORESOURC.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0014-omap-convert-boards-that-use-SMSC911x-to-use-gpmc-sm.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0015-OMAP3-4-l3-fix-omap3_l3_probe-error-path.patch"
-#patch -s -p1 < "${DIR}/patches/for_next_40/0016-OMAP3-4-l3-minor-cleanup-for-parenthesis-and-extra-s.patch"
+
+patch -s -p1 < "${DIR}/patches/beagle/0001-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
 }
 
 
@@ -182,59 +150,87 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0023-rtc-twl-Switch-to-using-threa
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0024-ARM-OMAP-automatically-set-musb-mode-in-platform-dat.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0026-omap-Fix-mtd-subpage-read-alignment.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0027-mtd-nand-omap2-Force-all-buffer-reads-to-u32-alignme.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0026-OMAP-Overo-Add-support-for-spidev.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0027-unionfs-Add-support-for-unionfs-2.5.9.patch"
 
 #in 2.6.39-git15
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0028-omap-nand-fix-subpage-ecc-issue-with-prefetch.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0028-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0029-OMAP-Overo-Add-support-for-spidev.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0030-unionfs-Add-support-for-unionfs-2.5.9.patch"
+#TESTING
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0030-omap-beagle-Add-support-for-1GHz.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0031-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0032-OMAP3-beagle-add-support-for-expansionboards.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0031-omap-Change-omap_device-activate-dectivate-latency-m.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0032-omap-overo-Add-opp-init.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0033-ARM-OMAP-Overo-remove-duplicate-call-to-overo_ads784.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0033-omap-Change-omap_device-activate-dectivate-latency-m.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0034-omap-Add-omap3_defconfig.patch"
+#in 2.6.39-git15
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0034-omap-nand-fix-subpage-ecc-issue-with-prefetch.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0035-omap-overo-Add-opp-init.patch"
-
-#in 2.6.39-git13
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0036-OMAP3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0037-OMAP4-PM-remove-redundant-ifdef-CONFIG_PM.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0038-OMAP3-smartreflex-fix-sr_late_init-error-path-in-pro.patch"
-
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0039-OMAP3-smartreflex-request-the-memory-region.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0035-mtd-nand-Eliminate-noisey-uncorrectable-error-messag.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0036-mtd-return-badblockbits-back.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0037-omap-Add-omap3_defconfig.patch"
 
 #in 2.6.39-git13
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0040-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0041-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0042-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0043-OMAP3-cpuidle-remove-useless-SDP-specific-timings.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0038-OMAP3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0039-OMAP4-PM-remove-redundant-ifdef-CONFIG_PM.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0040-OMAP3-smartreflex-fix-sr_late_init-error-path-in-pro.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0041-OMAP3-smartreflex-request-the-memory-region.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0042-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0043-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0044-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0045-OMAP3-cpuidle-remove-useless-SDP-specific-timings.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0044-OMAP3-SR-make-notify-independent-of-class.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0045-OMAP3-SR-disable-interrupt-by-default.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0046-OMAP3-SR-enable-disable-SR-only-on-need.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0047-OMAP3-SR-fix-cosmetic-indentation.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0048-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0049-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0050-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0051-OMAP-PM-CPUFREQ-Fix-conditional-compilation.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0052-cpufreq-fixup-after-new-OPP-layer-merged.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0053-OMAP-cpufreq-Split-OMAP1-and-OMAP2PLUS-CPUfreq-drive.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0054-OMAP2PLUS-cpufreq-Add-SMP-support-to-cater-OMAP4430.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0055-OMAP2PLUS-cpufreq-Fix-typo-when-attempting-to-set-mp.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0056-cpufreq-helpers-for-walking-the-frequency-table.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0046-OMAP3-SR-make-notify-independent-of-class.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0047-OMAP3-SR-disable-interrupt-by-default.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0048-OMAP3-SR-enable-disable-SR-only-on-need.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0049-OMAP3-SR-fix-cosmetic-indentation.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0050-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0051-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0052-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0053-OMAP-PM-CPUFREQ-Fix-conditional-compilation.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0054-cpufreq-fixup-after-new-OPP-layer-merged.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0055-OMAP-cpufreq-Split-OMAP1-and-OMAP2PLUS-CPUfreq-drive.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0056-OMAP2PLUS-cpufreq-Add-SMP-support-to-cater-OMAP4430.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0057-OMAP2PLUS-cpufreq-Fix-typo-when-attempting-to-set-mp.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0058-cpufreq-helpers-for-walking-the-frequency-table.patch"
 
 #in 2.6.39-git[1-9]
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0057-cpufreq-introduce-hotplug-governor.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0059-cpufreq-introduce-hotplug-governor.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0058-OMAP2-cpufreq-free-up-table-on-exit.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0059-OMAP2-cpufreq-handle-invalid-cpufreq-table.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0060-OMAP2-cpufreq-minor-comment-cleanup.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0061-OMAP2-cpufreq-use-clk_init_cpufreq_table-if-OPPs-not.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0062-OMAP2-cpufreq-use-cpufreq_frequency_table_target.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0063-OMAP2-cpufreq-fix-freq_table-leak.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0060-OMAP2-cpufreq-free-up-table-on-exit.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0061-OMAP2-cpufreq-handle-invalid-cpufreq-table.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0062-OMAP2-cpufreq-minor-comment-cleanup.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0063-OMAP2-cpufreq-use-clk_init_cpufreq_table-if-OPPs-not.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0064-OMAP2-cpufreq-use-cpufreq_frequency_table_target.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0065-OMAP2-cpufreq-fix-freq_table-leak.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0066-OMAP2-clockdomain-Add-an-api-to-read-idle-mode.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0067-OMAP2-clockdomain-Add-SoC-support-for-clkdm_is_idle.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0068-OMAP2-PM-Initialise-sleep_switch-to-a-non-valid-valu.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0069-OMAP2-PM-idle-clkdms-only-if-already-in-idle.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0070-OMAP2-hwmod-Follow-the-recomended-PRCM-sequence.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0071-OMAP-Serial-Check-wk_st-only-if-present.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0072-omap3-Add-basic-support-for-720MHz-part.patch"
+
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0073-Revert-Enable-the-use-of-SDIO-card-interrupts.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0074-mfd-Fix-omap-usbhs-crash-when-rmmoding-ehci-or-ohci.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0075-mfd-Fix-omap_usbhs_alloc_children-error-handling.patch"
+
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0076-mfd-Add-omap-usbhs-runtime-PM-support.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0077-arm-omap-usb-ehci-and-ohci-hwmod-structures-for-omap.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0078-arm-omap-usb-register-hwmods-of-usbhs.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0079-arm-omap-usb-device-name-change-for-the-clk-names-of.patch"
+
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0080-mfd-global-Suspend-and-resume-support-of-ehci-and-oh.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0081-MFD-TWL4030-Correct-the-warning-print-during-script-.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0082-MFD-TWL4030-Modifying-the-macro-name-Main_Ref-to-all.patch"
+
+patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0083-MFD-TWL4030-power-scripts-for-OMAP3-boards.patch"
+
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0084-MFD-TWL4030-TWL-version-checking.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0085-MFD-TWL4030-workaround-changes-for-Erratum-27.patch"
+patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0086-MFD-TWL4030-optimizing-resource-configuration.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0087-omap-pm-related-changes-to-omap3_defconfig.patch"
 
 }
 
@@ -342,7 +338,7 @@ bugs_trivial
 dss2_next
 omap_fixes
 #dspbridge_next
-for_next_40
+for_next
 
 #work in progress
 #wip_to_be_pushed_git

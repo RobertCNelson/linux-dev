@@ -1,0 +1,67 @@
+From 603b1e8e3caa7baafea2b71f3a30f7e787ab735d Mon Sep 17 00:00:00 2001
+From: Keshava Munegowda <Keshava_mgowda@ti.com>
+Date: Mon, 16 May 2011 14:24:58 +0530
+Subject: [PATCH 74/87] mfd: Fix omap usbhs crash when rmmoding ehci or ohci
+
+The disabling of clocks and freeing GPIO are changed
+to fix the occurrence of the crash of rmmod of ehci and ohci
+drivers. The GPIOs should be freed after the spin locks are
+unlocked.
+
+Signed-off-by: Keshava Munegowda <keshava_mgowda@ti.com>
+Acked-by: Felipe Balbi <balbi@ti.com>
+Cc: stable@kernel.org
+Signed-off-by: Samuel Ortiz <sameo@linux.intel.com>
+---
+ drivers/mfd/omap-usb-host.c |   27 +++++++++++++++++++--------
+ 1 files changed, 19 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/mfd/omap-usb-host.c b/drivers/mfd/omap-usb-host.c
+index 3ab9ffa..55c5d47 100644
+--- a/drivers/mfd/omap-usb-host.c
++++ b/drivers/mfd/omap-usb-host.c
+@@ -994,22 +994,33 @@ static void usbhs_disable(struct device *dev)
+ 			dev_dbg(dev, "operation timed out\n");
+ 	}
+ 
+-	if (pdata->ehci_data->phy_reset) {
+-		if (gpio_is_valid(pdata->ehci_data->reset_gpio_port[0]))
+-			gpio_free(pdata->ehci_data->reset_gpio_port[0]);
+-
+-		if (gpio_is_valid(pdata->ehci_data->reset_gpio_port[1]))
+-			gpio_free(pdata->ehci_data->reset_gpio_port[1]);
++	if (is_omap_usbhs_rev2(omap)) {
++		if (is_ehci_tll_mode(pdata->port_mode[0]))
++			clk_enable(omap->usbtll_p1_fck);
++		if (is_ehci_tll_mode(pdata->port_mode[1]))
++			clk_enable(omap->usbtll_p2_fck);
++		clk_disable(omap->utmi_p2_fck);
++		clk_disable(omap->utmi_p1_fck);
+ 	}
+ 
+-	clk_disable(omap->utmi_p2_fck);
+-	clk_disable(omap->utmi_p1_fck);
+ 	clk_disable(omap->usbtll_ick);
+ 	clk_disable(omap->usbtll_fck);
+ 	clk_disable(omap->usbhost_fs_fck);
+ 	clk_disable(omap->usbhost_hs_fck);
+ 	clk_disable(omap->usbhost_ick);
+ 
++	/* The gpio_free migh sleep; so unlock the spinlock */
++	spin_unlock_irqrestore(&omap->lock, flags);
++
++	if (pdata->ehci_data->phy_reset) {
++		if (gpio_is_valid(pdata->ehci_data->reset_gpio_port[0]))
++			gpio_free(pdata->ehci_data->reset_gpio_port[0]);
++
++		if (gpio_is_valid(pdata->ehci_data->reset_gpio_port[1]))
++			gpio_free(pdata->ehci_data->reset_gpio_port[1]);
++	}
++	return;
++
+ end_disble:
+ 	spin_unlock_irqrestore(&omap->lock, flags);
+ }
+-- 
+1.7.4.1
+

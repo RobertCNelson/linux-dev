@@ -1,0 +1,107 @@
+From ef20792fd534cd0043ded3dea56bbb68d38bb371 Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Tue, 24 May 2011 13:36:07 -0700
+Subject: [PATCH 32/87] omap: overo: Add opp init
+
+Work in progress
+
+Signed-off-by: Steve Sakoman <steve@sakoman.com>
+---
+ arch/arm/mach-omap2/board-overo.c |   53 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 53 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index 05dd3eb..f62c728 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -25,6 +25,7 @@
+ #include <linux/init.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
++#include <linux/opp.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c/twl.h>
+ #include <linux/regulator/machine.h>
+@@ -43,6 +44,7 @@
+ 
+ #include <plat/board.h>
+ #include <plat/common.h>
++#include <plat/omap_device.h>
+ #include <plat/display.h>
+ #include <plat/panel-generic-dpi.h>
+ #include <mach/gpio.h>
+@@ -54,6 +56,7 @@
+ #include <plat/usb.h>
+ 
+ #include "mux.h"
++#include "pm.h"
+ #include "sdram-micron-mt46h32m32lf-6.h"
+ #include "hsmmc.h"
+ 
+@@ -755,6 +758,55 @@ static struct omap_musb_board_data musb_board_data = {
+ 	.power			= 100,
+ };
+ 
++static void __init overo_opp_init(void)
++{
++	int r = 0;
++
++	/* Initialize the omap3 opp table */
++	if (omap3_opp_init()) {
++		pr_err("%s: opp default init failed\n", __func__);
++		return;
++	}
++
++	/* Custom OPP enabled for 36/3730 */
++	if (cpu_is_omap3630()) {
++		struct omap_hwmod *mh = omap_hwmod_lookup("mpu");
++		struct omap_hwmod *dh = omap_hwmod_lookup("iva");
++		struct device *dev;
++
++		if (!mh || !dh) {
++			pr_err("%s: Aiee.. no mpu/dsp devices? %p %p\n",
++				__func__, mh, dh);
++			return;
++		}
++		/* Enable MPU 1GHz and lower opps */
++		dev = &mh->od->pdev.dev;
++		r = opp_enable(dev, 800000000);
++		r |= opp_enable(dev, 1000000000);
++
++		/* Enable IVA 800MHz and lower opps */
++		dev = &dh->od->pdev.dev;
++		r |= opp_enable(dev, 660000000);
++		r |= opp_enable(dev, 800000000);
++
++		if (r) {
++			pr_err("%s: failed to enable higher opp %d\n",
++				__func__, r);
++			/*
++			 * Cleanup - disable the higher freqs - we dont care
++			 * about the results
++			 */
++			dev = &mh->od->pdev.dev;
++			opp_disable(dev, 800000000);
++			opp_disable(dev, 1000000000);
++			dev = &dh->od->pdev.dev;
++			opp_disable(dev, 660000000);
++			opp_disable(dev, 800000000);
++		}
++	}
++	return;
++}
++
+ static void __init overo_init(void)
+ {
+ 	omap3_mux_init(board_mux, OMAP_PACKAGE_CBB);
+@@ -770,6 +822,7 @@ static void __init overo_init(void)
+ 	overo_display_init();
+ 	overo_init_led();
+ 	overo_init_keys();
++	overo_opp_init();
+ 
+ 	/* Ensure SDRC pins are mux'd for self-refresh */
+ 	omap_mux_init_signal("sdrc_cke0", OMAP_PIN_OUTPUT);
+-- 
+1.7.4.1
+

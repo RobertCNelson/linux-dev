@@ -1,0 +1,44 @@
+From b390ac5e9a1a5f2b83916441d848d906c2b9af77 Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Sun, 29 May 2011 06:50:40 -0700
+Subject: [PATCH 30/87] omap: beagle: Add support for 1GHz
+
+Signed-off-by: Steve Sakoman <steve@sakoman.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 293e981..ad807c5 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -859,12 +859,13 @@ static void __init beagle_opp_init(void)
+ 		/* Enable MPU 1GHz and lower opps */
+ 		dev = &mh->od->pdev.dev;
+ 		r = opp_enable(dev, 800000000);
+-		/* TODO: MPU 1GHz needs SR and ABB */
++		r |= opp_enable(dev, 1000000000);
+ 
+ 		/* Enable IVA 800MHz and lower opps */
+ 		dev = &dh->od->pdev.dev;
+ 		r |= opp_enable(dev, 660000000);
+-		/* TODO: DSP 800MHz needs SR and ABB */
++		r |= opp_enable(dev, 800000000);
++
+ 		if (r) {
+ 			pr_err("%s: failed to enable higher opp %d\n",
+ 				__func__, r);
+@@ -874,8 +875,10 @@ static void __init beagle_opp_init(void)
+ 			 */
+ 			dev = &mh->od->pdev.dev;
+ 			opp_disable(dev, 800000000);
++			opp_disable(dev, 1000000000);
+ 			dev = &dh->od->pdev.dev;
+ 			opp_disable(dev, 660000000);
++			opp_disable(dev, 800000000);
+ 		}
+ 	}
+ 	return;
+-- 
+1.7.4.1
+

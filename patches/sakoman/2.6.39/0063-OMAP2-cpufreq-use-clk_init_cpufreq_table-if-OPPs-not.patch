@@ -1,0 +1,48 @@
+From fc9659500480b945a7ab100f97cbba0ac366d273 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Fri, 13 May 2011 05:34:35 -0700
+Subject: [PATCH 63/87] OMAP2: cpufreq: use clk_init_cpufreq_table if OPPs not available
+
+OMAP2 does not use OPP tables at the moment for DVFS. Currently,
+we depend on opp table initialization to give us the freq_table,
+which makes sense for OMAP3+. for OMAP2, we should be using
+clk_init_cpufreq_table - so if the opp based frequency table
+initilization fails, fall back to clk_init_cpufreq_table to give
+us the table.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ arch/arm/mach-omap2/omap2plus-cpufreq.c |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap2plus-cpufreq.c b/arch/arm/mach-omap2/omap2plus-cpufreq.c
+index 45f1e9e..854f4b3 100644
+--- a/arch/arm/mach-omap2/omap2plus-cpufreq.c
++++ b/arch/arm/mach-omap2/omap2plus-cpufreq.c
+@@ -180,7 +180,13 @@ static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
+ 		pr_warning("%s: unable to get the mpu device\n", __func__);
+ 		return -EINVAL;
+ 	}
+-	opp_init_cpufreq_table(mpu_dev, &freq_table);
++
++	/*
++	 * if we dont get cpufreq table using opp, use traditional omap2 lookup
++	 * as a fallback
++	 */
++	if (opp_init_cpufreq_table(mpu_dev, &freq_table))
++		clk_init_cpufreq_table(&freq_table);
+ 
+ 	if (freq_table) {
+ 		result = cpufreq_frequency_table_cpuinfo(policy, freq_table);
+@@ -188,6 +194,7 @@ static int __cpuinit omap_cpu_init(struct cpufreq_policy *policy)
+ 			cpufreq_frequency_table_get_attr(freq_table,
+ 							policy->cpu);
+ 		} else {
++			clk_exit_cpufreq_table(&freq_table);
+ 			WARN(true, "%s: fallback to clk_round(freq_table=%d)\n",
+ 					__func__, result);
+ 			kfree(freq_table);
+-- 
+1.7.4.1
+

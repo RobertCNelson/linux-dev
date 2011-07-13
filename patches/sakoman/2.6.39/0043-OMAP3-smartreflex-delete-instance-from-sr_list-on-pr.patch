@@ -1,0 +1,29 @@
+From 415c0f40a74119106c19d0d679e4728d51ddf45f Mon Sep 17 00:00:00 2001
+From: Aaro Koskinen <aaro.koskinen@nokia.com>
+Date: Thu, 24 Mar 2011 18:35:34 +0200
+Subject: [PATCH 43/87] OMAP3+: smartreflex: delete instance from sr_list on probe error
+
+If the probe fails, the node should be deleted from sr_list.
+
+Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ arch/arm/mach-omap2/smartreflex.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/smartreflex.c b/arch/arm/mach-omap2/smartreflex.c
+index 156807e..f0a488a 100644
+--- a/arch/arm/mach-omap2/smartreflex.c
++++ b/arch/arm/mach-omap2/smartreflex.c
+@@ -954,6 +954,7 @@ static int __init omap_sr_probe(struct platform_device *pdev)
+ 	return ret;
+ 
+ err_iounmap:
++	list_del(&sr_info->node);
+ 	iounmap(sr_info->base);
+ err_release_region:
+ 	release_mem_region(mem->start, resource_size(mem));
+-- 
+1.7.4.1
+
