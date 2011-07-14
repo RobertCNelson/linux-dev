@@ -1,5 +1,10 @@
 /*
  * linux/arch/arm/mach-omap2/board-omap3touchbook.c
+ * This file supports the Touch Book v1 (board rev
+ * A1/B1/C1), as well as Touch Book v2 or Smart Book
+ * (board rev rev D5).
+ *
+ * linux/arch/arm/mach-omap2/board-omap3touchbook.c
  *
  * Copyright (C) 2009-2010 Always Innovating
  *
@@ -59,6 +64,26 @@
 #include <linux/backlight.h>
 #include "sdram-micron-mt46h32m32lf-6.h"
 
+#ifdef CONFIG_PANEL_SIL9022
+#include <mach/sil9022.h>
+#endif
+
+#ifdef CONFIG_PM
+static struct omap_opp * _omap35x_mpu_rate_table        = omap35x_mpu_rate_table;
+static struct omap_opp * _omap37x_mpu_rate_table        = omap37x_mpu_rate_table;
+static struct omap_opp * _omap35x_dsp_rate_table        = omap35x_dsp_rate_table;
+static struct omap_opp * _omap37x_dsp_rate_table        = omap37x_dsp_rate_table;
+static struct omap_opp * _omap35x_l3_rate_table         = omap35x_l3_rate_table;
+static struct omap_opp * _omap37x_l3_rate_table         = omap37x_l3_rate_table;
+#else   /* CONFIG_PM */
+static struct omap_opp * _omap35x_mpu_rate_table        = NULL;
+static struct omap_opp * _omap37x_mpu_rate_table        = NULL;
+static struct omap_opp * _omap35x_dsp_rate_table        = NULL;
+static struct omap_opp * _omap37x_dsp_rate_table        = NULL;
+static struct omap_opp * _omap35x_l3_rate_table         = NULL;
+static struct omap_opp * _omap37x_l3_rate_table         = NULL;
+#endif  /* CONFIG_PM */
+
 unsigned long touchbook_revision = 2;
 
 static int __init revision_instance(char *str)
@@ -78,14 +103,6 @@ static ssize_t show_revision(struct device *dev, struct device_attribute *devatt
 static DEVICE_ATTR(revision, S_IRUGO, show_revision, NULL);
 
 early_param("tbr", revision_instance);
-
-/*
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-*/
 
 static struct mtd_partition touchbook_nand_partitions[] = {
 	/* All the partition sizes are listed in terms of NAND block size */
@@ -336,7 +353,7 @@ static struct twl4030_platform_data touchbook_twldata = {
 	.vsim		= &touchbook_vsim,
 	.vdac		= &touchbook_vdac,
 	.vpll2		= &touchbook_vpll2,
-//	.bci		= &touchbook_bci_data,
+	.bci		= &touchbook_bci_data,
 };
 
 static struct i2c_board_info __initdata touchbook_i2c_boardinfo_1[] = {
@@ -353,14 +370,15 @@ static struct bq27x00_platform_data touchbook_bq27200_data = {
 	.model_name		= "Keyboard 12000mAh v1.0",
 	.technology		= POWER_SUPPLY_TECHNOLOGY_LIPO,
 	.energy_full_design	= 12000,
+	.voltage_discharging_full = 3900,
+	.voltage_discharging_empty = 2900,
+	.current_charging_full	= 250,
+	.current_charging_empty	= 1200,
 };
 
 static struct chacha_platform_data touchbook_chacha_t_data = {
 	.gpio		= 155,
 	.version	= 3,
-	.calibrate	= 0,
-	.debug		= 0,
-	.secondfinger	= 0,
 	.name		= "Touchscreen Chacha Tablet",
 	.minX		= 128,
 	.maxX		= 17230,
@@ -373,7 +391,7 @@ static struct i2c_board_info __initdata touchbook_i2c_boardinfo_3[] = {
 		I2C_BOARD_INFO("bq27200", 0x55),
 		.platform_data = &touchbook_bq27200_data,
 	},
-	{
+ 	{
 		I2C_BOARD_INFO("chacha", 0x40),
 		.irq = OMAP_GPIO_IRQ(155),
 		.platform_data = &touchbook_chacha_t_data,
@@ -386,7 +404,6 @@ static struct i2c_board_info __initdata touchbook_i2c_boardinfo_3[] = {
 static int __init touchbook_i2c_init(void)
 {
 	int ret;
-	int touchbook_chacha_t_gpio = 155;
 
 	/* Standard TouchBook bus */
 	omap_register_i2c_bus(1, 2600, touchbook_i2c_boardinfo_1, ARRAY_SIZE(touchbook_i2c_boardinfo_1));
@@ -394,12 +411,12 @@ static int __init touchbook_i2c_init(void)
 	/* Additional TouchBook bus */
 	omap_register_i2c_bus(3, 100, touchbook_i2c_boardinfo_3, ARRAY_SIZE(touchbook_i2c_boardinfo_3));
 
-	ret = gpio_request(touchbook_chacha_t_gpio, "chacha_t");
+	ret = gpio_request(touchbook_chacha_t_data.gpio, "chacha_t");
 	if (ret < 0) {
-		printk(KERN_ERR "Failed to request GPIO %d for chacha_t IRQ\n", touchbook_chacha_t_gpio);
+		printk(KERN_ERR "Failed to request GPIO %d for chacha_t IRQ\n", touchbook_chacha_t_data.gpio);
 		return 0;
 	}
-	gpio_direction_input(touchbook_chacha_t_gpio);
+	gpio_direction_input(touchbook_chacha_t_data.gpio);
 
 	return 0;
 }
@@ -557,21 +574,26 @@ static struct spi_board_info __initdata touchbook_spi_board_info_4[] = {
 
 static void __init touchbook_ads7846_init(void)
 {
-	int touchbook_ads7846_gpio = 162;
-	if (gpio_request(touchbook_ads7846_gpio, "ads7846_pen_down")) {
-		printk(KERN_ERR "Failed to request GPIO %d for ads7846 pen down IRQ\n", touchbook_ads7846_gpio);
+	if (gpio_request(touchbook_ads7846_config.gpio_pendown, "ads7846_pen_down")) {
+		printk(KERN_ERR "Failed to request GPIO %d for ads7846 pen down IRQ\n", touchbook_ads7846_config.gpio_pendown);
 		return;
 	}
 
-	gpio_direction_input(touchbook_ads7846_gpio);
-	omap_set_gpio_debounce(touchbook_ads7846_gpio, 1);
-	omap_set_gpio_debounce_time(touchbook_ads7846_gpio, 0xa);
+	gpio_direction_input(touchbook_ads7846_config.gpio_pendown);
+	omap_set_gpio_debounce(touchbook_ads7846_config.gpio_pendown, 1);
+	omap_set_gpio_debounce_time(touchbook_ads7846_config.gpio_pendown, 0xa);
 }
 
 static struct mma7455l_platform_data touchbook_mma7455l_config = {
 	.calibration_x = -4,
 	.calibration_y = 28,
 	.calibration_z = -28,
+	.axis_x = ABS_X,
+	.sign_x = 1,
+	.axis_y = ABS_Y,
+	.sign_y = 1,
+	.axis_z = ABS_Z,
+	.sign_z = 1,
 };
 
 static struct omap2_mcspi_device_config touchbook_mma7455l_mcspi_config = {
@@ -701,6 +723,8 @@ static void __init touchbook_init(void)
 	int r;
 	struct platform_device *pdev;
 
+	printk(KERN_ERR "Touch Book rev. A*/B*/C*\n");
+
 	pm_power_off = touchbook_poweroff;
 
 	omap3_mux_init(touchbook_board_mux, OMAP_PACKAGE_CBB);
@@ -731,14 +755,6 @@ static void __init touchbook_init(void)
 	r = device_create_file(&pdev->dev, &dev_attr_revision);	
 }
 
-/*
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-*/
-
 static void __init touchbook_map_io(void)
 {
 	omap2_set_globals_343x();
@@ -747,9 +763,23 @@ static void __init touchbook_map_io(void)
 
 static void __init touchbook_init_irq(void)
 {
-	omap2_init_common_hw(mt46h32m32lf6_sdrc_params,
-			     mt46h32m32lf6_sdrc_params, omap35x_mpu_rate_table,
-			     omap35x_dsp_rate_table, omap35x_l3_rate_table);
+	if (cpu_is_omap3630())
+	{
+		omap2_init_common_hw(mt46h32m32lf6_sdrc_params,
+					mt46h32m32lf6_sdrc_params,
+					_omap37x_mpu_rate_table,
+					_omap37x_dsp_rate_table,
+					_omap37x_l3_rate_table);
+	}
+	else
+	{
+		omap2_init_common_hw(mt46h32m32lf6_sdrc_params,
+					mt46h32m32lf6_sdrc_params,
+					_omap35x_mpu_rate_table,
+					_omap35x_dsp_rate_table,
+					_omap35x_l3_rate_table);
+	}
+
 	omap_init_irq();
 #ifdef CONFIG_OMAP_32K_TIMER
 	omap2_gp_clockevent_set_gptimer(12);
@@ -759,10 +789,10 @@ static void __init touchbook_init_irq(void)
 
 static void __init super_init(void)
 {
-	touchbook_init();
+		touchbook_init();
 }
 
-MACHINE_START(TOUCHBOOK, "OMAP3 touchbook Board")
+MACHINE_START(OMAP3_TOUCHBOOK, "OMAP3 touchbook Board")
 	/* Maintainer: Gregoire Gentil - http://www.alwaysinnovating.com */
 	.phys_io	= 0x48000000,
 	.io_pg_offst	= ((0xd8000000) >> 18) & 0xfffc,

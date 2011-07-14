@@ -13,7 +13,17 @@ unset LATEST_GIT
 
 unset LOCAL_PATCH_DIR
 
+ARCH=$(uname -m)
+CCACHE=ccache
+
 DIR=$PWD
+
+CORES=1
+if test "-$ARCH-" = "-x86_64-" || test "-$ARCH-" = "-i686-"
+then
+ CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
+ let CORES=$CORES+1
+fi
 
 mkdir -p ${DIR}/deploy/
 
@@ -151,8 +161,8 @@ fi
 
 function make_deb {
 	cd ${DIR}/KERNEL/
-	echo "make ARCH=arm KBUILD_DEBARCH=armel LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} KDEB_PKGVERSION=${BUILDREV}${DISTRO} deb-pkg"
-	fakeroot make ARCH=arm KBUILD_DEBARCH=armel LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} KDEB_PKGVERSION=${BUILDREV}${DISTRO} deb-pkg
+	echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=armel LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} deb-pkg"
+	time fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=armel LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} deb-pkg
 	mv ${DIR}/*.deb ${DIR}/deploy/
 	cd ${DIR}
 }
