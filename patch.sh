@@ -281,6 +281,8 @@ function touchbook {
 echo "touchbook patches"
 patch -s -p1 < "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp.patch"
 patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
+patch -s -p1 < "${DIR}/patches/touchbook/0001-touchbook-add-madc.patch"
+#patch -s -p1 < "${DIR}/patches/touchbook/0002-touchbook-add-twl4030-bci-battery.patch"
 }
 
 function omap4 {
