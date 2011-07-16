@@ -212,25 +212,25 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0070-OMAP2-hwmod-Follow-the-recome
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0071-OMAP-Serial-Check-wk_st-only-if-present.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0072-omap3-Add-basic-support-for-720MHz-part.patch"
 
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0073-Revert-Enable-the-use-of-SDIO-card-interrupts.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0074-mfd-Fix-omap-usbhs-crash-when-rmmoding-ehci-or-ohci.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0075-mfd-Fix-omap_usbhs_alloc_children-error-handling.patch"
+##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0073-Revert-Enable-the-use-of-SDIO-card-interrupts.patch"
+##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0074-mfd-Fix-omap-usbhs-crash-when-rmmoding-ehci-or-ohci.patch"
+##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0075-mfd-Fix-omap_usbhs_alloc_children-error-handling.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0076-mfd-Add-omap-usbhs-runtime-PM-support.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0077-arm-omap-usb-ehci-and-ohci-hwmod-structures-for-omap.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0078-arm-omap-usb-register-hwmods-of-usbhs.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0079-arm-omap-usb-device-name-change-for-the-clk-names-of.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0076-mfd-Add-omap-usbhs-runtime-PM-support.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0077-arm-omap-usb-ehci-and-ohci-hwmod-structures-for-omap.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0078-arm-omap-usb-register-hwmods-of-usbhs.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0079-arm-omap-usb-device-name-change-for-the-clk-names-of.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0080-mfd-global-Suspend-and-resume-support-of-ehci-and-oh.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0081-MFD-TWL4030-Correct-the-warning-print-during-script-.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0082-MFD-TWL4030-Modifying-the-macro-name-Main_Ref-to-all.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0080-mfd-global-Suspend-and-resume-support-of-ehci-and-oh.patch"
+##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0081-MFD-TWL4030-Correct-the-warning-print-during-script-.patch"
+##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0082-MFD-TWL4030-Modifying-the-macro-name-Main_Ref-to-all.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0083-MFD-TWL4030-power-scripts-for-OMAP3-boards.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0083-MFD-TWL4030-power-scripts-for-OMAP3-boards.patch"
 
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0084-MFD-TWL4030-TWL-version-checking.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0085-MFD-TWL4030-workaround-changes-for-Erratum-27.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0086-MFD-TWL4030-optimizing-resource-configuration.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0087-omap-pm-related-changes-to-omap3_defconfig.patch"
+##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0084-MFD-TWL4030-TWL-version-checking.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0085-MFD-TWL4030-workaround-changes-for-Erratum-27.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0086-MFD-TWL4030-optimizing-resource-configuration.patch"
+##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0087-omap-pm-related-changes-to-omap3_defconfig.patch"
 
 }
 
