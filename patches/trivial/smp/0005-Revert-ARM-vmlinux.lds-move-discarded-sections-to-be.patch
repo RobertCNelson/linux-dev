@@ -1,0 +1,85 @@
+From 9b233c139c4df9b72dddcad3bbdb683597de3304 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 26 Jul 2011 15:32:10 -0500
+Subject: [PATCH 5/5] Revert "ARM: vmlinux.lds: move discarded sections to beginning"
+
+This reverts commit 39df88872f64b8a7c438861460063eadf2ba9011.
+---
+ arch/arm/kernel/vmlinux.lds.S |   47 +++++++++++++++++++++-------------------
+ 1 files changed, 25 insertions(+), 22 deletions(-)
+
+diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
+index cb46a9b..e5287f2 100644
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -38,28 +38,6 @@ jiffies = jiffies_64 + 4;
+ 
+ SECTIONS
+ {
+-	/*
+-	 * unwind exit sections must be discarded before the rest of the
+-	 * unwind sections get included.
+-	 */
+-	/DISCARD/ : {
+-		*(.ARM.exidx.exit.text)
+-		*(.ARM.extab.exit.text)
+-		ARM_CPU_DISCARD(*(.ARM.exidx.cpuexit.text))
+-		ARM_CPU_DISCARD(*(.ARM.extab.cpuexit.text))
+-#ifndef CONFIG_HOTPLUG
+-		*(.ARM.exidx.devexit.text)
+-		*(.ARM.extab.devexit.text)
+-#endif
+-#ifndef CONFIG_MMU
+-		*(.fixup)
+-		*(__ex_table)
+-#endif
+-#ifndef CONFIG_SMP_ON_UP
+-		*(.alt.smp.init)
+-#endif
+-	}
+-
+ #ifdef CONFIG_XIP_KERNEL
+ 	. = XIP_VIRT_ADDR(CONFIG_XIP_PHYS_ADDR);
+ #else
+@@ -111,6 +89,25 @@ SECTIONS
+ 	__init_end = .;
+ #endif
+ 
++	/*
++	 * unwind exit sections must be discarded before the rest of the
++	 * unwind sections get included.
++	 */
++	/DISCARD/ : {
++		*(.ARM.exidx.exit.text)
++		*(.ARM.extab.exit.text)
++		ARM_CPU_DISCARD(*(.ARM.exidx.cpuexit.text))
++		ARM_CPU_DISCARD(*(.ARM.extab.cpuexit.text))
++#ifndef CONFIG_HOTPLUG
++		*(.ARM.exidx.devexit.text)
++		*(.ARM.extab.devexit.text)
++#endif
++#ifndef CONFIG_MMU
++		*(.fixup)
++		*(__ex_table)
++#endif
++	}
++
+ 	.text : {			/* Real text segment		*/
+ 		_text = .;		/* Text and read-only data	*/
+ 			__exception_text_start = .;
+@@ -273,6 +270,12 @@ SECTIONS
+ 
+ 	/* Default discards */
+ 	DISCARDS
++
++#ifndef CONFIG_SMP_ON_UP
++	/DISCARD/ : {
++		*(.alt.smp.init)
++	}
++#endif
+ }
+ 
+ /*
+-- 
+1.7.4.1
+

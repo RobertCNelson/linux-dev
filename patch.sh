@@ -54,6 +54,17 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instea
 #fixed in 3.0.0-rc7
 #ehci crashes on startup/init
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-mfd-Add-omap-usbhs-runtime-PM-support.patch"
+
+#smp broken in 3.0-git4
+#this may be a config problem, as omap2plus_defconfig seems to work fine..
+#`.exit.text' referenced in section `.alt.smp.init' of drivers/built-in.o: defined in discarded section `.exit.text' of drivers/built-in.o
+#`.exit.text' referenced in section `.alt.smp.init' of net/built-in.o: defined in discarded section `.exit.text' of net/built-in.o
+patch -s -p1 < "${DIR}/patches/trivial/smp/0001-Revert-ARM-vmlinux.lds-use-_text-and-_stext-the-same.patch"
+patch -s -p1 < "${DIR}/patches/trivial/smp/0002-Revert-ARM-vmlinux.lds-move-init-sections-between-te.patch"
+patch -s -p1 < "${DIR}/patches/trivial/smp/0003-Revert-ARM-vmlinux.lds-remove-.rodata-.rodata1-from-.patch"
+patch -s -p1 < "${DIR}/patches/trivial/smp/0004-Revert-ARM-vmlinux.lds-rearrange-.init-output-sectio.patch"
+patch -s -p1 < "${DIR}/patches/trivial/smp/0005-Revert-ARM-vmlinux.lds-move-discarded-sections-to-be.patch"
+
 }
 
 function dss2_next {
