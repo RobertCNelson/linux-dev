@@ -126,7 +126,6 @@ echo "sakoman's patches"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0008-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch"
-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0009-drivers-input-touchscreen-ads7846-return-ENODEV-if-d.patch"
 
 #drop with 3.0-rc5
@@ -140,9 +139,12 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0015-soc-codecs-twl4030-Turn-on-mi
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0016-RTC-add-support-for-backup-battery-recharge.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0017-ARM-OMAP2-mmc-twl4030-move-clock-input-selection-pri.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0018-Add-power-off-support-for-the-TWL4030-companion.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0019-ARM-OMAP-Add-twl4030-madc-support-to-Beagle.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0020-ARM-OMAP-Add-twl4030-madc-support-to-Overo.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0021-Enabling-Hwmon-driver-for-twl4030-madc.patch"
+
+#drop with 3.0-git5
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0019-ARM-OMAP-Add-twl4030-madc-support-to-Beagle.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0020-ARM-OMAP-Add-twl4030-madc-support-to-Overo.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0021-Enabling-Hwmon-driver-for-twl4030-madc.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0022-mfd-twl-core-enable-madc-clock.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0023-rtc-twl-Switch-to-using-threaded-irq.patch"
 
@@ -155,7 +157,10 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0027-unionfs-Add-support-for-union
 
 #in 2.6.39-git15
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0028-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
+
+#patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
+#for 3.0-git5, still needs tweaks for wifi board
+patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
 
 #TESTING
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0030-omap-beagle-Add-support-for-1GHz.patch"
@@ -181,10 +186,12 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0035-mtd-nand-Eliminate-noisey-unc
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0044-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0045-OMAP3-cpuidle-remove-useless-SDP-specific-timings.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0046-OMAP3-SR-make-notify-independent-of-class.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0047-OMAP3-SR-disable-interrupt-by-default.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0048-OMAP3-SR-enable-disable-SR-only-on-need.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0049-OMAP3-SR-fix-cosmetic-indentation.patch"
+#in 3.0-git5
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0046-OMAP3-SR-make-notify-independent-of-class.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0047-OMAP3-SR-disable-interrupt-by-default.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0048-OMAP3-SR-enable-disable-SR-only-on-need.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0049-OMAP3-SR-fix-cosmetic-indentation.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0050-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0051-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0052-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
@@ -208,7 +215,10 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0066-OMAP2-clockdomain-Add-an-api-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0067-OMAP2-clockdomain-Add-SoC-support-for-clkdm_is_idle.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0068-OMAP2-PM-Initialise-sleep_switch-to-a-non-valid-valu.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0069-OMAP2-PM-idle-clkdms-only-if-already-in-idle.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0070-OMAP2-hwmod-Follow-the-recomended-PRCM-sequence.patch"
+
+#drop with 3.0-git5
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0070-OMAP2-hwmod-Follow-the-recomended-PRCM-sequence.patch"
+
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0071-OMAP-Serial-Check-wk_st-only-if-present.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0072-omap3-Add-basic-support-for-720MHz-part.patch"
 
@@ -281,7 +291,7 @@ function touchbook {
 echo "touchbook patches"
 patch -s -p1 < "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp.patch"
 patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
-patch -s -p1 < "${DIR}/patches/touchbook/0001-touchbook-add-madc.patch"
+#patch -s -p1 < "${DIR}/patches/touchbook/0001-touchbook-add-madc.patch"
 #patch -s -p1 < "${DIR}/patches/touchbook/0002-touchbook-add-twl4030-bci-battery.patch"
 }
 
