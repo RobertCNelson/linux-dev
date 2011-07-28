@@ -88,7 +88,8 @@ echo "omap fixes"
 function for_next {
 echo "for_next from tmlind's tree.."
 
-patch -s -p1 < "${DIR}/patches/beagle/0001-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
+#in 3.0-git8
+#patch -s -p1 < "${DIR}/patches/beagle/0001-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
 }
 
 
@@ -164,7 +165,7 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0023-rtc-twl-Switch-to-using-threa
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0026-OMAP-Overo-Add-support-for-spidev.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0027-unionfs-Add-support-for-unionfs-2.5.9.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0027-unionfs-Add-support-for-unionfs-2.5.9.patch"
 
 #in 2.6.39-git15
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0028-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
@@ -178,7 +179,9 @@ patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0029-OMAP3-beagle-add-support-for-e
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0031-omap-Change-omap_device-activate-dectivate-latency-m.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0032-omap-overo-Add-opp-init.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0033-ARM-OMAP-Overo-remove-duplicate-call-to-overo_ads784.patch"
+
+#drop in 3.0-git8
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0033-ARM-OMAP-Overo-remove-duplicate-call-to-overo_ads784.patch"
 
 #in 2.6.39-git15
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0034-omap-nand-fix-subpage-ecc-issue-with-prefetch.patch"
@@ -222,16 +225,19 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0062-OMAP2-cpufreq-minor-comment-c
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0063-OMAP2-cpufreq-use-clk_init_cpufreq_table-if-OPPs-not.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0064-OMAP2-cpufreq-use-cpufreq_frequency_table_target.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0065-OMAP2-cpufreq-fix-freq_table-leak.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0066-OMAP2-clockdomain-Add-an-api-to-read-idle-mode.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0067-OMAP2-clockdomain-Add-SoC-support-for-clkdm_is_idle.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0068-OMAP2-PM-Initialise-sleep_switch-to-a-non-valid-valu.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0069-OMAP2-PM-idle-clkdms-only-if-already-in-idle.patch"
+
+#patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0066-OMAP2-clockdomain-Add-an-api-to-read-idle-mode.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0067-OMAP2-clockdomain-Add-SoC-support-for-clkdm_is_idle.patch"
+
+#in 3.0-git8
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0068-OMAP2-PM-Initialise-sleep_switch-to-a-non-valid-valu.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0069-OMAP2-PM-idle-clkdms-only-if-already-in-idle.patch"
 
 #drop with 3.0-git5
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0070-OMAP2-hwmod-Follow-the-recomended-PRCM-sequence.patch"
 
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0071-OMAP-Serial-Check-wk_st-only-if-present.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0072-omap3-Add-basic-support-for-720MHz-part.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0071-OMAP-Serial-Check-wk_st-only-if-present.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0072-omap3-Add-basic-support-for-720MHz-part.patch"
 
 ##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0073-Revert-Enable-the-use-of-SDIO-card-interrupts.patch"
 ##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0074-mfd-Fix-omap-usbhs-crash-when-rmmoding-ehci-or-ohci.patch"
