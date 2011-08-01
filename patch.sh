@@ -11,9 +11,6 @@ git commit -a -m 'testing patchset'
 function bugs_trivial {
 echo "bugs and trivial stuff"
 
-#gone in 2.6.39-git8
-#patch -s -p1 < "${DIR}/patches/trivial/0001-staging-add-airlink-awll7025-id-for-rt2860.patch"
-
 #Bisected from 2.6.35 -> 2.6.36 to find this..
 #This commit breaks some lcd monitors..
 #rcn-ee Feb 26, 2011...
@@ -22,31 +19,6 @@ echo "bugs and trivial stuff"
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
-
-#for 2.6.39-git1
-#In file included from include/linux/seqlock.h:29:0,
-#                 from include/linux/time.h:8,
-#                 from include/linux/timex.h:56,
-#                 from include/linux/sched.h:57,
-#                 from arch/arm/kernel/asm-offsets.c:13:
-#include/linux/spinlock.h: In function ‘spin_unlock_wait’:
-#include/linux/spinlock.h:360:2: error: implicit declaration of function ‘cpu_relax’
-#make[1]: *** [arch/arm/kernel/asm-offsets.s] Error 1
-#fixed in 2.6.39-git3
-#patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock_up.h-include-asm-processor.h-in-for-cpu_rel.patch"
-#fixed in 2.6.39-git8
-#patch -s -p1 < "${DIR}/patches/trivial/0001-spinlock.h-needs-cpu_relax-too.patch"
-
-
-#for 2.6.39-git3
-#net/sctp/bind_addr.c: In function ‘sctp_bind_addr_clean’:
-#net/sctp/bind_addr.c:148:30: error: ‘sctp_local_addr_free’ undeclared (first use in this function)
-#net/sctp/bind_addr.c:148:30: note: each undeclared identifier is reported only once for each function it appears in
-#make[2]: *** [net/sctp/bind_addr.o] Error 1
-#make[1]: *** [net/sctp] Error 2
-#make[1]: *** Waiting for unfinished jobs....
-#fixed in 2.6.39-git4
-#patch -s -p1 < "${DIR}/patches/trivial/0001-sctp-Fix-build-failure.patch"
 
 #should fix gcc-4.6 ehci problems..
 patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
@@ -80,9 +52,6 @@ patch -s -p1 < "${DIR}/patches/trivial/smp/0005-Revert-ARM-vmlinux.lds-move-disc
 function dss2_next {
 echo "dss2 from for-next"
 
-#fixed in 2.6.39-git11
-#patch -s -p1 < "${DIR}/patches/dss2_next/0001-OMAP4-DSS2-Register-configuration-changes-for-DSI.patch"
-
 }
 
 function dspbridge_next {
@@ -103,58 +72,14 @@ echo "for_next from tmlind's tree.."
 }
 
 
-function wip_to_be_pushed_git  {
-echo "wip patches for mainline"
-
-git_add
-git am "${DIR}/patches/wip_to_be_pushed/0001-omap3-beagle-convert-printk-KERN_INFO-to-pr_info.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0002-omap3-beagle-convert-printk-KERN_ERR-to-pr_err.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0003-omap3-beagle-detect-new-xM-revision-B.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0004-omap3-beagle-detect-new-xM-revision-C.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0005-omap3-beagle-if-rev-unknown-assume-xM-revision-C.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0006-omap3-beagle-add-i2c-bus2.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0007-omap3-beagle-add-initial-expansionboard-infrastructu.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0008-omap3-beagle-expansionboard-zippy.patch"
-git am "${DIR}/patches/wip_to_be_pushed/0009-omap3-beagle-expansionboard-zippy2.patch"
-
-}
-
-function wip_to_be_pushed  {
-echo "wip patches for mainline"
-
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0001-omap3-beagle-convert-printk-KERN_INFO-to-pr_info.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0002-omap3-beagle-convert-printk-KERN_ERR-to-pr_err.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0003-omap3-beagle-detect-new-xM-revision-B.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0004-omap3-beagle-detect-new-xM-revision-C.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0005-omap3-beagle-if-rev-unknown-assume-xM-revision-C.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0006-omap3-beagle-add-i2c-bus2.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0007-omap3-beagle-add-initial-expansionboard-infrastructu.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0008-omap3-beagle-expansionboard-zippy.patch"
-patch -s -p1 < "${DIR}/patches/wip_to_be_pushed/0009-omap3-beagle-expansionboard-zippy2.patch"
-
-}
-
 function sakoman {
 echo "sakoman's patches"
 
-
-#fixed in 2.6.39-git11
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0001-OMAP-DSS2-DSI-fix-use_sys_clk-highfreq.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0002-OMAP-DSS2-DSI-fix-dsi_dump_clocks.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0003-OMAP2PLUS-DSS2-Fix-Return-correct-lcd-clock-source-f.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0004-OMAP-DSS-DSI-Fix-DSI-PLL-power-bug.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0005-OMAP-DSS2-fix-panel-Kconfig-dependencies.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0008-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.40/0009-drivers-input-touchscreen-ads7846-return-ENODEV-if-d.patch"
-
-#drop with 3.0-rc5
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0010-Revert-omap2_mcspi-Flush-posted-writes.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0011-Revert-omap_hsmmc-improve-interrupt-synchronisation.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0012-Don-t-turn-SDIO-cards-off-to-save-power.-Doing-so-wi.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0013-Enable-the-use-of-SDIO-card-interrupts.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0014-soc-codecs-Enable-audio-capture-by-default-for-twl40.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0015-soc-codecs-twl4030-Turn-on-mic-bias-by-default.patch"
@@ -170,15 +95,8 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0018-Add-power-off-support-for-the
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0022-mfd-twl-core-enable-madc-clock.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0023-rtc-twl-Switch-to-using-threaded-irq.patch"
 
-#in 2.6.39-git13
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0024-ARM-OMAP-automatically-set-musb-mode-in-platform-dat.patch"
-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0026-OMAP-Overo-Add-support-for-spidev.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0027-unionfs-Add-support-for-unionfs-2.5.9.patch"
-
-#in 2.6.39-git15
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0028-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
 
 #patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
 #for 3.0-git5, still needs tweaks for wifi board
@@ -193,22 +111,7 @@ patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0032-omap-overo-Add-opp-init.patch"
 #drop in 3.0-git8
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0033-ARM-OMAP-Overo-remove-duplicate-call-to-overo_ads784.patch"
 
-#in 2.6.39-git15
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0034-omap-nand-fix-subpage-ecc-issue-with-prefetch.patch"
-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0035-mtd-nand-Eliminate-noisey-uncorrectable-error-messag.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0036-mtd-return-badblockbits-back.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0037-omap-Add-omap3_defconfig.patch"
-
-#in 2.6.39-git13
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0038-OMAP3-voltage-remove-spurious-pr_notice-for-debugfs.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0039-OMAP4-PM-remove-redundant-ifdef-CONFIG_PM.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0040-OMAP3-smartreflex-fix-sr_late_init-error-path-in-pro.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0041-OMAP3-smartreflex-request-the-memory-region.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0042-OMAP3-smartreflex-fix-ioremap-leak-on-probe-error.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0043-OMAP3-smartreflex-delete-instance-from-sr_list-on-pr.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0044-OMAP3-smartreflex-delete-debugfs-entries-on-probe-er.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0045-OMAP3-cpuidle-remove-useless-SDP-specific-timings.patch"
 
 #in 3.0-git5
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0046-OMAP3-SR-make-notify-independent-of-class.patch"
@@ -225,9 +128,6 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0055-OMAP-cpufreq-Split-OMAP1-and-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0056-OMAP2PLUS-cpufreq-Add-SMP-support-to-cater-OMAP4430.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0057-OMAP2PLUS-cpufreq-Fix-typo-when-attempting-to-set-mp.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0058-cpufreq-helpers-for-walking-the-frequency-table.patch"
-
-#in 2.6.39-git[1-9]
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0059-cpufreq-introduce-hotplug-governor.patch"
 
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0060-OMAP2-cpufreq-free-up-table-on-exit.patch"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0061-OMAP2-cpufreq-handle-invalid-cpufreq-table.patch"
@@ -248,26 +148,6 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0065-OMAP2-cpufreq-fix-freq_table-
 
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0071-OMAP-Serial-Check-wk_st-only-if-present.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0072-omap3-Add-basic-support-for-720MHz-part.patch"
-
-##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0073-Revert-Enable-the-use-of-SDIO-card-interrupts.patch"
-##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0074-mfd-Fix-omap-usbhs-crash-when-rmmoding-ehci-or-ohci.patch"
-##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0075-mfd-Fix-omap_usbhs_alloc_children-error-handling.patch"
-
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0076-mfd-Add-omap-usbhs-runtime-PM-support.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0077-arm-omap-usb-ehci-and-ohci-hwmod-structures-for-omap.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0078-arm-omap-usb-register-hwmods-of-usbhs.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0079-arm-omap-usb-device-name-change-for-the-clk-names-of.patch"
-
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0080-mfd-global-Suspend-and-resume-support-of-ehci-and-oh.patch"
-##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0081-MFD-TWL4030-Correct-the-warning-print-during-script-.patch"
-##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0082-MFD-TWL4030-Modifying-the-macro-name-Main_Ref-to-all.patch"
-
-#patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0083-MFD-TWL4030-power-scripts-for-OMAP3-boards.patch"
-
-##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0084-MFD-TWL4030-TWL-version-checking.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0085-MFD-TWL4030-workaround-changes-for-Erratum-27.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0086-MFD-TWL4030-optimizing-resource-configuration.patch"
-##patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0087-omap-pm-related-changes-to-omap3_defconfig.patch"
 
 }
 
@@ -297,11 +177,7 @@ patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/18_ksz8851_2.6.35.patch"
 function beagle {
 echo "beagle patches"
 patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
-#patch -s -p1 < "${DIR}/patches/beagle/0001-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
-#gone in 2.6.39-git8
-#patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-alsa-soc-Remove-restrictive-checks-for-cpu-typ.patch"
 patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
-#patch -s -p1 < "${DIR}/patches/beagle/0001-omap3-beaglexm-fix-user-button.patch"
 
 }
 
@@ -394,8 +270,7 @@ omap_fixes
 for_next
 
 #work in progress
-#wip_to_be_pushed_git
-#wip_to_be_pushed
+#
 
 #external tree's
 sakoman
