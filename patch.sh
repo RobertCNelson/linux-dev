@@ -71,8 +71,9 @@ patch -s -p1 < "${DIR}/patches/trivial/smp/0005-Revert-ARM-vmlinux.lds-move-disc
 #fs/nfs/pnfs.h:382:51: warning: ‘set_pnfs_layoutdriver’ used but never defined
 #make[2]: *** [fs/nfs/client.o] Error 1
 #make[1]: *** [fs/nfs] Error 2
+#fixed in 3.0-git15
 #fix: http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commitdiff;h=a00ed25cce6fe856388f89c7cd40da0eee7666a6
-patch -s -p1 < "${DIR}/patches/trivial/0001-NFS-Re-enable-compilation-of-nfs-with-CONFIG_NFS_V4-.patch"
+#patch -s -p1 < "${DIR}/patches/trivial/0001-NFS-Re-enable-compilation-of-nfs-with-CONFIG_NFS_V4-.patch"
 
 }
 
