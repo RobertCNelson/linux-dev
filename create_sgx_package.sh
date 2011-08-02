@@ -21,13 +21,7 @@ if [ "$PLATFORM" == "x86_64" ]; then
   fi
 fi
 
-#SGX_VERSION=3_01_00_06
-#SGX_VERSION=3_01_00_07
-#SGX_BIN_NAME="OMAP35x_Graphics_SDK_setuplinux"
-
-#SGX_VERSION=4_00_00_01
-#SGX_VERSION=4_03_00_01
-SGX_VERSION=4_03_00_02
+SGX_VERSION=4_04_00_01
 SGX_BIN_NAME="Graphics_SDK_setuplinux"
 
 SGX_BIN=${SGX_BIN_NAME}_${SGX_VERSION}.bin
@@ -50,6 +44,7 @@ if [ -e ${DIR}/${SGX_BIN} ]; then
     echo ""
     ${DIR}/${SGX_BIN} --mode console --prefix ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION} <<setupSDK
 Y
+ qY
 setupSDK
     cd ${DIR}
   fi

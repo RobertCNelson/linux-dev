@@ -1,0 +1,269 @@
+From 30db145abdea16647c11584f8a2d33871097bf41 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 10 Mar 2011 20:46:03 -0600
+Subject: [PATCH] OMAP3-4 SGX TI 4.04.00.01 2.6.38-rc3 *_console_sem to console_*lock changes
+
+#for updating patch:
+sed -i -e 's:acquire_console_sem:console_lock:g' drivers/staging/omap3-sgx/services4/3rdparty/*/*.c
+sed -i -e 's:release_console_sem:console_unlock:g' drivers/staging/omap3-sgx/services4/3rdparty/*/*.c
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../dc_omap3430_linux/omaplfb_displayclass.c       |   12 ++++++------
+ .../dc_omapfb3_linux/omaplfb_displayclass.c        |    8 ++++----
+ .../3rdparty/dc_omapfb3_linux/omaplfb_linux.c      |   16 ++++++++--------
+ .../dc_ti81xx_linux/omaplfb_displayclass.c         |    8 ++++----
+ .../3rdparty/dc_ti81xx_linux/omaplfb_linux.c       |   16 ++++++++--------
+ 5 files changed, 30 insertions(+), 30 deletions(-)
+
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_displayclass.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_displayclass.c
+index 8b0f2ff..cc464e7 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_displayclass.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omap3430_linux/omaplfb_displayclass.c
+@@ -235,9 +235,9 @@ static OMAP_ERROR UnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ {
+ 	int res;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 	res = fb_blank(psDevInfo->psLINFBInfo, 0);
+-	release_console_sem();
++	console_unlock();
+ #if !defined (CONFIG_OMAP2_DSS)
+ 	if (res != 0 && res != -EINVAL)
+ 	{
+@@ -1118,7 +1118,7 @@ static OMAP_ERROR InitDev(OMAPLFB_DEVINFO *psDevInfo)
+ 	OMAP_ERROR eError = OMAP_ERROR_GENERIC;
+ 	unsigned long FBSize;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	if (fb_idx < 0 || fb_idx >= num_registered_fb)
+ 	{
+@@ -1254,7 +1254,7 @@ static OMAP_ERROR InitDev(OMAPLFB_DEVINFO *psDevInfo)
+ errModPut:
+ 	module_put(psLINFBOwner);
+ errRelSem:
+-	release_console_sem();
++	console_unlock();
+ 	return eError;
+ }
+ 
+@@ -1263,7 +1263,7 @@ static void DeInitDev(OMAPLFB_DEVINFO *psDevInfo)
+ 	struct fb_info *psLINFBInfo = psDevInfo->psLINFBInfo;
+ 	struct module *psLINFBOwner;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	psLINFBOwner = psLINFBInfo->fbops->owner;
+ 
+@@ -1274,7 +1274,7 @@ static void DeInitDev(OMAPLFB_DEVINFO *psDevInfo)
+ 
+ 	module_put(psLINFBOwner);
+ 
+-	release_console_sem();
++	console_unlock();
+ }
+ 
+ OMAP_ERROR OMAPLFBInit(void)
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_displayclass.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_displayclass.c
+index 0e035ad..b00eb3d 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_displayclass.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_displayclass.c
+@@ -830,7 +830,7 @@ static OMAPLFB_ERROR OMAPLFBInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ 	unsigned long ulLCM;
+ 	unsigned uiFBDevID = psDevInfo->uiFBDevID;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	psLINFBInfo = registered_fb[uiFBDevID];
+ 	if (psLINFBInfo == NULL)
+@@ -972,7 +972,7 @@ static OMAPLFB_ERROR OMAPLFBInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ ErrorModPut:
+ 	module_put(psLINFBOwner);
+ ErrorRelSem:
+-	release_console_sem();
++	console_unlock();
+ 
+ 	return eError;
+ }
+@@ -982,7 +982,7 @@ static void OMAPLFBDeInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ 	struct fb_info *psLINFBInfo = psDevInfo->psLINFBInfo;
+ 	struct module *psLINFBOwner;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	psLINFBOwner = psLINFBInfo->fbops->owner;
+ 
+@@ -993,7 +993,7 @@ static void OMAPLFBDeInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ 
+ 	module_put(psLINFBOwner);
+ 
+-	release_console_sem();
++	console_unlock();
+ }
+ 
+ static OMAPLFB_DEVINFO *OMAPLFBInitDev(unsigned uiFBDevID)
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_linux.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_linux.c
+index 171e735..c5fa646 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_linux.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_omapfb3_linux/omaplfb_linux.c
+@@ -237,7 +237,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
+ 	int res;
+ 	unsigned long ulYResVirtual;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	sFBVar = psDevInfo->psLINFBInfo->var;
+ 
+@@ -269,7 +269,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
+ 		}
+ 	}
+ 
+-	release_console_sem();
++	console_unlock();
+ }
+ 
+ OMAPLFB_UPDATE_MODE OMAPLFBGetUpdateMode(OMAPLFB_DEVINFO *psDevInfo)
+@@ -442,9 +442,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ {
+ 	int res;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 	res = fb_blank(psDevInfo->psLINFBInfo, 0);
+-	release_console_sem();
++	console_unlock();
+ 	if (res != 0 && res != -EINVAL)
+ 	{
+ 		printk(KERN_WARNING DRIVER_PREFIX
+@@ -459,9 +459,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ 
+ static void OMAPLFBBlankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ {
+-	acquire_console_sem();
++	console_lock();
+ 	fb_blank(psDevInfo->psLINFBInfo, 1);
+-	release_console_sem();
++	console_unlock();
+ }
+ 
+ static void OMAPLFBEarlySuspendHandler(struct early_suspend *h)
+@@ -692,9 +692,9 @@ int PVR_DRM_MAKENAME(omaplfb, _Ioctl)(struct drm_device unref__ *dev, void *arg,
+ 				flush_workqueue(psDevInfo->psSwapChain->psWorkQueue);
+ 			}
+ 
+-			acquire_console_sem();
++			console_lock();
+ 			ret = fb_blank(psDevInfo->psLINFBInfo, iFBMode);
+-			release_console_sem();
++			console_unlock();
+ 
+ 			OMAPLFBCreateSwapChainUnLock(psDevInfo);
+ 
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_displayclass.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_displayclass.c
+index b5ba0d1..ec3325c 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_displayclass.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_displayclass.c
+@@ -828,7 +828,7 @@ static OMAPLFB_ERROR OMAPLFBInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ 	unsigned long ulLCM;
+ 	unsigned uiFBDevID = psDevInfo->uiFBDevID;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	psLINFBInfo = registered_fb[uiFBDevID];
+ 	if (psLINFBInfo == NULL)
+@@ -970,7 +970,7 @@ static OMAPLFB_ERROR OMAPLFBInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ ErrorModPut:
+ 	module_put(psLINFBOwner);
+ ErrorRelSem:
+-	release_console_sem();
++	console_unlock();
+ 
+ 	return eError;
+ }
+@@ -980,7 +980,7 @@ static void OMAPLFBDeInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ 	struct fb_info *psLINFBInfo = psDevInfo->psLINFBInfo;
+ 	struct module *psLINFBOwner;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	psLINFBOwner = psLINFBInfo->fbops->owner;
+ 
+@@ -991,7 +991,7 @@ static void OMAPLFBDeInitFBDev(OMAPLFB_DEVINFO *psDevInfo)
+ 
+ 	module_put(psLINFBOwner);
+ 
+-	release_console_sem();
++	console_unlock();
+ }
+ 
+ static OMAPLFB_DEVINFO *OMAPLFBInitDev(unsigned uiFBDevID)
+diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c
+index fd48c6a..e2c2eaf 100644
+--- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c
++++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c
+@@ -251,7 +251,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
+ 	int res;
+ 	unsigned long ulYResVirtual;
+ 
+-	acquire_console_sem();
++	console_lock();
+ 
+ 	sFBVar = psDevInfo->psLINFBInfo->var;
+ 
+@@ -283,7 +283,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
+ 		}
+ 	}
+ 
+-	release_console_sem();
++	console_unlock();
+ }
+ 
+ OMAPLFB_UPDATE_MODE OMAPLFBGetUpdateMode(OMAPLFB_DEVINFO *psDevInfo)
+@@ -492,9 +492,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ 	int res;
+ #ifdef FBDEV_PRESENT
+ 
+-	acquire_console_sem();
++	console_lock();
+ 	res = fb_blank(psDevInfo->psLINFBInfo, 0);
+-	release_console_sem();
++	console_unlock();
+ 	if (res != 0 && res != -EINVAL)
+ 	{
+ 		printk(KERN_WARNING DRIVER_PREFIX
+@@ -510,9 +510,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ 
+ static void OMAPLFBBlankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ {
+-	acquire_console_sem();
++	console_lock();
+ 	fb_blank(psDevInfo->psLINFBInfo, 1);
+-	release_console_sem();
++	console_unlock();
+ }
+ 
+ static void OMAPLFBEarlySuspendHandler(struct early_suspend *h)
+@@ -743,9 +743,9 @@ int PVR_DRM_MAKENAME(DISPLAY_CONTROLLER, _Ioctl)(struct drm_device unref__ *dev,
+ 				flush_workqueue(psDevInfo->psSwapChain->psWorkQueue);
+ 			}
+ 
+-			acquire_console_sem();
++			console_lock();
+ 			ret = fb_blank(psDevInfo->psLINFBInfo, iFBMode);
+-			release_console_sem();
++			console_unlock();
+ 
+ 			OMAPLFBCreateSwapChainUnLock(psDevInfo);
+ 
+-- 
+1.7.4.1
+

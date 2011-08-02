@@ -238,6 +238,9 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-Merge-TI-4.03.00.01-into-TI-4.
 #4.03.00.02 (main *.bin drops omap4)
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-Merge-TI-4.03.00.02-into-TI-4.03.00.01.patch"
 
+#4.03.00.01 (adds omap4 libs)
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-4-SGX-Merge-TI-4.04.00.01-into-TI-4.03.00.02.patch"
+
 #4.03.00.02
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.32-PSP.patch"
 
@@ -245,7 +248,11 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.32-PSP.patch
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.38-merge-AUTOCONF_INCLUD.patch"
 
 #4.03.00.02 + 2.6.38-rc3
-patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.38-rc3-_console_sem-to-c.patch"
+#updated for 4.04.00.01
+#use: for updating patch:
+#sed -i -e 's:acquire_console_sem:console_lock:g' drivers/staging/omap3-sgx/services4/3rdparty/*/*.c
+#sed -i -e 's:release_console_sem:console_unlock:g' drivers/staging/omap3-sgx/services4/3rdparty/*/*.c
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-4-SGX-TI-4.04.00.01-2.6.38-rc3-_console_sem-to-c.patch"
 
 #4.03.00.01
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.01-add-outer_cache.clean_all.patch"
@@ -259,6 +266,12 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.39-rc-SPIN_L
 
 #4.03.00.02 + 2.6.40 (2.6.39-git11)
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.40-display.h-to-omapdss..patch"
+
+#4.04.00.01 fix Kbuild
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-4-SGX-TI-4.04.00.01-fix-Kbuild.patch"
+
+#4.04.00.01 fix another linux/config.h reference
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-4-SGX-TI-4.04.00.01-remove-config.h-reference.patch"
 }
 
 bugs_trivial
