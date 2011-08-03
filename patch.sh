@@ -216,6 +216,7 @@ function omap4 {
 echo "omap4 related patches"
 #drop with 3.0-git16
 #patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-DSS2-add-dss_dss_clk.patch"
+patch -s -p1 < "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
 }
 
 function sgx {
