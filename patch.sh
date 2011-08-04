@@ -47,6 +47,12 @@ patch -s -p1 < "${DIR}/patches/trivial/smp/0005-Revert-ARM-vmlinux.lds-move-disc
 #fix: http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commitdiff;h=a00ed25cce6fe856388f89c7cd40da0eee7666a6
 #patch -s -p1 < "${DIR}/patches/trivial/0001-NFS-Re-enable-compilation-of-nfs-with-CONFIG_NFS_V4-.patch"
 
+#broken in 3.0-git19
+#arch/arm/kernel/process.c: In function ‘cpu_idle’:
+#arch/arm/kernel/process.c:200:5: error: implicit declaration of function ‘cpuidle_call_idle’
+#make[1]: *** [arch/arm/kernel/process.o] Error 1
+patch -s -p1 < "${DIR}/patches/trivial/0001-cpuidle-Fix-build-on-ARM-and-SH.patch"
+
 }
 
 function dss2_next {

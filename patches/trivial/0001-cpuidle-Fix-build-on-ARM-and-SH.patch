@@ -1,0 +1,44 @@
+From b71ece8df41eb646bb13996eaa2fd3c37384eea9 Mon Sep 17 00:00:00 2001
+From: Mark Brown <broo...@opensource.wolfsonmicro.com>
+Date: Mon, 4 Apr 2011 15:40:02 +0200
+Subject: [PATCH] cpuidle: Fix build on ARM and SH
+
+Commit 5f8cf82 (cpuidle: stop using pm_idle) converted arches to use
+cpuidle_idle_call() but contained typos on ARM and SH transposing the
+function name into cpuidle_call_idle().
+
+Signed-off-by: Mark Brown <broo...@opensource.wolfsonmicro.com>
+---
+ arch/arm/kernel/process.c |    2 +-
+ arch/sh/kernel/idle.c     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
+index d7ee0d4..1a347f4 100644
+--- a/arch/arm/kernel/process.c
++++ b/arch/arm/kernel/process.c
+@@ -197,7 +197,7 @@ void cpu_idle(void)
+ 				cpu_relax();
+ 			} else {
+ 				stop_critical_timings();
+-				if (cpuidle_call_idle())
++				if (cpuidle_idle_call())
+ 					pm_idle();
+ 				start_critical_timings();
+ 				/*
+diff --git a/arch/sh/kernel/idle.c b/arch/sh/kernel/idle.c
+index 3c45de1..32114e0 100644
+--- a/arch/sh/kernel/idle.c
++++ b/arch/sh/kernel/idle.c
+@@ -101,7 +101,7 @@ void cpu_idle(void)
+ 			local_irq_disable();
+ 			/* Don't trace irqs off for idle */
+ 			stop_critical_timings();
+-			if (cpuidle_call_idle())
++			if (cpuidle_idle_call())
+ 				pm_idle();
+ 			/*
+ 			 * Sanity check to ensure that pm_idle() returns
+-- 
+1.7.4.1
+
