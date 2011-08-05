@@ -51,7 +51,8 @@ patch -s -p1 < "${DIR}/patches/trivial/smp/0005-Revert-ARM-vmlinux.lds-move-disc
 #arch/arm/kernel/process.c: In function ‘cpu_idle’:
 #arch/arm/kernel/process.c:200:5: error: implicit declaration of function ‘cpuidle_call_idle’
 #make[1]: *** [arch/arm/kernel/process.o] Error 1
-patch -s -p1 < "${DIR}/patches/trivial/0001-cpuidle-Fix-build-on-ARM-and-SH.patch"
+#fixed with 3.0-git21
+#patch -s -p1 < "${DIR}/patches/trivial/0001-cpuidle-Fix-build-on-ARM-and-SH.patch"
 
 }
 
