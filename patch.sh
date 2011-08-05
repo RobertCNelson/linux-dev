@@ -67,6 +67,8 @@ echo "dspbridge from for-next"
 
 function omap_fixes {
 echo "omap fixes"
+#fixes broken vout
+patch -s -p1 < "${DIR}/patches/trivial/0001-OMAP_VOUT-Fix-build-break-caused-by-update_mode-remo.patch"
 
 }
 
