@@ -8,12 +8,12 @@ KERNEL_REL=3.0
 #STABLE_PATCH=1
 
 #for x.x-gitX
-PRE_SNAP=v3.0
-PRE_RC=3.0-git23
+#PRE_SNAP=v3.0
+#PRE_RC=3.0-git23
 
 #for x.x-rcX
-#RC_KERNEL=3.0
-#RC_PATCH=-rc7
+RC_KERNEL=3.1
+RC_PATCH=-rc1
 
 ABI=0
 
