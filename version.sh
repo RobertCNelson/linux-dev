@@ -9,7 +9,7 @@ KERNEL_REL=3.0
 
 #for x.x-gitX
 PRE_SNAP=v3.0
-PRE_RC=3.0-git22
+PRE_RC=3.0-git23
 
 #for x.x-rcX
 #RC_KERNEL=3.0
