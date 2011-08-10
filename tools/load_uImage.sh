@@ -1,6 +1,8 @@
 #!/bin/bash -e
 unset KERNEL_UTS
 unset MMC
+unset ZRELADDR
+
 DIR=$PWD
 
 . version.sh
@@ -19,7 +21,7 @@ function mmc_write {
 
 	sudo mount ${MMC}1 ${DIR}/deploy/disk
 
-	sudo cp -v ${DIR}/deploy/${KERNEL_UTS}.uImage ${DIR}/deploy/disk/uImage
+	sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d ${DIR}/deploy/${KERNEL_UTS}.zImage ${DIR}/deploy/disk/uImage
 
 	cd ${DIR}/deploy/disk
 	sync
@@ -48,7 +50,12 @@ function mmc_write {
 if [ -e ${DIR}/system.sh ]; then
 	. system.sh
 
-if [ -e ${DIR}/KERNEL/arch/arm/boot/uImage ]; then
+if test "-$ZRELADDR-" = "--"
+then
+	echo "Please set ZRELADDR in system.sh"
+else
+
+if [ -e ${DIR}/KERNEL/arch/arm/boot/zImage ]; then
 {
 	if test "-$MMC-" = "--"
 	then
@@ -63,6 +70,7 @@ else
 echo "run build_kernel.sh first"
 
 }
+fi
 fi
 else
 	echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
