@@ -47,8 +47,7 @@ function git_kernel {
   cd ${DIR}/KERNEL
 
   git reset --hard
-  git fetch
-  git checkout master
+  git checkout master -f
   git pull
 
   git remote | grep torvalds_remote && git fetch --tags torvalds_remote master
