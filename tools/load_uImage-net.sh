@@ -33,7 +33,7 @@ function mmc_write {
 	sudo umount ${MMC}5 &> /dev/null || true
 
 	sudo mount ${MMC}5 ${DIR}/deploy/disk
-	sudo rm -rfd ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}
+	sudo rm -rf ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}
 
 	sudo tar xfv ${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz -C ${DIR}/deploy/disk
 
