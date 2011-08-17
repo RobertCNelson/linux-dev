@@ -195,7 +195,7 @@ installgst
 
 function create_DSP_package {
 	cd ${DIR}
-	sudo rm -rfd ${DIR}/DSP/
+	sudo rm -rf ${DIR}/DSP/
 	mkdir -p ${DIR}/DSP/
 	mkdir -p ${DIR}/DSP/lib/dsp
 	mkdir -p ${DIR}/DSP/opt/
@@ -208,7 +208,7 @@ file-DSP-startup
 	tar czf ${DIR}/dsp_libs.tar.gz *
 	cd ${DIR}
 
-	sudo rm -rfd ${DIR}/DSP/
+	sudo rm -rf ${DIR}/DSP/
 	mkdir -p ${DIR}/DSP/
 
 	mv ${DIR}/dsp_libs.tar.gz ${DIR}/DSP/
@@ -223,7 +223,7 @@ file-install-gst-dsp
 	tar czf ${DIR}/DSP_Install_libs.tar.gz *
 	cd ${DIR}
 
-	sudo rm -rfd ${DIR}/DSP/
+	sudo rm -rf ${DIR}/DSP/
 	cd ${DIR}
 }
 

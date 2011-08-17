@@ -26,7 +26,7 @@ SGX_BIN_NAME="Graphics_SDK_setuplinux"
 
 SGX_BIN=${SGX_BIN_NAME}_${SGX_VERSION}.bin
 
-sudo rm -rfd ${DIR}/SDK/ || true
+sudo rm -rf ${DIR}/SDK/ || true
 mkdir -p ${DIR}/SDK/
 mkdir -p ${DIR}/SDK_BIN/
 
@@ -215,7 +215,7 @@ runSGX
 }
 
 function copy_sgx_system_files {
-	sudo rm -rfd ${DIR}/SDK/
+	sudo rm -rf ${DIR}/SDK/
 	mkdir -p ${DIR}/SDK/libs/usr/lib/ES2.0
 	mkdir -p ${DIR}/SDK/libs/usr/bin/ES2.0
 	mkdir -p ${DIR}/SDK/libs/usr/lib/ES3.0
@@ -246,7 +246,7 @@ file-pvr-startup
 
 	tar czf ${DIR}/SDK/target_libs.tar.gz *
 	cd ${DIR}
-	sudo rm -rfd ${DIR}/SDK/libs || true
+	sudo rm -rf ${DIR}/SDK/libs || true
 
 file-install-SGX
 	chmod +x ./SDK/install-SGX.sh
@@ -257,7 +257,7 @@ file-run-SGX
 	tar czf ${DIR}/GFX_${SGX_VERSION}_libs.tar.gz *
 	cd ${DIR}
 
-	sudo rm -rfd ${DIR}/SDK/ || true
+	sudo rm -rf ${DIR}/SDK/ || true
 	echo "SGX libs are in: GFX_${SGX_VERSION}_libs.tar.gz"
 }
 
@@ -276,11 +276,11 @@ function tar_up_examples {
 
 	cd ${DIR}/SDK/GFX_Linux_SDK
 	tar czf ${DIR}/SDK/GFX_Linux_SDK/OGLES.tar.gz ./OGLES
-	rm -rfd ${DIR}/SDK/GFX_Linux_SDK/OGLES
+	rm -rf ${DIR}/SDK/GFX_Linux_SDK/OGLES
 	tar czf ${DIR}/SDK/GFX_Linux_SDK/OGLES2.tar.gz ./OGLES2
-	rm -rfd ${DIR}/SDK/GFX_Linux_SDK/OGLES2
+	rm -rf ${DIR}/SDK/GFX_Linux_SDK/OGLES2
 	tar czf ${DIR}/SDK/GFX_Linux_SDK/OVG.tar.gz ./OVG
-	rm -rfd ${DIR}/SDK/GFX_Linux_SDK/OVG
+	rm -rf ${DIR}/SDK/GFX_Linux_SDK/OVG
 
 	cd ${DIR}/SDK
 	tar czfv ${DIR}/GFX_Linux_SDK.tar.gz ./GFX_Linux_SDK
