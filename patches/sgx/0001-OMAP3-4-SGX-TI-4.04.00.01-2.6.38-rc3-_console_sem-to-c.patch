@@ -1,4 +1,4 @@
-From 30db145abdea16647c11584f8a2d33871097bf41 Mon Sep 17 00:00:00 2001
+From 5316d31fd4f70e50e1b6203106bfc04737fff1ba Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 10 Mar 2011 20:46:03 -0600
 Subject: [PATCH] OMAP3-4 SGX TI 4.04.00.01 2.6.38-rc3 *_console_sem to console_*lock changes
@@ -207,10 +207,10 @@ index b5ba0d1..ec3325c 100644
  
  static OMAPLFB_DEVINFO *OMAPLFBInitDev(unsigned uiFBDevID)
 diff --git a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c
-index fd48c6a..e2c2eaf 100644
+index e63f85d..3553765 100644
 --- a/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c
 +++ b/drivers/staging/omap3-sgx/services4/3rdparty/dc_ti81xx_linux/omaplfb_linux.c
-@@ -251,7 +251,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
+@@ -243,7 +243,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
  	int res;
  	unsigned long ulYResVirtual;
  
@@ -219,7 +219,7 @@ index fd48c6a..e2c2eaf 100644
  
  	sFBVar = psDevInfo->psLINFBInfo->var;
  
-@@ -283,7 +283,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
+@@ -276,7 +276,7 @@ void OMAPLFBFlip(OMAPLFB_DEVINFO *psDevInfo, OMAPLFB_BUFFER *psBuffer)
  		}
  	}
  
@@ -228,10 +228,10 @@ index fd48c6a..e2c2eaf 100644
  }
  
  OMAPLFB_UPDATE_MODE OMAPLFBGetUpdateMode(OMAPLFB_DEVINFO *psDevInfo)
-@@ -492,9 +492,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+@@ -491,9 +491,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+ {
  	int res;
  #ifdef FBDEV_PRESENT
- 
 -	acquire_console_sem();
 +	console_lock();
  	res = fb_blank(psDevInfo->psLINFBInfo, 0);
@@ -240,7 +240,7 @@ index fd48c6a..e2c2eaf 100644
  	if (res != 0 && res != -EINVAL)
  	{
  		printk(KERN_WARNING DRIVER_PREFIX
-@@ -510,9 +510,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
+@@ -509,9 +509,9 @@ OMAPLFB_ERROR OMAPLFBUnblankDisplay(OMAPLFB_DEVINFO *psDevInfo)
  
  static void OMAPLFBBlankDisplay(OMAPLFB_DEVINFO *psDevInfo)
  {
@@ -252,7 +252,7 @@ index fd48c6a..e2c2eaf 100644
  }
  
  static void OMAPLFBEarlySuspendHandler(struct early_suspend *h)
-@@ -743,9 +743,9 @@ int PVR_DRM_MAKENAME(DISPLAY_CONTROLLER, _Ioctl)(struct drm_device unref__ *dev,
+@@ -742,9 +742,9 @@ int PVR_DRM_MAKENAME(omaplfb, _Ioctl)(struct drm_device unref__ *dev, void *arg,
  				flush_workqueue(psDevInfo->psSwapChain->psWorkQueue);
  			}
  

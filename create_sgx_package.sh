@@ -21,7 +21,7 @@ if [ "$PLATFORM" == "x86_64" ]; then
   fi
 fi
 
-SGX_VERSION=4_04_00_01
+SGX_VERSION=4_04_00_02
 SGX_BIN_NAME="Graphics_SDK_setuplinux"
 
 SGX_BIN=${SGX_BIN_NAME}_${SGX_VERSION}.bin
@@ -222,6 +222,11 @@ function copy_sgx_system_files {
 	mkdir -p ${DIR}/SDK/libs/usr/bin/ES3.0
 	mkdir -p ${DIR}/SDK/libs/usr/lib/ES5.0
 	mkdir -p ${DIR}/SDK/libs/usr/bin/ES5.0
+	mkdir -p ${DIR}/SDK/libs/usr/lib/ES6.0
+	mkdir -p ${DIR}/SDK/libs/usr/bin/ES6.0
+
+	mkdir -p ${DIR}/SDK/libs/usr/lib/ES7.0
+	mkdir -p ${DIR}/SDK/libs/usr/bin/ES7.0
 
 	mkdir -p ${DIR}/SDK/libs/opt/
 
@@ -233,6 +238,12 @@ function copy_sgx_system_files {
 
 	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es5.x/lib* ${DIR}/SDK/libs/usr/lib/ES5.0
 	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es5.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES5.0
+
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es6.x/lib* ${DIR}/SDK/libs/usr/lib/ES6.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es6.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES6.0
+
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es7.x/lib* ${DIR}/SDK/libs/usr/lib/ES7.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es7.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES7.0
 
 file-pvr-startup
 

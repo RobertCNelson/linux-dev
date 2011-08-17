@@ -8,6 +8,8 @@ These GPL Kernel Modules were pulled from these TI SDK Versions:
 4.00.00.01
 4.03.00.01
 4.03.00.02
+4.04.00.01
+4.04.00.02
 
 To ensure compatiabilty with TI's SDK no external patches are applied unless to make it 'buildable/runable'
 

@@ -250,8 +250,11 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-Merge-TI-4.03.00.01-into-TI-4.
 #4.03.00.02 (main *.bin drops omap4)
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-Merge-TI-4.03.00.02-into-TI-4.03.00.01.patch"
 
-#4.03.00.01 (adds omap4 libs)
+#4.04.00.01 (adds omap4 libs)
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-4-SGX-Merge-TI-4.04.00.01-into-TI-4.03.00.02.patch"
+
+#4.04.00.02
+patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-4-SGX-Merge-TI-4.04.00.02-into-TI-4.04.00.01.patch"
 
 #4.03.00.02
 patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.32-PSP.patch"
@@ -261,6 +264,7 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-OMAP3-SGX-TI-4.03.00.02-2.6.38-merge-AUT
 
 #4.03.00.02 + 2.6.38-rc3
 #updated for 4.04.00.01
+#updated for 4.04.00.02
 #use: for updating patch:
 #sed -i -e 's:acquire_console_sem:console_lock:g' drivers/staging/omap3-sgx/services4/3rdparty/*/*.c
 #sed -i -e 's:release_console_sem:console_unlock:g' drivers/staging/omap3-sgx/services4/3rdparty/*/*.c
