@@ -55,6 +55,9 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instea
 #fixed with 3.0-git21
 #patch -s -p1 < "${DIR}/patches/trivial/0001-cpuidle-Fix-build-on-ARM-and-SH.patch"
 
+#3.1-rc3, serial broken, probally will be revert later..
+patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-irq-Always-set-IRQF_ONESHOT-if-no-primary-han.patch"
+
 }
 
 function dss2_next {
