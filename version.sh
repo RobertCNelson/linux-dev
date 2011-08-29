@@ -15,7 +15,7 @@ KERNEL_REL=3.0
 RC_KERNEL=3.1
 RC_PATCH=-rc4
 
-ABI=1.1
+ABI=2
 
 if [ "${NO_DEVTMPS}" ] ; then
 BUILD=dold${ABI}
