@@ -230,15 +230,20 @@ function copy_sgx_system_files {
 
 	mkdir -p ${DIR}/SDK/libs/opt/
 
-	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es2.x/* ${DIR}/SDK/libs/usr/lib/ES2.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es2.x/lib* ${DIR}/SDK/libs/usr/lib/ES2.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es2.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES2.0
 
-	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es3.x/* ${DIR}/SDK/libs/usr/lib/ES3.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es3.x/lib* ${DIR}/SDK/libs/usr/lib/ES3.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es3.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES3.0
 
-	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es5.x/* ${DIR}/SDK/libs/usr/lib/ES5.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es5.x/lib* ${DIR}/SDK/libs/usr/lib/ES5.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es5.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES5.0
 
-	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es6.x/* ${DIR}/SDK/libs/usr/lib/ES6.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es6.x/lib* ${DIR}/SDK/libs/usr/lib/ES6.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es6.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES6.0
 
-	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es7.x/* ${DIR}/SDK/libs/usr/lib/ES7.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es7.x/lib* ${DIR}/SDK/libs/usr/lib/ES7.0
+	sudo cp ${DIR}/SDK_BIN/${SGX_BIN_NAME}_${SGX_VERSION}/gfx_rel_es7.x/p[dv]* ${DIR}/SDK/libs/usr/bin/ES7.0
 
 file-pvr-startup
 
