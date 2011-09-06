@@ -11,6 +11,7 @@ unset LOCAL_PATCH_DIR
 
 ARCH=$(uname -m)
 CCACHE=ccache
+
 DIR=$PWD
 
 CORES=1
@@ -22,10 +23,12 @@ fi
 
 mkdir -p ${DIR}/deploy/
 
-function git_remote_add {
-        #For some reason after 2.6.36-rc3 linux-2.6-stable hasn't been updated...
-        git remote add -t torvalds torvalds_remote git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-        git fetch --tags torvalds_remote master
+function git_mirror {
+  #Encase linux-2.6-stable or linus tree's are behind on kernel.org
+  echo "Pulling from github.com mirror of linux.git tree"
+  git pull git://github.com/torvalds/linux.git master --tags
+  echo "Pulling from kernel.org linux.git tree"
+  git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags
 }
 
 function git_kernel {
@@ -41,11 +44,10 @@ function git_kernel {
   cd ${DIR}/KERNEL
 
   git reset --hard
-  git fetch
-  git checkout master
+  git checkout master -f
   git pull
 
-  git remote | grep torvalds_remote && git fetch --tags torvalds_remote master
+  git_mirror
 
   git branch -D TOT || true
   git checkout origin/master -b TOT
@@ -88,13 +90,13 @@ function make_menuconfig {
 	cd ${DIR}/
 }
 
-function make_uImage {
-	cd ${DIR}/KERNEL/
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y uImage"
-	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y uImage
-	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-	cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
-	cd ${DIR}
+function make_zImage {
+        cd ${DIR}/KERNEL/
+        echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y zImage"
+        time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y zImage
+        KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+        cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
+        cd ${DIR}
 }
 
 function make_modules {
@@ -154,7 +156,7 @@ if [ "${NO_DEVTMPS}" ] ; then
 	echo ""
 else
 	echo ""
-	echo "Building for Debian Squeeze/Wheezy/Sid & Ubuntu 10.04/10.10/11.04"
+	echo "Building for Debian Squeeze/Wheezy/Sid & Ubuntu 10.04/10.10/11.04/11.10"
 	echo ""
 fi
 
@@ -163,7 +165,7 @@ fi
 	#patch_kernel
 	defconfig
 	make_menuconfig
-	make_uImage
+	make_zImage
 	make_modules
 	make_headers
 else

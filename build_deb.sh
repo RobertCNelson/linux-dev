@@ -28,10 +28,12 @@ fi
 
 mkdir -p ${DIR}/deploy/
 
-function git_remote_add {
-        #For some reason after 2.6.36-rc3 linux-2.6-stable hasn't been updated...
-        git remote add -t torvalds torvalds_remote git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-        git fetch --tags torvalds_remote master
+function git_mirror {
+  #Encase linux-2.6-stable or linus tree's are behind on kernel.org
+  echo "Pulling from github.com mirror of linux.git tree"
+  git pull git://github.com/torvalds/linux.git master --tags
+  echo "Pulling from kernel.org linux.git tree"
+  git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags
 }
 
 function git_kernel {
@@ -50,8 +52,6 @@ function git_kernel {
   git checkout master -f
   git pull
 
-  git remote | grep torvalds_remote && git fetch --tags torvalds_remote master
-
   if [ "${PRE_RC}" ]; then
     git branch -D v${PRE_RC}-${BUILD} || true
     if [ ! "${LATEST_GIT}" ] ; then
@@ -61,7 +61,7 @@ function git_kernel {
       git checkout origin/master -b v${PRE_RC}-${BUILD}
     fi
   elif [ "${RC_PATCH}" ]; then
-    git tag | grep v${RC_KERNEL}${RC_PATCH} || git_remote_add
+    git tag | grep v${RC_KERNEL}${RC_PATCH} || git_mirror
     git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} || true
     if [ ! "${LATEST_GIT}" ] ; then
       git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
@@ -69,6 +69,7 @@ function git_kernel {
       git checkout origin/master -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
     fi
   elif [ "${STABLE_PATCH}" ] ; then
+    git tag | grep v${KERNEL_REL}.${STABLE_PATCH} || git_mirror
     git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
     if [ ! "${LATEST_GIT}" ] ; then
       git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
@@ -76,6 +77,7 @@ function git_kernel {
       git checkout origin/master -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
     fi
   else
+    git tag | grep v${KERNEL_REL} || git_mirror
     git branch -D v${KERNEL_REL}-${BUILD} || true
     if [ ! "${LATEST_GIT}" ] ; then
       git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
