@@ -26,9 +26,9 @@ mkdir -p ${DIR}/deploy/
 function git_mirror {
   #Encase linux-2.6-stable or linus tree's are behind on kernel.org
   echo "Pulling from github.com mirror of linux.git tree"
-  git pull git://github.com/torvalds/linux.git master --tags
+  git pull git://github.com/torvalds/linux.git master --tags || true
   echo "Pulling from kernel.org linux.git tree"
-  git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags
+  git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags || true
 }
 
 function git_kernel {
