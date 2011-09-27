@@ -198,7 +198,12 @@ patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F
 }
 
 function igepv2 {
-echo "igepv2 board related patches"
+echo "Board Patches for: igepv2"
+#pulled from: http://git.igep.es/?p=pub/scm/linux-omap-2.6.git;a=summary
+#git pull git://git.igep.es/pub/scm/linux-omap-2.6.git master
+
+git pull git://github.com/RobertCNelson/linux.git omap_igepv_v3.1-rc7
+
 }
 
 function devkit8000 {
@@ -311,6 +316,9 @@ patch -s -p1 < "${DIR}/patches/sgx/0001-Revert-OMAP-DSS2-remove-update_mode-from
 
 bugs_trivial
 
+#patches in git
+igepv2
+
 #for_next tree's
 dss2_next
 omap_fixes
@@ -327,7 +335,6 @@ micrel
 
 #random board patches
 beagle
-igepv2
 devkit8000
 touchbook
 dspbridge
