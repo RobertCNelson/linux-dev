@@ -173,20 +173,11 @@ patch -s -p1 < "${DIR}/patches/musb/0001-default-to-fifo-mode-5-for-old-musb-bea
 }
 
 function micrel {
-echo "micrel patches"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/01_eeprom_93cx6_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/02_eeprom_93cx6_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/03_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.38/04_ksz8851_2.6.38.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/06_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/07_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/08_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/09_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/10_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/11_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/12_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/15_ksz8851_2.6.35.patch"
-patch -s -p1 < "${DIR}/patches/micrel/linux-2.6.35/18_ksz8851_2.6.35.patch"
+echo "[git] Micrel KZ8851 patches for: zippy2"
+#original from:
+#ftp://www.micrel.com/ethernet/8851/beagle_zippy_patches.tar.gz 137 KB 04/10/2010 12:26:00 AM
+
+git pull git://github.com/RobertCNelson/linux.git micrel_ks8851_v3.1-rc8
 
 }
 
@@ -198,7 +189,7 @@ patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F
 }
 
 function igepv2 {
-echo "Board Patches for: igepv2"
+echo "[git] Board Patches for: igepv2"
 #pulled from: http://git.igep.es/?p=pub/scm/linux-omap-2.6.git;a=summary
 #git pull git://git.igep.es/pub/scm/linux-omap-2.6.git master
 
@@ -318,6 +309,7 @@ bugs_trivial
 
 #patches in git
 igepv2
+micrel
 
 #for_next tree's
 dss2_next
@@ -331,7 +323,6 @@ for_next
 #external tree's
 sakoman
 musb
-micrel
 
 #random board patches
 beagle
