@@ -23,39 +23,6 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 #should fix gcc-4.6 ehci problems..
 patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
 
-#fixed in 3.0.0-rc7
-#ehci crashes on startup/init
-#patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-mfd-Add-omap-usbhs-runtime-PM-support.patch"
-
-#smp broken in 3.0-git4
-#this may be a config problem, as omap2plus_defconfig seems to work fine..
-#`.exit.text' referenced in section `.alt.smp.init' of drivers/built-in.o: defined in discarded section `.exit.text' of drivers/built-in.o
-#`.exit.text' referenced in section `.alt.smp.init' of net/built-in.o: defined in discarded section `.exit.text' of net/built-in.o
-#patch -s -p1 < "${DIR}/patches/trivial/smp/0001-Revert-ARM-vmlinux.lds-use-_text-and-_stext-the-same.patch"
-#patch -s -p1 < "${DIR}/patches/trivial/smp/0002-Revert-ARM-vmlinux.lds-move-init-sections-between-te.patch"
-#patch -s -p1 < "${DIR}/patches/trivial/smp/0003-Revert-ARM-vmlinux.lds-remove-.rodata-.rodata1-from-.patch"
-#patch -s -p1 < "${DIR}/patches/trivial/smp/0004-Revert-ARM-vmlinux.lds-rearrange-.init-output-sectio.patch"
-#patch -s -p1 < "${DIR}/patches/trivial/smp/0005-Revert-ARM-vmlinux.lds-move-discarded-sections-to-be.patch"
-#fixed: by tweaking the config
-#sgx, needs those configs disabled, so reapply
-
-#nfs broken in 3.0-git14
-#In file included from fs/nfs/client.c:51:0:
-#fs/nfs/pnfs.h:384:1: error: expected identifier or ‘(’ before ‘{’ token
-#fs/nfs/pnfs.h:382:51: warning: ‘set_pnfs_layoutdriver’ used but never defined
-#make[2]: *** [fs/nfs/client.o] Error 1
-#make[1]: *** [fs/nfs] Error 2
-#fixed in 3.0-git15
-#fix: http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commitdiff;h=a00ed25cce6fe856388f89c7cd40da0eee7666a6
-#patch -s -p1 < "${DIR}/patches/trivial/0001-NFS-Re-enable-compilation-of-nfs-with-CONFIG_NFS_V4-.patch"
-
-#broken in 3.0-git19
-#arch/arm/kernel/process.c: In function ‘cpu_idle’:
-#arch/arm/kernel/process.c:200:5: error: implicit declaration of function ‘cpuidle_call_idle’
-#make[1]: *** [arch/arm/kernel/process.o] Error 1
-#fixed with 3.0-git21
-#patch -s -p1 < "${DIR}/patches/trivial/0001-cpuidle-Fix-build-on-ARM-and-SH.patch"
-
 #3.1-rc3, serial broken, probally will be revert later..
 #fixed with 3.1-rc4
 #patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-irq-Always-set-IRQF_ONESHOT-if-no-primary-han.patch"
@@ -89,8 +56,6 @@ echo "omap fixes"
 function for_next {
 echo "for_next from tmlind's tree.."
 
-#in 3.0-git8
-#patch -s -p1 < "${DIR}/patches/beagle/0001-OMAP3-beagle-add-support-for-beagleboard-xM-revision.patch"
 }
 
 
@@ -108,11 +73,6 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.p
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0016-RTC-add-support-for-backup-battery-recharge.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0017-ARM-OMAP2-mmc-twl4030-move-clock-input-selection-pri.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0018-Add-power-off-support-for-the-TWL4030-companion.patch"
-
-#drop with 3.0-git5
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0019-ARM-OMAP-Add-twl4030-madc-support-to-Beagle.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0020-ARM-OMAP-Add-twl4030-madc-support-to-Overo.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0021-Enabling-Hwmon-driver-for-twl4030-madc.patch"
 
 #drop with 3.1-rc6
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0022-mfd-twl-core-enable-madc-clock.patch"
@@ -136,12 +96,7 @@ patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0029-OMAP3-beagle-add-support-for-e
 
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0035-mtd-nand-Eliminate-noisey-uncorrectable-error-messag.patch"
 
-#in 3.0-git5
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0046-OMAP3-SR-make-notify-independent-of-class.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0047-OMAP3-SR-disable-interrupt-by-default.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0048-OMAP3-SR-enable-disable-SR-only-on-need.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0049-OMAP3-SR-fix-cosmetic-indentation.patch"
-
+#drop with 3.1-rc8 (using git)
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0050-OMAP-CPUfreq-ensure-driver-initializes-after-cpufreq.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0051-OMAP-CPUfreq-ensure-policy-is-fully-initialized.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0052-OMAP3-PM-CPUFreq-driver-for-OMAP3.patch"
@@ -161,16 +116,6 @@ patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0029-OMAP3-beagle-add-support-for-e
 
 #patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0066-OMAP2-clockdomain-Add-an-api-to-read-idle-mode.patch"
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0067-OMAP2-clockdomain-Add-SoC-support-for-clkdm_is_idle.patch"
-
-#in 3.0-git8
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0068-OMAP2-PM-Initialise-sleep_switch-to-a-non-valid-valu.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0069-OMAP2-PM-idle-clkdms-only-if-already-in-idle.patch"
-
-#drop with 3.0-git5
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0070-OMAP2-hwmod-Follow-the-recomended-PRCM-sequence.patch"
-
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0071-OMAP-Serial-Check-wk_st-only-if-present.patch"
-#patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0072-omap3-Add-basic-support-for-720MHz-part.patch"
 
 }
 
