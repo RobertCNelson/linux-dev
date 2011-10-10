@@ -83,7 +83,7 @@ patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0026-OMAP-Overo-Add-support-for-sp
 
 #patch -s -p1 < "${DIR}/patches/sakoman/3.0.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
 #for 3.0-git5, still needs tweaks for wifi board
-patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
+#patch -s -p1 < "${DIR}/patches/sakoman/3.1.0/0029-OMAP3-beagle-add-support-for-expansionboards.patch"
 
 #TESTING
 #patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0030-omap-beagle-Add-support-for-1GHz.patch"
@@ -134,7 +134,10 @@ git pull git://github.com/RobertCNelson/linux.git micrel_ks8851_v3.1-rc8
 }
 
 function beagle {
-echo "beagle patches"
+echo "[git] Board Patches for: BeagleBoard"
+
+git pull git://github.com/RobertCNelson/linux.git omap_beagle_expansion_v3.1-rc9
+
 patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
 
@@ -263,6 +266,7 @@ bugs_trivial
 cpufreq
 igepv2
 micrel
+beagle
 
 #for_next tree's
 dss2_next
@@ -278,7 +282,6 @@ sakoman
 musb
 
 #random board patches
-beagle
 devkit8000
 touchbook
 dspbridge
