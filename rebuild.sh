@@ -206,6 +206,7 @@ function make_headers {
 }
 
 	/bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
+
 if [ -e ${DIR}/system.sh ]; then
 	. system.sh
 	. version.sh
