@@ -230,14 +230,14 @@ if [ "${NO_DEVTMPS}" ] ; then
 	echo ""
 else
 	echo ""
-	echo "Building for Debian Squeeze/Wheezy/Sid & Ubuntu 10.04/10.10/11.04/11.10"
+	echo "Building for Debian Squeeze/Wheezy/Sid & Ubuntu 10.04/10.10/11.04/11.10/12.04"
 	echo ""
 fi
 
 #	git_kernel
 	#git_bisect
 #	patch_kernel
-	copy_defconfig
+#	copy_defconfig
 	make_menuconfig
 	make_zImage
 	make_modules

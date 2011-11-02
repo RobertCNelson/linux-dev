@@ -1,0 +1,57 @@
+From 46c89b7d801fa1a395e01ce3bf11f094010be821 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 2 Nov 2011 10:15:55 -0500
+Subject: [PATCH] ARM: OMAP: fix omap2plus_defconfig with OMAP2 disabled
+
+arch/arm/mach-omap2/built-in.o: In function `omap2420_init_early':
+arch/arm/mach-omap2/io.c:364: undefined reference to `omap2_set_globals_242x'
+arch/arm/mach-omap2/io.c:366: undefined reference to `omap2xxx_voltagedomains_init'
+arch/arm/mach-omap2/io.c:367: undefined reference to `omap242x_powerdomains_init'
+arm/mach-omap2/io.c:368: undefined reference to `omap242x_clockdomains_init'
+arm/mach-omap2/io.c:369: undefined reference to `omap2420_hwmod_init'
+arch/arm/mach-omap2/built-in.o: In function `omap2430_init_early':
+arch/arm/mach-omap2/io.c:376: undefined reference to `omap2_set_globals_243x'
+arch/arm/mach-omap2/io.c:378: undefined reference to `omap2xxx_voltagedomains_init'
+arm/mach-omap2/io.c:379: undefined reference to `omap243x_powerdomains_init'
+arch/arm/mach-omap2/io.c:380: undefined reference to `omap243x_clockdomains_init'
+arch/arm/mach-omap2/io.c:381: undefined reference to `omap2430_hwmod_init'
+make: *** [.tmp_vmlinux1] Error 1
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/io.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/io.c b/arch/arm/mach-omap2/io.c
+index a5d8dce..84a8eb6 100644
+--- a/arch/arm/mach-omap2/io.c
++++ b/arch/arm/mach-omap2/io.c
+@@ -359,6 +359,7 @@ static void __init omap_hwmod_init_postsetup(void)
+ 	omap_pm_if_early_init();
+ }
+ 
++#ifdef CONFIG_SOC_OMAP2420
+ void __init omap2420_init_early(void)
+ {
+ 	omap2_set_globals_242x();
+@@ -370,7 +371,9 @@ void __init omap2420_init_early(void)
+ 	omap_hwmod_init_postsetup();
+ 	omap2420_clk_init();
+ }
++#endif
+ 
++#ifdef CONFIG_SOC_OMAP2430
+ void __init omap2430_init_early(void)
+ {
+ 	omap2_set_globals_243x();
+@@ -382,6 +385,7 @@ void __init omap2430_init_early(void)
+ 	omap_hwmod_init_postsetup();
+ 	omap2430_clk_init();
+ }
++#endif
+ 
+ /*
+  * Currently only board-omap3beagle.c should call this because of the
+-- 
+1.7.4.1
+
