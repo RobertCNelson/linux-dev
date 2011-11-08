@@ -29,9 +29,8 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instea
 
 #3.1-merge-to-v3.2-rc0
 
-patch -s -p1 < "${DIR}/patches/trivial/0001-ARM-OMAP-fix-omap2plus_defconfig-with-OMAP2-disabled.patch"
-patch -s -p1 < "${DIR}/patches/trivial/0001-trivial-drivers-mmc-omap-add-missing.patch"
-
+#patch -s -p1 < "${DIR}/patches/trivial/0001-ARM-OMAP-fix-omap2plus_defconfig-with-OMAP2-disabled.patch"
+#patch -s -p1 < "${DIR}/patches/trivial/0001-trivial-drivers-mmc-omap-add-missing.patch"
 
 }
 
