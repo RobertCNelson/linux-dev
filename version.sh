@@ -12,7 +12,7 @@ KERNEL_REL=3.1
 
 #for x.x-rcX
 RC_KERNEL=3.2
-RC_PATCH=-rc1
+RC_PATCH=-rc2
 
 ABI=0
 
