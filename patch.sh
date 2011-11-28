@@ -86,21 +86,6 @@ patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readon
 #patch -s -p1 < "${DIR}/patches/touchbook/0002-touchbook-add-twl4030-bci-battery.patch"
 }
 
-function dspbridge {
-echo "dspbridge fixes"
-#broken in 3.0-git5
-#drivers/staging/tidspbridge/core/dsp-clock.c: In function ‘dsp_clk_enable’:
-#drivers/staging/tidspbridge/core/dsp-clock.c:212:3: error: implicit declaration of function ‘omap_mcbsp_set_io_type’
-#drivers/staging/tidspbridge/core/dsp-clock.c:212:42: error: ‘OMAP_MCBSP_POLL_IO’ undeclared (first use in this function)
-#drivers/staging/tidspbridge/core/dsp-clock.c:212:42: note: each undeclared identifier is reported only once for each function it appears in
-#make[3]: *** [drivers/staging/tidspbridge/core/dsp-clock.o] Error 1
-#make[2]: *** [drivers/staging/tidspbridge] Error 2
-#patch -s -p1 < "${DIR}/patches/dspbridge/0001-Revert-omap-mcbsp-Remove-port-number-enums.patch"
-#patch -s -p1 < "${DIR}/patches/dspbridge/0002-Revert-omap-mcbsp-Remove-rx_-tx_word_length-variable.patch"
-#patch -s -p1 < "${DIR}/patches/dspbridge/0003-Revert-omap-mcbsp-Drop-in-driver-transfer-support.patch"
-#fixed with 3.1-rc4
-}
-
 function omap4 {
 echo "omap4 related patches"
 #drop with 3.0-git16
