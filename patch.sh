@@ -59,6 +59,11 @@ echo "[git] dspbridge"
 git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
 }
 
+function omapdrm {
+echo "[git] testing omapdrm"
+git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.2-rc3
+}
+
 function sakoman {
 echo "sakoman's patches"
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
@@ -100,6 +105,7 @@ cpufreq
 micrel
 beagle
 dspbridge
+#omapdrm
 
 #work in progress
 
@@ -110,7 +116,6 @@ musb
 #random board patches
 devkit8000
 touchbook
-dspbridge
 
 #omap4/dvfs still needs more testing..
 omap4
