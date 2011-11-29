@@ -61,6 +61,11 @@ git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
 
 function omapdrm {
 echo "[git] testing omapdrm"
+echo "[git] pulling cma_v17"
+git pull git://github.com/RobertCNelson/linux.git cma_v17_v3.2-rc2
+echo "[git] pulling dss fixes"
+git pull git://github.com/RobertCNelson/linux.git dss-fixes_v3.2-rc3
+echo "[git] pulling drm driver"
 git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.2-rc3
 }
 
