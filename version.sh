@@ -12,9 +12,9 @@ KERNEL_REL=3.1
 
 #for x.x-rcX
 RC_KERNEL=3.2
-RC_PATCH=-rc3
+RC_PATCH=-rc4
 
-ABI=0.1
+ABI=1
 
 if [ "${NO_DEVTMPS}" ] ; then
 BUILD=dold${ABI}

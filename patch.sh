@@ -36,7 +36,7 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instea
 
 function cpufreq {
 echo "[git] omap-cpufreq"
-git pull git://github.com/RobertCNelson/linux.git omap_cpufreq_v3.2-rc3
+git pull git://github.com/RobertCNelson/linux.git omap_cpufreq_v3.2-rc4
 }
 
 function micrel {
@@ -63,8 +63,6 @@ function omapdrm {
 echo "[git] testing omapdrm"
 echo "[git] pulling cma_v17"
 git pull git://github.com/RobertCNelson/linux.git cma_v17_v3.2-rc2
-echo "[git] pulling dss fixes"
-git pull git://github.com/RobertCNelson/linux.git dss-fixes_v3.2-rc3
 echo "[git] pulling drm driver"
 git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.2-rc3
 }
