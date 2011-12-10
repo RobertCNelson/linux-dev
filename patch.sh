@@ -18,8 +18,9 @@ echo "bugs and trivial stuff"
 #http://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=commit;h=a896cd19d7569c9754a75fea01f4c68e355697af
 #Mainline:
 #http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=af8db1508f2c9f3b6e633e2d2d906c6557c617f9
-
-git revert --no-edit af8db1508f2c9f3b6e633e2d2d906c6557c617f9
+#git revert --no-edit af8db1508f2c9f3b6e633e2d2d906c6557c617f9
+#should be fixed via:
+#http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=fe6b91f47080eb17d21cbf2a39311877d57f6938
 
 #Bisected from 2.6.35 -> 2.6.36 to find this..
 #This commit breaks some lcd monitors..
