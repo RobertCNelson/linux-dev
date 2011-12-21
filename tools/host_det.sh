@@ -108,9 +108,11 @@ if [ ! $(which ccache) ];then
 fi
 
 if [ ! $(file /usr/lib/libncurses.so | grep -v ERROR | awk '{print $1}') ];then
- echo "Missing ncurses"
- PACKAGE+="libncurses5-dev "
- APT=1
+ if [ ! $(file /usr/lib/$(uname -m)-linux-gnu/libncurses.so | grep -v ERROR | awk '{print $1}') ];then
+  echo "Missing ncurses"
+  PACKAGE+="libncurses5-dev "
+  APT=1
+ fi
 fi
 
 if [ "${APT}" ];then
