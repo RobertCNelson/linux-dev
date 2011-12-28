@@ -138,14 +138,14 @@ function copy_defconfig {
   cd ${DIR}/KERNEL/
   make ARCH=arm CROSS_COMPILE=${CC} distclean
   make ARCH=arm CROSS_COMPILE=${CC} omap2plus_defconfig
-  cp .config -v ${DIR}/patches/HEAD_omap2plus_defconfig
+  cp -v .config ${DIR}/patches/HEAD_omap2plus_defconfig
   cd ${DIR}/
 }
 
 function make_menuconfig {
   cd ${DIR}/KERNEL/
   make ARCH=arm CROSS_COMPILE=${CC} menuconfig
-  cp .config -v ${DIR}/patches/MOD_omap2plus_defconfig
+  cp -v .config ${DIR}/patches/MOD_omap2plus_defconfig
   cd ${DIR}/
 }
 

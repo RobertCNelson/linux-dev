@@ -32,38 +32,10 @@ git commit -a -m 'testing patchset'
 function bugs_trivial {
 echo "bugs and trivial stuff"
 
-#December 1st 2011: rcn-ee
-#reboot is failing on all panda/beagle 3.1.4-x5
-#bisect shows, v3.1.2-x4 good, 3.1.4-x5 bad
-#this commit is the first one to break reboot:
-#http://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=commit;h=a896cd19d7569c9754a75fea01f4c68e355697af
-#Mainline:
-#http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=af8db1508f2c9f3b6e633e2d2d906c6557c617f9
-#git revert --no-edit af8db1508f2c9f3b6e633e2d2d906c6557c617f9
-#should be fixed via:
-#http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=fe6b91f47080eb17d21cbf2a39311877d57f6938
-
-#Bisected from 2.6.35 -> 2.6.36 to find this..
-#This commit breaks some lcd monitors..
-#rcn-ee Feb 26, 2011...
-#Still needs more work for 2.6.38, causes:
-#[   14.962829] omapdss DISPC error: GFX_FIFO_UNDERFLOW, disabling GFX
-#patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-OMAP-DSS2-OMAPFB-swap-front-and-back-porches-.patch"
-
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 
 #should fix gcc-4.6 ehci problems..
 patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
-
-#3.1-rc3, serial broken, probally will be revert later..
-#fixed with 3.1-rc4
-#patch -s -p1 < "${DIR}/patches/trivial/0001-Revert-irq-Always-set-IRQF_ONESHOT-if-no-primary-han.patch"
-
-#3.1-merge-to-v3.2-rc0
-
-#patch -s -p1 < "${DIR}/patches/trivial/0001-ARM-OMAP-fix-omap2plus_defconfig-with-OMAP2-disabled.patch"
-#patch -s -p1 < "${DIR}/patches/trivial/0001-trivial-drivers-mmc-omap-add-missing.patch"
-
 }
 
 function cpufreq {
@@ -122,15 +94,20 @@ function touchbook {
 echo "touchbook patches"
 patch -s -p1 < "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp.patch"
 patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
-#patch -s -p1 < "${DIR}/patches/touchbook/0001-touchbook-add-madc.patch"
-#patch -s -p1 < "${DIR}/patches/touchbook/0002-touchbook-add-twl4030-bci-battery.patch"
 }
 
 function omap4 {
 echo "omap4 related patches"
-#drop with 3.0-git16
-#patch -s -p1 < "${DIR}/patches/panda/0001-OMAP4-DSS2-add-dss_dss_clk.patch"
 patch -s -p1 < "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
+}
+
+function fixes {
+echo "cherry pick fixes"
+git am "${DIR}/patches/fixes/0001-ARM-OMAP-AM3517-3505-fix-crash-on-boot-due-to-incorr.patch"
+git am "${DIR}/patches/fixes/0001-ARM-OMAP4-hwmod-Don-t-wait-for-the-idle-status-if-mo.patch"
+git am "${DIR}/patches/fixes/0001-ARM-OMAP4-clock-Add-CPU-local-timer-clock-node.patch"
+git am "${DIR}/patches/fixes/0001-ARM-OMAP3-hwmod-data-disable-multiblock-reads-on-MMC.patch"
+git am "${DIR}/patches/fixes/0001-OMAP-HWMOD-add-es3plus-to-am36xx-am35xx.patch"
 }
 
 bugs_trivial
@@ -154,6 +131,8 @@ touchbook
 
 #omap4/dvfs still needs more testing..
 omap4
+
+fixes
 
 echo "patch.sh ran successful"
 

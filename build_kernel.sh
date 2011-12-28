@@ -167,15 +167,15 @@ function copy_defconfig {
   cd ${DIR}/KERNEL/
   make ARCH=arm CROSS_COMPILE=${CC} distclean
   make ARCH=arm CROSS_COMPILE=${CC} omap2plus_defconfig
-  cp .config -v ${DIR}/patches/ref_omap2plus_defconfig
-  cp ${DIR}/patches/defconfig -v .config
+  cp -v .config ${DIR}/patches/ref_omap2plus_defconfig
+  cp -v ${DIR}/patches/defconfig .config
   cd ${DIR}/
 }
 
 function make_menuconfig {
   cd ${DIR}/KERNEL/
   make ARCH=arm CROSS_COMPILE=${CC} menuconfig
-  cp .config -v ${DIR}/patches/defconfig
+  cp -v .config ${DIR}/patches/defconfig
   cd ${DIR}/
 }
 
