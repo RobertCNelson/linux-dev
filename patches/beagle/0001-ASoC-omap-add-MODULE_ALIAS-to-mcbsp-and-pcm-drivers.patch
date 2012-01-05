@@ -1,0 +1,36 @@
+From 9bd419f0b26b34265f115424316b99df0aab73a6 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 3 Jan 2012 11:06:07 -0600
+Subject: [PATCH] ASoC: omap: add MODULE_ALIAS to mcbsp and pcm drivers
+
+This adds MODULE_ALIAS directives to the omap-mcbsp-dai and
+omap-pcm-audio drivers so they can be auto-loaded when platform
+devices are scanned.
+
+Signed-off-by: Mans Rullgard <mans.rullgard at linaro.org>
+---
+ sound/soc/omap/omap-mcbsp.c |    1 +
+ sound/soc/omap/omap-pcm.c   |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/sound/soc/omap/omap-mcbsp.c b/sound/soc/omap/omap-mcbsp.c
+index 478d607..e118d7b 100644
+--- a/sound/soc/omap/omap-mcbsp.c
++++ b/sound/soc/omap/omap-mcbsp.c
+@@ -789,3 +789,4 @@ module_exit(snd_omap_mcbsp_exit);
+ MODULE_AUTHOR("Jarkko Nikula <jarkko.nikula@bitmer.com>");
+ MODULE_DESCRIPTION("OMAP I2S SoC Interface");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:omap-mcbsp-dai");
+diff --git a/sound/soc/omap/omap-pcm.c b/sound/soc/omap/omap-pcm.c
+index 9b5c88a..ffd8f13 100644
+--- a/sound/soc/omap/omap-pcm.c
++++ b/sound/soc/omap/omap-pcm.c
+@@ -439,3 +439,4 @@ module_exit(snd_omap_pcm_exit);
+ MODULE_AUTHOR("Jarkko Nikula <jarkko.nikula@bitmer.com>");
+ MODULE_DESCRIPTION("OMAP PCM DMA module");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:omap-pcm-audio");
+-- 
+1.7.4.1
+

@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2011 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,8 @@ unset LINUX_GIT
 unset LATEST_GIT
 
 unset LOCAL_PATCH_DIR
+
+config="omap2plus_defconfig"
 
 ARCH=$(uname -m)
 CCACHE=ccache
@@ -137,15 +139,15 @@ function patch_kernel {
 function copy_defconfig {
   cd ${DIR}/KERNEL/
   make ARCH=arm CROSS_COMPILE=${CC} distclean
-  make ARCH=arm CROSS_COMPILE=${CC} omap2plus_defconfig
-  cp -v .config ${DIR}/patches/HEAD_omap2plus_defconfig
+  make ARCH=arm CROSS_COMPILE=${CC} ${config}
+  cp -v .config ${DIR}/patches/HEAD_${config}
   cd ${DIR}/
 }
 
 function make_menuconfig {
   cd ${DIR}/KERNEL/
   make ARCH=arm CROSS_COMPILE=${CC} menuconfig
-  cp -v .config ${DIR}/patches/MOD_omap2plus_defconfig
+  cp -v .config ${DIR}/patches/MOD_${config}
   cd ${DIR}/
 }
 

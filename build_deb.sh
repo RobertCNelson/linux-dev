@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2011 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -108,7 +108,7 @@ if [ "-${LINUX_GIT}-" != "--" ]; then
       git checkout origin/master -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
     fi
   else
-    git tag | grep v${KERNEL_REL} || git_kernel_torvalds
+    git tag | grep v${KERNEL_REL} | grep -v rc || git_kernel_torvalds
     git branch -D v${KERNEL_REL}-${BUILD} || true
     if [ ! "${LATEST_GIT}" ] ; then
       git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
