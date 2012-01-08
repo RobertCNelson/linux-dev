@@ -40,16 +40,10 @@ function libstd_dependicy {
 DIST=$(lsb_release -sc)
 
 if [ $(uname -m) == "x86_64" ] ; then
-	LIBSTD=$(file /usr/lib32/libstdc++.so.5 | grep -v ERROR | awk '{print $1}')
-	if [ "-$LIBSTD-" = "--" ] ; then
-		sudo apt-get install -y ia32-libs
-	fi
-else
-	LIBSTD=$(file /usr/lib/libstdc++.so.5 | grep -v ERROR | awk '{print $1}')
-	if [ "-$LIBSTD-" = "--" ] ; then
-		sudo apt-get install libstdc++5
-	fi
+ echo "Note: on the x86_64 platform, this script needs (ia32-libs)..."
+ echo "--------------------------------------------------------------"
 fi
+
 cd ${DIR}
 }
 
@@ -170,6 +164,7 @@ fi
 cd \${DIR}/git/gst-dsp
 make clean
 git pull
+./configure
 make CROSS_COMPILE= 
 sudo make install
 cd \${DIR}/
