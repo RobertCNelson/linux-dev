@@ -29,7 +29,7 @@ DIR=$PWD
 if [ -e ${DIR}/version.sh ]; then
 	. version.sh
 
-        if [ "${RC_PATCH}" ]; then
+	if [ "${RC_PATCH}" ]; then
 		git commit -a -m "${RC_KERNEL}${RC_PATCH}-${BUILD} release" -s
 		git tag -a "${RC_KERNEL}${RC_PATCH}-${BUILD}" -m "${RC_KERNEL}${RC_PATCH}-${BUILD}"
 		git push origin --tags
