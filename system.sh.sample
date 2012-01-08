@@ -51,23 +51,43 @@ fi
 
 LINUX_GIT=~/linux-stable/
 
+###OPTIONAL: (REQUIRED FOR RUNNING: ./tools/load_uImage.sh & ./tools/load_uImage.sh)
+
+##Since 2.6.39?, it's now possible to build a Linux Kernel for devices that have
+##different physical address of the kernel entry point or "ZRELADDR".  This also means
+##these scripts only create zImage's, if you'd like uImage, run mkimage yourself, or use
+##the ./tools/load_uImage.sh to load the uImage on a MMC card.
+
+##For TI: OMAP3/4/AM35xx
+#ZRELADDR=0x80008000
+
+##For Freescale:
+##MX51 Family
+#ZRELADDR=0x90008000
+
+##MX53
+#ZRELADDR=0x70008000
+
+###OPTIONAL: (REQUIRED FOR RUNNING: ./tools/load_uImage.sh & ./tools/load_uImage.sh)
+
+##USE WITH CAUTION: mount locations can change, this script has ZERO error detection.(FIXME)
+##
+##Operaties on raw disks, NOT PARTITIONS
+##BAD: MMC=/dev/sde1
+##GOOD: MMC=/dev/sde
+
+#MMC=/dev/sde
+
+###ADVANCED: Secret Sauce Patches:
+
+##Have some secret sauce, you dont want to share with the community??
+##
+##It'll look specifically for *.patch files... Doesn't care about order/etc.. And I don't care about enhancing it.. ;)
+
+#LOCAL_PATCH_DIR=/full/path/to/dir/
+
+###ADVANCED: (actually currently disabled)
 #Force Script to use the latest git commit's..
 #This should be enabled with care, as any upstream commit can break any local patch..
 #So NO SUPPORT ;)
 #LATEST_GIT=1
-
-#Use with Caution, mount locations can change... This define's SD/MMC card mount location for load_uImage.sh script.
-#MMC=/dev/sde
-
-#local patches
-#LOCAL_PATCH_DIR=/full/path/to/dir/
-
-#zImage to uImage
-#OMAP3-4
-#ZRELADDR=0x80008000
-
-#mx51
-#ZRELADDR=0x90008000
-
-#mx53
-#ZRELADDR=0x70008000
