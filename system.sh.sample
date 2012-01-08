@@ -3,34 +3,37 @@
 
 ARCH=$(uname -m)
 
-#Ubuntu Natty
-#sudo apt-get install gcc-arm-linux-gnueabi
-
-#Ubuntu Maverick:
-#gcc-4.4
-#sudo apt-get install gcc-4.4-arm-linux-gnueabi
-#or gcc-4.5
-#sudo apt-get install gcc-4.5-arm-linux-gnueabi
-
-#Use CodeSourcery: http://www.codesourcery.com/sgpp/lite/arm/portal/subscription?@template=lite (GNU/Linux)
-#Just download and extract...
-
 if test "-$ARCH-" = "-armv7l-"
 then
  echo "Using: Native armv7l Compiler"
  CC=
 else
  echo "Using: Cross Compiler"
- #For ubuntu, if you apt-get the gcc-"version"-arm-linux-gnueabi from above..:
  #CC=arm-linux-gnueabi-
 
  #Test that user actually modified the above CC line:
- if test "-$CC-" = "--"
- then
+ if [ "-${CC}-" == "--" ] ; then
   echo ""
   echo "Error: You haven't setup the Cross Compiler (CC variable) in system.sh"
   echo ""
-  echo "with a (sane editor) open system.sh and modify the commented Line 25: #CC=arm-linux-gnueabi-"
+  echo "with a (sane editor) open system.sh and modify the commented Line 12: #CC=arm-linux-gnueabi-"
+  echo ""
+  echo "If you need hints on installing an ARM GCC Cross ToolChain, view README file"
+  echo ""
+  exit
+ fi
+
+ GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
+ GCC_REPORT=$(LC_ALL=C ${CC}gcc -v 2>&1 || true)
+ if [ "-${GCC_TEST}-" == "--" ] ; then
+  echo ""
+  echo "Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable)."
+  echo "Doesn't seem to be valid for ARM, double check it's location, or that"
+  echo "you chose the correct GCC Cross Compiler."
+  echo ""
+  echo "Output of: ${CC}gcc -v"
+  echo "${GCC_REPORT}"
+  echo ""
   exit
  fi
 fi
