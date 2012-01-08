@@ -60,13 +60,7 @@ function git_kernel_stable {
 }
 
 function git_kernel {
-if [ "-${LINUX_GIT}-" != "--" ]; then
-
-  if [[ ! -a ${LINUX_GIT}/.git/config ]]; then
-    echo "Double check: LINUX_GIT variable in system.sh, i'm not finding a git tree"
-    exit
-  fi
-
+if [[ -a ${LINUX_GIT}/.git/config ]]; then
   cd ${LINUX_GIT}/
     echo "Updating LINUX_GIT tree via: git fetch"
     git fetch
@@ -120,12 +114,15 @@ if [ "-${LINUX_GIT}-" != "--" ]; then
   git describe
 
   cd ${DIR}/
-
 else
-  echo "The LINUX_GIT variable is not definted in system.sh"
-  echo "Follow the git clone directions in system.sh.sample"
-  echo "and make sure to remove the comment # from LINUX_GIT"
-  echo "gedit system.sh"
+  echo ""
+  echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
+  echo ""
+  echo "Quick Fix:"
+  echo "example: cd ~/"
+  echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+  echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
+  echo ""
   exit
 fi
 }
@@ -202,8 +199,11 @@ if [ -e ${DIR}/system.sh ]; then
   make_menuconfig
   make_deb
 else
-  echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
-  echo "cp system.sh.sample system.sh"
-  echo "gedit system.sh"
+  echo ""
+  echo "ERROR: Missing (your system) specific system.sh, please copy system.sh.sample to system.sh and edit as needed."
+  echo ""
+  echo "example: cp system.sh.sample system.sh"
+  echo "example: gedit system.sh"
+  echo ""
 fi
 
