@@ -75,10 +75,9 @@ if [[ -a ${LINUX_GIT}/.git/config ]]; then
   git checkout master -f
   git pull
 
+  git branch -D top-of-tree || true
+  git checkout origin/master -b top-of-tree
   git_kernel_torvalds
-
-  git branch -D topoftree || true
-  git checkout origin/master -b topoftree
 
   git describe
 
@@ -186,7 +185,7 @@ if [ -e ${DIR}/system.sh ]; then
 
 if [ "${LATEST_GIT}" ] ; then
 	echo ""
-	echo "Warning LATEST_GIT is enabled from system.sh i hope you know what your doing.."
+	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
 	echo ""
 fi
 
