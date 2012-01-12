@@ -24,7 +24,6 @@ unset KERNEL_REL
 unset STABLE_PATCH
 unset RC_KERNEL
 unset RC_PATCH
-unset PRE_RC
 unset BUILD
 unset CC
 unset LINUX_GIT
@@ -114,22 +113,11 @@ fi
 
 function patch_kernel {
   cd ${DIR}/KERNEL
-
-  if [ ! "${LATEST_GIT}" ] ; then
-    if [ "${PRE_RC}" ]; then
-      bzip2 -dc ${DIR}/patches/patch-${PRE_RC}.bz2 | patch -p1 -s
-      git add .
-      git commit -a -m ''$PRE_RC' patchset'
-    fi
-  fi
-
   export DIR BISECT
   /bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
   git add .
-  if [ "${PRE_RC}" ]; then
-    git commit -a -m ''$PRE_RC'-'$BUILD' patchset'
-  elif [ "${RC_PATCH}" ]; then
+  if [ "${RC_PATCH}" ]; then
     git commit -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
   elif [ "${STABLE_PATCH}" ] ; then
     git commit -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
