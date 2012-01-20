@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2009-2011 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,17 @@ echo "bugs and trivial stuff"
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 
 #should fix gcc-4.6 ehci problems..
-patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
+#Safe to remove?
+#Maverick: gcc-4.4: ehci=okay
+#Natty: gcc-4.5: ehci=okay
+#Oneiric: gcc-4.6: ehci=okay
+#Precise armel: gcc-4.6: ehci=okay
+#Precise armhf: gcc-4.6: ehci=?
+#Squeeze: gcc-4.4: ehci=okay
+#Wheezy: gcc-4.6: ehci=okay
+#Sid armel: gcc-4.6: ehci=?
+#Sid armhf: gcc-4.6: ehci=?
+#patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
 }
 
 function cpufreq {
@@ -53,6 +63,7 @@ git pull git://github.com/RobertCNelson/linux.git micrel_ks8851_v3.2-rc3
 function beagle {
 echo "[git] Board Patches for: BeagleBoard"
 git pull git://github.com/RobertCNelson/linux.git omap_beagle_expansion_v3.2-rc3
+patch -s -p1 < "${DIR}/patches/beagle/ulcd/0001-beagle-ulcd-fix-tsc2007-touchreen.patch"
 
 patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
