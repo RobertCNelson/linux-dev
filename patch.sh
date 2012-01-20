@@ -50,20 +50,19 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 
 function cpufreq {
 echo "[git] omap-cpufreq"
-git pull git://github.com/RobertCNelson/linux.git omap_cpufreq_v3.2-rc4
+#git pull git://github.com/RobertCNelson/linux.git omap_cpufreq_v3.2-rc4
 }
 
 function micrel {
 echo "[git] Micrel KZ8851 patches for: zippy2"
 #original from:
 #ftp://www.micrel.com/ethernet/8851/beagle_zippy_patches.tar.gz 137 KB 04/10/2010 12:26:00 AM
-git pull git://github.com/RobertCNelson/linux.git micrel_ks8851_v3.2-rc3
+git pull git://github.com/RobertCNelson/linux.git micrel_ks8851_v3.3-rc1
 }
 
 function beagle {
 echo "[git] Board Patches for: BeagleBoard"
-git pull git://github.com/RobertCNelson/linux.git omap_beagle_expansion_v3.2-rc3
-patch -s -p1 < "${DIR}/patches/beagle/ulcd/0001-beagle-ulcd-fix-tsc2007-touchreen.patch"
+git pull git://github.com/RobertCNelson/linux.git omap_beagle_expansion_v3.3-rc1
 
 patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
@@ -79,10 +78,8 @@ git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
 
 function omapdrm {
 echo "[git] testing omapdrm"
-echo "[git] pulling cma_v17"
-git pull git://github.com/RobertCNelson/linux.git cma_v17_v3.2-rc2
 echo "[git] pulling drm driver"
-git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.2-rc3
+git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc1
 }
 
 function sakoman {
@@ -127,11 +124,11 @@ git am "${DIR}/patches/fixes/0001-OMAP-HWMOD-add-es3plus-to-am36xx-am35xx.patch"
 bugs_trivial
 
 #patches in git
-cpufreq
+#cpufreq
 micrel
 beagle
-dspbridge
-#omapdrm
+#dspbridge
+omapdrm
 
 #work in progress
 
@@ -146,7 +143,7 @@ touchbook
 #omap4/dvfs still needs more testing..
 omap4
 
-fixes
+#fixes
 
 echo "patch.sh ran successful"
 
