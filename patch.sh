@@ -87,6 +87,20 @@ git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc1
 git am "${DIR}/patches/drm/0001-ARM-OMAP-HWMOD-split-omap2-3-dispc-hwmod-class.patch"
 git am "${DIR}/patches/drm/0002-ARM-OMAP3-HWMOD-add-SYSC_HAS_ENAWAKEUP-for-dispc.patch"
 git am "${DIR}/patches/drm/0003-OMAPDSS-use-sync-versions-of-pm_runtime_put.patch"
+
+#might be merged in 3.4
+git am "${DIR}/patches/drm/0001-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
+git am "${DIR}/patches/drm/0002-ARM-OMAP2-3-HWMOD-Add-missing-flag-for-rfbi-class.patch"
+git am "${DIR}/patches/drm/0003-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
+
+#panda: hdmi fixes (needs work breaks kms on panda)
+#git am "${DIR}/patches/drm/0001-OMAP-4430SDP-Panda-use-gpio_free_array-to-free-HDMI-.patch"
+#git am "${DIR}/patches/drm/0002-OMAP-4430SDP-Panda-rename-HPD-GPIO-to-CT_CP_HPD.patch"
+#git am "${DIR}/patches/drm/0003-OMAPDSS-remove-wrong-HDMI-HPD-muxing.patch"
+#git am "${DIR}/patches/drm/0004-OMAP-4430SDP-Panda-setup-HDMI-GPIO-muxes.patch"
+#git am "${DIR}/patches/drm/0005-OMAP-4430SDP-Panda-add-HDMI-HPD-gpio.patch"
+#git am "${DIR}/patches/drm/0006-OMAPDSS-HDMI-PHY-burnout-fix.patch"
+
 }
 
 function sakoman {
