@@ -38,8 +38,8 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 
 function am33x {
 echo "[git] am33x"
-git pull git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_psp0
-
+git pull git://github.com/RobertCNelson/linux.git beaglebone-3.2
+#git pull git://github.com/koenkooi/linux.git beaglebone-3.2
 }
 
 function sakoman {
