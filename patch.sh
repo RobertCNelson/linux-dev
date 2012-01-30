@@ -33,141 +33,27 @@ function bugs_trivial {
 echo "bugs and trivial stuff"
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
-
-#should fix gcc-4.6 ehci problems..
-#Safe to remove?
-#Maverick: gcc-4.4: ehci=okay
-#Natty: gcc-4.5: ehci=okay
-#Oneiric: gcc-4.6: ehci=okay
-#Precise armel: gcc-4.6: ehci=okay
-#Precise armhf: gcc-4.6: ehci=?
-#Squeeze: gcc-4.4: ehci=okay
-#Wheezy: gcc-4.6: ehci=okay
-#Sid armel: gcc-4.6: ehci=?
-#Sid armhf: gcc-4.6: ehci=?
-#patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
 }
 
-function cpufreq {
-echo "[git] omap-cpufreq"
-#git pull git://github.com/RobertCNelson/linux.git omap_cpufreq_v3.2-rc4
-}
 
-function micrel {
-echo "[git] Micrel KZ8851 patches for: zippy2"
-#original from:
-#ftp://www.micrel.com/ethernet/8851/beagle_zippy_patches.tar.gz 137 KB 04/10/2010 12:26:00 AM
-git pull git://github.com/RobertCNelson/linux.git micrel_ks8851_v3.3-rc1
-}
-
-function beagle {
-echo "[git] Board Patches for: BeagleBoard"
-git pull git://github.com/RobertCNelson/linux.git omap_beagle_expansion_v3.3-rc1
-
-patch -s -p1 < "${DIR}/patches/arago-project/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
-patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
-
-patch -s -p1 < "${DIR}/patches/beagle/0001-ASoC-omap-add-MODULE_ALIAS-to-mcbsp-and-pcm-drivers.patch"
-patch -s -p1 < "${DIR}/patches/beagle/0001-ASoC-omap-convert-per-board-modules-to-platform-driv.patch"
-}
-
-function dspbridge {
-echo "[git] dspbridge"
-git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
-}
-
-function omapdrm {
-echo "[git] testing omapdrm"
-echo "[git] pulling cma driver"
-git pull git://github.com/RobertCNelson/linux.git 3.2-cma-v18_v3.3-rc1
-git am "${DIR}/patches/drm/0001-copy-paste-error.patch"
-echo "[git] pulling drm driver"
-git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc1
-
-git am "${DIR}/patches/drm/0001-ARM-OMAP-HWMOD-split-omap2-3-dispc-hwmod-class.patch"
-git am "${DIR}/patches/drm/0002-ARM-OMAP3-HWMOD-add-SYSC_HAS_ENAWAKEUP-for-dispc.patch"
-git am "${DIR}/patches/drm/0003-OMAPDSS-use-sync-versions-of-pm_runtime_put.patch"
-
-#might be merged in 3.4
-git am "${DIR}/patches/drm/0001-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
-git am "${DIR}/patches/drm/0002-ARM-OMAP2-3-HWMOD-Add-missing-flag-for-rfbi-class.patch"
-git am "${DIR}/patches/drm/0003-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
-
-#panda: hdmi fixes (needs work breaks kms on panda)
-#git am "${DIR}/patches/drm/0001-OMAP-4430SDP-Panda-use-gpio_free_array-to-free-HDMI-.patch"
-#git am "${DIR}/patches/drm/0002-OMAP-4430SDP-Panda-rename-HPD-GPIO-to-CT_CP_HPD.patch"
-#git am "${DIR}/patches/drm/0003-OMAPDSS-remove-wrong-HDMI-HPD-muxing.patch"
-#git am "${DIR}/patches/drm/0004-OMAP-4430SDP-Panda-setup-HDMI-GPIO-muxes.patch"
-#git am "${DIR}/patches/drm/0005-OMAP-4430SDP-Panda-add-HDMI-HPD-gpio.patch"
-#git am "${DIR}/patches/drm/0006-OMAPDSS-HDMI-PHY-burnout-fix.patch"
+function am33x {
+echo "[git] am33x"
+git pull git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_psp0
 
 }
 
 function sakoman {
 echo "sakoman's patches"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
-
 patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0026-OMAP-Overo-Add-support-for-spidev.patch"
-}
-
-function musb {
-echo "musb patches"
-patch -s -p1 < "${DIR}/patches/musb/0001-default-to-fifo-mode-5-for-old-musb-beagles.patch"
-}
-
-function devkit8000 {
-echo "devkit8000"
-patch -s -p1 < "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel-2.6.37-git10.patch"
-}
-
-function touchbook {
-echo "touchbook patches"
-patch -s -p1 < "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp.patch"
-patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
-}
-
-function omap4 {
-echo "omap4 related patches"
-patch -s -p1 < "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
-}
-
-function fixes {
-echo "generic fixes"
-
-git am "${DIR}/patches/fixes/0001-OMAP-UART-Enable-tx-wakeup-bit-in-wer.patch"
-
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP-AM3517-3505-fix-crash-on-boot-due-to-incorr.patch"
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP4-hwmod-Don-t-wait-for-the-idle-status-if-mo.patch"
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP4-clock-Add-CPU-local-timer-clock-node.patch"
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP3-hwmod-data-disable-multiblock-reads-on-MMC.patch"
-#git am "${DIR}/patches/fixes/0001-OMAP-HWMOD-add-es3plus-to-am36xx-am35xx.patch"
 }
 
 bugs_trivial
 
 #patches in git
-#cpufreq
-micrel
-beagle
-#dspbridge
-omapdrm
-
-#work in progress
+am33x
 
 #external tree's
 sakoman
-musb
-
-#random board patches
-devkit8000
-touchbook
-
-#omap4/dvfs still needs more testing..
-omap4
-
-fixes
 
 echo "patch.sh ran successful"
 

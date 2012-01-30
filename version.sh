@@ -2,18 +2,18 @@
 
 unset BUILD
 
-KERNEL_REL=3.3
+KERNEL_REL=3.2
 
 #for x.x.X
 #STABLE_PATCH=1
 
 #for x.x-rcX
-RC_KERNEL=3.3
-RC_PATCH=-rc1
+#RC_KERNEL=3.3
+#RC_PATCH=-rc1
 
 ABI=0
 
-BUILD=d${ABI}
+BUILD=psp${ABI}
 
 BUILDREV=1.0
 DISTRO=cross
