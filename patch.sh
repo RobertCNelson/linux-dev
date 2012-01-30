@@ -79,8 +79,7 @@ git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
 function omapdrm {
 echo "[git] testing omapdrm"
 echo "[git] pulling cma driver"
-git pull git://github.com/RobertCNelson/linux.git 3.2-cma-v18_v3.3-rc1
-git am "${DIR}/patches/drm/0001-copy-paste-error.patch"
+git pull git://github.com/RobertCNelson/linux.git cma-v19_v3.3-rc1
 echo "[git] pulling drm driver"
 git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc1
 
