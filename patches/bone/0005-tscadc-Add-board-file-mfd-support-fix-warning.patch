@@ -1,0 +1,44 @@
+From f7330897eabdf0275cd51213fe1dc778e165d07c Mon Sep 17 00:00:00 2001
+From: Joel A Fernandes <joelagnel@ti.com>
+Date: Wed, 30 Nov 2011 15:02:17 +0100
+Subject: [PATCH 05/12] tscadc: Add board file mfd support, fix warning
+
+Signed-off-by: Joel A Fernandes <joelagnel@ti.com>
+
+Conflicts:
+
+	arch/arm/mach-omap2/board-am335xevm.c
+---
+ arch/arm/mach-omap2/board-am335xevm.c |    2 +-
+ drivers/input/touchscreen/ti_tscadc.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index c7bb091..17705b3 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -2182,7 +2182,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+ 	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
+-	{tsc_init, 	DEV_ON_BASEBOARD, PROFILE_ALL},
++	{bone_tsc_init, 	DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	{NULL, 0, 0},
+ };
+ 
+diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
+index 699503d..f813564 100644
+--- a/drivers/input/touchscreen/ti_tscadc.c
++++ b/drivers/input/touchscreen/ti_tscadc.c
+@@ -462,7 +462,7 @@ static irqreturn_t tsc_interrupt(int irq, void *dev)
+ static	int __devinit tscadc_probe(struct platform_device *pdev)
+ {
+ 	struct tscadc			*ts_dev;
+-	struct input_dev		*input_dev;
++	struct input_dev		*input_dev = NULL;
+ 	int				err;
+ 	int				clk_value;
+ 	int				clock_rate, irqenable, ctrl;
+-- 
+1.7.4.1
+

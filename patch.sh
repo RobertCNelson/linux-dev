@@ -38,8 +38,21 @@ patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-afte
 
 function am33x {
 echo "[git] am33x"
-git pull git://github.com/RobertCNelson/linux.git beaglebone-3.2
-#git pull git://github.com/koenkooi/linux.git beaglebone-3.2
+git pull git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_psp0
+
+git am "${DIR}/patches/bone/0001-beaglebone-rebase-everything-onto-3.2-WARNING-MEGAPA.patch"
+git am "${DIR}/patches/bone/0002-more-beaglebone-merges.patch"
+git am "${DIR}/patches/bone/0003-beaglebone-disable-tsadc.patch"
+git am "${DIR}/patches/bone/0004-tscadc-Add-general-purpose-mode-untested-with-touchs.patch"
+git am "${DIR}/patches/bone/0005-tscadc-Add-board-file-mfd-support-fix-warning.patch"
+git am "${DIR}/patches/bone/0006-AM335X-init-tsc-bone-style-for-new-boards.patch"
+git am "${DIR}/patches/bone/0007-tscadc-make-stepconfig-channel-configurable.patch"
+git am "${DIR}/patches/bone/0008-tscadc-Trigger-through-sysfs.patch"
+git am "${DIR}/patches/bone/0009-meta-ti-Remove-debug-messages-for-meta-ti.patch"
+git am "${DIR}/patches/bone/0010-tscadc-switch-to-polling-instead-of-interrupts.patch"
+git am "${DIR}/patches/bone/0011-beaglebone-fix-ADC-init.patch"
+git am "${DIR}/patches/bone/0012-beaglebone-add-defconfig.patch"
+
 }
 
 function sakoman {
