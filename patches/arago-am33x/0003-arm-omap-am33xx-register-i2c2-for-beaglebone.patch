@@ -1,0 +1,70 @@
+From f6a997a1edfc019eb40334f5a11febed345d5752 Mon Sep 17 00:00:00 2001
+From: Hebbar, Gururaja <gururaja.hebbar@ti.com>
+Date: Tue, 31 Jan 2012 09:13:38 +0530
+Subject: [PATCH 3/3] arm:omap:am33xx : register i2c2 for beaglebone
+
+Beaglebone uses i2c2 to detect expansion cards. This patch registers
+i2c2 device along with setting up pin-muxes
+
+Signed-off-by: Hebbar, Gururaja <gururaja.hebbar@ti.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 4c09cc9..8aa7e10 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -541,6 +541,14 @@ static struct pinmux_config i2c1_pin_mux[] = {
+ 	{NULL, 0},
+ };
+ 
++static struct pinmux_config i2c2_pin_mux[] = {
++	{"uart1_ctsn.i2c2_sda",    OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
++					AM33XX_PULL_UP | AM33XX_INPUT_EN},
++	{"uart1_rtsn.i2c2_scl",   OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
++					AM33XX_PULL_UP | AM33XX_INPUT_EN},
++	{NULL, 0},
++};
++
+ /* Module pin mux for mcasp1 */
+ static struct pinmux_config mcasp1_pin_mux[] = {
+ 	{"mii1_crs.mcasp1_aclkx", OMAP_MUX_MODE4 | AM33XX_PIN_INPUT_PULLDOWN},
+@@ -1350,6 +1358,18 @@ static void i2c1_init(int evm_id, int profile)
+ 	return;
+ }
+ 
++
++static struct i2c_board_info am335x_i2c_boardinfo2[] = {
++};
++
++static void i2c2_init(int evm_id, int profile)
++{
++	setup_pin_mux(i2c2_pin_mux);
++	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
++			ARRAY_SIZE(am335x_i2c_boardinfo2));
++	return;
++}
++
+ /* Setup McASP 1 */
+ static void mcasp1_init(int evm_id, int profile)
+ {
+@@ -1704,6 +1724,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+ 	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
++	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{NULL, 0, 0},
+ };
+ 
+@@ -1714,6 +1735,7 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+ 	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
++	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{NULL, 0, 0},
+ };
+ 
+-- 
+1.7.4.1
+

@@ -35,6 +35,16 @@ echo "bugs and trivial stuff"
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 }
 
+function am33x-cleanup {
+echo "[git] am33x-cleanup"
+git pull git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_psp0
+
+git am "${DIR}/patches/arago-am33x/0001-arm-omap-am33xx-add-missing-i2c-pin-mus-details.patch"
+git am "${DIR}/patches/arago-am33x/0002-arm-omap-am33xx-add-i2c2-hwmod-data.patch"
+git am "${DIR}/patches/arago-am33x/0003-arm-omap-am33xx-register-i2c2-for-beaglebone.patch"
+
+git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
+}
 
 function am33x {
 echo "[git] am33x"
@@ -52,21 +62,17 @@ git am "${DIR}/patches/bone/0009-meta-ti-Remove-debug-messages-for-meta-ti.patch
 git am "${DIR}/patches/bone/0010-tscadc-switch-to-polling-instead-of-interrupts.patch"
 git am "${DIR}/patches/bone/0011-beaglebone-fix-ADC-init.patch"
 git am "${DIR}/patches/bone/0012-beaglebone-add-defconfig.patch"
+git am "${DIR}/patches/bone/0013-AM335x-MUX-add-ehrpwm1A.patch"
+git am "${DIR}/patches/bone/0014-beaglebone-enable-PWM-for-lcd-backlight-backlight-is.patch"
+git am "${DIR}/patches/bone/0015-omap_hsmmc-Set-dto-to-max-value-of-14-to-avoid-SD-Ca.patch"
+git am "${DIR}/patches/bone/0016-beaglebone-set-default-brightness-to-50-for-pwm-back.patch"
 
-}
-
-function sakoman {
-echo "sakoman's patches"
-patch -s -p1 < "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 }
 
 bugs_trivial
 
 #patches in git
-am33x
-
-#external tree's
-sakoman
+am33x-cleanup
 
 echo "patch.sh ran successful"
 
