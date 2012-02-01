@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+VERSION="v2012.01-1"
+
 unset DIR
 
 DIR=$PWD
@@ -163,6 +165,9 @@ if [ \$(uname -m) == "armv7l" ] ; then
   sudo rm -f /etc/powervr-esrev || true
  fi
 
+ echo "[default]" | sudo tee /etc/powervr.ini
+ echo "WindowSystem=libpvrPVR2D_FRONTWSEGL.so" | sudo tee -a /etc/powervr.ini
+
   if which lsb_release >/dev/null 2>&1 && [ "\$(lsb_release -is)" = Ubuntu ]; then
 
     if [ ! \$(which devmem2) ];then
@@ -182,7 +187,7 @@ if [ \$(uname -m) == "armv7l" ] ; then
       #karmic/lucid/maverick/natty etc
       sudo update-rc.d -f pvr remove
       if [ -f /etc/init.d/pvr ] ; then
-        rm -f /etc/init.d/pvr || true
+        sudo rm -f /etc/init.d/pvr || true
       fi
       sudo cp /opt/pvr /etc/init.d/pvr
       sudo chmod +x /etc/init.d/pvr
@@ -345,4 +350,10 @@ function tar_up_examples {
  sgx_setup
  copy_sgx_system_files
  tar_up_examples
+
+ echo ""
+ echo "Script Version ${VERSION}"
+ echo "Email Bugs: bugs@rcn-ee.com"
+ echo "-----------------------------"
+ echo ""
 

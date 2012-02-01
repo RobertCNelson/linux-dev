@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2011 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+
+VERSION="v2012.01"
 
 unset BUILD
 unset CC
@@ -261,4 +263,12 @@ libstd_dependicy
 ti_DSP_binaries
 
 create_DSP_package
+
+echo ""
+echo "Script Version ${VERSION}"
+echo "Email Bugs: bugs@rcn-ee.com"
+echo "-----------------------------"
+echo ""
+
+
 
