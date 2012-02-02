@@ -1,22 +1,30 @@
-From 3591247ac9fb93d0f936786c1a4e6cc8a88922f1 Mon Sep 17 00:00:00 2001
+From 0cc7cc50180b8f22133ee8fb61a5d277982f96b2 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 1 Feb 2012 09:44:28 -0600
+Date: Thu, 2 Feb 2012 09:34:01 -0600
 Subject: [PATCH] bone: arago angstrom merge
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |  514 ++++++++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/board-am335xevm.c |  512 ++++++++++++++++++++++++++++++++-
  arch/arm/mach-omap2/devices.c         |   13 +
  arch/arm/mach-omap2/devices.h         |    1 +
- arch/arm/mach-omap2/mux33xx.c         |   14 +-
+ arch/arm/mach-omap2/mux33xx.c         |   18 +-
  arch/arm/mach-omap2/mux33xx.h         |    4 +
- drivers/input/touchscreen/ti_tscadc.c |  275 ++++++++++++++----
+ drivers/input/touchscreen/ti_tscadc.c |  273 ++++++++++++++----
  drivers/mmc/host/omap_hsmmc.c         |    3 +
+ drivers/usb/gadget/f_rndis.c          |    4 +-
+ drivers/video/Kconfig                 |   11 +
+ drivers/video/Makefile                |    1 +
+ drivers/video/da8xx-fb.c              |   14 +
+ drivers/video/st7735fb.c              |  516 +++++++++++++++++++++++++++++++++
  include/linux/input/ti_tscadc.h       |    5 +
- 8 files changed, 766 insertions(+), 63 deletions(-)
+ include/video/st7735fb.h              |   82 ++++++
+ 14 files changed, 1390 insertions(+), 67 deletions(-)
+ create mode 100644 drivers/video/st7735fb.c
+ create mode 100644 include/video/st7735fb.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 8aa7e10..0f8cb3a 100644
+index 8aa7e10..7c6ad47 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -453,10 +461,10 @@ index 8aa7e10..0f8cb3a 100644
 +				"register LCD cape\n");
 +		return;
 +	}
-+	
++
 +	if (am33xx_register_lcdc(&bbtoys7_pdata))
 +		pr_info("Failed to register Beagleboardtoys 7\" LCD cape device\n");
-+		
++
 +	return;
 +}
 +
@@ -464,7 +472,7 @@ index 8aa7e10..0f8cb3a 100644
 +
 +static void dvi_init(int evm_id, int profile)
 +{
-+    setup_pin_mux(dvi_pin_mux);
++	setup_pin_mux(dvi_pin_mux);
 +	gpio_request(BEAGLEBONEDVI_PDn, "DVI_PDn");
 +	gpio_direction_output(BEAGLEBONEDVI_PDn, 1);
 +
@@ -474,7 +482,7 @@ index 8aa7e10..0f8cb3a 100644
 +				"register DVI adapter\n");
 +		return;
 +	}
-+	
++
 +	if (am33xx_register_lcdc(&dvi_pdata))
 +		pr_info("Failed to register BeagleBoardToys DVI cape\n");
 +	return;
@@ -483,7 +491,7 @@ index 8aa7e10..0f8cb3a 100644
  static void tsc_init(int evm_id, int profile)
  {
  	int err;
-@@ -939,16 +1307,48 @@ static void tsc_init(int evm_id, int profile)
+@@ -939,16 +1307,47 @@ static void tsc_init(int evm_id, int profile)
  	if (gp_evm_revision == GP_EVM_REV_IS_1_1A) {
  		am335x_touchscreen_data.analog_input = 1;
  		pr_info("TSC connected to beta GP EVM\n");
@@ -512,7 +520,6 @@ index 8aa7e10..0f8cb3a 100644
 +		pr_err("failed to register touchscreen device\n");
 +}
 +
-+
 +static void boneleds_init(int evm_id, int profile )
 +{
 +	int err;
@@ -533,7 +540,7 @@ index 8aa7e10..0f8cb3a 100644
  static void rgmii1_init(int evm_id, int profile)
  {
  	setup_pin_mux(rgmii1_pin_mux);
-@@ -1358,18 +1758,108 @@ static void i2c1_init(int evm_id, int profile)
+@@ -1358,16 +1757,105 @@ static void i2c1_init(int evm_id, int profile)
  	return;
  }
  
@@ -556,8 +563,7 @@ index 8aa7e10..0f8cb3a 100644
 +		}
 +		return;
 +	}
- 
--static struct i2c_board_info am335x_i2c_boardinfo2[] = {
++
 +	if (cape_config.header != AM335X_EEPROM_HEADER) {
 +		pr_warning("BeagleBone Cape EEPROM: wrong header 0x%x, expected 0x%x\n",
 +			cape_config.header, AM335X_EEPROM_HEADER);
@@ -570,7 +576,8 @@ index 8aa7e10..0f8cb3a 100644
 +	pr_info("BeagleBone cape: %s %s\n", manufacturer, name);
 +	snprintf(tmp, sizeof(cape_config.partnumber) + 1, "%s", cape_config.partnumber);
 +	pr_info("BeagleBone cape partnumber: %s\n", tmp);
-+
+ 
+-static struct i2c_board_info am335x_i2c_boardinfo2[] = {
 +	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 15)) {
 +			pr_info("BeagleBone cape: initializing DVI cape\n");
 +			dvi_init(0,0);
@@ -584,14 +591,14 @@ index 8aa7e10..0f8cb3a 100644
 +		enable_ehrpwm1(0,0);
 +		beaglebone_tsadcpins_free = 0;
 +	}
-+	
-+	
++
++
 +	if ((capecount > 3) && (beaglebone_tsadcpins_free == 1)) {
 +		pr_info("BeagleBone cape: exporting ADC pins to sysfs\n");
 +		bone_tsc_init(0,0);
 +		beaglebone_tsadcpins_free = 0;
 +	}
-+	
++
 +	return;
 +out:
 +	/*
@@ -643,11 +650,8 @@ index 8aa7e10..0f8cb3a 100644
 +        return;
  }
  
-+
  /* Setup McASP 1 */
- static void mcasp1_init(int evm_id, int profile)
- {
-@@ -1723,8 +2213,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+@@ -1723,8 +2211,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
  	{rmii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -658,7 +662,7 @@ index 8aa7e10..0f8cb3a 100644
  	{NULL, 0, 0},
  };
  
-@@ -1734,8 +2225,9 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+@@ -1734,8 +2223,9 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{mii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -669,7 +673,7 @@ index 8aa7e10..0f8cb3a 100644
  	{NULL, 0, 0},
  };
  
-@@ -1752,6 +2244,7 @@ static void setup_general_purpose_evm(void)
+@@ -1752,6 +2242,7 @@ static void setup_general_purpose_evm(void)
  	pr_info("The board is general purpose EVM in profile %d\n", prof_sel);
  
  	if (!strncmp("1.1A", config.version, 4)) {
@@ -677,7 +681,7 @@ index 8aa7e10..0f8cb3a 100644
  		gp_evm_revision = GP_EVM_REV_IS_1_1A;
  	} else if (!strncmp("1.0", config.version, 3)) {
  		gp_evm_revision = GP_EVM_REV_IS_1_0;
-@@ -1822,6 +2315,7 @@ static void setup_beaglebone_old(void)
+@@ -1822,6 +2313,7 @@ static void setup_beaglebone_old(void)
  static void setup_beaglebone(void)
  {
  	pr_info("The board is a AM335x Beaglebone.\n");
@@ -721,7 +725,7 @@ index e086839..5161eb4 100644
  
  #endif
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
-index 8df8fa9..fcb81ec 100644
+index 8df8fa9..5d86a6a 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
 +++ b/arch/arm/mach-omap2/mux33xx.c
 @@ -85,7 +85,7 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
@@ -733,6 +737,19 @@ index 8df8fa9..fcb81ec 100644
  	_AM33XX_MUXENTRY(GPMC_A3, 0,
  		"gpmc_a3", "mii2_txd2", "rgmii2_td2", "mmc2_dat2",
  		NULL, NULL, NULL, "gpio1_19"),
+@@ -312,10 +312,10 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
+ 		"uart0_txd", "spi1_cs1", "d_can0_rx", "i2c2_scl",
+ 		NULL, NULL, NULL, "gpio1_11"),
+ 	_AM33XX_MUXENTRY(UART1_CTSN, 0,
+-		"uart1_ctsn", NULL, NULL, "i2c2_sda",
++		"uart1_ctsn", NULL, "d_can0_tx", "i2c2_sda",
+ 		"spi1_cs0", NULL, NULL, "gpio0_12"),
+ 	_AM33XX_MUXENTRY(UART1_RTSN, 0,
+-		"uart1_rtsn", NULL, NULL, "i2c2_scl",
++		"uart1_rtsn", NULL, "d_can0_rx", "i2c2_scl",
+ 		"spi1_cs1", NULL, NULL, "gpio0_13"),
+ 	_AM33XX_MUXENTRY(UART1_RXD, 0,
+ 		"uart1_rxd", "mmc1_sdwp", NULL, "i2c1_sda",
 @@ -584,6 +584,18 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
  	_AM33XX_MUXENTRY(AIN3, 0,
  		"ain3", NULL, NULL, NULL,
@@ -768,7 +785,7 @@ index 70a3012..348c8e5 100644
  #define AM33XX_CONTROL_PADCONF_AIN2_OFFSET			0x0B24
  #define AM33XX_CONTROL_PADCONF_AIN1_OFFSET			0x0B28
 diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-index e3b5775..07b3787 100644
+index e3b5775..1f3ad72 100644
 --- a/drivers/input/touchscreen/ti_tscadc.c
 +++ b/drivers/input/touchscreen/ti_tscadc.c
 @@ -26,7 +26,20 @@
@@ -821,7 +838,7 @@ index e3b5775..07b3787 100644
  	int			irq;
  	void __iomem		*tsc_base;
  };
-@@ -120,6 +140,88 @@ static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
+@@ -120,6 +140,87 @@ static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
  	writel(val, tsc->tsc_base + reg);
  }
  
@@ -832,22 +849,22 @@ index e3b5775..07b3787 100644
 +	unsigned int	stepconfig = 0, delay = 0, chargeconfig = 0;
 +
 +	/*
-+ 	 * Step Configuration
-+ 	 * software-enabled continous mode
-+ 	 * 2 sample averaging
-+ 	 * sample channel 1 (SEL_INP mux bits = 0)
-+ 	 */
++	 * Step Configuration
++	 * software-enabled continous mode
++	 * 2 sample averaging
++	 * sample channel 1 (SEL_INP mux bits = 0)
++	 */
 +	stepconfig = TSCADC_STEPCONFIG_MODE_SWONESHOT |
 +		TSCADC_STEPCONFIG_2SAMPLES_AVG |
 +		((channel-1) << 19);
-+	
++
 +	delay = TSCADC_STEPCONFIG_SAMPLEDLY | TSCADC_STEPCONFIG_OPENDLY;
 +
 +	tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG(10), stepconfig);
 +	tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY(10), delay);
-+	
++
 +	/* Get the ball rolling, this will trigger the FSM to step through
-+ 	 * as soon as TSC_ADC_SS is turned on */
++	 * as soon as TSC_ADC_SS is turned on */
 +	tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB_GENERAL);
 +}
 +
@@ -874,14 +891,13 @@ index e3b5775..07b3787 100644
 +	if (status & TSCADC_IRQENB_FIFO0THRES) {
 +		fifo1count = tscadc_readl(ts_dev, TSCADC_REG_FIFO0CNT);
 +		// printk("fifo 0 count = %d\n", fifo1count);
-+	
++
 +		for (i = 0; i < fifo1count; i++) {
 +			read_sample = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
 +			printk("sample: %d: %x\n", i, read_sample);
 +		}
 +		irqclr |= TSCADC_IRQENB_FIFO0THRES;
 +	}
-+
 +
 +	if (status & TSCADC_IRQENB_FIFO1THRES) {
 +		fifo1count = tscadc_readl(ts_dev, TSCADC_REG_FIFO1CNT);
@@ -910,7 +926,7 @@ index e3b5775..07b3787 100644
  static void tsc_step_config(struct tscadc *ts_dev)
  {
  	unsigned int	stepconfigx = 0, stepconfigy = 0;
-@@ -224,7 +326,7 @@ static void tsc_step_config(struct tscadc *ts_dev)
+@@ -224,7 +325,7 @@ static void tsc_step_config(struct tscadc *ts_dev)
  	tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG14, stepconfigz2);
  	tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY14, delay);
  
@@ -919,7 +935,7 @@ index e3b5775..07b3787 100644
  }
  
  static void tsc_idle_config(struct tscadc *ts_config)
-@@ -242,7 +344,7 @@ static void tsc_idle_config(struct tscadc *ts_config)
+@@ -242,7 +343,7 @@ static void tsc_idle_config(struct tscadc *ts_config)
  	tscadc_writel(ts_config, TSCADC_REG_IDLECONFIG, idleconfig);
  }
  
@@ -928,7 +944,7 @@ index e3b5775..07b3787 100644
  {
  	struct tscadc		*ts_dev = (struct tscadc *)dev;
  	struct input_dev	*input_dev = ts_dev->input;
-@@ -362,7 +464,7 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
+@@ -362,7 +463,7 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
  	/* check pending interrupts */
  	tscadc_writel(ts_dev, TSCADC_REG_IRQEOI, 0x0);
  
@@ -937,7 +953,7 @@ index e3b5775..07b3787 100644
  	return IRQ_HANDLED;
  }
  
-@@ -370,10 +472,50 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
+@@ -370,10 +471,50 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
  * The functions for inserting/removing driver as a module.
  */
  
@@ -973,8 +989,8 @@ index e3b5775..07b3787 100644
 +	while (!fifo0count);
 +
 +	while (fifo0count--) {
-+			  read_sample = tscadc_readl(ts_dev, TSCADC_REG_FIFO0) & 0xfff;
-+			  // printk("polling sample: %d: %x\n", fifo0count, read_sample);
++			read_sample = tscadc_readl(ts_dev, TSCADC_REG_FIFO0) & 0xfff;
++			// printk("polling sample: %d: %x\n", fifo0count, read_sample);
 +	}
 +	sprintf(buf, "%d", read_sample);
 +
@@ -989,7 +1005,7 @@ index e3b5775..07b3787 100644
  	int				err;
  	int				clk_value;
  	int				clock_rate, irqenable, ctrl;
-@@ -381,6 +523,18 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -381,6 +522,18 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  	struct resource			*res;
  	struct clk			*clk;
  
@@ -1008,7 +1024,7 @@ index e3b5775..07b3787 100644
  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  	if (!res) {
  		dev_err(&pdev->dev, "no memory resource defined.\n");
-@@ -400,13 +554,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -400,13 +553,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  		return -ENODEV;
  	}
  
@@ -1030,7 +1046,7 @@ index e3b5775..07b3787 100644
  
  	res =  request_mem_region(res->start, resource_size(res), pdev->name);
  	if (!res) {
-@@ -422,8 +578,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -422,8 +577,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  		goto err_release_mem;
  	}
  
@@ -1048,14 +1064,13 @@ index e3b5775..07b3787 100644
  	if (err) {
  		dev_err(&pdev->dev, "failed to allocate irq.\n");
  		goto err_unmap_regs;
-@@ -443,11 +606,17 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -443,11 +605,16 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  		goto err_free_irq;
  	}
  	clock_rate = clk_get_rate(clk);
 +
 +	/* clk_value of atleast 21MHz required
-+ 	 * Clock verified on BeagleBone to be 24MHz */
-+
++	 * Clock verified on BeagleBone to be 24MHz */
 +
  	clk_value = clock_rate / ADC_CLK;
  	if (clk_value < 7) {
@@ -1066,7 +1081,7 @@ index e3b5775..07b3787 100644
  	/* TSCADC_CLKDIV needs to be configured to the value minus 1 */
  	clk_value = clk_value - 1;
  	tscadc_writel(ts_dev, TSCADC_REG_CLKDIV, clk_value);
-@@ -458,57 +627,59 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -458,57 +625,59 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  	ts_dev->wires = pdata->wires;
  	ts_dev->analog_input = pdata->analog_input;
  	ts_dev->x_plate_resistance = pdata->x_plate_resistance;
@@ -1178,6 +1193,605 @@ index 703013c..554237f 100644
  	reg &= ~DTO_MASK;
  	reg |= dto << DTO_SHIFT;
  	OMAP_HSMMC_WRITE(host->base, SYSCTL, reg);
+diff --git a/drivers/usb/gadget/f_rndis.c b/drivers/usb/gadget/f_rndis.c
+index 6614490..d2f1b6f 100644
+--- a/drivers/usb/gadget/f_rndis.c
++++ b/drivers/usb/gadget/f_rndis.c
+@@ -767,11 +767,11 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
+ 
+ 	rndis_set_param_medium(rndis->config, NDIS_MEDIUM_802_3, 0);
+ 	rndis_set_host_mac(rndis->config, rndis->ethaddr);
+-
++/*
+ 	if (rndis_set_param_vendor(rndis->config, vendorID,
+ 				manufacturer))
+ 		goto fail;
+-
++*/
+ 	/* NOTE:  all that is done without knowing or caring about
+ 	 * the network link ... which is unavailable to this code
+ 	 * until we're activated via set_alt().
+diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+index f66bf0e..64754de 100644
+--- a/drivers/video/Kconfig
++++ b/drivers/video/Kconfig
+@@ -2420,6 +2420,17 @@ config FB_PUV3_UNIGFX
+ 	  Choose this option if you want to use the Unigfx device as a
+ 	  framebuffer device. Without the support of PCI & AGP.
+ 
++config FB_ST7735
++	tristate "ST7735 framebuffer support"
++	depends on FB && SPI
++	select FB_SYS_FILLRECT
++	select FB_SYS_COPYAREA
++	select FB_SYS_IMAGEBLIT
++	select FB_SYS_FOPS
++	select FB_DEFERRED_IO
++	help
++	  Framebuffer support for the ST7735 display controller in SPI mode.
++
+ source "drivers/video/omap/Kconfig"
+ source "drivers/video/omap2/Kconfig"
+ 
+diff --git a/drivers/video/Makefile b/drivers/video/Makefile
+index 9b9d8ff..c6d9851 100644
+--- a/drivers/video/Makefile
++++ b/drivers/video/Makefile
+@@ -143,6 +143,7 @@ obj-$(CONFIG_FB_MSM)              += msm/
+ obj-$(CONFIG_FB_NUC900)           += nuc900fb.o
+ obj-$(CONFIG_FB_JZ4740)		  += jz4740_fb.o
+ obj-$(CONFIG_FB_PUV3_UNIGFX)      += fb-puv3.o
++obj-$(CONFIG_FB_ST7735)		  += st7735fb.o
+ 
+ # Platform or fallback drivers go here
+ obj-$(CONFIG_FB_UVESA)            += uvesafb.o
+diff --git a/drivers/video/da8xx-fb.c b/drivers/video/da8xx-fb.c
+index 85eda33..d75bb4f 100644
+--- a/drivers/video/da8xx-fb.c
++++ b/drivers/video/da8xx-fb.c
+@@ -271,6 +271,20 @@ static struct da8xx_panel known_lcd_panels[] = {
+ 		.pxl_clk = 30000000,
+ 		.invert_pxl_clk = 0,
+ 	},
++	/* 1024 x 768 @ 60 Hz  Reduced blanking VESA CVT 0.79M3-R */
++	[3] = {
++		.name = "1024x768@60",
++		.width = 1024,
++		.height = 768,
++		.hfp = 48,
++		.hbp = 80,
++		.hsw = 32,
++		.vfp = 3,
++		.vbp = 15,
++		.vsw = 4,
++		.pxl_clk = 56000000,
++		.invert_pxl_clk = 0,
++	},
+ };
+ 
+ /* Enable the Raster Engine of the LCD Controller */
+diff --git a/drivers/video/st7735fb.c b/drivers/video/st7735fb.c
+new file mode 100644
+index 0000000..32b28af
+--- /dev/null
++++ b/drivers/video/st7735fb.c
+@@ -0,0 +1,516 @@
++/*
++ * linux/drivers/video/st7735fb.c -- FB driver for ST7735 LCD controller
++ * Layout is based on skeletonfb.c by James Simmons and Geert Uytterhoeven.
++ *
++ * Copyright (C) 2011, Matt Porter
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License. See the file COPYING in the main directory of this archive for
++ * more details.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <linux/string.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
++#include <linux/slab.h>
++#include <linux/init.h>
++#include <linux/fb.h>
++#include <linux/gpio.h>
++#include <linux/spi/spi.h>
++#include <linux/delay.h>
++#include <linux/uaccess.h>
++
++#include <video/st7735fb.h>
++
++static struct st7735_function st7735_cfg_script[] = {
++	{ ST7735_START, ST7735_START},
++	{ ST7735_CMD, ST7735_SWRESET},
++	{ ST7735_DELAY, 150},
++	{ ST7735_CMD, ST7735_SLPOUT},
++	{ ST7735_DELAY, 500},
++	{ ST7735_CMD, ST7735_FRMCTR1},
++	{ ST7735_DATA, 0x01},
++	{ ST7735_DATA, 0x2c},
++	{ ST7735_DATA, 0x2d},
++	{ ST7735_CMD, ST7735_FRMCTR2},
++	{ ST7735_DATA, 0x01},
++	{ ST7735_DATA, 0x2c},
++	{ ST7735_DATA, 0x2d},
++	{ ST7735_CMD, ST7735_FRMCTR3},
++	{ ST7735_DATA, 0x01},
++	{ ST7735_DATA, 0x2c},
++	{ ST7735_DATA, 0x2d},
++	{ ST7735_DATA, 0x01},
++	{ ST7735_DATA, 0x2c},
++	{ ST7735_DATA, 0x2d},
++	{ ST7735_CMD, ST7735_INVCTR},
++	{ ST7735_DATA, 0x07},
++	{ ST7735_CMD, ST7735_PWCTR1},
++	{ ST7735_DATA, 0xa2},
++	{ ST7735_DATA, 0x02},
++	{ ST7735_DATA, 0x84},
++	{ ST7735_CMD, ST7735_PWCTR2},
++	{ ST7735_DATA, 0xc5},
++	{ ST7735_CMD, ST7735_PWCTR3},
++	{ ST7735_DATA, 0x0a},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_CMD, ST7735_PWCTR4},
++	{ ST7735_DATA, 0x8a},
++	{ ST7735_DATA, 0x2a},
++	{ ST7735_CMD, ST7735_PWCTR5},
++	{ ST7735_DATA, 0x8a},
++	{ ST7735_DATA, 0xee},
++	{ ST7735_CMD, ST7735_VMCTR1},
++	{ ST7735_DATA, 0x0e},
++	{ ST7735_CMD, ST7735_INVOFF},
++	{ ST7735_CMD, ST7735_MADCTL},
++	{ ST7735_DATA, 0xc8},
++	{ ST7735_CMD, ST7735_COLMOD},
++	{ ST7735_DATA, 0x05},
++	{ ST7735_CMD, ST7735_CASET},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x7f},
++	{ ST7735_CMD, ST7735_RASET},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x9f},
++	{ ST7735_CMD, ST7735_GMCTRP1},
++	{ ST7735_DATA, 0x02},
++	{ ST7735_DATA, 0x1c},
++	{ ST7735_DATA, 0x07},
++	{ ST7735_DATA, 0x12},
++	{ ST7735_DATA, 0x37},
++	{ ST7735_DATA, 0x32},
++	{ ST7735_DATA, 0x29},
++	{ ST7735_DATA, 0x2d},
++	{ ST7735_DATA, 0x29},
++	{ ST7735_DATA, 0x25},
++	{ ST7735_DATA, 0x2b},
++	{ ST7735_DATA, 0x39},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x01},
++	{ ST7735_DATA, 0x03},
++	{ ST7735_DATA, 0x10},
++	{ ST7735_CMD, ST7735_GMCTRN1},
++	{ ST7735_DATA, 0x03},
++	{ ST7735_DATA, 0x1d},
++	{ ST7735_DATA, 0x07},
++	{ ST7735_DATA, 0x06},
++	{ ST7735_DATA, 0x2e},
++	{ ST7735_DATA, 0x2c},
++	{ ST7735_DATA, 0x29},
++	{ ST7735_DATA, 0x2d},
++	{ ST7735_DATA, 0x2e},
++	{ ST7735_DATA, 0x2e},
++	{ ST7735_DATA, 0x37},
++	{ ST7735_DATA, 0x3f},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x00},
++	{ ST7735_DATA, 0x02},
++	{ ST7735_DATA, 0x10},
++	{ ST7735_CMD, ST7735_DISPON},
++	{ ST7735_DELAY, 100},
++	{ ST7735_CMD, ST7735_NORON},
++	{ ST7735_DELAY, 10},
++	{ ST7735_END, ST7735_END},
++};
++
++static struct fb_fix_screeninfo st7735fb_fix __devinitdata = {
++	.id =		"ST7735",
++	.type =		FB_TYPE_PACKED_PIXELS,
++	.visual =	FB_VISUAL_PSEUDOCOLOR,
++	.xpanstep =	0,
++	.ypanstep =	0,
++	.ywrapstep =	0,
++	.line_length =	WIDTH*BPP/8,
++	.accel =	FB_ACCEL_NONE,
++};
++
++static struct fb_var_screeninfo st7735fb_var __devinitdata = {
++	.xres =			WIDTH,
++	.yres =			HEIGHT,
++	.xres_virtual =		WIDTH,
++	.yres_virtual =		HEIGHT,
++	.bits_per_pixel =	BPP,
++	.nonstd	=		1,
++};
++
++static int st7735_write(struct st7735fb_par *par, u8 data)
++{
++	u8 txbuf[2]; /* allocation from stack must go */
++
++	txbuf[0] = data;
++
++	return spi_write(par->spi, &txbuf[0], 1);
++}
++
++static void st7735_write_data(struct st7735fb_par *par, u8 data)
++{
++	int ret = 0;
++
++	/* Set data mode */
++	gpio_set_value(par->dc, 1);
++
++	ret = st7735_write(par, data);
++	if (ret < 0)
++		pr_err("%s: write data %02x failed with status %d\n",
++			par->info->fix.id, data, ret);
++}
++
++static int st7735_write_data_buf(struct st7735fb_par *par,
++					u8 *txbuf, int size)
++{
++	/* Set data mode */
++	gpio_set_value(par->dc, 1);
++
++	/* Write entire buffer */
++	return spi_write(par->spi, txbuf, size);
++}
++
++static void st7735_write_cmd(struct st7735fb_par *par, u8 data)
++{
++	int ret = 0;
++
++	/* Set command mode */
++	gpio_set_value(par->dc, 0);
++
++	ret = st7735_write(par, data);
++	if (ret < 0)
++		pr_err("%s: write command %02x failed with status %d\n",
++			par->info->fix.id, data, ret);
++}
++
++static void st7735_run_cfg_script(struct st7735fb_par *par)
++{
++	int i = 0;
++	int end_script = 0;
++
++	do {
++		switch (st7735_cfg_script[i].cmd)
++		{
++		case ST7735_START:
++			break;
++		case ST7735_CMD:
++			st7735_write_cmd(par,
++				st7735_cfg_script[i].data & 0xff);
++			break;
++		case ST7735_DATA:
++			st7735_write_data(par,
++				st7735_cfg_script[i].data & 0xff);
++			break;
++		case ST7735_DELAY:
++			mdelay(st7735_cfg_script[i].data);
++			break;
++		case ST7735_END:
++			end_script = 1;
++		}
++		i++;
++	} while (!end_script);
++}
++
++static void st7735_set_addr_win(struct st7735fb_par *par,
++				int xs, int ys, int xe, int ye)
++{
++	st7735_write_cmd(par, ST7735_CASET);
++	st7735_write_data(par, 0x00);
++	st7735_write_data(par, xs+2);
++	st7735_write_data(par, 0x00);
++	st7735_write_data(par, xe+2);
++	st7735_write_cmd(par, ST7735_RASET);
++	st7735_write_data(par, 0x00);
++	st7735_write_data(par, ys+1);
++	st7735_write_data(par, 0x00);
++	st7735_write_data(par, ye+1);
++}
++
++static void st7735_reset(struct st7735fb_par *par)
++{
++	/* Reset controller */
++	gpio_set_value(par->rst, 0);
++	udelay(10);
++	gpio_set_value(par->rst, 1);
++	mdelay(120);
++}
++
++static void st7735fb_update_display(struct st7735fb_par *par)
++{
++	int ret = 0;
++	u8 *vmem = par->info->screen_base;
++
++	/*
++		TODO:
++		Allow a subset of pages to be passed in
++		(for deferred I/O).  Check pages against
++		pan display settings to see if they
++		should be updated.
++	*/
++	/* For now, just write the full 40KiB on each update */
++
++	/* Set row/column data window */
++	st7735_set_addr_win(par, 0, 0, WIDTH-1, HEIGHT-1);
++
++	/* Internal RAM write command */
++	st7735_write_cmd(par, ST7735_RAMWR);
++
++	/* Blast framebuffer to ST7735 internal display RAM */
++	ret = st7735_write_data_buf(par, vmem, WIDTH*HEIGHT*BPP/8);
++	if (ret < 0)
++		pr_err("%s: spi_write failed to update display buffer\n",
++			par->info->fix.id);
++}
++
++static void st7735fb_deferred_io(struct fb_info *info,
++				struct list_head *pagelist)
++{
++	st7735fb_update_display(info->par);
++}
++
++static int st7735fb_init_display(struct st7735fb_par *par)
++{
++	/* TODO: Need some error checking on gpios */
++
++        /* Request GPIOs and initialize to default values */
++        gpio_request_one(par->rst, GPIOF_OUT_INIT_HIGH,
++			"ST7735 Reset Pin");
++        gpio_request_one(par->dc, GPIOF_OUT_INIT_LOW,
++			"ST7735 Data/Command Pin");
++
++	st7735_reset(par);
++
++	st7735_run_cfg_script(par);
++
++	return 0;
++}
++
++void st7735fb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
++{
++	struct st7735fb_par *par = info->par;
++
++	sys_fillrect(info, rect);
++
++	st7735fb_update_display(par);
++}
++
++void st7735fb_copyarea(struct fb_info *info, const struct fb_copyarea *area)
++{
++	struct st7735fb_par *par = info->par;
++
++	sys_copyarea(info, area);
++
++	st7735fb_update_display(par);
++}
++
++void st7735fb_imageblit(struct fb_info *info, const struct fb_image *image)
++{
++	struct st7735fb_par *par = info->par;
++
++	sys_imageblit(info, image);
++
++	st7735fb_update_display(par);
++}
++
++static ssize_t st7735fb_write(struct fb_info *info, const char __user *buf,
++		size_t count, loff_t *ppos)
++{
++	struct st7735fb_par *par = info->par;
++	unsigned long p = *ppos;
++	void *dst;
++	int err = 0;
++	unsigned long total_size;
++
++	if (info->state != FBINFO_STATE_RUNNING)
++		return -EPERM;
++
++	total_size = info->fix.smem_len;
++
++	if (p > total_size)
++		return -EFBIG;
++
++	if (count > total_size) {
++		err = -EFBIG;
++		count = total_size;
++	}
++
++	if (count + p > total_size) {
++		if (!err)
++			err = -ENOSPC;
++
++		count = total_size - p;
++	}
++
++	dst = (void __force *) (info->screen_base + p);
++
++	if (copy_from_user(dst, buf, count))
++		err = -EFAULT;
++
++	if  (!err)
++		*ppos += count;
++
++	st7735fb_update_display(par);
++
++	return (err) ? err : count;
++}
++
++static struct fb_ops st7735fb_ops = {
++	.owner		= THIS_MODULE,
++	.fb_read	= fb_sys_read,
++	.fb_write	= st7735fb_write,
++	.fb_fillrect	= st7735fb_fillrect,
++	.fb_copyarea	= st7735fb_copyarea,
++	.fb_imageblit	= st7735fb_imageblit,
++};
++
++static struct fb_deferred_io st7735fb_defio = {
++	.delay		= HZ,
++	.deferred_io	= st7735fb_deferred_io,
++};
++
++static int __devinit st7735fb_probe (struct spi_device *spi)
++{
++	int chip = spi_get_device_id(spi)->driver_data;
++	struct st7735fb_platform_data *pdata = spi->dev.platform_data;
++	int vmem_size = WIDTH*HEIGHT*BPP/8;
++	u8 *vmem;
++	struct fb_info *info;
++	struct st7735fb_par *par;
++	int retval = -ENOMEM;
++
++	if (chip != ST7735_DISPLAY_AF_TFT18) {
++		pr_err("%s: only the %s device is supported\n", DRVNAME,
++			to_spi_driver(spi->dev.driver)->id_table->name);
++		return -EINVAL;
++	}
++
++	if (!pdata) {
++		pr_err("%s: platform data required for rst and dc info\n",
++			DRVNAME);
++		return -EINVAL;
++	}
++
++	vmem = vzalloc(vmem_size);
++	if (!vmem)
++		return retval;
++
++	info = framebuffer_alloc(sizeof(struct st7735fb_par), &spi->dev);
++	if (!info)
++		goto fballoc_fail;
++
++	info->screen_base = (u8 __force __iomem *)vmem;
++	info->fbops = &st7735fb_ops;
++	info->fix = st7735fb_fix;
++	info->fix.smem_len = vmem_size;
++	info->var = st7735fb_var;
++	/* Choose any packed pixel format as long as it's RGB565 */
++	info->var.red.offset = 11;
++	info->var.red.length = 5;
++	info->var.green.offset = 5;
++	info->var.green.length = 6;
++	info->var.blue.offset = 0;
++	info->var.blue.length = 5;
++	info->var.transp.offset = 0;
++	info->var.transp.length = 0;
++	info->flags = FBINFO_FLAG_DEFAULT |
++#ifdef __LITTLE_ENDIAN
++			FBINFO_FOREIGN_ENDIAN |
++#endif
++			FBINFO_VIRTFB;
++
++	info->fbdefio = &st7735fb_defio;
++	fb_deferred_io_init(info);
++
++	par = info->par;
++	par->info = info;
++	par->spi = spi;
++	par->rst = pdata->rst_gpio;
++	par->dc = pdata->dc_gpio;
++
++	retval = register_framebuffer(info);
++	if (retval < 0)
++		goto fbreg_fail;
++
++	spi_set_drvdata(spi, info);
++
++	retval = st7735fb_init_display(par);
++	if (retval < 0)
++		goto init_fail;
++
++	printk(KERN_INFO
++		"fb%d: %s frame buffer device,\n\tusing %d KiB of video memory\n",
++		info->node, info->fix.id, vmem_size);
++
++	return 0;
++
++
++	/* TODO: release gpios on fail */
++init_fail:
++	spi_set_drvdata(spi, NULL);
++
++fbreg_fail:
++	framebuffer_release(info);
++
++fballoc_fail:
++	vfree(vmem);
++
++	return retval;
++}
++
++static int __devexit st7735fb_remove(struct spi_device *spi)
++{
++	struct fb_info *info = spi_get_drvdata(spi);
++
++	spi_set_drvdata(spi, NULL);
++
++	if (info) {
++		unregister_framebuffer(info);
++		vfree(info->screen_base);
++		framebuffer_release(info);
++	}
++
++	/* TODO: release gpios */
++
++	return 0;
++}
++
++static const struct spi_device_id st7735fb_ids[] = {
++	{ "adafruit_tft18", ST7735_DISPLAY_AF_TFT18 },
++	{ },
++};
++
++MODULE_DEVICE_TABLE(spi, st7735fb_ids);
++
++static struct spi_driver st7735fb_driver = {
++	.driver = {
++		.name   = "st7735fb",
++		.owner  = THIS_MODULE,
++	},
++	.id_table = st7735fb_ids,
++	.probe  = st7735fb_probe,
++	.remove = __devexit_p(st7735fb_remove),
++};
++
++static int __init st7735fb_init(void)
++{
++	return spi_register_driver(&st7735fb_driver);
++}
++
++static void __exit st7735fb_exit(void)
++{
++	spi_unregister_driver(&st7735fb_driver);
++}
++
++/* ------------------------------------------------------------------------- */
++
++module_init(st7735fb_init);
++module_exit(st7735fb_exit);
++
++MODULE_DESCRIPTION("FB driver for ST7735 display controller");
++MODULE_AUTHOR("Matt Porter");
++MODULE_LICENSE("GPL");
 diff --git a/include/linux/input/ti_tscadc.h b/include/linux/input/ti_tscadc.h
 index 2c547bb..fc239c6 100644
 --- a/include/linux/input/ti_tscadc.h
@@ -1197,6 +1811,94 @@ index 2c547bb..fc239c6 100644
  	int x_plate_resistance;
 +	int mode;
  };
+diff --git a/include/video/st7735fb.h b/include/video/st7735fb.h
+new file mode 100644
+index 0000000..6d3f68b
+--- /dev/null
++++ b/include/video/st7735fb.h
+@@ -0,0 +1,82 @@
++/*
++ * linux/include/video/st7735fb.h -- FB driver for ST7735 LCD controller
++ *
++ * Copyright (C) 2011, Matt Porter
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License. See the file COPYING in the main directory of this archive for
++ * more details.
++ */
++
++#define DRVNAME		"st7735fb"
++#define WIDTH		128
++#define HEIGHT		160
++#define BPP		16
++
++/* Supported display modules */
++#define ST7735_DISPLAY_AF_TFT18		0	/* Adafruit SPI TFT 1.8" */
++
++/* Init script function */
++struct st7735_function {
++	u16 cmd;
++	u16 data;
++};
++
++/* Init script commands */
++enum st7735_cmd {
++	ST7735_START,
++	ST7735_END,
++	ST7735_CMD,
++	ST7735_DATA,
++	ST7735_DELAY
++};
++
++struct st7735fb_par {
++	struct spi_device *spi;
++	struct fb_info *info;
++	int rst;
++	int dc;
++};
++
++struct st7735fb_platform_data {
++	int rst_gpio;
++	int dc_gpio;
++};
++
++/* ST7735 Commands */
++#define ST7735_NOP	0x0
++#define ST7735_SWRESET	0x01
++#define ST7735_RDDID	0x04
++#define ST7735_RDDST	0x09
++#define ST7735_SLPIN	0x10
++#define ST7735_SLPOUT	0x11
++#define ST7735_PTLON	0x12
++#define ST7735_NORON	0x13
++#define ST7735_INVOFF	0x20
++#define ST7735_INVON	0x21
++#define ST7735_DISPOFF	0x28
++#define ST7735_DISPON	0x29
++#define ST7735_CASET	0x2A
++#define ST7735_RASET	0x2B
++#define ST7735_RAMWR	0x2C
++#define ST7735_RAMRD	0x2E
++#define ST7735_COLMOD	0x3A
++#define ST7735_MADCTL	0x36
++#define ST7735_FRMCTR1	0xB1
++#define ST7735_FRMCTR2	0xB2
++#define ST7735_FRMCTR3	0xB3
++#define ST7735_INVCTR	0xB4
++#define ST7735_DISSET5	0xB6
++#define ST7735_PWCTR1	0xC0
++#define ST7735_PWCTR2	0xC1
++#define ST7735_PWCTR3	0xC2
++#define ST7735_PWCTR4	0xC3
++#define ST7735_PWCTR5	0xC4
++#define ST7735_VMCTR1	0xC5
++#define ST7735_RDID1	0xDA
++#define ST7735_RDID2	0xDB
++#define ST7735_RDID3	0xDC
++#define ST7735_RDID4	0xDD
++#define ST7735_GMCTRP1	0xE0
++#define ST7735_GMCTRN1	0xE1
++#define ST7735_PWCTR6	0xFC
 -- 
 1.7.4.1
 

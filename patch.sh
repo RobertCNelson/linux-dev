@@ -42,8 +42,38 @@ git pull git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_psp0
 git am "${DIR}/patches/arago-am33x/0001-arm-omap-am33xx-add-missing-i2c-pin-mus-details.patch"
 git am "${DIR}/patches/arago-am33x/0002-arm-omap-am33xx-add-i2c2-hwmod-data.patch"
 git am "${DIR}/patches/arago-am33x/0003-arm-omap-am33xx-register-i2c2-for-beaglebone.patch"
+git am "${DIR}/patches/arago-am33x/0004-arm-omap-am33xx-update-TSC-hwmod-data.patch"
+git am "${DIR}/patches/arago-am33x/0005-ARM-OMAP-AM33XX-Keep-the-CLKDIV32K-module-enabled.patch"
 
 git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
+}
+
+function am33x-meta-ti {
+echo "[git] am33x-meta-ti"
+
+git pull git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_psp0
+
+git am "${DIR}/patches/meta-ti/0001-f_rndis-HACK-around-undefined-variables.patch"
+git am "${DIR}/patches/meta-ti/0002-da8xx-fb-add-DVI-support-for-beaglebone.patch"
+git am "${DIR}/patches/meta-ti/0003-arm-omap-mux33xx-Add-i2c2-pin-mux.patch"
+git am "${DIR}/patches/meta-ti/0004-omap-hwmod-33xx-Add-support-for-third-i2c-bus.patch"
+git am "${DIR}/patches/meta-ti/0005-beaglebone-rebase-everything-onto-3.2-WARNING-MEGAPA.patch"
+git am "${DIR}/patches/meta-ti/0006-more-beaglebone-merges.patch"
+git am "${DIR}/patches/meta-ti/0007-beaglebone-disable-tsadc.patch"
+git am "${DIR}/patches/meta-ti/0008-tscadc-Add-general-purpose-mode-untested-with-touchs.patch"
+git am "${DIR}/patches/meta-ti/0009-tscadc-Add-board-file-mfd-support-fix-warning.patch"
+git am "${DIR}/patches/meta-ti/0010-AM335X-init-tsc-bone-style-for-new-boards.patch"
+git am "${DIR}/patches/meta-ti/0011-tscadc-make-stepconfig-channel-configurable.patch"
+git am "${DIR}/patches/meta-ti/0012-tscadc-Trigger-through-sysfs.patch"
+git am "${DIR}/patches/meta-ti/0013-meta-ti-Remove-debug-messages-for-meta-ti.patch"
+git am "${DIR}/patches/meta-ti/0014-tscadc-switch-to-polling-instead-of-interrupts.patch"
+git am "${DIR}/patches/meta-ti/0015-beaglebone-fix-ADC-init.patch"
+git am "${DIR}/patches/meta-ti/0017-AM335x-MUX-add-ehrpwm1A.patch"
+git am "${DIR}/patches/meta-ti/0018-beaglebone-enable-PWM-for-lcd-backlight-backlight-is.patch"
+git am "${DIR}/patches/meta-ti/0019-omap_hsmmc-Set-dto-to-max-value-of-14-to-avoid-SD-Ca.patch"
+git am "${DIR}/patches/meta-ti/0020-beaglebone-set-default-brightness-to-50-for-pwm-back.patch"
+git am "${DIR}/patches/meta-ti/0021-st7735fb-WIP-framebuffer-driver-supporting-Adafruit-.patch"
+
 }
 
 function am33x {
@@ -72,6 +102,7 @@ git am "${DIR}/patches/bone/0016-beaglebone-set-default-brightness-to-50-for-pwm
 bugs_trivial
 
 #patches in git
+#am33x-meta-ti
 am33x-cleanup
 
 echo "patch.sh ran successful"
