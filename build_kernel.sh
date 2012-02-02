@@ -136,6 +136,19 @@ function patch_kernel {
   cd ${DIR}/
 }
 
+function bisect_kernel {
+ cd ${DIR}/KERNEL
+ #usb works on omap4 panda, but broken on omap3 beagle..
+ git bisect start
+ git bisect good v3.2
+ git bisect bad  v3.3-rc1
+ git bisect good 2ac9d7aaccbd598b5bd19ac40761b723bb675442
+ git bisect bad  a429638cac1e5c656818a45aaff78df7b743004e
+ git bisect bad  54c2c5761febcca46c8037d3a81612991e6c209a
+
+ cd ${DIR}/
+}
+
 function copy_defconfig {
   cd ${DIR}/KERNEL/
   make ARCH=arm CROSS_COMPILE=${CC} distclean
@@ -217,6 +230,7 @@ fi
 
   git_kernel
   patch_kernel
+#  bisect_kernel
   copy_defconfig
   make_menuconfig
   make_zImage
