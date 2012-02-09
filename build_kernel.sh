@@ -142,14 +142,6 @@ function bisect_kernel {
  git bisect start
  git bisect good v3.2
  git bisect bad  v3.3-rc1
- git bisect good 2ac9d7aaccbd598b5bd19ac40761b723bb675442
- git bisect bad  a429638cac1e5c656818a45aaff78df7b743004e
- git bisect bad  54c2c5761febcca46c8037d3a81612991e6c209a
- git bisect bad  dbe950f201a8edd353b0bd9079e8d536ee4ce37c
- git bisect bad  abce00f962a11ed6f748c2569e11695a30716b53
- git bisect bad  e4e11180dfa545233e5145919b75b7fac88638df
- git bisect good 8b69791215857e3e885d27b3945759ace820794a
- git bisect bad  e8cbce976050a9f874a8b07012ddeb9b9eb59603
 
  cd ${DIR}/
 }

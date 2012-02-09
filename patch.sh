@@ -69,6 +69,9 @@ patch -s -p1 < "${DIR}/patches/display/0001-meego-modedb-add-Toshiba-LTA070B220F
 
 patch -s -p1 < "${DIR}/patches/beagle/0001-ASoC-omap-add-MODULE_ALIAS-to-mcbsp-and-pcm-drivers.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-ASoC-omap-convert-per-board-modules-to-platform-driv.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
+
+patch -s -p1 < "${DIR}/patches/beagle/ulcd/0001-ulcd-add-tlc59108-i2c-device.patch"
 }
 
 function dspbridge {
@@ -79,13 +82,14 @@ git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
 function omapdrm {
 echo "[git] testing omapdrm"
 echo "[git] pulling cma driver"
-git pull git://github.com/RobertCNelson/linux.git cma-v19_v3.3-rc1
+git pull git://github.com/RobertCNelson/linux.git cma-v20_v3.3-rc2
 echo "[git] pulling drm driver"
 git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc1
 
-git am "${DIR}/patches/drm/0001-ARM-OMAP-HWMOD-split-omap2-3-dispc-hwmod-class.patch"
-git am "${DIR}/patches/drm/0002-ARM-OMAP3-HWMOD-add-SYSC_HAS_ENAWAKEUP-for-dispc.patch"
-git am "${DIR}/patches/drm/0003-OMAPDSS-use-sync-versions-of-pm_runtime_put.patch"
+#v3.3-rc3
+#git am "${DIR}/patches/drm/0001-ARM-OMAP-HWMOD-split-omap2-3-dispc-hwmod-class.patch"
+#git am "${DIR}/patches/drm/0002-ARM-OMAP3-HWMOD-add-SYSC_HAS_ENAWAKEUP-for-dispc.patch"
+#git am "${DIR}/patches/drm/0003-OMAPDSS-use-sync-versions-of-pm_runtime_put.patch"
 
 #might be merged in 3.4
 git am "${DIR}/patches/drm/0001-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
