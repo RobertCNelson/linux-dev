@@ -1,0 +1,52 @@
+From 0597eab722ba147b6ef80c4159aaa14b9e198b31 Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Mon, 6 Feb 2012 14:57:19 +0530
+Subject: [PATCH 10/15] usb: musb: Let PIO option visible in menuconfig
+
+PIO option is not visible while selecting modules. Fixing the same.
+---
+ drivers/usb/musb/Kconfig |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/musb/Kconfig b/drivers/usb/musb/Kconfig
+index a06335f..79f09f5 100644
+--- a/drivers/usb/musb/Kconfig
++++ b/drivers/usb/musb/Kconfig
+@@ -102,12 +102,12 @@ config USB_MUSB_UX500
+ 
+ choice
+ 	prompt 'MUSB DMA mode'
++	depends on !MUSB_PIO_ONLY
+ 	default USB_UX500_DMA_HW if USB_MUSB_UX500
+ 	default USB_INVENTRA_DMA_HW if USB_MUSB_OMAP2PLUS || USB_MUSB_BLACKFIN
+ 	default USB_TI_CPPI_DMA_HW if USB_MUSB_DAVINCI
+ 	default USB_TUSB_OMAP_DMA_HW if USB_MUSB_TUSB6010
+ 	default USB_TI_CPPI41_DMA_HW if USB_MUSB_DA8XX || USB_MUSB_AM35X || USB_MUSB_TI81XX
+-	default MUSB_PIO_ONLY if USB_MUSB_TUSB6010 || USB_MUSB_DA8XX
+ 	help
+ 	  Unfortunately, only one option can be enabled here. Ideally one
+ 	  should be able to build all these drivers into one kernel to
+@@ -153,8 +153,11 @@ config USB_TUSB_OMAP_DMA_HW
+ 	help
+ 	  Enable DMA transfers on TUSB 6010 when OMAP DMA is available.
+ 
++endchoice
++
+ config MUSB_PIO_ONLY
+ 	bool 'Disable DMA (always use PIO)'
++	default USB_MUSB_TUSB6010 || USB_MUSB_DA8XX
+ 	help
+ 	  All data is copied between memory and FIFO by the CPU.
+ 	  DMA controllers are ignored.
+@@ -164,8 +167,6 @@ config MUSB_PIO_ONLY
+ 	  you can still disable it at run time using the "use_dma=n" module
+ 	  parameter.
+ 
+-endchoice
+-
+ config USB_INVENTRA_DMA
+ 	bool
+ 	default n
+-- 
+1.7.9
+

@@ -1,15 +1,15 @@
-From c240df1d9fd60f318e719d0e77bc5955fecbb64e Mon Sep 17 00:00:00 2001
+From 8ec756a80947ee8bb0f24e4016d594f8eb6c2896 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Mon, 30 Jan 2012 21:30:09 +0100
-Subject: [PATCH 05/21] beaglebone: rebase everything onto 3.2  - WARNING
+Subject: [PATCH 04/21] beaglebone: rebase everything onto 3.2 - WARNING
  MEGAPATCH
 
 ---
- arch/arm/mach-omap2/board-am335xevm.c |  429 ++++++++++++++++++++++++++++++++-
- 1 files changed, 427 insertions(+), 2 deletions(-)
+ arch/arm/mach-omap2/board-am335xevm.c |  425 ++++++++++++++++++++++++++++++++-
+ 1 files changed, 414 insertions(+), 11 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 4c09cc9..e0c20c5 100644
+index 8aa7e10..e0c20c5 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -226,22 +226,19 @@ index 4c09cc9..e0c20c5 100644
  	{"vrefp.vrefp",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{"vrefn.vrefn",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{NULL, 0},
-@@ -541,6 +718,14 @@ static struct pinmux_config i2c1_pin_mux[] = {
+@@ -543,9 +720,9 @@ static struct pinmux_config i2c1_pin_mux[] = {
+ 
+ static struct pinmux_config i2c2_pin_mux[] = {
+ 	{"uart1_ctsn.i2c2_sda",    OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
+-					AM33XX_PULL_UP | AM33XX_INPUT_EN},
++					AM33XX_PIN_INPUT_PULLUP},
+ 	{"uart1_rtsn.i2c2_scl",   OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
+-					AM33XX_PULL_UP | AM33XX_INPUT_EN},
++					AM33XX_PIN_INPUT_PULLUP},
  	{NULL, 0},
  };
  
-+static struct pinmux_config i2c2_pin_mux[] = {
-+	{"uart1_ctsn.i2c2_sda",    OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
-+					AM33XX_PIN_INPUT_PULLUP},
-+	{"uart1_rtsn.i2c2_scl",   OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
-+					AM33XX_PIN_INPUT_PULLUP},
-+	{NULL, 0},
-+};
-+
- /* Module pin mux for mcasp1 */
- static struct pinmux_config mcasp1_pin_mux[] = {
- 	{"mii1_crs.mcasp1_aclkx", OMAP_MUX_MODE4 | AM33XX_PIN_INPUT_PULLDOWN},
-@@ -815,6 +1000,64 @@ static struct pinmux_config profibus_pin_mux[] = {
+@@ -823,6 +1000,64 @@ static struct pinmux_config profibus_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -306,7 +303,7 @@ index 4c09cc9..e0c20c5 100644
  /* Module pin mux for eCAP0 */
  static struct pinmux_config ecap0_pin_mux[] = {
  	{"ecap0_in_pwm0_out.ecap0_in_pwm0_out",
-@@ -924,6 +1167,51 @@ static void lcdc_init(int evm_id, int profile)
+@@ -932,6 +1167,51 @@ static void lcdc_init(int evm_id, int profile)
  	return;
  }
  
@@ -358,7 +355,7 @@ index 4c09cc9..e0c20c5 100644
  static void tsc_init(int evm_id, int profile)
  {
  	int err;
-@@ -931,16 +1219,48 @@ static void tsc_init(int evm_id, int profile)
+@@ -939,16 +1219,48 @@ static void tsc_init(int evm_id, int profile)
  	if (gp_evm_revision == GP_EVM_REV_IS_1_1A) {
  		am335x_touchscreen_data.analog_input = 1;
  		pr_info("TSC connected to beta GP EVM\n");
@@ -408,7 +405,7 @@ index 4c09cc9..e0c20c5 100644
  static void rgmii1_init(int evm_id, int profile)
  {
  	setup_pin_mux(rgmii1_pin_mux);
-@@ -1350,6 +1670,106 @@ static void i2c1_init(int evm_id, int profile)
+@@ -1358,18 +1670,106 @@ static void i2c1_init(int evm_id, int profile)
  	return;
  }
  
@@ -444,7 +441,8 @@ index 4c09cc9..e0c20c5 100644
 +	pr_info("BeagleBone cape: %s %s\n", manufacturer, name);
 +	snprintf(tmp, sizeof(cape_config.partnumber) + 1, "%s", cape_config.partnumber);
 +	pr_info("BeagleBone cape partnumber: %s\n", tmp);   
-+
+ 
+-static struct i2c_board_info am335x_i2c_boardinfo2[] = {
 +	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 5)) {
 +			pr_info("BeagleBone cape: initializing DVI cape\n");
 +			dvi_init(0,0);
@@ -501,41 +499,47 @@ index 4c09cc9..e0c20c5 100644
 +                I2C_BOARD_INFO("24c256", 0x57),
 +                .platform_data  = &cape_eeprom_info,
 +        },
-+};
-+
-+static void i2c2_init(int evm_id, int profile)
-+{
+ };
+ 
+ static void i2c2_init(int evm_id, int profile)
+ {
+-	setup_pin_mux(i2c2_pin_mux);
+-	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
+-			ARRAY_SIZE(am335x_i2c_boardinfo2));
+-	return;
 +        setup_pin_mux(i2c2_pin_mux);
 +        omap_register_i2c_bus(3, 100, cape_i2c_boardinfo,
 +                        ARRAY_SIZE(cape_i2c_boardinfo));
 +        return;
-+}
-+
+ }
+ 
 +
  /* Setup McASP 1 */
  static void mcasp1_init(int evm_id, int profile)
  {
-@@ -1703,7 +2123,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+@@ -1723,8 +2123,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
  	{rmii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
-+	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
- 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+-	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
++	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
 +	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
  	{NULL, 0, 0},
  };
  
-@@ -1713,7 +2135,9 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+@@ -1734,8 +2135,9 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{mii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
-+	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
- 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+-	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
++	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
 +	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
  	{NULL, 0, 0},
  };
  
-@@ -1800,6 +2224,7 @@ static void setup_beaglebone_old(void)
+@@ -1822,6 +2224,7 @@ static void setup_beaglebone_old(void)
  static void setup_beaglebone(void)
  {
  	pr_info("The board is a AM335x Beaglebone.\n");

@@ -1,0 +1,68 @@
+From 299eddfa96d87e800c9cd0876c6d96ee2366b999 Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Tue, 7 Feb 2012 16:44:52 +0530
+Subject: [PATCH 11/15] usb: defconfig: enable file_storage gadget as module
+
+Enabled file stoarge gadget also as seeing lot of instability with
+mass storage gadget.
+---
+ arch/arm/configs/am335x_evm_defconfig |    2 +-
+ drivers/usb/musb/cppi41_dma.c         |   13 ++-----------
+ 2 files changed, 3 insertions(+), 12 deletions(-)
+
+diff --git a/arch/arm/configs/am335x_evm_defconfig b/arch/arm/configs/am335x_evm_defconfig
+index e52b895..6d34e5e 100644
+--- a/arch/arm/configs/am335x_evm_defconfig
++++ b/arch/arm/configs/am335x_evm_defconfig
+@@ -1879,7 +1879,7 @@ CONFIG_USB_ETH_RNDIS=y
+ # CONFIG_USB_G_NCM is not set
+ # CONFIG_USB_GADGETFS is not set
+ # CONFIG_USB_FUNCTIONFS is not set
+-# CONFIG_USB_FILE_STORAGE is not set
++CONFIG_USB_FILE_STORAGE=m
+ # CONFIG_USB_FILE_STORAGE_TEST is not set
+ CONFIG_USB_MASS_STORAGE=m
+ # CONFIG_USB_G_SERIAL is not set
+diff --git a/drivers/usb/musb/cppi41_dma.c b/drivers/usb/musb/cppi41_dma.c
+index 2588cd9..b553d49 100644
+--- a/drivers/usb/musb/cppi41_dma.c
++++ b/drivers/usb/musb/cppi41_dma.c
+@@ -100,7 +100,6 @@ struct cppi41_channel {
+ 	u8  zlp_queued;
+ 	u8  inf_mode;
+ 	u8  tx_complete;
+-	u8  count;
+ };
+ 
+ /**
+@@ -1304,17 +1303,10 @@ void txdma_completion_work(struct work_struct *data)
+ 				epio = tx_ch->end_pt->regs;
+ 				csr = musb_readw(epio, MUSB_TXCSR);
+ 
+-				if ((tx_ch->length > 128) &&
+-					(csr & (MUSB_TXCSR_TXPKTRDY |
+-					MUSB_TXCSR_FIFONOTEMPTY))) {
++				if (csr & (MUSB_TXCSR_TXPKTRDY |
++					MUSB_TXCSR_FIFONOTEMPTY)) {
+ 					resched = 1;
+ 				} else {
+-					if (tx_ch->length < 128 &&
+-							tx_ch->count > 0) {
+-						tx_ch->count--;
+-						resched = 1;
+-						continue;
+-					}
+ 					tx_ch->channel.status =
+ 						MUSB_DMA_STATUS_FREE;
+ 					tx_ch->tx_complete = 0;
+@@ -1441,7 +1433,6 @@ static void usb_process_tx_queue(struct cppi41 *cppi, unsigned index)
+ 			 * failure with iperf.
+ 			 */
+ 			tx_ch->tx_complete = 1;
+-			tx_ch->count = 1;
+ 			schedule_work(&cppi->txdma_work);
+ 		}
+ 	}
+-- 
+1.7.9
+

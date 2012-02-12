@@ -1,30 +1,32 @@
-From 0cc7cc50180b8f22133ee8fb61a5d277982f96b2 Mon Sep 17 00:00:00 2001
+From 61e465e17eb175ab641e80e193e379145feb18b7 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 2 Feb 2012 09:34:01 -0600
+Date: Sun, 12 Feb 2012 17:10:50 -0600
 Subject: [PATCH] bone: arago angstrom merge
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |  512 ++++++++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/board-am335xevm.c |  597 ++++++++++++++++++++++++++++++++-
  arch/arm/mach-omap2/devices.c         |   13 +
  arch/arm/mach-omap2/devices.h         |    1 +
- arch/arm/mach-omap2/mux33xx.c         |   18 +-
+ arch/arm/mach-omap2/mux33xx.c         |   22 +-
  arch/arm/mach-omap2/mux33xx.h         |    4 +
- drivers/input/touchscreen/ti_tscadc.c |  273 ++++++++++++++----
+ drivers/input/touchscreen/ti_tscadc.c |  275 ++++++++++++---
  drivers/mmc/host/omap_hsmmc.c         |    3 +
+ drivers/net/can/dev.c                 |    8 +-
+ drivers/net/can/mcp251x.c             |   31 ++-
  drivers/usb/gadget/f_rndis.c          |    4 +-
  drivers/video/Kconfig                 |   11 +
  drivers/video/Makefile                |    1 +
  drivers/video/da8xx-fb.c              |   14 +
- drivers/video/st7735fb.c              |  516 +++++++++++++++++++++++++++++++++
+ drivers/video/st7735fb.c              |  516 ++++++++++++++++++++++++++++
  include/linux/input/ti_tscadc.h       |    5 +
- include/video/st7735fb.h              |   82 ++++++
- 14 files changed, 1390 insertions(+), 67 deletions(-)
+ include/video/st7735fb.h              |   82 +++++
+ 16 files changed, 1505 insertions(+), 82 deletions(-)
  create mode 100644 drivers/video/st7735fb.c
  create mode 100644 include/video/st7735fb.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 8aa7e10..7c6ad47 100644
+index 8aa7e10..7bcb1a0 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -35,15 +37,17 @@ index 8aa7e10..7c6ad47 100644
  #include <linux/spi/spi.h>
  #include <linux/spi/flash.h>
  #include <linux/gpio_keys.h>
-@@ -35,6 +36,7 @@
+@@ -35,6 +36,9 @@
  #include <linux/mfd/tps65910.h>
  #include <linux/mfd/tps65217.h>
  #include <linux/pwm_backlight.h>
 +#include <linux/pwm/pwm.h>
++#include <linux/w1-gpio.h>
++#include <linux/can/platform/mcp251x.h>
  
  /* LCD controller is similar to DA850 */
  #include <video/da8xx-fb.h>
-@@ -129,8 +131,8 @@ static const struct display_panel disp_panel = {
+@@ -129,8 +133,8 @@ static const struct display_panel disp_panel = {
  
  /* LCD backlight platform Data */
  #define AM335X_BACKLIGHT_MAX_BRIGHTNESS        100
@@ -54,7 +58,7 @@ index 8aa7e10..7c6ad47 100644
  
  #define PWM_DEVICE_ID   "ecap.0"
  
-@@ -167,6 +169,76 @@ struct da8xx_lcdc_platform_data TFC_S9700RTWV35TR_01B_pdata = {
+@@ -167,6 +171,76 @@ struct da8xx_lcdc_platform_data TFC_S9700RTWV35TR_01B_pdata = {
  
  #include "common.h"
  
@@ -131,7 +135,7 @@ index 8aa7e10..7c6ad47 100644
  /* TSc controller */
  #include <linux/input/ti_tscadc.h>
  #include <linux/lis3lv02d.h>
-@@ -187,6 +259,11 @@ static struct resource tsc_resources[]  = {
+@@ -187,6 +261,11 @@ static struct resource tsc_resources[]  = {
  static struct tsc_data am335x_touchscreen_data  = {
  	.wires  = 4,
  	.x_plate_resistance = 200,
@@ -143,7 +147,7 @@ index 8aa7e10..7c6ad47 100644
  };
  
  static struct platform_device tsc_device = {
-@@ -199,6 +276,16 @@ static struct platform_device tsc_device = {
+@@ -199,6 +278,16 @@ static struct platform_device tsc_device = {
  	.resource       = tsc_resources,
  };
  
@@ -160,7 +164,7 @@ index 8aa7e10..7c6ad47 100644
  static u8 am335x_iis_serializer_direction1[] = {
  	INACTIVE_MODE,	INACTIVE_MODE,	TX_MODE,	RX_MODE,
  	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,
-@@ -320,9 +407,34 @@ struct am335x_evm_eeprom_config {
+@@ -320,9 +409,34 @@ struct am335x_evm_eeprom_config {
  static struct am335x_evm_eeprom_config config;
  static bool daughter_brd_detected;
  
@@ -195,7 +199,7 @@ index 8aa7e10..7c6ad47 100644
  static unsigned int gp_evm_revision = GP_EVM_REV_IS_UNKNOWN;
  unsigned int gigabit_enable = 1;
  
-@@ -404,11 +516,102 @@ static struct pinmux_config lcdc_pin_mux[] = {
+@@ -404,11 +518,107 @@ static struct pinmux_config lcdc_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -286,6 +290,11 @@ index 8aa7e10..7c6ad47 100644
 +	{NULL, 0},
 +};
 +
++static struct pinmux_config w1_gpio_pin_mux[] = {
++	{"gpmc_ad3.gpio1_3",	OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLUP},
++	{NULL, 0},
++};
++
  static struct pinmux_config tsc_pin_mux[] = {
  	{"ain0.ain0",           OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{"ain1.ain1",           OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
@@ -298,10 +307,39 @@ index 8aa7e10..7c6ad47 100644
  	{"vrefp.vrefp",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{"vrefn.vrefn",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{NULL, 0},
-@@ -823,6 +1026,105 @@ static struct pinmux_config profibus_pin_mux[] = {
+@@ -620,6 +830,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
  	{NULL, 0},
  };
  
++static struct pinmux_config tt3201_pin_mux[] = {
++	{"uart1_rxd.d_can1_tx", OMAP_MUX_MODE2 | AM33XX_PIN_OUTPUT },
++	{"uart1_txd.d_can1_rx", OMAP_MUX_MODE2 | AM33XX_PIN_INPUT_PULLUP },
++	{"mcasp0_fsr.gpio3_19", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLUP },
++	{"mcasp0_ahclkx.gpio3_21", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLUP },
++	{"ecap0_in_pwm0_out.spi1_cs1", OMAP_MUX_MODE2 | AM33XX_PIN_OUTPUT_PULLUP },
++	{NULL, 0},
++};
++
+ /* Module pin mux for uart2 */
+ static struct pinmux_config uart2_pin_mux[] = {
+ 	{"spi0_sclk.uart2_rxd", OMAP_MUX_MODE1 | AM33XX_SLEWCTRL_SLOW |
+@@ -823,6 +1042,118 @@ static struct pinmux_config profibus_pin_mux[] = {
+ 	{NULL, 0},
+ };
+ 
++#define BEAGLEBONE_W1_GPIO GPIO_TO_PIN(1, 3)
++
++static struct w1_gpio_platform_data bone_w1_gpio_pdata = {
++	.pin		= BEAGLEBONE_W1_GPIO,
++	.is_open_drain	= 0,
++};
++
++static struct platform_device bone_w1_device = {
++	.name			= "w1-gpio",
++	.id			= -1,
++	.dev.platform_data	= &bone_w1_gpio_pdata,
++};
++
 +/* LEDS - gpio1_21 -> gpio1_24 */
 +
 +#define BEAGLEBONE_USR1_LED  GPIO_TO_PIN(1, 21)
@@ -404,7 +442,7 @@ index 8aa7e10..7c6ad47 100644
  /* Module pin mux for eCAP0 */
  static struct pinmux_config ecap0_pin_mux[] = {
  	{"ecap0_in_pwm0_out.ecap0_in_pwm0_out",
-@@ -830,6 +1132,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
+@@ -830,6 +1161,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -412,7 +450,7 @@ index 8aa7e10..7c6ad47 100644
  static int backlight_enable;
  
  #define AM335XEVM_WLAN_PMENA_GPIO	GPIO_TO_PIN(1, 30)
-@@ -899,6 +1202,30 @@ static int __init ecap0_init(void)
+@@ -899,6 +1231,30 @@ static int __init ecap0_init(void)
  }
  late_initcall(ecap0_init);
  
@@ -443,7 +481,7 @@ index 8aa7e10..7c6ad47 100644
  static int __init conf_disp_pll(int rate)
  {
  	struct clk *disp_pll;
-@@ -932,6 +1259,47 @@ static void lcdc_init(int evm_id, int profile)
+@@ -932,6 +1288,47 @@ static void lcdc_init(int evm_id, int profile)
  	return;
  }
  
@@ -491,7 +529,7 @@ index 8aa7e10..7c6ad47 100644
  static void tsc_init(int evm_id, int profile)
  {
  	int err;
-@@ -939,16 +1307,47 @@ static void tsc_init(int evm_id, int profile)
+@@ -939,16 +1336,59 @@ static void tsc_init(int evm_id, int profile)
  	if (gp_evm_revision == GP_EVM_REV_IS_1_1A) {
  		am335x_touchscreen_data.analog_input = 1;
  		pr_info("TSC connected to beta GP EVM\n");
@@ -520,6 +558,7 @@ index 8aa7e10..7c6ad47 100644
 +		pr_err("failed to register touchscreen device\n");
 +}
 +
++
 +static void boneleds_init(int evm_id, int profile )
 +{
 +	int err;
@@ -537,15 +576,69 @@ index 8aa7e10..7c6ad47 100644
 +		pr_err("failed to register BeagleBone DVI cape LEDS\n");
 +}
 +
++static void bonew1_gpio_init(int evm_id, int profile )
++{
++	int err;
++	setup_pin_mux(w1_gpio_pin_mux);
++	err = platform_device_register(&bone_w1_device);
++	if (err)
++		pr_err("failed to register w1-gpio\n");
++	else
++		pr_info("w1-gpio connected to P8_6\n");
++}
++
  static void rgmii1_init(int evm_id, int profile)
  {
  	setup_pin_mux(rgmii1_pin_mux);
-@@ -1358,16 +1757,105 @@ static void i2c1_init(int evm_id, int profile)
+@@ -1358,18 +1798,150 @@ static void i2c1_init(int evm_id, int profile)
  	return;
  }
  
-+static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context)
++static struct mcp251x_platform_data mcp251x_info = {
++	.oscillator_frequency = 16000000,
++};
+ 
+-static struct i2c_board_info am335x_i2c_boardinfo2[] = {
++static struct spi_board_info tt3201_spi_info[] = {
++	{
++		.modalias	= "mcp2515",
++		.max_speed_hz	= 10000000,
++		.bus_num	= 2,
++		.chip_select	= 0,
++		.mode		= SPI_MODE_0,
++		.platform_data	= &mcp251x_info,
++	},
++	{
++		.modalias	= "mcp2515",
++		.max_speed_hz	= 10000000,
++		.bus_num	= 2,
++		.chip_select	= 1,
++		.mode		= SPI_MODE_0,
++		.platform_data	= &mcp251x_info,
++	},
+ };
+ 
+-static void i2c2_init(int evm_id, int profile)
++static void tt3201_init(int evm_id, int profile)
 +{
++	pr_info("TowerTech TT3201 CAN Cape\n");
++
++	setup_pin_mux(spi1_pin_mux);
++	setup_pin_mux(tt3201_pin_mux);
++
++	tt3201_spi_info[0].irq = gpio_to_irq(GPIO_TO_PIN(3, 19));
++	tt3201_spi_info[1].irq = gpio_to_irq(GPIO_TO_PIN(3, 21));
++
++	spi_register_board_info(tt3201_spi_info,
++		ARRAY_SIZE(tt3201_spi_info));
++
++	am33xx_d_can_init(1);
++}
++static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context)
+ {
+-	setup_pin_mux(i2c2_pin_mux);
+-	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
+-			ARRAY_SIZE(am335x_i2c_boardinfo2));
 +	capecount++;
 +	int ret;
 +	char tmp[32];
@@ -576,8 +669,7 @@ index 8aa7e10..7c6ad47 100644
 +	pr_info("BeagleBone cape: %s %s\n", manufacturer, name);
 +	snprintf(tmp, sizeof(cape_config.partnumber) + 1, "%s", cape_config.partnumber);
 +	pr_info("BeagleBone cape partnumber: %s\n", tmp);
- 
--static struct i2c_board_info am335x_i2c_boardinfo2[] = {
++
 +	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 15)) {
 +			pr_info("BeagleBone cape: initializing DVI cape\n");
 +			dvi_init(0,0);
@@ -592,6 +684,10 @@ index 8aa7e10..7c6ad47 100644
 +		beaglebone_tsadcpins_free = 0;
 +	}
 +
++	if (!strncmp("TT3201-001", cape_config.partnumber, 10)) {
++		pr_info("BeagleBone cape: initializing CAN cape\n");
++		tt3201_init(0,0);
++	}
 +
 +	if ((capecount > 3) && (beaglebone_tsadcpins_free == 1)) {
 +		pr_info("BeagleBone cape: exporting ADC pins to sysfs\n");
@@ -599,7 +695,7 @@ index 8aa7e10..7c6ad47 100644
 +		beaglebone_tsadcpins_free = 0;
 +	}
 +
-+	return;
+ 	return;
 +out:
 +	/*
 +	 * If the EEPROM hasn't been programed or an incorrect header
@@ -636,22 +732,21 @@ index 8aa7e10..7c6ad47 100644
 +                I2C_BOARD_INFO("24c256", 0x57),
 +                .platform_data  = &cape_eeprom_info,
 +        },
- };
- 
- static void i2c2_init(int evm_id, int profile)
- {
--	setup_pin_mux(i2c2_pin_mux);
--	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
--			ARRAY_SIZE(am335x_i2c_boardinfo2));
--	return;
++};
++
++static void i2c2_init(int evm_id, int profile)
++{
 +        setup_pin_mux(i2c2_pin_mux);
 +        omap_register_i2c_bus(3, 100, cape_i2c_boardinfo,
 +                        ARRAY_SIZE(cape_i2c_boardinfo));
 +        return;
  }
  
++
  /* Setup McASP 1 */
-@@ -1723,8 +2211,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+ static void mcasp1_init(int evm_id, int profile)
+ {
+@@ -1723,8 +2295,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
  	{rmii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -662,7 +757,7 @@ index 8aa7e10..7c6ad47 100644
  	{NULL, 0, 0},
  };
  
-@@ -1734,8 +2223,9 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+@@ -1734,8 +2307,10 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{mii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -670,10 +765,11 @@ index 8aa7e10..7c6ad47 100644
  	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
 +	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
 +	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
++	{bonew1_gpio_init, DEV_ON_BASEBOARD, PROFILE_ALL},
  	{NULL, 0, 0},
  };
  
-@@ -1752,6 +2242,7 @@ static void setup_general_purpose_evm(void)
+@@ -1752,6 +2327,7 @@ static void setup_general_purpose_evm(void)
  	pr_info("The board is general purpose EVM in profile %d\n", prof_sel);
  
  	if (!strncmp("1.1A", config.version, 4)) {
@@ -681,7 +777,7 @@ index 8aa7e10..7c6ad47 100644
  		gp_evm_revision = GP_EVM_REV_IS_1_1A;
  	} else if (!strncmp("1.0", config.version, 3)) {
  		gp_evm_revision = GP_EVM_REV_IS_1_0;
-@@ -1822,6 +2313,7 @@ static void setup_beaglebone_old(void)
+@@ -1822,6 +2398,7 @@ static void setup_beaglebone_old(void)
  static void setup_beaglebone(void)
  {
  	pr_info("The board is a AM335x Beaglebone.\n");
@@ -690,10 +786,10 @@ index 8aa7e10..7c6ad47 100644
  	/* Beagle Bone has Micro-SD slot which doesn't have Write Protect pin */
  	am335x_mmc[0].gpio_wp = -EINVAL;
 diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
-index 4b137e9..33291ae 100644
+index 198df7b..8cd2523 100644
 --- a/arch/arm/mach-omap2/devices.c
 +++ b/arch/arm/mach-omap2/devices.c
-@@ -1277,6 +1277,19 @@ void register_ehrpwm(int max_freq)
+@@ -1278,6 +1278,19 @@ void register_ehrpwm(int max_freq)
  	platform_device_register(&am335x_epwm2_device);
  }
  
@@ -725,7 +821,7 @@ index e086839..5161eb4 100644
  
  #endif
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
-index 8df8fa9..5d86a6a 100644
+index 8df8fa9..2de76e3 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
 +++ b/arch/arm/mach-omap2/mux33xx.c
 @@ -85,7 +85,7 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
@@ -737,7 +833,7 @@ index 8df8fa9..5d86a6a 100644
  	_AM33XX_MUXENTRY(GPMC_A3, 0,
  		"gpmc_a3", "mii2_txd2", "rgmii2_td2", "mmc2_dat2",
  		NULL, NULL, NULL, "gpio1_19"),
-@@ -312,10 +312,10 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
+@@ -312,16 +312,16 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
  		"uart0_txd", "spi1_cs1", "d_can0_rx", "i2c2_scl",
  		NULL, NULL, NULL, "gpio1_11"),
  	_AM33XX_MUXENTRY(UART1_CTSN, 0,
@@ -749,7 +845,15 @@ index 8df8fa9..5d86a6a 100644
 +		"uart1_rtsn", NULL, "d_can0_rx", "i2c2_scl",
  		"spi1_cs1", NULL, NULL, "gpio0_13"),
  	_AM33XX_MUXENTRY(UART1_RXD, 0,
- 		"uart1_rxd", "mmc1_sdwp", NULL, "i2c1_sda",
+-		"uart1_rxd", "mmc1_sdwp", NULL, "i2c1_sda",
++		"uart1_rxd", "mmc1_sdwp", "d_can1_tx", "i2c1_sda",
+ 		NULL, "pr1_uart0_rxd_mux1", NULL, "gpio0_14"),
+ 	_AM33XX_MUXENTRY(UART1_TXD, 0,
+-		"uart1_txd", "mmc2_sdwp", NULL, "i2c1_scl",
++		"uart1_txd", "mmc2_sdwp", "d_can1_rx", "i2c1_scl",
+ 		NULL, "pr1_uart0_txd_mux1", NULL, "gpio0_15"),
+ 	_AM33XX_MUXENTRY(I2C0_SDA, 0,
+ 		"i2c0_sda", NULL, NULL, NULL,
 @@ -584,6 +584,18 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
  	_AM33XX_MUXENTRY(AIN3, 0,
  		"ain3", NULL, NULL, NULL,
@@ -785,7 +889,7 @@ index 70a3012..348c8e5 100644
  #define AM33XX_CONTROL_PADCONF_AIN2_OFFSET			0x0B24
  #define AM33XX_CONTROL_PADCONF_AIN1_OFFSET			0x0B28
 diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-index e3b5775..1f3ad72 100644
+index e3b5775..bccb70b 100644
 --- a/drivers/input/touchscreen/ti_tscadc.c
 +++ b/drivers/input/touchscreen/ti_tscadc.c
 @@ -26,7 +26,20 @@
@@ -838,7 +942,7 @@ index e3b5775..1f3ad72 100644
  	int			irq;
  	void __iomem		*tsc_base;
  };
-@@ -120,6 +140,87 @@ static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
+@@ -120,6 +140,88 @@ static void tscadc_writel(struct tscadc *tsc, unsigned int reg,
  	writel(val, tsc->tsc_base + reg);
  }
  
@@ -899,6 +1003,7 @@ index e3b5775..1f3ad72 100644
 +		irqclr |= TSCADC_IRQENB_FIFO0THRES;
 +	}
 +
++
 +	if (status & TSCADC_IRQENB_FIFO1THRES) {
 +		fifo1count = tscadc_readl(ts_dev, TSCADC_REG_FIFO1CNT);
 +
@@ -926,7 +1031,7 @@ index e3b5775..1f3ad72 100644
  static void tsc_step_config(struct tscadc *ts_dev)
  {
  	unsigned int	stepconfigx = 0, stepconfigy = 0;
-@@ -224,7 +325,7 @@ static void tsc_step_config(struct tscadc *ts_dev)
+@@ -224,7 +326,7 @@ static void tsc_step_config(struct tscadc *ts_dev)
  	tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG14, stepconfigz2);
  	tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY14, delay);
  
@@ -935,7 +1040,7 @@ index e3b5775..1f3ad72 100644
  }
  
  static void tsc_idle_config(struct tscadc *ts_config)
-@@ -242,7 +343,7 @@ static void tsc_idle_config(struct tscadc *ts_config)
+@@ -242,7 +344,7 @@ static void tsc_idle_config(struct tscadc *ts_config)
  	tscadc_writel(ts_config, TSCADC_REG_IDLECONFIG, idleconfig);
  }
  
@@ -944,7 +1049,7 @@ index e3b5775..1f3ad72 100644
  {
  	struct tscadc		*ts_dev = (struct tscadc *)dev;
  	struct input_dev	*input_dev = ts_dev->input;
-@@ -362,7 +463,7 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
+@@ -362,7 +464,7 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
  	/* check pending interrupts */
  	tscadc_writel(ts_dev, TSCADC_REG_IRQEOI, 0x0);
  
@@ -953,7 +1058,7 @@ index e3b5775..1f3ad72 100644
  	return IRQ_HANDLED;
  }
  
-@@ -370,10 +471,50 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
+@@ -370,10 +472,50 @@ static irqreturn_t tscadc_interrupt(int irq, void *dev)
  * The functions for inserting/removing driver as a module.
  */
  
@@ -1005,7 +1110,7 @@ index e3b5775..1f3ad72 100644
  	int				err;
  	int				clk_value;
  	int				clock_rate, irqenable, ctrl;
-@@ -381,6 +522,18 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -381,6 +523,18 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  	struct resource			*res;
  	struct clk			*clk;
  
@@ -1024,7 +1129,7 @@ index e3b5775..1f3ad72 100644
  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  	if (!res) {
  		dev_err(&pdev->dev, "no memory resource defined.\n");
-@@ -400,13 +553,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -400,13 +554,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  		return -ENODEV;
  	}
  
@@ -1046,7 +1151,7 @@ index e3b5775..1f3ad72 100644
  
  	res =  request_mem_region(res->start, resource_size(res), pdev->name);
  	if (!res) {
-@@ -422,8 +577,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -422,8 +578,15 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  		goto err_release_mem;
  	}
  
@@ -1064,13 +1169,14 @@ index e3b5775..1f3ad72 100644
  	if (err) {
  		dev_err(&pdev->dev, "failed to allocate irq.\n");
  		goto err_unmap_regs;
-@@ -443,11 +605,16 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -443,11 +606,17 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  		goto err_free_irq;
  	}
  	clock_rate = clk_get_rate(clk);
 +
 +	/* clk_value of atleast 21MHz required
 +	 * Clock verified on BeagleBone to be 24MHz */
++
 +
  	clk_value = clock_rate / ADC_CLK;
  	if (clk_value < 7) {
@@ -1081,7 +1187,7 @@ index e3b5775..1f3ad72 100644
  	/* TSCADC_CLKDIV needs to be configured to the value minus 1 */
  	clk_value = clk_value - 1;
  	tscadc_writel(ts_dev, TSCADC_REG_CLKDIV, clk_value);
-@@ -458,57 +625,59 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -458,57 +627,59 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  	ts_dev->wires = pdata->wires;
  	ts_dev->analog_input = pdata->analog_input;
  	ts_dev->x_plate_resistance = pdata->x_plate_resistance;
@@ -1193,6 +1299,167 @@ index 703013c..554237f 100644
  	reg &= ~DTO_MASK;
  	reg |= dto << DTO_SHIFT;
  	OMAP_HSMMC_WRITE(host->base, SYSCTL, reg);
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 25695bd..bc1e87e 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -392,7 +392,7 @@ void can_restart(unsigned long data)
+ 	stats->rx_bytes += cf->can_dlc;
+ 
+ restart:
+-	dev_dbg(dev->dev.parent, "restarted\n");
++	netdev_dbg(dev, "restarted\n");
+ 	priv->can_stats.restarts++;
+ 
+ 	/* Now restart the device */
+@@ -400,7 +400,7 @@ restart:
+ 
+ 	netif_carrier_on(dev);
+ 	if (err)
+-		dev_err(dev->dev.parent, "Error %d during restart", err);
++		netdev_err(dev, "error %d during restart", err);
+ }
+ 
+ int can_restart_now(struct net_device *dev)
+@@ -433,7 +433,7 @@ void can_bus_off(struct net_device *dev)
+ {
+ 	struct can_priv *priv = netdev_priv(dev);
+ 
+-	dev_dbg(dev->dev.parent, "bus-off\n");
++	netdev_dbg(dev, "bus-off\n");
+ 
+ 	netif_carrier_off(dev);
+ 	priv->can_stats.bus_off++;
+@@ -545,7 +545,7 @@ int open_candev(struct net_device *dev)
+ 	struct can_priv *priv = netdev_priv(dev);
+ 
+ 	if (!priv->bittiming.tq && !priv->bittiming.bitrate) {
+-		dev_err(dev->dev.parent, "bit-timing not yet defined\n");
++		netdev_err(dev, "bit-timing not yet defined\n");
+ 		return -EINVAL;
+ 	}
+ 
+diff --git a/drivers/net/can/mcp251x.c b/drivers/net/can/mcp251x.c
+index 330140e..9c38786 100644
+--- a/drivers/net/can/mcp251x.c
++++ b/drivers/net/can/mcp251x.c
+@@ -95,6 +95,7 @@
+ #  define CANCTRL_REQOP_NORMAL	    0x00
+ #  define CANCTRL_OSM		    0x08
+ #  define CANCTRL_ABAT		    0x10
++#  define CANCTRL_CLKEN		    0x04
+ #define TEC	      0x1c
+ #define REC	      0x1d
+ #define CNF1	      0x2a
+@@ -287,7 +288,7 @@ static void mcp251x_clean(struct net_device *net)
+ /*
+  * Note about handling of error return of mcp251x_spi_trans: accessing
+  * registers via SPI is not really different conceptually than using
+- * normal I/O assembler instructions, although it's much more
++ * normal I/O assembly instructions, although it's much more
+  * complicated from a practical POV. So it's not advisable to always
+  * check the return value of this function. Imagine that every
+  * read{b,l}, write{b,l} and friends would be bracketed in "if ( < 0)
+@@ -490,7 +491,7 @@ static void mcp251x_hw_rx(struct spi_device *spi, int buf_idx)
+ 
+ static void mcp251x_hw_sleep(struct spi_device *spi)
+ {
+-	mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_SLEEP);
++//	mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_SLEEP);
+ }
+ 
+ static netdev_tx_t mcp251x_hard_start_xmit(struct sk_buff *skb,
+@@ -547,13 +548,16 @@ static int mcp251x_set_normal_mode(struct spi_device *spi)
+ 
+ 	if (priv->can.ctrlmode & CAN_CTRLMODE_LOOPBACK) {
+ 		/* Put device into loopback mode */
+-		mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_LOOPBACK);
++		mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_LOOPBACK | CANCTRL_CLKEN);
+ 	} else if (priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY) {
+ 		/* Put device into listen-only mode */
+-		mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_LISTEN_ONLY);
++		mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_LISTEN_ONLY | CANCTRL_CLKEN);
+ 	} else {
+ 		/* Put device into normal mode */
+-		mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_NORMAL);
++		mcp251x_write_reg(spi, CANCTRL, CANCTRL_REQOP_NORMAL | CANCTRL_CLKEN);
++
++                netdev_info(priv->net, "CANCTRL: 0x%02x\n",
++                  mcp251x_read_reg(spi, CANCTRL));
+ 
+ 		/* Wait for the device to enter normal mode */
+ 		timeout = jiffies + HZ;
+@@ -585,11 +589,15 @@ static int mcp251x_do_set_bittiming(struct net_device *net)
+ 			  (bt->prop_seg - 1));
+ 	mcp251x_write_bits(spi, CNF3, CNF3_PHSEG2_MASK,
+ 			   (bt->phase_seg2 - 1));
+-	dev_info(&spi->dev, "CNF: 0x%02x 0x%02x 0x%02x\n",
++
++	netdev_info(net, "CNF: 0x%02x 0x%02x 0x%02x\n",
+ 		 mcp251x_read_reg(spi, CNF1),
+ 		 mcp251x_read_reg(spi, CNF2),
+ 		 mcp251x_read_reg(spi, CNF3));
+ 
++	netdev_info(net, "CANCTRL: 0x%02x\n",
++		 mcp251x_read_reg(spi, CANCTRL));
++
+ 	return 0;
+ }
+ 
+@@ -827,21 +835,26 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
+ 
+ 		/* Update can state */
+ 		if (eflag & EFLG_TXBO) {
++			netdev_err(net, "err: bus off\n");
+ 			new_state = CAN_STATE_BUS_OFF;
+ 			can_id |= CAN_ERR_BUSOFF;
+ 		} else if (eflag & EFLG_TXEP) {
++			netdev_err(net, "err: txep\n");
+ 			new_state = CAN_STATE_ERROR_PASSIVE;
+ 			can_id |= CAN_ERR_CRTL;
+ 			data1 |= CAN_ERR_CRTL_TX_PASSIVE;
+ 		} else if (eflag & EFLG_RXEP) {
++			netdev_err(net, "err: rxep\n");
+ 			new_state = CAN_STATE_ERROR_PASSIVE;
+ 			can_id |= CAN_ERR_CRTL;
+ 			data1 |= CAN_ERR_CRTL_RX_PASSIVE;
+ 		} else if (eflag & EFLG_TXWAR) {
++			netdev_err(net, "err: txwar\n");
+ 			new_state = CAN_STATE_ERROR_WARNING;
+ 			can_id |= CAN_ERR_CRTL;
+ 			data1 |= CAN_ERR_CRTL_TX_WARNING;
+ 		} else if (eflag & EFLG_RXWAR) {
++			netdev_err(net, "err: rxwar\n");
+ 			new_state = CAN_STATE_ERROR_WARNING;
+ 			can_id |= CAN_ERR_CRTL;
+ 			data1 |= CAN_ERR_CRTL_RX_WARNING;
+@@ -918,7 +931,7 @@ static int mcp251x_open(struct net_device *net)
+ 
+ 	ret = open_candev(net);
+ 	if (ret) {
+-		dev_err(&spi->dev, "unable to set initial baudrate!\n");
++		netdev_err(net, "failed to open can device\n");
+ 		return ret;
+ 	}
+ 
+@@ -934,7 +947,7 @@ static int mcp251x_open(struct net_device *net)
+ 		  pdata->irq_flags ? pdata->irq_flags : IRQF_TRIGGER_FALLING,
+ 		  DEVICE_NAME, priv);
+ 	if (ret) {
+-		dev_err(&spi->dev, "failed to acquire irq %d\n", spi->irq);
++		netdev_err(net, "failed to acquire irq %d\n", spi->irq);
+ 		if (pdata->transceiver_enable)
+ 			pdata->transceiver_enable(0);
+ 		close_candev(net);
+@@ -1071,7 +1084,7 @@ static int __devinit mcp251x_can_probe(struct spi_device *spi)
+ 
+ 	ret = register_candev(net);
+ 	if (!ret) {
+-		dev_info(&spi->dev, "probed\n");
++		netdev_info(priv->net, "probed\n");
+ 		return ret;
+ 	}
+ error_probe:
 diff --git a/drivers/usb/gadget/f_rndis.c b/drivers/usb/gadget/f_rndis.c
 index 6614490..d2f1b6f 100644
 --- a/drivers/usb/gadget/f_rndis.c
@@ -1900,5 +2167,5 @@ index 0000000..6d3f68b
 +#define ST7735_GMCTRN1	0xE1
 +#define ST7735_PWCTR6	0xFC
 -- 
-1.7.4.1
+1.7.9
 

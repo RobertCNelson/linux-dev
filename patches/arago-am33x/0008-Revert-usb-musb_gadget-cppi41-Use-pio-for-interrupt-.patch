@@ -1,0 +1,39 @@
+From fe7d437b0b76908ca1cdf2da04e1c7d78612b7ff Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Tue, 31 Jan 2012 17:44:12 +0530
+Subject: [PATCH 08/15] Revert "usb: musb_gadget: cppi41: Use pio for
+ interrupt transfer"
+
+This reverts commit fe055e40c74fb24d8d86aae49b0f9a15a25f388b.
+
+This patch is breaking RNDIS ping test with XP PC.
+---
+ drivers/usb/musb/musb_gadget.c |   11 ++---------
+ 1 files changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
+index bd44703..305d843 100644
+--- a/drivers/usb/musb/musb_gadget.c
++++ b/drivers/usb/musb/musb_gadget.c
+@@ -432,16 +432,9 @@ static void txstate(struct musb *musb, struct musb_request *req)
+ 			 * short case.
+ 			 */
+ 			/* for zero byte transfer use pio mode */
+-
+-			/* Use pio mode for interrupt transfer of size <= 64
+-			 * byte. We have seen TxFiFoEmpty workqueue going into
+-			 * infinite loop when a CDC device is connected to
+-			 * another EVM. */
+-
+-			if ((request_size == 0) || (request_size <= 64 &&
+-				musb_ep->type == USB_ENDPOINT_XFER_INT)) {
++			if (request_size == 0)
+ 				use_dma = 0;
+-			} else {
++			else {
+ 				use_dma = use_dma && c->channel_program(
+ 					musb_ep->dma, musb_ep->packet_sz,
+ 					0,
+-- 
+1.7.9
+

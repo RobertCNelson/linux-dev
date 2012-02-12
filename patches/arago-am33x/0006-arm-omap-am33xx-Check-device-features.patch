@@ -1,0 +1,82 @@
+From 311bee52c0047532b97348aecf88b30f484a29bb Mon Sep 17 00:00:00 2001
+From: Afzal Mohammed <afzal@ti.com>
+Date: Wed, 7 Dec 2011 17:05:43 +0530
+Subject: [PATCH 06/15] arm:omap:am33xx: Check device features
+
+Read device feature register and record features
+on SOC. Currently only SGX is checked.
+
+Signed-off-by: Afzal Mohammed <afzal@ti.com>
+---
+ arch/arm/mach-omap2/control.h         |    3 +++
+ arch/arm/mach-omap2/id.c              |   13 +++++++++++++
+ arch/arm/mach-omap2/io.c              |    2 +-
+ arch/arm/plat-omap/include/plat/cpu.h |    1 +
+ 4 files changed, 18 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/control.h b/arch/arm/mach-omap2/control.h
+index 50da5673..8489135 100644
+--- a/arch/arm/mach-omap2/control.h
++++ b/arch/arm/mach-omap2/control.h
+@@ -360,6 +360,9 @@
+ #define AM33XX_CONTROL_STATUS_OFF	0x040
+ #define AM33XX_CONTROL_STATUS		AM33XX_L4_WK_IO_ADDRESS(AM33XX_CTRL_BASE + \
+ 						AM33XX_CONTROL_STATUS_OFF)
++#define AM33XX_DEV_FEATURE		0x604
++#define AM33XX_SGX_SHIFT		29
++#define AM33XX_SGX_MASK			(1 << AM33XX_SGX_SHIFT)
+ 
+ /*
+  * CONTROL OMAP STATUS register to identify OMAP3 features
+diff --git a/arch/arm/mach-omap2/id.c b/arch/arm/mach-omap2/id.c
+index c66f700..7b913d3 100644
+--- a/arch/arm/mach-omap2/id.c
++++ b/arch/arm/mach-omap2/id.c
+@@ -286,6 +286,19 @@ void __init ti81xx_check_features(void)
+ 	omap3_cpuinfo();
+ }
+ 
++void __init am33xx_check_features(void)
++{
++	u32 status;
++
++	omap_features = OMAP3_HAS_NEON;
++
++	status = omap_ctrl_readl(AM33XX_DEV_FEATURE);
++	if (status & AM33XX_SGX_MASK)
++		omap_features |= OMAP3_HAS_SGX;
++
++	omap3_cpuinfo();
++}
++
+ void __init omap3xxx_check_revision(void)
+ {
+ 	u32 cpuid, idcode;
+diff --git a/arch/arm/mach-omap2/io.c b/arch/arm/mach-omap2/io.c
+index d891084..0c47b15 100644
+--- a/arch/arm/mach-omap2/io.c
++++ b/arch/arm/mach-omap2/io.c
+@@ -472,7 +472,7 @@ void __init am33xx_init_early(void)
+ {
+ 	omap2_set_globals_am33xx();
+ 	omap3xxx_check_revision();
+-	ti81xx_check_features();
++	am33xx_check_features();
+ 	omap_common_init_early();
+ 	am33xx_voltagedomains_init();
+ 	am33xx_powerdomains_init();
+diff --git a/arch/arm/plat-omap/include/plat/cpu.h b/arch/arm/plat-omap/include/plat/cpu.h
+index 428ccb1..16aae2b 100644
+--- a/arch/arm/plat-omap/include/plat/cpu.h
++++ b/arch/arm/plat-omap/include/plat/cpu.h
+@@ -456,6 +456,7 @@ void omap3xxx_check_revision(void);
+ void omap4xxx_check_revision(void);
+ void omap3xxx_check_features(void);
+ void ti81xx_check_features(void);
++void am33xx_check_features(void);
+ void omap4xxx_check_features(void);
+ 
+ /*
+-- 
+1.7.9
+

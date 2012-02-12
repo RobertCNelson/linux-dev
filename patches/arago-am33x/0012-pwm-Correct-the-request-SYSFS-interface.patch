@@ -1,0 +1,89 @@
+From 0f64f7303e8e6f61c8c0b4de2a84c0c5cc915c2c Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Mon, 6 Feb 2012 19:27:34 +0530
+Subject: [PATCH 12/15] pwm: Correct the "request" SYSFS interface
+
+This patch changes handling of "request" SYSFS interface
+1. Request for PWM device
+from "cat request" to "echo 1 > request"
+2. Release for PWM device
+from "echo 1 > request" to "echo 0 > request"
+3.Information on reading "request" SYSFS interface
+if pwm device used, "<pwm device> is used by which <application>"
+or if pwm device is free, "<pwm device> is free"
+
+Also this patch has the fix for hanging of the system on subsequent
+request/release operation after release of unused device. This is
+because, release of unused device causes mutex to hold in a locked state
+and further request for the mutex would hang.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+---
+ drivers/pwm/pwm.c |   33 +++++++++++++++++++++++----------
+ 1 files changed, 23 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/pwm/pwm.c b/drivers/pwm/pwm.c
+index f7dfd3d..d7b39c8 100644
+--- a/drivers/pwm/pwm.c
++++ b/drivers/pwm/pwm.c
+@@ -124,7 +124,8 @@ void pwm_release(struct pwm_device *p)
+ 	mutex_lock(&device_list_mutex);
+ 
+ 	if (!test_and_clear_bit(FLAG_REQUESTED, &p->flags)) {
+-		BUG();
++		pr_debug("%s pwm device is not requested!\n",
++				dev_name(p->dev));
+ 		goto done;
+ 	}
+ 
+@@ -601,17 +602,16 @@ static ssize_t pwm_request_show(struct device *dev,
+ 				char *buf)
+ {
+ 	struct pwm_device *p = dev_get_drvdata(dev);
+-	struct pwm_device *ret;
++	int ret;
+ 
+-	mutex_lock(&device_list_mutex);
+-	ret = __pwm_request(p, REQUEST_SYSFS);
+-	mutex_unlock(&device_list_mutex);
++	ret = test_bit(FLAG_REQUESTED, &p->flags);
+ 
+-	if (IS_ERR_OR_NULL(ret))
+-		return sprintf(buf, "fail (owner: %s  pid: %d)\n",
+-			       p->label, p->pid);
++	if (ret)
++		return sprintf(buf, "%s requested by %s\n",
++				dev_name(p->dev), p->label);
+ 	else
+-		return sprintf(buf, "%s (pid %d)\n", ret->label, ret->pid);
++		return sprintf(buf, "%s is free\n",
++				dev_name(p->dev));
+ }
+ 
+ static ssize_t pwm_request_store(struct device *dev,
+@@ -619,8 +619,21 @@ static ssize_t pwm_request_store(struct device *dev,
+ 				 const char *buf, size_t len)
+ {
+ 	struct pwm_device *p = dev_get_drvdata(dev);
++	unsigned long request;
++	struct pwm_device *ret;
++
++	if (!kstrtoul(buf, 10, &request)) {
++		if (request) {
++			mutex_lock(&device_list_mutex);
++			ret = __pwm_request(p, REQUEST_SYSFS);
++			mutex_unlock(&device_list_mutex);
++
++			if (IS_ERR(ret))
++				return PTR_ERR(ret);
++		} else
++			pwm_release(p);
++	}
+ 
+-	pwm_release(p);
+ 	return len;
+ }
+ static DEVICE_ATTR(request, S_IRUGO | S_IWUSR, pwm_request_show,
+-- 
+1.7.9
+
