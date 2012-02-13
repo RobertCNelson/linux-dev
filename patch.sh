@@ -33,19 +33,7 @@ function bugs_trivial {
 echo "bugs and trivial stuff"
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
-
-#should fix gcc-4.6 ehci problems..
-#Safe to remove?
-#Maverick: gcc-4.4: ehci=okay
-#Natty: gcc-4.5: ehci=okay
-#Oneiric: gcc-4.6: ehci=okay
-#Precise armel: gcc-4.6: ehci=okay
-#Precise armhf: gcc-4.6: ehci=?
-#Squeeze: gcc-4.4: ehci=okay
-#Wheezy: gcc-4.6: ehci=okay
-#Sid armel: gcc-4.6: ehci=?
-#Sid armhf: gcc-4.6: ehci=?
-#patch -s -p1 < "${DIR}/patches/trivial/0001-USB-ehci-use-packed-aligned-4-instead-of-removing-th.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
 }
 
 function cpufreq {
@@ -72,6 +60,9 @@ patch -s -p1 < "${DIR}/patches/beagle/0001-ASoC-omap-convert-per-board-modules-t
 patch -s -p1 < "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
 
 patch -s -p1 < "${DIR}/patches/beagle/ulcd/0001-ulcd-add-tlc59108-i2c-device.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-beagle-tsc2007-might-not-be-in-customer-config.patch"
+
+patch -s -p1 < "${DIR}/patches/beagle/0001-ARM-OMAP3-clock-data-fill-in-some-missing-clockdomai.patch"
 }
 
 function dspbridge {
@@ -82,7 +73,9 @@ git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
 function omapdrm {
 echo "[git] testing omapdrm"
 echo "[git] pulling cma driver"
-git pull git://github.com/RobertCNelson/linux.git cma-v20_v3.3-rc2
+git pull git://github.com/RobertCNelson/linux.git cma-v21_v3.3-rc3
+git am "${DIR}/patches/drm/0001-cma-use-update_cma_wmark_pages-over-modify_min_cma_p.patch"
+
 echo "[git] pulling drm driver"
 git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc1
 

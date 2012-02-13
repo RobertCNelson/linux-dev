@@ -1,0 +1,35 @@
+From 3af777c9032957093618ac79c12b85d4559fd212 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Mon, 13 Feb 2012 14:11:01 -0600
+Subject: [PATCH] cma: use update_cma_wmark_pages over modify_min_cma_pages
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ mm/page_alloc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 2fedd36..ef25066 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5671,7 +5671,7 @@ static int __reclaim_pages(struct zone *zone, gfp_t gfp_mask, int count)
+ 	 * Increase level of watermarks to force kswapd do his job
+ 	 * to stabilise at new watermark level.
+ 	 */
+-	__modify_min_cma_pages(zone, count);
++	__update_cma_wmark_pages(zone, count);
+ 
+ 	/* Obey watermarks as if the page was being allocated */
+ 	watermark = low_wmark_pages(zone) + count;
+@@ -5687,7 +5687,7 @@ static int __reclaim_pages(struct zone *zone, gfp_t gfp_mask, int count)
+ 	}
+ 
+ 	/* Restore original watermark levels. */
+-	__modify_min_cma_pages(zone, -count);
++	__update_cma_wmark_pages(zone, -count);
+ 
+ 	return count;
+ }
+-- 
+1.7.9
+

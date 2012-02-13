@@ -166,6 +166,9 @@ function make_deb {
 if [ -e ${DIR}/system.sh ]; then
   . system.sh
   . version.sh
+  echo ""
+  echo "Using : $(LC_ALL=C ${CC}gcc --version)"
+  echo ""
 
 if [ "${LATEST_GIT}" ] ; then
 	echo ""
@@ -176,7 +179,7 @@ fi
   git_kernel
   patch_kernel
   copy_defconfig
-  #make_menuconfig
+  make_menuconfig
   make_deb
 else
   echo ""
