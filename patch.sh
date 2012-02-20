@@ -73,11 +73,11 @@ git pull git://github.com/RobertCNelson/linux.git dspbridge_v3.2-rc3
 function omapdrm {
 echo "[git] testing omapdrm"
 echo "[git] pulling cma driver"
-git pull git://github.com/RobertCNelson/linux.git cma-v21_v3.3-rc3
-git am "${DIR}/patches/drm/0001-cma-use-update_cma_wmark_pages-over-modify_min_cma_p.patch"
+git pull git://github.com/RobertCNelson/linux.git cma-v22_v3.3-rc4
+#git am "${DIR}/patches/drm/0001-cma-use-update_cma_wmark_pages-over-modify_min_cma_p.patch"
 
-echo "[git] pulling drm driver"
-git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc1
+git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
+git am "${DIR}/patches/drm/0002-drm-omap-platform-data-structs-moved-to-plat-omap.patch"
 
 #v3.3-rc3
 #git am "${DIR}/patches/drm/0001-ARM-OMAP-HWMOD-split-omap2-3-dispc-hwmod-class.patch"
