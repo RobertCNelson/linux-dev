@@ -74,28 +74,15 @@ function omapdrm {
 echo "[git] testing omapdrm"
 echo "[git] pulling cma driver"
 git pull git://github.com/RobertCNelson/linux.git cma-v22_v3.3-rc4
-#git am "${DIR}/patches/drm/0001-cma-use-update_cma_wmark_pages-over-modify_min_cma_p.patch"
 
 git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
 git am "${DIR}/patches/drm/0002-drm-omap-platform-data-structs-moved-to-plat-omap.patch"
-
-#v3.3-rc3
-#git am "${DIR}/patches/drm/0001-ARM-OMAP-HWMOD-split-omap2-3-dispc-hwmod-class.patch"
-#git am "${DIR}/patches/drm/0002-ARM-OMAP3-HWMOD-add-SYSC_HAS_ENAWAKEUP-for-dispc.patch"
-#git am "${DIR}/patches/drm/0003-OMAPDSS-use-sync-versions-of-pm_runtime_put.patch"
+git am "${DIR}/patches/drm/0001-OMAPDSS-HDMI-hot-plug-detect-fix.patch"
 
 #might be merged in 3.4
 git am "${DIR}/patches/drm/0001-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
 git am "${DIR}/patches/drm/0002-ARM-OMAP2-3-HWMOD-Add-missing-flag-for-rfbi-class.patch"
 git am "${DIR}/patches/drm/0003-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
-
-#panda: hdmi fixes (needs work breaks kms on panda)
-#git am "${DIR}/patches/drm/0001-OMAP-4430SDP-Panda-use-gpio_free_array-to-free-HDMI-.patch"
-#git am "${DIR}/patches/drm/0002-OMAP-4430SDP-Panda-rename-HPD-GPIO-to-CT_CP_HPD.patch"
-#git am "${DIR}/patches/drm/0003-OMAPDSS-remove-wrong-HDMI-HPD-muxing.patch"
-#git am "${DIR}/patches/drm/0004-OMAP-4430SDP-Panda-setup-HDMI-GPIO-muxes.patch"
-#git am "${DIR}/patches/drm/0005-OMAP-4430SDP-Panda-add-HDMI-HPD-gpio.patch"
-#git am "${DIR}/patches/drm/0006-OMAPDSS-HDMI-PHY-burnout-fix.patch"
 
 }
 
@@ -134,11 +121,6 @@ echo "generic fixes"
 
 git am "${DIR}/patches/fixes/0001-OMAP-UART-Enable-tx-wakeup-bit-in-wer.patch"
 
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP-AM3517-3505-fix-crash-on-boot-due-to-incorr.patch"
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP4-hwmod-Don-t-wait-for-the-idle-status-if-mo.patch"
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP4-clock-Add-CPU-local-timer-clock-node.patch"
-#git am "${DIR}/patches/fixes/0001-ARM-OMAP3-hwmod-data-disable-multiblock-reads-on-MMC.patch"
-#git am "${DIR}/patches/fixes/0001-OMAP-HWMOD-add-es3plus-to-am36xx-am35xx.patch"
 }
 
 bugs_trivial
