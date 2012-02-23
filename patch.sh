@@ -63,6 +63,7 @@ patch -s -p1 < "${DIR}/patches/beagle/ulcd/0001-ulcd-add-tlc59108-i2c-device.pat
 patch -s -p1 < "${DIR}/patches/beagle/0001-beagle-tsc2007-might-not-be-in-customer-config.patch"
 
 patch -s -p1 < "${DIR}/patches/beagle/0001-ARM-OMAP3-clock-data-fill-in-some-missing-clockdomai.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly-wh.patch"
 }
 
 function dspbridge {
