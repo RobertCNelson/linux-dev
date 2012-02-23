@@ -76,9 +76,8 @@ echo "[git] testing omapdrm"
 echo "[git] pulling cma driver"
 git pull git://github.com/RobertCNelson/linux.git cma-v22_v3.3-rc4
 
-git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
-git am "${DIR}/patches/drm/0002-drm-omap-platform-data-structs-moved-to-plat-omap.patch"
-git am "${DIR}/patches/drm/0001-OMAPDSS-HDMI-hot-plug-detect-fix.patch"
+echo "[git] pulling omapdrm driver"
+git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc4
 
 #might be merged in 3.4
 git am "${DIR}/patches/drm/0001-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
