@@ -142,6 +142,7 @@ function bisect_kernel {
  git bisect start
  git bisect good v3.2
  git bisect bad  v3.3-rc1
+ git bisect good 2ac9d7aaccbd598b5bd19ac40761b723bb675442
 
  cd ${DIR}/
 }
