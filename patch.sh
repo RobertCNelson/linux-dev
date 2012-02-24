@@ -64,6 +64,7 @@ patch -s -p1 < "${DIR}/patches/beagle/0001-beagle-tsc2007-might-not-be-in-custom
 
 patch -s -p1 < "${DIR}/patches/beagle/0001-ARM-OMAP3-clock-data-fill-in-some-missing-clockdomai.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly-wh.patch"
+git am "${DIR}/patches/beagle/0001-ARM-OMAP3-USB-Fix-the-EHCI-ULPI-PHY-reset-issue.patch"
 }
 
 function dspbridge {
