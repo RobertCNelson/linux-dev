@@ -110,12 +110,16 @@ if [ ! $(which ccache) ];then
 fi
 
 if [ ! -f /usr/lib/libncurses.so ] ; then
- if [ ! -f /usr/lib/$(uname -m)-linux-gnu/libncurses.so ] ; then
-  echo "Missing ncurses"
-  UPACKAGE+="libncurses5-dev "
-  DPACKAGE+="libncurses5-dev "
-  APT=1
- fi
+	ARCH=$(uname -m)
+	if [ "-${ARCH}-" == "-i686-" ] ; then
+ 		ARCH="i386"
+	fi
+	if [ ! -f /usr/lib/${ARCH}-linux-gnu/libncurses.so ] ; then
+		echo "Missing ncurses"
+		UPACKAGE+="libncurses5-dev "
+		DPACKAGE+="libncurses5-dev "
+		APT=1
+	fi
 fi
 
 if [ "${APT}" ];then

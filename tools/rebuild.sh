@@ -161,6 +161,15 @@ function make_zImage {
   cd ${DIR}/
 }
 
+function make_uImage {
+  cd ${DIR}/KERNEL/
+  echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y uImage"
+  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y uImage
+  KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+  cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
+  cd ${DIR}/
+}
+
 function make_modules {
   cd ${DIR}/KERNEL/
   time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y modules
