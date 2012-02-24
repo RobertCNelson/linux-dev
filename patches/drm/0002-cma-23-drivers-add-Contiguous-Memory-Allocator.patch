@@ -1,0 +1,26 @@
+From 7c5c6485fa04d7a1a7689aca74f6c9a6f76c78ec Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 24 Feb 2012 11:32:19 -0600
+Subject: [PATCH 2/2] cma-23 drivers: add Contiguous Memory Allocator
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/base/dma-contiguous.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/base/dma-contiguous.c b/drivers/base/dma-contiguous.c
+index 6130787..78efb03 100644
+--- a/drivers/base/dma-contiguous.c
++++ b/drivers/base/dma-contiguous.c
+@@ -390,7 +390,7 @@ bool dma_release_from_contiguous(struct device *dev, struct page *pages,
+ 	if (pfn < cma->base_pfn || pfn >= cma->base_pfn + cma->count)
+ 		return false;
+ 
+-	VM_BUG_ON(pfn + count > cma->base_pfn);
++	VM_BUG_ON(pfn + count > cma->base_pfn + cma->count);
+ 
+ 	mutex_lock(&cma_mutex);
+ 	bitmap_clear(cma->bitmap, pfn - cma->base_pfn, count);
+-- 
+1.7.9
+

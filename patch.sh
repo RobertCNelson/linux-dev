@@ -77,6 +77,10 @@ echo "[git] testing omapdrm"
 echo "[git] pulling cma driver"
 git pull git://github.com/RobertCNelson/linux.git cma-v22_v3.3-rc4
 
+echo "adding fixes from cma-v23 (cma tree was rebased for-next v3.4)"
+git am "${DIR}/patches/drm/0001-cma-23-mm-compaction-export-some-of-the-functions.patch"
+git am "${DIR}/patches/drm/0002-cma-23-drivers-add-Contiguous-Memory-Allocator.patch"
+
 echo "[git] pulling omapdrm driver"
 git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc4
 
