@@ -64,7 +64,7 @@ patch -s -p1 < "${DIR}/patches/beagle/0001-beagle-tsc2007-might-not-be-in-custom
 
 patch -s -p1 < "${DIR}/patches/beagle/0001-ARM-OMAP3-clock-data-fill-in-some-missing-clockdomai.patch"
 patch -s -p1 < "${DIR}/patches/beagle/0001-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly-wh.patch"
-git am "${DIR}/patches/beagle/0001-ARM-OMAP3-USB-Fix-the-EHCI-ULPI-PHY-reset-issue.patch"
+patch -s -p1 < "${DIR}/patches/beagle/0001-ARM-OMAP3-USB-Fix-the-EHCI-ULPI-PHY-reset-issue.patch"
 }
 
 function dspbridge {
@@ -115,6 +115,7 @@ patch -s -p1 < "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readon
 function omap4 {
 echo "omap4 related patches"
 patch -s -p1 < "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
+patch -s -p1 < "${DIR}/patches/panda/0001-ARM-OMAP-enable-Bluetooth-on-the-PandaBoard.patch"
 }
 
 function fixes {
