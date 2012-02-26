@@ -9,9 +9,9 @@ KERNEL_REL=3.3
 
 #for x.x-rcX
 RC_KERNEL=3.3
-RC_PATCH=-rc4
+RC_PATCH=-rc5
 
-ABI=1.2
+ABI=2
 
 BUILD=d${ABI}
 
