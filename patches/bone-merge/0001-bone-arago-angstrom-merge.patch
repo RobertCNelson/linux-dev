@@ -1,11 +1,11 @@
-From 61e465e17eb175ab641e80e193e379145feb18b7 Mon Sep 17 00:00:00 2001
+From 7285df1899584168e3916cfc2b0e8836dcc9bf85 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 12 Feb 2012 17:10:50 -0600
+Date: Mon, 27 Feb 2012 15:56:47 -0600
 Subject: [PATCH] bone: arago angstrom merge
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |  597 ++++++++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/board-am335xevm.c |  623 +++++++++++++++++++++++++++++++--
  arch/arm/mach-omap2/devices.c         |   13 +
  arch/arm/mach-omap2/devices.h         |    1 +
  arch/arm/mach-omap2/mux33xx.c         |   22 +-
@@ -13,20 +13,20 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/input/touchscreen/ti_tscadc.c |  275 ++++++++++++---
  drivers/mmc/host/omap_hsmmc.c         |    3 +
  drivers/net/can/dev.c                 |    8 +-
- drivers/net/can/mcp251x.c             |   31 ++-
+ drivers/net/can/mcp251x.c             |   47 ++-
  drivers/usb/gadget/f_rndis.c          |    4 +-
  drivers/video/Kconfig                 |   11 +
  drivers/video/Makefile                |    1 +
  drivers/video/da8xx-fb.c              |   14 +
- drivers/video/st7735fb.c              |  516 ++++++++++++++++++++++++++++
+ drivers/video/st7735fb.c              |  516 +++++++++++++++++++++++++++
  include/linux/input/ti_tscadc.h       |    5 +
  include/video/st7735fb.h              |   82 +++++
- 16 files changed, 1505 insertions(+), 82 deletions(-)
+ 16 files changed, 1528 insertions(+), 101 deletions(-)
  create mode 100644 drivers/video/st7735fb.c
  create mode 100644 include/video/st7735fb.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 8aa7e10..7bcb1a0 100644
+index b304b16..e2eb3ae 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -164,8 +164,8 @@ index 8aa7e10..7bcb1a0 100644
  static u8 am335x_iis_serializer_direction1[] = {
  	INACTIVE_MODE,	INACTIVE_MODE,	TX_MODE,	RX_MODE,
  	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,
-@@ -320,9 +409,34 @@ struct am335x_evm_eeprom_config {
- static struct am335x_evm_eeprom_config config;
+@@ -359,9 +448,34 @@ static struct am335x_evm_eeprom_config config;
+ static struct am335x_eeprom_config1 config1;
  static bool daughter_brd_detected;
  
 +struct beaglebone_cape_eeprom_config {
@@ -197,9 +197,9 @@ index 8aa7e10..7bcb1a0 100644
  #define GP_EVM_REV_IS_UNKNOWN		0xFF
 +#define GP_EVM_ACTUALLY_BEAGLEBONE  0xBB
  static unsigned int gp_evm_revision = GP_EVM_REV_IS_UNKNOWN;
- unsigned int gigabit_enable = 1;
  
-@@ -404,11 +518,107 @@ static struct pinmux_config lcdc_pin_mux[] = {
+ #define CPLD_REV_1_0A			0x1
+@@ -449,11 +563,107 @@ static struct pinmux_config lcdc_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -307,7 +307,7 @@ index 8aa7e10..7bcb1a0 100644
  	{"vrefp.vrefp",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{"vrefn.vrefn",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{NULL, 0},
-@@ -620,6 +830,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
+@@ -665,6 +875,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -323,7 +323,7 @@ index 8aa7e10..7bcb1a0 100644
  /* Module pin mux for uart2 */
  static struct pinmux_config uart2_pin_mux[] = {
  	{"spi0_sclk.uart2_rxd", OMAP_MUX_MODE1 | AM33XX_SLEWCTRL_SLOW |
-@@ -823,6 +1042,118 @@ static struct pinmux_config profibus_pin_mux[] = {
+@@ -868,6 +1087,118 @@ static struct pinmux_config profibus_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -442,7 +442,7 @@ index 8aa7e10..7bcb1a0 100644
  /* Module pin mux for eCAP0 */
  static struct pinmux_config ecap0_pin_mux[] = {
  	{"ecap0_in_pwm0_out.ecap0_in_pwm0_out",
-@@ -830,6 +1161,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
+@@ -875,6 +1206,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -450,7 +450,7 @@ index 8aa7e10..7bcb1a0 100644
  static int backlight_enable;
  
  #define AM335XEVM_WLAN_PMENA_GPIO	GPIO_TO_PIN(1, 30)
-@@ -899,6 +1231,30 @@ static int __init ecap0_init(void)
+@@ -944,6 +1276,30 @@ static int __init ecap0_init(void)
  }
  late_initcall(ecap0_init);
  
@@ -481,7 +481,7 @@ index 8aa7e10..7bcb1a0 100644
  static int __init conf_disp_pll(int rate)
  {
  	struct clk *disp_pll;
-@@ -932,6 +1288,47 @@ static void lcdc_init(int evm_id, int profile)
+@@ -977,6 +1333,47 @@ static void lcdc_init(int evm_id, int profile)
  	return;
  }
  
@@ -529,7 +529,7 @@ index 8aa7e10..7bcb1a0 100644
  static void tsc_init(int evm_id, int profile)
  {
  	int err;
-@@ -939,16 +1336,59 @@ static void tsc_init(int evm_id, int profile)
+@@ -984,16 +1381,59 @@ static void tsc_init(int evm_id, int profile)
  	if (gp_evm_revision == GP_EVM_REV_IS_1_1A) {
  		am335x_touchscreen_data.analog_input = 1;
  		pr_info("TSC connected to beta GP EVM\n");
@@ -590,7 +590,7 @@ index 8aa7e10..7bcb1a0 100644
  static void rgmii1_init(int evm_id, int profile)
  {
  	setup_pin_mux(rgmii1_pin_mux);
-@@ -1358,18 +1798,150 @@ static void i2c1_init(int evm_id, int profile)
+@@ -1403,18 +1843,150 @@ static void i2c1_init(int evm_id, int profile)
  	return;
  }
  
@@ -620,7 +620,10 @@ index 8aa7e10..7bcb1a0 100644
  
 -static void i2c2_init(int evm_id, int profile)
 +static void tt3201_init(int evm_id, int profile)
-+{
+ {
+-	setup_pin_mux(i2c2_pin_mux);
+-	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
+-			ARRAY_SIZE(am335x_i2c_boardinfo2));
 +	pr_info("TowerTech TT3201 CAN Cape\n");
 +
 +	setup_pin_mux(spi1_pin_mux);
@@ -635,10 +638,7 @@ index 8aa7e10..7bcb1a0 100644
 +	am33xx_d_can_init(1);
 +}
 +static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context)
- {
--	setup_pin_mux(i2c2_pin_mux);
--	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
--			ARRAY_SIZE(am335x_i2c_boardinfo2));
++{
 +	capecount++;
 +	int ret;
 +	char tmp[32];
@@ -746,7 +746,7 @@ index 8aa7e10..7bcb1a0 100644
  /* Setup McASP 1 */
  static void mcasp1_init(int evm_id, int profile)
  {
-@@ -1723,8 +2295,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+@@ -1768,8 +2340,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
  	{rmii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -757,7 +757,7 @@ index 8aa7e10..7bcb1a0 100644
  	{NULL, 0, 0},
  };
  
-@@ -1734,8 +2307,10 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+@@ -1779,8 +2352,10 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{mii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -769,7 +769,7 @@ index 8aa7e10..7bcb1a0 100644
  	{NULL, 0, 0},
  };
  
-@@ -1752,6 +2327,7 @@ static void setup_general_purpose_evm(void)
+@@ -1797,6 +2372,7 @@ static void setup_general_purpose_evm(void)
  	pr_info("The board is general purpose EVM in profile %d\n", prof_sel);
  
  	if (!strncmp("1.1A", config.version, 4)) {
@@ -777,7 +777,7 @@ index 8aa7e10..7bcb1a0 100644
  		gp_evm_revision = GP_EVM_REV_IS_1_1A;
  	} else if (!strncmp("1.0", config.version, 3)) {
  		gp_evm_revision = GP_EVM_REV_IS_1_0;
-@@ -1822,6 +2398,7 @@ static void setup_beaglebone_old(void)
+@@ -1867,6 +2443,7 @@ static void setup_beaglebone_old(void)
  static void setup_beaglebone(void)
  {
  	pr_info("The board is a AM335x Beaglebone.\n");
@@ -785,6 +785,47 @@ index 8aa7e10..7bcb1a0 100644
  
  	/* Beagle Bone has Micro-SD slot which doesn't have Write Protect pin */
  	am335x_mmc[0].gpio_wp = -EINVAL;
+@@ -1883,32 +2460,22 @@ static void setup_beaglebone(void)
+ 
+ static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
+ {
++	u8 tmp;
+ 	int ret;
+ 
+ 	/*
+-	 * Read from the EEPROM to see the presence
+-	 * of daughter board. If present, get daughter board
+-	 * specific data.
++	 * try reading a byte from the EEPROM to see if it is
++	 * present. We could read a lot more, but that would
++	 * just slow the boot process and we have all the information
++	 * we need from the EEPROM on the base board anyway.
+ 	 */
+-
+-	ret = m->read(m, (char *)&config1, 0, sizeof(config1));
+-	if (ret == sizeof(config1)) {
++	ret = m->read(m, &tmp, 0, sizeof(u8));
++	if (ret == sizeof(u8)) {
+ 		pr_info("Detected a daughter card on AM335x EVM..");
+ 		daughter_brd_detected = true;
+-	}
+-	 else {
++	} else {
+ 		pr_info("No daughter card found\n");
+ 		daughter_brd_detected = false;
+-		return;
+-	}
+-
+-	if (!strncmp("CPLD1.0A", config1.cpld_ver, 8))
+-		cpld_version = CPLD_REV_1_0A;
+-	else if (!strncmp("CPLD1.1A", config1.cpld_ver, 8))
+-		cpld_version = CPLD_REV_1_1A;
+-	else {
+-		pr_err("Unknown CPLD version found, falling back to 1.0A\n");
+-		cpld_version = CPLD_REV_1_0A;
+ 	}
+ }
+ 
 diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
 index 198df7b..8cd2523 100644
 --- a/arch/arm/mach-omap2/devices.c
@@ -821,7 +862,7 @@ index e086839..5161eb4 100644
  
  #endif
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
-index 8df8fa9..2de76e3 100644
+index 59e51e0..25dcedb 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
 +++ b/arch/arm/mach-omap2/mux33xx.c
 @@ -85,7 +85,7 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
@@ -889,7 +930,7 @@ index 70a3012..348c8e5 100644
  #define AM33XX_CONTROL_PADCONF_AIN2_OFFSET			0x0B24
  #define AM33XX_CONTROL_PADCONF_AIN1_OFFSET			0x0B28
 diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-index e3b5775..bccb70b 100644
+index e3b5775..07b3787 100644
 --- a/drivers/input/touchscreen/ti_tscadc.c
 +++ b/drivers/input/touchscreen/ti_tscadc.c
 @@ -26,7 +26,20 @@
@@ -1340,13 +1381,16 @@ index 25695bd..bc1e87e 100644
  	}
  
 diff --git a/drivers/net/can/mcp251x.c b/drivers/net/can/mcp251x.c
-index 330140e..9c38786 100644
+index 330140e..b3e231c 100644
 --- a/drivers/net/can/mcp251x.c
 +++ b/drivers/net/can/mcp251x.c
-@@ -95,6 +95,7 @@
+@@ -93,8 +93,9 @@
+ #  define CANCTRL_REQOP_LOOPBACK    0x40
+ #  define CANCTRL_REQOP_SLEEP	    0x20
  #  define CANCTRL_REQOP_NORMAL	    0x00
- #  define CANCTRL_OSM		    0x08
+-#  define CANCTRL_OSM		    0x08
  #  define CANCTRL_ABAT		    0x10
++#  define CANCTRL_OSM		    0x08
 +#  define CANCTRL_CLKEN		    0x04
  #define TEC	      0x1c
  #define REC	      0x1d
@@ -1406,34 +1450,63 @@ index 330140e..9c38786 100644
  	return 0;
  }
  
-@@ -827,21 +835,26 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
+@@ -600,6 +608,7 @@ static int mcp251x_setup(struct net_device *net, struct mcp251x_priv *priv,
+ 
+ 	mcp251x_write_reg(spi, RXBCTRL(0),
+ 			  RXBCTRL_BUKT | RXBCTRL_RXM0 | RXBCTRL_RXM1);
++
+ 	mcp251x_write_reg(spi, RXBCTRL(1),
+ 			  RXBCTRL_RXM0 | RXBCTRL_RXM1);
+ 	return 0;
+@@ -728,7 +737,9 @@ static void mcp251x_tx_work_handler(struct work_struct *ws)
+ 	mutex_lock(&priv->mcp_lock);
+ 	if (priv->tx_skb) {
+ 		if (priv->can.state == CAN_STATE_BUS_OFF) {
++
+ 			mcp251x_clean(net);
++
+ 		} else {
+ 			frame = (struct can_frame *)priv->tx_skb->data;
+ 
+@@ -827,21 +838,37 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
  
  		/* Update can state */
  		if (eflag & EFLG_TXBO) {
-+			netdev_err(net, "err: bus off\n");
++
++		        netdev_err(net, "err: bus off\n");
++
  			new_state = CAN_STATE_BUS_OFF;
  			can_id |= CAN_ERR_BUSOFF;
  		} else if (eflag & EFLG_TXEP) {
-+			netdev_err(net, "err: txep\n");
++
++		        netdev_err(net, "err: txep\n");
++
  			new_state = CAN_STATE_ERROR_PASSIVE;
  			can_id |= CAN_ERR_CRTL;
  			data1 |= CAN_ERR_CRTL_TX_PASSIVE;
++
  		} else if (eflag & EFLG_RXEP) {
-+			netdev_err(net, "err: rxep\n");
++
++		        netdev_err(net, "err: rxep\n");
++
  			new_state = CAN_STATE_ERROR_PASSIVE;
  			can_id |= CAN_ERR_CRTL;
  			data1 |= CAN_ERR_CRTL_RX_PASSIVE;
  		} else if (eflag & EFLG_TXWAR) {
-+			netdev_err(net, "err: txwar\n");
++
++		        netdev_err(net, "err: txwar\n");
++
  			new_state = CAN_STATE_ERROR_WARNING;
  			can_id |= CAN_ERR_CRTL;
  			data1 |= CAN_ERR_CRTL_TX_WARNING;
  		} else if (eflag & EFLG_RXWAR) {
-+			netdev_err(net, "err: rxwar\n");
++
++		        netdev_err(net, "err: rxwar\n");
++
  			new_state = CAN_STATE_ERROR_WARNING;
  			can_id |= CAN_ERR_CRTL;
  			data1 |= CAN_ERR_CRTL_RX_WARNING;
-@@ -918,7 +931,7 @@ static int mcp251x_open(struct net_device *net)
+@@ -918,7 +945,7 @@ static int mcp251x_open(struct net_device *net)
  
  	ret = open_candev(net);
  	if (ret) {
@@ -1442,7 +1515,7 @@ index 330140e..9c38786 100644
  		return ret;
  	}
  
-@@ -934,7 +947,7 @@ static int mcp251x_open(struct net_device *net)
+@@ -934,7 +961,7 @@ static int mcp251x_open(struct net_device *net)
  		  pdata->irq_flags ? pdata->irq_flags : IRQF_TRIGGER_FALLING,
  		  DEVICE_NAME, priv);
  	if (ret) {
@@ -1451,7 +1524,7 @@ index 330140e..9c38786 100644
  		if (pdata->transceiver_enable)
  			pdata->transceiver_enable(0);
  		close_candev(net);
-@@ -1071,7 +1084,7 @@ static int __devinit mcp251x_can_probe(struct spi_device *spi)
+@@ -1071,7 +1098,7 @@ static int __devinit mcp251x_can_probe(struct spi_device *spi)
  
  	ret = register_candev(net);
  	if (!ret) {
@@ -1513,7 +1586,7 @@ index 9b9d8ff..c6d9851 100644
  # Platform or fallback drivers go here
  obj-$(CONFIG_FB_UVESA)            += uvesafb.o
 diff --git a/drivers/video/da8xx-fb.c b/drivers/video/da8xx-fb.c
-index 85eda33..d75bb4f 100644
+index 85eda33..dea8936 100644
 --- a/drivers/video/da8xx-fb.c
 +++ b/drivers/video/da8xx-fb.c
 @@ -271,6 +271,20 @@ static struct da8xx_panel known_lcd_panels[] = {
@@ -1539,7 +1612,7 @@ index 85eda33..d75bb4f 100644
  /* Enable the Raster Engine of the LCD Controller */
 diff --git a/drivers/video/st7735fb.c b/drivers/video/st7735fb.c
 new file mode 100644
-index 0000000..32b28af
+index 0000000..500cc88
 --- /dev/null
 +++ b/drivers/video/st7735fb.c
 @@ -0,0 +1,516 @@

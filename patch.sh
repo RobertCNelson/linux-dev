@@ -55,6 +55,16 @@ git am "${DIR}/patches/arago-am33x/0012-pwm-Correct-the-request-SYSFS-interface.
 git am "${DIR}/patches/arago-am33x/0013-pwm-fix-division-by-zero-error.patch"
 git am "${DIR}/patches/arago-am33x/0014-pwm-corrects-return-values-to-handle-error-situation.patch"
 git am "${DIR}/patches/arago-am33x/0015-pwm-ehrpwm-Fix-duty-cycle-inversion-eHRPWM-wave.patch"
+#git am "${DIR}/patches/arago-am33x/0016-arm-omap-am335x-Correct-interrupt-signal-for-TSC.patch"
+#git am "${DIR}/patches/arago-am33x/0017-arm-omap-am335x-Use-hwmod-data-to-register-TSC.patch"
+#git am "${DIR}/patches/arago-am33x/0018-arm-omap-am335x-Add-ick-data-in-Hwmod-for-TSC.patch"
+#git am "${DIR}/patches/arago-am33x/0019-input-TSC-Add-suspend-resume-feature-for-TSC.patch"
+git am "${DIR}/patches/arago-am33x/0020-ARM-OMAP2-am33xx-fix-serial-mux-warnings-for-am33xx.patch"
+git am "${DIR}/patches/arago-am33x/0021-ARM-OMAP2-am335x-Add-method-to-read-config-data-from.patch"
+git am "${DIR}/patches/arago-am33x/0022-ARM-OMAP2-am335x-correct-McASP0-pin-mux-detail.patch"
+git am "${DIR}/patches/arago-am33x/0023-ARM-OMAP2-edma-fix-coding-style-issue-related-to-bre.patch"
+git am "${DIR}/patches/arago-am33x/0024-ARM-OMAP2-edma-clear-interrupt-status-for-interrupt-.patch"
+git am "${DIR}/patches/arago-am33x/0025-ARM-OMAP2-edma-clear-events-in-edma_start.patch"
 
 git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
 }
@@ -78,7 +88,11 @@ git am "${DIR}/patches/arago-am33x/0011-usb-defconfig-enable-file_storage-gadget
 git am "${DIR}/patches/arago-am33x/0012-pwm-Correct-the-request-SYSFS-interface.patch"
 git am "${DIR}/patches/arago-am33x/0013-pwm-fix-division-by-zero-error.patch"
 git am "${DIR}/patches/arago-am33x/0014-pwm-corrects-return-values-to-handle-error-situation.patch"
-#SRCREV = "21ef5e1fa530eb8f23bfe18650e3915d7c291ca9"
+git am "${DIR}/patches/arago-am33x/0015-pwm-ehrpwm-Fix-duty-cycle-inversion-eHRPWM-wave.patch"
+
+#angstrom
+#BRANCH = "v3.2-staging"
+#SRCREV = "09e9651bcf2ee8d86685f2a8075bc6557b1d3b91"
 
 git am "${DIR}/patches/meta-ti/0002-f_rndis-HACK-around-undefined-variables.patch"
 git am "${DIR}/patches/meta-ti/0003-da8xx-fb-add-DVI-support-for-beaglebone.patch"
