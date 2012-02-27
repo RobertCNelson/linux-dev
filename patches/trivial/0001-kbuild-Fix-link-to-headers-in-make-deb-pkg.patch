@@ -1,0 +1,58 @@
+From 2523bcd43a155f1e890806b977da6ec7f4c3ee9b Mon Sep 17 00:00:00 2001
+From: Joerg Roedel <joerg.roedel@amd.com>
+Date: Mon, 13 Feb 2012 15:48:57 +0100
+Subject: [PATCH] kbuild: Fix link to headers in 'make deb-pkg'
+
+The Link to the kernel header files in the debian packages
+point to the original build directory. This is a bad choice
+if the packages were installed on a different machine. Fix
+this in by manually re-creating the link in the builddeb
+script.
+
+Cc: Michal Marek <mmarek@suse.cz>
+Cc: maximilian attems <max@stro.at>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Cc: debian-kernel@lists.debian.org
+Cc: linux-kbuild@vger.kernel.org
+Signed-off-by: Joerg Roedel <joerg.roedel@amd.com>
+---
+ scripts/package/builddeb |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/scripts/package/builddeb b/scripts/package/builddeb
+index 2a15fda..6a1ae1f 100644
+--- a/scripts/package/builddeb
++++ b/scripts/package/builddeb
+@@ -99,6 +99,7 @@ mkdir -m 755 -p "$libc_headers_dir/DEBIAN"
+ mkdir -p "$libc_headers_dir/usr/share/doc/$libc_headers_packagename"
+ mkdir -m 755 -p "$kernel_headers_dir/DEBIAN"
+ mkdir -p "$kernel_headers_dir/usr/share/doc/$kernel_headers_packagename"
++mkdir -p "$kernel_headers_dir/lib/modules/$version/"
+ if [ "$ARCH" = "um" ] ; then
+ 	mkdir -p "$tmpdir/usr/lib/uml/modules/$version" "$tmpdir/usr/bin"
+ fi
+@@ -123,6 +124,8 @@ fi
+ 
+ if grep -q '^CONFIG_MODULES=y' .config ; then
+ 	INSTALL_MOD_PATH="$tmpdir" make KBUILD_SRC= modules_install
++	rm -f "$tmpdir/lib/modules/$version/build"
++	rm -f "$tmpdir/lib/modules/$version/source"
+ 	if [ "$ARCH" = "um" ] ; then
+ 		mv "$tmpdir/lib/modules/$version"/* "$tmpdir/usr/lib/uml/modules/$version/"
+ 		rmdir "$tmpdir/lib/modules/$version"
+@@ -247,6 +250,12 @@ destdir=$kernel_headers_dir/usr/src/linux-headers-$version
+ mkdir -p "$destdir"
+ (cd $srctree; tar -c -f - -T /tmp/files$$) | (cd $destdir; tar -xf -)
+ (cd $objtree; tar -c -f - -T /tmp/objfiles$$) | (cd $destdir; tar -xf -)
++ln -sf "/usr/src/linux-headers-$version" "$kernel_headers_dir/lib/modules/$version/build"
++if [ "$ARCH" = "um" ] ; then
++	mkdir -p "$kernel_headers_dir/usr/lib/uml/modules/$version/"
++	mv "$kernel_headers_dir/lib/modules/$version"/* "$kernel_headers_dir/usr/lib/uml/modules/$version/"
++	rmdir "$kernel_headers_dir/lib/modules/$version"
++fi
+ rm -f /tmp/files$$ /tmp/objfiles$$
+ arch=$(dpkg --print-architecture)
+ 
+-- 
+1.7.9
+

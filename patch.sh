@@ -33,6 +33,7 @@ function bugs_trivial {
 echo "bugs and trivial stuff"
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
+patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
 }
 
 function am33x-cleanup {
