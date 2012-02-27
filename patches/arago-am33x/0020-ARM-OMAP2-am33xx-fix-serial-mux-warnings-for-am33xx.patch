@@ -1,0 +1,40 @@
+From 0625bb42fe10cebb87a0f72a0f064bc497e4e532 Mon Sep 17 00:00:00 2001
+From: "Hebbar, Gururaja" <gururaja.hebbar@ti.com>
+Date: Tue, 24 Jan 2012 19:45:12 +0530
+Subject: [PATCH 20/25] ARM: OMAP2+: am33xx: fix serial mux warnings for
+ am33xx
+
+The patch removes below warning in serial mux setup on AM335x platform
+
+[    0.162052] _omap_mux_get_by_name: Could not find signal
+uart1_cts.uart1_cts
+[    0.169437] omap_hwmod_mux_init: Could not allocate device mux entry
+[    0.176384] _omap_mux_get_by_name: Could not find signal
+uart2_cts.uart2_cts
+[    0.183735] omap_hwmod_mux_init: Could not allocate device mux entry
+[    0.190663] _omap_mux_get_by_name: Could not find signal
+uart3_cts_rctx.uart3_cts_rctx
+[    0.198926] omap_hwmod_mux_init: Could not allocate device mux entry
+
+Signed-off-by: Hebbar, Gururaja <gururaja.hebbar@ti.com>
+---
+ arch/arm/mach-omap2/serial.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/serial.c b/arch/arm/mach-omap2/serial.c
+index ad5bed3..bfa8ae3 100644
+--- a/arch/arm/mach-omap2/serial.c
++++ b/arch/arm/mach-omap2/serial.c
+@@ -409,7 +409,8 @@ void __init omap_serial_board_init(struct omap_uart_port_info *info)
+ 		bdata.pads = NULL;
+ 		bdata.pads_cnt = 0;
+ 
+-		if (cpu_is_omap44xx() || cpu_is_omap34xx())
++		if (cpu_is_omap44xx() || (cpu_is_omap34xx() &&
++							!cpu_is_am33xx()))
+ 			omap_serial_fill_default_pads(&bdata);
+ 
+ 		if (!info)
+-- 
+1.7.9
+
