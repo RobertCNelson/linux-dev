@@ -33,7 +33,7 @@ function bugs_trivial {
 echo "bugs and trivial stuff"
 
 #3.3-rc5
-git revert --no-edit a32744d4abae24572eff7269bc17895c41bd0085
+#git revert --no-edit a32744d4abae24572eff7269bc17895c41bd0085
 
 patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 #patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
