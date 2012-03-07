@@ -29,10 +29,6 @@ DIR=$PWD
 . version.sh
 
 mmc_write () {
-
-	#KERNEL_UTS=$(cat ${DIR}/KERNEL/include/linux/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-
 	echo "Installing $KERNEL_UTS"
 
 	cd ${DIR}/deploy
@@ -116,6 +112,7 @@ if [ -f "${DIR}/system.sh" ] ; then
 		echo "ERROR: ZRELADDR is not defined in system.sh"
 	else
 		if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
+			KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
 			if [ "x${MMC}" == "x" ] ; then
 				echo "ERROR: MMC is not defined in system.sh"
 			else
