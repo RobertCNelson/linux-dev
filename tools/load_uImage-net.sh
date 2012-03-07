@@ -37,8 +37,6 @@ mmc_write () {
 
 	cd ${DIR}/deploy
 	mkdir -p disk
-	sudo umount ${MMC}1 &> /dev/null || true
-	sudo umount ${MMC}5 &> /dev/null || true
 
 	sudo mount ${MMC}1 ${DIR}/deploy/disk
 
@@ -67,6 +65,22 @@ mmc_write () {
 	cd ${DIR}/
 }
 
+unmount_partitions () {
+	echo ""
+	echo "Unmounting Partitions"
+	echo "-----------------------------"
+
+	NUM_MOUNTS=$(mount | grep -v none | grep "${MMC}" | wc -l)
+
+	for (( c=1; c<=${NUM_MOUNTS}; c++ ))
+	do
+		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
+		sudo umount ${DRIVE} &> /dev/null || true
+	done
+
+	mmc_write
+}
+
 check_mmc () {
 	FDISK=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk ${MMC}" | awk '{print $2}')
 
@@ -80,7 +94,7 @@ check_mmc () {
 		mount | grep -v none | grep "/dev/" --color=never
 		echo ""
 		read -p "Are you 100% sure, on selecting [${MMC}] (y/n)? "
-		[ "${REPLY}" == "y" ] && mmc_write
+		[ "${REPLY}" == "y" ] && unmount_partitions
 		echo ""
 	else
 		echo ""
