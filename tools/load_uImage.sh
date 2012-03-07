@@ -31,8 +31,7 @@ DIR=$PWD
 mmc_write () {
 	echo "Installing $KERNEL_UTS"
 
-	cd ${DIR}/deploy
-	mkdir -p disk
+	mkdir -p "${DIR}/deploy/disk/"
 
 	sudo mount ${MMC}1 ${DIR}/deploy/disk
 
