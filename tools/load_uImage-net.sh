@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -28,7 +28,7 @@ DIR=$PWD
 
 . version.sh
 
-function mmc_write {
+mmc_write () {
 
 	#KERNEL_UTS=$(cat ${DIR}/KERNEL/include/linux/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
@@ -67,7 +67,7 @@ function mmc_write {
 	cd ${DIR}/
 }
 
-function check_mmc {
+check_mmc () {
 	FDISK=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk ${MMC}" | awk '{print $2}')
 
 	if [ "x${FDISK}" = "x${MMC}:" ] ; then
