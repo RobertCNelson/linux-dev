@@ -24,6 +24,8 @@ unset KERNEL_UTS
 unset MMC
 unset ZRELADDR
 
+BOOT_PARITION="1"
+
 #FIXME: going to have to get creative to autodetect this one...
 ROOTFS_PARTITION="2"
 
@@ -50,6 +52,11 @@ mmc_write_modules () {
 
 		echo "-----------------------------"
 		echo "This script has finished successfully..."
+	else
+		echo "-----------------------------"
+		echo "ERROR: Unable to mount ${MMC}${PARTITION_PREFIX}${ROOTFS_PARTITION} at "${DIR}/deploy/disk/" to copy modules..."
+		echo "Please retry running the script, sometimes rebooting your system helps."
+		echo "-----------------------------"
 	fi
 }
 
@@ -57,7 +64,7 @@ mmc_write_boot () {
 	echo "Installing ${KERNEL_UTS} to boot partition"
 	echo "-----------------------------"
 
-	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}1 "${DIR}/deploy/disk/" ; then
+	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
 		if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
 			sudo rm -f "${DIR}/deploy/disk/uImage_bak" || true
 		fi
@@ -66,7 +73,7 @@ mmc_write_boot () {
 			sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
 		fi
 
-		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d ${DIR}/deploy/${KERNEL_UTS}.zImage ${DIR}/deploy/disk/uImage
+		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
 
 		cd "${DIR}/deploy/disk"
 		sync
@@ -74,6 +81,11 @@ mmc_write_boot () {
 		cd -
 		sudo umount "${DIR}/deploy/disk" || true
 		mmc_write_modules
+	else
+		echo "-----------------------------"
+		echo "ERROR: Unable to mount ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} at "${DIR}/deploy/disk/" to copy uImage..."
+		echo "Please retry running the script, sometimes rebooting your system helps."
+		echo "-----------------------------"
 	fi
 }
 
