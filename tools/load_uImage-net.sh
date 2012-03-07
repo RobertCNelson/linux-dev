@@ -28,29 +28,31 @@ DIR=$PWD
 
 . version.sh
 
-mmc_write () {
-	sudo umount ${MMC}1 &> /dev/null || true
-	sudo umount ${MMC}5 &> /dev/null || true
+mmc_write_modules () {
+	echo "Installing ${KERNEL_UTS}-modules.tar.gz to rootfs partition"
+	echo "-----------------------------"
 
-	sudo mount ${MMC}5 ${DIR}/deploy/disk
-	sudo rm -rf ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}
+	if sudo mount ${MMC}${PARTITION_PREFIX}5 "${DIR}/deploy/disk/" ; then
+		if [ -d "${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}" ] ; then
+			sudo rm -rf ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS} || true
+		fi
 
-	sudo tar xfv ${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz -C ${DIR}/deploy/disk
+		sudo tar xfv "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${DIR}/deploy/disk"
 
-	cd ${DIR}/deploy/disk
-	sync
-	sync
-	cd ${DIR}/deploy/
-	sudo umount ${DIR}/deploy/disk
-	echo "Done"
-	cd ${DIR}/
+		cd "${DIR}/deploy/disk"
+		sync
+		sync
+		cd -
+		sudo umount "${DIR}/deploy/disk" || true
+
+		echo "-----------------------------"
+		echo "This script has finished successfully..."
+	fi
 }
 
 mmc_write_boot () {
 	echo "Installing ${KERNEL_UTS} to boot partition"
 	echo "-----------------------------"
-
-	mkdir -p "${DIR}/deploy/disk/"
 
 	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}1 "${DIR}/deploy/disk/" ; then
 		if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
@@ -60,6 +62,7 @@ mmc_write_boot () {
 		if [ -f "${DIR}/deploy/disk/uImage" ] ; then
 			sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
 		fi
+
 		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d ${DIR}/deploy/${KERNEL_UTS}.zImage ${DIR}/deploy/disk/uImage
 
 		cd "${DIR}/deploy/disk"
@@ -67,7 +70,7 @@ mmc_write_boot () {
 		sync
 		cd -
 		sudo umount "${DIR}/deploy/disk" || true
-		mmc_write
+		mmc_write_modules
 	fi
 }
 
@@ -84,6 +87,7 @@ unmount_partitions () {
 		sudo umount ${DRIVE} &> /dev/null || true
 	done
 
+	mkdir -p "${DIR}/deploy/disk/"
 	mmc_write_boot
 }
 
