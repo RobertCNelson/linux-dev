@@ -24,6 +24,9 @@ unset KERNEL_UTS
 unset MMC
 unset ZRELADDR
 
+#FIXME: going to have to get creative to autodetect this one...
+ROOTFS_PARTITION="5"
+
 DIR=$PWD
 
 . version.sh
@@ -32,7 +35,7 @@ mmc_write_modules () {
 	echo "Installing ${KERNEL_UTS}-modules.tar.gz to rootfs partition"
 	echo "-----------------------------"
 
-	if sudo mount ${MMC}${PARTITION_PREFIX}5 "${DIR}/deploy/disk/" ; then
+	if sudo mount ${MMC}${PARTITION_PREFIX}${ROOTFS_PARTITION} "${DIR}/deploy/disk/" ; then
 		if [ -d "${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}" ] ; then
 			sudo rm -rf ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS} || true
 		fi
