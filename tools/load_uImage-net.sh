@@ -1,6 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
 #
-# Copyright (c) 2009-2011 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,75 +24,137 @@ unset KERNEL_UTS
 unset MMC
 unset ZRELADDR
 
+BOOT_PARITION="1"
+
+#FIXME: going to have to get creative to autodetect this one...
+ROOTFS_PARTITION="5"
+
 DIR=$PWD
 
 . version.sh
 
-function mmc_write {
+mmc_write_modules () {
+	echo "Installing ${KERNEL_UTS}-modules.tar.gz to rootfs partition"
+	echo "-----------------------------"
 
-	#KERNEL_UTS=$(cat ${DIR}/KERNEL/include/linux/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+	if sudo mount ${MMC}${PARTITION_PREFIX}${ROOTFS_PARTITION} "${DIR}/deploy/disk/" ; then
+		if [ -d "${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}" ] ; then
+			sudo rm -rf ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS} || true
+		fi
 
-	echo "Installing $KERNEL_UTS"
+		sudo tar xfv "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${DIR}/deploy/disk"
 
-	cd ${DIR}/deploy
-	mkdir -p disk
-	sudo umount ${MMC}1 &> /dev/null || true
-	sudo umount ${MMC}5 &> /dev/null || true
+		cd "${DIR}/deploy/disk"
+		sync
+		sync
+		cd -
+		sudo umount "${DIR}/deploy/disk" || true
 
-	sudo mount ${MMC}1 ${DIR}/deploy/disk
-
-	sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d ${DIR}/deploy/${KERNEL_UTS}.zImage ${DIR}/deploy/disk/uImage
-
-	cd ${DIR}/deploy/disk
-	sync
-	sync
-	cd ${DIR}/deploy/
-	sudo umount ${DIR}/deploy/disk
-
-	sudo umount ${MMC}1 &> /dev/null || true
-	sudo umount ${MMC}5 &> /dev/null || true
-
-	sudo mount ${MMC}5 ${DIR}/deploy/disk
-	sudo rm -rf ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}
-
-	sudo tar xfv ${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz -C ${DIR}/deploy/disk
-
-	cd ${DIR}/deploy/disk
-	sync
-	sync
-	cd ${DIR}/deploy/
-	sudo umount ${DIR}/deploy/disk
-	echo "Done"
-	cd ${DIR}/
-}
-
-
-if [ -e ${DIR}/system.sh ]; then
-	. system.sh
-
-if test "-$ZRELADDR-" = "--"
-then
-	echo "Please set ZRELADDR in system.sh"
-else
-
-if [ -e ${DIR}/KERNEL/arch/arm/boot/zImage ]; then
-{
-	if test "-$MMC-" = "--"
-	then
- 		echo "MMC is not defined in system.sh"
+		echo "-----------------------------"
+		echo "This script has finished successfully..."
 	else
-		mmc_write
+		echo "-----------------------------"
+		echo "ERROR: Unable to mount ${MMC}${PARTITION_PREFIX}${ROOTFS_PARTITION} at "${DIR}/deploy/disk/" to copy modules..."
+		echo "Please retry running the script, sometimes rebooting your system helps."
+		echo "-----------------------------"
 	fi
 }
-else
-{
 
-echo "run build_kernel.sh first"
+mmc_write_boot () {
+	echo "Installing ${KERNEL_UTS} to boot partition"
+	echo "-----------------------------"
 
+	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
+		if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
+			sudo rm -f "${DIR}/deploy/disk/uImage_bak" || true
+		fi
+
+		if [ -f "${DIR}/deploy/disk/uImage" ] ; then
+			sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
+		fi
+
+		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
+
+		cd "${DIR}/deploy/disk"
+		sync
+		sync
+		cd -
+		sudo umount "${DIR}/deploy/disk" || true
+		mmc_write_modules
+	else
+		echo "-----------------------------"
+		echo "ERROR: Unable to mount ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} at "${DIR}/deploy/disk/" to copy uImage..."
+		echo "Please retry running the script, sometimes rebooting your system helps."
+		echo "-----------------------------"
+	fi
 }
-fi
-fi
+
+unmount_partitions () {
+	echo ""
+	echo "Unmounting Partitions"
+	echo "-----------------------------"
+
+	NUM_MOUNTS=$(mount | grep -v none | grep "${MMC}" | wc -l)
+
+	for (( c=1; c<=${NUM_MOUNTS}; c++ ))
+	do
+		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
+		sudo umount ${DRIVE} &> /dev/null || true
+	done
+
+	mkdir -p "${DIR}/deploy/disk/"
+	mmc_write_boot
+}
+
+check_mmc () {
+	FDISK=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk ${MMC}" | awk '{print $2}')
+
+	if [ "x${FDISK}" = "x${MMC}:" ] ; then
+		echo ""
+		echo "I see..."
+		echo "fdisk -l:"
+		LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
+		echo ""
+		echo "mount:"
+		mount | grep -v none | grep "/dev/" --color=never
+		echo ""
+		read -p "Are you 100% sure, on selecting [${MMC}] (y/n)? "
+		[ "${REPLY}" == "y" ] && unmount_partitions
+		echo ""
+	else
+		echo ""
+		echo "Are you sure? I Don't see [${MMC}], here is what I do see..."
+		echo ""
+		echo "fdisk -l:"
+		LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
+		echo ""
+		echo "mount:"
+		mount | grep -v none | grep "/dev/" --color=never
+		echo "Please update MMC variable in system.sh"
+	fi
+}
+
+if [ -f "${DIR}/system.sh" ] ; then
+	. system.sh
+
+	if [ "x${ZRELADDR}" == "x" ] ; then
+		echo "ERROR: ZRELADDR is not defined in system.sh"
+	else
+		if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
+			KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
+			if [ "x${MMC}" == "x" ] ; then
+				echo "ERROR: MMC is not defined in system.sh"
+			else
+				unset PARTITION_PREFIX
+				if [[ "${MMC}" =~ "mmcblk" ]] ; then
+					PARTITION_PREFIX="p"
+				fi
+				check_mmc
+			fi
+		else
+			echo "ERROR: Please run build_kernel.sh before running this script..."
+		fi
+	fi
 else
 	echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
 	echo "cp system.sh.sample system.sh"
