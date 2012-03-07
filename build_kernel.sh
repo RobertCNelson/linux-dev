@@ -197,7 +197,7 @@ function make_modules_pkg {
   cd ${DIR}/
 }
 
-function make_header_pkg {
+function make_headers_pkg {
   cd ${DIR}/KERNEL/
 
   echo ""
