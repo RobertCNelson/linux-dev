@@ -105,6 +105,10 @@ if [ -f "${DIR}/system.sh" ] ; then
 			if [ "x${MMC}" == "x" ] ; then
 				echo "ERROR: MMC is not defined in system.sh"
 			else
+				unset PARTITION_PREFIX
+				if [[ "${MMC}" =~ "mmcblk" ]] ; then
+					PARTITION_PREFIX="p"
+				fi
 				check_mmc
 			fi
 		else
