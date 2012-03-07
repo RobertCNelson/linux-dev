@@ -152,13 +152,13 @@ function make_menuconfig {
   cd ${DIR}/
 }
 
-function make_zImage {
-  cd ${DIR}/KERNEL/
-  echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y zImage"
-  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y zImage
-  KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-  cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
-  cd ${DIR}/
+function make_zImage_modules {
+	cd ${DIR}/KERNEL/
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y zImage modules"
+	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y zImage modules
+	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+	cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
+	cd ${DIR}/
 }
 
 function make_uImage {
@@ -170,9 +170,8 @@ function make_uImage {
   cd ${DIR}/
 }
 
-function make_modules {
+function make_modules_pkg {
   cd ${DIR}/KERNEL/
-  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y modules
 
   echo ""
   echo "Building Module Archive"
@@ -187,7 +186,7 @@ function make_modules {
   cd ${DIR}/
 }
 
-function make_headers {
+function make_header_pkg {
   cd ${DIR}/KERNEL/
 
   echo ""
@@ -208,6 +207,9 @@ function make_headers {
 if [ -e ${DIR}/system.sh ]; then
   . system.sh
   . version.sh
+  echo ""
+  echo "Using : $(LC_ALL=C ${CC}gcc --version)"
+  echo ""
 
 if [ "${LATEST_GIT}" ] ; then
 	echo ""
@@ -219,9 +221,17 @@ fi
 #  patch_kernel
 #  copy_defconfig
   make_menuconfig
-  make_zImage
-  make_modules
-#  make_headers
+	make_zImage_modules
+if [ "${BUILD_UIMAGE}" ] ; then
+  make_uImage
+else
+  echo ""
+  echo "NOTE: If you'd like to build a uImage, make sure to enable BUILD_UIMAGE variables in system.sh"
+  echo "Currently Safe for current TI devices."
+  echo ""
+fi
+	make_modules_pkg
+#	make_headers_pkg
 else
   echo ""
   echo "ERROR: Missing (your system) specific system.sh, please copy system.sh.sample to system.sh and edit as needed."
