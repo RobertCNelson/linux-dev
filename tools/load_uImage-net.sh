@@ -67,6 +67,33 @@ function mmc_write {
 	cd ${DIR}/
 }
 
+function check_mmc {
+	FDISK=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk ${MMC}" | awk '{print $2}')
+
+	if [ "x${FDISK}" = "x${MMC}:" ] ; then
+		echo ""
+		echo "I see..."
+		echo "fdisk -l:"
+		LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
+		echo ""
+		echo "mount:"
+		mount | grep -v none | grep "/dev/" --color=never
+		echo ""
+		read -p "Are you 100% sure, on selecting [${MMC}] (y/n)? "
+		[ "${REPLY}" == "y" ] && mmc_write
+		echo ""
+	else
+		echo ""
+		echo "Are you sure? I Don't see [${MMC}], here is what I do see..."
+		echo ""
+		echo "fdisk -l:"
+		LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
+		echo ""
+		echo "mount:"
+		mount | grep -v none | grep "/dev/" --color=never
+		echo "Please update MMC variable in system.sh"
+	fi
+}
 
 if [ -f "${DIR}/system.sh" ] ; then
 	. system.sh
@@ -78,7 +105,7 @@ if [ -f "${DIR}/system.sh" ] ; then
 			if [ "x${MMC}" == "x" ] ; then
 				echo "ERROR: MMC is not defined in system.sh"
 			else
-				mmc_write
+				check_mmc
 			fi
 		else
 			echo "ERROR: Please run build_kernel.sh before running this script..."
