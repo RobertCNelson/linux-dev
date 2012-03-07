@@ -29,20 +29,6 @@ DIR=$PWD
 . version.sh
 
 mmc_write () {
-	echo "Installing $KERNEL_UTS"
-
-	mkdir -p "${DIR}/deploy/disk/"
-
-	sudo mount ${MMC}1 ${DIR}/deploy/disk
-
-	sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d ${DIR}/deploy/${KERNEL_UTS}.zImage ${DIR}/deploy/disk/uImage
-
-	cd ${DIR}/deploy/disk
-	sync
-	sync
-	cd ${DIR}/deploy/
-	sudo umount ${DIR}/deploy/disk
-
 	sudo umount ${MMC}1 &> /dev/null || true
 	sudo umount ${MMC}2 &> /dev/null || true
 
@@ -60,6 +46,31 @@ mmc_write () {
 	cd ${DIR}/
 }
 
+mmc_write_boot () {
+	echo "Installing ${KERNEL_UTS} to boot partition"
+	echo "-----------------------------"
+
+	mkdir -p "${DIR}/deploy/disk/"
+
+	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}1 "${DIR}/deploy/disk/" ; then
+		if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
+			sudo rm -f "${DIR}/deploy/disk/uImage_bak" || true
+		fi
+
+		if [ -f "${DIR}/deploy/disk/uImage" ] ; then
+			sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
+		fi
+		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d ${DIR}/deploy/${KERNEL_UTS}.zImage ${DIR}/deploy/disk/uImage
+
+		cd "${DIR}/deploy/disk"
+		sync
+		sync
+		cd -
+		sudo umount "${DIR}/deploy/disk" || true
+		mmc_write
+	fi
+}
+
 unmount_partitions () {
 	echo ""
 	echo "Unmounting Partitions"
@@ -73,7 +84,7 @@ unmount_partitions () {
 		sudo umount ${DRIVE} &> /dev/null || true
 	done
 
-	mmc_write
+	mmc_write_boot
 }
 
 check_mmc () {
