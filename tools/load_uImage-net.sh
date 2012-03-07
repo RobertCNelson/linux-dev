@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2011 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -68,31 +68,22 @@ function mmc_write {
 }
 
 
-if [ -e ${DIR}/system.sh ]; then
+if [ -f "${DIR}/system.sh" ] ; then
 	. system.sh
 
-if test "-$ZRELADDR-" = "--"
-then
-	echo "Please set ZRELADDR in system.sh"
-else
-
-if [ -e ${DIR}/KERNEL/arch/arm/boot/zImage ]; then
-{
-	if test "-$MMC-" = "--"
-	then
- 		echo "MMC is not defined in system.sh"
+	if [ "x${ZRELADDR}" == "x" ] ; then
+		echo "ERROR: ZRELADDR is not defined in system.sh"
 	else
-		mmc_write
+		if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
+			if [ "x${MMC}" == "x" ] ; then
+				echo "ERROR: MMC is not defined in system.sh"
+			else
+				mmc_write
+			fi
+		else
+			echo "ERROR: Please run build_kernel.sh before running this script..."
+		fi
 	fi
-}
-else
-{
-
-echo "run build_kernel.sh first"
-
-}
-fi
-fi
 else
 	echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
 	echo "cp system.sh.sample system.sh"
