@@ -1,0 +1,128 @@
+From 7d2a0cec24d7006caeeeef55b70aa7c82b94e033 Mon Sep 17 00:00:00 2001
+From: AnilKumar Ch <anilkumar@ti.com>
+Date: Tue, 6 Mar 2012 20:38:00 +0530
+Subject: [PATCH 63/63] ARM: OMAP: AM33XX: CAN: d_can: Add suspend resume
+ support
+
+This patch adds suspend resume support to DCAN module. Adds
+one flag for knowing the status of DCAN module, whether it
+is opened or not.
+
+TODO: Make dcan driver as single file instead of multiple
+
+Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
+---
+ drivers/net/can/d_can/d_can.c          |   19 +++++++++++++++++++
+ drivers/net/can/d_can/d_can.h          |    5 +++++
+ drivers/net/can/d_can/d_can_platform.c |    1 +
+ 3 files changed, 25 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/can/d_can/d_can.c b/drivers/net/can/d_can/d_can.c
+index f1bf3a8..262bc44 100644
+--- a/drivers/net/can/d_can/d_can.c
++++ b/drivers/net/can/d_can/d_can.c
+@@ -1234,6 +1234,9 @@ static int d_can_open(struct net_device *ndev)
+ 	int err;
+ 	struct d_can_priv *priv = netdev_priv(ndev);
+ 
++	if (priv->open_status == D_CAN_OPENED)
++		return 0;
++
+ 	/* If enabled, tell runtime PM not to power off */
+ 	if (pm_runtime_enabled(&priv->pdev->dev)) {
+ 		err = pm_runtime_get_sync(&priv->pdev->dev);
+@@ -1271,6 +1274,7 @@ static int d_can_open(struct net_device *ndev)
+ 	napi_enable(&priv->napi);
+ 	netif_start_queue(ndev);
+ 
++	priv->open_status = D_CAN_OPENED;
+ 	return 0;
+ exit_free_irq:
+ 	free_irq(ndev->irq, ndev);
+@@ -1288,6 +1292,9 @@ static int d_can_close(struct net_device *ndev)
+ 	int ret;
+ 	struct d_can_priv *priv = netdev_priv(ndev);
+ 
++	if (priv->open_status == D_CAN_CLOSED)
++		return 0;
++
+ 	netif_stop_queue(ndev);
+ 	napi_disable(&priv->napi);
+ 	d_can_stop(ndev);
+@@ -1302,6 +1309,7 @@ static int d_can_close(struct net_device *ndev)
+ 			return ret;
+ 	}
+ 
++	priv->open_status = D_CAN_CLOSED;
+ 	return 0;
+ }
+ 
+@@ -1345,6 +1353,7 @@ EXPORT_SYMBOL_GPL(alloc_d_can_dev);
+ void d_can_power_down(struct d_can_priv *d_can)
+ {
+ 	unsigned int cnt;
++	struct net_device *ndev = platform_get_drvdata(d_can->pdev);
+ 
+ 	d_can_set_bit(d_can, D_CAN_CTL, D_CAN_CTL_PDR);
+ 
+@@ -1354,12 +1363,22 @@ void d_can_power_down(struct d_can_priv *d_can)
+ 		--cnt;
+ 		udelay(10);
+ 	}
++
++	if ((d_can->open_status != D_CAN_INITED) &&
++			(d_can->open_status == D_CAN_OPENED))
++		d_can_close(ndev);
++
+ }
+ EXPORT_SYMBOL_GPL(d_can_power_down);
+ 
+ void d_can_power_up(struct d_can_priv *d_can)
+ {
+ 	unsigned int cnt;
++	struct net_device *ndev = platform_get_drvdata(d_can->pdev);
++
++	if ((d_can->open_status != D_CAN_INITED) &&
++			(d_can->open_status == D_CAN_CLOSED))
++		d_can_open(ndev);
+ 
+ 	d_can_clear_bit(d_can, D_CAN_CTL, D_CAN_CTL_PDR);
+ 	d_can_clear_bit(d_can, D_CAN_CTL, D_CAN_CTL_INIT);
+diff --git a/drivers/net/can/d_can/d_can.h b/drivers/net/can/d_can/d_can.h
+index a2cd472..c64f712 100644
+--- a/drivers/net/can/d_can/d_can.h
++++ b/drivers/net/can/d_can/d_can.h
+@@ -35,6 +35,10 @@
+ #define D_CAN_DRV_DESC	"CAN bus driver for Bosch D_CAN controller " \
+ 			D_CAN_VERSION
+ 
++#define D_CAN_CLOSED		0 /* Module in power down mode or disabled */
++#define D_CAN_OPENED		1 /* Module in active mode */
++#define D_CAN_INITED		2 /* Module is inited but not opened */
++
+ /* d_can private data structure */
+ struct d_can_priv {
+ 	struct can_priv can;	/* must be the first member */
+@@ -55,6 +59,7 @@ struct d_can_priv {
+ 	unsigned int tx_next;
+ 	unsigned int tx_echo;
+ 	unsigned int rx_next;
++	unsigned int open_status;
+ 	void *priv;		/* for board-specific data */
+ 	void (*ram_init) (unsigned int, unsigned int);
+ };
+diff --git a/drivers/net/can/d_can/d_can_platform.c b/drivers/net/can/d_can/d_can_platform.c
+index b114e45..ace9bd8 100644
+--- a/drivers/net/can/d_can/d_can_platform.c
++++ b/drivers/net/can/d_can/d_can_platform.c
+@@ -134,6 +134,7 @@ static int __devinit d_can_plat_probe(struct platform_device *pdev)
+ 	priv->base = addr;
+ 	priv->can.clock.freq = clk_get_rate(fck);
+ 	priv->ram_init = pdata->ram_init;
++	priv->open_status = D_CAN_INITED;
+ 
+ 	platform_set_drvdata(pdev, ndev);
+ 	SET_NETDEV_DEV(ndev, &pdev->dev);
+-- 
+1.7.9.1
+

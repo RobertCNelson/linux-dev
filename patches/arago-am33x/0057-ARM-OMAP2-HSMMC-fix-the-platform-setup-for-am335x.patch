@@ -1,0 +1,31 @@
+From 4ebc7556b2d78ee71e65eacdb14874f686d28ae7 Mon Sep 17 00:00:00 2001
+From: "Hebbar, Gururaja" <gururaja.hebbar@ti.com>
+Date: Fri, 2 Mar 2012 13:55:47 +0530
+Subject: [PATCH 57/63] ARM: OMAP2+: HSMMC: fix the platform setup for am335x
+
+AM335x don't have the register CONTROL_PBIAS_LITE, so we set a
+noop "set_power" function for it. This was already been done
+for MMC0 instance. This patch applies this to instance 1 as well.
+
+Signed-off-by: Hebbar, Gururaja <gururaja.hebbar@ti.com>
+---
+ arch/arm/mach-omap2/hsmmc.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/hsmmc.c b/arch/arm/mach-omap2/hsmmc.c
+index 7c12ca3..93fbf39 100644
+--- a/arch/arm/mach-omap2/hsmmc.c
++++ b/arch/arm/mach-omap2/hsmmc.c
+@@ -405,6 +405,9 @@ static int __init omap_hsmmc_pdata_init(struct omap2_hsmmc_info *c,
+ 		if (cpu_is_omap3517() || cpu_is_omap3505())
+ 			mmc->slots[0].set_power = am35x_hsmmc2_set_power;
+ 
++		if (cpu_is_am33xx())
++			mmc->slots[0].set_power = nop_mmc_set_power;
++
+ 		if (c->ext_clock)
+ 			c->transceiver = 1;
+ 		if (c->transceiver && (c->caps & MMC_CAP_8_BIT_DATA)) {
+-- 
+1.7.9.1
+

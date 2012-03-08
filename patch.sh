@@ -118,6 +118,7 @@ git am "${DIR}/patches/meta-ti/0021-beaglebone-add-support-for-Towertech-TT3201-
 }
 
 function am33x {
+#Pure: http://arago-project.org/git/projects/?p=linux-am33x.git;a=shortlog;h=refs/heads/v3.2-staging
 echo "[git] am33x"
 git pull git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_psp0
 
@@ -146,13 +147,57 @@ git am "${DIR}/patches/arago-am33x/0022-ARM-OMAP2-am335x-correct-McASP0-pin-mux-
 git am "${DIR}/patches/arago-am33x/0023-ARM-OMAP2-edma-fix-coding-style-issue-related-to-bre.patch"
 git am "${DIR}/patches/arago-am33x/0024-ARM-OMAP2-edma-clear-interrupt-status-for-interrupt-.patch"
 git am "${DIR}/patches/arago-am33x/0025-ARM-OMAP2-edma-clear-events-in-edma_start.patch"
-
+git am "${DIR}/patches/arago-am33x/0026-ARM-OMAP4-Remove-hardcoded-reg-offs-for-PWRSTCTRL-PW.patch"
+git am "${DIR}/patches/arago-am33x/0027-ARM-OMAP4-prminst-Add-boot-time-__init-function-for-.patch"
+git am "${DIR}/patches/arago-am33x/0028-ARM-OMAP-am33xx-Hook-up-am33xx-support-to-existing-p.patch"
+git am "${DIR}/patches/arago-am33x/0029-ARM-OMAP4-cminst-Add-boot-time-__init-function-for-c.patch"
+git am "${DIR}/patches/arago-am33x/0030-ARM-OMAP-am33xx-Hook-up-am33xx-support-to-existing-c.patch"
+git am "${DIR}/patches/arago-am33x/0031-ARM-OMAP3-voltagedomainsam33xx_data-Remove-unnecessa.patch"
+git am "${DIR}/patches/arago-am33x/0032-ARM-OMAP3-prmam33xx-Merge-upstream-changes.patch"
+git am "${DIR}/patches/arago-am33x/0033-ARM-OMAP3-cminstam33xx-Merge-upstream-changes.patch"
+git am "${DIR}/patches/arago-am33x/0034-ARM-OMAP2-Makefile-Remove-build-rule-for-deleted-fil.patch"
+git am "${DIR}/patches/arago-am33x/0035-ARM-OMAP3-am33xx_hwmod-Merge-upstream-changes.patch"
+git am "${DIR}/patches/arago-am33x/0036-ARM-OMAP2-control-Add-missing-defination-for-AM33XX_.patch"
+git am "${DIR}/patches/arago-am33x/0037-ARM-OMAP3-am33xx_hwmod-Do-not-idle-reset-debugss-mod.patch"
+git am "${DIR}/patches/arago-am33x/0038-ARM-OMAP2-am33xx-Register-LCD-device-via-HWMOD-data.patch"
+git am "${DIR}/patches/arago-am33x/0039-video-da8xx-fb-rely-on-pm_runtime-API-for-clock-oper.patch"
+git am "${DIR}/patches/arago-am33x/0040-video-da8xx-fb-save-and-restore-LCDC-context-on-powe.patch"
+git am "${DIR}/patches/arago-am33x/0041-ARM-OMAP2-edma-correct-edma-HWMOD-data.patch"
+git am "${DIR}/patches/arago-am33x/0042-ARM-OMAP2-edma-move-edma-clock-setup-to-edma-driver.patch"
+git am "${DIR}/patches/arago-am33x/0043-ARM-OMAP2-edma-add-support-for-suspend-resume.patch"
+git am "${DIR}/patches/arago-am33x/0044-ARM-OMAP2-edma-use-omap_device-api-for-registration.patch"
+git am "${DIR}/patches/arago-am33x/0045-ARM-OMAP2-edma-use-runtime-PM.patch"
+git am "${DIR}/patches/arago-am33x/0046-ARM-OMAP-AM335X-evm-remove-default-initialization.patch"
+git am "${DIR}/patches/arago-am33x/0047-ARM-OMAP-AM33XX-Cleanup-usb-hwmod.patch"
+git am "${DIR}/patches/arago-am33x/0048-usb-musb-ti81xx-use-runtime-pm-API-for-clock.patch"
+git am "${DIR}/patches/arago-am33x/0049-usb-musb-host-release-dma-channels-if-no-active-io.patch"
+git am "${DIR}/patches/arago-am33x/0050-usb-musb-replace-__raw_read-writel-by-readl-write.patch"
+git am "${DIR}/patches/arago-am33x/0051-usb-musb-ti81xx-add-support-for-save-and-restore.patch"
+git am "${DIR}/patches/arago-am33x/0052-usb-musb-ti81xx-save-and-restore-DMA-registers.patch"
+git am "${DIR}/patches/arago-am33x/0053-ARM-OMAP3-am33xx_hwmod-Correct-the-usb-clkdm_name.patch"
+git am "${DIR}/patches/arago-am33x/0054-ARM-OMAP3-am33xx_clkdomain-Remove-usb-clkdomain-entr.patch"
+git am "${DIR}/patches/arago-am33x/0055-usb-musb-cppi41dma-use-transparent-mode-for-g_mass_s.patch"
+git am "${DIR}/patches/arago-am33x/0056-usb-musb-pm-turn-on-off-timers-during-suspend-resume.patch"
+git am "${DIR}/patches/arago-am33x/0057-ARM-OMAP2-HSMMC-fix-the-platform-setup-for-am335x.patch"
+git am "${DIR}/patches/arago-am33x/0058-ARM-OMAP2-I2C-hwmod-set-flag-to-restore-context.patch"
+git am "${DIR}/patches/arago-am33x/0059-ARM-OMAP-AM33XX-CAN-d_can-Add-hwmod-data-for-am33xx-.patch"
+git am "${DIR}/patches/arago-am33x/0060-ARM-OMAP-AM33XX-CAN-d_can-Platform-data-clean-up.patch"
+git am "${DIR}/patches/arago-am33x/0061-ARM-OMAP-AM33XX-CAN-d_can-Add-pm-runtime-support.patch"
+git am "${DIR}/patches/arago-am33x/0062-ARM-OMAP-AM33XX-CAN-d_can-fix-DCAN-raminit-issue.patch"
+git am "${DIR}/patches/arago-am33x/0063-ARM-OMAP-AM33XX-CAN-d_can-Add-suspend-resume-support.patch"
 }
 
 bugs_trivial
 
 #patches in git
+
+#just a pure arago tree:
+#am33x
+
+#koens patchset for comparsion..
 #am33x-meta-ti
+
+#shipping:
 am33x-cleanup
 
 echo "patch.sh ran successful"

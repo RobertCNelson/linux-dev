@@ -1,0 +1,72 @@
+From 87feeef8a7ca8ce7dd8f25429103d6219a081320 Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Tue, 6 Mar 2012 19:29:52 +0530
+Subject: [PATCH 56/63] usb: musb: pm: turn on/off timers during
+ suspend/resume
+
+There are two timers per usb port and they need to be disabled (if active)
+before suspend and reenabled after resume.
+---
+ drivers/usb/musb/musb_core.h |    2 ++
+ drivers/usb/musb/ti81xx.c    |   25 +++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/usb/musb/musb_core.h b/drivers/usb/musb/musb_core.h
+index 514efc4..3605b97 100644
+--- a/drivers/usb/musb/musb_core.h
++++ b/drivers/usb/musb/musb_core.h
+@@ -464,6 +464,8 @@ struct musb {
+ 	int			first;
+ 	int			old_state;
+ 	struct	timer_list	otg_timer;
++	u8			en_otg_timer;
++	u8			en_otgw_timer;
+ #ifndef CONFIG_MUSB_PIO_ONLY
+ 	u64			*orig_dma_mask;
+ #endif
+diff --git a/drivers/usb/musb/ti81xx.c b/drivers/usb/musb/ti81xx.c
+index ecd122a..da6f5fe 100644
+--- a/drivers/usb/musb/ti81xx.c
++++ b/drivers/usb/musb/ti81xx.c
+@@ -1431,6 +1431,19 @@ static void ti81xx_save_context(struct ti81xx_glue *glue)
+ 		struct musb *musb = platform_get_drvdata(glue->musb[i]);
+ 		void __iomem *cbase = musb->ctrl_base;
+ 
++		/* disable the timers */
++		if (timer_pending(&musb->otg_workaround) &&
++					is_host_enabled(musb)) {
++			del_timer_sync(&musb->otg_workaround);
++			musb->en_otgw_timer = 1;
++		}
++
++		if (timer_pending(&musb->otg_workaround) &&
++					is_otg_enabled(musb)) {
++			del_timer_sync(&musb->otg_timer);
++			musb->en_otg_timer = 1;
++		}
++
+ 		musb_save_context(musb);
+ 		usb->control = musb_readl(cbase, USB_CTRL_REG);
+ 
+@@ -1523,6 +1536,18 @@ static void ti81xx_restore_context(struct ti81xx_glue *glue)
+ 		musb_writel(cbase, USB_PHY_UTMI_REG, usb->phy_utmi);
+ 		musb_writel(cbase, USB_PHY_UTMI_LB_REG, usb->mgc_utmi_loopback);
+ 		musb_writel(cbase, USB_MODE_REG, usb->mode);
++
++		/* reenable the timers */
++		if (musb->en_otgw_timer && is_host_enabled(musb)) {
++			mod_timer(&musb->otg_workaround,
++					jiffies + POLL_SECONDS * HZ);
++			musb->en_otgw_timer = 0;
++		}
++		if (musb->en_otg_timer && is_otg_enabled(musb)) {
++			mod_timer(&musb->otg_timer,
++					jiffies + POLL_SECONDS * HZ);
++			musb->en_otg_timer = 0;
++		}
+ 	}
+ #ifdef CONFIG_USB_TI_CPPI41_DMA
+ 	/* restore CPPI4.1 DMA register for dma block 0 */
+-- 
+1.7.9.1
+
