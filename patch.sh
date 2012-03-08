@@ -66,6 +66,23 @@ git am "${DIR}/patches/arago-am33x/0023-ARM-OMAP2-edma-fix-coding-style-issue-re
 git am "${DIR}/patches/arago-am33x/0024-ARM-OMAP2-edma-clear-interrupt-status-for-interrupt-.patch"
 git am "${DIR}/patches/arago-am33x/0025-ARM-OMAP2-edma-clear-events-in-edma_start.patch"
 
+git am "${DIR}/patches/arago-am33x/0026-ARM-OMAP4-Remove-hardcoded-reg-offs-for-PWRSTCTRL-PW.patch"
+git am "${DIR}/patches/arago-am33x/0027-ARM-OMAP4-prminst-Add-boot-time-__init-function-for-.patch"
+git am "${DIR}/patches/arago-am33x/0028-ARM-OMAP-am33xx-Hook-up-am33xx-support-to-existing-p.patch"
+git am "${DIR}/patches/arago-am33x/0029-ARM-OMAP4-cminst-Add-boot-time-__init-function-for-c.patch"
+git am "${DIR}/patches/arago-am33x/0030-ARM-OMAP-am33xx-Hook-up-am33xx-support-to-existing-c.patch"
+git am "${DIR}/patches/arago-am33x/0031-ARM-OMAP3-voltagedomainsam33xx_data-Remove-unnecessa.patch"
+git am "${DIR}/patches/arago-am33x/0032-ARM-OMAP3-prmam33xx-Merge-upstream-changes.patch"
+git am "${DIR}/patches/arago-am33x/0033-ARM-OMAP3-cminstam33xx-Merge-upstream-changes.patch"
+git am "${DIR}/patches/arago-am33x/0034-ARM-OMAP2-Makefile-Remove-build-rule-for-deleted-fil.patch"
+
+git am "${DIR}/patches/arago-am33x/0035-ARM-OMAP3-am33xx_hwmod-Merge-upstream-changes-merge.patch"
+git am "${DIR}/patches/arago-am33x/0036-ARM-OMAP2-control-Add-missing-defination-for-AM33XX_.patch"
+git am "${DIR}/patches/arago-am33x/0037-ARM-OMAP3-am33xx_hwmod-Do-not-idle-reset-debugss-mod.patch"
+
+git am "${DIR}/patches/arago-am33x/0038-ARM-OMAP2-am33xx-Register-LCD-device-via-HWMOD-data-merge.patch"
+git am "${DIR}/patches/arago-am33x/0039-video-da8xx-fb-rely-on-pm_runtime-API-for-clock-oper.patch"
+
 git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
 }
 
@@ -89,6 +106,9 @@ git am "${DIR}/patches/arago-am33x/0012-pwm-Correct-the-request-SYSFS-interface.
 git am "${DIR}/patches/arago-am33x/0013-pwm-fix-division-by-zero-error.patch"
 git am "${DIR}/patches/arago-am33x/0014-pwm-corrects-return-values-to-handle-error-situation.patch"
 git am "${DIR}/patches/arago-am33x/0015-pwm-ehrpwm-Fix-duty-cycle-inversion-eHRPWM-wave.patch"
+
+git am "${DIR}/patches/arago-am33x/0020-ARM-OMAP2-am33xx-fix-serial-mux-warnings-for-am33xx.patch"
+git am "${DIR}/patches/arago-am33x/0022-ARM-OMAP2-am335x-correct-McASP0-pin-mux-detail.patch"
 
 #angstrom
 #BRANCH = "v3.2-staging"
@@ -114,6 +134,10 @@ git am "${DIR}/patches/meta-ti/0018-beaglebone-set-default-brightness-to-50-for-
 git am "${DIR}/patches/meta-ti/0019-st7735fb-WIP-framebuffer-driver-supporting-Adafruit-.patch"
 git am "${DIR}/patches/meta-ti/0020-beaglebone-use-P8_6-gpio1_3-as-w1-bus.patch"
 git am "${DIR}/patches/meta-ti/0021-beaglebone-add-support-for-Towertech-TT3201-CAN-cape.patch"
+
+#these are already in the argo tree
+#git am "${DIR}/patches/meta-ti/0022-ARM-OMAP2-am33xx-fix-serial-mux-warnings-for-am33xx.patch"
+#git am "${DIR}/patches/meta-ti/0023-ARM-OMAP2-am335x-correct-McASP0-pin-mux-detail.patch"
 
 }
 
