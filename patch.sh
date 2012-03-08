@@ -55,10 +55,12 @@ git am "${DIR}/patches/arago-am33x/0012-pwm-Correct-the-request-SYSFS-interface.
 git am "${DIR}/patches/arago-am33x/0013-pwm-fix-division-by-zero-error.patch"
 git am "${DIR}/patches/arago-am33x/0014-pwm-corrects-return-values-to-handle-error-situation.patch"
 git am "${DIR}/patches/arago-am33x/0015-pwm-ehrpwm-Fix-duty-cycle-inversion-eHRPWM-wave.patch"
+
 #git am "${DIR}/patches/arago-am33x/0016-arm-omap-am335x-Correct-interrupt-signal-for-TSC.patch"
 #git am "${DIR}/patches/arago-am33x/0017-arm-omap-am335x-Use-hwmod-data-to-register-TSC.patch"
 #git am "${DIR}/patches/arago-am33x/0018-arm-omap-am335x-Add-ick-data-in-Hwmod-for-TSC.patch"
 #git am "${DIR}/patches/arago-am33x/0019-input-TSC-Add-suspend-resume-feature-for-TSC.patch"
+
 git am "${DIR}/patches/arago-am33x/0020-ARM-OMAP2-am33xx-fix-serial-mux-warnings-for-am33xx.patch"
 git am "${DIR}/patches/arago-am33x/0021-ARM-OMAP2-am335x-Add-method-to-read-config-data-from.patch"
 git am "${DIR}/patches/arago-am33x/0022-ARM-OMAP2-am335x-correct-McASP0-pin-mux-detail.patch"
@@ -83,7 +85,35 @@ git am "${DIR}/patches/arago-am33x/0037-ARM-OMAP3-am33xx_hwmod-Do-not-idle-reset
 git am "${DIR}/patches/arago-am33x/0038-ARM-OMAP2-am33xx-Register-LCD-device-via-HWMOD-data-merge.patch"
 git am "${DIR}/patches/arago-am33x/0039-video-da8xx-fb-rely-on-pm_runtime-API-for-clock-oper.patch"
 
+git am "${DIR}/patches/arago-am33x/0040-video-da8xx-fb-save-and-restore-LCDC-context-on-powe.patch"
+git am "${DIR}/patches/arago-am33x/0041-ARM-OMAP2-edma-correct-edma-HWMOD-data.patch"
+git am "${DIR}/patches/arago-am33x/0042-ARM-OMAP2-edma-move-edma-clock-setup-to-edma-driver.patch"
+git am "${DIR}/patches/arago-am33x/0043-ARM-OMAP2-edma-add-support-for-suspend-resume.patch"
+git am "${DIR}/patches/arago-am33x/0044-ARM-OMAP2-edma-use-omap_device-api-for-registration.patch"
+git am "${DIR}/patches/arago-am33x/0045-ARM-OMAP2-edma-use-runtime-PM.patch"
+
+git am "${DIR}/patches/arago-am33x/0046-ARM-OMAP-AM335X-evm-remove-default-initialization-merge.patch"
+git am "${DIR}/patches/arago-am33x/0047-ARM-OMAP-AM33XX-Cleanup-usb-hwmod.patch"
+git am "${DIR}/patches/arago-am33x/0048-usb-musb-ti81xx-use-runtime-pm-API-for-clock.patch"
+git am "${DIR}/patches/arago-am33x/0049-usb-musb-host-release-dma-channels-if-no-active-io.patch"
+git am "${DIR}/patches/arago-am33x/0050-usb-musb-replace-__raw_read-writel-by-readl-write.patch"
+git am "${DIR}/patches/arago-am33x/0051-usb-musb-ti81xx-add-support-for-save-and-restore.patch"
+git am "${DIR}/patches/arago-am33x/0052-usb-musb-ti81xx-save-and-restore-DMA-registers.patch"
+git am "${DIR}/patches/arago-am33x/0053-ARM-OMAP3-am33xx_hwmod-Correct-the-usb-clkdm_name.patch"
+git am "${DIR}/patches/arago-am33x/0054-ARM-OMAP3-am33xx_clkdomain-Remove-usb-clkdomain-entr.patch"
+git am "${DIR}/patches/arago-am33x/0055-usb-musb-cppi41dma-use-transparent-mode-for-g_mass_s.patch"
+git am "${DIR}/patches/arago-am33x/0056-usb-musb-pm-turn-on-off-timers-during-suspend-resume.patch"
+git am "${DIR}/patches/arago-am33x/0057-ARM-OMAP2-HSMMC-fix-the-platform-setup-for-am335x.patch"
+git am "${DIR}/patches/arago-am33x/0058-ARM-OMAP2-I2C-hwmod-set-flag-to-restore-context.patch"
+
+#git am "${DIR}/patches/arago-am33x/0059-ARM-OMAP-AM33XX-CAN-d_can-Add-hwmod-data-for-am33xx-.patch"
+#git am "${DIR}/patches/arago-am33x/0060-ARM-OMAP-AM33XX-CAN-d_can-Platform-data-clean-up.patch"
+#git am "${DIR}/patches/arago-am33x/0061-ARM-OMAP-AM33XX-CAN-d_can-Add-pm-runtime-support.patch"
+#git am "${DIR}/patches/arago-am33x/0062-ARM-OMAP-AM33XX-CAN-d_can-fix-DCAN-raminit-issue.patch"
+#git am "${DIR}/patches/arago-am33x/0063-ARM-OMAP-AM33XX-CAN-d_can-Add-suspend-resume-support.patch"
+
 git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
+git am "${DIR}/patches/bone-merge/0001-really-machine_halt-was-better.patch"
 }
 
 function am33x-meta-ti {
