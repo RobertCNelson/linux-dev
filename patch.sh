@@ -85,8 +85,20 @@ echo "adding fixes from cma-v23 (cma tree was rebased for-next v3.4)"
 git am "${DIR}/patches/drm/0001-cma-23-mm-compaction-export-some-of-the-functions.patch"
 git am "${DIR}/patches/drm/0002-cma-23-drivers-add-Contiguous-Memory-Allocator.patch"
 
-echo "[git] pulling omapdrm driver"
-git pull git://github.com/RobertCNelson/linux.git omapdrm_v3.3-rc4
+echo "omapdrm driver patches for 3.4"
+git am "${DIR}/patches/drm/0001-staging-drm-omap-get-supported-color-formats-from-ov.patch"
+git am "${DIR}/patches/drm/0002-staging-drm-omap-add-a-workqueue.patch"
+git am "${DIR}/patches/drm/0003-staging-drm-omap-call-omap_gem_roll-in-non-atomic-ct.patch"
+git am "${DIR}/patches/drm/0004-staging-drm-omap-some-minor-fb-cleanups.patch"
+git am "${DIR}/patches/drm/0005-staging-drm-omap-defer-unpin-until-scanout-completes.patch"
+git am "${DIR}/patches/drm/0006-staging-drm-omap-debugfs-for-object-and-fb-tracking.patch"
+git am "${DIR}/patches/drm/0007-staging-drm-omap-Disable-DMM-debugfs-for-OMAP3.patch"
+git am "${DIR}/patches/drm/0008-staging-drm-omap-Validate-debugfs-device.patch"
+git am "${DIR}/patches/drm/0009-staging-drm-omap-Get-DMM-resources-from-hwmod.patch"
+git am "${DIR}/patches/drm/0010-staging-drm-omap-mmap-of-tiled-buffers-with-stride-4.patch"
+
+#will be modified
+git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
 
 #might be merged in 3.4
 git am "${DIR}/patches/drm/0001-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"

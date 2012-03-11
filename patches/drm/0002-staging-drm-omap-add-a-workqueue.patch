@@ -1,0 +1,66 @@
+From fe0787cc1f8c361b657c6fd32b2c63fd5cb1965c Mon Sep 17 00:00:00 2001
+From: Rob Clark <rob@ti.com>
+Date: Mon, 5 Mar 2012 10:48:32 -0600
+Subject: [PATCH 02/10] staging: drm/omap: add a workqueue
+
+Add a workqueue for omapdrm driver, which is needed for at least a
+couple things currently: (1) moving omap_gem_roll() to a non-atomic
+context, (2) synchronizing page flips w/ DSS scanout related irq's
+(in particular not unmapping previous buffer until DSS finishes
+scanout).
+
+Signed-off-by: Rob Clark <rob@ti.com>
+---
+ drivers/staging/omapdrm/omap_drv.c |    8 ++++++++
+ drivers/staging/omapdrm/omap_drv.h |    2 ++
+ 2 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/staging/omapdrm/omap_drv.c b/drivers/staging/omapdrm/omap_drv.c
+index 3bbea9a..7417e1f 100644
+--- a/drivers/staging/omapdrm/omap_drv.c
++++ b/drivers/staging/omapdrm/omap_drv.c
+@@ -570,6 +570,9 @@ static int dev_load(struct drm_device *dev, unsigned long flags)
+ 
+ 	dev->dev_private = priv;
+ 
++	priv->wq = alloc_workqueue("omapdrm",
++			WQ_UNBOUND | WQ_NON_REENTRANT, 1);
++
+ 	omap_gem_init(dev);
+ 
+ 	ret = omap_modeset_init(dev);
+@@ -598,6 +601,8 @@ static int dev_load(struct drm_device *dev, unsigned long flags)
+ 
+ static int dev_unload(struct drm_device *dev)
+ {
++	struct omap_drm_private *priv = dev->dev_private;
++
+ 	DBG("unload: dev=%p", dev);
+ 
+ 	drm_vblank_cleanup(dev);
+@@ -607,6 +612,9 @@ static int dev_unload(struct drm_device *dev)
+ 	omap_modeset_free(dev);
+ 	omap_gem_deinit(dev);
+ 
++	flush_workqueue(priv->wq);
++	destroy_workqueue(priv->wq);
++
+ 	kfree(dev->dev_private);
+ 	dev->dev_private = NULL;
+ 
+diff --git a/drivers/staging/omapdrm/omap_drv.h b/drivers/staging/omapdrm/omap_drv.h
+index d924c95..a84547c 100644
+--- a/drivers/staging/omapdrm/omap_drv.h
++++ b/drivers/staging/omapdrm/omap_drv.h
+@@ -51,6 +51,8 @@ struct omap_drm_private {
+ 
+ 	struct drm_fb_helper *fbdev;
+ 
++	struct workqueue_struct *wq;
++
+ 	bool has_dmm;
+ };
+ 
+-- 
+1.7.9.1
+
