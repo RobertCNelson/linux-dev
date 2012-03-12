@@ -28,6 +28,7 @@ unset BUILD
 unset CC
 unset LINUX_GIT
 unset LATEST_GIT
+unset DEBUG_SECTION
 
 unset LOCAL_PATCH_DIR
 
@@ -165,8 +166,8 @@ function make_menuconfig {
 
 function make_zImage_modules {
 	cd ${DIR}/KERNEL/
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y zImage modules"
-	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y zImage modules
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} zImage modules"
+	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} zImage modules
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
 	cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
 	cd ${DIR}/
@@ -174,8 +175,8 @@ function make_zImage_modules {
 
 function make_uImage {
   cd ${DIR}/KERNEL/
-  echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y uImage"
-  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y uImage
+  echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} uImage"
+  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} uImage
   KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
   cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
   cd ${DIR}/
@@ -226,6 +227,11 @@ if [ "${LATEST_GIT}" ] ; then
 	echo ""
 	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
 	echo ""
+fi
+
+	unset CONFIG_DEBUG_SECTION
+if [ "${DEBUG_SECTION}" ] ; then
+	CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
 fi
 
   git_kernel
