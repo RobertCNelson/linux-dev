@@ -141,6 +141,7 @@ function omap4 {
 echo "omap4 related patches"
 patch -s -p1 < "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
 patch -s -p1 < "${DIR}/patches/panda/0001-ARM-OMAP-enable-Bluetooth-on-the-PandaBoard.patch"
+patch -s -p1 < "${DIR}/patches/panda/0001-ARM-OMAP-WiLink-platform-data-for-the-PandaBoard.patch"
 }
 
 function fixes {
