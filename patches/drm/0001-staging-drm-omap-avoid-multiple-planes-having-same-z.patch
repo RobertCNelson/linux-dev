@@ -1,0 +1,30 @@
+From a129938ace6b6063afb6137fae56ab8ea01fdca7 Mon Sep 17 00:00:00 2001
+From: Rob Clark <rob@ti.com>
+Date: Sun, 11 Mar 2012 21:11:20 -0500
+Subject: [PATCH 1/3] staging: drm/omap: avoid multiple planes having same
+ z-order
+
+Multiple video pipes on same output with same z-order is an undefined
+behavior.  Set a unique z-order value based on overlay number/id.
+
+Signed-off-by: Rob Clark <rob@ti.com>
+---
+ drivers/staging/omapdrm/omap_plane.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/staging/omapdrm/omap_plane.c b/drivers/staging/omapdrm/omap_plane.c
+index 55ddc58..9b3bfa0 100644
+--- a/drivers/staging/omapdrm/omap_plane.c
++++ b/drivers/staging/omapdrm/omap_plane.c
+@@ -439,7 +439,7 @@ struct drm_plane *omap_plane_init(struct drm_device *dev,
+ 	if (priv)
+ 		omap_plane->info.zorder = 0;
+ 	else
+-		omap_plane->info.zorder = 1;
++		omap_plane->info.zorder = ovl->id;
+ 
+ 	update_manager(plane);
+ 
+-- 
+1.7.9.1
+
