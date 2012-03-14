@@ -1,4 +1,4 @@
-From 20d0de1c5f6f1bad961793319cadb28582bd13d8 Mon Sep 17 00:00:00 2001
+From dcad7b6fe532d666cb15de2c93186b16dc2a7170 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 27 Feb 2012 15:56:47 -0600
 Subject: [PATCH] bone: arago angstrom merge
@@ -11,7 +11,6 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/mach-omap2/mux33xx.c         |   22 +-
  arch/arm/mach-omap2/mux33xx.h         |    4 +
  drivers/input/touchscreen/ti_tscadc.c |  275 ++++++++++++---
- drivers/mmc/host/omap_hsmmc.c         |    3 +
  drivers/net/can/dev.c                 |    8 +-
  drivers/net/can/mcp251x.c             |   47 ++-
  drivers/usb/gadget/f_rndis.c          |    4 +-
@@ -21,12 +20,12 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/video/st7735fb.c              |  516 +++++++++++++++++++++++++++
  include/linux/input/ti_tscadc.h       |    5 +
  include/video/st7735fb.h              |   82 +++++
- 16 files changed, 1528 insertions(+), 101 deletions(-)
+ 15 files changed, 1525 insertions(+), 101 deletions(-)
  create mode 100644 drivers/video/st7735fb.c
  create mode 100644 include/video/st7735fb.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 0cf0168..66cd82a 100644
+index 896bf3a..77f63d1 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -1326,20 +1325,6 @@ index e3b5775..bccb70b 100644
  	clk_disable(ts_dev->tsc_ick);
  	clk_put(ts_dev->tsc_ick);
  err_free_irq:
-diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
-index 703013c..554237f 100644
---- a/drivers/mmc/host/omap_hsmmc.c
-+++ b/drivers/mmc/host/omap_hsmmc.c
-@@ -1562,6 +1562,9 @@ static void set_data_timeout(struct omap_hsmmc_host *host,
- 			dto = 14;
- 	}
- 
-+	/* Set dto to max value of 14 to avoid SD Card timeouts */
-+	dto = 14;
-+
- 	reg &= ~DTO_MASK;
- 	reg |= dto << DTO_SHIFT;
- 	OMAP_HSMMC_WRITE(host->base, SYSCTL, reg);
 diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
 index 25695bd..bc1e87e 100644
 --- a/drivers/net/can/dev.c
