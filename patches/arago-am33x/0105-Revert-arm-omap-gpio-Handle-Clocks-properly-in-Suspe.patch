@@ -1,0 +1,80 @@
+From 658209bcca5ae8153019b956cedf86db60193304 Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Thu, 9 Feb 2012 15:03:01 +0530
+Subject: [PATCH 105/172] Revert "arm:omap:gpio - Handle Clocks properly in
+ Suspend/Resume"
+
+This reverts commit bbfb01e1cc06c1f041060258ca93b260e0c83c41.
+---
+ drivers/gpio/gpio-omap.c |   20 --------------------
+ 1 files changed, 0 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
+index 4b172446..dd95967 100644
+--- a/drivers/gpio/gpio-omap.c
++++ b/drivers/gpio/gpio-omap.c
+@@ -28,8 +28,6 @@
+ #include <asm/gpio.h>
+ #include <asm/mach/irq.h>
+ 
+-#include <plat/clock.h>
+-
+ struct gpio_bank {
+ 	unsigned long pbase;
+ 	void __iomem *base;
+@@ -51,7 +49,6 @@ struct gpio_bank {
+ 	spinlock_t lock;
+ 	struct gpio_chip chip;
+ 	struct clk *dbck;
+-	struct clk *fclk;
+ 	u32 mod_usage;
+ 	u32 dbck_enable_mask;
+ 	struct device *dev;
+@@ -1222,12 +1219,6 @@ static int __devinit omap_gpio_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	bank->fclk = clk_get(bank->dev, "fclk");
+-	if (IS_ERR(bank->fclk)) {
+-		dev_err(bank->dev, "Could not get gpio fclk\n");
+-		bank->fclk = NULL;
+-	}
+-
+ 	pm_runtime_enable(bank->dev);
+ 	pm_runtime_get_sync(bank->dev);
+ 
+@@ -1256,10 +1247,6 @@ static int omap_gpio_suspend(void)
+ 		void __iomem *wake_set;
+ 		unsigned long flags;
+ 
+-		if ((bank->fclk) && (bank->fclk->usecount <= 0))
+-			if (clk_enable(bank->fclk) < 0)
+-				dev_err(bank->dev, "Could not enable fclk\n");
+-
+ 		switch (bank->method) {
+ #ifdef CONFIG_ARCH_OMAP16XX
+ 		case METHOD_GPIO_1610:
+@@ -1291,9 +1278,6 @@ static int omap_gpio_suspend(void)
+ 		__raw_writel(0xffffffff, wake_clear);
+ 		__raw_writel(bank->suspend_wakeup, wake_set);
+ 		spin_unlock_irqrestore(&bank->lock, flags);
+-
+-		if ((bank->fclk) && (bank->fclk->usecount > 0))
+-			clk_disable(bank->fclk);
+ 	}
+ 
+ 	return 0;
+@@ -1312,10 +1296,6 @@ static void omap_gpio_resume(void)
+ 		void __iomem *wake_set;
+ 		unsigned long flags;
+ 
+-		if ((bank->fclk) && (bank->fclk->usecount <= 0))
+-			if (clk_enable(bank->fclk) < 0)
+-				dev_err(bank->dev, "Could not enable fclk\n");
+-
+ 		switch (bank->method) {
+ #ifdef CONFIG_ARCH_OMAP16XX
+ 		case METHOD_GPIO_1610:
+-- 
+1.7.9.1
+

@@ -1,0 +1,71 @@
+From cea2e70fd2f1bd29b82ec741300e9b38e0353769 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Thu, 16 Feb 2012 15:10:38 +0530
+Subject: [PATCH 093/172] ARM: OMAP2+: elm: Correct ELM device instance
+
+This patch
+1. Corrects the device id for ELM device to -1 as only one instance of ELM
+is present, previously it was 1.
+2. Adds error handling for failure cases.
+3. Provides __init macros to free the memory once initialization done.
+4. Corrects to make use inline function definition to remove unnecessary
+calls.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+---
+ arch/arm/mach-omap2/devices.c |   29 +++++++++++++++++------------
+ 1 files changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
+index cc4a734..5f4e3ef 100644
+--- a/arch/arm/mach-omap2/devices.c
++++ b/arch/arm/mach-omap2/devices.c
+@@ -534,28 +534,33 @@ static inline void omap_init_mcspi(void) {}
+ 
+ #ifdef CONFIG_SOC_OMAPAM33XX
+ 
+-static int omap_elm_init(struct omap_hwmod *oh, void *unused)
++static int __init omap_init_elm(void)
+ {
++	int id = -1;
+ 	struct platform_device *pdev;
++	struct omap_hwmod *oh;
++	char *oh_name = "elm";
+ 	char *name = "omap2_elm";
+-	static int elm_num;
+ 
++	oh = omap_hwmod_lookup(oh_name);
++	if (!oh) {
++		pr_err("Could not look up %s\n", oh_name);
++		return -ENODEV;
++	}
+ 
+-	elm_num++;
+-	pdev = omap_device_build(name, elm_num, oh, NULL,
+-				0,	NULL,
+-				0, 0);
+-	return 0;
+-}
++	pdev = omap_device_build(name, id, oh, NULL, 0, NULL, 0, 0);
+ 
+-static void omap_init_elm(void)
+-{
++	if (IS_ERR(pdev)) {
++		WARN(1, "Can't build omap_device for %s:%s.\n",
++						name, oh->name);
++		return PTR_ERR(pdev);
++	}
+ 
+-	omap_hwmod_for_each_by_class("elm", omap_elm_init, NULL);
++	return 0;
+ }
+ 
+ #else
+-static void omap_init_elm(void) {}
++static inline  int omap_init_elm(void) { }
+ #endif
+ 
+ 
+-- 
+1.7.9.1
+

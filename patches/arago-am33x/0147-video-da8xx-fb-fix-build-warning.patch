@@ -1,0 +1,27 @@
+From d5b7bf75267169158e8530851e15b6096433e730 Mon Sep 17 00:00:00 2001
+From: "Patil, Rachna" <rachna@ti.com>
+Date: Mon, 12 Mar 2012 11:34:55 +0530
+Subject: [PATCH 147/172] video: da8xx-fb: fix build warning
+
+This patch removes the build warning related to LCD
+
+Signed-off-by: Patil, Rachna <rachna@ti.com>
+---
+ drivers/video/da8xx-fb.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/da8xx-fb.c b/drivers/video/da8xx-fb.c
+index 5736a3e..53141f9 100644
+--- a/drivers/video/da8xx-fb.c
++++ b/drivers/video/da8xx-fb.c
+@@ -795,7 +795,6 @@ static irqreturn_t lcdc_irq_handler_rev02(int irq, void *arg)
+ {
+ 	struct da8xx_fb_par *par = arg;
+ 	u32 stat = lcdc_read(LCD_MASKED_STAT_REG);
+-	struct device *dev = par->dev;
+ 	u32 reg_int;
+ 
+ 	if ((stat & LCD_SYNC_LOST) && (stat & LCD_FIFO_UNDERFLOW)) {
+-- 
+1.7.9.1
+

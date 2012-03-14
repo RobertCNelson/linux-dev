@@ -1,0 +1,60 @@
+From c3b1648e1091ea216886b12da717b92c33615f11 Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Thu, 9 Feb 2012 23:01:12 +0530
+Subject: [PATCH 106/172] ARM: OMAP: AM33XX: Make use of DMTIMER0 for now
+
+Need to check how to do this reliably
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+---
+ arch/arm/mach-omap2/clock33xx_data.c |    2 ++
+ arch/arm/mach-omap2/timer.c          |    6 +++---
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/clock33xx_data.c b/arch/arm/mach-omap2/clock33xx_data.c
+index caa08e9..9ed23e9 100644
+--- a/arch/arm/mach-omap2/clock33xx_data.c
++++ b/arch/arm/mach-omap2/clock33xx_data.c
+@@ -1183,6 +1183,8 @@ static struct clk timer0_fck = {
+ 	.clksel		= timer0_clkmux_sel,
+ 	.enable_reg	= AM33XX_CM_WKUP_TIMER0_CLKCTRL,
+ 	.enable_bit	= AM33XX_MODULEMODE_SWCTRL,
++	.clksel_reg	= AM33XX_CTRL_REGADDR(0x01BC),
++	.clksel_mask	= (0x3 << 4),
+ 	.ops		= &clkops_omap2_dflt,
+ 	.recalc		= &followparent_recalc,
+ };
+diff --git a/arch/arm/mach-omap2/timer.c b/arch/arm/mach-omap2/timer.c
+index bfae81b..c255e9b 100644
+--- a/arch/arm/mach-omap2/timer.c
++++ b/arch/arm/mach-omap2/timer.c
+@@ -178,7 +178,7 @@ static int __init omap_dm_timer_init_one(struct omap_dm_timer *timer,
+ 
+ 	omap_hwmod_enable(oh);
+ 
+-	sys_timer_reserved |= (1 << (gptimer_id - 1));
++	sys_timer_reserved |= (1 << (gptimer_id));
+ 
+ 	if (gptimer_id != 12) {
+ 		struct clk *src;
+@@ -333,7 +333,7 @@ OMAP_SYS_TIMER(3)
+ OMAP_SYS_TIMER_INIT(3_secure, OMAP3_SECURE_TIMER, OMAP3_CLKEV_SOURCE,
+ 			2, OMAP3_MPU_SOURCE)
+ OMAP_SYS_TIMER(3_secure)
+-OMAP_SYS_TIMER_INIT(3_am33xx, 1, OMAP4_MPU_SOURCE, 2, OMAP4_MPU_SOURCE)
++OMAP_SYS_TIMER_INIT(3_am33xx, 0, "clk_rc32k_ck", 1, OMAP4_MPU_SOURCE)
+ OMAP_SYS_TIMER(3_am33xx)
+ #endif
+ 
+@@ -462,7 +462,7 @@ static int __init omap_timer_init(struct omap_hwmod *oh, void *unused)
+ 	pdata->timer_ip_version = oh->class->rev;
+ 
+ 	/* Mark clocksource and clockevent timers as reserved */
+-	if ((sys_timer_reserved >> (id - 1)) & 0x1)
++	if ((sys_timer_reserved & (0x1 << id)))
+ 		pdata->reserved = 1;
+ 
+ 	pwrdm = omap_hwmod_get_pwrdm(oh);
+-- 
+1.7.9.1
+

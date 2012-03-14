@@ -1,0 +1,31 @@
+From f4fcb3097b2a3ac0999dc3798785dadf27a67229 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Tue, 6 Mar 2012 09:27:26 +0530
+Subject: [PATCH 075/172] Revert "arm:omap:am335x - Selects HAMMING ECC
+ scheme."
+
+This reverts commit 1abf3aa04758ab4b061f7731392f51974c327558.
+---
+ arch/arm/mach-omap2/board-flash.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-flash.c b/arch/arm/mach-omap2/board-flash.c
+index f1b1d24..30a6f52 100644
+--- a/arch/arm/mach-omap2/board-flash.c
++++ b/arch/arm/mach-omap2/board-flash.c
+@@ -146,12 +146,6 @@ __init board_nand_init(struct mtd_partition *nand_parts,
+ 
+ 	board_nand_data.ecc_opt = OMAP_ECC_HAMMING_CODE_DEFAULT;
+ 	board_nand_data.gpmc_irq = OMAP_GPMC_IRQ_BASE + cs;
+-
+-	if (cpu_is_am335x()) {
+-		board_nand_data.ecc_opt = OMAP_ECC_HAMMING_CODE_HW;
+-		board_nand_data.xfer_type = NAND_OMAP_PREFETCH_POLLED;
+-	}
+-
+ 	gpmc_nand_init(&board_nand_data);
+ }
+ #endif /* CONFIG_MTD_NAND_OMAP2 || CONFIG_MTD_NAND_OMAP2_MODULE */
+-- 
+1.7.9.1
+

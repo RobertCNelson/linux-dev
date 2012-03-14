@@ -1,0 +1,54 @@
+From 23ae7882d604e3c3016f4f126d57db0e7318ba56 Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Mon, 12 Mar 2012 14:52:30 +0530
+Subject: [PATCH 148/172] ARM: OMAP: AM33XX: Fix build warning in PM code
+
+The code for disabling unused clockdomains is required
+only when PM is fully enabled. To avoid a build warning
+related to unused function move the code under the config
+option for suspend
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+---
+ arch/arm/mach-omap2/pm33xx.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm33xx.c b/arch/arm/mach-omap2/pm33xx.c
+index 0c4378d..e3f01c0 100644
+--- a/arch/arm/mach-omap2/pm33xx.c
++++ b/arch/arm/mach-omap2/pm33xx.c
+@@ -482,15 +482,6 @@ err1:
+ exit:
+ 	return ret;
+ }
+-#endif /* CONFIG_SUSPEND */
+-
+-/*
+- * Push the minimal suspend-resume code to SRAM
+- */
+-void am33xx_push_sram_idle(void)
+-{
+-	am33xx_do_wfi_sram = omap_sram_push(am33xx_do_wfi, am33xx_do_wfi_sz);
+-}
+ 
+ /*
+  * Enable hardware supervised mode for all clockdomains if it's
+@@ -504,6 +495,15 @@ static int __init clkdms_setup(struct clockdomain *clkdm, void *unused)
+ 		clkdm_sleep(clkdm);
+ 	return 0;
+ }
++#endif /* CONFIG_SUSPEND */
++
++/*
++ * Push the minimal suspend-resume code to SRAM
++ */
++void am33xx_push_sram_idle(void)
++{
++	am33xx_do_wfi_sram = omap_sram_push(am33xx_do_wfi, am33xx_do_wfi_sz);
++}
+ 
+ static int __init am33xx_pm_init(void)
+ {
+-- 
+1.7.9.1
+

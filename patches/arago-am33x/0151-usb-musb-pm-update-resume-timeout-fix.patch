@@ -1,0 +1,78 @@
+From 0e13e31684ffe7bdcc89fcdf69593ca7b5d9d882 Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Mon, 12 Mar 2012 12:11:21 +0530
+Subject: [PATCH 151/172] usb: musb: pm: update resume timeout fix
+
+Further testing shows that musb controller just needs a delay of 200ms
+after restoring devctl register and so removing SESSION off and on being
+done is suspend and resume path.
+---
+ drivers/usb/musb/musb_core.c |   14 +-------------
+ drivers/usb/musb/ti81xx.c    |    2 +-
+ 2 files changed, 2 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index fe32b6d..db5afeb 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2271,7 +2271,6 @@ void musb_save_context(struct musb *musb)
+ 	int i;
+ 	void __iomem *musb_base = musb->mregs;
+ 	void __iomem *epio;
+-	u8 devctl;
+ 
+ 	if (is_host_enabled(musb)) {
+ 		musb->context.frame = musb_readw(musb_base, MUSB_FRAME);
+@@ -2283,12 +2282,6 @@ void musb_save_context(struct musb *musb)
+ 	musb->context.intrrxe = musb_readw(musb_base, MUSB_INTRRXE);
+ 	musb->context.intrusbe = musb_readb(musb_base, MUSB_INTRUSBE);
+ 	musb->context.index = musb_readb(musb_base, MUSB_INDEX);
+-
+-	/* switch off the session */
+-	devctl = musb_readb(musb_base, MUSB_DEVCTL);
+-	devctl &= ~MUSB_DEVCTL_SESSION;
+-	musb_writeb(musb_base, MUSB_DEVCTL, devctl);
+-
+ 	musb->context.devctl = musb_readb(musb_base, MUSB_DEVCTL);
+ 
+ 	for (i = 0; i < musb->config->num_eps; ++i) {
+@@ -2356,22 +2349,17 @@ void musb_restore_context(struct musb *musb)
+ 	void __iomem *musb_base = musb->mregs;
+ 	void __iomem *ep_target_regs;
+ 	void __iomem *epio;
+-	u8 devctl;
+ 
+ 	if (is_host_enabled(musb)) {
+ 		musb_writew(musb_base, MUSB_FRAME, musb->context.frame);
+ 		musb_writeb(musb_base, MUSB_TESTMODE, musb->context.testmode);
+ 		musb_write_ulpi_buscontrol(musb->mregs, musb->context.busctl);
+ 	}
+-
+-	/* switch on the session */
+-	devctl = musb->context.devctl | MUSB_DEVCTL_SESSION;
+-	musb_writeb(musb_base, MUSB_DEVCTL, devctl);
+-
+ 	musb_writeb(musb_base, MUSB_POWER, musb->context.power);
+ 	musb_writew(musb_base, MUSB_INTRTXE, musb->context.intrtxe);
+ 	musb_writew(musb_base, MUSB_INTRRXE, musb->context.intrrxe);
+ 	musb_writeb(musb_base, MUSB_INTRUSBE, musb->context.intrusbe);
++	musb_writeb(musb_base, MUSB_DEVCTL, musb->context.devctl);
+ 
+ 	for (i = 0; i < musb->config->num_eps; ++i) {
+ 		struct musb_hw_ep	*hw_ep;
+diff --git a/drivers/usb/musb/ti81xx.c b/drivers/usb/musb/ti81xx.c
+index 60577a8..662aceb 100644
+--- a/drivers/usb/musb/ti81xx.c
++++ b/drivers/usb/musb/ti81xx.c
+@@ -1553,7 +1553,7 @@ static void ti81xx_restore_context(struct ti81xx_glue *glue)
+ 	/* restore CPPI4.1 DMA register for dma block 0 */
+ 	cppi41_restore_context(0, dma_sched_table);
+ #endif
+-	/* controller needs 200ms delay to resume */
++	/* controller needs delay for successful resume */
+ 	msleep(200);
+ }
+ static int ti81xx_runtime_suspend(struct device *dev)
+-- 
+1.7.9.1
+

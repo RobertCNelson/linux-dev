@@ -1,0 +1,69 @@
+From 45e620fff10480deea221dfe8bea3d19ceec6831 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Thu, 17 Nov 2011 20:13:56 +0530
+Subject: [PATCH 099/172] MTD: omap2: 14 byte ECC support for BCH8
+
+14 bytes of ECC is provided for every 512 byte even though 13 byte is the
+actual requirement. This is to synchronize the ECC layout with U-boot.
+Extra byte is cleared to 0.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+Signed-off-by: Hebbar, Gururaja <gururaja.hebbar@ti.com>
+Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+---
+ drivers/mtd/nand/nand_base.c |    1 +
+ drivers/mtd/nand/omap2.c     |   12 +++++++++---
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mtd/nand/nand_base.c b/drivers/mtd/nand/nand_base.c
+index 053d72a..a5df3ec 100644
+--- a/drivers/mtd/nand/nand_base.c
++++ b/drivers/mtd/nand/nand_base.c
+@@ -1995,6 +1995,7 @@ static void nand_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
+ 	const uint8_t *p = buf;
+ 	uint32_t *eccpos = chip->ecc.layout->eccpos;
+ 
++	memset(ecc_calc, 0, eccsteps * eccbytes);
+ 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
+ 		chip->ecc.hwctl(mtd, NAND_ECC_WRITE);
+ 		chip->write_buf(mtd, p, eccsize);
+diff --git a/drivers/mtd/nand/omap2.c b/drivers/mtd/nand/omap2.c
+index 4787ce5..d4d1335 100644
+--- a/drivers/mtd/nand/omap2.c
++++ b/drivers/mtd/nand/omap2.c
+@@ -100,8 +100,8 @@
+ #define JFFS2_CLEAN_MARKER_OFFSET  0x2
+ 
+ #define BCH_ECC_POS			0x2
+-#define BCH_JFFS2_CLEAN_MARKER_OFFSET	0x36
+-#define OMAP_BCH8_ECC_SECT_BYTES	13
++#define BCH_JFFS2_CLEAN_MARKER_OFFSET	0x3a
++#define OMAP_BCH8_ECC_SECT_BYTES	14
+ 
+ /* oob info generated runtime depending on ecc algorithm and layout selected */
+ static struct nand_ecclayout omap_oobinfo;
+@@ -815,6 +815,8 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
+ 	uint32_t data_pos;
+ 	uint32_t oob_pos;
+ 
++	struct omap_nand_info *info = container_of(mtd, struct omap_nand_info,
++							mtd);
+ 	data_pos = 0;
+ 	/* oob area start */
+ 	oob_pos = (eccsize * eccsteps) + chip->ecc.layout->eccpos[0];
+@@ -828,7 +830,11 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
+ 
+ 		/* read respective ecc from oob area */
+ 		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, oob_pos, page);
+-		chip->read_buf(mtd, oob, eccbytes);
++
++		if (info->ecc_opt == OMAP_ECC_BCH8_CODE_HW)
++			chip->read_buf(mtd, oob, 13);
++		else
++			chip->read_buf(mtd, oob, eccbytes);
+ 		/* read syndrome */
+ 		chip->ecc.calculate(mtd, p, &ecc_calc[i]);
+ 
+-- 
+1.7.9.1
+

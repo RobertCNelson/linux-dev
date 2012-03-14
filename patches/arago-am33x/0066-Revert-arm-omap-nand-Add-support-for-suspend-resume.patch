@@ -1,0 +1,187 @@
+From 799df3f67c8e024f746fa286aa150e9a43ee747d Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Tue, 6 Mar 2012 09:24:12 +0530
+Subject: [PATCH 066/172] Revert "arm:omap:nand - Add support for
+ suspend/resume"
+
+This reverts commit 38f1ae3d786e532574ec3a21e243a72afb54458a.
+---
+ arch/arm/mach-omap2/elm.c              |   14 +------------
+ arch/arm/mach-omap2/gpmc-nand.c        |    1 -
+ arch/arm/mach-omap2/gpmc.c             |    5 ----
+ arch/arm/plat-omap/include/plat/elm.h  |    2 -
+ arch/arm/plat-omap/include/plat/gpmc.h |    1 -
+ arch/arm/plat-omap/include/plat/nand.h |    1 -
+ drivers/mtd/nand/omap2.c               |   33 --------------------------------
+ 7 files changed, 1 insertions(+), 56 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/elm.c b/arch/arm/mach-omap2/elm.c
+index dab6cf2..2dad468 100644
+--- a/arch/arm/mach-omap2/elm.c
++++ b/arch/arm/mach-omap2/elm.c
+@@ -23,7 +23,6 @@
+ 
+ static void  __iomem *elm_base;
+ static struct completion elm_completion;
+-static struct clk *elm_clk;
+ 
+ static void elm_write_reg(int idx, u32 val)
+ {
+@@ -149,22 +148,11 @@ static irqreturn_t elm_isr(int this_irq, void *dev_id)
+ 	return IRQ_NONE;
+ }
+ 
+-void elm_clk_enable(void)
+-{
+-	clk_enable(elm_clk);
+-}
+-EXPORT_SYMBOL(elm_clk_enable);
+-
+-void elm_clk_disable(void)
+-{
+-	clk_disable(elm_clk);
+-}
+-EXPORT_SYMBOL(elm_clk_disable);
+-
+ static int __devinit omap_elm_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res = NULL, *irq = NULL;
+ 	int             ret_status = 0;
++	static struct clk *elm_clk;
+ 
+ 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 
+diff --git a/arch/arm/mach-omap2/gpmc-nand.c b/arch/arm/mach-omap2/gpmc-nand.c
+index 3771450..8ad210b 100644
+--- a/arch/arm/mach-omap2/gpmc-nand.c
++++ b/arch/arm/mach-omap2/gpmc-nand.c
+@@ -107,7 +107,6 @@ int __init gpmc_nand_init(struct omap_nand_platform_data *gpmc_nand_data)
+ 		gpmc_cs_configure(gpmc_nand_data->cs, GPMC_CONFIG_RDY_BSY, 1);
+ 	}
+ 
+-	gpmc_nand_data->ctrl_clk = gpmc_clock();
+ 	err = platform_device_register(&gpmc_nand_device);
+ 	if (err < 0) {
+ 		dev_err(dev, "Unable to register NAND device\n");
+diff --git a/arch/arm/mach-omap2/gpmc.c b/arch/arm/mach-omap2/gpmc.c
+index a78f79d..056c72c 100644
+--- a/arch/arm/mach-omap2/gpmc.c
++++ b/arch/arm/mach-omap2/gpmc.c
+@@ -768,11 +768,6 @@ static int __init gpmc_init(void)
+ }
+ postcore_initcall(gpmc_init);
+ 
+-struct clk *gpmc_clock(void)
+-{
+-	return gpmc_l3_clk;
+-}
+-
+ static irqreturn_t gpmc_handle_irq(int irq, void *dev)
+ {
+ 	u8 cs;
+diff --git a/arch/arm/plat-omap/include/plat/elm.h b/arch/arm/plat-omap/include/plat/elm.h
+index dc5a54b..6d81645 100644
+--- a/arch/arm/plat-omap/include/plat/elm.h
++++ b/arch/arm/plat-omap/include/plat/elm.h
+@@ -106,6 +106,4 @@
+ 
+ extern int elm_decode_bch_error(int bch_type, char *ecc_calc,
+ 		unsigned int *err_loc);
+-extern void elm_clk_enable(void);
+-extern void elm_clk_disable(void);
+ #endif /* TI81_ELM_H */
+diff --git a/arch/arm/plat-omap/include/plat/gpmc.h b/arch/arm/plat-omap/include/plat/gpmc.h
+index 6a791c6..44c1f43 100644
+--- a/arch/arm/plat-omap/include/plat/gpmc.h
++++ b/arch/arm/plat-omap/include/plat/gpmc.h
+@@ -156,7 +156,6 @@ extern int gpmc_read_status(int cmd);
+ extern int gpmc_cs_configure(int cs, int cmd, int wval);
+ extern int gpmc_nand_read(int cs, int cmd);
+ extern int gpmc_nand_write(int cs, int cmd, int wval);
+-extern struct clk *gpmc_clock(void);
+ 
+ int gpmc_enable_hwecc(int ecc, int cs, int mode, int dev_width, int ecc_size);
+ int gpmc_calculate_ecc(int ecc, int cs, const u_char *dat, u_char *ecc_code);
+diff --git a/arch/arm/plat-omap/include/plat/nand.h b/arch/arm/plat-omap/include/plat/nand.h
+index b9422ef..67fc506 100644
+--- a/arch/arm/plat-omap/include/plat/nand.h
++++ b/arch/arm/plat-omap/include/plat/nand.h
+@@ -29,7 +29,6 @@ struct omap_nand_platform_data {
+ 	unsigned long		phys_base;
+ 	int			devsize;
+ 	enum omap_ecc           ecc_opt;
+-	struct clk              *ctrl_clk;
+ };
+ 
+ /* minimum size for IO mapping */
+diff --git a/drivers/mtd/nand/omap2.c b/drivers/mtd/nand/omap2.c
+index c462c5b..acacb30 100644
+--- a/drivers/mtd/nand/omap2.c
++++ b/drivers/mtd/nand/omap2.c
+@@ -20,7 +20,6 @@
+ #include <linux/mtd/partitions.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
+-#include <linux/clk.h>
+ 
+ #include <plat/dma.h>
+ #include <plat/gpmc.h>
+@@ -141,7 +140,6 @@ struct omap_nand_info {
+ 	u_char				*buf;
+ 	int				buf_len;
+ 	int				ecc_opt;
+-	struct clk                      *ctrl_clk;
+ };
+ 
+ /**
+@@ -1119,7 +1117,6 @@ static int __devinit omap_nand_probe(struct platform_device *pdev)
+ 
+ 	info->pdev = pdev;
+ 
+-	info->ctrl_clk		= pdata->ctrl_clk;
+ 	info->gpmc_cs		= pdata->cs;
+ 	info->phys_base		= pdata->phys_base;
+ 
+@@ -1341,39 +1338,9 @@ static int omap_nand_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM
+-static int omap_nand_suspend(struct platform_device *pdev, pm_message_t state)
+-{
+-	struct mtd_info *mtd = platform_get_drvdata(pdev);
+-	struct omap_nand_info *info = container_of(mtd, struct omap_nand_info,
+-							mtd);
+-
+-	mtd->suspend(mtd);
+-	clk_disable(info->ctrl_clk);
+-	elm_clk_disable();
+-	return 0;
+-}
+-
+-static int omap_nand_resume(struct platform_device *pdev)
+-{
+-	struct mtd_info *mtd = platform_get_drvdata(pdev);
+-	struct omap_nand_info *info = container_of(mtd, struct omap_nand_info,
+-							mtd);
+-
+-	elm_clk_enable();
+-	clk_enable(info->ctrl_clk);
+-	mtd->resume(mtd);
+-	return 0;
+-}
+-#endif
+-
+ static struct platform_driver omap_nand_driver = {
+ 	.probe		= omap_nand_probe,
+ 	.remove		= omap_nand_remove,
+-#ifdef CONFIG_PM
+-	.suspend	= omap_nand_suspend,
+-	.resume		= omap_nand_resume,
+-#endif
+ 	.driver		= {
+ 		.name	= DRIVER_NAME,
+ 		.owner	= THIS_MODULE,
+-- 
+1.7.9.1
+

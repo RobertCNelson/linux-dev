@@ -1,0 +1,31 @@
+From dc013d900a33c16117d49e7ea4cb60cc3528037b Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Mon, 27 Feb 2012 15:12:34 +0530
+Subject: [PATCH 109/172] ARM: OMAP: AM33XX: Cleanup usb hwmod
+
+Updated the hwmod data for usb pm support.
+Changes:
+	- updated the sysc type to type2
+	- Added the interface and functional clock and removed opt clocks
+
+Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_33xx_data.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+index 037d2d3..253d27f 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+@@ -2991,7 +2991,7 @@ static struct omap_hwmod_ocp_if *am33xx_usbss_slaves[] = {
+ static struct omap_hwmod am33xx_usbss_hwmod = {
+ 	.name		= "usb_otg_hs",
+ 	.class		= &am33xx_usbotg_class,
+-	.clkdm_name	= "l3s_clkdm",
++	.clkdm_name	= "wkup_usb_clkdm",
+ 	.mpu_irqs	= am33xx_usbss_mpu_irqs,
+ 	.main_clk	= "usbotg_fck",
+ 	.flags		= HWMOD_CONTROL_OPT_CLKS_IN_RESET,
+-- 
+1.7.9.1
+

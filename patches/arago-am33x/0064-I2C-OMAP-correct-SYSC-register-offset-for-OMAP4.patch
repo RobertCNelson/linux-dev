@@ -1,0 +1,32 @@
+From 4d4a091da6078de55cb6bae360a6e0a1047ede58 Mon Sep 17 00:00:00 2001
+From: Alexander Aring <a.aring@phytec.de>
+Date: Thu, 8 Dec 2011 15:43:53 +0100
+Subject: [PATCH 064/172] I2C: OMAP: correct SYSC register offset for OMAP4
+
+Correct OMAP_I2C_SYSC_REG offset in omap4 register map.
+Offset 0x20 is reserved and OMAP_I2C_SYSC_REG has 0x10 as offset.
+
+Signed-off-by: Alexander Aring <a.aring@phytec.de>
+[khilman@ti.com: minor changelog edits]
+Cc: stable@vger.kernel.org
+Signed-off-by: Kevin Hilman <khilman@ti.com>
+---
+ drivers/i2c/busses/i2c-omap.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 82fff06..e0733b7 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -235,7 +235,7 @@ static const u8 reg_map_ip_v2[] = {
+ 	[OMAP_I2C_BUF_REG] = 0x94,
+ 	[OMAP_I2C_CNT_REG] = 0x98,
+ 	[OMAP_I2C_DATA_REG] = 0x9c,
+-	[OMAP_I2C_SYSC_REG] = 0x20,
++	[OMAP_I2C_SYSC_REG] = 0x10,
+ 	[OMAP_I2C_CON_REG] = 0xa4,
+ 	[OMAP_I2C_OA_REG] = 0xa8,
+ 	[OMAP_I2C_SA_REG] = 0xac,
+-- 
+1.7.9.1
+

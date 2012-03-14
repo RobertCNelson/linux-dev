@@ -1,0 +1,122 @@
+From 87136b5169577877639e347a974c8e8503bec7d6 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Fri, 9 Mar 2012 11:10:11 +0530
+Subject: [PATCH 170/172] PWM: ehrpwm: Support for low power sleep
+
+This pattch
+1. Adds context save/restore functionality to support low power sleep
+transitions.
+2. Adds pm_runtime [get_sync/put_sync] in context save function to
+handle unenabled clock situation.
+3. Removes check for clock use count.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+---
+ drivers/pwm/ehrpwm.c       |   46 ++++++++++++++++++++++++++++++++++++++++++-
+ include/linux/pwm/ehrpwm.h |   15 ++++++++++++++
+ 2 files changed, 59 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pwm/ehrpwm.c b/drivers/pwm/ehrpwm.c
+index 8140ce7..d37db52 100644
+--- a/drivers/pwm/ehrpwm.c
++++ b/drivers/pwm/ehrpwm.c
+@@ -1509,12 +1509,53 @@ err_mem_failure:
+ }
+ 
+ #ifdef CONFIG_PM
++
++void ehrpwm_context_save(struct ehrpwm_pwm *ehrpwm,
++		struct ehrpwm_context *ehrpwm_ctx)
++{
++	pm_runtime_get_sync(ehrpwm->dev);
++	ehrpwm_ctx->tbctl = ehrpwm_read(ehrpwm, TBCTL);
++	ehrpwm_ctx->tbprd = ehrpwm_read(ehrpwm, TBPRD);
++	if (ehrpwm->version == PWM_VERSION_1)
++		ehrpwm_ctx->hrcfg = ehrpwm_read(ehrpwm, AM335X_HRCNFG);
++	else
++		ehrpwm_ctx->hrcfg = ehrpwm_read(ehrpwm, HRCNFG);
++	ehrpwm_ctx->aqctla = ehrpwm_read(ehrpwm, AQCTLA);
++	ehrpwm_ctx->aqctlb = ehrpwm_read(ehrpwm, AQCTLB);
++	ehrpwm_ctx->cmpa = ehrpwm_read(ehrpwm, CMPA);
++	ehrpwm_ctx->cmpb = ehrpwm_read(ehrpwm, CMPB);
++	ehrpwm_ctx->tzctl = ehrpwm_read(ehrpwm, TZCTL);
++	ehrpwm_ctx->tzflg = ehrpwm_read(ehrpwm, TZFLG);
++	ehrpwm_ctx->tzclr = ehrpwm_read(ehrpwm, TZCLR);
++	ehrpwm_ctx->tzfrc = ehrpwm_read(ehrpwm, TZFRC);
++	pm_runtime_put_sync(ehrpwm->dev);
++}
++
++void ehrpwm_context_restore(struct ehrpwm_pwm *ehrpwm,
++		struct ehrpwm_context *ehrpwm_ctx)
++{
++	ehrpwm_write(ehrpwm, TBCTL, ehrpwm_ctx->tbctl);
++	ehrpwm_write(ehrpwm, TBPRD, ehrpwm_ctx->tbprd);
++	if (ehrpwm->version == PWM_VERSION_1)
++		ehrpwm_write(ehrpwm, AM335X_HRCNFG, ehrpwm_ctx->hrcfg);
++	else
++		ehrpwm_write(ehrpwm, HRCNFG, ehrpwm_ctx->hrcfg);
++	ehrpwm_write(ehrpwm, AQCTLA, ehrpwm_ctx->aqctla);
++	ehrpwm_write(ehrpwm, AQCTLB, ehrpwm_ctx->aqctlb);
++	ehrpwm_write(ehrpwm, CMPA, ehrpwm_ctx->cmpa);
++	ehrpwm_write(ehrpwm, CMPB, ehrpwm_ctx->cmpb);
++	ehrpwm_write(ehrpwm, TZCTL, ehrpwm_ctx->tzctl);
++	ehrpwm_write(ehrpwm, TZFLG, ehrpwm_ctx->tzflg);
++	ehrpwm_write(ehrpwm, TZCLR, ehrpwm_ctx->tzclr);
++	ehrpwm_write(ehrpwm, TZFRC, ehrpwm_ctx->tzfrc);
++}
++
+ static int ehrpwm_suspend(struct platform_device *pdev, pm_message_t state)
+ {
+ 	struct ehrpwm_pwm *ehrpwm = platform_get_drvdata(pdev);
+ 
+-	if (ehrpwm->clk->usecount > 0)
+-		pm_runtime_put_sync(ehrpwm->dev);
++	ehrpwm_context_save(ehrpwm, &ehrpwm->ctx);
++	pm_runtime_put_sync(ehrpwm->dev);
+ 
+ 	return 0;
+ }
+@@ -1524,6 +1565,7 @@ static int ehrpwm_resume(struct platform_device *pdev)
+ 	struct ehrpwm_pwm *ehrpwm = platform_get_drvdata(pdev);
+ 
+ 	pm_runtime_get_sync(ehrpwm->dev);
++	ehrpwm_context_restore(ehrpwm, &ehrpwm->ctx);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/pwm/ehrpwm.h b/include/linux/pwm/ehrpwm.h
+index 56f8806..53a4481 100644
+--- a/include/linux/pwm/ehrpwm.h
++++ b/include/linux/pwm/ehrpwm.h
+@@ -19,6 +19,20 @@ struct tz_int {
+ 	p_fcallback pcallback;
+ };
+ 
++struct ehrpwm_context {
++	u32 tbctl;
++	u32 tbprd;
++	u32 hrcfg;
++	u32 aqctla;
++	u32 aqctlb;
++	u32 cmpa;
++	u32 cmpb;
++	u32 tzctl;
++	u32 tzflg;
++	u32 tzclr;
++	u32 tzfrc;
++};
++
+ struct ehrpwm_pwm {
+ 	struct pwm_device pwm[NCHAN];
+ 	struct pwm_device_ops ops;
+@@ -32,6 +46,7 @@ struct ehrpwm_pwm {
+ 	u8 version;
+ 	void __iomem *config_mem_base;
+ 	struct device *dev;
++	struct ehrpwm_context ctx;
+ };
+ 
+ enum tz_event {
+-- 
+1.7.9.1
+

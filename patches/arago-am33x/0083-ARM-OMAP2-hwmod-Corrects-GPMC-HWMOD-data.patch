@@ -1,0 +1,32 @@
+From 51e08eef47e7352ce479e92520bfc56a83e7da82 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Thu, 23 Feb 2012 16:36:56 +0530
+Subject: [PATCH 083/172] ARM: OMAP2+: hwmod: Corrects GPMC HWMOD data
+
+Corrects the GPMC HWMOD data for idle mode usage.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_33xx_data.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+index f264bdf..b13c1ae8 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+@@ -973,10 +973,8 @@ static struct omap_hwmod_class_sysconfig gpmc_sysc = {
+ 	.sysc_offs	= 0x10,
+ 	.syss_offs	= 0x14,
+ 	.sysc_flags	= (SYSC_HAS_AUTOIDLE | SYSC_HAS_SIDLEMODE |
+-			SYSC_HAS_MIDLEMODE | SYSC_HAS_SOFTRESET |
+-			SYSS_HAS_RESET_STATUS),
+-	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART |
+-			MSTANDBY_FORCE | MSTANDBY_NO | MSTANDBY_SMART),
++			SYSC_HAS_SOFTRESET | SYSS_HAS_RESET_STATUS),
++	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
+ 	.sysc_fields	= &omap_hwmod_sysc_type1,
+ };
+ 
+-- 
+1.7.9.1
+

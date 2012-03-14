@@ -1,0 +1,58 @@
+From 427db94365009416e43a7e914c4ec36ae13891d2 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Tue, 6 Mar 2012 10:58:30 +0530
+Subject: [PATCH 089/172] ARM: OMAP2+: nand: BCH8 support definitions
+
+This patch adds
+1. Enum variable for BCH type
+2. Macro definitions to support BCH8 ECC scheme
+3. Function declarations.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+---
+ arch/arm/plat-omap/include/plat/elm.h |   33 +++++++++++++++++++++++++++++++++
+ 1 files changed, 33 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/plat-omap/include/plat/elm.h
+
+diff --git a/arch/arm/plat-omap/include/plat/elm.h b/arch/arm/plat-omap/include/plat/elm.h
+new file mode 100644
+index 0000000..50b4c8a
+--- /dev/null
++++ b/arch/arm/plat-omap/include/plat/elm.h
+@@ -0,0 +1,33 @@
++/*
++ * BCH Error Location Module for TI81xx
++ *
++ * Copyright (C) 2011 Texas Instruments, Inc. - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation version 2.
++ *
++ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
++ * kind, whether express or implied; without even the implied warranty
++ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef OMAP_ELM_H
++#define OMAP_ELM_H
++
++enum omap_bch_ecc {
++	OMAP_BCH4_ECC = 0,
++	OMAP_BCH8_ECC,
++	OMAP_BCH16_ECC,
++};
++
++#define BCH8_ECC_BYTES			(512)
++#define BCH8_ECC_OOB_BYTES		(13)
++#define BCH_MAX_ECC_BYTES_PER_SECTOR	(28)
++#define BCH8_ECC_MAX	((BCH8_ECC_BYTES + BCH8_ECC_OOB_BYTES) * 8)
++
++int omap_elm_decode_bch_error(int bch_type, char *ecc_calc,
++		unsigned int *err_loc);
++void omap_configure_elm(struct mtd_info *mtdi, int bch_type);
++#endif /* OMAP_ELM_H */
+-- 
+1.7.9.1
+

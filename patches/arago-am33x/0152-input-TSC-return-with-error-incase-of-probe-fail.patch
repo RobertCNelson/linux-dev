@@ -1,0 +1,27 @@
+From deadac4fec55eabc2e3df86b9ccacf09d18109ed Mon Sep 17 00:00:00 2001
+From: "Patil, Rachna" <rachna@ti.com>
+Date: Mon, 12 Mar 2012 18:54:53 +0530
+Subject: [PATCH 152/172] input: TSC: return with error incase of probe fail
+
+This patch corrects error handling in touchscreen.
+
+Signed-off-by: Patil, Rachna <rachna@ti.com>
+---
+ drivers/input/touchscreen/ti_tscadc.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
+index 9b34b82..950c07f 100644
+--- a/drivers/input/touchscreen/ti_tscadc.c
++++ b/drivers/input/touchscreen/ti_tscadc.c
+@@ -447,6 +447,7 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+ 	clk_value = clock_rate / ADC_CLK;
+ 	if (clk_value < 7) {
+ 		dev_err(&pdev->dev, "clock input less than min clock requirement\n");
++		err = -EINVAL;
+ 		goto err_fail;
+ 	}
+ 	/* TSCADC_CLKDIV needs to be configured to the value minus 1 */
+-- 
+1.7.9.1
+

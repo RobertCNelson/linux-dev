@@ -1,0 +1,39 @@
+From 43152bd0b07c4dc72e55e7349c81a8feb01f30aa Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Fri, 9 Mar 2012 20:00:05 +0530
+Subject: [PATCH 125/172] ARM: OMAP2+: nand: Fix build breakage
+
+...introduced by recent NAND related changes
+
+In file included from arch/arm/mach-omap2/board-omap3beagle.c:54:0:
+arch/arm/mach-omap2/board-flash.h:50:1: error: expected identifier or '(' before '{' token
+arch/arm/mach-omap2/board-flash.h:48:1: warning: 'omap_nand_init' used but never defined
+make[1]: *** [arch/arm/mach-omap2/board-omap3beagle.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+In file included from arch/arm/mach-omap2/board-am335xevm.c:61:0:
+arch/arm/mach-omap2/board-flash.h:50:1: error: expected identifier or '(' before '{' token
+arch/arm/mach-omap2/board-flash.h:48:1: warning: 'omap_nand_init' used but never defined
+make[1]: *** [arch/arm/mach-omap2/board-am335xevm.o] Error 1
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+---
+ arch/arm/mach-omap2/board-flash.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-flash.h b/arch/arm/mach-omap2/board-flash.h
+index b758990..93c02cc 100644
+--- a/arch/arm/mach-omap2/board-flash.h
++++ b/arch/arm/mach-omap2/board-flash.h
+@@ -46,7 +46,8 @@ __init omap_nand_init(struct mtd_partition *nand_parts, u8 nr_parts, u8 cs,
+ #else
+ static inline struct omap_nand_platform_data *
+ omap_nand_init(struct mtd_partition *nand_parts,
+-		u8 nr_parts, u8 cs, int nand_type, struct gpmc_timings *gpmc_t);
++		u8 nr_parts, u8 cs, int nand_type, struct gpmc_timings *gpmc_t)
+ {
++	return NULL;
+ }
+ #endif
+-- 
+1.7.9.1
+

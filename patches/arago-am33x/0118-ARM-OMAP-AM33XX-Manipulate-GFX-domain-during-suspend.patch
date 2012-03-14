@@ -1,0 +1,604 @@
+From d7f801cce3c9ae5d1617bc80bc170bed0271fb77 Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Thu, 8 Mar 2012 02:09:27 +0530
+Subject: [PATCH 118/172] ARM: OMAP: AM33XX: Manipulate GFX domain during
+ suspend
+
+In order to save as much power as possible, attempt to
+put the GFX domain to OFF state during suspend.
+
+At the same time, update the A<->M3 interaction to reduce
+any chance of race conditions between A8 suspend routine
+and the M3 acknowledgement interrupt.
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+---
+ arch/arm/mach-omap2/pm33xx.c                |  231 ++++++++++++++++++--------
+ arch/arm/mach-omap2/pm33xx.h                |    6 +
+ arch/arm/mach-omap2/powerdomains33xx_data.c |    6 +-
+ arch/arm/mach-omap2/sleep33xx.S             |   93 ++++++++++--
+ arch/arm/plat-omap/mailbox.c                |    2 +-
+ 5 files changed, 253 insertions(+), 85 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm33xx.c b/arch/arm/mach-omap2/pm33xx.c
+index eaf5be6..f1dfd9b 100644
+--- a/arch/arm/mach-omap2/pm33xx.c
++++ b/arch/arm/mach-omap2/pm33xx.c
+@@ -23,6 +23,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/sched.h>
+ #include <linux/suspend.h>
++#include <linux/completion.h>
+ 
+ #include <plat/prcm.h>
+ #include <plat/mailbox.h>
+@@ -36,22 +37,26 @@
+ 
+ #include "pm.h"
+ #include "pm33xx.h"
++#include "clockdomain.h"
++#include "powerdomain.h"
+ 
+ void (*am33xx_do_wfi_sram)(void);
+ 
+ #define DS_MODE		DS0_ID	/* DS0/1_ID */
+ 
+ #ifdef CONFIG_SUSPEND
+-static int m3_state;
+-struct omap_mbox *m3_mbox;
++
+ void __iomem *ipc_regs;
+ void __iomem *m3_eoi;
+ void __iomem *m3_code;
+ 
+-static struct device *mpu_dev;
+ bool enable_deep_sleep = true;
+ 
+-static int global_suspend_flag = 0;
++static struct device *mpu_dev;
++static struct omap_mbox *m3_mbox;
++
++static int core_suspend_stat = -1;
++static int m3_state = M3_STATE_UNKNOWN;
+ 
+ static suspend_state_t suspend_state = PM_SUSPEND_ON;
+ 
+@@ -62,9 +67,13 @@ struct a8_wkup_m3_ipc_data {
+ 	int ipc_data2;
+ } am33xx_lp_ipc;
+ 
+-static int am33xx_set_low_power_state(struct a8_wkup_m3_ipc_data *);
+-static void am33xx_verify_lp_state(void);
++static int am33xx_ipc_cmd(struct a8_wkup_m3_ipc_data *);
++static int am33xx_verify_lp_state(void);
++static void am33xx_m3_state_machine_reset(void);
++static struct powerdomain *cefuse_pwrdm, *gfx_pwrdm;
++static struct clockdomain *gfx_l3_clkdm, *gfx_l4ls_clkdm;
+ 
++static DECLARE_COMPLETION(a8_m3_sync);
+ 
+ static int am33xx_do_sram_idle(long unsigned int state)
+ {
+@@ -72,14 +81,9 @@ static int am33xx_do_sram_idle(long unsigned int state)
+ 	return 0;
+ }
+ 
+-static inline bool is_suspending(void)
+-{
+-	return (suspend_state != PM_SUSPEND_ON) && console_suspend_enabled;
+-}
+-
+ static int am33xx_pm_suspend(void)
+ {
+-	int ret = 0;
++	int state, ret = 0;
+ 
+ 	struct omap_hwmod *cpgmac_oh, *gpmc_oh, *usb_oh;
+ 
+@@ -95,9 +99,34 @@ static int am33xx_pm_suspend(void)
+ 	omap_hwmod_idle(usb_oh);
+ 	omap_hwmod_idle(gpmc_oh);
+ 
++	if(gfx_l3_clkdm && gfx_l4ls_clkdm) {
++		clkdm_sleep(gfx_l3_clkdm);
++		clkdm_sleep(gfx_l4ls_clkdm);
++	}
++
++	/* Try to put GFX to sleep */
++	if (gfx_pwrdm)
++		pwrdm_set_next_pwrst(gfx_pwrdm, PWRDM_POWER_OFF);
++	else
++		pr_err("Could not program GFX to low power state\n");
++
+ 	ret = cpu_suspend(0, am33xx_do_sram_idle);
+-	if (ret)
+-		pr_err("Could not suspend\n");
++
++	if (gfx_pwrdm) {
++		state = pwrdm_read_pwrst(gfx_pwrdm);
++		if (state != PWRDM_POWER_OFF)
++			pr_err("GFX domain did not transition to low power state\n");
++		else
++			pr_info("GFX domain entered low power state\n");
++	}
++
++	/* XXX: Why do we need to wakeup the clockdomains? */
++	if(gfx_l3_clkdm && gfx_l4ls_clkdm) {
++		clkdm_wakeup(gfx_l3_clkdm);
++		clkdm_wakeup(gfx_l4ls_clkdm);
++	}
++
++	core_suspend_stat = ret;
+ 
+ 	return ret;
+ }
+@@ -129,19 +158,30 @@ static int am33xx_pm_begin(suspend_state_t state)
+ 	am33xx_lp_ipc.ipc_data1	  = DS_IPC_DEFAULT;
+ 	am33xx_lp_ipc.ipc_data2   = DS_IPC_DEFAULT;
+ 
+-	am33xx_set_low_power_state(&am33xx_lp_ipc);
++	am33xx_ipc_cmd(&am33xx_lp_ipc);
++
++	m3_state = M3_STATE_MSG_FOR_LP;
++
++	omap_mbox_enable_irq(m3_mbox, IRQ_RX);
+ 
+ 	ret = omap_mbox_msg_send(m3_mbox, 0xABCDABCD);
+-	if (!ret) {
+-		pr_info("Message sent for entering %s\n",
+-			(DS_MODE == DS0_ID ? "DS0" : "DS1"));
+-		omap_mbox_msg_rx_flush(m3_mbox);
++	if (ret) {
++		pr_err("A8<->CM3 MSG for LP failed\n");
++		am33xx_m3_state_machine_reset();
++		ret = -1;
+ 	}
+ 
+-	omap_mbox_disable_irq(m3_mbox, IRQ_RX);
++	if (!wait_for_completion_timeout(&a8_m3_sync, msecs_to_jiffies(5000))) {
++		pr_err("A8<->CM3 sync failure\n");
++		am33xx_m3_state_machine_reset();
++		ret = -1;
++	} else {
++		pr_debug("Message sent for entering %s\n",
++			(DS_MODE == DS0_ID ? "DS0" : "DS1"));
++		omap_mbox_disable_irq(m3_mbox, IRQ_RX);
++	}
+ 
+ 	suspend_state = state;
+-
+ 	return ret;
+ }
+ 
+@@ -154,32 +194,29 @@ static void am33xx_m3_state_machine_reset(void)
+ 	am33xx_lp_ipc.ipc_data1	  = DS_IPC_DEFAULT;
+ 	am33xx_lp_ipc.ipc_data2   = DS_IPC_DEFAULT;
+ 
+-	am33xx_set_low_power_state(&am33xx_lp_ipc);
++	am33xx_ipc_cmd(&am33xx_lp_ipc);
++
++	m3_state = M3_STATE_MSG_FOR_RESET;
+ 
+ 	ret = omap_mbox_msg_send(m3_mbox, 0xABCDABCD);
+ 	if (!ret) {
+ 		pr_debug("Message sent for resetting M3 state machine\n");
+-		omap_mbox_msg_rx_flush(m3_mbox);
++	} else {
++		pr_debug("Could not reset M3 state machine!!!\n");
++		m3_state = M3_STATE_UNKNOWN;
+ 	}
+ }
+ 
+ static void am33xx_pm_end(void)
+ {
+-	suspend_state = PM_SUSPEND_ON;
++	int ret;
+ 
+-	/* Check the global suspend flag followed by the IPC register */
+-	am33xx_verify_lp_state();
++	suspend_state = PM_SUSPEND_ON;
+ 
+-	/* TODO: This should be handled via some MBX API */
+-	if (m3_mbox->ops->ack_irq)
+-		m3_mbox->ops->ack_irq(m3_mbox, IRQ_RX);
++	ret = am33xx_verify_lp_state();
+ 
+ 	omap_mbox_enable_irq(m3_mbox, IRQ_RX);
+ 
+-	/* M3 state machine will get reset in a successful iteration,
+-	 * for now we go ahead and reset it again to catch the bad
+-	 * iterations
+-	 */
+ 	am33xx_m3_state_machine_reset();
+ 
+ 	enable_hlt();
+@@ -194,7 +231,7 @@ static const struct platform_suspend_ops am33xx_pm_ops = {
+ 	.valid		= suspend_valid_only_mem,
+ };
+ 
+-int am33xx_set_low_power_state(struct a8_wkup_m3_ipc_data *data)
++int am33xx_ipc_cmd(struct a8_wkup_m3_ipc_data *data)
+ {
+ 	writel(data->resume_addr, ipc_regs);
+ 	writel(data->sleep_mode, ipc_regs + 0x4);
+@@ -204,43 +241,41 @@ int am33xx_set_low_power_state(struct a8_wkup_m3_ipc_data *data)
+ 	return 0;
+ }
+ 
+-static void am33xx_verify_lp_state(void)
++/* return 0 if no reset M3 needed, 1 otherwise */
++static int am33xx_verify_lp_state(void)
+ {
+-	int status;
++	int status, ret = 0;
+ 
+-	if (global_suspend_flag) {
++	if (core_suspend_stat) {
+ 		pr_err("Kernel core reported suspend failure\n");
++		ret = -1;
+ 		goto clear_old_status;
+ 	}
+ 
+-	/* If it's a failed transition and we check the old status,
+-	 * the failure will be erroneoulsy logged as a pass
+-	 * and the worst part is that the next WFI in the idle loop
+-	 * will be intercepted by M3 as a signal to cut-off
+-	 * the power to A8
+-	 *
+-	 * So, we MUST reset the M3 state machine even if the
+-	 * result is pass. Other option could be to clear the
+-	 * the CMD_STAT bits in the resume path and that also
+-	 * should be done
+-	 */
+ 	status = readl(ipc_regs + 0x4);
+ 	status &= 0xffff0000;
+ 
+-	if (status == 0x0)
+-		pr_info("DeepSleep transition passed\n");
+-	else if (status == 0x10000)
+-		pr_info("DeepSleep transition failed\n");
+-	else
++	if (status == 0x0) {
++		pr_info("Successfully transitioned all domains to low power state\n");
++		goto clear_old_status;
++	} else if (status == 0x10000) {
++		pr_info("Could enter low power state\n"
++			"Please check for active clocks in PER domain\n");
++		ret = -1;
++		goto clear_old_status;
++	} else {
+ 		pr_info("Status = %0x\n", status);
+-
++		ret = -1;
++	}
+ 
+ clear_old_status:
+-	/* After decoding we write back the bad status */
++	/* After decoding write back the bad status */
+ 	status = readl(ipc_regs + 0x4);
+ 	status &= 0xffff0000;
+ 	status |= 0x10000;
+ 	writel(status, ipc_regs + 0x4);
++
++	return ret;
+ }
+ 
+ /*
+@@ -259,17 +294,32 @@ static struct notifier_block wkup_m3_mbox_notifier = {
+ /* Interrupt from M3 to A8 */
+ static irqreturn_t wkup_m3_txev_handler(int irq, void *unused)
+ {
+-	m3_state++;
++	writel(0x1, m3_eoi);
+ 
+-	if (m3_eoi) {
+-		writel(0x1, m3_eoi);
+-		writel(0x0, m3_eoi);
+-		return IRQ_HANDLED;
+-	} else {
+-		pr_err("%s unexpected interrupt. "
+-		"Something is seriously wrong\n", __func__);
++	if (m3_state == M3_STATE_RESET) {
++		m3_state = M3_STATE_INITED;
++	} else if (m3_state == M3_STATE_MSG_FOR_RESET) {
++		m3_state = M3_STATE_INITED;
++		omap_mbox_msg_rx_flush(m3_mbox);
++		if (m3_mbox->ops->ack_irq)
++			m3_mbox->ops->ack_irq(m3_mbox, IRQ_RX);
++	} else if (m3_state == M3_STATE_MSG_FOR_LP) {
++		/* Read back the MBOX and disable the interrupt to M3 since we are going down */
++		omap_mbox_msg_rx_flush(m3_mbox);
++		if (m3_mbox->ops->ack_irq)
++			m3_mbox->ops->ack_irq(m3_mbox, IRQ_RX);
++		complete(&a8_m3_sync);
++	} else if (m3_state == M3_STATE_UNKNOWN) {
++		pr_err("IRQ %d with CM3 in unknown state\n", irq);
++		omap_mbox_msg_rx_flush(m3_mbox);
++		if (m3_mbox->ops->ack_irq)
++			m3_mbox->ops->ack_irq(m3_mbox, IRQ_RX);
+ 		return IRQ_NONE;
+ 	}
++
++	writel(0x0, m3_eoi);
++
++	return IRQ_HANDLED;
+ }
+ 
+ /* Initiliaze WKUP_M3, load the binary blob and let it run */
+@@ -339,19 +389,24 @@ static int wkup_m3_init(void)
+ 		pr_info("Copied the M3 firmware to UMEM\n");
+ 	}
+ 
+-	ret = omap_hwmod_deassert_hardreset(wkup_m3_oh, "wkup_m3");
+-	if (ret) {
+-		pr_err("Could not deassert the reset for WKUP_M3\n");
+-		goto err6;
+-	}
+-
++	/* Request the IRQ before M3 is released from reset */
+ 	ret = request_irq(AM33XX_IRQ_M3_M3SP_TXEV, wkup_m3_txev_handler,
+ 			  IRQF_DISABLED, "wkup_m3_txev", NULL);
+-	if (ret)
++	if (ret) {
+ 		pr_err("%s request_irq failed for 0x%x\n", __func__,
+ 			AM33XX_IRQ_M3_M3SP_TXEV);
+-	else
++		goto err6;
++	}
++
++	m3_state = M3_STATE_RESET;
++
++	ret = omap_hwmod_deassert_hardreset(wkup_m3_oh, "wkup_m3");
++	if (ret) {
++		pr_err("Could not deassert the reset for WKUP_M3\n");
++		goto err6;
++	} else {
+ 		return 0;
++	}
+ 
+ err6:
+ 	release_firmware(firmware);
+@@ -379,6 +434,19 @@ void am33xx_push_sram_idle(void)
+ 	am33xx_do_wfi_sram = omap_sram_push(am33xx_do_wfi, am33xx_do_wfi_sz);
+ }
+ 
++/*
++ * Enable hardware supervised mode for all clockdomains if it's
++ * supported. Initiate sleep transition for other clockdomains, if
++ * they are not used
++ */
++static int __init clkdms_setup(struct clockdomain *clkdm, void *unused)
++{
++	if (clkdm->flags & CLKDM_CAN_FORCE_SLEEP &&
++			atomic_read(&clkdm->usecount) == 0)
++		clkdm_sleep(clkdm);
++	return 0;
++}
++
+ static int __init am33xx_pm_init(void)
+ {
+ 	int ret;
+@@ -388,6 +456,27 @@ static int __init am33xx_pm_init(void)
+ 
+ 	pr_info("Power Management for AM33XX family\n");
+ 
++	(void) clkdm_for_each(clkdms_setup, NULL);
++
++	/* CEFUSE domain should be turned off post bootup */
++	cefuse_pwrdm = pwrdm_lookup("cefuse_pwrdm");
++	if (cefuse_pwrdm == NULL)
++		printk(KERN_ERR "Failed to get cefuse_pwrdm\n");
++	else
++		pwrdm_set_next_pwrst(cefuse_pwrdm, PWRDM_POWER_OFF);
++
++	gfx_pwrdm = pwrdm_lookup("gfx_pwrdm");
++	if (gfx_pwrdm == NULL)
++		printk(KERN_ERR "Failed to get gfx_pwrdm\n");
++
++	gfx_l3_clkdm = clkdm_lookup("gfx_l3_clkdm");
++	if (gfx_l3_clkdm == NULL)
++		printk(KERN_ERR "Failed to get gfx_l3_clkdm\n");
++
++	gfx_l4ls_clkdm = clkdm_lookup("gfx_l4ls_gfx_clkdm");
++	if (gfx_l4ls_clkdm == NULL)
++		printk(KERN_ERR "Failed to get gfx_l4ls_gfx_clkdm\n");
++
+ #ifdef CONFIG_SUSPEND
+ 	mpu_dev = omap_device_get_by_hwmod_name("mpu");
+ 
+diff --git a/arch/arm/mach-omap2/pm33xx.h b/arch/arm/mach-omap2/pm33xx.h
+index f77b42c..ed7a0fa 100644
+--- a/arch/arm/mach-omap2/pm33xx.h
++++ b/arch/arm/mach-omap2/pm33xx.h
+@@ -26,6 +26,12 @@ extern void __iomem *am33xx_get_ram_base(void);
+ #define	DS0_ID				0x3
+ #define DS1_ID				0x5
+ 
++#define M3_STATE_UNKNOWN		-1
++#define M3_STATE_RESET			0
++#define M3_STATE_INITED			1
++#define M3_STATE_MSG_FOR_LP		2
++#define M3_STATE_MSG_FOR_RESET		3
++
+ /* DDR offsets */
+ #define DDR_CMD0_IOCTRL			(AM33XX_CTRL_BASE + 0x1404)
+ #define DDR_CMD1_IOCTRL			(AM33XX_CTRL_BASE + 0x1408)
+diff --git a/arch/arm/mach-omap2/powerdomains33xx_data.c b/arch/arm/mach-omap2/powerdomains33xx_data.c
+index 3ceef60..8075f8a 100644
+--- a/arch/arm/mach-omap2/powerdomains33xx_data.c
++++ b/arch/arm/mach-omap2/powerdomains33xx_data.c
+@@ -26,10 +26,11 @@ static struct powerdomain gfx_33xx_pwrdm = {
+ 	.voltdm			= { .name = "core" },
+ 	.prcm_partition		= AM33XX_PRM_PARTITION,
+ 	.prcm_offs		= AM33XX_PRM_GFX_MOD,
+-	.pwrsts			= PWRSTS_OFF_RET_ON,
+-	.pwrsts_logic_ret	= PWRSTS_OFF_RET,
++	.pwrsts			= PWRSTS_OFF_ON,
++//	.pwrsts_logic_ret	= PWRSTS_OFF_RET,
+ 	.pwrstctrl_offs		= AM33XX_PM_GFX_PWRSTCTRL_OFFSET,
+ 	.pwrstst_offs		= AM33XX_PM_GFX_PWRSTST_OFFSET,
++#if 0
+ 	.flags			= PWRDM_HAS_LOWPOWERSTATECHANGE,
+ 	.banks			= 1,
+ 	.pwrsts_mem_ret		= {
+@@ -38,6 +39,7 @@ static struct powerdomain gfx_33xx_pwrdm = {
+ 	.pwrsts_mem_on		= {
+ 		[0]	= PWRSTS_ON,		/* gfx_mem */
+ 	},
++#endif
+ };
+ 
+ static struct powerdomain rtc_33xx_pwrdm = {
+diff --git a/arch/arm/mach-omap2/sleep33xx.S b/arch/arm/mach-omap2/sleep33xx.S
+index 826688f..ceabed0 100644
+--- a/arch/arm/mach-omap2/sleep33xx.S
++++ b/arch/arm/mach-omap2/sleep33xx.S
+@@ -26,7 +26,12 @@
+ 
+ #include "cm33xx.h"
+ #include "pm33xx.h"
++#include "control.h"
+ 
++/* We should probably pass in the virtual address of PRCM, Control and EMIF
++ * along with the physical addresses
++ * load it into the registers and then continue
++ */
+ 	.align 3
+ ENTRY(am33xx_do_wfi)
+ 	stmfd	sp!, {r4 - r11, lr}	@ save registers on stack
+@@ -34,21 +39,38 @@ ENTRY(am33xx_do_wfi)
+ 	/* Put DDR in Self-Refresh */
+ 	ldr	r0, emif_addr_func
+ 	blx	r0
+-	add	r0, r0, #EMIF4_0_SDRAM_MGMT_CTRL
+-	ldr	r3, [r0]
+-	orr	r3, r3, #0xa0		@ a reasonable delay for entering SR
+-	str	r3, [r0, #0]
++	add	r1, r0, #EMIF4_0_SDRAM_MGMT_CTRL
++	ldr	r2, [r1]
++	orr	r2, r2, #0xa0		@ a reasonable delay for entering SR
++	str	r2, [r1, #0]
+ 
+-	ldr	r2, ddr_start
+-	ldr	r1, [r2, #0]
+-	ldr	r1, [r0, #0]
+-	orr	r1, r1, #0x200
+-	str	r1, [r0, #0]
++	ldr	r2, ddr_start		@ do a dummy access to DDR
++	ldr	r3, [r2, #0]
++	ldr	r3, [r1, #0]
++	orr	r3, r3, #0x200
++	str	r3, [r1, #0]
+ 
+-	mov	r0, #0x1000
++	mov	r1, #0x1000		@ Give some time for the system to enter SR
+ wait_sr:
+-	subs	r0, r0, #1
++	subs	r1, r1, #1
+ 	bne	wait_sr
++	/* What if the system does not enter self-refresh at this point? */
++
++	/* The dark arts */
++#if 0
++	/* Now put the PHY in low power mode */
++ddr_lp_config:
++	add	r1, r0, #EMIF4_0_DDR_PHY_CTRL_1
++	mov	r2, #1
++	mov	r3, r2, lsl #20
++	str	r3, [r1]
++
++	/* IO to work in mDDR mode */
++	ldr	r0, virt_ddr_io_ctrl
++	ldr	r1, [r0]
++	mov	r3, r2, lsl #28
++	str	r3, [r0]
++#endif
+ 
+ 	/* Put the PLLs to LP bypass */
+ #if 0
+@@ -126,6 +148,28 @@ wait_pll_by5:
+ 	nop
+ 
+ 	/* We come here in case of an abort */
++	/* We must revert the PHY related changes before we can
++	 * start accessing DDR again
++	 */
++#if 0
++catch_race_conditions:
++	nop
++	b	catch_race_conditions
++#endif
++
++#if 0
++	add	r1, r0, #EMIF4_0_DDR_PHY_CTRL_1
++	mov	r2, #1
++	mov	r3, r2, lsl #20
++	str	r3, [r1]
++
++	/* IO to work in mDDR mode */
++	ldr	r0, virt_ddr_io_ctrl
++	ldr	r1, [r0]
++	mov	r3, r2, lsl #28
++	str	r3, [r0]
++#endif
++	mov	r0, #7
+ 	ldmfd	sp!, {r4 - r11, pc}	@ restore regs and return
+ 
+ 
+@@ -200,6 +244,26 @@ wait_pll_lock5:
+ 	nop
+ 	nop
+ 	nop
++	nop
++	nop
++	nop
++	nop
++	nop
++
++#if 0
++ddr_lp_config_revert:
++	ldr	r0, phys_emif_phy_ctrl_addr
++	ldr	r1, [r0]
++	bic	r1, r1, #20
++	str	r1, [r0]
++
++	/* Take out IO of mDDR mode */
++	ldr	r0, phys_ddr_io_ctrl
++	ldr	r1, [r0]
++	bic	r1, r1, #28
++	str	r1, [r0]
++#endif
++
+ 	/* Assume the PLL is locked at this point */
+ restore_emif:
+ 	nop
+@@ -497,6 +561,13 @@ per_pll_m:
+ per_pll_m2:
+ 	.word	0xDEADBEEF
+ 
++virt_ddr_io_ctrl:
++	.word	AM33XX_CTRL_REGADDR(0x0E04)
++phys_ddr_io_ctrl:
++	.word	0x44E10E04
++phys_emif_phy_ctrl_addr:
++	.word	0x4C0000E4
++
+ virt_mpu_pll_idlest_addr:
+ 	.word	AM33XX_CM_IDLEST_DPLL_MPU
+ virt_mpu_pll_clk_mode_addr:
+diff --git a/arch/arm/plat-omap/mailbox.c b/arch/arm/plat-omap/mailbox.c
+index 4ebacb2..940c31c 100644
+--- a/arch/arm/plat-omap/mailbox.c
++++ b/arch/arm/plat-omap/mailbox.c
+@@ -140,7 +140,7 @@ int omap_mbox_msg_rx_flush(struct omap_mbox *mbox)
+ 		msg = mbox_fifo_readback(mbox);
+ 	}
+ 	if (!ret)
+-		pr_info("Flushed %s Rx FIFO by reading back\n", mbox->name);
++		pr_info("Flushed %s Rx FIFO via %d readbacks\n", mbox->name, ret);
+ 
+ 	return ret;
+ }
+-- 
+1.7.9.1
+

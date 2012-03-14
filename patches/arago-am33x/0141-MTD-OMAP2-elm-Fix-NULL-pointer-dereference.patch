@@ -1,0 +1,48 @@
+From 8ff773a0085d444def001a9e2ee7fd8c3f3cc90a Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Fri, 9 Mar 2012 21:43:03 +0530
+Subject: [PATCH 141/172] MTD: OMAP2: elm: Fix NULL pointer dereference.
+
+NULL pointer derefence causes following crash.
+
+[root@arago /]# echo mem > /sys/power/state
+[   20.288726] PM: Syncing filesystems ... done.
+[   20.300842] Freezing user space processes ... (elapsed 0.01 seconds)
+	done.
+[   20.325897] Freezing remaining freezable tasks ... (elapsed 0.01
+		seconds) done.
+[   20.350097] Unable to handle kernel NULL pointer dereference
+	at virtual address 0000009c
+[   20.358581] pgd = cf97c000
+[   20.361389] [0000009c] *pgd=8d176831, *pte=00000000,
+	*ppte=00000000
+[   20.367950] Internal error: Oops: 17 [#1]
+[   20.372131] Modules linked in:
+[   20.375335] CPU: 0    Not tainted  (3.2.0-12326-gf5f1c1a
+[   20.381439] PC is at omap_elm_suspend+0x20/0x3c
+[   20.386169] LR is at platform_pm_suspend+0x58/0x64
+
+This patch fixes the same.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+---
+ drivers/mtd/devices/omap2_elm.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/mtd/devices/omap2_elm.c b/drivers/mtd/devices/omap2_elm.c
+index d156e27..99e6458 100644
+--- a/drivers/mtd/devices/omap2_elm.c
++++ b/drivers/mtd/devices/omap2_elm.c
+@@ -335,7 +335,8 @@ static int omap_elm_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int omap_elm_suspend(struct platform_device *pdev, pm_message_t state)
+ {
+-	mtd->suspend(mtd);
++	if (mtd && mtd->suspend)
++		mtd->suspend(mtd);
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	return 0;
+ }
+-- 
+1.7.9.1
+

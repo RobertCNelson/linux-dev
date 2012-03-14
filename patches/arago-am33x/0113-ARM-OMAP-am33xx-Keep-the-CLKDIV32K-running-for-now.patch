@@ -1,0 +1,38 @@
+From bd01f0d9b55a76c7fb7bb293be7b7b491198216e Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Mon, 5 Mar 2012 20:54:08 +0530
+Subject: [PATCH 113/172] ARM: OMAP: am33xx: Keep the CLKDIV32K running for
+ now
+
+The debounce clk for GPIO is derived from CLKDIV32K.
+Without enabling this module the DBCLK activity bit
+of GPIO3 alone is not getting cleared even though the
+clock has been disabled. For now enable the module.
+
+TODO: Check if the clock tree dependency to have the module
+enabled when the debounce feature is correct. If it is,
+then GPIO3 usage needs to be looked at. Since the mainline
+code of GPIO has undergone significant changes, it would
+perhaps make sense to pull in those patches and then look
+into this issue.
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_33xx_data.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+index 037d2d3..31ab0fb 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+@@ -414,6 +414,7 @@ static struct omap_hwmod am33xx_clkdiv32k_hwmod = {
+ 			.modulemode	= MODULEMODE_SWCTRL,
+ 		},
+ 	},
++	.flags		= (HWMOD_INIT_NO_IDLE | HWMOD_INIT_NO_RESET),
+ };
+ 
+ /* control */
+-- 
+1.7.9.1
+
