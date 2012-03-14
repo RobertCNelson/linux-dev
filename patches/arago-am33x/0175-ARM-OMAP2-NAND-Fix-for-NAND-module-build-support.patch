@@ -1,0 +1,45 @@
+From e0d0d4c4fb4e82e696033cbfa1f3f1cc12c1fbb6 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Wed, 2 Nov 2011 15:13:04 +0530
+Subject: [PATCH 175/175] ARM: OMAP2+: NAND: Fix for NAND module build support
+
+NAND driver fails to build as module with following error.
+
+ERROR: "gpmc_calculate_ecc" [drivers/mtd/nand/omap2.ko] undefined!
+ERROR: "gpmc_enable_hwecc" [drivers/mtd/nand/omap2.ko] undefined!
+make[1]: *** [__modpost] Error 1
+make: *** [modules] Error 2
+
+This fixes the same by using EXPORT_SYMBOL.
+
+Note:
+This patch was actually reverted before moving gpmc from
+postcore_initcall to module_platform_driver. Since moving is completes,
+we need this patch.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+---
+ arch/arm/mach-omap2/gpmc.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/gpmc.c b/arch/arm/mach-omap2/gpmc.c
+index c58a336..1c53c05 100644
+--- a/arch/arm/mach-omap2/gpmc.c
++++ b/arch/arm/mach-omap2/gpmc.c
+@@ -975,6 +975,7 @@ int gpmc_enable_hwecc(int ecc_type, int cs, int mode,
+ 	gpmc_write_reg(GPMC_ECC_CONTROL, 0x00000101);
+ 	return 0;
+ }
++EXPORT_SYMBOL(gpmc_enable_hwecc);
+ 
+ /**
+  * gpmc_calculate_ecc - generate non-inverted ecc bytes
+@@ -1036,3 +1037,4 @@ int gpmc_calculate_ecc(int ecc_type, int cs,
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL(gpmc_calculate_ecc);
+-- 
+1.7.9.1
+
