@@ -173,6 +173,12 @@ git am "${DIR}/patches/arago-am33x/0120-ARM-OMAP2-timer-Switch-dmtimer1-clocksou
 git am "${DIR}/patches/arago-am33x/0121-ARM-OMAP-AM33XX-Fix-build-breakage-when-CONFIG_SUSPE.patch"
 git am "${DIR}/patches/arago-am33x/0122-mmc-omap_hsmmc-set-dto-to-14-for-all-devices.patch"
 
+git am "${DIR}/patches/arago-am33x/0123-video-da8xx-fb-enable-sync-and-underflow-error-inter.patch"
+git am "${DIR}/patches/arago-am33x/0124-video-da8xx-fb-correct-suspend-resume-sequence.patch"
+git am "${DIR}/patches/arago-am33x/0125-ARM-OMAP2-nand-Fix-build-breakage.patch"
+git am "${DIR}/patches/arago-am33x/0126-ARM-OMAP-AM33XX-NET-cpsw-fix-memory-lead-during-devi.patch"
+git am "${DIR}/patches/arago-am33x/0127-ARM-OMAP-AM33XX-NET-cpsw-Add-suspend-resume-support.patch"
+
 git am "${DIR}/patches/arago-am33x/0175-ARM-OMAP2-NAND-Fix-for-NAND-module-build-support.patch"
 
 git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
