@@ -97,12 +97,12 @@ git am "${DIR}/patches/drm/0008-staging-drm-omap-Validate-debugfs-device.patch"
 git am "${DIR}/patches/drm/0009-staging-drm-omap-Get-DMM-resources-from-hwmod.patch"
 git am "${DIR}/patches/drm/0010-staging-drm-omap-mmap-of-tiled-buffers-with-stride-4.patch"
 
-#posted: 11 Mar 2012 19:12:01
+#posted: 11 Mar 2012 19:12:01 for 3.4
 git am "${DIR}/patches/drm/0001-staging-drm-omap-avoid-multiple-planes-having-same-z.patch"
 git am "${DIR}/patches/drm/0002-staging-drm-omap-send-page-flip-event-after-endwin.patch"
 git am "${DIR}/patches/drm/0003-staging-drm-omap-use-current-time-for-page-flip-even.patch"
 
-#will be modified
+#posted: 13 Mar 2012 for 3.4
 git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
 
 #might be merged in 3.4
