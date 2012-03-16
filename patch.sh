@@ -420,6 +420,13 @@ git am "${DIR}/patches/arago-am33x/0172-ARM-OMAP2-am33xx-Enable-PWM-support-in-d
 git am "${DIR}/patches/arago-am33x/0173-ARM-OMAP3-am33xx-Fix-pruss-clk-alias-name.patch"
 git am "${DIR}/patches/arago-am33x/0174-ARM-OMAP3-am33xx-Add-missing-clk-ops-for-gfx_fclk.patch"
 git am "${DIR}/patches/arago-am33x/0175-ARM-OMAP2-NAND-Fix-for-NAND-module-build-support.patch"
+git am "${DIR}/patches/arago-am33x/0176-ARM-OMAP-AM33XX-PM-Remove-voltage-scaling-from-PM-co.patch"
+git am "${DIR}/patches/arago-am33x/0177-cpufreq-OMAP-AM33XX-Use-PM-notifiers-to-scale-voltag.patch"
+git am "${DIR}/patches/arago-am33x/0178-ARM-OMAP-AM33XX-PM-Don-t-rely-on-M3-for-A8-Standby.patch"
+git am "${DIR}/patches/arago-am33x/0179-ARM-OMAP-Mailbox-Fix-check-for-mailbox-flushing.patch"
+git am "${DIR}/patches/arago-am33x/0180-ARM-OMAP-AM33XX-NET-cpsw-Set-SYSC-for-NO_IDLE-and-NO.patch"
+git am "${DIR}/patches/arago-am33x/0181-net-cpsw-fix-indentation-using-spaces.patch"
+git am "${DIR}/patches/arago-am33x/0182-PWM-ehrpwm-Fix-polarity-polarity-of-PWM-signal.patch"
 }
 
 bugs_trivial
