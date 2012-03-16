@@ -1,31 +1,29 @@
-From 95964464e30c18619297d996f3e3d967548c1423 Mon Sep 17 00:00:00 2001
+From 4cd0eab11775de320261bea656356fe5b526554d Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 27 Feb 2012 15:56:47 -0600
 Subject: [PATCH] bone: arago angstrom merge
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |  623 +++++++++++++++++++++++++++++++--
- arch/arm/mach-omap2/devices.c         |   13 +
- arch/arm/mach-omap2/devices.h         |    1 +
+ arch/arm/mach-omap2/board-am335xevm.c |  551 +++++++++++++++++++++++++++++++--
  arch/arm/mach-omap2/mux33xx.c         |   22 +-
  arch/arm/mach-omap2/mux33xx.h         |    4 +
- drivers/input/touchscreen/ti_tscadc.c |  269 ++++++++++++---
+ drivers/input/touchscreen/ti_tscadc.c |  269 +++++++++++++---
  drivers/net/can/dev.c                 |    8 +-
- drivers/net/can/mcp251x.c             |   47 ++-
+ drivers/net/can/mcp251x.c             |   47 +++-
  drivers/usb/gadget/f_rndis.c          |    4 +-
  drivers/video/Kconfig                 |   11 +
  drivers/video/Makefile                |    1 +
  drivers/video/da8xx-fb.c              |   14 +
- drivers/video/st7735fb.c              |  516 +++++++++++++++++++++++++++
+ drivers/video/st7735fb.c              |  516 ++++++++++++++++++++++++++++++
  include/linux/input/ti_tscadc.h       |    5 +
  include/video/st7735fb.h              |   82 +++++
- 15 files changed, 1519 insertions(+), 101 deletions(-)
+ 13 files changed, 1441 insertions(+), 93 deletions(-)
  create mode 100644 drivers/video/st7735fb.c
  create mode 100644 include/video/st7735fb.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 5c761e4..71ed109 100644
+index 7203629..674009c 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -36,17 +34,16 @@ index 5c761e4..71ed109 100644
  #include <linux/spi/spi.h>
  #include <linux/spi/flash.h>
  #include <linux/gpio_keys.h>
-@@ -35,6 +36,9 @@
- #include <linux/mfd/tps65910.h>
+@@ -36,6 +37,8 @@
  #include <linux/mfd/tps65217.h>
  #include <linux/pwm_backlight.h>
-+#include <linux/pwm/pwm.h>
+ #include <linux/pwm/pwm.h>
 +#include <linux/w1-gpio.h>
 +#include <linux/can/platform/mcp251x.h>
  
  /* LCD controller is similar to DA850 */
  #include <video/da8xx-fb.h>
-@@ -130,8 +134,8 @@ static const struct display_panel disp_panel = {
+@@ -131,8 +134,8 @@ static const struct display_panel disp_panel = {
  
  /* LCD backlight platform Data */
  #define AM335X_BACKLIGHT_MAX_BRIGHTNESS        100
@@ -57,7 +54,7 @@ index 5c761e4..71ed109 100644
  
  #define PWM_DEVICE_ID   "ecap.0"
  
-@@ -168,6 +172,76 @@ struct da8xx_lcdc_platform_data TFC_S9700RTWV35TR_01B_pdata = {
+@@ -169,6 +172,76 @@ struct da8xx_lcdc_platform_data TFC_S9700RTWV35TR_01B_pdata = {
  
  #include "common.h"
  
@@ -134,7 +131,7 @@ index 5c761e4..71ed109 100644
  /* TSc controller */
  #include <linux/input/ti_tscadc.h>
  #include <linux/lis3lv02d.h>
-@@ -188,6 +262,11 @@ static struct resource tsc_resources[]  = {
+@@ -189,6 +262,11 @@ static struct resource tsc_resources[]  = {
  static struct tsc_data am335x_touchscreen_data  = {
  	.wires  = 4,
  	.x_plate_resistance = 200,
@@ -146,7 +143,7 @@ index 5c761e4..71ed109 100644
  };
  
  static struct platform_device tsc_device = {
-@@ -200,6 +279,16 @@ static struct platform_device tsc_device = {
+@@ -201,6 +279,16 @@ static struct platform_device tsc_device = {
  	.resource       = tsc_resources,
  };
  
@@ -163,7 +160,7 @@ index 5c761e4..71ed109 100644
  static u8 am335x_iis_serializer_direction1[] = {
  	INACTIVE_MODE,	INACTIVE_MODE,	TX_MODE,	RX_MODE,
  	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,
-@@ -360,9 +449,34 @@ static struct am335x_evm_eeprom_config config;
+@@ -361,9 +449,34 @@ static struct am335x_evm_eeprom_config config;
  static struct am335x_eeprom_config1 config1;
  static bool daughter_brd_detected;
  
@@ -198,7 +195,7 @@ index 5c761e4..71ed109 100644
  static unsigned int gp_evm_revision = GP_EVM_REV_IS_UNKNOWN;
  
  #define CPLD_REV_1_0A			0x1
-@@ -450,11 +564,107 @@ static struct pinmux_config lcdc_pin_mux[] = {
+@@ -451,11 +564,106 @@ static struct pinmux_config lcdc_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -285,7 +282,6 @@ index 5c761e4..71ed109 100644
 +	{"lcd_pclk.lcd_pclk",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
 +	{"lcd_ac_bias_en.lcd_ac_bias_en", OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
 +	{"ecap0_in_pwm0_out.gpio0_7", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, // AVDD_EN
-+	{"gpmc_a2.ehrpwm1A", OMAP_MUX_MODE6 | AM33XX_PIN_OUTPUT}, // Backlight
 +	{NULL, 0},
 +};
 +
@@ -306,7 +302,7 @@ index 5c761e4..71ed109 100644
  	{"vrefp.vrefp",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{"vrefn.vrefn",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{NULL, 0},
-@@ -666,6 +876,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
+@@ -667,6 +875,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -322,7 +318,7 @@ index 5c761e4..71ed109 100644
  /* Module pin mux for uart2 */
  static struct pinmux_config uart2_pin_mux[] = {
  	{"spi0_sclk.uart2_rxd", OMAP_MUX_MODE1 | AM33XX_SLEWCTRL_SLOW |
-@@ -869,6 +1088,118 @@ static struct pinmux_config profibus_pin_mux[] = {
+@@ -870,6 +1087,118 @@ static struct pinmux_config profibus_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -441,7 +437,7 @@ index 5c761e4..71ed109 100644
  /* Module pin mux for eCAP0 */
  static struct pinmux_config ecap0_pin_mux[] = {
  	{"ecap0_in_pwm0_out.ecap0_in_pwm0_out",
-@@ -876,6 +1207,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
+@@ -877,6 +1206,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -449,62 +445,10 @@ index 5c761e4..71ed109 100644
  static int backlight_enable;
  
  #define AM335XEVM_WLAN_PMENA_GPIO	GPIO_TO_PIN(1, 30)
-@@ -945,6 +1277,30 @@ static int __init ecap0_init(void)
- }
- late_initcall(ecap0_init);
- 
-+static void enable_ehrpwm1(int evm_id, int profile)
-+{
-+	ehrpwm_backlight_enable = true;
-+}
-+
-+/* Setup pwm-backlight for bbtoys7lcd */
-+static struct platform_device bbtoys7lcd_backlight = {
-+	.name           = "pwm-backlight",
-+	.id             = -1,
-+	.dev            = {
-+		.platform_data  = &bbtoys7lcd_backlight_data,
-+	}
-+};
-+
-+static int __init ehrpwm1_init(void)
-+{
-+	int status = 0;
-+	if (ehrpwm_backlight_enable) {
-+		platform_device_register(&bbtoys7lcd_backlight);
-+	}
-+	return status;
-+}
-+late_initcall(ehrpwm1_init);
-+
- static int __init conf_disp_pll(int rate)
- {
- 	struct clk *disp_pll;
-@@ -978,6 +1334,47 @@ static void lcdc_init(int evm_id, int profile)
+@@ -992,6 +1322,26 @@ static void lcdc_init(int evm_id, int profile)
  	return;
  }
  
-+#define BEAGLEBONE_LCD_AVDD_EN GPIO_TO_PIN(0, 7)
-+
-+static void bbtoys7lcd_init(int evm_id, int profile)
-+{
-+	setup_pin_mux(bbtoys7_pin_mux);
-+	gpio_request(BEAGLEBONE_LCD_AVDD_EN, "BONE_LCD_AVDD_EN");
-+	gpio_direction_output(BEAGLEBONE_LCD_AVDD_EN, 1);
-+
-+	// we are being stupid and setting pixclock from here instead of da8xx-fb.c
-+	if (conf_disp_pll(300000000)) {
-+		pr_info("Failed to set pixclock to 300000000, not attempting to"
-+				"register LCD cape\n");
-+		return;
-+	}
-+
-+	if (am33xx_register_lcdc(&bbtoys7_pdata))
-+		pr_info("Failed to register Beagleboardtoys 7\" LCD cape device\n");
-+
-+	return;
-+}
-+
 +#define BEAGLEBONEDVI_PDn  GPIO_TO_PIN(1, 7)
 +
 +static void dvi_init(int evm_id, int profile)
@@ -528,7 +472,7 @@ index 5c761e4..71ed109 100644
  static void tsc_init(int evm_id, int profile)
  {
  	int err;
-@@ -985,16 +1382,59 @@ static void tsc_init(int evm_id, int profile)
+@@ -999,16 +1349,59 @@ static void tsc_init(int evm_id, int profile)
  	if (gp_evm_revision == GP_EVM_REV_IS_1_1A) {
  		am335x_touchscreen_data.analog_input = 1;
  		pr_info("TSC connected to beta GP EVM\n");
@@ -589,7 +533,7 @@ index 5c761e4..71ed109 100644
  static void rgmii1_init(int evm_id, int profile)
  {
  	setup_pin_mux(rgmii1_pin_mux);
-@@ -1440,18 +1880,150 @@ static void i2c1_init(int evm_id, int profile)
+@@ -1454,16 +1847,138 @@ static void i2c1_init(int evm_id, int profile)
  	return;
  }
  
@@ -619,10 +563,7 @@ index 5c761e4..71ed109 100644
  
 -static void i2c2_init(int evm_id, int profile)
 +static void tt3201_init(int evm_id, int profile)
- {
--	setup_pin_mux(i2c2_pin_mux);
--	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
--			ARRAY_SIZE(am335x_i2c_boardinfo2));
++{
 +	pr_info("TowerTech TT3201 CAN Cape\n");
 +
 +	setup_pin_mux(spi1_pin_mux);
@@ -637,7 +578,10 @@ index 5c761e4..71ed109 100644
 +	am33xx_d_can_init(1);
 +}
 +static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context)
-+{
+ {
+-	setup_pin_mux(i2c2_pin_mux);
+-	omap_register_i2c_bus(3, 100, am335x_i2c_boardinfo2,
+-			ARRAY_SIZE(am335x_i2c_boardinfo2));
 +	capecount++;
 +	int ret;
 +	char tmp[32];
@@ -672,15 +616,6 @@ index 5c761e4..71ed109 100644
 +	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 15)) {
 +			pr_info("BeagleBone cape: initializing DVI cape\n");
 +			dvi_init(0,0);
-+	}
-+	if (!strncmp("BB-BONE-LCD7-01", cape_config.partnumber, 15)) {
-+		pr_info("BeagleBone cape: initializing LCD cape\n");
-+		bbtoys7lcd_init(0,0);
-+		pr_info("BeagleBone cape: initializing LCD cape touchscreen\n");
-+		tsc_init(0,0);
-+		pr_info("BeagleBone cape: Registering PWM backlight for LCD cape\n");
-+		enable_ehrpwm1(0,0);
-+		beaglebone_tsadcpins_free = 0;
 +	}
 +
 +	if (!strncmp("TT3201-001", cape_config.partnumber, 10)) {
@@ -741,34 +676,25 @@ index 5c761e4..71ed109 100644
 +        return;
  }
  
-+
  /* Setup McASP 1 */
- static void mcasp1_init(int evm_id, int profile)
- {
-@@ -1805,8 +2377,9 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
- 	{rmii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
- 	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+@@ -1821,6 +2336,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
--	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
-+	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
 +	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
  	{NULL, 0, 0},
  };
  
-@@ -1816,8 +2389,10 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
- 	{mii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
- 	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+@@ -1832,6 +2348,8 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
--	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
-+	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
 +	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
 +	{bonew1_gpio_init, DEV_ON_BASEBOARD, PROFILE_ALL},
  	{NULL, 0, 0},
  };
  
-@@ -1834,6 +2409,7 @@ static void setup_general_purpose_evm(void)
+@@ -1848,6 +2366,7 @@ static void setup_general_purpose_evm(void)
  	pr_info("The board is general purpose EVM in profile %d\n", prof_sel);
  
  	if (!strncmp("1.1A", config.version, 4)) {
@@ -776,7 +702,7 @@ index 5c761e4..71ed109 100644
  		gp_evm_revision = GP_EVM_REV_IS_1_1A;
  	} else if (!strncmp("1.0", config.version, 3)) {
  		gp_evm_revision = GP_EVM_REV_IS_1_0;
-@@ -1904,6 +2480,7 @@ static void setup_beaglebone_old(void)
+@@ -1918,6 +2437,7 @@ static void setup_beaglebone_old(void)
  static void setup_beaglebone(void)
  {
  	pr_info("The board is a AM335x Beaglebone.\n");
@@ -784,7 +710,7 @@ index 5c761e4..71ed109 100644
  
  	/* Beagle Bone has Micro-SD slot which doesn't have Write Protect pin */
  	am335x_mmc[0].gpio_wp = -EINVAL;
-@@ -1920,32 +2497,22 @@ static void setup_beaglebone(void)
+@@ -1934,6 +2454,7 @@ static void setup_beaglebone(void)
  
  static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
  {
@@ -792,24 +718,18 @@ index 5c761e4..71ed109 100644
  	int ret;
  
  	/*
--	 * Read from the EEPROM to see the presence
--	 * of daughter board. If present, get daughter board
--	 * specific data.
-+	 * try reading a byte from the EEPROM to see if it is
-+	 * present. We could read a lot more, but that would
-+	 * just slow the boot process and we have all the information
-+	 * we need from the EEPROM on the base board anyway.
+@@ -1942,24 +2463,14 @@ static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
+ 	 * specific data.
  	 */
--
+ 
 -	ret = m->read(m, (char *)&config1, 0, sizeof(config1));
 -	if (ret == sizeof(config1)) {
 +	ret = m->read(m, &tmp, 0, sizeof(u8));
 +	if (ret == sizeof(u8)) {
  		pr_info("Detected a daughter card on AM335x EVM..");
  		daughter_brd_detected = true;
--	}
--	 else {
-+	} else {
+ 	}
+ 	 else {
  		pr_info("No daughter card found\n");
  		daughter_brd_detected = false;
 -		return;
@@ -825,42 +745,6 @@ index 5c761e4..71ed109 100644
  	}
  }
  
-diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
-index 1231b8d..3d7f8c1 100644
---- a/arch/arm/mach-omap2/devices.c
-+++ b/arch/arm/mach-omap2/devices.c
-@@ -1203,6 +1203,19 @@ void register_ehrpwm(int max_freq)
- 	platform_device_register(&am335x_epwm2_device);
- }
- 
-+void register_ehrpwm1(int max_freq)
-+{
-+	int val;
-+
-+	val = __raw_readw(AM33XX_CTRL_REGADDR(AM33XX_PWMSS_CTRL));
-+	val |= PWMSS1_TBCLKEN;
-+	__raw_writew(val, AM33XX_CTRL_REGADDR(AM33XX_PWMSS_CTRL));
-+	am335x_pwmss_config1.chan_attrib[1].max_freq = max_freq;
-+	sema_init(&am335x_pwmss_config1.config_semaphore, 1);
-+	am335x_pwmss_config1.version = PWM_VERSION_1;
-+	platform_device_register(&am335x_epwm1_device);
-+}
-+
- static struct resource am335x_ecap0_resurce[] = {
- 	{
- 		.start = AM33XX_EPWMSS0_BASE ,
-diff --git a/arch/arm/mach-omap2/devices.h b/arch/arm/mach-omap2/devices.h
-index 0d0e4a4..8f8206b 100644
---- a/arch/arm/mach-omap2/devices.h
-+++ b/arch/arm/mach-omap2/devices.h
-@@ -18,6 +18,7 @@ int omap3_init_camera(struct isp_platform_data *pdata);
- 
- int __init am335x_register_mcasp(struct snd_platform_data *pdata, int ctrl_nr);
- extern void register_ehrpwm(int max_freq);
-+extern void register_ehrpwm1(int max_freq);
- extern int __init omap_init_elm(void);
- 
- #endif
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
 index 59e51e0..25dcedb 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
