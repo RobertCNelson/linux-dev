@@ -8,8 +8,8 @@ KERNEL_REL=3.3
 #STABLE_PATCH=1
 
 #for x.x-rcX
-RC_KERNEL=3.3
-RC_PATCH=-rc7
+#RC_KERNEL=3.3
+#RC_PATCH=-rc7
 
 ABI=5
 
