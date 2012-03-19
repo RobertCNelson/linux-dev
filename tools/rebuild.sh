@@ -113,28 +113,28 @@ fi
 }
 
 function patch_kernel {
-  cd ${DIR}/KERNEL
-  export DIR BISECT
-  /bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
+	cd ${DIR}/KERNEL
+	export DIR
+	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
-  git add .
-  if [ "${RC_PATCH}" ]; then
-    git commit -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
-  elif [ "${STABLE_PATCH}" ] ; then
-    git commit -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
-  else
-    git commit -a -m ''$KERNEL_REL'-'$BUILD' patchset'
-  fi
+	git add .
+	if [ "${RC_PATCH}" ] ; then
+		git commit --allow-empty -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
+	elif [ "${STABLE_PATCH}" ] ; then
+		git commit --allow-empty -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
+	else
+		git commit --allow-empty -a -m ''$KERNEL_REL'-'$BUILD' patchset'
+	fi
 
 #Test Patches:
 #exit
 
-  if [ "${LOCAL_PATCH_DIR}" ]; then
-    for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
-    BUILD+='+'
-  fi
+	if [ "${LOCAL_PATCH_DIR}" ] ; then
+		for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
+		BUILD+='+'
+	fi
 
-  cd ${DIR}/
+	cd ${DIR}/
 }
 
 function copy_defconfig {
@@ -175,7 +175,7 @@ function make_uImage {
 	if [ -f ./arch/arm/boot/uImage ] ; then
 		cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
 	else
-		echo "Error: make zImage modules failed"
+		echo "Error: make uImage failed"
 		exit
 	fi
 	cd ${DIR}/

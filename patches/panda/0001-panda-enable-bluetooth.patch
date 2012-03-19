@@ -1,19 +1,21 @@
-From c6461bb289e38939a398d6ca2398efb16702ae37 Mon Sep 17 00:00:00 2001
-From: Mircea Gherzan <mgherzan@gmail.com>
-Date: Tue, 6 Mar 2012 01:46:37 +0100
-Subject: [PATCH] ARM: OMAP: WiLink platform data for the PandaBoard
+From e18bd83ed783e7927fe10e210f7c5cc6d4b93321 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 16 Mar 2012 10:23:09 -0500
+Subject: [PATCH] panda enable bluetooth
 
-The "uim" deamon requires sysfs entries that are filled in using
-this platform data.
+The PandaBoard features a Texas Instruments WiLink7 Bluetooth
+chip, supported by the "btwilink" driver. The "uim" deamon 
+requires sysfs entries that are filled in using this platform data.
 
 Signed-off-by: Mircea Gherzan <mgherzan@gmail.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap4panda.c |   23 +++++++++++++++++------
+ arch/arm/mach-omap2/board-omap4panda.c |   21 +++++++++++++++++++--
  include/linux/ti_wilink_st.h           |    2 ++
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index 6d67227..8c24bef 100644
+index 51b1c93..8c24bef 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
 @@ -27,6 +27,7 @@
@@ -31,11 +33,11 @@ index 6d67227..8c24bef 100644
 -static int wl1271_gpios[] = {46, -1, -1};
 +static struct ti_st_plat_data wilink_platform_data = {
 +        .nshutdown_gpio	= 46,
-+        .dev_name	= "/dev/ttyO1",
-+        .flow_cntrl	= 1,
-+        .baud_rate	= 3000000,
-+	.chip_enable	= NULL,
-+        .suspend	= NULL,
++        .dev_name		= "/dev/ttyO1",
++        .flow_cntrl		= 1,
++        .baud_rate		= 3000000,
++        .chip_enable		= NULL,
++        .suspend		= NULL,
 +        .resume		= NULL,
 +};
 +
@@ -56,17 +58,18 @@ index 6d67227..8c24bef 100644
  static struct gpio_led gpio_leds[] = {
  	{
  		.name			= "pandaboard::status1",
-@@ -91,10 +106,6 @@ static struct platform_device leds_gpio = {
+@@ -91,9 +106,11 @@ static struct platform_device leds_gpio = {
  	},
  };
  
--static struct platform_device btwilink_device = {
--	.name	= "btwilink",
--	.id	= -1,
--};
- 
++
  static struct platform_device *panda_devices[] __initdata = {
  	&leds_gpio,
+ 	&wl1271_device,
++	&btwilink_device,
+ };
+ 
+ static const struct usbhs_omap_board_data usbhs_bdata __initconst = {
 diff --git a/include/linux/ti_wilink_st.h b/include/linux/ti_wilink_st.h
 index 2ef4385..3ca0269 100644
 --- a/include/linux/ti_wilink_st.h

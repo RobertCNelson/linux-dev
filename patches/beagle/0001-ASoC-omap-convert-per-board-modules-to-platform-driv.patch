@@ -1,4 +1,4 @@
-From bd1e4b61d54f07099bb13e9d9be3be4b2b93d312 Mon Sep 17 00:00:00 2001
+From c648d59b6ff9c65fc6f4e25c43fa4214b7860939 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Tue, 3 Jan 2012 11:03:32 -0600
 Subject: [PATCH] ASoC: omap: convert per-board modules to platform drivers
@@ -9,6 +9,7 @@ snd_soc_register_card() directly instead of going via a "soc-audio"
 device and the corresponding driver in soc-core.
 
 Signed-off-by: Mans Rullgard <mans.rullgard at linaro.org>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/devices.c |   34 ++++++++++++++++++++
  sound/soc/omap/am3517evm.c    |   52 ++++++++++++++++++------------
@@ -25,10 +26,10 @@ Signed-off-by: Mans Rullgard <mans.rullgard at linaro.org>
  12 files changed, 423 insertions(+), 239 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
-index 1077ad6..39d175f 100644
+index c15cfad..0f0b320 100644
 --- a/arch/arm/mach-omap2/devices.c
 +++ b/arch/arm/mach-omap2/devices.c
-@@ -300,6 +300,10 @@ static struct platform_device omap_pcm = {
+@@ -285,6 +285,10 @@ static struct platform_device omap_pcm = {
  	.id	= -1,
  };
  
@@ -39,7 +40,7 @@ index 1077ad6..39d175f 100644
  /*
   * OMAP2420 has 2 McBSP ports
   * OMAP2430 has 5 McBSP ports
-@@ -312,8 +316,30 @@ OMAP_MCBSP_PLATFORM_DEVICE(3);
+@@ -297,8 +301,30 @@ OMAP_MCBSP_PLATFORM_DEVICE(3);
  OMAP_MCBSP_PLATFORM_DEVICE(4);
  OMAP_MCBSP_PLATFORM_DEVICE(5);
  
@@ -70,7 +71,7 @@ index 1077ad6..39d175f 100644
  	platform_device_register(&omap_mcbsp1);
  	platform_device_register(&omap_mcbsp2);
  	if (cpu_is_omap243x() || cpu_is_omap34xx() || cpu_is_omap44xx()) {
-@@ -324,6 +350,14 @@ static void omap_init_audio(void)
+@@ -309,6 +335,14 @@ static void omap_init_audio(void)
  		platform_device_register(&omap_mcbsp5);
  
  	platform_device_register(&omap_pcm);
@@ -86,11 +87,11 @@ index 1077ad6..39d175f 100644
  
  #else
 diff --git a/sound/soc/omap/am3517evm.c b/sound/soc/omap/am3517evm.c
-index 73dde4a..1624885 100644
+index c1cd4a0..df8f795 100644
 --- a/sound/soc/omap/am3517evm.c
 +++ b/sound/soc/omap/am3517evm.c
-@@ -151,45 +151,57 @@ static struct snd_soc_card snd_soc_am3517evm = {
- 	.num_links = 1,
+@@ -116,45 +116,57 @@ static struct snd_soc_card snd_soc_am3517evm = {
+ 	.num_dapm_routes = ARRAY_SIZE(audio_map),
  };
  
 -static struct platform_device *am3517evm_snd_device;
@@ -168,10 +169,10 @@ index 73dde4a..1624885 100644
  MODULE_LICENSE("GPL v2");
 +MODULE_ALIAS("platform:am3517evm-soc-audio");
 diff --git a/sound/soc/omap/igep0020.c b/sound/soc/omap/igep0020.c
-index 0ae3470..6056558 100644
+index 591fbf8..6446532 100644
 --- a/sound/soc/omap/igep0020.c
 +++ b/sound/soc/omap/igep0020.c
-@@ -94,44 +94,57 @@ static struct snd_soc_card snd_soc_card_igep2 = {
+@@ -76,44 +76,57 @@ static struct snd_soc_card snd_soc_card_igep2 = {
  	.num_links = 1,
  };
  
@@ -248,11 +249,11 @@ index 0ae3470..6056558 100644
  MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:igep2-soc-audio");
 diff --git a/sound/soc/omap/n810.c b/sound/soc/omap/n810.c
-index 62e292f..440c380 100644
+index fc6209b..1db768c 100644
 --- a/sound/soc/omap/n810.c
 +++ b/sound/soc/omap/n810.c
-@@ -323,38 +323,25 @@ static struct snd_soc_card snd_soc_n810 = {
- 	.num_links = 1,
+@@ -300,38 +300,25 @@ static struct snd_soc_card snd_soc_n810 = {
+ 	.num_dapm_routes = ARRAY_SIZE(audio_map),
  };
  
 -static struct platform_device *n810_snd_device;
@@ -267,11 +268,11 @@ index 62e292f..440c380 100644
 -
 -	if (!(machine_is_nokia_n810() || machine_is_nokia_n810_wimax()))
 -		return -ENODEV;
- 
+-
 -	n810_snd_device = platform_device_alloc("soc-audio", -1);
 -	if (!n810_snd_device)
 -		return -ENOMEM;
--
+ 
 -	platform_set_drvdata(n810_snd_device, &snd_soc_n810);
 -	err = platform_device_add(n810_snd_device);
 -	if (err)
@@ -296,7 +297,7 @@ index 62e292f..440c380 100644
  	}
  	/*
  	 * Configure 12 MHz output on SYS_CLKOUT2. Therefore we must use
-@@ -364,7 +351,7 @@ static int __init n810_soc_init(void)
+@@ -341,7 +328,7 @@ static int __init n810_soc_init(void)
  	if (IS_ERR(func96m_clk)) {
  		dev_err(dev, "Could not get func 96M clock\n");
  		err = PTR_ERR(func96m_clk);
@@ -305,7 +306,7 @@ index 62e292f..440c380 100644
  	}
  	clk_set_parent(sys_clkout2_src, func96m_clk);
  	clk_set_rate(sys_clkout2, 12000000);
-@@ -375,33 +362,62 @@ static int __init n810_soc_init(void)
+@@ -352,33 +339,62 @@ static int __init n810_soc_init(void)
  	gpio_direction_output(N810_HEADSET_AMP_GPIO, 0);
  	gpio_direction_output(N810_SPEAKER_AMP_GPIO, 0);
  
@@ -376,10 +377,10 @@ index 62e292f..440c380 100644
  MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:n8x0-soc-audio");
 diff --git a/sound/soc/omap/omap3beagle.c b/sound/soc/omap/omap3beagle.c
-index 40db813..46594a4 100644
+index 3357dcc..10b51d8 100644
 --- a/sound/soc/omap/omap3beagle.c
 +++ b/sound/soc/omap/omap3beagle.c
-@@ -105,45 +105,57 @@ static struct snd_soc_card snd_soc_omap3beagle = {
+@@ -106,45 +106,57 @@ static struct snd_soc_card snd_soc_omap3beagle = {
  	.num_links = 1,
  };
  
@@ -458,10 +459,10 @@ index 40db813..46594a4 100644
  MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:omap3beagle-soc-audio");
 diff --git a/sound/soc/omap/omap3evm.c b/sound/soc/omap/omap3evm.c
-index 0daa044..9df49fc 100644
+index 6857895..3b95cea 100644
 --- a/sound/soc/omap/omap3evm.c
 +++ b/sound/soc/omap/omap3evm.c
-@@ -92,44 +92,57 @@ static struct snd_soc_card snd_soc_omap3evm = {
+@@ -74,44 +74,57 @@ static struct snd_soc_card snd_soc_omap3evm = {
  	.num_links = 1,
  };
  
@@ -540,10 +541,10 @@ index 0daa044..9df49fc 100644
  MODULE_LICENSE("GPL v2");
 +MODULE_ALIAS("platform:omap3evm-soc-audio");
 diff --git a/sound/soc/omap/omap3pandora.c b/sound/soc/omap/omap3pandora.c
-index 8047c52..5d369f8 100644
+index 7605c37..fd289a4 100644
 --- a/sound/soc/omap/omap3pandora.c
 +++ b/sound/soc/omap/omap3pandora.c
-@@ -252,17 +252,15 @@ static struct snd_soc_card snd_soc_card_omap3pandora = {
+@@ -237,17 +237,15 @@ static struct snd_soc_card snd_soc_card_omap3pandora = {
  	.num_links = ARRAY_SIZE(omap3pandora_dai),
  };
  
@@ -565,7 +566,7 @@ index 8047c52..5d369f8 100644
  	ret = gpio_request(OMAP3_PANDORA_DAC_POWER_GPIO, "dac_power");
  	if (ret) {
  		pr_err(PREFIX "Failed to get DAC power GPIO\n");
-@@ -287,53 +285,68 @@ static int __init omap3pandora_soc_init(void)
+@@ -272,53 +270,68 @@ static int __init omap3pandora_soc_init(void)
  		goto fail1;
  	}
  
@@ -656,10 +657,10 @@ index 8047c52..5d369f8 100644
  MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:pandora-soc-audio");
 diff --git a/sound/soc/omap/overo.c b/sound/soc/omap/overo.c
-index bbcf380..3a6f4ba 100644
+index c3550ae..fe8fd5e 100644
 --- a/sound/soc/omap/overo.c
 +++ b/sound/soc/omap/overo.c
-@@ -94,46 +94,57 @@ static struct snd_soc_card snd_soc_card_overo = {
+@@ -76,46 +76,57 @@ static struct snd_soc_card snd_soc_card_overo = {
  	.num_links = 1,
  };
  
@@ -739,10 +740,10 @@ index bbcf380..3a6f4ba 100644
  MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:overo-soc-audio");
 diff --git a/sound/soc/omap/rx51.c b/sound/soc/omap/rx51.c
-index 893300a..23646ef 100644
+index 4cabb74..aca084d 100644
 --- a/sound/soc/omap/rx51.c
 +++ b/sound/soc/omap/rx51.c
-@@ -408,14 +408,12 @@ static struct snd_soc_card rx51_sound_card = {
+@@ -391,14 +391,12 @@ static struct snd_soc_card rx51_sound_card = {
  	.num_configs = ARRAY_SIZE(rx51_codec_conf),
  };
  
@@ -760,7 +761,7 @@ index 893300a..23646ef 100644
  
  	err = gpio_request_one(RX51_TVOUT_SEL_GPIO,
  			       GPIOF_DIR_OUT | GPIOF_INIT_LOW, "tvout_sel");
-@@ -426,21 +424,14 @@ static int __init rx51_soc_init(void)
+@@ -409,21 +407,14 @@ static int __init rx51_soc_init(void)
  	if (err)
  		goto err_gpio_eci_sw;
  
@@ -786,7 +787,7 @@ index 893300a..23646ef 100644
  err1:
  	gpio_free(RX51_ECI_SW_GPIO);
  err_gpio_eci_sw:
-@@ -450,19 +441,44 @@ err_gpio_tvout_sel:
+@@ -433,19 +424,44 @@ err_gpio_tvout_sel:
  	return err;
  }
  
@@ -834,11 +835,11 @@ index 893300a..23646ef 100644
  MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:rx51-soc-audio");
 diff --git a/sound/soc/omap/sdp3430.c b/sound/soc/omap/sdp3430.c
-index 9f6a758..dd6f8a4 100644
+index e8fbf8e..09fd5bd 100644
 --- a/sound/soc/omap/sdp3430.c
 +++ b/sound/soc/omap/sdp3430.c
-@@ -289,24 +289,15 @@ static struct snd_soc_card snd_soc_sdp3430 = {
- 	.num_links = ARRAY_SIZE(sdp3430_dai),
+@@ -222,24 +222,15 @@ static struct snd_soc_card snd_soc_sdp3430 = {
+ 	.num_dapm_routes = ARRAY_SIZE(audio_map),
  };
  
 -static struct platform_device *sdp3430_snd_device;
@@ -866,7 +867,7 @@ index 9f6a758..dd6f8a4 100644
  
  	/* Set TWL4030 GPIO6 as EXTMUTE signal */
  	twl_i2c_read_u8(TWL4030_MODULE_INTBR, &pin_mux,
-@@ -316,30 +307,51 @@ static int __init sdp3430_soc_init(void)
+@@ -249,30 +240,51 @@ static int __init sdp3430_soc_init(void)
  	twl_i2c_write_u8(TWL4030_MODULE_INTBR, pin_mux,
  						TWL4030_INTBR_PMBR1);
  
@@ -931,11 +932,11 @@ index 9f6a758..dd6f8a4 100644
 -
 +MODULE_ALIAS("platform:sdp3430-soc-audio");
 diff --git a/sound/soc/omap/sdp4430.c b/sound/soc/omap/sdp4430.c
-index b80efb0..8a7085b 100644
+index 03d9fa4..b3a05b1 100644
 --- a/sound/soc/omap/sdp4430.c
 +++ b/sound/soc/omap/sdp4430.c
-@@ -180,44 +180,57 @@ static struct snd_soc_card snd_soc_sdp4430 = {
- 	.num_links = 1,
+@@ -172,44 +172,57 @@ static struct snd_soc_card snd_soc_sdp4430 = {
+ 	.num_dapm_routes = ARRAY_SIZE(audio_map),
  };
  
 -static struct platform_device *sdp4430_snd_device;
@@ -1013,11 +1014,11 @@ index b80efb0..8a7085b 100644
 -
 +MODULE_ALIAS("platform:sdp4430-soc-audio");
 diff --git a/sound/soc/omap/zoom2.c b/sound/soc/omap/zoom2.c
-index 9a2666f..4ed8b62 100644
+index 7641a7f..8db8e10 100644
 --- a/sound/soc/omap/zoom2.c
 +++ b/sound/soc/omap/zoom2.c
-@@ -239,26 +239,14 @@ static struct snd_soc_card snd_soc_zoom2 = {
- 	.num_links = ARRAY_SIZE(zoom2_dai),
+@@ -166,26 +166,14 @@ static struct snd_soc_card snd_soc_zoom2 = {
+ 	.num_dapm_routes = ARRAY_SIZE(audio_map),
  };
  
 -static struct platform_device *zoom2_snd_device;
@@ -1047,7 +1048,7 @@ index 9a2666f..4ed8b62 100644
  
  	BUG_ON(gpio_request(ZOOM2_HEADSET_MUX_GPIO, "hs_mux") < 0);
  	gpio_direction_output(ZOOM2_HEADSET_MUX_GPIO, 0);
-@@ -266,26 +254,57 @@ static int __init zoom2_soc_init(void)
+@@ -193,26 +181,57 @@ static int __init zoom2_soc_init(void)
  	BUG_ON(gpio_request(ZOOM2_HEADSET_EXTMUTE_GPIO, "ext_mute") < 0);
  	gpio_direction_output(ZOOM2_HEADSET_EXTMUTE_GPIO, 0);
  
@@ -1113,5 +1114,5 @@ index 9a2666f..4ed8b62 100644
 -
 +MODULE_ALIAS("platform:zoom2-soc-audio");
 -- 
-1.7.4.1
+1.7.9.1
 

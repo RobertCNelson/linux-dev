@@ -1,0 +1,44 @@
+From e5a2dc7fc75d1855f533bfd69e0afb6b79ab3447 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 14 Jul 2011 11:52:55 -0500
+Subject: [PATCH 1/2] touchbook: add madc
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3touchbook.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3touchbook.c b/arch/arm/mach-omap2/board-omap3touchbook.c
+index c05b747..3bc27ae 100644
+--- a/arch/arm/mach-omap2/board-omap3touchbook.c
++++ b/arch/arm/mach-omap2/board-omap3touchbook.c
+@@ -21,6 +21,7 @@
+ #include <linux/io.h>
+ #include <linux/leds.h>
+ #include <linux/gpio.h>
++#include <linux/irq.h>
+ #include <linux/input.h>
+ #include <linux/gpio_keys.h>
+ 
+@@ -240,6 +241,10 @@ static struct twl4030_codec_data touchbook_codec_data = {
+ 	.audio = &touchbook_audio_data,
+ };
+ 
++static struct twl4030_madc_platform_data touchbook_madc_data = {
++	.irq_line	= 1,
++};
++
+ static struct twl4030_platform_data touchbook_twldata = {
+ 	.irq_base	= TWL4030_IRQ_BASE,
+ 	.irq_end	= TWL4030_IRQ_END,
+@@ -248,6 +253,7 @@ static struct twl4030_platform_data touchbook_twldata = {
+ 	.usb		= &touchbook_usb_data,
+ 	.gpio		= &touchbook_gpio_data,
+ 	.codec		= &touchbook_codec_data,
++	.madc		= &touchbook_madc_data,
+ 	.vmmc1		= &touchbook_vmmc1,
+ 	.vsim		= &touchbook_vsim,
+ 	.vdac		= &touchbook_vdac,
+-- 
+1.7.4.1
+

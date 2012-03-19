@@ -1,11 +1,12 @@
-From 87de421fbdfe4444fa11ceb89b4ff674ede31ef9 Mon Sep 17 00:00:00 2001
+From b13070e502e519df29baabf782e816cf5a1f4e85 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 23 Feb 2012 09:23:10 -0600
-Subject: [PATCH] Turn on the USB regulator on Beagle xM explicitly, when the
- USB    subsystem asks for it, rather than relying on u-boot
- to do it.
+Subject: [PATCH] Turn on the USB regulator on Beagle xM explicitly
 
-from: http://www.spinics.net/lists/linux-omap/msg65102.html
+ Turn on the USB regulator on Beagle xM explicitly when the USB
+ subsystem asks for it, rather than relying on u-boot to do it.
+
+ http://www.spinics.net/lists/linux-omap/msg65102.html
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
@@ -13,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 files changed, 19 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 57d3130..70075d0 100644
+index e28ae72..30cb2f0 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -411,6 +411,24 @@ static struct regulator_consumer_supply beagle_vsim_supply[] = {
@@ -50,5 +51,5 @@ index 57d3130..70075d0 100644
  
  static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
 -- 
-1.7.9
+1.7.9.1
 
