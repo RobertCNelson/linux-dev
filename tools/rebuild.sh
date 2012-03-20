@@ -59,57 +59,58 @@ function git_kernel_stable {
 }
 
 function git_kernel {
-if [[ -a ${LINUX_GIT}/.git/config ]]; then
-  cd ${LINUX_GIT}/
-    echo "Updating LINUX_GIT tree via: git fetch"
-    git fetch
-  cd -
+	if [ -f ${LINUX_GIT}/.git/config ] ; then
+		cd ${LINUX_GIT}/
+		echo "Updating LINUX_GIT tree via: git fetch"
+		git fetch
+		cd -
 
-  if [[ ! -a ${DIR}/KERNEL/.git/config ]]; then
-	rm -rf ${DIR}/KERNEL/ || true
-    git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
-  fi
+		if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
+			rm -rf ${DIR}/KERNEL/ || true
+			git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
+		fi
 
-  cd ${DIR}/KERNEL/
+		cd ${DIR}/KERNEL/
 
-  git reset --hard
-  git checkout master -f
-  git pull
+		git reset --hard
+		git checkout master -f
+		git pull
 
-  if [ ! "${LATEST_GIT}" ] ; then
-    if [ "${RC_PATCH}" ]; then
-      git tag | grep v${RC_KERNEL}${RC_PATCH} || git_kernel_torvalds
-      git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} || true
-      git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
-    elif [ "${STABLE_PATCH}" ] ; then
-      git tag | grep v${KERNEL_REL}.${STABLE_PATCH} || git_kernel_stable
-      git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
-      git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
-    else
-      git tag | grep v${KERNEL_REL} | grep -v rc || git_kernel_torvalds
-      git branch -D v${KERNEL_REL}-${BUILD} || true
-      git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
-    fi
-  else
-    git branch -D top-of-tree || true
-    git checkout origin/master -b top-of-tree
-    git_kernel_torvalds
-  fi
+		if [ ! "${LATEST_GIT}" ] ; then
+			if [ "${RC_PATCH}" ] ; then
+				git tag | grep v${RC_KERNEL}${RC_PATCH} || git_kernel_torvalds
+				git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} || true
+				git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
+			elif [ "${STABLE_PATCH}" ] ; then
+				git tag | grep v${KERNEL_REL}.${STABLE_PATCH} || git_kernel_stable
+				git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
+				git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
+			else
+				git tag | grep v${KERNEL_REL} | grep -v rc || git_kernel_torvalds
+				git branch -D v${KERNEL_REL}-${BUILD} || true
+				git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
+			fi
+		else
+			git branch -D top-of-tree || true
+			git checkout v${KERNEL_REL} -b top-of-tree
+			git describe
+			git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
+		fi
 
-  git describe
+		git describe
 
-  cd ${DIR}/
-else
-  echo ""
-  echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
-  echo ""
-  echo "Quick Fix:"
-  echo "example: cd ~/"
-  echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-  echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
-  echo ""
-  exit
-fi
+		cd ${DIR}/
+	else
+		echo ""
+		echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
+		echo ""
+		echo "Quick Fix:"
+		echo "example: cd ~/"
+		echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+		echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
+		echo ""
+		exit
+	fi
 }
 
 function patch_kernel {

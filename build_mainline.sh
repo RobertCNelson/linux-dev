@@ -28,6 +28,7 @@ unset BUILD
 unset CC
 unset LINUX_GIT
 unset LATEST_GIT
+unset DEBUG_SECTION
 
 unset LOCAL_PATCH_DIR
 
@@ -58,66 +59,67 @@ function git_kernel_stable {
 }
 
 function git_kernel {
-if [[ -a ${LINUX_GIT}/.git/config ]]; then
-  cd ${LINUX_GIT}/
-    echo "Updating LINUX_GIT tree via: git fetch"
-    git fetch
-  cd -
+	if [ -f ${LINUX_GIT}/.git/config ] ; then
+		cd ${LINUX_GIT}/
+		echo "Updating LINUX_GIT tree via: git fetch"
+		git fetch
+		cd -
 
-  if [[ ! -a ${DIR}/KERNEL/.git/config ]]; then
-	rm -rf ${DIR}/KERNEL/ || true
-    git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
-  fi
+		if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
+			rm -rf ${DIR}/KERNEL/ || true
+			git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
+		fi
 
-  cd ${DIR}/KERNEL/
+		cd ${DIR}/KERNEL/
 
-  git reset --hard
-  git checkout master -f
-  git pull
+		git reset --hard
+		git checkout master -f
+		git pull
 
-  git branch -D top-of-tree || true
-  git checkout origin/master -b top-of-tree
-  git_kernel_torvalds
+		git branch -D top-of-tree || true
+		git checkout v${KERNEL_REL} -b top-of-tree
+		git describe
+		git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
 
-  git describe
+		git describe
 
-  cd ${DIR}/
-else
-  echo ""
-  echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
-  echo ""
-  echo "Quick Fix:"
-  echo "example: cd ~/"
-  echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-  echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
-  echo ""
-  exit
-fi
+		cd ${DIR}/
+	else
+		echo ""
+		echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
+		echo ""
+		echo "Quick Fix:"
+		echo "example: cd ~/"
+		echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+		echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
+		echo ""
+		exit
+	fi
 }
 
 function patch_kernel {
-  cd ${DIR}/KERNEL
-  export DIR BISECT
-  /bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
+	cd ${DIR}/KERNEL
+	export DIR
+	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
-  git add .
-  if [ "${RC_PATCH}" ]; then
-    git commit -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
-  elif [ "${STABLE_PATCH}" ] ; then
-    git commit -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
-  else
-    git commit -a -m ''$KERNEL_REL'-'$BUILD' patchset'
-  fi
+	git add .
+	if [ "${RC_PATCH}" ] ; then
+		git commit --allow-empty -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
+	elif [ "${STABLE_PATCH}" ] ; then
+		git commit --allow-empty -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
+	else
+		git commit --allow-empty -a -m ''$KERNEL_REL'-'$BUILD' patchset'
+	fi
 
 #Test Patches:
 #exit
 
-  if [ "${LOCAL_PATCH_DIR}" ]; then
-    for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
-    BUILD+='+'
-  fi
+	if [ "${LOCAL_PATCH_DIR}" ] ; then
+		for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
+		BUILD+='+'
+	fi
 
-  cd ${DIR}/
+	cd ${DIR}/
 }
 
 function copy_defconfig {
@@ -135,27 +137,36 @@ function make_menuconfig {
   cd ${DIR}/
 }
 
-function make_zImage {
-  cd ${DIR}/KERNEL/
-  echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y zImage"
-  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y zImage
-  KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-  cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
-  cd ${DIR}/
+function make_zImage_modules {
+	cd ${DIR}/KERNEL/
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} zImage modules"
+	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} zImage modules
+	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+	if [ -f ./arch/arm/boot/zImage ] ; then
+		cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
+	else
+		echo "Error: make zImage modules failed"
+		exit
+	fi
+	cd ${DIR}/
 }
 
 function make_uImage {
-  cd ${DIR}/KERNEL/
-  echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" CONFIG_DEBUG_SECTION_MISMATCH=y uImage"
-  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y uImage
-  KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-  cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
-  cd ${DIR}/
+	cd ${DIR}/KERNEL/
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} uImage"
+	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} uImage
+	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+	if [ -f ./arch/arm/boot/uImage ] ; then
+		cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
+	else
+		echo "Error: make uImage failed"
+		exit
+	fi
+	cd ${DIR}/
 }
 
-function make_modules {
+function make_modules_pkg {
   cd ${DIR}/KERNEL/
-  time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y modules
 
   echo ""
   echo "Building Module Archive"
@@ -170,7 +181,7 @@ function make_modules {
   cd ${DIR}/
 }
 
-function make_headers {
+function make_headers_pkg {
   cd ${DIR}/KERNEL/
 
   echo ""
@@ -201,21 +212,26 @@ if [ "${LATEST_GIT}" ] ; then
 	echo ""
 fi
 
+unset CONFIG_DEBUG_SECTION
+if [ "${DEBUG_SECTION}" ] ; then
+	CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
+fi
+
   git_kernel
 #  patch_kernel
   copy_defconfig
   make_menuconfig
-  make_zImage
+	make_zImage_modules
 if [ "${BUILD_UIMAGE}" ] ; then
-  make_uImage
+	make_uImage
 else
   echo ""
   echo "NOTE: If you'd like to build a uImage, make sure to enable BUILD_UIMAGE variables in system.sh"
   echo "Currently Safe for current TI devices."
   echo ""
 fi
-  make_modules
-#  make_headers
+	make_modules_pkg
+	make_headers_pkg
 else
   echo ""
   echo "ERROR: Missing (your system) specific system.sh, please copy system.sh.sample to system.sh and edit as needed."
