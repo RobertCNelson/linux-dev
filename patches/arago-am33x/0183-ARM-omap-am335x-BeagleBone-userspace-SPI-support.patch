@@ -1,0 +1,44 @@
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index f2566e3..857a491 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -1591,6 +1591,16 @@ static struct gpmc_timings am335x_nand_timings = {
+ 	.wr_data_mux_bus = 0,
+ };
+ 
++static struct spi_board_info bone_am335x_slave_info[] = {
++	{
++		.modalias      = "spidev",
++		.irq           = -1,
++		.max_speed_hz  = 12000000,
++		.bus_num       = 2,
++		.chip_select   = 0,
++	},
++};
++
+ static void evm_nand_init(int evm_id, int profile)
+ {
+ 	struct omap_nand_platform_data *pdata;
+@@ -2182,6 +2192,14 @@ static void spi1_init(int evm_id, int profile)
+ 	return;
+ }
+ 
++/* setup beaglebone spi1 */
++static void bone_spi1_init(int evm_id, int profile)
++{
++	setup_pin_mux(spi1_pin_mux);
++	spi_register_board_info(bone_am335x_slave_info,
++			ARRAY_SIZE(bone_am335x_slave_info));
++	return;
++}
+ 
+ static int beaglebone_phy_fixup(struct phy_device *phydev)
+ {
+@@ -2350,6 +2368,7 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+ 	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	{bonew1_gpio_init, DEV_ON_BASEBOARD, PROFILE_ALL},
++	{bone_spi1_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	{NULL, 0, 0},
+ };
+ 
