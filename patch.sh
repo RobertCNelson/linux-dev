@@ -238,6 +238,11 @@ git am "${DIR}/patches/arago-am33x/0180-ARM-OMAP-AM33XX-NET-cpsw-Set-SYSC-for-NO
 git am "${DIR}/patches/arago-am33x/0181-net-cpsw-fix-indentation-using-spaces.patch"
 git am "${DIR}/patches/arago-am33x/0182-PWM-ehrpwm-Fix-polarity-polarity-of-PWM-signal.patch"
 
+git am "${DIR}/patches/arago-am33x/0183-video-da8xx-fb-Reset-LCDC-before-re-enabling.patch"
+git am "${DIR}/patches/arago-am33x/0184-ARM-OMAP-AM335x-Update-defconfig.patch"
+#git am "${DIR}/patches/arago-am33x/0185-ARM-OMAP-AM33XX-CAN-d_can-fix-the-rx-problem.patch"
+git am "${DIR}/patches/arago-am33x/0186-PWM-backlight-Set-the-PWM-frequency-to-20KHz.patch"
+
 git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
 git am "${DIR}/patches/bone-merge/0001-really-machine_halt-was-better.patch"
 
@@ -486,6 +491,10 @@ git am "${DIR}/patches/arago-am33x/0179-ARM-OMAP-Mailbox-Fix-check-for-mailbox-f
 git am "${DIR}/patches/arago-am33x/0180-ARM-OMAP-AM33XX-NET-cpsw-Set-SYSC-for-NO_IDLE-and-NO.patch"
 git am "${DIR}/patches/arago-am33x/0181-net-cpsw-fix-indentation-using-spaces.patch"
 git am "${DIR}/patches/arago-am33x/0182-PWM-ehrpwm-Fix-polarity-polarity-of-PWM-signal.patch"
+git am "${DIR}/patches/arago-am33x/0183-video-da8xx-fb-Reset-LCDC-before-re-enabling.patch"
+git am "${DIR}/patches/arago-am33x/0184-ARM-OMAP-AM335x-Update-defconfig.patch"
+git am "${DIR}/patches/arago-am33x/0185-ARM-OMAP-AM33XX-CAN-d_can-fix-the-rx-problem.patch"
+git am "${DIR}/patches/arago-am33x/0186-PWM-backlight-Set-the-PWM-frequency-to-20KHz.patch"
 }
 
 bugs_trivial

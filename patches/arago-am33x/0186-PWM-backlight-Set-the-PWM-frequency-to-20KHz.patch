@@ -1,0 +1,39 @@
+From 4de01b1a2b503aa4b43db60a45b86261ee920502 Mon Sep 17 00:00:00 2001
+From: "Philip, Avinash" <avinashphilip@ti.com>
+Date: Mon, 19 Mar 2012 17:10:23 +0530
+Subject: [PATCH 186/186] PWM: backlight: Set the PWM frequency to 20KHz.
+
+PWM frequency in audible frequency (< 20KHz) range causes some noise on
+brightness values other than 100%. Also with the the PWM frequency of
+100 Hz, flickers are also visible. So this patch fixes PWM frequency to
+20KHz (outside audible range) and put lth_brightness value to 21 to
+obtain a linear scale of brightness from 0 to 100%.
+
+Signed-off-by: Philip, Avinash <avinashphilip@ti.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 2645cdf..9fc88fb 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -134,13 +134,14 @@ static const struct display_panel disp_panel = {
+ /* LCD backlight platform Data */
+ #define AM335X_BACKLIGHT_MAX_BRIGHTNESS        100
+ #define AM335X_BACKLIGHT_DEFAULT_BRIGHTNESS    100
+-#define AM335X_PWM_PERIOD_NANO_SECONDS        (1000000 * 10)
++#define AM335X_PWM_PERIOD_NANO_SECONDS        (5000 * 10)
+ 
+ #define PWM_DEVICE_ID   "ecap.0"
+ 
+ static struct platform_pwm_backlight_data am335x_backlight_data = {
+ 	.pwm_id         = PWM_DEVICE_ID,
+ 	.ch             = -1,
++	.lth_brightness	= 21,
+ 	.max_brightness = AM335X_BACKLIGHT_MAX_BRIGHTNESS,
+ 	.dft_brightness = AM335X_BACKLIGHT_DEFAULT_BRIGHTNESS,
+ 	.pwm_period_ns  = AM335X_PWM_PERIOD_NANO_SECONDS,
+-- 
+1.7.9.1
+

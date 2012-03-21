@@ -1,11 +1,11 @@
-From 4cd0eab11775de320261bea656356fe5b526554d Mon Sep 17 00:00:00 2001
+From 54ec291cb8e6731fda498aaa743b733846d3a01e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 27 Feb 2012 15:56:47 -0600
 Subject: [PATCH] bone: arago angstrom merge
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |  551 +++++++++++++++++++++++++++++++--
+ arch/arm/mach-omap2/board-am335xevm.c |  547 +++++++++++++++++++++++++++++++-
  arch/arm/mach-omap2/mux33xx.c         |   22 +-
  arch/arm/mach-omap2/mux33xx.h         |    4 +
  drivers/input/touchscreen/ti_tscadc.c |  269 +++++++++++++---
@@ -15,15 +15,15 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/video/Kconfig                 |   11 +
  drivers/video/Makefile                |    1 +
  drivers/video/da8xx-fb.c              |   14 +
- drivers/video/st7735fb.c              |  516 ++++++++++++++++++++++++++++++
+ drivers/video/st7735fb.c              |  516 +++++++++++++++++++++++++++++++
  include/linux/input/ti_tscadc.h       |    5 +
  include/video/st7735fb.h              |   82 +++++
- 13 files changed, 1441 insertions(+), 93 deletions(-)
+ 13 files changed, 1439 insertions(+), 91 deletions(-)
  create mode 100644 drivers/video/st7735fb.c
  create mode 100644 include/video/st7735fb.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 7203629..674009c 100644
+index a88e2b9..23374c7 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -43,18 +43,7 @@ index 7203629..674009c 100644
  
  /* LCD controller is similar to DA850 */
  #include <video/da8xx-fb.h>
-@@ -131,8 +134,8 @@ static const struct display_panel disp_panel = {
- 
- /* LCD backlight platform Data */
- #define AM335X_BACKLIGHT_MAX_BRIGHTNESS        100
--#define AM335X_BACKLIGHT_DEFAULT_BRIGHTNESS    100
--#define AM335X_PWM_PERIOD_NANO_SECONDS        (1000000 * 10)
-+#define AM335X_BACKLIGHT_DEFAULT_BRIGHTNESS    50
-+#define AM335X_PWM_PERIOD_NANO_SECONDS        (1000000 * 5)
- 
- #define PWM_DEVICE_ID   "ecap.0"
- 
-@@ -169,6 +172,76 @@ struct da8xx_lcdc_platform_data TFC_S9700RTWV35TR_01B_pdata = {
+@@ -170,6 +173,76 @@ struct da8xx_lcdc_platform_data TFC_S9700RTWV35TR_01B_pdata = {
  
  #include "common.h"
  
@@ -131,7 +120,7 @@ index 7203629..674009c 100644
  /* TSc controller */
  #include <linux/input/ti_tscadc.h>
  #include <linux/lis3lv02d.h>
-@@ -189,6 +262,11 @@ static struct resource tsc_resources[]  = {
+@@ -190,6 +263,11 @@ static struct resource tsc_resources[]  = {
  static struct tsc_data am335x_touchscreen_data  = {
  	.wires  = 4,
  	.x_plate_resistance = 200,
@@ -143,7 +132,7 @@ index 7203629..674009c 100644
  };
  
  static struct platform_device tsc_device = {
-@@ -201,6 +279,16 @@ static struct platform_device tsc_device = {
+@@ -202,6 +280,16 @@ static struct platform_device tsc_device = {
  	.resource       = tsc_resources,
  };
  
@@ -160,7 +149,7 @@ index 7203629..674009c 100644
  static u8 am335x_iis_serializer_direction1[] = {
  	INACTIVE_MODE,	INACTIVE_MODE,	TX_MODE,	RX_MODE,
  	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,
-@@ -361,9 +449,34 @@ static struct am335x_evm_eeprom_config config;
+@@ -362,9 +450,34 @@ static struct am335x_evm_eeprom_config config;
  static struct am335x_eeprom_config1 config1;
  static bool daughter_brd_detected;
  
@@ -195,7 +184,7 @@ index 7203629..674009c 100644
  static unsigned int gp_evm_revision = GP_EVM_REV_IS_UNKNOWN;
  
  #define CPLD_REV_1_0A			0x1
-@@ -451,11 +564,106 @@ static struct pinmux_config lcdc_pin_mux[] = {
+@@ -452,11 +565,106 @@ static struct pinmux_config lcdc_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -302,7 +291,7 @@ index 7203629..674009c 100644
  	{"vrefp.vrefp",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{"vrefn.vrefn",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{NULL, 0},
-@@ -667,6 +875,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
+@@ -668,6 +876,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -318,7 +307,7 @@ index 7203629..674009c 100644
  /* Module pin mux for uart2 */
  static struct pinmux_config uart2_pin_mux[] = {
  	{"spi0_sclk.uart2_rxd", OMAP_MUX_MODE1 | AM33XX_SLEWCTRL_SLOW |
-@@ -870,6 +1087,118 @@ static struct pinmux_config profibus_pin_mux[] = {
+@@ -871,6 +1088,118 @@ static struct pinmux_config profibus_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -437,7 +426,7 @@ index 7203629..674009c 100644
  /* Module pin mux for eCAP0 */
  static struct pinmux_config ecap0_pin_mux[] = {
  	{"ecap0_in_pwm0_out.ecap0_in_pwm0_out",
-@@ -877,6 +1206,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
+@@ -878,6 +1207,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -445,7 +434,7 @@ index 7203629..674009c 100644
  static int backlight_enable;
  
  #define AM335XEVM_WLAN_PMENA_GPIO	GPIO_TO_PIN(1, 30)
-@@ -992,6 +1322,26 @@ static void lcdc_init(int evm_id, int profile)
+@@ -993,6 +1323,26 @@ static void lcdc_init(int evm_id, int profile)
  	return;
  }
  
@@ -472,7 +461,7 @@ index 7203629..674009c 100644
  static void tsc_init(int evm_id, int profile)
  {
  	int err;
-@@ -999,16 +1349,59 @@ static void tsc_init(int evm_id, int profile)
+@@ -1000,16 +1350,59 @@ static void tsc_init(int evm_id, int profile)
  	if (gp_evm_revision == GP_EVM_REV_IS_1_1A) {
  		am335x_touchscreen_data.analog_input = 1;
  		pr_info("TSC connected to beta GP EVM\n");
@@ -533,7 +522,7 @@ index 7203629..674009c 100644
  static void rgmii1_init(int evm_id, int profile)
  {
  	setup_pin_mux(rgmii1_pin_mux);
-@@ -1454,16 +1847,138 @@ static void i2c1_init(int evm_id, int profile)
+@@ -1455,16 +1848,138 @@ static void i2c1_init(int evm_id, int profile)
  	return;
  }
  
@@ -677,7 +666,7 @@ index 7203629..674009c 100644
  }
  
  /* Setup McASP 1 */
-@@ -1821,6 +2336,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+@@ -1822,6 +2337,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -685,7 +674,7 @@ index 7203629..674009c 100644
  	{NULL, 0, 0},
  };
  
-@@ -1832,6 +2348,8 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+@@ -1833,6 +2349,8 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -694,7 +683,7 @@ index 7203629..674009c 100644
  	{NULL, 0, 0},
  };
  
-@@ -1848,6 +2366,7 @@ static void setup_general_purpose_evm(void)
+@@ -1849,6 +2367,7 @@ static void setup_general_purpose_evm(void)
  	pr_info("The board is general purpose EVM in profile %d\n", prof_sel);
  
  	if (!strncmp("1.1A", config.version, 4)) {
@@ -702,7 +691,7 @@ index 7203629..674009c 100644
  		gp_evm_revision = GP_EVM_REV_IS_1_1A;
  	} else if (!strncmp("1.0", config.version, 3)) {
  		gp_evm_revision = GP_EVM_REV_IS_1_0;
-@@ -1918,6 +2437,7 @@ static void setup_beaglebone_old(void)
+@@ -1919,6 +2438,7 @@ static void setup_beaglebone_old(void)
  static void setup_beaglebone(void)
  {
  	pr_info("The board is a AM335x Beaglebone.\n");
@@ -710,7 +699,7 @@ index 7203629..674009c 100644
  
  	/* Beagle Bone has Micro-SD slot which doesn't have Write Protect pin */
  	am335x_mmc[0].gpio_wp = -EINVAL;
-@@ -1934,6 +2454,7 @@ static void setup_beaglebone(void)
+@@ -1935,6 +2455,7 @@ static void setup_beaglebone(void)
  
  static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
  {
@@ -718,7 +707,7 @@ index 7203629..674009c 100644
  	int ret;
  
  	/*
-@@ -1942,24 +2463,14 @@ static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
+@@ -1943,24 +2464,14 @@ static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
  	 * specific data.
  	 */
  
@@ -1438,7 +1427,7 @@ index 9b9d8ff..c6d9851 100644
  # Platform or fallback drivers go here
  obj-$(CONFIG_FB_UVESA)            += uvesafb.o
 diff --git a/drivers/video/da8xx-fb.c b/drivers/video/da8xx-fb.c
-index 53141f9..87b0512 100644
+index 2e69278..58c086f 100644
 --- a/drivers/video/da8xx-fb.c
 +++ b/drivers/video/da8xx-fb.c
 @@ -272,6 +272,20 @@ static struct da8xx_panel known_lcd_panels[] = {
