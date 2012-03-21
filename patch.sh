@@ -238,10 +238,10 @@ git am "${DIR}/patches/arago-am33x/0180-ARM-OMAP-AM33XX-NET-cpsw-Set-SYSC-for-NO
 git am "${DIR}/patches/arago-am33x/0181-net-cpsw-fix-indentation-using-spaces.patch"
 git am "${DIR}/patches/arago-am33x/0182-PWM-ehrpwm-Fix-polarity-polarity-of-PWM-signal.patch"
 
-git am "${DIR}/patches/arago-am33x/0183-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
-
 git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
 git am "${DIR}/patches/bone-merge/0001-really-machine_halt-was-better.patch"
+
+git am "${DIR}/patches/beaglebone/0001-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
 }
 
 function am33x-meta-ti {
@@ -486,8 +486,6 @@ git am "${DIR}/patches/arago-am33x/0179-ARM-OMAP-Mailbox-Fix-check-for-mailbox-f
 git am "${DIR}/patches/arago-am33x/0180-ARM-OMAP-AM33XX-NET-cpsw-Set-SYSC-for-NO_IDLE-and-NO.patch"
 git am "${DIR}/patches/arago-am33x/0181-net-cpsw-fix-indentation-using-spaces.patch"
 git am "${DIR}/patches/arago-am33x/0182-PWM-ehrpwm-Fix-polarity-polarity-of-PWM-signal.patch"
-
-git am "${DIR}/patches/arago-am33x/0183-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
 }
 
 bugs_trivial
