@@ -1,4 +1,4 @@
-From c69b7b52b9879d693754be1f5b7ab02a09b52015 Mon Sep 17 00:00:00 2001
+From 274f7baa8d4d06327e144fc8104aa65dc3b65e3c Mon Sep 17 00:00:00 2001
 From: Andy Gross <andy.gross@ti.com>
 Date: Tue, 13 Mar 2012 15:34:38 -0500
 Subject: [PATCH] omap2+: add drm device
@@ -19,10 +19,10 @@ Signed-off-by: Rob Clark <rob@ti.com>
  create mode 100644 arch/arm/plat-omap/include/plat/drm.h
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index bd76394..9e6065b 100644
+index 06326a6..14843c8 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
-@@ -189,6 +189,10 @@ ifneq ($(CONFIG_TIDSPBRIDGE),)
+@@ -191,6 +191,10 @@ ifneq ($(CONFIG_TIDSPBRIDGE),)
  obj-y					+= dsp.o
  endif
  
@@ -123,10 +123,10 @@ index 0000000..779ae02
 +
 +#endif
 diff --git a/arch/arm/plat-omap/common.c b/arch/arm/plat-omap/common.c
-index 4de7d1e..e027cc7 100644
+index f1e46ea..20fbf2a 100644
 --- a/arch/arm/plat-omap/common.c
 +++ b/arch/arm/plat-omap/common.c
-@@ -21,10 +21,10 @@
+@@ -20,10 +20,10 @@
  #include <plat/board.h>
  #include <plat/vram.h>
  #include <plat/dsp.h>
@@ -138,14 +138,14 @@ index 4de7d1e..e027cc7 100644
  #define NO_LENGTH_CHECK 0xffffffff
  
  struct omap_board_config_kernel *omap_board_config __initdata;
-@@ -65,6 +65,7 @@ const void *__init omap_get_var_config(u16 tag, size_t *len)
+@@ -64,6 +64,7 @@ const void *__init omap_get_var_config(u16 tag, size_t *len)
  
  void __init omap_reserve(void)
  {
 +	omapdrm_reserve_vram();
- 	omapfb_reserve_sdram_memblock();
  	omap_vram_reserve_sdram_memblock();
  	omap_dsp_reserve_sdram_memblock();
+ 	omap_secure_ram_reserve_memblock();
 diff --git a/arch/arm/plat-omap/include/plat/drm.h b/arch/arm/plat-omap/include/plat/drm.h
 new file mode 100644
 index 0000000..df9bc41

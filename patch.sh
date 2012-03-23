@@ -69,8 +69,9 @@ function beagle {
 
 	git am "${DIR}/patches/omap/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 
-	git am "${DIR}/patches/beagle/0001-ASoC-omap-add-MODULE_ALIAS-to-mcbsp-and-pcm-drivers.patch"
-	git am "${DIR}/patches/beagle/0001-ASoC-omap-convert-per-board-modules-to-platform-driv.patch"
+#switch to mainline sound
+#	git am "${DIR}/patches/beagle/0001-ASoC-omap-add-MODULE_ALIAS-to-mcbsp-and-pcm-drivers.patch"
+#	git am "${DIR}/patches/beagle/0001-ASoC-omap-convert-per-board-modules-to-platform-driv.patch"
 
 	git am "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 	git am "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
@@ -118,6 +119,9 @@ function omapdrm {
 	git am "${DIR}/patches/drm/cma/0001-cma-23-mm-compaction-export-some-of-the-functions.patch"
 	git am "${DIR}/patches/drm/cma/0002-cma-23-drivers-add-Contiguous-Memory-Allocator.patch"
 
+	echo "Patches for cma and v3.4-rc0"
+	git am "${DIR}/patches/drm/cma/0001-mm-cma-out_of_memory-now-has-a-force_kill-parameter.patch"
+
 #merged v3.4-rc0
 #	echo "omapdrm driver patches for 3.4"
 #	git am "${DIR}/patches/drm/0001-staging-drm-omap-get-supported-color-formats-from-ov.patch"
@@ -148,7 +152,10 @@ function omapdrm {
 
 function fixes {
 	echo "omap cherry pick fixes"
-	git am "${DIR}/patches/fixes/0001-OMAP-UART-Enable-tx-wakeup-bit-in-wer.patch"
+	#3/22/2012: replaces: 0001-OMAP-UART-Enable-tx-wakeup-bit-in-wer.patch
+	git am "${DIR}/patches/omap/0001-OMAP2-UART-Remove-cpu-checks-for-populating-errata-f.patch"
+	git am "${DIR}/patches/omap/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
+	git am "${DIR}/patches/omap/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
 }
 
 bugs_trivial

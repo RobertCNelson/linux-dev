@@ -1,4 +1,4 @@
-From 2208770315c5e58b88713658bae082d083f6b941 Mon Sep 17 00:00:00 2001
+From d5e0e8da11c955f25911c9eef571f537e393239c Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
 Date: Fri, 17 Feb 2012 20:30:25 +0100
 Subject: [PATCH 05/15] mm: compaction: export some of the functions
@@ -48,7 +48,7 @@ index 50ec00e..8aada89 100644
  obj-$(CONFIG_KSM) += ksm.o
  obj-$(CONFIG_PAGE_POISONING) += debug-pagealloc.o
 diff --git a/mm/compaction.c b/mm/compaction.c
-index 0799d0c..718a8cc 100644
+index 06b198f..7a92e41 100644
 --- a/mm/compaction.c
 +++ b/mm/compaction.c
 @@ -16,30 +16,11 @@
@@ -76,7 +76,7 @@ index 0799d0c..718a8cc 100644
 -	unsigned long migrate_pfn;	/* isolate_migratepages search base */
 -	bool sync;			/* Synchronous migration */
 -
--	unsigned int order;		/* order a direct compactor needs */
+-	int order;			/* order a direct compactor needs */
 -	int migratetype;		/* MOVABLE, RECLAIMABLE etc */
 -	struct zone *zone;
 -};
@@ -445,7 +445,7 @@ index 0799d0c..718a8cc 100644
  static int compact_finished(struct zone *zone,
  			    struct compact_control *cc)
  {
-@@ -881,3 +865,5 @@ void compaction_unregister_node(struct node *node)
+@@ -910,3 +894,5 @@ void compaction_unregister_node(struct node *node)
  	return device_remove_file(&node->dev, &dev_attr_compact);
  }
  #endif /* CONFIG_SYSFS && CONFIG_NUMA */

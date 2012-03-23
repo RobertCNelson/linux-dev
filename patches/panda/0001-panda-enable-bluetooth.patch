@@ -1,4 +1,4 @@
-From e18bd83ed783e7927fe10e210f7c5cc6d4b93321 Mon Sep 17 00:00:00 2001
+From cdf947ca44edb261784880541f4077be750408f8 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Fri, 16 Mar 2012 10:23:09 -0500
 Subject: [PATCH] panda enable bluetooth
@@ -10,12 +10,12 @@ requires sysfs entries that are filled in using this platform data.
 Signed-off-by: Mircea Gherzan <mgherzan@gmail.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap4panda.c |   21 +++++++++++++++++++--
+ arch/arm/mach-omap2/board-omap4panda.c |   20 ++++++++++++++++++--
  include/linux/ti_wilink_st.h           |    2 ++
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ 2 files changed, 20 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index 51b1c93..8c24bef 100644
+index e441591..5e761a3 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
 @@ -27,6 +27,7 @@
@@ -24,9 +24,9 @@ index 51b1c93..8c24bef 100644
  #include <linux/regulator/fixed.h>
 +#include <linux/ti_wilink_st.h>
  #include <linux/wl12xx.h>
+ #include <linux/platform_data/omap-abe-twl6040.h>
  
- #include <mach/hardware.h>
-@@ -56,15 +57,29 @@
+@@ -57,15 +58,29 @@
  #define HDMI_GPIO_HPD  63 /* Hotplug detect */
  
  /* wl127x BT, FM, GPS connectivity chip */
@@ -58,18 +58,14 @@ index 51b1c93..8c24bef 100644
  static struct gpio_led gpio_leds[] = {
  	{
  		.name			= "pandaboard::status1",
-@@ -91,9 +106,11 @@ static struct platform_device leds_gpio = {
- 	},
- };
- 
-+
+@@ -119,6 +134,7 @@ static struct platform_device panda_abe_audio = {
  static struct platform_device *panda_devices[] __initdata = {
  	&leds_gpio,
  	&wl1271_device,
 +	&btwilink_device,
+ 	&panda_abe_audio,
  };
  
- static const struct usbhs_omap_board_data usbhs_bdata __initconst = {
 diff --git a/include/linux/ti_wilink_st.h b/include/linux/ti_wilink_st.h
 index 2ef4385..3ca0269 100644
 --- a/include/linux/ti_wilink_st.h
