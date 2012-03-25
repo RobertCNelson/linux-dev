@@ -33,6 +33,16 @@ DIR=$PWD
 
 . version.sh
 
+backup_config () {
+	if [ -f "${DIR}/patches/previous_defconfig" ] ; then
+		rm -f "${DIR}/patches/previous_defconfig" || true
+	fi
+	if [ -f "${DIR}/patches/current_defconfig" ] ; then
+		mv "${DIR}/patches/current_defconfig" "${DIR}/patches/previous_defconfig"
+	fi
+	cp "${DIR}/KERNEL/.config" "${DIR}/patches/current_defconfig"
+}
+
 mmc_write_modules () {
 	echo "Installing ${KERNEL_UTS}-modules.tar.gz to rootfs partition"
 	echo "-----------------------------"
@@ -49,6 +59,7 @@ mmc_write_modules () {
 		sync
 		cd -
 		sudo umount "${DIR}/deploy/disk" || true
+		backup_config
 
 		echo "-----------------------------"
 		echo "This script has finished successfully..."
