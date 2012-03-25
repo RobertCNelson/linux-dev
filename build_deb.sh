@@ -167,9 +167,13 @@ function make_deb {
 if [ -e ${DIR}/system.sh ]; then
   . system.sh
   . version.sh
-  echo ""
-  echo "Using : $(LC_ALL=C ${CC}gcc --version)"
-  echo ""
+	GCC="gcc"
+	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+		GCC="${GCC_OVERRIDE}"
+	fi
+	echo ""
+	echo "Using : $(LC_ALL=C ${CC}${GCC} --version)"
+	echo ""
 
 if [ "${LATEST_GIT}" ] ; then
 	echo ""
@@ -181,7 +185,13 @@ fi
   patch_kernel
   copy_defconfig
   make_menuconfig
+	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+		sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
+	fi
   make_deb
+	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+		sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
+	fi
 else
   echo ""
   echo "ERROR: Missing (your system) specific system.sh, please copy system.sh.sample to system.sh and edit as needed."

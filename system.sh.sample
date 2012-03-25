@@ -3,9 +3,11 @@
 
 ARCH=$(uname -m)
 
-if test "-$ARCH-" = "-armv7l-"
-then
- echo "Using: Native armv7l Compiler"
+###ADVANCED, OPTIONAL: gcc version override (useful for gcc/kernel regressions)
+#GCC_OVERRIDE="gcc-4.4"
+
+if [ "x${ARCH}" == "xarmv7l" ] ; then
+ echo "Using: Native armv7l gcc Compiler"
  CC=
 else
  echo "Using: Cross Compiler"
@@ -16,22 +18,28 @@ else
   echo ""
   echo "Error: You haven't setup the Cross Compiler (CC variable) in system.sh"
   echo ""
-  echo "with a (sane editor) open system.sh and modify the commented Line 12: #CC=arm-linux-gnueabi-"
+  echo "with a (sane editor) open system.sh and modify the commented Line 14: #CC=arm-linux-gnueabi-"
   echo ""
   echo "If you need hints on installing an ARM GCC Cross ToolChain, view README file"
   echo ""
   exit
  fi
 
- GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
- GCC_REPORT=$(LC_ALL=C ${CC}gcc -v 2>&1 || true)
+	GCC="gcc"
+	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+		GCC="${GCC_OVERRIDE}"
+	fi
+
+	GCC_TEST=$(LC_ALL=C ${CC}${GCC} -v 2>&1 | grep "Target:" | grep arm || true)
+	GCC_REPORT=$(LC_ALL=C ${CC}${GCC} -v 2>&1 || true)
+
  if [ "-${GCC_TEST}-" == "--" ] ; then
   echo ""
   echo "Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable)."
   echo "Doesn't seem to be valid for ARM, double check it's location, or that"
   echo "you chose the correct GCC Cross Compiler."
   echo ""
-  echo "Output of: ${CC}gcc -v"
+	echo "Output of: ${CC}${GCC} -v"
   echo "${GCC_REPORT}"
   echo ""
   exit
