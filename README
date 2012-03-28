@@ -3,14 +3,19 @@ This just a simple set of scripts to rebuild a known working kernel for omap dev
 Script Bugs: "bugs@rcn-ee.com"
 
 Supported Boards:
+BeagleBoard Cx
 BeagleBoard xM
-PandaBoard
+PandaBoard (no audio)
+PandaBoard ES (no audio)
+
+Supported Addons:
+zippy1/2
+ulcd
 
 Weakly Support Boards:
 BeagleBoard Bx
-BeagleBoard Cx
-igevp2
-touchbook
+igevp2 (no video)
+touchbook (no video)
 
 Dependencies: GCC ARM Cross ToolChain
 
@@ -25,12 +30,12 @@ http://www.angstrom-distribution.org/simplified-development-setup
 
 Dependencies: Linux Kernel Source
 
-This script, pulls the mainline kernel source from git.. Using git, you can clone the linux-stable git tree from kernel.org anywhere. (it's a large download)..
+This script needs a local copy of the mainline kernel source. Using that local copy, this script will then pull specific tags/trees/commits from kernel.org.  For example, to clone this local copy into your user directory:
 
-For example: in your user directory:
 cd ~/
 git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-Then update "LINUX_GIT" to "LINUX_GIT=~/" in system.sh
+
+Then update "LINUX_GIT" to "LINUX_GIT=~/linux-stable/" in system.sh to point to your new local kernel source copy.
 
 Build: zImage/Modules:
 
@@ -44,11 +49,11 @@ Build: Debian deb package:
 
 "./build_deb.sh"
 
-Create SGX install Package: (OMAP3/AM37xx only, no PandaBoard Support)
+Create SGX install Package: (OMAP3/DM37xx only, no PandaBoard Support)
 
 "./create_sgx_package.sh"
 
-Create DSP install Package: (OMAP3/AM37xx only, no PandaBoard Support)
+Create DSP install Package: (OMAP3/DM37xx only, no PandaBoard Support)
 
 "./create_dsp_package.sh"
 
