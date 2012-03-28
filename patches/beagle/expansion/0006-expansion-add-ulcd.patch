@@ -1,4 +1,4 @@
-From 086346f791afdc97559015764a259f05b3063b9a Mon Sep 17 00:00:00 2001
+From b2ea4350de992410f4a5d2a382e1552286c3106b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Fri, 16 Mar 2012 09:47:57 -0500
 Subject: [PATCH 6/6] expansion: add ulcd
@@ -10,7 +10,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  2 files changed, 147 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index adafa7c..dc2d59c 100644
+index daa0d2b..44d00bf 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -33,6 +33,7 @@
@@ -104,7 +104,7 @@ index adafa7c..dc2d59c 100644
  }
  
  #include "sdram-micron-mt46h32m32lf-6.h"
-@@ -480,6 +528,50 @@ static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {
+@@ -479,6 +527,50 @@ static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {
  static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {};
  #endif
  
@@ -155,7 +155,7 @@ index adafa7c..dc2d59c 100644
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -490,7 +582,17 @@ static int __init omap3_beagle_i2c_init(void)
+@@ -489,7 +581,17 @@ static int __init omap3_beagle_i2c_init(void)
  	beagle_twldata.vpll2->constraints.name = "VDVI";
  
  	omap3_pmic_init("twl4030", &beagle_twldata);
@@ -173,7 +173,7 @@ index adafa7c..dc2d59c 100644
  	/* Bus 3 is attached to the DVI port where devices like the pico DLP
  	 * projector don't work reliably with 400kHz */
  	omap_register_i2c_bus(3, 100, beagle_i2c_eeprom, ARRAY_SIZE(beagle_i2c_eeprom));
-@@ -589,6 +691,15 @@ static int __init expansionboard_setup(char *str)
+@@ -588,6 +690,15 @@ static int __init expansionboard_setup(char *str)
  	return 0;
  }
  
@@ -189,7 +189,7 @@ index adafa7c..dc2d59c 100644
  static void __init beagle_opp_init(void)
  {
  	int r = 0;
-@@ -640,6 +751,10 @@ static void __init omap3_beagle_init(void)
+@@ -644,6 +755,10 @@ static void __init omap3_beagle_init(void)
  
  	gpio_buttons[0].gpio = beagle_config.usr_button_gpio;
  
@@ -200,7 +200,7 @@ index adafa7c..dc2d59c 100644
  	platform_add_devices(omap3_beagle_devices,
  			ARRAY_SIZE(omap3_beagle_devices));
  	omap_display_init(&beagle_dss_data);
-@@ -700,6 +815,12 @@ static void __init omap3_beagle_init(void)
+@@ -704,6 +819,12 @@ static void __init omap3_beagle_init(void)
  		gpio_export(162, 1);
  	}
  
@@ -213,7 +213,7 @@ index adafa7c..dc2d59c 100644
  	usb_musb_init(NULL);
  	usbhs_init(&usbhs_bdata);
  	omap_nand_flash_init(NAND_BUSWIDTH_16, omap3beagle_nand_partitions,
-@@ -717,6 +838,7 @@ static void __init omap3_beagle_init(void)
+@@ -721,6 +842,7 @@ static void __init omap3_beagle_init(void)
  }
  
  early_param("buddy", expansionboard_setup);

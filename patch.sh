@@ -93,6 +93,7 @@ function pandaboard {
 	echo "Board Patches for: PandaBoard"
 	git am "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
 	git am "${DIR}/patches/panda/0001-panda-enable-bluetooth.patch"
+	git am "${DIR}/patches/panda/0001-ti-st-st-kim-fixing-firmware-path.patch"
 }
 
 function omapdrm {
@@ -156,6 +157,10 @@ function fixes {
 	git am "${DIR}/patches/omap/0001-OMAP2-UART-Remove-cpu-checks-for-populating-errata-f.patch"
 	git am "${DIR}/patches/omap/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
 	git am "${DIR}/patches/omap/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
+
+	#3/27/2012
+	git am "${DIR}/patches/omap/0001-mfd-cpu_is_omap3430-wasnt-defined.patch"
+	git am "${DIR}/patches/omap/0001-tidspbridge-fix-build-after-iomap.h-move.patch"
 }
 
 bugs_trivial
@@ -163,7 +168,7 @@ bugs_trivial
 micrel
 beagle
 devkit8000
-touchbook
+#touchbook
 pandaboard
 
 omapdrm

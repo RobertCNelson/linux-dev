@@ -1,4 +1,4 @@
-From cdf947ca44edb261784880541f4077be750408f8 Mon Sep 17 00:00:00 2001
+From 7fafe2d5b060f1d8d27c6ea9eec204b242116155 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Fri, 16 Mar 2012 10:23:09 -0500
 Subject: [PATCH] panda enable bluetooth
@@ -10,12 +10,12 @@ requires sysfs entries that are filled in using this platform data.
 Signed-off-by: Mircea Gherzan <mgherzan@gmail.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap4panda.c |   20 ++++++++++++++++++--
+ arch/arm/mach-omap2/board-omap4panda.c |   14 ++++++++++++--
  include/linux/ti_wilink_st.h           |    2 ++
- 2 files changed, 20 insertions(+), 2 deletions(-)
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index e441591..5e761a3 100644
+index e9071a5..c1d5f79 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
 @@ -27,6 +27,7 @@
@@ -26,7 +26,7 @@ index e441591..5e761a3 100644
  #include <linux/wl12xx.h>
  #include <linux/platform_data/omap-abe-twl6040.h>
  
-@@ -57,15 +58,29 @@
+@@ -57,12 +58,21 @@
  #define HDMI_GPIO_HPD  63 /* Hotplug detect */
  
  /* wl127x BT, FM, GPS connectivity chip */
@@ -48,22 +48,6 @@ index e441591..5e761a3 100644
 -		.platform_data	= &wl1271_gpios,
 +		.platform_data	= &wilink_platform_data,
  	},
- };
- 
-+static struct platform_device btwilink_device = {
-+	.name	= "btwilink",
-+	.id	= -1,
-+};
-+
- static struct gpio_led gpio_leds[] = {
- 	{
- 		.name			= "pandaboard::status1",
-@@ -119,6 +134,7 @@ static struct platform_device panda_abe_audio = {
- static struct platform_device *panda_devices[] __initdata = {
- 	&leds_gpio,
- 	&wl1271_device,
-+	&btwilink_device,
- 	&panda_abe_audio,
  };
  
 diff --git a/include/linux/ti_wilink_st.h b/include/linux/ti_wilink_st.h

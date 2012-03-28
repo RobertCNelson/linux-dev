@@ -1,0 +1,39 @@
+From 5663216728c2e5c7ebdccc8a1b2cd6d7b09385fd Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 27 Mar 2012 20:55:09 -0500
+Subject: [PATCH] tidspbridge: fix build after iomap.h move
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/staging/tidspbridge/core/_tiomap.h |    2 ++
+ drivers/staging/tidspbridge/core/wdt.c     |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/staging/tidspbridge/core/_tiomap.h b/drivers/staging/tidspbridge/core/_tiomap.h
+index 7cb5871..672d043 100644
+--- a/drivers/staging/tidspbridge/core/_tiomap.h
++++ b/drivers/staging/tidspbridge/core/_tiomap.h
+@@ -40,6 +40,8 @@
+ #include <dspbridge/sync.h>
+ #include <dspbridge/clk.h>
+ 
++#include <mach-omap2/iomap.h>
++
+ struct map_l4_peripheral {
+ 	u32 phys_addr;
+ 	u32 dsp_virt_addr;
+diff --git a/drivers/staging/tidspbridge/core/wdt.c b/drivers/staging/tidspbridge/core/wdt.c
+index 70055c8..cc6a0cc 100644
+--- a/drivers/staging/tidspbridge/core/wdt.c
++++ b/drivers/staging/tidspbridge/core/wdt.c
+@@ -24,6 +24,7 @@
+ #include <dspbridge/wdt.h>
+ #include <dspbridge/host_os.h>
+ 
++#include <mach-omap2/iomap.h>
+ 
+ #define OMAP34XX_WDT3_BASE 		(L4_PER_34XX_BASE + 0x30000)
+ 
+-- 
+1.7.9.1
+

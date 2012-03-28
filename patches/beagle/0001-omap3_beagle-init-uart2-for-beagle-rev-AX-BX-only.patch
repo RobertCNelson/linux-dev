@@ -1,4 +1,4 @@
-From e8f6c2ea9bcfda66430850d578ba721f1a96332b Mon Sep 17 00:00:00 2001
+From d51f48dcce68dd520ecade6e10491e2ecaebfdaf Mon Sep 17 00:00:00 2001
 From: "Govindraj.R" <govindraj.raja@ti.com>
 Date: Tue, 6 Mar 2012 14:35:11 +0530
 Subject: [PATCH] omap3_beagle: init uart2 for beagle rev AX/BX only
@@ -30,7 +30,7 @@ Signed-off-by: Govindraj.R <govindraj.raja@ti.com>
  3 files changed, 30 insertions(+), 20 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 70075d0..90f9051 100644
+index 76c8a59..ff1ecd1 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -132,6 +132,7 @@ static void __init omap3_beagle_init_rev(void)
@@ -41,7 +41,7 @@ index 70075d0..90f9051 100644
  		break;
  	case 6:
  		printk(KERN_INFO "OMAP3 Beagle Rev: C1/C2/C3\n");
-@@ -782,7 +783,10 @@ static void __init omap3_beagle_init(void)
+@@ -786,7 +787,10 @@ static void __init omap3_beagle_init(void)
  	platform_add_devices(omap3_beagle_devices,
  			ARRAY_SIZE(omap3_beagle_devices));
  	omap_display_init(&beagle_dss_data);
@@ -54,10 +54,10 @@ index 70075d0..90f9051 100644
  				  mt46h32m32lf6_sdrc_params);
  
 diff --git a/arch/arm/mach-omap2/serial.c b/arch/arm/mach-omap2/serial.c
-index f590afc..e7c0462 100644
+index 0cdd359..35a8c8c 100644
 --- a/arch/arm/mach-omap2/serial.c
 +++ b/arch/arm/mach-omap2/serial.c
-@@ -393,30 +393,32 @@ void __init omap_serial_init_port(struct omap_board_data *bdata,
+@@ -389,30 +389,32 @@ void __init omap_serial_init_port(struct omap_board_data *bdata,
  /**
   * omap_serial_board_init() - initialize all supported serial ports
   * @info: platform specific data pointer
@@ -107,7 +107,7 @@ index f590afc..e7c0462 100644
  }
  
  /**
-@@ -428,5 +430,8 @@ void __init omap_serial_board_init(struct omap_uart_port_info *info)
+@@ -424,5 +426,8 @@ void __init omap_serial_board_init(struct omap_uart_port_info *info)
   */
  void __init omap_serial_init(void)
  {
@@ -118,13 +118,13 @@ index f590afc..e7c0462 100644
 +		omap_serial_board_init(NULL, uart->num);
  }
 diff --git a/arch/arm/plat-omap/include/plat/serial.h b/arch/arm/plat-omap/include/plat/serial.h
-index 198d1e6..043b251 100644
+index b073e5f..fd14d28 100644
 --- a/arch/arm/plat-omap/include/plat/serial.h
 +++ b/arch/arm/plat-omap/include/plat/serial.h
-@@ -111,7 +111,8 @@ struct omap_uart_port_info;
+@@ -110,7 +110,8 @@ struct omap_board_data;
+ struct omap_uart_port_info;
  
  extern void omap_serial_init(void);
- extern int omap_uart_can_sleep(void);
 -extern void omap_serial_board_init(struct omap_uart_port_info *platform_data);
 +extern void omap_serial_board_init(struct omap_uart_port_info *platform_data,
 +		u8 port_id);

@@ -1,4 +1,4 @@
-From 6bb18bacd02d172e1a56994e75b4accaee06e616 Mon Sep 17 00:00:00 2001
+From 59de2f5f7ff9a0146e8099b27c867858a90168e5 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 10 Oct 2011 11:13:49 -0500
 Subject: [PATCH 2/6] expansion: add mmc regulator and ds1307 rtc
@@ -9,12 +9,12 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 files changed, 19 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 6f8cf47..9f5706b 100644
+index ec30ef4..153af8f 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -257,6 +257,12 @@ static struct omap2_hsmmc_info mmc[] = {
- 		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_8_BIT_DATA,
+@@ -258,6 +258,12 @@ static struct omap2_hsmmc_info mmc[] = {
  		.gpio_wp	= -EINVAL,
+ 		.deferred	= true,
  	},
 +	{
 +		.mmc		= 2,
@@ -25,7 +25,7 @@ index 6f8cf47..9f5706b 100644
  	{}	/* Terminator */
  };
  
-@@ -378,6 +384,18 @@ static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
+@@ -377,6 +383,18 @@ static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
         },
  };
  
@@ -44,7 +44,7 @@ index 6f8cf47..9f5706b 100644
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -388,6 +406,7 @@ static int __init omap3_beagle_i2c_init(void)
+@@ -387,6 +405,7 @@ static int __init omap3_beagle_i2c_init(void)
  	beagle_twldata.vpll2->constraints.name = "VDVI";
  
  	omap3_pmic_init("twl4030", &beagle_twldata);
