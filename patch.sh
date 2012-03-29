@@ -161,6 +161,10 @@ function fixes {
 	#3/27/2012
 	git am "${DIR}/patches/omap/0001-mfd-cpu_is_omap3430-wasnt-defined.patch"
 	git am "${DIR}/patches/omap/0001-tidspbridge-fix-build-after-iomap.h-move.patch"
+
+	#3/29/2012
+	git am "${DIR}/patches/omap/0001-add-include-to-fix-implicit-declaration-of-function-.patch"
+	git am "${DIR}/patches/omap/0001-fix-mach-omap2-pm-build.patch"
 }
 
 bugs_trivial
