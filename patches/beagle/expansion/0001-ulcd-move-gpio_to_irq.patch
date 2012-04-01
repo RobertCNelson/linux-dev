@@ -1,0 +1,33 @@
+From 4609a6fa38a9b9f586ad577924afc89c222f475c Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sat, 31 Mar 2012 20:42:28 -0500
+Subject: [PATCH] ulcd: move gpio_to_irq
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 610b22a..0230dd1 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -574,6 +574,7 @@ static void __init omap3beagle_tsc2007_init(void)
+ 		return;
+ 	}
+ 
++	beagle_i2c2_bbtoys_ulcd[0].irq = gpio_to_irq(OMAP3BEAGLE_TSC2007_GPIO);
+ 	irq_set_irq_type(gpio_to_irq(OMAP3BEAGLE_TSC2007_GPIO), IRQ_TYPE_EDGE_FALLING);
+ }
+ 
+@@ -587,7 +588,6 @@ static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] = {
+ 	{
+ 		I2C_BOARD_INFO("tlc59108", 0x40),
+ 		I2C_BOARD_INFO("tsc2007", 0x48),
+-		.irq = gpio_to_irq(OMAP3BEAGLE_TSC2007_GPIO),
+ 		.platform_data = &tsc2007_info,
+ 	},
+ };
+-- 
+1.7.9.1
+

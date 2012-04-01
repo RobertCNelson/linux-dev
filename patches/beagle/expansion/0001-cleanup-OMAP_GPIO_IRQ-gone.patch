@@ -1,0 +1,44 @@
+From ef15b35454ace6304ed1fbb571acdeaf3f9d473f Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sat, 31 Mar 2012 20:30:48 -0500
+Subject: [PATCH] cleanup: OMAP_GPIO_IRQ gone
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 1d27397..610b22a 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -193,7 +193,7 @@ static void __init omap3beagle_enc28j60_init(void)
+ 	if ((gpio_request(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, "ENC28J60_IRQ") == 0) &&
+ 	    (gpio_direction_input(OMAP3BEAGLE_GPIO_ENC28J60_IRQ) == 0)) {
+ 		gpio_export(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, 0);
+-		omap3beagle_zippy_spi_board_info[0].irq	= OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
++		omap3beagle_zippy_spi_board_info[0].irq	= gpio_to_irq(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
+ 		irq_set_irq_type(omap3beagle_zippy_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
+ 	} else {
+ 		printk(KERN_ERR "could not obtain gpio for ENC28J60_IRQ\n");
+@@ -235,7 +235,7 @@ static void __init omap3beagle_ks8851_init(void)
+ 	if ((gpio_request(OMAP3BEAGLE_GPIO_KS8851_IRQ, "KS8851_IRQ") == 0) &&
+ 	    (gpio_direction_input(OMAP3BEAGLE_GPIO_KS8851_IRQ) == 0)) {
+ 		gpio_export(OMAP3BEAGLE_GPIO_KS8851_IRQ, 0);
+-		omap3beagle_zippy2_spi_board_info[0].irq = OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_KS8851_IRQ);
++		omap3beagle_zippy2_spi_board_info[0].irq = gpio_to_irq(OMAP3BEAGLE_GPIO_KS8851_IRQ);
+ 		irq_set_irq_type(omap3beagle_zippy2_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
+ 	} else {
+ 		printk(KERN_ERR "could not obtain gpio for KS8851_IRQ\n");
+@@ -587,7 +587,7 @@ static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] = {
+ 	{
+ 		I2C_BOARD_INFO("tlc59108", 0x40),
+ 		I2C_BOARD_INFO("tsc2007", 0x48),
+-		.irq = OMAP_GPIO_IRQ(OMAP3BEAGLE_TSC2007_GPIO),
++		.irq = gpio_to_irq(OMAP3BEAGLE_TSC2007_GPIO),
+ 		.platform_data = &tsc2007_info,
+ 	},
+ };
+-- 
+1.7.9.1
+

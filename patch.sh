@@ -114,7 +114,9 @@ function omapdrm {
 	git am "${DIR}/patches/drm/cma/0012-mm-trigger-page-reclaim-in-alloc_contig_range-to-sta.patch"
 	git am "${DIR}/patches/drm/cma/0013-drivers-add-Contiguous-Memory-Allocator.patch"
 	git am "${DIR}/patches/drm/cma/0014-X86-integrate-CMA-with-DMA-mapping-subsystem.patch"
-	git am "${DIR}/patches/drm/cma/0015-ARM-integrate-CMA-with-DMA-mapping-subsystem.patch"
+
+#meeds to be tweaked rc1
+#	git am "${DIR}/patches/drm/cma/0015-ARM-integrate-CMA-with-DMA-mapping-subsystem.patch"
 
 	echo "Patches for cma-v23"
 	git am "${DIR}/patches/drm/cma/0001-cma-23-mm-compaction-export-some-of-the-functions.patch"
@@ -163,8 +165,13 @@ function fixes {
 	git am "${DIR}/patches/omap/0001-tidspbridge-fix-build-after-iomap.h-move.patch"
 
 	#3/29/2012
-	git am "${DIR}/patches/omap/0001-add-include-to-fix-implicit-declaration-of-function-.patch"
-	git am "${DIR}/patches/omap/0001-fix-mach-omap2-pm-build.patch"
+#	git am "${DIR}/patches/omap/0001-add-include-to-fix-implicit-declaration-of-function-.patch"
+#	git am "${DIR}/patches/omap/0001-fix-mach-omap2-pm-build.patch"
+
+	#3.4-rc1 fixes:
+	git am "${DIR}/patches/beagle/expansion/0001-cleanup-OMAP_GPIO_IRQ-gone.patch"
+	git am "${DIR}/patches/beagle/expansion/0001-ulcd-move-gpio_to_irq.patch"
+	git am "${DIR}/patches/beagle/expansion/0001-ulcd-fix-ulcd-struct.patch"
 }
 
 bugs_trivial
