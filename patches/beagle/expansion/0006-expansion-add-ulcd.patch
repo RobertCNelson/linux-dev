@@ -1,27 +1,19 @@
-From b2ea4350de992410f4a5d2a382e1552286c3106b Mon Sep 17 00:00:00 2001
+From 826f1ceb1deaed516b22536f499689596beb5a7e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Fri, 16 Mar 2012 09:47:57 -0500
 Subject: [PATCH 6/6] expansion: add ulcd
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c          |  122 ++++++++++++++++++++++
+ arch/arm/mach-omap2/board-omap3beagle.c          |  125 ++++++++++++++++++++++
  drivers/video/omap2/displays/panel-generic-dpi.c |   25 +++++
- 2 files changed, 147 insertions(+), 0 deletions(-)
+ 2 files changed, 150 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index daa0d2b..44d00bf 100644
+index 27d3902..8612647 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -33,6 +33,7 @@
- 
- #include <linux/regulator/machine.h>
- #include <linux/i2c/twl.h>
-+#include <linux/i2c/tsc2007.h>
- 
- #include <mach/hardware.h>
- #include <asm/mach-types.h>
-@@ -84,11 +85,15 @@ static struct {
+@@ -84,11 +84,15 @@ static struct {
  	int usb_pwr_level;
  	int reset_gpio;
  	int usr_button_gpio;
@@ -37,7 +29,7 @@ index daa0d2b..44d00bf 100644
  };
  
  static struct gpio omap3_beagle_rev_gpios[] __initdata = {
-@@ -158,6 +163,7 @@ static void __init omap3_beagle_init_rev(void)
+@@ -158,6 +162,7 @@ static void __init omap3_beagle_init_rev(void)
  }
  
  char expansionboard_name[16];
@@ -45,7 +37,7 @@ index daa0d2b..44d00bf 100644
  
  #if defined(CONFIG_ENC28J60) || defined(CONFIG_ENC28J60_MODULE)
  
-@@ -312,9 +318,46 @@ static struct omap_dss_device beagle_tv_device = {
+@@ -310,9 +315,46 @@ static struct omap_dss_device beagle_tv_device = {
  	.phy.venc.type = OMAP_DSS_VENC_TYPE_SVIDEO,
  };
  
@@ -92,7 +84,7 @@ index daa0d2b..44d00bf 100644
  };
  
  static struct omap_dss_board_info beagle_dss_data = {
-@@ -331,6 +374,11 @@ static void __init beagle_display_init(void)
+@@ -329,6 +371,11 @@ static void __init beagle_display_init(void)
  			     "DVI reset");
  	if (r < 0)
  		printk(KERN_ERR "Unable to get DVI reset GPIO\n");
@@ -104,18 +96,36 @@ index daa0d2b..44d00bf 100644
  }
  
  #include "sdram-micron-mt46h32m32lf-6.h"
-@@ -479,6 +527,50 @@ static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {
+@@ -477,6 +524,54 @@ static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {
  static struct i2c_board_info __initdata beagle_i2c2_boardinfo[] = {};
  #endif
  
 +#if defined(CONFIG_INPUT_TOUCHSCREEN) && \
 +	( defined(CONFIG_TOUCHSCREEN_TSC2007) || defined(CONFIG_TOUCHSCREEN_TSC2007_MODULE))
 +/* Touchscreen */
++
++#include <linux/i2c/tsc2007.h>
++
 +#define OMAP3BEAGLE_TSC2007_GPIO 157
++
 +static int omap3beagle_tsc2007_get_pendown_state(void)
 +{
 +	return !gpio_get_value(OMAP3BEAGLE_TSC2007_GPIO);
 +}
++
++static struct tsc2007_platform_data tsc2007_info = {
++	.model = 2007,
++	.x_plate_ohms = 180,
++	.get_pendown_state = omap3beagle_tsc2007_get_pendown_state,
++};
++
++static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] __initdata = {
++	{
++		I2C_BOARD_INFO("tlc59108", 0x40),
++		I2C_BOARD_INFO("tsc2007", 0x48),
++		.platform_data = &tsc2007_info,
++	},
++};
 +
 +static void __init omap3beagle_tsc2007_init(void)
 +{
@@ -130,23 +140,9 @@ index daa0d2b..44d00bf 100644
 +		return;
 +	}
 +
++	beagle_i2c2_bbtoys_ulcd[0].irq = gpio_to_irq(OMAP3BEAGLE_TSC2007_GPIO);
 +	irq_set_irq_type(gpio_to_irq(OMAP3BEAGLE_TSC2007_GPIO), IRQ_TYPE_EDGE_FALLING);
 +}
-+
-+static struct tsc2007_platform_data tsc2007_info = {
-+	.model = 2007,
-+	.x_plate_ohms = 180,
-+	.get_pendown_state = omap3beagle_tsc2007_get_pendown_state,
-+};
-+
-+static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] = {
-+	{
-+		I2C_BOARD_INFO("tlc59108", 0x40),
-+		I2C_BOARD_INFO("tsc2007", 0x48),
-+		.irq = OMAP_GPIO_IRQ(OMAP3BEAGLE_TSC2007_GPIO),
-+		.platform_data = &tsc2007_info,
-+	},
-+};
 +#else
 +static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] = {};
 +static void __init omap3beagle_tsc2007_init(void) { return; }
@@ -155,7 +151,7 @@ index daa0d2b..44d00bf 100644
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -489,7 +581,17 @@ static int __init omap3_beagle_i2c_init(void)
+@@ -487,7 +582,17 @@ static int __init omap3_beagle_i2c_init(void)
  	beagle_twldata.vpll2->constraints.name = "VDVI";
  
  	omap3_pmic_init("twl4030", &beagle_twldata);
@@ -173,7 +169,7 @@ index daa0d2b..44d00bf 100644
  	/* Bus 3 is attached to the DVI port where devices like the pico DLP
  	 * projector don't work reliably with 400kHz */
  	omap_register_i2c_bus(3, 100, beagle_i2c_eeprom, ARRAY_SIZE(beagle_i2c_eeprom));
-@@ -588,6 +690,15 @@ static int __init expansionboard_setup(char *str)
+@@ -586,6 +691,15 @@ static int __init expansionboard_setup(char *str)
  	return 0;
  }
  
@@ -189,7 +185,7 @@ index daa0d2b..44d00bf 100644
  static void __init beagle_opp_init(void)
  {
  	int r = 0;
-@@ -644,6 +755,10 @@ static void __init omap3_beagle_init(void)
+@@ -642,6 +756,10 @@ static void __init omap3_beagle_init(void)
  
  	gpio_buttons[0].gpio = beagle_config.usr_button_gpio;
  
@@ -200,7 +196,7 @@ index daa0d2b..44d00bf 100644
  	platform_add_devices(omap3_beagle_devices,
  			ARRAY_SIZE(omap3_beagle_devices));
  	omap_display_init(&beagle_dss_data);
-@@ -704,6 +819,12 @@ static void __init omap3_beagle_init(void)
+@@ -702,6 +820,12 @@ static void __init omap3_beagle_init(void)
  		gpio_export(162, 1);
  	}
  
@@ -213,7 +209,7 @@ index daa0d2b..44d00bf 100644
  	usb_musb_init(NULL);
  	usbhs_init(&usbhs_bdata);
  	omap_nand_flash_init(NAND_BUSWIDTH_16, omap3beagle_nand_partitions,
-@@ -721,6 +842,7 @@ static void __init omap3_beagle_init(void)
+@@ -719,6 +843,7 @@ static void __init omap3_beagle_init(void)
  }
  
  early_param("buddy", expansionboard_setup);

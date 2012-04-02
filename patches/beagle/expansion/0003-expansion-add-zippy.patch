@@ -1,18 +1,18 @@
-From 680d429bdee55626eaf6372f016e569c63f19af9 Mon Sep 17 00:00:00 2001
+From db78a6b6d3b75805e7afd4c7aec5cc9d1706dbf9 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 10 Oct 2011 11:16:12 -0500
 Subject: [PATCH 3/6] expansion: add zippy
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c |   51 +++++++++++++++++++++++++++++++
- 1 files changed, 51 insertions(+), 0 deletions(-)
+ arch/arm/mach-omap2/board-omap3beagle.c |   50 +++++++++++++++++++++++++++++++
+ 1 files changed, 50 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 153af8f..a217864 100644
+index 153af8f..b7ca056 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -159,6 +159,48 @@ static void __init omap3_beagle_init_rev(void)
+@@ -159,6 +159,47 @@ static void __init omap3_beagle_init_rev(void)
  
  char expansionboard_name[16];
  
@@ -25,7 +25,6 @@ index 153af8f..a217864 100644
 +
 +static struct omap2_mcspi_device_config enc28j60_spi_chip_info = {
 +	.turbo_mode	= 0,
-+	//.single_channel	= 1,	/* 0: slave, 1: master */
 +};
 +
 +static struct spi_board_info omap3beagle_zippy_spi_board_info[] __initdata = {
@@ -43,7 +42,7 @@ index 153af8f..a217864 100644
 +	if ((gpio_request(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, "ENC28J60_IRQ") == 0) &&
 +	    (gpio_direction_input(OMAP3BEAGLE_GPIO_ENC28J60_IRQ) == 0)) {
 +		gpio_export(OMAP3BEAGLE_GPIO_ENC28J60_IRQ, 0);
-+		omap3beagle_zippy_spi_board_info[0].irq	= OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
++		omap3beagle_zippy_spi_board_info[0].irq = gpio_to_irq(OMAP3BEAGLE_GPIO_ENC28J60_IRQ);
 +		irq_set_irq_type(omap3beagle_zippy_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
 +	} else {
 +		printk(KERN_ERR "could not obtain gpio for ENC28J60_IRQ\n");
@@ -61,7 +60,7 @@ index 153af8f..a217864 100644
  static struct mtd_partition omap3beagle_nand_partitions[] = {
  	/* All the partition sizes are listed in terms of NAND block size */
  	{
-@@ -571,6 +613,15 @@ static void __init omap3_beagle_init(void)
+@@ -571,6 +612,15 @@ static void __init omap3_beagle_init(void)
  	/* REVISIT leave DVI powered down until it's needed ... */
  	gpio_request_one(170, GPIOF_OUT_INIT_HIGH, "DVI_nPD");
  

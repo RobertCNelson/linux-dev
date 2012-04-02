@@ -163,15 +163,6 @@ function fixes {
 	#3/27/2012
 	git am "${DIR}/patches/omap/0001-mfd-cpu_is_omap3430-wasnt-defined.patch"
 	git am "${DIR}/patches/omap/0001-tidspbridge-fix-build-after-iomap.h-move.patch"
-
-	#3/29/2012
-#	git am "${DIR}/patches/omap/0001-add-include-to-fix-implicit-declaration-of-function-.patch"
-#	git am "${DIR}/patches/omap/0001-fix-mach-omap2-pm-build.patch"
-
-	#3.4-rc1 fixes:
-	git am "${DIR}/patches/beagle/expansion/0001-cleanup-OMAP_GPIO_IRQ-gone.patch"
-	git am "${DIR}/patches/beagle/expansion/0001-ulcd-move-gpio_to_irq.patch"
-	git am "${DIR}/patches/beagle/expansion/0001-ulcd-fix-ulcd-struct.patch"
 }
 
 bugs_trivial

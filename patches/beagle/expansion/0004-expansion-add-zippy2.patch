@@ -1,18 +1,18 @@
-From 97dd9efadb260edb95dcf120d173bf9e97c1005e Mon Sep 17 00:00:00 2001
+From ade4c54aacb26ef51d59f906d9be7c5e17f80f01 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 10 Oct 2011 11:18:08 -0500
 Subject: [PATCH 4/6] expansion: add zippy2
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c |   51 +++++++++++++++++++++++++++++++
- 1 files changed, 51 insertions(+), 0 deletions(-)
+ arch/arm/mach-omap2/board-omap3beagle.c |   50 +++++++++++++++++++++++++++++++
+ 1 files changed, 50 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index a217864..693f15e 100644
+index b7ca056..db5e9d5 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -201,6 +201,48 @@ static void __init omap3beagle_enc28j60_init(void)
+@@ -200,6 +200,47 @@ static void __init omap3beagle_enc28j60_init(void)
  static inline void __init omap3beagle_enc28j60_init(void) { return; }
  #endif
  
@@ -25,7 +25,6 @@ index a217864..693f15e 100644
 +
 +static struct omap2_mcspi_device_config ks8851_spi_chip_info = {
 +	.turbo_mode	= 0,
-+	//.single_channel	= 1,	/* 0: slave, 1: master */
 +};
 +
 +static struct spi_board_info omap3beagle_zippy2_spi_board_info[] __initdata = {
@@ -43,7 +42,7 @@ index a217864..693f15e 100644
 +	if ((gpio_request(OMAP3BEAGLE_GPIO_KS8851_IRQ, "KS8851_IRQ") == 0) &&
 +	    (gpio_direction_input(OMAP3BEAGLE_GPIO_KS8851_IRQ) == 0)) {
 +		gpio_export(OMAP3BEAGLE_GPIO_KS8851_IRQ, 0);
-+		omap3beagle_zippy2_spi_board_info[0].irq = OMAP_GPIO_IRQ(OMAP3BEAGLE_GPIO_KS8851_IRQ);
++		omap3beagle_zippy2_spi_board_info[0].irq = gpio_to_irq(OMAP3BEAGLE_GPIO_KS8851_IRQ);
 +		irq_set_irq_type(omap3beagle_zippy2_spi_board_info[0].irq, IRQ_TYPE_EDGE_FALLING);
 +	} else {
 +		printk(KERN_ERR "could not obtain gpio for KS8851_IRQ\n");
@@ -61,7 +60,7 @@ index a217864..693f15e 100644
  static struct mtd_partition omap3beagle_nand_partitions[] = {
  	/* All the partition sizes are listed in terms of NAND block size */
  	{
-@@ -622,6 +664,15 @@ static void __init omap3_beagle_init(void)
+@@ -621,6 +662,15 @@ static void __init omap3_beagle_init(void)
  		mmc[1].gpio_cd = 162;
  	}
  
