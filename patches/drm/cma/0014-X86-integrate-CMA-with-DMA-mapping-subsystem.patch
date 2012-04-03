@@ -1,7 +1,7 @@
-From 3ae1a6caf8f5054a463af2107b394a1298a05d0c Mon Sep 17 00:00:00 2001
+From 0fb2f3ed137f8fa274fc129505d0d33d3c4e995f Mon Sep 17 00:00:00 2001
 From: Marek Szyprowski <m.szyprowski@samsung.com>
-Date: Fri, 17 Feb 2012 20:30:34 +0100
-Subject: [PATCH 14/15] X86: integrate CMA with DMA-mapping subsystem
+Date: Thu, 29 Dec 2011 13:09:51 +0100
+Subject: [PATCH 14/16] X86: integrate CMA with DMA-mapping subsystem
 
 This patch adds support for CMA to dma-mapping subsystem for x86
 architecture that uses common pci-dma/pci-nommu implementation. This
@@ -22,7 +22,7 @@ Acked-by: Arnd Bergmann <arnd@arndb.de>
  create mode 100644 arch/x86/include/asm/dma-contiguous.h
 
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 5bed94e..de6e069 100644
+index 1d14cc6..bc1cfa8 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
 @@ -31,6 +31,7 @@ config X86
@@ -75,7 +75,7 @@ index ed3065f..90ac6f0 100644
  {
  	if (!dev->dma_mask)
 diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
-index 1c4d769..d3c3723 100644
+index 28e5e06..89094c3 100644
 --- a/arch/x86/kernel/pci-dma.c
 +++ b/arch/x86/kernel/pci-dma.c
 @@ -99,14 +99,18 @@ void *dma_generic_alloc_coherent(struct device *dev, size_t size,
@@ -143,7 +143,7 @@ index 3af4af8..656566f 100644
  	.map_page		= nommu_map_page,
  	.sync_single_for_device = nommu_sync_single_for_device,
 diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index d7d5099..be6795f 100644
+index 1a29015..d6c956e 100644
 --- a/arch/x86/kernel/setup.c
 +++ b/arch/x86/kernel/setup.c
 @@ -50,6 +50,7 @@
@@ -154,7 +154,7 @@ index d7d5099..be6795f 100644
  
  #include <linux/errno.h>
  #include <linux/kernel.h>
-@@ -938,6 +939,7 @@ void __init setup_arch(char **cmdline_p)
+@@ -934,6 +935,7 @@ void __init setup_arch(char **cmdline_p)
  	}
  #endif
  	memblock.current_limit = get_max_mapped();

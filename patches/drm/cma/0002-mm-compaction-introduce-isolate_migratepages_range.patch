@@ -1,7 +1,7 @@
-From 9ddef19d1ec044cd84c069d28ae546c50d48ae18 Mon Sep 17 00:00:00 2001
+From 1ddafc304f4b57aee2f75859ea62814cfe7395c6 Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
-Date: Fri, 17 Feb 2012 20:30:22 +0100
-Subject: [PATCH 02/15] mm: compaction: introduce isolate_migratepages_range()
+Date: Mon, 30 Jan 2012 13:16:26 +0100
+Subject: [PATCH 02/16] mm: compaction: introduce isolate_migratepages_range()
 
 This commit introduces isolate_migratepages_range() function which
 extracts functionality from isolate_migratepages() so that it can be
@@ -18,12 +18,13 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  mm/compaction.c |   75 +++++++++++++++++++++++++++++++++++++++---------------
  1 files changed, 54 insertions(+), 21 deletions(-)
 
 diff --git a/mm/compaction.c b/mm/compaction.c
-index d9ebebe..72f8685 100644
+index 74a8c82..ee20fc0 100644
 --- a/mm/compaction.c
 +++ b/mm/compaction.c
 @@ -250,31 +250,34 @@ typedef enum {

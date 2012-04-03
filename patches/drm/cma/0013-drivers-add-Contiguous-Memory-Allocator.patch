@@ -1,7 +1,7 @@
-From 5c7adc1c53bd10adbc7e35a2fc19f7fdc5070e63 Mon Sep 17 00:00:00 2001
+From 2701abca7058476370f89b6ab686eda6f145f20f Mon Sep 17 00:00:00 2001
 From: Marek Szyprowski <m.szyprowski@samsung.com>
-Date: Fri, 17 Feb 2012 20:30:33 +0100
-Subject: [PATCH 13/15] drivers: add Contiguous Memory Allocator
+Date: Thu, 29 Dec 2011 13:09:51 +0100
+Subject: [PATCH 13/16] drivers: add Contiguous Memory Allocator
 
 The Contiguous Memory Allocator is a set of helper functions for DMA
 mapping framework that improves allocations of contiguous memory chunks.
@@ -25,6 +25,7 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  Documentation/kernel-parameters.txt  |    5 +
  arch/Kconfig                         |    3 +
@@ -40,7 +41,7 @@ Tested-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 include/linux/dma-contiguous.h
 
 diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index d99fd9c..95b1169 100644
+index c1601e5..669e8bb 100644
 --- a/Documentation/kernel-parameters.txt
 +++ b/Documentation/kernel-parameters.txt
 @@ -508,6 +508,11 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
@@ -56,10 +57,10 @@ index d99fd9c..95b1169 100644
  			Specify whether pages are marked as being inactive
  			when they are freed.  This is used in CMO environments
 diff --git a/arch/Kconfig b/arch/Kconfig
-index 4f55c73..8ec200c 100644
+index 684eb5a..0a3ffe4 100644
 --- a/arch/Kconfig
 +++ b/arch/Kconfig
-@@ -128,6 +128,9 @@ config HAVE_ARCH_TRACEHOOK
+@@ -142,6 +142,9 @@ config HAVE_ARCH_TRACEHOOK
  config HAVE_DMA_ATTRS
  	bool
  
@@ -70,10 +71,10 @@ index 4f55c73..8ec200c 100644
  	bool
  
 diff --git a/drivers/base/Kconfig b/drivers/base/Kconfig
-index 7be9f79..f56cb20 100644
+index 9aa618a..9b21469 100644
 --- a/drivers/base/Kconfig
 +++ b/drivers/base/Kconfig
-@@ -189,4 +189,93 @@ config DMA_SHARED_BUFFER
+@@ -192,4 +192,93 @@ config DMA_SHARED_BUFFER
  	  APIs extension; the file's descriptor can then be passed on to other
  	  driver.
  
@@ -168,7 +169,7 @@ index 7be9f79..f56cb20 100644
 +
  endmenu
 diff --git a/drivers/base/Makefile b/drivers/base/Makefile
-index 610f999..ffd9dae 100644
+index b6d1b9c..5aa2d70 100644
 --- a/drivers/base/Makefile
 +++ b/drivers/base/Makefile
 @@ -6,6 +6,7 @@ obj-y			:= core.o bus.o dd.o syscore.o \
@@ -181,7 +182,7 @@ index 610f999..ffd9dae 100644
  obj-$(CONFIG_HAVE_GENERIC_DMA_COHERENT) += dma-coherent.o
 diff --git a/drivers/base/dma-contiguous.c b/drivers/base/dma-contiguous.c
 new file mode 100644
-index 0000000..6130787
+index 0000000..78efb03
 --- /dev/null
 +++ b/drivers/base/dma-contiguous.c
 @@ -0,0 +1,401 @@
@@ -577,7 +578,7 @@ index 0000000..6130787
 +	if (pfn < cma->base_pfn || pfn >= cma->base_pfn + cma->count)
 +		return false;
 +
-+	VM_BUG_ON(pfn + count > cma->base_pfn);
++	VM_BUG_ON(pfn + count > cma->base_pfn + cma->count);
 +
 +	mutex_lock(&cma_mutex);
 +	bitmap_clear(cma->bitmap, pfn - cma->base_pfn, count);
@@ -621,10 +622,10 @@ index 0000000..c544356
 +
 +#endif
 diff --git a/include/linux/device.h b/include/linux/device.h
-index b63fb39..9559c18 100644
+index 5ad17cc..e339929 100644
 --- a/include/linux/device.h
 +++ b/include/linux/device.h
-@@ -667,6 +667,10 @@ struct device {
+@@ -661,6 +661,10 @@ struct device {
  
  	struct dma_coherent_mem	*dma_mem; /* internal for coherent mem
  					     override */

@@ -1,7 +1,7 @@
-From 9561c58f4c055063b203c002953323ab0c8dcaa3 Mon Sep 17 00:00:00 2001
+From edc90d8934763bce165206899908484f1b3c54a7 Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
-Date: Fri, 17 Feb 2012 20:30:26 +0100
-Subject: [PATCH 06/15] mm: page_alloc: introduce alloc_contig_range()
+Date: Thu, 29 Dec 2011 13:09:50 +0100
+Subject: [PATCH 06/16] mm: page_alloc: introduce alloc_contig_range()
 
 This commit adds the alloc_contig_range() function which tries
 to allocate given range of pages.  It tries to migrate all
@@ -17,10 +17,11 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  include/linux/gfp.h |    8 ++
- mm/page_alloc.c     |  185 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 193 insertions(+), 0 deletions(-)
+ mm/page_alloc.c     |  188 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 196 insertions(+), 0 deletions(-)
 
 diff --git a/include/linux/gfp.h b/include/linux/gfp.h
 index 581e74b..052a5b6 100644
@@ -40,7 +41,7 @@ index 581e74b..052a5b6 100644
 +
  #endif /* __LINUX_GFP_H */
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 3e00962..8ce581b 100644
+index 0922308..2c0f68a 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
 @@ -57,6 +57,7 @@
@@ -51,20 +52,22 @@ index 3e00962..8ce581b 100644
  #include <linux/page-debug-flags.h>
  
  #include <asm/tlbflush.h>
-@@ -5506,6 +5507,190 @@ out:
+@@ -5550,6 +5551,193 @@ out:
  	spin_unlock_irqrestore(&zone->lock, flags);
  }
  
 +#ifdef CONFIG_CMA
 +
-+static unsigned long pfn_align_to_maxpage_down(unsigned long pfn)
++static unsigned long pfn_max_align_down(unsigned long pfn)
 +{
-+	return pfn & ~(MAX_ORDER_NR_PAGES - 1);
++	return pfn & ~(max_t(unsigned long, MAX_ORDER_NR_PAGES,
++			     pageblock_nr_pages) - 1);
 +}
 +
-+static unsigned long pfn_align_to_maxpage_up(unsigned long pfn)
++static unsigned long pfn_max_align_up(unsigned long pfn)
 +{
-+	return ALIGN(pfn, MAX_ORDER_NR_PAGES);
++	return ALIGN(pfn, max_t(unsigned long, MAX_ORDER_NR_PAGES,
++				pageblock_nr_pages));
 +}
 +
 +static struct page *
@@ -146,10 +149,12 @@ index 3e00962..8ce581b 100644
 +
 +	/*
 +	 * What we do here is we mark all pageblocks in range as
-+	 * MIGRATE_ISOLATE.  Because of the way page allocator work, we
-+	 * align the range to MAX_ORDER pages so that page allocator
-+	 * won't try to merge buddies from different pageblocks and
-+	 * change MIGRATE_ISOLATE to some other migration type.
++	 * MIGRATE_ISOLATE.  Because pageblock and max order pages may
++	 * have different sizes, and due to the way page allocator
++	 * work, we align the range to biggest of the two pages so
++	 * that page allocator won't try to merge buddies from
++	 * different pageblocks and change MIGRATE_ISOLATE to some
++	 * other migration type.
 +	 *
 +	 * Once the pageblocks are marked as MIGRATE_ISOLATE, we
 +	 * migrate the pages from an unaligned range (ie. pages that
@@ -162,13 +167,12 @@ index 3e00962..8ce581b 100644
 +	 *
 +	 * This lets us mark the pageblocks back as
 +	 * MIGRATE_CMA/MIGRATE_MOVABLE so that free pages in the
-+	 * MAX_ORDER aligned range but not in the unaligned, original
-+	 * range are put back to page allocator so that buddy can use
-+	 * them.
++	 * aligned range but not in the unaligned, original range are
++	 * put back to page allocator so that buddy can use them.
 +	 */
 +
-+	ret = start_isolate_page_range(pfn_align_to_maxpage_down(start),
-+				       pfn_align_to_maxpage_up(end));
++	ret = start_isolate_page_range(pfn_max_align_down(start),
++				       pfn_max_align_up(end));
 +	if (ret)
 +		goto done;
 +
@@ -227,8 +231,8 @@ index 3e00962..8ce581b 100644
 +		free_contig_range(end, outer_end - end);
 +
 +done:
-+	undo_isolate_page_range(pfn_align_to_maxpage_down(start),
-+				pfn_align_to_maxpage_up(end));
++	undo_isolate_page_range(pfn_max_align_down(start),
++				pfn_max_align_up(end));
 +	return ret;
 +}
 +

@@ -1,7 +1,7 @@
-From 49e2b992ea096c31e2fa37d3db59691229c58354 Mon Sep 17 00:00:00 2001
+From f72ef8f770a9974c6e62031910e4ef3aacbb737a Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
-Date: Fri, 17 Feb 2012 20:30:28 +0100
-Subject: [PATCH 08/15] mm: mmzone: MIGRATE_CMA migration type added
+Date: Thu, 29 Dec 2011 13:09:50 +0100
+Subject: [PATCH 08/16] mm: mmzone: MIGRATE_CMA migration type added
 
 The MIGRATE_CMA migration type has two main characteristics:
 (i) only movable pages can be allocated from MIGRATE_CMA
@@ -30,6 +30,7 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  include/linux/gfp.h    |    3 ++
  include/linux/mmzone.h |   38 +++++++++++++++++++----
@@ -54,7 +55,7 @@ index 052a5b6..78d32a7 100644
  
  #endif /* __LINUX_GFP_H */
 diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-index 650ba2f..82f4fa5 100644
+index dff7115..8c1335f 100644
 --- a/include/linux/mmzone.h
 +++ b/include/linux/mmzone.h
 @@ -35,13 +35,37 @@
@@ -116,7 +117,7 @@ index e338407..3922002 100644
  	  Allows the migration of the physical location of pages of processes
  	  while the virtual addresses are not changed. This is useful in
 diff --git a/mm/compaction.c b/mm/compaction.c
-index 718a8cc..cc1e5ac 100644
+index 7a92e41..da7d35e 100644
 --- a/mm/compaction.c
 +++ b/mm/compaction.c
 @@ -45,6 +45,11 @@ static void map_pages(struct list_head *list)
@@ -152,7 +153,7 @@ index 718a8cc..cc1e5ac 100644
  
  	/* Otherwise skip the block */
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 5ee9076..e2e11c55 100644
+index 8e8cd7e..26d8b9f 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
 @@ -750,6 +750,24 @@ void __meminit __free_pages_bootmem(struct page *page, unsigned int order)
@@ -263,7 +264,7 @@ index 5ee9076..e2e11c55 100644
  		list = &page->lru;
  	}
  	__mod_zone_page_state(zone, NR_FREE_PAGES, -(i << order));
-@@ -1337,8 +1375,12 @@ int split_free_page(struct page *page)
+@@ -1373,8 +1411,12 @@ int split_free_page(struct page *page)
  
  	if (order >= pageblock_order - 1) {
  		struct page *endpage = page + (1 << order) - 1;
@@ -278,7 +279,7 @@ index 5ee9076..e2e11c55 100644
  	}
  
  	return 1 << order;
-@@ -5370,14 +5412,16 @@ static int
+@@ -5414,14 +5456,16 @@ static int
  __count_immobile_pages(struct zone *zone, struct page *page, int count)
  {
  	unsigned long pfn, iter, found;

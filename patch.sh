@@ -99,7 +99,8 @@ function pandaboard {
 function omapdrm {
 	echo "omap testing omapdrm/kms"
 
-	echo "Patches for cma-v22"
+	echo "Patches for 3.4-rc1-cma-v24"
+	#git://git.linaro.org/people/mszyprowski/linux-dma-mapping.git 3.4-rc1-cma-v24
 	git am "${DIR}/patches/drm/cma/0001-mm-page_alloc-remove-trailing-whitespace.patch"
 	git am "${DIR}/patches/drm/cma/0002-mm-compaction-introduce-isolate_migratepages_range.patch"
 	git am "${DIR}/patches/drm/cma/0003-mm-compaction-introduce-map_pages.patch"
@@ -114,16 +115,7 @@ function omapdrm {
 	git am "${DIR}/patches/drm/cma/0012-mm-trigger-page-reclaim-in-alloc_contig_range-to-sta.patch"
 	git am "${DIR}/patches/drm/cma/0013-drivers-add-Contiguous-Memory-Allocator.patch"
 	git am "${DIR}/patches/drm/cma/0014-X86-integrate-CMA-with-DMA-mapping-subsystem.patch"
-
-#meeds to be tweaked rc1
-#	git am "${DIR}/patches/drm/cma/0015-ARM-integrate-CMA-with-DMA-mapping-subsystem.patch"
-
-	echo "Patches for cma-v23"
-	git am "${DIR}/patches/drm/cma/0001-cma-23-mm-compaction-export-some-of-the-functions.patch"
-	git am "${DIR}/patches/drm/cma/0002-cma-23-drivers-add-Contiguous-Memory-Allocator.patch"
-
-	echo "Patches for cma and v3.4-rc0"
-	git am "${DIR}/patches/drm/cma/0001-mm-cma-out_of_memory-now-has-a-force_kill-parameter.patch"
+	git am "${DIR}/patches/drm/cma/0015-ARM-integrate-CMA-with-DMA-mapping-subsystem.patch"
 
 #merged v3.4-rc0
 #	echo "omapdrm driver patches for 3.4"

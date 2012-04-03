@@ -90,7 +90,7 @@ dspscript
 
 }
 
-function file-install-DSP {
+file_install_DSP () {
 
 cat > ${DIR}/DSP/install-DSP.sh <<installDSP
 #!/bin/bash

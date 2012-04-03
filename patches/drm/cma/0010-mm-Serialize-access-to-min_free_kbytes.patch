@@ -1,7 +1,7 @@
-From b5981d7477774fbf53da3ada62bc7a0a654ae371 Mon Sep 17 00:00:00 2001
+From dbf266cfafa61250ac58ed08d9ec059da58d47dc Mon Sep 17 00:00:00 2001
 From: Mel Gorman <mgorman@suse.de>
-Date: Fri, 17 Feb 2012 20:30:30 +0100
-Subject: [PATCH 10/15] mm: Serialize access to min_free_kbytes
+Date: Mon, 25 Apr 2011 21:36:42 +0000
+Subject: [PATCH 10/16] mm: Serialize access to min_free_kbytes
 
 There is a race between the min_free_kbytes sysctl, memory hotplug
 and transparent hugepage support enablement.  Memory hotplug uses a
@@ -12,15 +12,16 @@ serialise watermark updates.
 Signed-off-by: Mel Gorman <mgorman@suse.de>
 Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Reviewed-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  mm/page_alloc.c |   23 +++++++++++++++--------
  1 files changed, 15 insertions(+), 8 deletions(-)
 
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 7bb99e3..2983379 100644
+index 216e575..8b19caa 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -4976,14 +4976,7 @@ static void setup_per_zone_lowmem_reserve(void)
+@@ -5020,14 +5020,7 @@ static void setup_per_zone_lowmem_reserve(void)
  	calculate_totalreserve_pages();
  }
  
@@ -36,7 +37,7 @@ index 7bb99e3..2983379 100644
  {
  	unsigned long pages_min = min_free_kbytes >> (PAGE_SHIFT - 10);
  	unsigned long lowmem_pages = 0;
-@@ -5038,6 +5031,20 @@ void setup_per_zone_wmarks(void)
+@@ -5082,6 +5075,20 @@ void setup_per_zone_wmarks(void)
  	calculate_totalreserve_pages();
  }
  

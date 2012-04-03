@@ -1,7 +1,7 @@
-From c55466fc83cfcef476c2e6d9e7698f382ede1eb6 Mon Sep 17 00:00:00 2001
+From 05b74d3a3b4ba1b36d5b1f36bc8decb2079bd9c5 Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
-Date: Fri, 17 Feb 2012 20:30:23 +0100
-Subject: [PATCH 03/15] mm: compaction: introduce map_pages()
+Date: Mon, 30 Jan 2012 13:23:47 +0100
+Subject: [PATCH 03/16] mm: compaction: introduce map_pages()
 
 This commit creates a map_pages() function which map pages freed
 using split_free_pages().  This merely moves some code from
@@ -12,12 +12,13 @@ Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Acked-by: Mel Gorman <mel@csn.ul.ie>
 Reviewed-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  mm/compaction.c |   15 +++++++++++----
  1 files changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/mm/compaction.c b/mm/compaction.c
-index 72f8685..de22893 100644
+index ee20fc0..d9d7b35 100644
 --- a/mm/compaction.c
 +++ b/mm/compaction.c
 @@ -127,6 +127,16 @@ static bool suitable_migration_target(struct page *page)

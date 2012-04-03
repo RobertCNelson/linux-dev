@@ -1,7 +1,7 @@
-From d5e0e8da11c955f25911c9eef571f537e393239c Mon Sep 17 00:00:00 2001
+From dce943def1194b443c81c3a7d5e334db9f4f4471 Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
-Date: Fri, 17 Feb 2012 20:30:25 +0100
-Subject: [PATCH 05/15] mm: compaction: export some of the functions
+Date: Thu, 29 Dec 2011 13:09:50 +0100
+Subject: [PATCH 05/16] mm: compaction: export some of the functions
 
 This commit exports some of the functions from compaction.c file
 outside of it adding their declaration into internal.h header
@@ -20,6 +20,7 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  mm/Makefile     |    3 +-
  mm/compaction.c |  328 ++++++++++++++++++++++++++-----------------------------
@@ -452,7 +453,7 @@ index 06b198f..7a92e41 100644
 +
 +#endif /* CONFIG_COMPACTION */
 diff --git a/mm/internal.h b/mm/internal.h
-index 2189af4..55e7eed 100644
+index 2189af4..aee4761 100644
 --- a/mm/internal.h
 +++ b/mm/internal.h
 @@ -100,6 +100,39 @@ extern void prep_compound_page(struct page *page, unsigned long order);
@@ -480,7 +481,7 @@ index 2189af4..55e7eed 100644
 +	unsigned long migrate_pfn;	/* isolate_migratepages search base */
 +	bool sync;			/* Synchronous migration */
 +
-+	unsigned int order;		/* order a direct compactor needs */
++	int order;			/* order a direct compactor needs */
 +	int migratetype;		/* MOVABLE, RECLAIMABLE etc */
 +	struct zone *zone;
 +};

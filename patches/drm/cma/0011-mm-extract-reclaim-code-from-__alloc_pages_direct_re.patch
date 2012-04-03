@@ -1,7 +1,7 @@
-From e3b7082d818eeb3ad9dcc3fb51d1f914d2afa648 Mon Sep 17 00:00:00 2001
+From e51fed47406b2e224288ed55a06d5f13d54b71c5 Mon Sep 17 00:00:00 2001
 From: Marek Szyprowski <m.szyprowski@samsung.com>
-Date: Fri, 17 Feb 2012 20:30:31 +0100
-Subject: [PATCH 11/15] mm: extract reclaim code from
+Date: Wed, 25 Jan 2012 12:09:52 +0100
+Subject: [PATCH 11/16] mm: extract reclaim code from
  __alloc_pages_direct_reclaim()
 
 This patch extracts common reclaim code from __alloc_pages_direct_reclaim()
@@ -16,15 +16,16 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  mm/page_alloc.c |   30 +++++++++++++++++++++---------
  1 files changed, 21 insertions(+), 9 deletions(-)
 
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 2983379..7997cd6 100644
+index 8b19caa..5a90ada 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -2092,16 +2092,13 @@ __alloc_pages_direct_compact(gfp_t gfp_mask, unsigned int order,
+@@ -2130,16 +2130,13 @@ __alloc_pages_direct_compact(gfp_t gfp_mask, unsigned int order,
  }
  #endif /* CONFIG_COMPACTION */
  
@@ -46,7 +47,7 @@ index 2983379..7997cd6 100644
  
  	cond_resched();
  
-@@ -2112,7 +2109,7 @@ __alloc_pages_direct_reclaim(gfp_t gfp_mask, unsigned int order,
+@@ -2150,7 +2147,7 @@ __alloc_pages_direct_reclaim(gfp_t gfp_mask, unsigned int order,
  	reclaim_state.reclaimed_slab = 0;
  	current->reclaim_state = &reclaim_state;
  
@@ -55,7 +56,7 @@ index 2983379..7997cd6 100644
  
  	current->reclaim_state = NULL;
  	lockdep_clear_current_reclaim_state();
-@@ -2120,6 +2117,21 @@ __alloc_pages_direct_reclaim(gfp_t gfp_mask, unsigned int order,
+@@ -2158,6 +2155,21 @@ __alloc_pages_direct_reclaim(gfp_t gfp_mask, unsigned int order,
  
  	cond_resched();
  

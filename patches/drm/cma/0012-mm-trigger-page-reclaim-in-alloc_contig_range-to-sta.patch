@@ -1,7 +1,7 @@
-From 38ed597f0a0093fb362f36b62a8a823034e1e524 Mon Sep 17 00:00:00 2001
+From 1dc94295f00daa82c2ee20b32f08f74b84dbcc5b Mon Sep 17 00:00:00 2001
 From: Marek Szyprowski <m.szyprowski@samsung.com>
-Date: Fri, 17 Feb 2012 20:30:32 +0100
-Subject: [PATCH 12/15] mm: trigger page reclaim in alloc_contig_range() to
+Date: Wed, 25 Jan 2012 12:49:24 +0100
+Subject: [PATCH 12/16] mm: trigger page reclaim in alloc_contig_range() to
  stabilise watermarks
 
 alloc_contig_range() performs memory allocation so it also should keep
@@ -17,13 +17,14 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  include/linux/mmzone.h |    9 +++++++
- mm/page_alloc.c        |   62 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 71 insertions(+), 0 deletions(-)
+ mm/page_alloc.c        |   60 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 69 insertions(+), 0 deletions(-)
 
 diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-index 82f4fa5..6a6c2cc 100644
+index 8c1335f..26f2040 100644
 --- a/include/linux/mmzone.h
 +++ b/include/linux/mmzone.h
 @@ -63,8 +63,10 @@ enum {
@@ -52,10 +53,10 @@ index 82f4fa5..6a6c2cc 100644
  
  #ifndef CONFIG_SPARSEMEM
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 7997cd6..d9f1e64 100644
+index 5a90ada..0e1c6f5 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -5035,6 +5035,11 @@ static void __setup_per_zone_wmarks(void)
+@@ -5079,6 +5079,11 @@ static void __setup_per_zone_wmarks(void)
  
  		zone->watermark[WMARK_LOW]  = min_wmark_pages(zone) + (tmp >> 2);
  		zone->watermark[WMARK_HIGH] = min_wmark_pages(zone) + (tmp >> 1);
@@ -67,7 +68,7 @@ index 7997cd6..d9f1e64 100644
  		setup_zone_migrate_reserve(zone);
  		spin_unlock_irqrestore(&zone->lock, flags);
  	}
-@@ -5638,6 +5643,56 @@ static int __alloc_contig_migrate_range(unsigned long start, unsigned long end)
+@@ -5684,6 +5689,54 @@ static int __alloc_contig_migrate_range(unsigned long start, unsigned long end)
  	return ret > 0 ? 0 : ret;
  }
  
@@ -94,7 +95,6 @@ index 7997cd6..d9f1e64 100644
 +	struct zonelist *zonelist = node_zonelist(0, gfp_mask);
 +	int did_some_progress = 0;
 +	int order = 1;
-+	unsigned long watermark;
 +
 +	/*
 +	 * Increase level of watermarks to force kswapd do his job
@@ -103,15 +103,14 @@ index 7997cd6..d9f1e64 100644
 +	__update_cma_watermarks(zone, count);
 +
 +	/* Obey watermarks as if the page was being allocated */
-+	watermark = low_wmark_pages(zone) + count;
-+	while (!zone_watermark_ok(zone, 0, watermark, 0, 0)) {
++	while (!zone_watermark_ok(zone, 0, low_wmark_pages(zone), 0, 0)) {
 +		wake_all_kswapd(order, zonelist, high_zoneidx, zone_idx(zone));
 +
 +		did_some_progress = __perform_reclaim(gfp_mask, order, zonelist,
 +						      NULL);
 +		if (!did_some_progress) {
 +			/* Exhausted what can be done so it's blamo time */
-+			out_of_memory(zonelist, gfp_mask, order, NULL);
++			out_of_memory(zonelist, gfp_mask, order, NULL, false);
 +		}
 +	}
 +
@@ -124,7 +123,7 @@ index 7997cd6..d9f1e64 100644
  /**
   * alloc_contig_range() -- tries to allocate given range of pages
   * @start:	start PFN to allocate
-@@ -5736,6 +5791,13 @@ int alloc_contig_range(unsigned long start, unsigned long end,
+@@ -5782,6 +5835,13 @@ int alloc_contig_range(unsigned long start, unsigned long end,
  		goto done;
  	}
  

@@ -1,7 +1,7 @@
-From 1a3116dddd1e224d3e1c80d64da464053ce18b22 Mon Sep 17 00:00:00 2001
+From 3a0f64ebe21dd7e82b1d13fe626b05ec807d3ca9 Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
-Date: Fri, 17 Feb 2012 20:30:29 +0100
-Subject: [PATCH 09/15] mm: page_isolation: MIGRATE_CMA isolation functions
+Date: Tue, 3 Apr 2012 15:06:15 +0200
+Subject: [PATCH 09/16] mm: page_isolation: MIGRATE_CMA isolation functions
  added
 
 This commit changes various functions that change pages and
@@ -16,14 +16,15 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  include/linux/gfp.h            |    3 ++-
  include/linux/page-isolation.h |   18 +++++++++---------
  mm/memory-failure.c            |    2 +-
  mm/memory_hotplug.c            |    6 +++---
- mm/page_alloc.c                |   18 ++++++++++++------
+ mm/page_alloc.c                |   17 +++++++++++------
  mm/page_isolation.c            |   15 ++++++++-------
- 6 files changed, 35 insertions(+), 27 deletions(-)
+ 6 files changed, 34 insertions(+), 27 deletions(-)
 
 diff --git a/include/linux/gfp.h b/include/linux/gfp.h
 index 78d32a7..1e49be4 100644
@@ -89,10 +90,10 @@ index 051c1b1..3bdcab3 100644
  
  #endif
 diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index 56080ea..76b01bf 100644
+index 97cc273..c99ad4e 100644
 --- a/mm/memory-failure.c
 +++ b/mm/memory-failure.c
-@@ -1400,7 +1400,7 @@ static int get_any_page(struct page *p, unsigned long pfn, int flags)
+@@ -1404,7 +1404,7 @@ static int get_any_page(struct page *p, unsigned long pfn, int flags)
  		/* Not a free page */
  		ret = 1;
  	}
@@ -133,10 +134,10 @@ index 6629faf..fc898cb 100644
  out:
  	unlock_memory_hotplug();
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index e2e11c55..7bb99e3 100644
+index 26d8b9f..216e575 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -5538,7 +5538,7 @@ out:
+@@ -5582,7 +5582,7 @@ out:
  	return ret;
  }
  
@@ -145,7 +146,7 @@ index e2e11c55..7bb99e3 100644
  {
  	struct zone *zone;
  	unsigned long flags;
-@@ -5546,8 +5546,8 @@ void unset_migratetype_isolate(struct page *page)
+@@ -5590,8 +5590,8 @@ void unset_migratetype_isolate(struct page *page)
  	spin_lock_irqsave(&zone->lock, flags);
  	if (get_pageblock_migratetype(page) != MIGRATE_ISOLATE)
  		goto out;
@@ -156,7 +157,7 @@ index e2e11c55..7bb99e3 100644
  out:
  	spin_unlock_irqrestore(&zone->lock, flags);
  }
-@@ -5623,6 +5623,10 @@ static int __alloc_contig_migrate_range(unsigned long start, unsigned long end)
+@@ -5669,6 +5669,10 @@ static int __alloc_contig_migrate_range(unsigned long start, unsigned long end)
   * alloc_contig_range() -- tries to allocate given range of pages
   * @start:	start PFN to allocate
   * @end:	one-past-the-last PFN to allocate
@@ -167,7 +168,7 @@ index e2e11c55..7bb99e3 100644
   *
   * The PFN range does not have to be pageblock or MAX_ORDER_NR_PAGES
   * aligned, however it's the caller's responsibility to guarantee that
-@@ -5635,7 +5639,8 @@ static int __alloc_contig_migrate_range(unsigned long start, unsigned long end)
+@@ -5681,7 +5685,8 @@ static int __alloc_contig_migrate_range(unsigned long start, unsigned long end)
   * pages which PFN is in [start, end) are allocated for the caller and
   * need to be freed with free_contig_range().
   */
@@ -177,22 +178,21 @@ index e2e11c55..7bb99e3 100644
  {
  	struct zone *zone = page_zone(pfn_to_page(start));
  	unsigned long outer_start, outer_end;
-@@ -5665,7 +5670,8 @@ int alloc_contig_range(unsigned long start, unsigned long end)
+@@ -5712,7 +5717,7 @@ int alloc_contig_range(unsigned long start, unsigned long end)
  	 */
  
- 	ret = start_isolate_page_range(pfn_align_to_maxpage_down(start),
--				       pfn_align_to_maxpage_up(end));
-+				       pfn_align_to_maxpage_up(end),
-+				       migratetype);
+ 	ret = start_isolate_page_range(pfn_max_align_down(start),
+-				       pfn_max_align_up(end));
++				       pfn_max_align_up(end), migratetype);
  	if (ret)
  		goto done;
  
-@@ -5725,7 +5731,7 @@ int alloc_contig_range(unsigned long start, unsigned long end)
+@@ -5772,7 +5777,7 @@ int alloc_contig_range(unsigned long start, unsigned long end)
  
  done:
- 	undo_isolate_page_range(pfn_align_to_maxpage_down(start),
--				pfn_align_to_maxpage_up(end));
-+				pfn_align_to_maxpage_up(end), migratetype);
+ 	undo_isolate_page_range(pfn_max_align_down(start),
+-				pfn_max_align_up(end));
++				pfn_max_align_up(end), migratetype);
  	return ret;
  }
  

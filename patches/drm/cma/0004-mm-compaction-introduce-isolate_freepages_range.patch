@@ -1,7 +1,7 @@
-From 8d59ab230ffe9d66e49616c97f091406f7d1274a Mon Sep 17 00:00:00 2001
+From 509c7c1553d6ff5b35f0205afdece195bbc7bbfd Mon Sep 17 00:00:00 2001
 From: Michal Nazarewicz <mina86@mina86.com>
-Date: Fri, 17 Feb 2012 20:30:24 +0100
-Subject: [PATCH 04/15] mm: compaction: introduce isolate_freepages_range()
+Date: Mon, 30 Jan 2012 13:24:03 +0100
+Subject: [PATCH 04/16] mm: compaction: introduce isolate_freepages_range()
 
 This commit introduces isolate_freepages_range() function which
 generalises isolate_freepages_block() so that it can be used on
@@ -17,12 +17,13 @@ Tested-by: Rob Clark <rob.clark@linaro.org>
 Tested-by: Ohad Ben-Cohen <ohad@wizery.com>
 Tested-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
 Tested-by: Robert Nelson <robertcnelson@gmail.com>
+Tested-by: Barry Song <Baohua.Song@csr.com>
 ---
  mm/compaction.c |  111 ++++++++++++++++++++++++++++++++++++++++++++++---------
  1 files changed, 93 insertions(+), 18 deletions(-)
 
 diff --git a/mm/compaction.c b/mm/compaction.c
-index de22893..0799d0c 100644
+index d9d7b35..06b198f 100644
 --- a/mm/compaction.c
 +++ b/mm/compaction.c
 @@ -54,24 +54,20 @@ static unsigned long release_freepages(struct list_head *freelist)
