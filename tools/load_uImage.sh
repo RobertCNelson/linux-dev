@@ -84,7 +84,17 @@ mmc_write_boot () {
 			sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
 		fi
 
+		if [ -f "${DIR}/deploy/disk/zImage_bak" ] ; then
+			sudo rm -f "${DIR}/deploy/disk/zImage_bak" || true
+		fi
+
+		if [ -f "${DIR}/deploy/disk/zImage" ] ; then
+			sudo mv "${DIR}/deploy/disk/zImage" "${DIR}/deploy/disk/zImage_bak"
+		fi
+
 		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
+
+		sudo cp "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/zImage"
 
 		cd "${DIR}/deploy/disk"
 		sync
