@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2011 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+
+VERSION="v2012.02-1"
 
 unset BUILD
 unset CC
@@ -49,7 +51,7 @@ fi
 cd ${DIR}
 }
 
-function ti_DSP_binaries {
+ti_DSP_binaries () {
 
 if [ -e ${DIR}/dl/${TI_DSP_BIN}-Linux-x86-Install ]; then
   echo "DSPbinaries-${TI_DSP_BIN}-Linux-x86-Install found..."
@@ -72,7 +74,7 @@ fi
 
 }
 
-function file-DSP-startup {
+file_DSP_startup () {
 
 cat > ${DIR}/DSP/opt/dsp <<dspscript
 #!/bin/sh
@@ -88,7 +90,7 @@ dspscript
 
 }
 
-function file-install-DSP {
+file_install_DSP () {
 
 cat > ${DIR}/DSP/install-DSP.sh <<installDSP
 #!/bin/bash
@@ -111,7 +113,7 @@ if [ \$(uname -m) == "armv7l" ] ; then
       #karmic/lucid/maverick/etc
       sudo update-rc.d -f dsp remove
       if [ -f /etc/init.d/dsp ] ; then
-        rm -f /etc/init.d/dsp || true
+        sudo rm -f /etc/init.d/dsp || true
       fi
       sudo cp /opt/dsp /etc/init.d/dsp
       sudo chmod +x /etc/init.d/dsp
@@ -140,7 +142,7 @@ installDSP
 
 }
 
-function file-install-gst-dsp {
+file_install_gst_dsp () {
 
 cat > ${DIR}/DSP/install-gst-dsp.sh <<installgst
 #!/bin/bash
@@ -162,7 +164,7 @@ sudo apt-get -y install git-core pkg-config build-essential gstreamer-tools libg
 
 mkdir -p \${DIR}/git/
 
-if ! ls \${DIR}/git/gst-dsp >/dev/null 2>&1;then
+if [ ! -f \${DIR}/git/gst-dsp/.git/config ] ; then
 cd \${DIR}/git/
 git clone git://github.com/felipec/gst-dsp.git
 fi
@@ -170,12 +172,18 @@ fi
 cd \${DIR}/git/gst-dsp
 make clean
 git pull
+
+echo ""
 ./configure
+
+echo ""
+echo "Building gst-dsp"
 make CROSS_COMPILE= 
 sudo make install
+
 cd \${DIR}/
 
-if ! ls \${DIR}/git/gst-omapfb >/dev/null 2>&1;then
+if [ ! -f \${DIR}/git/gst-omapfb/.git/config ] ; then
 cd \${DIR}/git/
 git clone git://github.com/felipec/gst-omapfb.git
 fi
@@ -183,11 +191,15 @@ fi
 cd \${DIR}/git/gst-omapfb
 make clean
 git pull
+
+echo ""
+echo "Building gst-omapfb"
 make CROSS_COMPILE= 
 sudo make install
+
 cd \${DIR}/
 
-if ! ls \${DIR}/git/dsp-tools >/dev/null 2>&1;then
+if [ ! -f \${DIR}/git/dsp-tools/.git/config ] ; then
 cd \${DIR}/git/
 git clone git://github.com/felipec/dsp-tools.git
 fi
@@ -196,13 +208,19 @@ cd \${DIR}/git/dsp-tools
 make clean
 git checkout master -f
 git pull
+
+echo "fetching test.dll64P firmware"
 git branch -D firmware-tmp || true
 git checkout origin/firmware -b firmware-tmp
 sudo cp -v firmware/test.dll64P /lib/dsp/
 git checkout master -f
 git branch -D firmware-tmp || true
+
+echo ""
+echo "Building dsp-tools"
 make CROSS_COMPILE= 
 sudo make install
+
 cd \${DIR}/
 
 else
@@ -214,7 +232,7 @@ installgst
 
 }
 
-function create_DSP_package {
+create_DSP_package () {
 	cd ${DIR}
 	sudo rm -rf ${DIR}/DSP/
 	mkdir -p ${DIR}/DSP/
@@ -231,7 +249,7 @@ function create_DSP_package {
   exit
  fi
 
-file-DSP-startup
+file_DSP_startup
 
 	cd ${DIR}/DSP/
 	tar czf ${DIR}/dsp_libs.tar.gz *
@@ -242,14 +260,14 @@ file-DSP-startup
 
 	mv ${DIR}/dsp_libs.tar.gz ${DIR}/DSP/
 
-file-install-DSP
+file_install_DSP
 	chmod +x ./DSP/install-DSP.sh
 
-file-install-gst-dsp
+file_install_gst_dsp
 	chmod +x ./DSP/install-gst-dsp.sh
 
 	cd ${DIR}/DSP
-	tar czf ${DIR}/DSP_Install_libs.tar.gz *
+	tar cvzf ${DIR}/DSP_Install_libs.tar.gz *
 	cd ${DIR}
 
 	sudo rm -rf ${DIR}/DSP/
@@ -261,4 +279,12 @@ libstd_dependicy
 ti_DSP_binaries
 
 create_DSP_package
+
+echo ""
+echo "Script Version ${VERSION}"
+echo "Email Bugs: bugs@rcn-ee.com"
+echo "-----------------------------"
+echo ""
+echo "Script Complete: Copy DSP_Install_libs.tar.gz to target device."
+echo ""
 

@@ -59,13 +59,13 @@ function git_kernel_stable {
 }
 
 function git_kernel {
-if [[ -a ${LINUX_GIT}/.git/config ]]; then
+	if [ -f ${LINUX_GIT}/.git/config ] ; then
   cd ${LINUX_GIT}/
     echo "Updating LINUX_GIT tree via: git fetch"
     git fetch
   cd -
 
-  if [[ ! -a ${DIR}/KERNEL/.git/config ]]; then
+		if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
 	rm -rf ${DIR}/KERNEL/ || true
     git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
   fi
@@ -92,8 +92,9 @@ if [[ -a ${LINUX_GIT}/.git/config ]]; then
     fi
   else
     git branch -D top-of-tree || true
-    git checkout origin/master -b top-of-tree
-    git_kernel_torvalds
+			git checkout v${KERNEL_REL} -b top-of-tree
+			git describe
+			git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
   fi
 
   git describe
@@ -114,16 +115,16 @@ fi
 
 function patch_kernel {
   cd ${DIR}/KERNEL
-  export DIR BISECT
+	export DIR
   /bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
   git add .
   if [ "${RC_PATCH}" ]; then
-    git commit -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
+		git commit --allow-empty -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
   elif [ "${STABLE_PATCH}" ] ; then
-    git commit -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
-  else
-    git commit -a -m ''$KERNEL_REL'-'$BUILD' patchset'
+		git commit --allow-empty -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
+	else
+		git commit --allow-empty -a -m ''$KERNEL_REL'-'$BUILD' patchset'
   fi
 
 #Test Patches:
@@ -185,7 +186,7 @@ function make_uImage {
 	if [ -f ./arch/arm/boot/uImage ] ; then
 		cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
 	else
-		echo "Error: make zImage modules failed"
+		echo "Error: make uImage failed"
 		exit
 	fi
 	cd ${DIR}/
@@ -228,8 +229,12 @@ function make_headers_pkg {
 if [ -e ${DIR}/system.sh ]; then
   . system.sh
   . version.sh
+	GCC="gcc"
+	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+		GCC="${GCC_OVERRIDE}"
+	fi
   echo ""
-  echo "Using : $(LC_ALL=C ${CC}gcc --version)"
+	echo "Using : $(LC_ALL=C ${CC}${GCC} --version)"
   echo ""
 
 if [ "${LATEST_GIT}" ] ; then
@@ -248,6 +253,9 @@ fi
 #  bisect_kernel
   copy_defconfig
   make_menuconfig
+	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+		sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
+	fi
 	make_zImage_modules
 if [ "${BUILD_UIMAGE}" ] ; then
 	make_uImage
@@ -259,6 +267,9 @@ else
 fi
 	make_modules_pkg
 	make_headers_pkg
+	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+		sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
+	fi
 else
   echo ""
   echo "ERROR: Missing (your system) specific system.sh, please copy system.sh.sample to system.sh and edit as needed."

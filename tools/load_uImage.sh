@@ -33,6 +33,16 @@ DIR=$PWD
 
 . version.sh
 
+backup_config () {
+	if [ -f "${DIR}/patches/previous_defconfig" ] ; then
+		rm -f "${DIR}/patches/previous_defconfig" || true
+	fi
+	if [ -f "${DIR}/patches/current_defconfig" ] ; then
+		mv "${DIR}/patches/current_defconfig" "${DIR}/patches/previous_defconfig"
+	fi
+	cp "${DIR}/KERNEL/.config" "${DIR}/patches/current_defconfig"
+}
+
 mmc_write_modules () {
 	echo "Installing ${KERNEL_UTS}-modules.tar.gz to rootfs partition"
 	echo "-----------------------------"
@@ -49,6 +59,7 @@ mmc_write_modules () {
 		sync
 		cd -
 		sudo umount "${DIR}/deploy/disk" || true
+		backup_config
 
 		echo "-----------------------------"
 		echo "This script has finished successfully..."
@@ -73,7 +84,17 @@ mmc_write_boot () {
 			sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
 		fi
 
+		if [ -f "${DIR}/deploy/disk/zImage_bak" ] ; then
+			sudo rm -f "${DIR}/deploy/disk/zImage_bak" || true
+		fi
+
+		if [ -f "${DIR}/deploy/disk/zImage" ] ; then
+			sudo mv "${DIR}/deploy/disk/zImage" "${DIR}/deploy/disk/zImage_bak"
+		fi
+
 		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
+
+		sudo cp "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/zImage"
 
 		cd "${DIR}/deploy/disk"
 		sync
