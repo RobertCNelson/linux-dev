@@ -32,8 +32,8 @@ git commit -a -m 'testing patchset'
 function bugs_trivial {
 echo "bugs and trivial stuff"
 
-patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
-patch -s -p1 < "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
+	git am < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
+	git am < "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
 }
 
 function am33x-cleanup {
@@ -247,6 +247,7 @@ git am "${DIR}/patches/bone-merge/0001-bone-arago-angstrom-merge.patch"
 git am "${DIR}/patches/bone-merge/0001-really-machine_halt-was-better.patch"
 
 git am "${DIR}/patches/beaglebone/0001-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
+git am "${DIR}/patches/fixes/0001-rt2x00-Add-support-for-D-Link-DWA-127-to-rt2800usb.patch"
 }
 
 function am33x-meta-ti {
