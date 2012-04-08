@@ -1,4 +1,4 @@
-From 0fb2f3ed137f8fa274fc129505d0d33d3c4e995f Mon Sep 17 00:00:00 2001
+From 15d98032e644e6754a19d4f01cd291b568ad8f56 Mon Sep 17 00:00:00 2001
 From: Marek Szyprowski <m.szyprowski@samsung.com>
 Date: Thu, 29 Dec 2011 13:09:51 +0100
 Subject: [PATCH 14/16] X86: integrate CMA with DMA-mapping subsystem
@@ -16,9 +16,9 @@ Acked-by: Arnd Bergmann <arnd@arndb.de>
  arch/x86/include/asm/dma-contiguous.h |   13 +++++++++++++
  arch/x86/include/asm/dma-mapping.h    |    4 ++++
  arch/x86/kernel/pci-dma.c             |   18 ++++++++++++++++--
- arch/x86/kernel/pci-nommu.c           |    8 +-------
+ arch/x86/kernel/pci-nommu.c           |    2 +-
  arch/x86/kernel/setup.c               |    2 ++
- 6 files changed, 37 insertions(+), 9 deletions(-)
+ 6 files changed, 37 insertions(+), 3 deletions(-)
  create mode 100644 arch/x86/include/asm/dma-contiguous.h
 
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
@@ -53,7 +53,7 @@ index 0000000..c092416
 +#endif
 +#endif
 diff --git a/arch/x86/include/asm/dma-mapping.h b/arch/x86/include/asm/dma-mapping.h
-index ed3065f..90ac6f0 100644
+index 4b4331d..8ca32d4 100644
 --- a/arch/x86/include/asm/dma-mapping.h
 +++ b/arch/x86/include/asm/dma-mapping.h
 @@ -13,6 +13,7 @@
@@ -64,9 +64,9 @@ index ed3065f..90ac6f0 100644
  
  #ifdef CONFIG_ISA
  # define ISA_DMA_BIT_MASK DMA_BIT_MASK(24)
-@@ -61,6 +62,9 @@ extern int dma_set_mask(struct device *dev, u64 mask);
- extern void *dma_generic_alloc_coherent(struct device *dev, size_t size,
- 					dma_addr_t *dma_addr, gfp_t flag);
+@@ -62,6 +63,9 @@ extern void *dma_generic_alloc_coherent(struct device *dev, size_t size,
+ 					dma_addr_t *dma_addr, gfp_t flag,
+ 					struct dma_attrs *attrs);
  
 +extern void dma_generic_free_coherent(struct device *dev, size_t size,
 +				      void *vaddr, dma_addr_t dma_addr);
@@ -75,11 +75,11 @@ index ed3065f..90ac6f0 100644
  {
  	if (!dev->dma_mask)
 diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
-index 28e5e06..89094c3 100644
+index 3003250..2b28bcd 100644
 --- a/arch/x86/kernel/pci-dma.c
 +++ b/arch/x86/kernel/pci-dma.c
-@@ -99,14 +99,18 @@ void *dma_generic_alloc_coherent(struct device *dev, size_t size,
- 				 dma_addr_t *dma_addr, gfp_t flag)
+@@ -100,14 +100,18 @@ void *dma_generic_alloc_coherent(struct device *dev, size_t size,
+ 				 struct dma_attrs *attrs)
  {
  	unsigned long dma_mask;
 -	struct page *page;
@@ -99,7 +99,7 @@ index 28e5e06..89094c3 100644
  	if (!page)
  		return NULL;
  
-@@ -126,6 +130,16 @@ again:
+@@ -127,6 +131,16 @@ again:
  	return page_address(page);
  }
  
@@ -117,28 +117,15 @@ index 28e5e06..89094c3 100644
   * See <Documentation/x86/x86_64/boot-options.txt> for the iommu kernel
   * parameter documentation.
 diff --git a/arch/x86/kernel/pci-nommu.c b/arch/x86/kernel/pci-nommu.c
-index 3af4af8..656566f 100644
+index f960506..8ed60f1 100644
 --- a/arch/x86/kernel/pci-nommu.c
 +++ b/arch/x86/kernel/pci-nommu.c
-@@ -74,12 +74,6 @@ static int nommu_map_sg(struct device *hwdev, struct scatterlist *sg,
- 	return nents;
- }
- 
--static void nommu_free_coherent(struct device *dev, size_t size, void *vaddr,
--				dma_addr_t dma_addr)
--{
--	free_pages((unsigned long)vaddr, get_order(size));
--}
--
- static void nommu_sync_single_for_device(struct device *dev,
- 			dma_addr_t addr, size_t size,
- 			enum dma_data_direction dir)
-@@ -97,7 +91,7 @@ static void nommu_sync_sg_for_device(struct device *dev,
+@@ -97,7 +97,7 @@ static void nommu_sync_sg_for_device(struct device *dev,
  
  struct dma_map_ops nommu_dma_ops = {
- 	.alloc_coherent		= dma_generic_alloc_coherent,
--	.free_coherent		= nommu_free_coherent,
-+	.free_coherent		= dma_generic_free_coherent,
+ 	.alloc			= dma_generic_alloc_coherent,
+-	.free			= nommu_free_coherent,
++	.free			= dma_generic_free_coherent,
  	.map_sg			= nommu_map_sg,
  	.map_page		= nommu_map_page,
  	.sync_single_for_device = nommu_sync_single_for_device,

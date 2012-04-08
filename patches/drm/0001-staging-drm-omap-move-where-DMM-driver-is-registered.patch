@@ -1,0 +1,41 @@
+From 6604f85254d1cccbe5423f6398f17503c4103f8b Mon Sep 17 00:00:00 2001
+From: Rob Clark <rob@ti.com>
+Date: Thu, 5 Apr 2012 10:34:56 -0500
+Subject: [PATCH] staging: drm/omap: move where DMM driver is registered
+
+Not sure what triggered the change in behavior, but seems to
+result in recursively acquiring a mutex and hanging on boot.  But
+omap_drm_init() seems a much more sane place to register the
+driver for the DMM sub-device.
+---
+ drivers/staging/omapdrm/omap_drv.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/omapdrm/omap_drv.c b/drivers/staging/omapdrm/omap_drv.c
+index 3df5b4c..620b8d5 100644
+--- a/drivers/staging/omapdrm/omap_drv.c
++++ b/drivers/staging/omapdrm/omap_drv.c
+@@ -803,9 +803,6 @@ static void pdev_shutdown(struct platform_device *device)
+ static int pdev_probe(struct platform_device *device)
+ {
+ 	DBG("%s", device->name);
+-	if (platform_driver_register(&omap_dmm_driver))
+-		dev_err(&device->dev, "DMM registration failed\n");
+-
+ 	return drm_platform_init(&omap_drm_driver, device);
+ }
+ 
+@@ -833,6 +830,10 @@ struct platform_driver pdev = {
+ static int __init omap_drm_init(void)
+ {
+ 	DBG("init");
++	if (platform_driver_register(&omap_dmm_driver)) {
++		/* we can continue on without DMM.. so not fatal */
++		dev_err(NULL, "DMM registration failed\n");
++	}
+ 	return platform_driver_register(&pdev);
+ }
+ 
+-- 
+1.7.9.1
+
