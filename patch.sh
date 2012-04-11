@@ -301,6 +301,8 @@ git am "${DIR}/patches/meta-ti/0023-beaglebone-add-more-beagleboardtoys-cape-par
 git am "${DIR}/patches/meta-ti/0024-beaglebone-add-gpio-keys-for-lcd7-add-notes-for-miss.patch"
 git am "${DIR}/patches/meta-ti/0025-beaglebone-add-enter-key-for-lcd7-cape.patch"
 git am "${DIR}/patches/meta-ti/0026-beaglebone-add-gpio-keys-for-lcd.patch"
+git am "${DIR}/patches/meta-ti/0027-beaglebone-fix-direction-of-gpio-keys.patch"
+git am "${DIR}/patches/meta-ti/0028-beaglebone-fix-3.5-lcd-cape-support.patch"
 
 #these are already in the argo tree
 #git am "${DIR}/patches/meta-ti/0016-omap_hsmmc-Set-dto-to-max-value-of-14-to-avoid-SD-Ca.patch"
