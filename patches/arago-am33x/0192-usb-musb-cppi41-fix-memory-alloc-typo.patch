@@ -1,0 +1,29 @@
+From 6da6dbacb23ce7b140bcf2bdbe6f97a4c777218c Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Thu, 22 Mar 2012 10:36:12 +0530
+Subject: [PATCH 192/193] usb: musb: cppi41: fix memory alloc typo
+
+Memory allocation for allocated_queues[] uses BITS_TO_LONGS() and thus allocating
+less bytes (1/4th) of memory than needed. Fixed it by multiplying by sizeof(long).
+---
+ drivers/usb/musb/cppi41.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/musb/cppi41.c b/drivers/usb/musb/cppi41.c
+index 68db1ec..7b3c0bd 100644
+--- a/drivers/usb/musb/cppi41.c
++++ b/drivers/usb/musb/cppi41.c
+@@ -120,8 +120,8 @@ int cppi41_queue_mgr_init(u8 q_mgr, dma_addr_t rgn0_base, u16 rgn0_size)
+ 	    q_mgr_regs + QMGR_LINKING_RAM_RGN0_SIZE_REG,
+ 	    cppi_readl(q_mgr_regs + QMGR_LINKING_RAM_RGN0_SIZE_REG));
+ 
+-	ptr = kzalloc(BITS_TO_LONGS(cppi41_queue_mgr[q_mgr].num_queue),
+-		      GFP_KERNEL);
++	ptr = kzalloc(BITS_TO_LONGS(cppi41_queue_mgr[q_mgr].num_queue) *
++			sizeof(long), GFP_KERNEL);
+ 	if (ptr == NULL) {
+ 		printk(KERN_ERR "ERROR: %s: Unable to allocate queue bitmap.\n",
+ 		       __func__);
+-- 
+1.7.9.5
+

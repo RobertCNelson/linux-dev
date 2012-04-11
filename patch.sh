@@ -499,6 +499,13 @@ git am "${DIR}/patches/arago-am33x/0183-video-da8xx-fb-Reset-LCDC-before-re-enab
 git am "${DIR}/patches/arago-am33x/0184-ARM-OMAP-AM335x-Update-defconfig.patch"
 git am "${DIR}/patches/arago-am33x/0185-ARM-OMAP-AM33XX-CAN-d_can-fix-the-rx-problem.patch"
 git am "${DIR}/patches/arago-am33x/0186-PWM-backlight-Set-the-PWM-frequency-to-20KHz.patch"
+git am "${DIR}/patches/arago-am33x/0187-mmc-omap_hsmmc-Pass-on-the-suspend-failure-to-the-PM.patch"
+git am "${DIR}/patches/arago-am33x/0188-ARM-OMAP-AM33XX-Low-power-optimizations.patch"
+git am "${DIR}/patches/arago-am33x/0189-mmc-remove-MMC-bus-legacy-suspend-resume-method.patch"
+git am "${DIR}/patches/arago-am33x/0190-ARM-OMAP2-am335x-Update-CPLD-version-handling-method.patch"
+git am "${DIR}/patches/arago-am33x/0191-usb-musb-cppi41-fix-video-capture-issue.patch"
+git am "${DIR}/patches/arago-am33x/0192-usb-musb-cppi41-fix-memory-alloc-typo.patch"
+git am "${DIR}/patches/arago-am33x/0193-usb-musb-fix-wifi-failure-on-am335x-EVM.patch"
 }
 
 bugs_trivial
