@@ -1,16 +1,16 @@
-From 54ec291cb8e6731fda498aaa743b733846d3a01e Mon Sep 17 00:00:00 2001
+From 06289c52706981eb044ac724ae6d32eff48de984 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 27 Feb 2012 15:56:47 -0600
 Subject: [PATCH] bone: arago angstrom merge
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |  547 +++++++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/board-am335xevm.c |  543 ++++++++++++++++++++++++++++++++-
  arch/arm/mach-omap2/mux33xx.c         |   22 +-
  arch/arm/mach-omap2/mux33xx.h         |    4 +
- drivers/input/touchscreen/ti_tscadc.c |  269 +++++++++++++---
+ drivers/input/touchscreen/ti_tscadc.c |  269 ++++++++++++----
  drivers/net/can/dev.c                 |    8 +-
- drivers/net/can/mcp251x.c             |   47 +++-
+ drivers/net/can/mcp251x.c             |   47 ++-
  drivers/usb/gadget/f_rndis.c          |    4 +-
  drivers/video/Kconfig                 |   11 +
  drivers/video/Makefile                |    1 +
@@ -18,12 +18,12 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/video/st7735fb.c              |  516 +++++++++++++++++++++++++++++++
  include/linux/input/ti_tscadc.h       |    5 +
  include/video/st7735fb.h              |   82 +++++
- 13 files changed, 1439 insertions(+), 91 deletions(-)
+ 13 files changed, 1439 insertions(+), 87 deletions(-)
  create mode 100644 drivers/video/st7735fb.c
  create mode 100644 include/video/st7735fb.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index a88e2b9..23374c7 100644
+index c9fabfa..de2c789 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -183,8 +183,8 @@ index a88e2b9..23374c7 100644
 +#define GP_EVM_ACTUALLY_BEAGLEBONE  0xBB
  static unsigned int gp_evm_revision = GP_EVM_REV_IS_UNKNOWN;
  
- #define CPLD_REV_1_0A			0x1
-@@ -452,11 +565,106 @@ static struct pinmux_config lcdc_pin_mux[] = {
+ unsigned int gigabit_enable = 1;
+@@ -447,11 +560,106 @@ static struct pinmux_config lcdc_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -291,7 +291,7 @@ index a88e2b9..23374c7 100644
  	{"vrefp.vrefp",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{"vrefn.vrefn",         OMAP_MUX_MODE0 | AM33XX_INPUT_EN},
  	{NULL, 0},
-@@ -668,6 +876,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
+@@ -663,6 +871,15 @@ static struct pinmux_config d_can_ia_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -307,7 +307,7 @@ index a88e2b9..23374c7 100644
  /* Module pin mux for uart2 */
  static struct pinmux_config uart2_pin_mux[] = {
  	{"spi0_sclk.uart2_rxd", OMAP_MUX_MODE1 | AM33XX_SLEWCTRL_SLOW |
-@@ -871,6 +1088,118 @@ static struct pinmux_config profibus_pin_mux[] = {
+@@ -866,6 +1083,118 @@ static struct pinmux_config profibus_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -426,7 +426,7 @@ index a88e2b9..23374c7 100644
  /* Module pin mux for eCAP0 */
  static struct pinmux_config ecap0_pin_mux[] = {
  	{"ecap0_in_pwm0_out.ecap0_in_pwm0_out",
-@@ -878,6 +1207,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
+@@ -873,6 +1202,7 @@ static struct pinmux_config ecap0_pin_mux[] = {
  	{NULL, 0},
  };
  
@@ -434,7 +434,7 @@ index a88e2b9..23374c7 100644
  static int backlight_enable;
  
  #define AM335XEVM_WLAN_PMENA_GPIO	GPIO_TO_PIN(1, 30)
-@@ -993,6 +1323,26 @@ static void lcdc_init(int evm_id, int profile)
+@@ -988,6 +1318,26 @@ static void lcdc_init(int evm_id, int profile)
  	return;
  }
  
@@ -461,7 +461,7 @@ index a88e2b9..23374c7 100644
  static void tsc_init(int evm_id, int profile)
  {
  	int err;
-@@ -1000,16 +1350,59 @@ static void tsc_init(int evm_id, int profile)
+@@ -995,16 +1345,59 @@ static void tsc_init(int evm_id, int profile)
  	if (gp_evm_revision == GP_EVM_REV_IS_1_1A) {
  		am335x_touchscreen_data.analog_input = 1;
  		pr_info("TSC connected to beta GP EVM\n");
@@ -522,7 +522,7 @@ index a88e2b9..23374c7 100644
  static void rgmii1_init(int evm_id, int profile)
  {
  	setup_pin_mux(rgmii1_pin_mux);
-@@ -1455,16 +1848,138 @@ static void i2c1_init(int evm_id, int profile)
+@@ -1450,16 +1843,138 @@ static void i2c1_init(int evm_id, int profile)
  	return;
  }
  
@@ -666,7 +666,7 @@ index a88e2b9..23374c7 100644
  }
  
  /* Setup McASP 1 */
-@@ -1822,6 +2337,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
+@@ -1817,6 +2332,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -674,7 +674,7 @@ index a88e2b9..23374c7 100644
  	{NULL, 0, 0},
  };
  
-@@ -1833,6 +2349,8 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
+@@ -1828,6 +2344,8 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
  	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -683,7 +683,7 @@ index a88e2b9..23374c7 100644
  	{NULL, 0, 0},
  };
  
-@@ -1849,6 +2367,7 @@ static void setup_general_purpose_evm(void)
+@@ -1844,6 +2362,7 @@ static void setup_general_purpose_evm(void)
  	pr_info("The board is general purpose EVM in profile %d\n", prof_sel);
  
  	if (!strncmp("1.1A", config.version, 4)) {
@@ -691,7 +691,7 @@ index a88e2b9..23374c7 100644
  		gp_evm_revision = GP_EVM_REV_IS_1_1A;
  	} else if (!strncmp("1.0", config.version, 3)) {
  		gp_evm_revision = GP_EVM_REV_IS_1_0;
-@@ -1919,6 +2438,7 @@ static void setup_beaglebone_old(void)
+@@ -1914,6 +2433,7 @@ static void setup_beaglebone_old(void)
  static void setup_beaglebone(void)
  {
  	pr_info("The board is a AM335x Beaglebone.\n");
@@ -699,7 +699,7 @@ index a88e2b9..23374c7 100644
  
  	/* Beagle Bone has Micro-SD slot which doesn't have Write Protect pin */
  	am335x_mmc[0].gpio_wp = -EINVAL;
-@@ -1935,6 +2455,7 @@ static void setup_beaglebone(void)
+@@ -1930,6 +2450,7 @@ static void setup_beaglebone(void)
  
  static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
  {
@@ -707,8 +707,8 @@ index a88e2b9..23374c7 100644
  	int ret;
  
  	/*
-@@ -1943,24 +2464,14 @@ static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
- 	 * specific data.
+@@ -1937,21 +2458,15 @@ static void am335x_setup_daughter_board(struct memory_accessor *m, void *c)
+ 	 * If present, print the cpld version.
  	 */
  
 -	ret = m->read(m, (char *)&config1, 0, sizeof(config1));
@@ -722,18 +722,15 @@ index a88e2b9..23374c7 100644
  		pr_info("No daughter card found\n");
  		daughter_brd_detected = false;
 -		return;
--	}
--
--	if (!strncmp("CPLD1.0A", config1.cpld_ver, 8))
--		cpld_version = CPLD_REV_1_0A;
--	else if (!strncmp("CPLD1.1A", config1.cpld_ver, 8))
--		cpld_version = CPLD_REV_1_1A;
--	else {
--		pr_err("Unknown CPLD version found, falling back to 1.0A\n");
--		cpld_version = CPLD_REV_1_0A;
  	}
+-
+-	if (!strncmp("CPLD", config1.cpld_ver, 4))
+-		pr_info("CPLD version: %s\n", config1.cpld_ver);
+-	else
+-		pr_err("Unknown CPLD version found\n");
  }
  
+ static void am335x_evm_setup(struct memory_accessor *mem_acc, void *context)
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
 index 59e51e0..25dcedb 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
@@ -2081,5 +2078,5 @@ index 0000000..6d3f68b
 +#define ST7735_GMCTRN1	0xE1
 +#define ST7735_PWCTR6	0xFC
 -- 
-1.7.9.1
+1.7.9.5
 
