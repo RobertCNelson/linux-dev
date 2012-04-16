@@ -77,6 +77,8 @@ function beagle {
 	git am "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
 	git am "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
 	git am "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
+
+	git am "${DIR}/patches/omap/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
 function devkit8000 {
@@ -145,8 +147,8 @@ function omapdrm {
 	git am "${DIR}/patches/drm/0002-ARM-OMAP2-3-HWMOD-Add-missing-flag-for-rfbi-class.patch"
 	git am "${DIR}/patches/drm/0003-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
 
-	#merged later in 3.4-rc
-	git am "${DIR}/patches/drm/0001-staging-drm-omap-move-where-DMM-driver-is-registered.patch"
+#merged v3.4-rc3
+#	git am "${DIR}/patches/drm/0001-staging-drm-omap-move-where-DMM-driver-is-registered.patch"
 }
 
 function fixes {
