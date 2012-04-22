@@ -1,0 +1,115 @@
+From 057f9277d9968942b82bfce63bd923162700450e Mon Sep 17 00:00:00 2001
+From: Omar Ramirez Luna <omar.ramirez@ti.com>
+Date: Fri, 20 Apr 2012 20:22:41 -0500
+Subject: [PATCH] staging: tidspbridge: remove usage of OMAP2_L4_IO_ADDRESS
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Instead now use ioremap. This is needed for 3.4 since this change
+emerged in mainline during one of the previous rc cycles.
+
+These solves the following compilation breaks:
+
+drivers/staging/tidspbridge/core/tiomap3430.c:
+    In function â€˜bridge_brd_startâ€™:
+drivers/staging/tidspbridge/core/tiomap3430.c:425:4:
+    error: implicit declaration of function â€˜OMAP2_L4_IO_ADDRESSâ€™
+
+drivers/staging/tidspbridge/core/wdt.c: In function â€˜dsp_wdt_initâ€™:
+drivers/staging/tidspbridge/core/wdt.c:56:2:
+    error: implicit declaration of function â€˜OMAP2_L4_IO_ADDRESSâ€™
+
+For control registers a new function needs to be defined so we
+can get rid of a layer violation, but that approach must be queued
+for the next merge window.
+
+As seen in:
+http://www.arm.linux.org.uk/developer/build/
+platform: omap4430-sdp		build: uImage
+config: randconfig			version: 3.4.0-rc3
+start time: Apr 20 2012 01:07
+
+Reported-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Omar Ramirez Luna <omar.ramirez@ti.com>
+---
+ drivers/staging/tidspbridge/core/tiomap3430.c |   20 ++++++++++++--------
+ drivers/staging/tidspbridge/core/wdt.c        |    8 +++++++-
+ 2 files changed, 19 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/staging/tidspbridge/core/tiomap3430.c b/drivers/staging/tidspbridge/core/tiomap3430.c
+index 7862513..9cf29fc 100644
+--- a/drivers/staging/tidspbridge/core/tiomap3430.c
++++ b/drivers/staging/tidspbridge/core/tiomap3430.c
+@@ -79,10 +79,6 @@
+ #define OMAP343X_CONTROL_IVA2_BOOTADDR (OMAP2_CONTROL_GENERAL + 0x0190)
+ #define OMAP343X_CONTROL_IVA2_BOOTMOD (OMAP2_CONTROL_GENERAL + 0x0194)
+ 
+-#define OMAP343X_CTRL_REGADDR(reg) \
+-	OMAP2_L4_IO_ADDRESS(OMAP343X_CTRL_BASE + (reg))
+-
+-
+ /* Forward Declarations: */
+ static int bridge_brd_monitor(struct bridge_dev_context *dev_ctxt);
+ static int bridge_brd_read(struct bridge_dev_context *dev_ctxt,
+@@ -418,19 +414,27 @@ static int bridge_brd_start(struct bridge_dev_context *dev_ctxt,
+ 
+ 		/* Assert RST1 i.e only the RST only for DSP megacell */
+ 		if (!status) {
++			/*
++			 * XXX: ioremapping  MUST be removed once ctrl
++			 * function is made available.
++			 */
++			void __iomem *ctrl = ioremap(OMAP343X_CTRL_BASE, SZ_4K);
++			if (!ctrl)
++				return -ENOMEM;
++
+ 			(*pdata->dsp_prm_rmw_bits)(OMAP3430_RST1_IVA2_MASK,
+ 					OMAP3430_RST1_IVA2_MASK, OMAP3430_IVA2_MOD,
+ 					OMAP2_RM_RSTCTRL);
+ 			/* Mask address with 1K for compatibility */
+ 			__raw_writel(dsp_addr & OMAP3_IVA2_BOOTADDR_MASK,
+-					OMAP343X_CTRL_REGADDR(
+-					OMAP343X_CONTROL_IVA2_BOOTADDR));
++					ctrl + OMAP343X_CONTROL_IVA2_BOOTADDR);
+ 			/*
+ 			 * Set bootmode to self loop if dsp_debug flag is true
+ 			 */
+ 			__raw_writel((dsp_debug) ? OMAP3_IVA2_BOOTMOD_IDLE : 0,
+-					OMAP343X_CTRL_REGADDR(
+-					OMAP343X_CONTROL_IVA2_BOOTMOD));
++					ctrl + OMAP343X_CONTROL_IVA2_BOOTMOD);
++
++			iounmap(ctrl);
+ 		}
+ 	}
+ 	if (!status) {
+diff --git a/drivers/staging/tidspbridge/core/wdt.c b/drivers/staging/tidspbridge/core/wdt.c
+index 70055c8..870f934 100644
+--- a/drivers/staging/tidspbridge/core/wdt.c
++++ b/drivers/staging/tidspbridge/core/wdt.c
+@@ -53,7 +53,10 @@ int dsp_wdt_init(void)
+ 	int ret = 0;
+ 
+ 	dsp_wdt.sm_wdt = NULL;
+-	dsp_wdt.reg_base = OMAP2_L4_IO_ADDRESS(OMAP34XX_WDT3_BASE);
++	dsp_wdt.reg_base = ioremap(OMAP34XX_WDT3_BASE, SZ_4K);
++	if (!dsp_wdt.reg_base)
++		return -ENOMEM;
++
+ 	tasklet_init(&dsp_wdt.wdt3_tasklet, dsp_wdt_dpc, 0);
+ 
+ 	dsp_wdt.fclk = clk_get(NULL, "wdt3_fck");
+@@ -99,6 +102,9 @@ void dsp_wdt_exit(void)
+ 	dsp_wdt.fclk = NULL;
+ 	dsp_wdt.iclk = NULL;
+ 	dsp_wdt.sm_wdt = NULL;
++
++	if (dsp_wdt.reg_base)
++		iounmap(dsp_wdt.reg_base);
+ 	dsp_wdt.reg_base = NULL;
+ }
+ 
+-- 
+1.7.9.5
+

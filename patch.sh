@@ -62,7 +62,9 @@ function beagle {
 	git am "${DIR}/patches/beagle/0001-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly-wh.patch"
 #merged v3.4-rc2
 #	git am "${DIR}/patches/beagle/0001-ARM-OMAP3-clock-data-fill-in-some-missing-clockdomai.patch"
-	git am "${DIR}/patches/beagle/0001-ARM-OMAP3-USB-Fix-the-EHCI-ULPI-PHY-reset-issue.patch"
+
+#merged v3.4-rc4
+#	git am "${DIR}/patches/beagle/0001-ARM-OMAP3-USB-Fix-the-EHCI-ULPI-PHY-reset-issue.patch"
 	git am "${DIR}/patches/beagle/0001-omap3_beagle-init-uart2-for-beagle-rev-AX-BX-only.patch"
 
 	git am "${DIR}/patches/beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
@@ -78,7 +80,7 @@ function beagle {
 	git am "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
 	git am "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
 
-	git am "${DIR}/patches/omap/0001-Fix-sprz319-erratum-2.1.patch"
+#	git am "${DIR}/patches/omap/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
 function devkit8000 {
@@ -160,7 +162,9 @@ function fixes {
 
 	#3/27/2012
 	git am "${DIR}/patches/omap/0001-mfd-cpu_is_omap3430-wasnt-defined.patch"
-	git am "${DIR}/patches/omap/0001-tidspbridge-fix-build-after-iomap.h-move.patch"
+
+	#https://lkml.org/lkml/2012/4/20/554
+	git am "${DIR}/patches/omap/0001-staging-tidspbridge-remove-usage-of-OMAP2_L4_IO_ADDR.patch"
 }
 
 bugs_trivial
