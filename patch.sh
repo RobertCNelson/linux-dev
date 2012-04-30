@@ -163,8 +163,9 @@ function fixes {
 	#3/27/2012
 	git am "${DIR}/patches/omap/0001-mfd-cpu_is_omap3430-wasnt-defined.patch"
 
-	#https://lkml.org/lkml/2012/4/20/554
-	git am "${DIR}/patches/omap/0001-staging-tidspbridge-remove-usage-of-OMAP2_L4_IO_ADDR.patch"
+#merged in v3.4-rc5
+#	#https://lkml.org/lkml/2012/4/20/554
+#	git am "${DIR}/patches/omap/0001-staging-tidspbridge-remove-usage-of-OMAP2_L4_IO_ADDR.patch"
 }
 
 bugs_trivial
