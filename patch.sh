@@ -32,7 +32,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -4
+	git format-patch -7
 	exit
 }
 
@@ -82,6 +82,8 @@ beagle () {
 	git am "${DIR}/patches/beagle/0004-default-to-fifo-mode-5-for-old-musb-beagles.patch"
 	git am "${DIR}/patches/beagle/0005-omap3_beagle-init-uart2-for-beagle-rev-AX-BX-only.patch"
 
+	git am "${DIR}/patches/beagle/0006-backlight-Add-TLC59108-backlight-control-driver.patch"
+	git am "${DIR}/patches/beagle/0007-tlc59108-adjust-for-beagleboard-uLCD7.patch"
 }
 
 devkit8000 () {
