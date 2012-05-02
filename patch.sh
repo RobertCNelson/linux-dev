@@ -22,16 +22,23 @@
 
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
+# DIR=`pwd`
+
 echo "Starting patch.sh"
 
-function git_add {
-git add .
-git commit -a -m 'testing patchset'
+git_add () {
+	git add .
+	git commit -a -m 'testing patchset'
 }
 
-function bugs_trivial {
-	echo "bugs and trivial stuff"
-	git am "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
+cleanup () {
+	git format-patch -7
+	exit
+}
+
+distro () {
+	echo "Distro Specific Patches"
+	git am "${DIR}/patches/distro/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 }
 
 function micrel {
@@ -168,7 +175,7 @@ function fixes {
 #	git am "${DIR}/patches/omap/0001-staging-tidspbridge-remove-usage-of-OMAP2_L4_IO_ADDR.patch"
 }
 
-bugs_trivial
+distro
 
 micrel
 beagle
