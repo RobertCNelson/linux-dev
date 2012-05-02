@@ -1,7 +1,7 @@
-From 026177cdc5866b110c9e11d242ebc65612705059 Mon Sep 17 00:00:00 2001
+From 876c023653a9704518f658ffb4f21a84fe8dba95 Mon Sep 17 00:00:00 2001
 From: "Govindraj.R" <govindraj.raja@ti.com>
 Date: Wed, 21 Mar 2012 15:55:00 +0530
-Subject: [PATCH 2/3] OMAP2+: UART: enable tx wakeup bit for wer reg
+Subject: [PATCH 3/5] OMAP2+: UART: enable tx wakeup bit for wer reg
 
 From omap36xx onwards the module wakeup enable reg
 wer has TX wakeup bit available enable the same
@@ -19,7 +19,7 @@ Signed-off-by: Govindraj.R <govindraj.raja@ti.com>
 ---
  arch/arm/plat-omap/include/plat/omap-serial.h |    7 +++++++
  drivers/tty/serial/omap-serial.c              |    9 ++++++++-
- 2 files changed, 15 insertions(+), 1 deletions(-)
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/plat-omap/include/plat/omap-serial.h b/arch/arm/plat-omap/include/plat/omap-serial.h
 index 1a52725..8a4ca5c 100644
@@ -54,7 +54,7 @@ index 1a52725..8a4ca5c 100644
  
  	struct pm_qos_request	pm_qos_request;
 diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
-index c7666d6..20d568d 100644
+index 3d02d93..40ba100 100644
 --- a/drivers/tty/serial/omap-serial.c
 +++ b/drivers/tty/serial/omap-serial.c
 @@ -585,7 +585,11 @@ static int serial_omap_startup(struct uart_port *port)
@@ -82,7 +82,7 @@ index c7666d6..20d568d 100644
  		break;
  	default:
  		break;
-@@ -1629,6 +1635,7 @@ static void serial_omap_restore_context(struct uart_omap_port *up)
+@@ -1626,6 +1632,7 @@ static void serial_omap_restore_context(struct uart_omap_port *up)
  		serial_omap_mdr1_errataset(up, up->mdr1);
  	else
  		serial_out(up, UART_OMAP_MDR1, up->mdr1);
@@ -91,5 +91,5 @@ index c7666d6..20d568d 100644
  
  static int serial_omap_runtime_suspend(struct device *dev)
 -- 
-1.7.9.1
+1.7.10
 

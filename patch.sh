@@ -32,7 +32,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -7
+	git format-patch -4
 	exit
 }
 
@@ -55,7 +55,15 @@ micrel_zippy2 () {
 	git am "${DIR}/patches/micrel_zippy2/0007-ksz8851-add-ks8851_tx_check.patch"
 }
 
-function beagle {
+sakoman () {
+	echo "Patches from: Sakoman git tree"
+	git am "${DIR}/patches/sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
+	git am "${DIR}/patches/sakoman/0002-video-add-timings-for-hd720.patch"
+	git am "${DIR}/patches/sakoman/0003-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
+}
+
+
+beagle () {
 	echo "Board Patches for: BeagleBoard"
 
 	git am "${DIR}/patches/beagle/expansion/0001-expansion-add-buddy-param-for-expansionboard-names.patch"
@@ -63,52 +71,44 @@ function beagle {
 	git am "${DIR}/patches/beagle/expansion/0003-expansion-add-zippy.patch"
 	git am "${DIR}/patches/beagle/expansion/0004-expansion-add-zippy2.patch"
 	git am "${DIR}/patches/beagle/expansion/0005-expansion-add-trainer.patch"
-	git am "${DIR}/patches/beagle/expansion/0006-expansion-add-ulcd.patch"
+	git am "${DIR}/patches/beagle/expansion/0006-expansion-add-CircuitCo-ulcd-Support.patch"
+
+#changes need to be ported to the 3.4-rc..
+#	git am "${DIR}/patches/beagle/expansion/0007-expansion-add-wifi.patch"
 
 	git am "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
-	git am "${DIR}/patches/beagle/0001-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly-wh.patch"
-#merged v3.4-rc2
-#	git am "${DIR}/patches/beagle/0001-ARM-OMAP3-clock-data-fill-in-some-missing-clockdomai.patch"
+	git am "${DIR}/patches/beagle/0002-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly.patch"
+	git am "${DIR}/patches/beagle/0003-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
+	git am "${DIR}/patches/beagle/0004-default-to-fifo-mode-5-for-old-musb-beagles.patch"
+	git am "${DIR}/patches/beagle/0005-omap3_beagle-init-uart2-for-beagle-rev-AX-BX-only.patch"
 
-#merged v3.4-rc4
-#	git am "${DIR}/patches/beagle/0001-ARM-OMAP3-USB-Fix-the-EHCI-ULPI-PHY-reset-issue.patch"
-	git am "${DIR}/patches/beagle/0001-omap3_beagle-init-uart2-for-beagle-rev-AX-BX-only.patch"
-
-	git am "${DIR}/patches/beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
-	git am "${DIR}/patches/beagle/0001-default-to-fifo-mode-5-for-old-musb-beagles.patch"
-
-	git am "${DIR}/patches/omap/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
-
-#switch to mainline sound
-#	git am "${DIR}/patches/beagle/0001-ASoC-omap-add-MODULE_ALIAS-to-mcbsp-and-pcm-drivers.patch"
-#	git am "${DIR}/patches/beagle/0001-ASoC-omap-convert-per-board-modules-to-platform-driv.patch"
-
-	git am "${DIR}/patches/sakoman/2.6.39/0006-OMAP-DSS2-add-bootarg-for-selecting-svideo-or-compos.patch"
-	git am "${DIR}/patches/sakoman/2.6.39/0007-video-add-timings-for-hd720.patch"
-	git am "${DIR}/patches/sakoman/2.6.39/0025-omap-mmc-Adjust-dto-to-eliminate-timeout-errors.patch"
-
-#	git am "${DIR}/patches/omap/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
-function devkit8000 {
+devkit8000 () {
 	echo "Board Patches for: devkit8000"
 	git am "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel-2.6.37-git10.patch"
 }
 
-function touchbook {
-	echo "Board Patches for: Touchbook"
-	git am "${DIR}/patches/touchbook/0001-omap3-touchbook-remove-mmc-gpio_wp.patch"
-	git am "${DIR}/patches/touchbook/0002-omap3-touchbook-drop-u-boot-readonly.patch"
-}
-
-function pandaboard {
+panda () {
 	echo "Board Patches for: PandaBoard"
 	git am "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
-	git am "${DIR}/patches/panda/0001-panda-enable-bluetooth.patch"
-	git am "${DIR}/patches/panda/0001-ti-st-st-kim-fixing-firmware-path.patch"
+	git am "${DIR}/patches/panda/0002-panda-enable-bluetooth.patch"
+	git am "${DIR}/patches/panda/0003-ti-st-st-kim-fixing-firmware-path.patch"
 }
 
-function omapdrm {
+omap_fixes () {
+	echo "omap cherry pick fixes"
+	git am "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
+	git am "${DIR}/patches/omap_fixes/0002-OMAP2-UART-Remove-cpu-checks-for-populating-errata-f.patch"
+	git am "${DIR}/patches/omap_fixes/0003-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
+	git am "${DIR}/patches/omap_fixes/0004-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
+	git am "${DIR}/patches/omap_fixes/0005-mfd-cpu_is_omap3430-wasnt-defined.patch"
+
+#breaks beagle c4, needs fix..
+#	git am "${DIR}/patches/omap_fixes/0001-Fix-sprz319-erratum-2.1.patch"
+}
+
+omapdrm () {
 	echo "omap testing omapdrm/kms"
 
 	echo "Patches for 3.4-rc1-cma-v24"
@@ -129,61 +129,23 @@ function omapdrm {
 	git am "${DIR}/patches/drm/cma/0014-X86-integrate-CMA-with-DMA-mapping-subsystem.patch"
 	git am "${DIR}/patches/drm/cma/0015-ARM-integrate-CMA-with-DMA-mapping-subsystem.patch"
 
-#merged v3.4-rc0
-#	echo "omapdrm driver patches for 3.4"
-#	git am "${DIR}/patches/drm/0001-staging-drm-omap-get-supported-color-formats-from-ov.patch"
-#	git am "${DIR}/patches/drm/0002-staging-drm-omap-add-a-workqueue.patch"
-#	git am "${DIR}/patches/drm/0003-staging-drm-omap-call-omap_gem_roll-in-non-atomic-ct.patch"
-#	git am "${DIR}/patches/drm/0004-staging-drm-omap-some-minor-fb-cleanups.patch"
-#	git am "${DIR}/patches/drm/0005-staging-drm-omap-defer-unpin-until-scanout-completes.patch"
-#	git am "${DIR}/patches/drm/0006-staging-drm-omap-debugfs-for-object-and-fb-tracking.patch"
-#	git am "${DIR}/patches/drm/0007-staging-drm-omap-Disable-DMM-debugfs-for-OMAP3.patch"
-#	git am "${DIR}/patches/drm/0008-staging-drm-omap-Validate-debugfs-device.patch"
-#	git am "${DIR}/patches/drm/0009-staging-drm-omap-Get-DMM-resources-from-hwmod.patch"
-#	git am "${DIR}/patches/drm/0010-staging-drm-omap-mmap-of-tiled-buffers-with-stride-4.patch"
-
-#merged v3.4-rc0
-#	#posted: 11 Mar 2012 19:12:01 for 3.4
-#	git am "${DIR}/patches/drm/0001-staging-drm-omap-avoid-multiple-planes-having-same-z.patch"
-#	git am "${DIR}/patches/drm/0002-staging-drm-omap-send-page-flip-event-after-endwin.patch"
-#	git am "${DIR}/patches/drm/0003-staging-drm-omap-use-current-time-for-page-flip-even.patch"
-
 	#posted: 13 Mar 2012 for 3.4
 	git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
 
 	#might be merged in 3.4
-	git am "${DIR}/patches/drm/0001-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
-	git am "${DIR}/patches/drm/0002-ARM-OMAP2-3-HWMOD-Add-missing-flag-for-rfbi-class.patch"
-	git am "${DIR}/patches/drm/0003-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
-
-#merged v3.4-rc3
-#	git am "${DIR}/patches/drm/0001-staging-drm-omap-move-where-DMM-driver-is-registered.patch"
-}
-
-function fixes {
-	echo "omap cherry pick fixes"
-	#3/22/2012: replaces: 0001-OMAP-UART-Enable-tx-wakeup-bit-in-wer.patch
-	git am "${DIR}/patches/omap/0001-OMAP2-UART-Remove-cpu-checks-for-populating-errata-f.patch"
-	git am "${DIR}/patches/omap/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
-	git am "${DIR}/patches/omap/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
-
-	#3/27/2012
-	git am "${DIR}/patches/omap/0001-mfd-cpu_is_omap3430-wasnt-defined.patch"
-
-#merged in v3.4-rc5
-#	#https://lkml.org/lkml/2012/4/20/554
-#	git am "${DIR}/patches/omap/0001-staging-tidspbridge-remove-usage-of-OMAP2_L4_IO_ADDR.patch"
+	git am "${DIR}/patches/drm/0002-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
+	git am "${DIR}/patches/drm/0003-ARM-OMAP2-3-HWMOD-Add-missing-flag-for-rfbi-class.patch"
+	git am "${DIR}/patches/drm/0004-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
 }
 
 distro
 micrel_zippy2
+sakoman
 beagle
 devkit8000
-#touchbook
-pandaboard
-
+panda
+omap_fixes
 omapdrm
-fixes
 
 echo "patch.sh ran successful"
 
