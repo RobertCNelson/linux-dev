@@ -41,18 +41,18 @@ distro () {
 	git am "${DIR}/patches/distro/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 }
 
-function micrel {
+micrel_zippy2 () {
 	echo "Micrel KZ8851 patches for: zippy2"
 	#originaly from:
 	#ftp://www.micrel.com/ethernet/8851/beagle_zippy_patches.tar.gz 137 KB 04/10/2010 12:26:00 AM
 
-	git am "${DIR}/patches/micrel/0001-ks8851.h-it-helps-to-include-the-include-file.patch"
-	git am "${DIR}/patches/micrel/0002-ksz8851-move-to-header.patch"
-	git am "${DIR}/patches/micrel/0003-ksz8851-move-more-to-header.patch"
-	git am "${DIR}/patches/micrel/0004-ksz8851-share-ks8851_tx_hdr-union.patch"
-	git am "${DIR}/patches/micrel/0005-ksz8851-add-is_level_irq.patch"
-	git am "${DIR}/patches/micrel/0006-ksz8851-turn-off-hardware-interrupt-druing-receive-p.patch"
-	git am "${DIR}/patches/micrel/0007-ksz8851-add-ks8851_tx_check.patch"
+	git am "${DIR}/patches/micrel_zippy2/0001-ks8851.h-it-helps-to-include-the-include-file.patch"
+	git am "${DIR}/patches/micrel_zippy2/0002-ksz8851-move-to-header.patch"
+	git am "${DIR}/patches/micrel_zippy2/0003-ksz8851-move-more-to-header.patch"
+	git am "${DIR}/patches/micrel_zippy2/0004-ksz8851-share-ks8851_tx_hdr-union.patch"
+	git am "${DIR}/patches/micrel_zippy2/0005-ksz8851-add-is_level_irq.patch"
+	git am "${DIR}/patches/micrel_zippy2/0006-ksz8851-turn-off-hardware-interrupt-druing-receive-p.patch"
+	git am "${DIR}/patches/micrel_zippy2/0007-ksz8851-add-ks8851_tx_check.patch"
 }
 
 function beagle {
@@ -176,8 +176,7 @@ function fixes {
 }
 
 distro
-
-micrel
+micrel_zippy2
 beagle
 devkit8000
 #touchbook

@@ -1,4 +1,4 @@
-From 1035c21bf130405c17c2f2bf5958d596d58e91e8 Mon Sep 17 00:00:00 2001
+From ab15cdc0bcec65695518d15cd42961a0894513e3 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 29 Sep 2011 11:54:12 -0500
 Subject: [PATCH 7/7] ksz8851 add ks8851_tx_check
@@ -6,10 +6,10 @@ Subject: [PATCH 7/7] ksz8851 add ks8851_tx_check
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  drivers/net/ethernet/micrel/ks8851.c |   36 +++++++++++++++++-----------------
- 1 files changed, 18 insertions(+), 18 deletions(-)
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/net/ethernet/micrel/ks8851.c b/drivers/net/ethernet/micrel/ks8851.c
-index 8636e7b..87609fc 100644
+index 0f2f687..5fb78f5 100644
 --- a/drivers/net/ethernet/micrel/ks8851.c
 +++ b/drivers/net/ethernet/micrel/ks8851.c
 @@ -109,11 +109,13 @@ struct ks8851_net {
@@ -82,7 +82,7 @@ index 8636e7b..87609fc 100644
  		 IRQ_RXI |	/* RX done */		\
  		 IRQ_SPIBEI |	/* SPI bus error */	\
  		 IRQ_TXPSI |	/* TX process stop */	\
-@@ -904,6 +900,7 @@ static int ks8851_net_stop(struct net_device *dev)
+@@ -908,6 +904,7 @@ static int ks8851_net_stop(struct net_device *dev)
  
  	/* stop any outstanding work */
  	flush_work(&ks->irq_work);
@@ -90,7 +90,7 @@ index 8636e7b..87609fc 100644
  	flush_work(&ks->tx_work);
  	flush_work(&ks->rxctrl_work);
  
-@@ -961,14 +958,16 @@ static netdev_tx_t ks8851_start_xmit(struct sk_buff *skb,
+@@ -962,14 +959,16 @@ static netdev_tx_t ks8851_start_xmit(struct sk_buff *skb,
  
  	if (needed > ks->tx_space) {
  		netif_stop_queue(dev);
@@ -108,7 +108,7 @@ index 8636e7b..87609fc 100644
  
  	return ret;
  }
-@@ -1448,6 +1447,7 @@ static int __devinit ks8851_probe(struct spi_device *spi)
+@@ -1449,6 +1448,7 @@ static int __devinit ks8851_probe(struct spi_device *spi)
  	mutex_init(&ks->lock);
  	spin_lock_init(&ks->statelock);
  
@@ -117,5 +117,5 @@ index 8636e7b..87609fc 100644
  	INIT_WORK(&ks->irq_work, ks8851_irq_work);
  	INIT_WORK(&ks->rxctrl_work, ks8851_rxctrl_work);
 -- 
-1.7.9.1
+1.7.10
 
