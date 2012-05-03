@@ -99,7 +99,7 @@ DIR=\$PWD
 
 if [ \$(uname -m) == "armv7l" ] ; then
 
- if [ -e  \${DIR}/dsp_libs.tar.gz ]; then
+ if [ -e \${DIR}/dsp_libs.tar.gz ]; then
 
   echo "Extracting target files to rootfs"
   sudo tar xf dsp_libs.tar.gz -C /
@@ -165,8 +165,8 @@ sudo apt-get -y install git-core pkg-config build-essential gstreamer-tools libg
 mkdir -p \${DIR}/git/
 
 if [ ! -f \${DIR}/git/gst-dsp/.git/config ] ; then
-cd \${DIR}/git/
-git clone git://github.com/felipec/gst-dsp.git
+ cd \${DIR}/git/
+ git clone git://github.com/felipec/gst-dsp.git
 fi
 
 cd \${DIR}/git/gst-dsp
@@ -184,8 +184,8 @@ sudo make install
 cd \${DIR}/
 
 if [ ! -f \${DIR}/git/gst-omapfb/.git/config ] ; then
-cd \${DIR}/git/
-git clone git://github.com/felipec/gst-omapfb.git
+ cd \${DIR}/git/
+ git clone git://github.com/felipec/gst-omapfb.git
 fi
 
 cd \${DIR}/git/gst-omapfb
@@ -200,8 +200,8 @@ sudo make install
 cd \${DIR}/
 
 if [ ! -f \${DIR}/git/dsp-tools/.git/config ] ; then
-cd \${DIR}/git/
-git clone git://github.com/felipec/dsp-tools.git
+ cd \${DIR}/git/
+ git clone git://github.com/felipec/dsp-tools.git
 fi
 
 cd \${DIR}/git/dsp-tools

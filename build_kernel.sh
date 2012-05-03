@@ -60,92 +60,90 @@ function git_kernel_stable {
 
 function git_kernel {
 	if [ -f ${LINUX_GIT}/.git/config ] ; then
-  cd ${LINUX_GIT}/
-    echo "Updating LINUX_GIT tree via: git fetch"
-    git fetch
-  cd -
+		cd ${LINUX_GIT}/
+		echo "Updating LINUX_GIT tree via: git fetch"
+		git fetch
+		cd -
 
 		if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
-	rm -rf ${DIR}/KERNEL/ || true
-    git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
-  fi
+			rm -rf ${DIR}/KERNEL/ || true
+			git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
+		fi
 
-  cd ${DIR}/KERNEL/
+		cd ${DIR}/KERNEL/
+		#So we are now going to assume the worst, and create a new master branch
+		git am --abort || echo "git tree is clean..."
+		git add .
+		git commit --allow-empty -a -m 'empty cleanup commit'
 
-  git reset --hard
-  git checkout master -f
-  git pull
+		git checkout origin/master -b tmp-master
+		git branch -D master &>/dev/null || true
 
-  if [ ! "${LATEST_GIT}" ] ; then
-    if [ "${RC_PATCH}" ]; then
-      git tag | grep v${RC_KERNEL}${RC_PATCH} || git_kernel_torvalds
-      git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} || true
-      git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
-    elif [ "${STABLE_PATCH}" ] ; then
-      git tag | grep v${KERNEL_REL}.${STABLE_PATCH} || git_kernel_stable
-      git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
-      git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
-    else
-      git tag | grep v${KERNEL_REL} | grep -v rc || git_kernel_torvalds
-      git branch -D v${KERNEL_REL}-${BUILD} || true
-      git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
-    fi
-  else
-    git branch -D top-of-tree || true
+		git checkout origin/master -b master
+		git branch -D tmp-master &>/dev/null || true
+
+		git pull
+
+		if [ ! "${LATEST_GIT}" ] ; then
+			if [ "${RC_PATCH}" ] ; then
+				git tag | grep v${RC_KERNEL}${RC_PATCH} || git_kernel_torvalds
+				git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} &>/dev/null || true
+				git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
+			elif [ "${STABLE_PATCH}" ] ; then
+				git tag | grep v${KERNEL_REL}.${STABLE_PATCH} || git_kernel_stable
+				git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} &>/dev/null || true
+				git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
+			else
+				git tag | grep v${KERNEL_REL} | grep -v rc || git_kernel_torvalds
+				git branch -D v${KERNEL_REL}-${BUILD} &>/dev/null || true
+				git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
+			fi
+		else
+			git branch -D top-of-tree &>/dev/null || true
 			git checkout v${KERNEL_REL} -b top-of-tree
 			git describe
 			git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
-  fi
+		fi
 
-  git describe
+		git describe
 
-  cd ${DIR}/
-else
-  echo ""
-  echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
-  echo ""
-  echo "Quick Fix:"
-  echo "example: cd ~/"
-  echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-  echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
-  echo ""
-  exit
-fi
+		cd ${DIR}/
+	else
+		echo ""
+		echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
+		echo ""
+		echo "Quick Fix:"
+		echo "example: cd ~/"
+		echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+		echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
+		echo ""
+		exit
+	fi
 }
 
 function patch_kernel {
-  cd ${DIR}/KERNEL
+	cd ${DIR}/KERNEL
 	export DIR
-  /bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
+	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
-  git add .
-  if [ "${RC_PATCH}" ]; then
+	git add .
+	if [ "${RC_PATCH}" ] ; then
 		git commit --allow-empty -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
-  elif [ "${STABLE_PATCH}" ] ; then
+	elif [ "${STABLE_PATCH}" ] ; then
 		git commit --allow-empty -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
 	else
 		git commit --allow-empty -a -m ''$KERNEL_REL'-'$BUILD' patchset'
-  fi
+	fi
 
 #Test Patches:
 #exit
 
-  if [ "${LOCAL_PATCH_DIR}" ]; then
-    for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
-    BUILD+='+'
-  fi
+	if [ "${LOCAL_PATCH_DIR}" ] ; then
+		for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
+		BUILD+='+'
+	fi
 
-  cd ${DIR}/
-}
-
-function bisect_kernel {
- cd ${DIR}/KERNEL
- #usb works on omap4 panda, but broken on omap3 beagle..
- git bisect start
- git bisect good v3.2
- git bisect bad  v3.3-rc1
-
- cd ${DIR}/
+	cd ${DIR}/
 }
 
 function copy_defconfig {
@@ -233,9 +231,9 @@ if [ -e ${DIR}/system.sh ]; then
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 		GCC="${GCC_OVERRIDE}"
 	fi
-  echo ""
+	echo ""
 	echo "Using : $(LC_ALL=C ${CC}${GCC} --version)"
-  echo ""
+	echo ""
 
 if [ "${LATEST_GIT}" ] ; then
 	echo ""
@@ -250,7 +248,6 @@ fi
 
   git_kernel
   patch_kernel
-#  bisect_kernel
   copy_defconfig
   make_menuconfig
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then

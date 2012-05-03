@@ -22,11 +22,18 @@
 
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
+# DIR=`pwd`
+
 echo "Starting patch.sh"
 
-function git_add {
-git add .
-git commit -a -m 'testing patchset'
+git_add () {
+	git add .
+	git commit -a -m 'testing patchset'
+}
+
+cleanup () {
+	git format-patch -7
+	exit
 }
 
 function bugs_trivial {
