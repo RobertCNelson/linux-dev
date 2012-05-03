@@ -71,27 +71,35 @@ function git_kernel {
 		fi
 
 		cd ${DIR}/KERNEL/
+		#So we are now going to assume the worst, and create a new master branch
+		git am --abort || echo "git tree is clean..."
+		git add .
+		git commit --allow-empty -a -m 'empty cleanup commit'
 
-		git reset --hard
-		git checkout master -f
+		git checkout origin/master -b tmp-master
+		git branch -D master &>/dev/null || true
+
+		git checkout origin/master -b master
+		git branch -D tmp-master &>/dev/null || true
+
 		git pull
 
 		if [ ! "${LATEST_GIT}" ] ; then
 			if [ "${RC_PATCH}" ] ; then
 				git tag | grep v${RC_KERNEL}${RC_PATCH} || git_kernel_torvalds
-				git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} || true
+				git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} &>/dev/null || true
 				git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
 			elif [ "${STABLE_PATCH}" ] ; then
 				git tag | grep v${KERNEL_REL}.${STABLE_PATCH} || git_kernel_stable
-				git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} || true
+				git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} &>/dev/null || true
 				git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
 			else
 				git tag | grep v${KERNEL_REL} | grep -v rc || git_kernel_torvalds
-				git branch -D v${KERNEL_REL}-${BUILD} || true
+				git branch -D v${KERNEL_REL}-${BUILD} &>/dev/null || true
 				git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
 			fi
 		else
-			git branch -D top-of-tree || true
+			git branch -D top-of-tree &>/dev/null || true
 			git checkout v${KERNEL_REL} -b top-of-tree
 			git describe
 			git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true

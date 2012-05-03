@@ -71,12 +71,20 @@ function git_kernel {
 		fi
 
 		cd ${DIR}/KERNEL/
+		#So we are now going to assume the worst, and create a new master branch
+		git am --abort || echo "git tree is clean..."
+		git add .
+		git commit --allow-empty -a -m 'empty cleanup commit'
 
-		git reset --hard
-		git checkout master -f
+		git checkout origin/master -b tmp-master
+		git branch -D master &>/dev/null || true
+
+		git checkout origin/master -b master
+		git branch -D tmp-master &>/dev/null || true
+
 		git pull
 
-		git branch -D top-of-tree || true
+		git branch -D top-of-tree &>/dev/null || true
 		git checkout v${KERNEL_REL} -b top-of-tree
 		git describe
 		git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
