@@ -140,6 +140,13 @@ omapdrm () {
 	git am "${DIR}/patches/drm/0004-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
 }
 
+dsp () {
+	echo "dsp patches"
+	git am "${DIR}/patches/dsp/0001-OMAP2-control-new-APIs-to-configure-boot-address-and.patch"
+	git am "${DIR}/patches/dsp/0002-OMAP-dsp-interface-to-control-module-functions.patch"
+	git am "${DIR}/patches/dsp/0003-staging-tidspbridge-use-scm-functions-to-set-boot-ad.patch"
+}
+
 distro
 micrel_zippy2
 sakoman
@@ -148,6 +155,7 @@ devkit8000
 panda
 omap_fixes
 omapdrm
+dsp
 
 echo "patch.sh ran successful"
 
