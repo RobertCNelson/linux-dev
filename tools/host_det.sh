@@ -109,6 +109,14 @@ if [ ! $(which ccache) ];then
  APT=1
 fi
 
+#Just temp, as with 3.4, switching to xz
+if [ ! $(which lzma) ];then
+	echo "Missing lzma"
+	UPACKAGE+="lzma "
+	DPACKAGE+="lzma "
+	APT=1
+fi
+
 if [ ! -f /usr/lib/libncurses.so ] ; then
 	ARCH=$(uname -m)
 	if [ "-${ARCH}-" == "-i686-" ] ; then
