@@ -26,7 +26,7 @@ unset DIR
 
 DIR=$PWD
 
-SGX_SHA="origin/master"
+SGX_SHA="origin/4.06.00.01"
 
 set_sgx_make_vars () {
 	GRAPHICS_PATH="GRAPHICS_INSTALL_DIR="${DIR}/ti-sdk-pvr/Graphics_SDK/""
@@ -61,6 +61,7 @@ git_sgx_modules () {
 
 build_sgx_modules () {
 	cd "${DIR}/ti-sdk-pvr/Graphics_SDK/"
+	echo "make ${GRAPHICS_PATH} ${KERNEL_PATH} ${USER_VAR} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" "$5""
 	make ${GRAPHICS_PATH} ${KERNEL_PATH} ${USER_VAR} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" "$5"
 	cd ${DIR}/
 }
