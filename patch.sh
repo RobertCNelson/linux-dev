@@ -147,6 +147,11 @@ dsp () {
 	git am "${DIR}/patches/dsp/0003-staging-tidspbridge-use-scm-functions-to-set-boot-ad.patch"
 }
 
+sgx () {
+	echo "patches needed for external sgx bins"
+	git am "${DIR}/patches/sgx/0001-Revert-drm-kill-drm_sman.patch"
+}
+
 distro
 micrel_zippy2
 sakoman
@@ -156,6 +161,7 @@ panda
 omap_fixes
 omapdrm
 dsp
+sgx
 
 echo "patch.sh ran successful"
 
