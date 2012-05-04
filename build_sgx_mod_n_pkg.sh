@@ -37,6 +37,10 @@ set_sgx_make_vars () {
 	#Will probally have to revist this one later...
 	CSTOOL_DIR=$(echo ${CC} | awk -F "/bin/${CSTOOL_PREFIX}" '{print $1}')
 
+	if [ "x${CSTOOL_PREFIX}" == "x${CSTOOL_DIR}" ] ; then
+		CSTOOL_DIR="/usr"
+	fi
+
 	CROSS="CSTOOL_PREFIX=${CSTOOL_PREFIX} CSTOOL_DIR=${CSTOOL_DIR}"
 }
 
