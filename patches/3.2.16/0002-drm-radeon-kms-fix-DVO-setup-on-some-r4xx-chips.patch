@@ -1,0 +1,39 @@
+From 26140e3f2a647ec8407e7bc51af9ad3f5a750c55 Mon Sep 17 00:00:00 2001
+From: Alex Deucher <alexander.deucher@amd.com>
+Date: Tue, 3 Apr 2012 17:05:41 -0400
+Subject: [PATCH 02/68] drm/radeon/kms: fix DVO setup on some r4xx chips
+
+commit afceb9319f21b18ee3bc15ee9a5f92e18ef8a8c9 upstream.
+
+Some r4xx chips have the wrong frev in the
+DVOEncoderControl table.  It should always be 1
+on r4xx.  Fixes modesetting on DVO on r4xx chips
+with the bad frev.
+
+Reported by twied on #radeon.
+
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/gpu/drm/radeon/atombios_encoders.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/gpu/drm/radeon/atombios_encoders.c b/drivers/gpu/drm/radeon/atombios_encoders.c
+index 0f8eb48..5351ee1 100644
+--- a/drivers/gpu/drm/radeon/atombios_encoders.c
++++ b/drivers/gpu/drm/radeon/atombios_encoders.c
+@@ -246,6 +246,10 @@ atombios_dvo_setup(struct drm_encoder *encoder, int action)
+ 	if (!atom_parse_cmd_header(rdev->mode_info.atom_context, index, &frev, &crev))
+ 		return;
+ 
++	/* some R4xx chips have the wrong frev */
++	if (rdev->family <= CHIP_RV410)
++		frev = 1;
++
+ 	switch (frev) {
+ 	case 1:
+ 		switch (crev) {
+-- 
+1.7.10
+
