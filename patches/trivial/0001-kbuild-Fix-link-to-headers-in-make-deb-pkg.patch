@@ -1,4 +1,4 @@
-From 2523bcd43a155f1e890806b977da6ec7f4c3ee9b Mon Sep 17 00:00:00 2001
+From 393fe255603a739f74178d00310ab9fc249d7e05 Mon Sep 17 00:00:00 2001
 From: Joerg Roedel <joerg.roedel@amd.com>
 Date: Mon, 13 Feb 2012 15:48:57 +0100
 Subject: [PATCH] kbuild: Fix link to headers in 'make deb-pkg'
@@ -17,10 +17,10 @@ Cc: linux-kbuild@vger.kernel.org
 Signed-off-by: Joerg Roedel <joerg.roedel@amd.com>
 ---
  scripts/package/builddeb |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+ 1 file changed, 9 insertions(+)
 
 diff --git a/scripts/package/builddeb b/scripts/package/builddeb
-index 2a15fda..6a1ae1f 100644
+index 2f86d7b..5c22c3f 100644
 --- a/scripts/package/builddeb
 +++ b/scripts/package/builddeb
 @@ -99,6 +99,7 @@ mkdir -m 755 -p "$libc_headers_dir/DEBIAN"
@@ -42,17 +42,17 @@ index 2a15fda..6a1ae1f 100644
  		rmdir "$tmpdir/lib/modules/$version"
 @@ -247,6 +250,12 @@ destdir=$kernel_headers_dir/usr/src/linux-headers-$version
  mkdir -p "$destdir"
- (cd $srctree; tar -c -f - -T /tmp/files$$) | (cd $destdir; tar -xf -)
- (cd $objtree; tar -c -f - -T /tmp/objfiles$$) | (cd $destdir; tar -xf -)
+ (cd $srctree; tar -c -f - -T "$objtree/debian/hdrsrcfiles") | (cd $destdir; tar -xf -)
+ (cd $objtree; tar -c -f - -T "$objtree/debian/hdrobjfiles") | (cd $destdir; tar -xf -)
 +ln -sf "/usr/src/linux-headers-$version" "$kernel_headers_dir/lib/modules/$version/build"
 +if [ "$ARCH" = "um" ] ; then
 +	mkdir -p "$kernel_headers_dir/usr/lib/uml/modules/$version/"
 +	mv "$kernel_headers_dir/lib/modules/$version"/* "$kernel_headers_dir/usr/lib/uml/modules/$version/"
 +	rmdir "$kernel_headers_dir/lib/modules/$version"
 +fi
- rm -f /tmp/files$$ /tmp/objfiles$$
+ rm -f "$objtree/debian/hdrsrcfiles" "$objtree/debian/hdrobjfiles"
  arch=$(dpkg --print-architecture)
  
 -- 
-1.7.9
+1.7.10
 

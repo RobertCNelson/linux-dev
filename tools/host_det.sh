@@ -126,6 +126,13 @@ fi
 
 #Note: Without dpkg-dev from build-essential, this can be a false positive
 MULTIARCHLIB="/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`"
+
+#oneiric is multiarch, but libncurses.so is under /usr/lib
+CHECK_ONEIRIC=$(lsb_release -c | grep oneiric | awk '{print $2}' 2>/dev/null)
+if [ "x${CHECK_ONEIRIC}" == "xoneiric" ] ; then
+	MULTIARCHLIB="/usr/lib/"
+fi
+
 if [ ! -f ${MULTIARCHLIB}/libncurses.so ] ; then
 	echo "Missing ncurses"
 	UPACKAGE+="libncurses5-dev "

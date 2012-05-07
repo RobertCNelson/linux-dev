@@ -1,0 +1,25 @@
+From dc40ffcdb2c7270619d1e9c9dbfa1b372c783fe2 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 17 Apr 2012 12:35:01 +0200
+Subject: [PATCH 28/33] beaglebone: fix ehrpwm backlight
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index b0ee67e..0d20bb1 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -1434,6 +1434,7 @@ late_initcall(ecap0_init);
+ static void enable_ehrpwm1(int evm_id, int profile)
+ {
+ 	ehrpwm_backlight_enable = true;
++	am33xx_register_ehrpwm(1, &pwm_pdata[1]);
+ }
+ 
+ /* Setup pwm-backlight for bbtoys7lcd */
+-- 
+1.7.10
+

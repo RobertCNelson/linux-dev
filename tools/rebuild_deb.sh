@@ -46,16 +46,22 @@ then
  let CORES=$CORES+1
 fi
 
+unset GIT_OPTS
+GIT_VERSION=$(git --version | awk '{print $3}')
+if [ "x${GIT_VERSION}" == "x1.7.10" ] ; then
+	GIT_OPTS+="--no-edit"
+fi
+
 mkdir -p ${DIR}/deploy/
 
 function git_kernel_torvalds {
-  echo "pulling from torvalds kernel.org tree"
-  git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags || true
+	echo "pulling from torvalds kernel.org tree"
+	git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags || true
 }
 
 function git_kernel_stable {
-  echo "fetching from stable kernel.org tree"
-  git pull git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git master --tags || true
+	echo "fetching from stable kernel.org tree"
+	git fetch git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git master --tags || true
 }
 
 function git_kernel {
@@ -94,19 +100,19 @@ function git_kernel {
 		git checkout origin/master -b master
 		git branch -D tmp-master &>/dev/null || true
 
-		git pull
+		git pull ${GIT_OPTS} || true
 
 		if [ ! "${LATEST_GIT}" ] ; then
 			if [ "${RC_PATCH}" ] ; then
-				git tag | grep v${RC_KERNEL}${RC_PATCH} || git_kernel_torvalds
+				git tag | grep v${RC_KERNEL}${RC_PATCH} &>/dev/null || git_kernel_torvalds
 				git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} &>/dev/null || true
 				git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
 			elif [ "${STABLE_PATCH}" ] ; then
-				git tag | grep v${KERNEL_REL}.${STABLE_PATCH} || git_kernel_stable
+				git tag | grep v${KERNEL_REL}.${STABLE_PATCH} &>/dev/null || git_kernel_stable
 				git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} &>/dev/null || true
 				git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
 			else
-				git tag | grep v${KERNEL_REL} | grep -v rc || git_kernel_torvalds
+				git tag | grep v${KERNEL_REL} | grep -v rc &>/dev/null || git_kernel_torvalds
 				git branch -D v${KERNEL_REL}-${BUILD} &>/dev/null || true
 				git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
 			fi
@@ -114,7 +120,7 @@ function git_kernel {
 			git branch -D top-of-tree &>/dev/null || true
 			git checkout v${KERNEL_REL} -b top-of-tree
 			git describe
-			git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
+			git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
 		fi
 
 		git describe
@@ -135,7 +141,7 @@ function git_kernel {
 
 function patch_kernel {
 	cd ${DIR}/KERNEL
-	export DIR
+	export DIR GIT_OPTS
 	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
 	git add .
@@ -176,8 +182,8 @@ function make_menuconfig {
 
 function make_deb {
   cd ${DIR}/KERNEL/
-  echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} deb-pkg"
-  time fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} deb-pkg
+  echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg"
+  time fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg
   mv ${DIR}/*.deb ${DIR}/deploy/
   cd ${DIR}/
 }
@@ -200,6 +206,11 @@ if [ "${LATEST_GIT}" ] ; then
 	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
 	echo ""
 fi
+
+	unset CONFIG_DEBUG_SECTION
+	if [ "${DEBUG_SECTION}" ] ; then
+		CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
+	fi
 
 #  git_kernel
 #  patch_kernel
