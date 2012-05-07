@@ -1,0 +1,122 @@
+From baaa0c0425528486efcc70b7696dd6359f10b5bd Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Fri, 4 May 2012 14:43:39 +0530
+Subject: [PATCH 3/3] usb: musb: cppi41: correct data toggle mismatch to fix
+ extra IN token issue
+
+Fixes extra IN token issue seen when a file is transferred from obe pendrive
+to other. The same issue is also seen when a file is read from a usb pendrive
+and same time an usb wifi module is connected and its ip interface is up.
+
+Issue root caused to be with xDMA corrupting the data toggle bit when multiple
+bus masters are accessing the mentor core register space.
+
+Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+---
+ drivers/usb/musb/cppi41_dma.c |   17 +++++++++++++++++
+ drivers/usb/musb/musb_core.h  |    2 ++
+ drivers/usb/musb/musb_host.c  |   29 +++++++++++++++++++++++++++--
+ 3 files changed, 46 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/musb/cppi41_dma.c b/drivers/usb/musb/cppi41_dma.c
+index b3a7c33..e4d3173 100644
+--- a/drivers/usb/musb/cppi41_dma.c
++++ b/drivers/usb/musb/cppi41_dma.c
+@@ -864,7 +864,24 @@ sched:
+ 	if (is_host_active(cppi->musb) && rx_ch->channel.actual_len) {
+ 		void __iomem *epio = rx_ch->end_pt->regs;
+ 		u16 csr = musb_readw(epio, MUSB_RXCSR);
++		u8 curr_toggle = (csr & MUSB_RXCSR_H_DATATOGGLE) ? 1 : 0;
+ 
++		/* check if data toggle bit got out of sync */
++		if (curr_toggle == rx_ch->end_pt->prev_toggle) {
++			dev_dbg(musb->controller,
++				"Data toggle same as previous (=%d) on ep%d\n",
++					curr_toggle, rx_ch->end_pt->epnum);
++
++			csr |= MUSB_RXCSR_H_DATATOGGLE |
++					MUSB_RXCSR_H_WR_DATATOGGLE;
++			musb_writew(epio, MUSB_RXCSR, csr);
++
++			rx_ch->end_pt->prev_toggle = !curr_toggle;
++		} else {
++			rx_ch->end_pt->prev_toggle = curr_toggle;
++		}
++
++		csr = musb_readw(epio, MUSB_RXCSR);
+ 		csr |= MUSB_RXCSR_H_REQPKT | MUSB_RXCSR_H_WZC_BITS;
+ 		musb_writew(epio, MUSB_RXCSR, csr);
+ 	}
+diff --git a/drivers/usb/musb/musb_core.h b/drivers/usb/musb/musb_core.h
+index 3605b97..87b6ff0 100644
+--- a/drivers/usb/musb/musb_core.h
++++ b/drivers/usb/musb/musb_core.h
+@@ -276,6 +276,8 @@ struct musb_hw_ep {
+ 	/* peripheral side */
+ 	struct musb_ep		ep_in;			/* TX */
+ 	struct musb_ep		ep_out;			/* RX */
++
++	u8			prev_toggle;		/* Rx */
+ };
+ 
+ static inline struct musb_request *next_in_request(struct musb_hw_ep *hw_ep)
+diff --git a/drivers/usb/musb/musb_host.c b/drivers/usb/musb/musb_host.c
+index c4d44fa..d805d1b 100644
+--- a/drivers/usb/musb/musb_host.c
++++ b/drivers/usb/musb/musb_host.c
+@@ -344,18 +344,36 @@ static void musb_giveback(struct musb *musb, struct urb *urb, int status)
+ static inline void musb_save_toggle(struct musb_qh *qh, int is_in,
+ 				    struct urb *urb)
+ {
++	struct musb		*musb = qh->hw_ep->musb;
+ 	void __iomem		*epio = qh->hw_ep->regs;
+ 	u16			csr;
++	u8			curr_toggle;
+ 
+ 	/*
+ 	 * FIXME: the current Mentor DMA code seems to have
+ 	 * problems getting toggle correct.
+ 	 */
+ 
+-	if (is_in)
++	if (is_in) {
+ 		csr = musb_readw(epio, MUSB_RXCSR) & MUSB_RXCSR_H_DATATOGGLE;
+-	else
++		curr_toggle = csr ? 1 : 0;
++
++		/* check if data toggle has gone out of sync */
++		if (curr_toggle == qh->hw_ep->prev_toggle) {
++			dev_dbg(musb->controller,
++				"Data toggle same as previous (=%d) on ep%d\n",
++					curr_toggle, qh->hw_ep->epnum);
++
++			csr = musb_readw(epio, MUSB_RXCSR);
++			csr |= MUSB_RXCSR_H_DATATOGGLE |
++					MUSB_RXCSR_H_WR_DATATOGGLE;
++			musb_writew(epio, MUSB_RXCSR, csr);
++
++			csr = 1;
++		}
++	} else {
+ 		csr = musb_readw(epio, MUSB_TXCSR) & MUSB_TXCSR_H_DATATOGGLE;
++	}
+ 
+ 	usb_settoggle(urb->dev, qh->epnum, !is_in, csr ? 1 : 0);
+ }
+@@ -907,6 +925,13 @@ static void musb_ep_program(struct musb *musb, u8 epnum,
+ 			csr = musb_readw(hw_ep->regs, MUSB_RXCSR);
+ 
+ 			/*
++			 * Save the data toggle value which can be compared
++			 * later to see if data toggle goes out of sync
++			 */
++			hw_ep->prev_toggle = (csr &
++				MUSB_RXCSR_H_DATATOGGLE) ? 1 : 0;
++
++			/*
+ 			 * Unless caller treats short RX transfers as
+ 			 * errors, we dare not queue multiple transfers.
+ 			 */
+-- 
+1.7.10
+

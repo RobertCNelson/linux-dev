@@ -48,6 +48,10 @@ function am33x-cleanup {
 	echo "pulling ti_am33x_v3.2-staging_2"
 	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_2
 
+	git am "${DIR}/patches/arago-am33x/0001-input-TSC-Shutdown-ADC-if-TSC-wake-is-not-required.patch"
+	git am "${DIR}/patches/arago-am33x/0002-usb-musb-cppi41-use-transparent-mode-to-fix-extra-IN.patch"
+	git am "${DIR}/patches/arago-am33x/0003-usb-musb-cppi41-correct-data-toggle-mismatch-to-fix-.patch"
+
 	git am "${DIR}/patches/3.2.1/0001-MAINTAINERS-stable-Update-address.patch"
 	git am "${DIR}/patches/3.2.1/0002-Documentation-Update-stable-address.patch"
 	git am "${DIR}/patches/3.2.1/0003-firmware-Fix-an-oops-on-reading-fw_priv-fw-in-sysfs-.patch"

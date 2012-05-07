@@ -1,0 +1,144 @@
+From 9596c83241d84ff6b3c0e757569f55029e2a915d Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Thu, 3 May 2012 15:23:27 +0530
+Subject: [PATCH 2/3] usb: musb: cppi41: use transparent mode to fix extra IN
+ token issue
+
+Extra IN token issue has been seen when a file is transferred from
+one MSC device to other due to xDMA IP bug when multiple masters
+access mentor controller register space.
+
+In addition to using transparent mode, data toggle need to be monitored
+and corrected when they go wrong. There is seperate patch for the same.
+
+Transparent mode option will get enabled for USBSS revision values <= 0xd.
+Future RTL versions would have this issue fixed.
+
+Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+---
+ drivers/usb/musb/cppi41_dma.c |   34 ++++++++++++++++++++++++++++++----
+ drivers/usb/musb/cppi41_dma.h |    6 ++++++
+ drivers/usb/musb/ti81xx.c     |    1 +
+ 3 files changed, 37 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/musb/cppi41_dma.c b/drivers/usb/musb/cppi41_dma.c
+index 69a952d..b3a7c33 100644
+--- a/drivers/usb/musb/cppi41_dma.c
++++ b/drivers/usb/musb/cppi41_dma.c
+@@ -790,16 +790,19 @@ static unsigned cppi41_next_rx_segment(struct cppi41_channel *rx_ch)
+ 		 * probably fit this transfer in one PD and one IRQ
+ 		 * (or two with a short packet).
+ 		 */
+-		if ((pkt_size & 0x3f) == 0) {
++		if (cppi->cppi_info->grndis_for_host_rx &&
++					(pkt_size & 0x3f) == 0) {
+ 			cppi41_mode_update(rx_ch, USB_GENERIC_RNDIS_MODE);
+ 			cppi41_autoreq_update(rx_ch, USB_AUTOREQ_ALL_BUT_EOP);
+ 
+ 			pkt_size = (length > 0x10000) ? 0x10000 : length;
+ 			cppi41_set_ep_size(rx_ch, pkt_size);
++			mode = USB_GENERIC_RNDIS_MODE;
+ 		} else {
+ 			cppi41_mode_update(rx_ch, USB_TRANSPARENT_MODE);
+ 			cppi41_autoreq_update(rx_ch, USB_NO_AUTOREQ);
+ 			max_rx_transfer_size = rx_ch->hb_mult * rx_ch->pkt_size;
++			mode = USB_TRANSPARENT_MODE;
+ 		}
+ 	}
+ 
+@@ -809,7 +812,10 @@ static unsigned cppi41_next_rx_segment(struct cppi41_channel *rx_ch)
+ 	    rx_ch->curr_offset, rx_ch->length);
+ 
+ 	/* calculate number of bd required */
+-	n_bd = (length + max_rx_transfer_size - 1)/max_rx_transfer_size;
++	if (is_host_active(cppi->musb) && (mode == USB_TRANSPARENT_MODE))
++		n_bd = 1;
++	else
++		n_bd = (length + max_rx_transfer_size - 1)/max_rx_transfer_size;
+ 
+ 	for (i = 0; i < n_bd ; ++i) {
+ 		/* Get Rx packet descriptor from the free pool */
+@@ -1357,6 +1363,20 @@ cppi41_dma_controller_create(struct musb  *musb, void __iomem *mregs)
+ 	cppi->en_bd_intr = cppi->cppi_info->bd_intr_ctrl;
+ 	INIT_WORK(&cppi->txdma_work, txdma_completion_work);
+ 
++	/*
++	 * Extra IN token has been seen when a file is transferred from one MSC
++	 * device to other due to xDMA IP bug when multiple masters access
++	 * mentor controller register space.
++	 * As a software workaround use transparent mode and correct data toggle
++	 * when they go wrong.
++	 * This issue is expected to be fixed in RTL version post 0xD.
++	 */
++	if ((cppi->cppi_info->version & USBSS_RTL_VERSION_MASK) >
++			USBSS_RTL_VERSION_D)
++		cppi->cppi_info->grndis_for_host_rx = 1;
++	else
++		cppi->cppi_info->grndis_for_host_rx = 0;
++
+ 	/* enable infinite mode only for ti81xx silicon rev2 */
+ 	if (cpu_is_am33xx() || cpu_is_ti816x()) {
+ 		dev_dbg(musb->controller, "cppi41dma supports infinite mode\n");
+@@ -1510,6 +1530,11 @@ static void usb_process_rx_queue(struct cppi41 *cppi, unsigned index)
+ 		if (en_bd_intr)
+ 			orig_buf_len &= ~CPPI41_PKT_INTR_FLAG;
+ 
++		dev_dbg(musb->controller,
++			"curr_pd=%p, len=%d, origlen=%d,rxch(alen/len)=%d/%d\n",
++				curr_pd, length, orig_buf_len,
++				rx_ch->channel.actual_len, rx_ch->length);
++
+ 		if (unlikely(rx_ch->channel.actual_len >= rx_ch->length ||
+ 			     length < orig_buf_len)) {
+ 
+@@ -1549,8 +1574,9 @@ static void usb_process_rx_queue(struct cppi41 *cppi, unsigned index)
+ 				musb_dma_completion(cppi->musb, ep_num, 0);
+ 			}
+ 		} else {
+-			if (is_peripheral_active(cppi->musb) &&
+-				((rx_ch->length - rx_ch->curr_offset) > 0))
++			if ((is_peripheral_active(cppi->musb) ||
++				!cppi->cppi_info->grndis_for_host_rx) &&
++				(rx_ch->length - rx_ch->curr_offset) > 0)
+ 				cppi41_next_rx_segment(rx_ch);
+ 		}
+ 	}
+diff --git a/drivers/usb/musb/cppi41_dma.h b/drivers/usb/musb/cppi41_dma.h
+index fd746c3..bedf3bb 100644
+--- a/drivers/usb/musb/cppi41_dma.h
++++ b/drivers/usb/musb/cppi41_dma.h
+@@ -21,6 +21,10 @@
+ #define _CPPI41_DMA_H_
+ #include <plat/usb.h>
+ 
++/* USBSS RTL versions */
++#define USBSS_RTL_VERSION_MASK	0xF
++#define USBSS_RTL_VERSION_D	0xD
++
+ /**
+  * struct usb_cppi41_info - CPPI 4.1 USB implementation details
+  * @dma_block:	DMA block number
+@@ -40,6 +44,8 @@ struct usb_cppi41_info {
+ 	u16 *tx_comp_q;
+ 	u16 *rx_comp_q;
+ 	u8 bd_intr_ctrl;
++	u8 grndis_for_host_rx;
++	u32 version;
+ };
+ 
+ extern struct usb_cppi41_info usb_cppi41_info[];
+diff --git a/drivers/usb/musb/ti81xx.c b/drivers/usb/musb/ti81xx.c
+index 662aceb..d76a693 100644
+--- a/drivers/usb/musb/ti81xx.c
++++ b/drivers/usb/musb/ti81xx.c
+@@ -467,6 +467,7 @@ int __devinit cppi41_init(u8 id, u8 irq, int num_instances)
+ 	cppi_info->tx_comp_q = id ? tx_comp_q1 : tx_comp_q;
+ 	cppi_info->rx_comp_q = id ? rx_comp_q1 : rx_comp_q;
+ 	cppi_info->bd_intr_ctrl = 1;
++	cppi_info->version = usbss_read(USBSS_REVISION);
+ 
+ 	if (cppi41_init_done)
+ 		return 0;
+-- 
+1.7.10
+
