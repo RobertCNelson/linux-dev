@@ -60,6 +60,18 @@ function git_kernel_stable {
 
 function git_kernel {
 	if [ -f ${LINUX_GIT}/.git/config ] ; then
+		if [ -f ${LINUX_GIT}/version.sh ] ; then
+			echo ""
+			echo "Error, LINUX_GIT in system.sh is improperly set, do not clone a git tree on top of another.."
+			echo ""
+			echo "Quick Fix:"
+			echo "example: cd ~/"
+			echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+			echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
+			echo ""
+			exit
+		fi
+
 		cd ${LINUX_GIT}/
 		echo "Updating LINUX_GIT tree via: git fetch"
 		git fetch
