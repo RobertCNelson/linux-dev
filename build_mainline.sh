@@ -46,16 +46,22 @@ then
  let CORES=$CORES+1
 fi
 
+unset GIT_OPTS
+GIT_VERSION=$(git --version | awk '{print $3}')
+if [ "x${GIT_VERSION}" == "x1.7.10" ] ; then
+	GIT_OPTS+="--no-edit"
+fi
+
 mkdir -p ${DIR}/deploy/
 
 function git_kernel_torvalds {
-  echo "pulling from torvalds kernel.org tree"
-  git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags || true
+	echo "pulling from torvalds kernel.org tree"
+	git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags || true
 }
 
 function git_kernel_stable {
-  echo "fetching from stable kernel.org tree"
-  git pull git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git master --tags || true
+	echo "fetching from stable kernel.org tree"
+	git fetch git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git master --tags || true
 }
 
 function git_kernel {
@@ -94,12 +100,12 @@ function git_kernel {
 		git checkout origin/master -b master
 		git branch -D tmp-master &>/dev/null || true
 
-		git pull
+		git pull ${GIT_OPTS} || true
 
 		git branch -D top-of-tree &>/dev/null || true
 		git checkout v${KERNEL_REL} -b top-of-tree
 		git describe
-		git pull git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
+		git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
 
 		git describe
 
@@ -119,7 +125,7 @@ function git_kernel {
 
 function patch_kernel {
 	cd ${DIR}/KERNEL
-	export DIR
+	export DIR GIT_OPTS
 	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
 	git add .
@@ -236,10 +242,10 @@ if [ "${LATEST_GIT}" ] ; then
 	echo ""
 fi
 
-unset CONFIG_DEBUG_SECTION
-if [ "${DEBUG_SECTION}" ] ; then
-	CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
-fi
+	unset CONFIG_DEBUG_SECTION
+	if [ "${DEBUG_SECTION}" ] ; then
+		CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
+	fi
 
   git_kernel
 #  patch_kernel
