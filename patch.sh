@@ -51,6 +51,8 @@ function am33x-cleanup {
 	git am "${DIR}/patches/arago-am33x/0001-input-TSC-Shutdown-ADC-if-TSC-wake-is-not-required.patch"
 	git am "${DIR}/patches/arago-am33x/0002-usb-musb-cppi41-use-transparent-mode-to-fix-extra-IN.patch"
 	git am "${DIR}/patches/arago-am33x/0003-usb-musb-cppi41-correct-data-toggle-mismatch-to-fix-.patch"
+	git am "${DIR}/patches/arago-am33x/0004-ARM-OMAP-AM33XX-Disable-OPP120-OPPTURBO-if-BeableBon.patch"
+	git am "${DIR}/patches/arago-am33x/0005-ARM-OMAP-AM33XX-modify-message-printed-while-BeagleB.patch"
 
 	git am "${DIR}/patches/3.2.1/0001-MAINTAINERS-stable-Update-address.patch"
 	git am "${DIR}/patches/3.2.1/0002-Documentation-Update-stable-address.patch"

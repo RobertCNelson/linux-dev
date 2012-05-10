@@ -1,4 +1,4 @@
-From f832c1ea635f0ed7ef1069ea2d9bba07663bf4fb Mon Sep 17 00:00:00 2001
+From cf10ed70579307b1c976a72abfcb871fa2b7907f Mon Sep 17 00:00:00 2001
 From: Joel A Fernandes <joelagnel@ti.com>
 Date: Tue, 29 Nov 2011 09:44:22 -0600
 Subject: [PATCH 12/33] tscadc: switch to polling instead of interrupts
@@ -9,10 +9,10 @@ Signed-off-by: Joel A Fernandes <joelagnel@ti.com>
  1 file changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-index c82f9bf..3082e5c 100644
+index da48bcd..4fd2e18 100644
 --- a/drivers/input/touchscreen/ti_tscadc.c
 +++ b/drivers/input/touchscreen/ti_tscadc.c
-@@ -483,6 +483,8 @@ size_t do_adc_sample(struct kobject *kobj, struct attribute *attr, char *buf) {
+@@ -484,6 +484,8 @@ size_t do_adc_sample(struct kobject *kobj, struct attribute *attr, char *buf) {
  	struct device *dev;
  	struct tscadc *ts_dev;
  	int channel_num;
@@ -21,7 +21,7 @@ index c82f9bf..3082e5c 100644
  
  	pdev = (struct platform_device *)container_of(kobj, struct device, kobj);
  	dev = &pdev->dev;
-@@ -502,7 +504,17 @@ size_t do_adc_sample(struct kobject *kobj, struct attribute *attr, char *buf) {
+@@ -503,7 +505,17 @@ size_t do_adc_sample(struct kobject *kobj, struct attribute *attr, char *buf) {
  
  	tsc_adc_step_config(ts_dev, channel_num);
  
@@ -40,7 +40,7 @@ index c82f9bf..3082e5c 100644
  	return strlen(attr->name);
  }
  
-@@ -657,7 +669,7 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
+@@ -658,7 +670,7 @@ static	int __devinit tscadc_probe(struct platform_device *pdev)
  	}
  	else {
  		tscadc_writel(ts_dev, TSCADC_REG_FIFO0THR, 0);

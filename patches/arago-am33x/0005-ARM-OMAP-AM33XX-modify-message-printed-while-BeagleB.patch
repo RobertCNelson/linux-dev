@@ -1,0 +1,39 @@
+From bda19e3deaa6acdf24646799cbab1c533a383de2 Mon Sep 17 00:00:00 2001
+From: AnilKumar Ch <anilkumar@ti.com>
+Date: Wed, 9 May 2012 14:07:06 +0530
+Subject: [PATCH 5/5] ARM: OMAP: AM33XX: modify message printed while
+ BeagleBone is USB powered
+
+This patch modifies the message printing while the BeagleBone is powered
+with USB. Added line breaks to the message.
+
+Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 563bdf1..bb92f5c 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -1635,12 +1635,12 @@ static void tps65217_init(int evm_id, int profile)
+ 	if (!(val & TPS65217_STATUS_ACPWR)) {
+ 		/* If powered by USB then disable OPP120 and OPPTURBO */
+ 		pr_info("Maximum current provided by the USB port is 500mA"
+-			" which is not sufficient when operating @OPP120 and"
+-			" OPPTURBO. The current requirement for some use-cases"
++			" which is not sufficient\nwhen operating @OPP120 and"
++			" OPPTURBO. The current requirement for some\nuse-cases"
+ 			" using OPP100 might also exceed the maximum current"
+-			" that the USB port can provide. Unless you are fully"
+-			" confident that the current requirements for OPP100"
+-			" use-case don't exceed the USB limits, switching to"
++			" that the\nUSB port can provide. Unless you are fully"
++			" confident that the current\nrequirements for OPP100"
++			" use-case don't exceed the USB limits, switching\nto"
+ 			" AC power is recommended.\n");
+ 		opp_disable(mpu_dev, 600000000);
+ 		opp_disable(mpu_dev, 720000000);
+-- 
+1.7.10
+

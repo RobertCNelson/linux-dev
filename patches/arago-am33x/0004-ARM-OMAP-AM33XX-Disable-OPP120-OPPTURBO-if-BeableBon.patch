@@ -1,0 +1,93 @@
+From 720e07b4c1f687b61b147b31c698cb6816d72f01 Mon Sep 17 00:00:00 2001
+From: AnilKumar Ch <anilkumar@ti.com>
+Date: Mon, 23 Apr 2012 16:03:03 +0530
+Subject: [PATCH 4/5] ARM: OMAP: AM33XX: Disable OPP120 & OPPTURBO if
+ BeableBone is USB powered
+
+This patch adds support for disabling OPP120 and OPPTURBO if the
+BeagleBone is powered with USB.
+
+Maximum current provided by the USB port is 500mA which is not sufficient
+when operating @OPP120 and OPPTURBO. If OPP120 and OPPTURBO are not disabled
+and on-demand cpufreq governor is used this will lead to unpredictable
+behavior. Based on the maximum current requirements for OPP100 as listed in
+the AM335x Datasheet there might be issues with OPP100 also but for now
+we just disable OPP120 and OPPTURBO.
+
+Note: USB powered detection portion is added to board initialization
+code so this feature is not supported in runtime. If AC adaptor is
+unplugged after system boots-up then the behavior is still same, all
+OPPs are supported.
+
+Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 70aa3a9..563bdf1 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -38,6 +38,7 @@
+ #include <linux/input/ti_tscadc.h>
+ #include <linux/reboot.h>
+ #include <linux/pwm/pwm.h>
++#include <linux/opp.h>
+ 
+ /* LCD controller is similar to DA850 */
+ #include <video/da8xx-fb.h>
+@@ -50,6 +51,7 @@
+ #include <asm/mach/map.h>
+ #include <asm/hardware/asp.h>
+ 
++#include <plat/omap_device.h>
+ #include <plat/irqs.h>
+ #include <plat/board.h>
+ #include <plat/common.h>
+@@ -1600,6 +1602,14 @@ static void tps65217_init(int evm_id, int profile)
+ {
+ 	struct i2c_adapter *adapter;
+ 	struct i2c_client *client;
++	struct device *mpu_dev;
++	struct tps65217 *tps;
++	unsigned int val;
++	int ret;
++
++	mpu_dev = omap_device_get_by_hwmod_name("mpu");
++	if (!mpu_dev)
++		pr_warning("%s: unable to get the mpu device\n", __func__);
+ 
+ 	/* I2C1 adapter request */
+ 	adapter = i2c_get_adapter(1);
+@@ -1613,6 +1623,28 @@ static void tps65217_init(int evm_id, int profile)
+ 		pr_err("failed to register tps65217 to i2c1\n");
+ 
+ 	i2c_put_adapter(adapter);
++
++	tps = (struct tps65217 *)i2c_get_clientdata(client);
++
++	ret = tps65217_reg_read(tps, TPS65217_REG_STATUS, &val);
++	if (ret) {
++		pr_err("failed to read tps65217 status reg\n");
++		return;
++	}
++
++	if (!(val & TPS65217_STATUS_ACPWR)) {
++		/* If powered by USB then disable OPP120 and OPPTURBO */
++		pr_info("Maximum current provided by the USB port is 500mA"
++			" which is not sufficient when operating @OPP120 and"
++			" OPPTURBO. The current requirement for some use-cases"
++			" using OPP100 might also exceed the maximum current"
++			" that the USB port can provide. Unless you are fully"
++			" confident that the current requirements for OPP100"
++			" use-case don't exceed the USB limits, switching to"
++			" AC power is recommended.\n");
++		opp_disable(mpu_dev, 600000000);
++		opp_disable(mpu_dev, 720000000);
++	}
+ }
+ 
+ static void mmc0_no_cd_init(int evm_id, int profile)
+-- 
+1.7.10
+
