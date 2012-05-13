@@ -9,7 +9,7 @@ unset BUILD
 
 #for x.x-rcX
 RC_KERNEL=3.4
-RC_PATCH=-rc6
+RC_PATCH=-rc7
 
 ABI=3
 

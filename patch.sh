@@ -153,7 +153,10 @@ sgx () {
 }
 
 distro
-micrel_zippy2
+
+#need to review this for 3.4
+#micrel_zippy2
+
 sakoman
 beagle
 devkit8000
