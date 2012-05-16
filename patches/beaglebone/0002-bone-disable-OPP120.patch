@@ -1,0 +1,26 @@
+From 907123d14d0cfd227aae164d60b042cb7d49c481 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 16 May 2012 18:31:58 -0500
+Subject: [PATCH 2/2] bone: disable OPP120
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 5d95c6d..1eeec6f 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -2620,6 +2620,8 @@ static void tps65217_init(int evm_id, int profile)
+ 		opp_disable(mpu_dev, 720000000);
+ 	}
+ 	else {
++		pr_info("cpufreq: disabling OPP120 (600mhz)\n");
++		opp_disable(mpu_dev, 600000000);
+ 		pr_info("cpufreq: disabling OPPTURBO (720mhz)\n");
+ 		opp_disable(mpu_dev, 720000000);
+ 	}
+-- 
+1.7.10
+
