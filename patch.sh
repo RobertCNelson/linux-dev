@@ -162,7 +162,7 @@ beagle
 devkit8000
 panda
 omap_fixes
-omapdrm
+#omapdrm
 dsp
 sgx
 
