@@ -1166,6 +1166,8 @@ function am33x-cleanup {
 	git am "${DIR}/patches/beaglebone/0039-ARM-OMAP-Mux-Fixed-debugfs-mux-output-always-reporti.patch"
 	git am "${DIR}/patches/beaglebone/0040-beaglebone-export-SPI2-as-spidev-when-no-capes-are-u.patch"
 
+	git am "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
+
 
 #git am "${DIR}/patches/beaglebone/0001-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
 #	git am "${DIR}/patches/fixes/0001-rt2x00-Add-support-for-D-Link-DWA-127-to-rt2800usb.patch"

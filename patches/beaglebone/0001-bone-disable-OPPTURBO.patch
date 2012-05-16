@@ -1,0 +1,28 @@
+From 0f4afb5612038be4a4edf918114a0d778552ae48 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 16 May 2012 18:25:30 -0500
+Subject: [PATCH] bone: disable OPPTURBO
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index b46508d..5d95c6d 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -2619,6 +2619,10 @@ static void tps65217_init(int evm_id, int profile)
+ 		opp_disable(mpu_dev, 600000000);
+ 		opp_disable(mpu_dev, 720000000);
+ 	}
++	else {
++		pr_info("cpufreq: disabling OPPTURBO (720mhz)\n");
++		opp_disable(mpu_dev, 720000000);
++	}
+ }
+ 
+ static void mmc0_no_cd_init(int evm_id, int profile)
+-- 
+1.7.10
+
