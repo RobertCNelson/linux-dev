@@ -1,0 +1,78 @@
+From e3361405f1a98f5fdd98884125e4e36cf35b3916 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 17 May 2012 16:02:29 -0500
+Subject: [PATCH] BeagleBone A2: fixup eeprom and initialization
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |   23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 5d95c6d..91bb319 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -514,6 +514,7 @@ unsigned int gigabit_enable = 1;
+ static char am335x_mac_addr[EEPROM_NO_OF_MAC_ADDR][ETH_ALEN];
+ 
+ #define AM335X_EEPROM_HEADER		0xEE3355AA
++#define BONEA2_EEPROM_HEADER		0x41EE3355
+ 
+ /* current profile if exists else PROFILE_0 on error */
+ static u32 am335x_get_profile_selection(void)
+@@ -2800,12 +2801,13 @@ static struct evm_dev_cfg ip_phn_evm_dev_cfg[] = {
+ 
+ /* Beaglebone < Rev A3 */
+ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
++	{tps65217_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{rmii1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{usb0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{i2c2_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+ 	{mmc0_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
+-	{boneleds_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
++	{bonew1_gpio_init, DEV_ON_BASEBOARD, PROFILE_ALL},
+ 	{NULL, 0, 0},
+ };
+ 
+@@ -2899,6 +2901,11 @@ static void setup_beaglebone_old(void)
+ 
+ 	/* Fill up global evmid */
+ 	am33xx_evmid_fillup(BEAGLE_BONE_OLD);
++
++	/*TODO:We are registering all pwms for the beaglebone here
++	 *this may effect power management in the future
++	 */
++	register_all_pwms();
+ }
+ 
+ /* BeagleBone after Rev A3 */
+@@ -2977,12 +2984,24 @@ static void am335x_evm_setup(struct memory_accessor *mem_acc, void *context)
+ 		goto out;
+ 	}
+ 
+-	if (config.header != AM335X_EEPROM_HEADER) {
++	if ((config.header != AM335X_EEPROM_HEADER) && (config.header != BONEA2_EEPROM_HEADER)) {
+ 		pr_err("AM335X: wrong header 0x%x, expected 0x%x\n",
+ 			config.header, AM335X_EEPROM_HEADER);
+ 		goto out;
+ 	}
+ 
++	/* 
++	 * The original factory EEPROM of the BeagleBone A2's is coming up
++	 * as 335BONE00A24211BB000080, for the config.name so lets prepend an A to it...
++	 */
++	if (!strncmp("335BONE00A2", config.name, 11)) {
++		char namefixed[33];
++		strcpy(namefixed, "A");
++		strcat(namefixed, config.name);
++		strncpy(config.name, namefixed, 32);
++	}
++
++	pr_info("Board config.name: %s\n", config.name);
+ 	if (strncmp("A335", config.name, 4)) {
+ 		pr_err("Board %s\ndoesn't look like an AM335x board\n",
+ 			config.name);
+-- 
+1.7.10
+

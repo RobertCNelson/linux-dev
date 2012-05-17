@@ -1165,9 +1165,14 @@ function am33x-cleanup {
 	git am "${DIR}/patches/beaglebone/0038-board-am335xevm.c-Beaglebone-expose-all-pwms-through.patch"
 	git am "${DIR}/patches/beaglebone/0039-ARM-OMAP-Mux-Fixed-debugfs-mux-output-always-reporti.patch"
 	git am "${DIR}/patches/beaglebone/0040-beaglebone-export-SPI2-as-spidev-when-no-capes-are-u.patch"
+	git am "${DIR}/patches/beaglebone/0041-st7735fb-Working-WIP-changes-to-make-DMA-safe-and-ad.patch"
+	git am "${DIR}/patches/beaglebone/0042-omap-hwmod-silence-st_shift-error.patch"
+	git am "${DIR}/patches/beaglebone/0043-cpsw-phy_device-demote-PHY-message-to-INFO.patch"
 
 	git am "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
-	git am "${DIR}/patches/beaglebone/0002-bone-disable-OPP120.patch"
+#	git am "${DIR}/patches/beaglebone/0002-bone-disable-OPP120.patch"
+
+	git am "${DIR}/patches/beaglebone/0001-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
 
 #git am "${DIR}/patches/beaglebone/0001-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
 #	git am "${DIR}/patches/fixes/0001-rt2x00-Add-support-for-D-Link-DWA-127-to-rt2800usb.patch"
