@@ -1,0 +1,29 @@
+From 123d106724d6dd52c2e6404badd50c4a45ec3d8f Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 22 May 2012 10:26:25 -0500
+Subject: [PATCH] Beaglebone: disable opp50
+
+http://e2e.ti.com/support/dsp/sitara_arm174_microprocessors/f/791/t/156884.aspx
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 560bffb..655aaea 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -2938,6 +2938,9 @@ static void tps65217_init(int evm_id, int profile)
+ 		return;
+ 	}
+ 
++	pr_info("cpufreq: disabling OPP50 (275mhz)\n");
++	opp_disable(mpu_dev, 275000000);
++
+ 	if (!(val & TPS65217_STATUS_ACPWR)) {
+ 		/* If powered by USB then disable OPP120 and OPPTURBO */
+ 		pr_info("Maximum current provided by the USB port is 500mA"
+-- 
+1.7.10
+
