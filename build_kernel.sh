@@ -82,6 +82,9 @@ function git_kernel {
 		fi
 
 		cd ${LINUX_GIT}/
+		echo "Debug: LINUX_GIT setup..."
+		pwd
+		cat .git/config
 		echo "Updating LINUX_GIT tree via: git fetch"
 		git fetch || true
 		cd -
@@ -201,6 +204,7 @@ function make_zImage_modules {
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
 	if [ -f ./arch/arm/boot/zImage ] ; then
 		cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
+		cp .config ${DIR}/deploy/${KERNEL_UTS}.config
 	else
 		echo "Error: make zImage modules failed"
 		exit

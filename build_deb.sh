@@ -82,6 +82,9 @@ function git_kernel {
 		fi
 
 		cd ${LINUX_GIT}/
+		echo "Debug: LINUX_GIT setup..."
+		pwd
+		cat .git/config
 		echo "Updating LINUX_GIT tree via: git fetch"
 		git fetch || true
 		cd -
