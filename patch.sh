@@ -32,27 +32,13 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -7
+	git format-patch -8
 	exit
 }
 
 distro () {
 	echo "Distro Specific Patches"
 	git am "${DIR}/patches/distro/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
-}
-
-micrel_zippy2 () {
-	echo "Micrel KZ8851 patches for: zippy2"
-	#originaly from:
-	#ftp://www.micrel.com/ethernet/8851/beagle_zippy_patches.tar.gz 137 KB 04/10/2010 12:26:00 AM
-
-	git am "${DIR}/patches/micrel_zippy2/0001-ks8851.h-it-helps-to-include-the-include-file.patch"
-	git am "${DIR}/patches/micrel_zippy2/0002-ksz8851-move-to-header.patch"
-	git am "${DIR}/patches/micrel_zippy2/0003-ksz8851-move-more-to-header.patch"
-	git am "${DIR}/patches/micrel_zippy2/0004-ksz8851-share-ks8851_tx_hdr-union.patch"
-	git am "${DIR}/patches/micrel_zippy2/0005-ksz8851-add-is_level_irq.patch"
-	git am "${DIR}/patches/micrel_zippy2/0006-ksz8851-turn-off-hardware-interrupt-druing-receive-p.patch"
-	git am "${DIR}/patches/micrel_zippy2/0007-ksz8851-add-ks8851_tx_check.patch"
 }
 
 sakoman () {
@@ -66,15 +52,14 @@ sakoman () {
 beagle () {
 	echo "Board Patches for: BeagleBoard"
 
-	git am "${DIR}/patches/beagle/expansion/0001-expansion-add-buddy-param-for-expansionboard-names.patch"
-	git am "${DIR}/patches/beagle/expansion/0002-expansion-add-mmc-regulator-and-ds1307-rtc.patch"
-	git am "${DIR}/patches/beagle/expansion/0003-expansion-add-zippy.patch"
-	git am "${DIR}/patches/beagle/expansion/0004-expansion-add-zippy2.patch"
-	git am "${DIR}/patches/beagle/expansion/0005-expansion-add-trainer.patch"
-	git am "${DIR}/patches/beagle/expansion/0006-expansion-add-CircuitCo-ulcd-Support.patch"
-
-#changes need to be ported to the 3.4-rc..
-#	git am "${DIR}/patches/beagle/expansion/0007-expansion-add-wifi.patch"
+	git am "${DIR}/patches/beagle/expansion/0001-Beagle-expansion-add-buddy-param-for-expansionboard-.patch"
+	git am "${DIR}/patches/beagle/expansion/0002-Beagle-expansion-add-zippy.patch"
+	git am "${DIR}/patches/beagle/expansion/0003-Beagle-expansion-add-zippy2.patch"
+	git am "${DIR}/patches/beagle/expansion/0004-Beagle-expansion-add-trainer.patch"
+	git am "${DIR}/patches/beagle/expansion/0005-Beagle-expansion-add-CircuitCo-ulcd-Support.patch"
+	git am "${DIR}/patches/beagle/expansion/0006-Beagle-expansion-add-wifi.patch"
+	git am "${DIR}/patches/beagle/expansion/0007-Beagle-expansion-add-beaglefpga.patch"
+	git am "${DIR}/patches/beagle/expansion/0008-Enable-buddy-spidev.patch"
 
 	git am "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
 	git am "${DIR}/patches/beagle/0002-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly.patch"
@@ -104,7 +89,7 @@ omap_fixes () {
 	git am "${DIR}/patches/omap_fixes/0002-OMAP2-UART-Remove-cpu-checks-for-populating-errata-f.patch"
 	git am "${DIR}/patches/omap_fixes/0003-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
 	git am "${DIR}/patches/omap_fixes/0004-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
-#	git am "${DIR}/patches/omap_fixes/0005-mfd-cpu_is_omap3430-wasnt-defined.patch"
+	git am "${DIR}/patches/omap_fixes/0005-Unconditional-call-to-smp_cross_call-on-UP-crashes.patch"
 
 #breaks beagle c4, needs fix..
 #	git am "${DIR}/patches/omap_fixes/0001-Fix-sprz319-erratum-2.1.patch"
@@ -147,16 +132,16 @@ dsp () {
 	git am "${DIR}/patches/dsp/0003-staging-tidspbridge-use-scm-functions-to-set-boot-ad.patch"
 }
 
-sgx () {
+sgx_mainline () {
 	echo "patches needed for external sgx bins"
 	git am "${DIR}/patches/sgx/0001-Revert-drm-kill-drm_sman.patch"
 }
 
+led () {
+	git am "${DIR}/patches/led/0001-leds-heartbeat-stop-on-shutdown-reboot-or-panic.patch"
+}
+
 distro
-
-#need to review this for 3.4
-#micrel_zippy2
-
 sakoman
 beagle
 devkit8000
@@ -164,7 +149,8 @@ panda
 omap_fixes
 omapdrm
 dsp
-sgx
+sgx_mainline
+led
 
 echo "patch.sh ran successful"
 
