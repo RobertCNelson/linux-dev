@@ -25,6 +25,7 @@
 unset NO_DEVTMPS
 
 DIR=$PWD
+BRANCH="am33x-v3.2"
 
 if [ -e ${DIR}/version.sh ]; then
 	. version.sh
@@ -32,18 +33,18 @@ if [ -e ${DIR}/version.sh ]; then
 	if [ "${RC_PATCH}" ]; then
 		git commit -a -m "${RC_KERNEL}${RC_PATCH}-${BUILD} release" -s
 		git tag -a "${RC_KERNEL}${RC_PATCH}-${BUILD}" -m "${RC_KERNEL}${RC_PATCH}-${BUILD}"
-		git push origin --tags
-		git push origin
+		git push origin ${BRANCH} --tags
+		git push origin ${BRANCH}
 	else if [ "${STABLE_PATCH}" ] ; then
 		git commit -a -m "${KERNEL_REL}.${STABLE_PATCH}-${BUILD} release" -s
 		git tag -a "${KERNEL_REL}.${STABLE_PATCH}-${BUILD}" -m "${KERNEL_REL}.${STABLE_PATCH}-${BUILD}"
-		git push origin --tags
-		git push origin
+		git push origin ${BRANCH} --tags
+		git push origin ${BRANCH}
 	else
 		git commit -a -m "${KERNEL_REL}-${BUILD} release" -s
 		git tag -a "${KERNEL_REL}-${BUILD}" -m "${KERNEL_REL}-${BUILD}"
-		git push origin --tags
-		git push origin
+		git push origin ${BRANCH} --tags
+		git push origin ${BRANCH}
 	fi
 	fi
 fi

@@ -1246,9 +1246,13 @@ function am33x-cleanup {
 	git am "${DIR}/patches/beaglebone/0061-beaglebone-make-uart2-pinmux-match-the-uart0-pinmux.patch"
 	git am "${DIR}/patches/beaglebone/0062-da8xx-fb-Rounding-FB-size-to-satisfy-SGX-buffer-requ.patch"
 	git am "${DIR}/patches/beaglebone/0063-beaglebone-dvi-cape-audio-hacks.patch"
+	git am "${DIR}/patches/beaglebone/0064-beaglebone-always-execute-the-pin-free-checks.patch"
+	git am "${DIR}/patches/beaglebone/0065-ti_tscadc-switch-to-16x-averaging.patch"
+	git am "${DIR}/patches/beaglebone/0066-beaglebone-disable-OPP-for-275MHz-due-to-silicon-err.patch"
+	git am "${DIR}/patches/beaglebone/0067-video-da8xx-fb-Add-Newhaven-LCD-Panel-details.patch"
+	git am "${DIR}/patches/beaglebone/0068-beaglebone-add-support-for-the-4.3-lcd-cape-with-res.patch"
 
 	git am "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
-	git am "${DIR}/patches/beaglebone/0001-Beaglebone-disable-opp50.patch"
 	git am "${DIR}/patches/beaglebone/0001-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
 
 #git am "${DIR}/patches/beaglebone/0001-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
