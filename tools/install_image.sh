@@ -62,6 +62,11 @@ mmc_find_rootfs () {
 	do
 		PART=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep "Linux" | grep -v "swap" | head -${c} | tail -1 | awk '{print $1}')
 		echo "Trying ${PART}"
+
+		if [ ! -d "${DIR}/deploy/disk/" ] ; then
+			mkdir -p "${DIR}/deploy/disk/"
+		fi
+
 		if sudo mount ${PART} "${DIR}/deploy/disk/" ; then
 
 			if [ -f "${DIR}/deploy/disk/etc/fstab" ] ; then
@@ -88,6 +93,10 @@ mmc_find_rootfs () {
 mmc_write_boot () {
 	echo "Installing ${KERNEL_UTS} to boot partition"
 	echo "-----------------------------"
+
+	if [ ! -d "${DIR}/deploy/disk/" ] ; then
+		mkdir -p "${DIR}/deploy/disk/"
+	fi
 
 	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
 		if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
