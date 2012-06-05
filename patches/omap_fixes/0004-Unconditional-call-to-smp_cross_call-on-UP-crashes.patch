@@ -1,7 +1,7 @@
-From d5cd745db47c5d464899790f809a30c88335ebfb Mon Sep 17 00:00:00 2001
+From 9c9eea14d642b548a3d9b032fa34a3fa34c174a9 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Thu, 24 May 2012 19:40:51 +0000
-Subject: [PATCH 5/5] Unconditional call to smp_cross_call on UP crashes
+Subject: [PATCH 4/9] Unconditional call to smp_cross_call on UP crashes
 
 omap2plus_defconfig builds with SMP & SMP_ON_UP set.
 On beagle (which is UP) is_smp() returns false and we don't call
@@ -55,10 +55,10 @@ Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 8f46446..2a61335 100644
+index 2c7217d..fa227a6 100644
 --- a/arch/arm/kernel/smp.c
 +++ b/arch/arm/kernel/smp.c
-@@ -588,6 +588,10 @@ void smp_send_stop(void)
+@@ -561,6 +561,10 @@ void smp_send_stop(void)
  	unsigned long timeout;
  	struct cpumask mask;
  

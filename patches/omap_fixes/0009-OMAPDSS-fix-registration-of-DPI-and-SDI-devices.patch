@@ -1,0 +1,64 @@
+From ba63d2549c06eeeefbf3ac0c2772ed0210e441ec Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 5 Jun 2012 13:17:32 +0300
+Subject: [PATCH 9/9] OMAPDSS: fix registration of DPI and SDI devices
+
+The omapdss arch initialization code registers all the output devices as
+omap_devices. However, DPI and SDI are not proper omap_devices, as they
+do not have any corresponding HWMOD. This leads to crashes or problems
+when the platform code tries to use omap_device functions for DPI and
+SDI devices.
+
+One such crash was reported by John Stultz <johnstul@us.ibm.com>:
+
+[   18.756835] Unable to handle kernel NULL pointer dereference at
+virtual addr8
+[   18.765319] pgd = ea6b8000
+[   18.768188] [00000018] *pgd=aa942831, *pte=00000000, *ppte=00000000
+[   18.774749] Internal error: Oops: 17 [#1] SMP ARM
+[   18.779663] Modules linked in:
+[   18.782836] CPU: 0    Not tainted  (3.5.0-rc1-dirty #456)
+[   18.788482] PC is at _od_resume_noirq+0x1c/0x78
+[   18.793212] LR is at _od_resume_noirq+0x6c/0x78
+[   18.797943] pc : [<c00307ec>]    lr : [<c003083c>]    psr: 20000113
+[   18.797943] sp : ec3abe80  ip : ec3abdb8  fp : 00000006
+[   18.809936] r10: ec1148b8  r9 : c08a48f0  r8 : c00307d0
+[   18.815368] r7 : 00000000  r6 : 00000000  r5 : ec114800  r4 :
+ec114808
+[   18.822174] r3 : 00000000  r2 : 00000000  r1 : ec154fe8  r0 :
+00000006
+[   18.829010] Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM
+Segment user
+[   18.836456] Control: 10c5387d  Table: aa6b804a  DAC: 00000015
+[   18.842437] Process sh (pid: 1139, stack limit = 0xec3aa2f0)
+[   18.848358] Stack: (0xec3abe80 to 0xec3ac000)
+
+DPI and SDI can be plain platform_devices. This patch changes the
+registration from omap_device_register() to platform_device_add().
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Reported-by: John Stultz <johnstul@us.ibm.com>
+Tested-by: Jean Pihet <jean.pihet@newoldbits.com>
+---
+ arch/arm/mach-omap2/display.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+index 54d49dd..5fb47a1 100644
+--- a/arch/arm/mach-omap2/display.c
++++ b/arch/arm/mach-omap2/display.c
+@@ -271,9 +271,9 @@ static struct platform_device *create_simple_dss_pdev(const char *pdev_name,
+ 		goto err;
+ 	}
+ 
+-	r = omap_device_register(pdev);
++	r = platform_device_add(pdev);
+ 	if (r) {
+-		pr_err("Could not register omap_device for %s\n", pdev_name);
++		pr_err("Could not register platform_device for %s\n", pdev_name);
+ 		goto err;
+ 	}
+ 
+-- 
+1.7.10
+

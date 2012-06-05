@@ -1,7 +1,7 @@
-From 876c023653a9704518f658ffb4f21a84fe8dba95 Mon Sep 17 00:00:00 2001
+From c2845bcbf2153b855c063c09c0b986c79366e7b0 Mon Sep 17 00:00:00 2001
 From: "Govindraj.R" <govindraj.raja@ti.com>
 Date: Wed, 21 Mar 2012 15:55:00 +0530
-Subject: [PATCH 3/5] OMAP2+: UART: enable tx wakeup bit for wer reg
+Subject: [PATCH 2/9] OMAP2+: UART: enable tx wakeup bit for wer reg
 
 From omap36xx onwards the module wakeup enable reg
 wer has TX wakeup bit available enable the same
@@ -54,10 +54,10 @@ index 1a52725..8a4ca5c 100644
  
  	struct pm_qos_request	pm_qos_request;
 diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
-index 3d02d93..40ba100 100644
+index d3cda0c..0c7ff9d 100644
 --- a/drivers/tty/serial/omap-serial.c
 +++ b/drivers/tty/serial/omap-serial.c
-@@ -585,7 +585,11 @@ static int serial_omap_startup(struct uart_port *port)
+@@ -596,7 +596,11 @@ static int serial_omap_startup(struct uart_port *port)
  	serial_out(up, UART_IER, up->ier);
  
  	/* Enable module level wake up */
@@ -70,7 +70,7 @@ index 3d02d93..40ba100 100644
  
  	pm_runtime_mark_last_busy(&up->pdev->dev);
  	pm_runtime_put_autosuspend(&up->pdev->dev);
-@@ -1396,9 +1400,11 @@ static void omap_serial_fill_features_erratas(struct uart_omap_port *up)
+@@ -1408,9 +1412,11 @@ static void omap_serial_fill_features_erratas(struct uart_omap_port *up)
  	case OMAP_UART_REV_52:
  		up->errata |= (UART_ERRATA_i202_MDR1_ACCESS |
  				UART_ERRATA_i291_DMA_FORCEIDLE);
@@ -82,7 +82,7 @@ index 3d02d93..40ba100 100644
  		break;
  	default:
  		break;
-@@ -1626,6 +1632,7 @@ static void serial_omap_restore_context(struct uart_omap_port *up)
+@@ -1638,6 +1644,7 @@ static void serial_omap_restore_context(struct uart_omap_port *up)
  		serial_omap_mdr1_errataset(up, up->mdr1);
  	else
  		serial_out(up, UART_OMAP_MDR1, up->mdr1);

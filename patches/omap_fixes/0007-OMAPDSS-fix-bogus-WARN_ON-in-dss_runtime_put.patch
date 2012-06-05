@@ -1,0 +1,39 @@
+From e4834f507c1ea55bf1485cd22f51e9033cc1c13c Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Wed, 23 May 2012 17:02:26 +0300
+Subject: [PATCH 7/9] OMAPDSS: fix bogus WARN_ON in dss_runtime_put()
+
+pm_runtime_put_sync() in dss_runtime_put() returns -EBUSY when any child
+of dss is still enabled. This happens, for example, when a display
+output is enabled and one dumps the clocks via debugfs. This causes
+dss_runtime_get & put to be called.
+
+While I couldn't find anything about this in the documentation and it
+wasn't immediately clear from runtime_pm code, it looks to me that
+pm_runtime_put_sync() returns -EBUSY to inform that things went fine,
+but the device could not be turned off as there are still child devices
+that are enabled. This is not a problem.
+
+This patch skips the WARN_ON if pm_runtime_put_sync() returns -EBUSY.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/dss.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/video/omap2/dss/dss.c b/drivers/video/omap2/dss/dss.c
+index 6ea1ff1..7706323 100644
+--- a/drivers/video/omap2/dss/dss.c
++++ b/drivers/video/omap2/dss/dss.c
+@@ -731,7 +731,7 @@ static void dss_runtime_put(void)
+ 	DSSDBG("dss_runtime_put\n");
+ 
+ 	r = pm_runtime_put_sync(&dss.pdev->dev);
+-	WARN_ON(r < 0);
++	WARN_ON(r < 0 && r != -EBUSY);
+ }
+ 
+ /* DEBUGFS */
+-- 
+1.7.10
+
