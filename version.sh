@@ -2,14 +2,14 @@
 
 unset BUILD
 
-KERNEL_REL=3.4
+#KERNEL_REL=3.4
 
 #for x.x.X
 #STABLE_PATCH=1
 
 #for x.x-rcX
 RC_KERNEL=3.5
-RC_PATCH=-rc1
+RC_PATCH=-rc2
 
 ABI=0
 
