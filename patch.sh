@@ -87,11 +87,11 @@ omap_fixes () {
 	git am "${DIR}/patches/omap_fixes/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
 	git am "${DIR}/patches/omap_fixes/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
 	git am "${DIR}/patches/omap_fixes/0004-Unconditional-call-to-smp_cross_call-on-UP-crashes.patch"
-	git am "${DIR}/patches/omap_fixes/0005-OMAPDSS-fix-build-when-DEBUG_FS-or-DSS_DEBUG_SUPPORT.patch"
-	git am "${DIR}/patches/omap_fixes/0006-OMAPDSS-Taal-fix-compilation-warning.patch"
-	git am "${DIR}/patches/omap_fixes/0007-OMAPDSS-fix-bogus-WARN_ON-in-dss_runtime_put.patch"
-	git am "${DIR}/patches/omap_fixes/0008-OMAPDSS-DSI-Fix-bug-when-calculating-LP-command-inte.patch"
-	git am "${DIR}/patches/omap_fixes/0009-OMAPDSS-fix-registration-of-DPI-and-SDI-devices.patch"
+#	git am "${DIR}/patches/omap_fixes/0005-OMAPDSS-fix-build-when-DEBUG_FS-or-DSS_DEBUG_SUPPORT.patch"
+#	git am "${DIR}/patches/omap_fixes/0006-OMAPDSS-Taal-fix-compilation-warning.patch"
+#	git am "${DIR}/patches/omap_fixes/0007-OMAPDSS-fix-bogus-WARN_ON-in-dss_runtime_put.patch"
+#	git am "${DIR}/patches/omap_fixes/0008-OMAPDSS-DSI-Fix-bug-when-calculating-LP-command-inte.patch"
+#	git am "${DIR}/patches/omap_fixes/0009-OMAPDSS-fix-registration-of-DPI-and-SDI-devices.patch"
 
 #breaks beagle c4, needs fix..
 #	git am "${DIR}/patches/omap_fixes/0001-Fix-sprz319-erratum-2.1.patch"
