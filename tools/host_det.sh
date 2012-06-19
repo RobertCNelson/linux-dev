@@ -116,6 +116,13 @@ if [ ! $(which ccache) ];then
  APT=1
 fi
 
+if [ ! $(which dtc) ];then
+ echo "Missing device-tree-compiler"
+ UPACKAGE+="device-tree-compiler "
+ DPACKAGE+="device-tree-compiler "
+ APT=1
+fi
+
 #Note: Without dpkg-dev from build-essential, this can be a false positive
 MULTIARCHLIB="/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`"
 
