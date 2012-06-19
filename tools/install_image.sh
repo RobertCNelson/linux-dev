@@ -99,6 +99,17 @@ mmc_write_boot () {
 	fi
 
 	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
+
+		if [ -f "${DIR}/deploy/disk/SOC.sh" ] ; then
+			source "${DIR}/deploy/disk/SOC.sh"
+			ZRELADDR=${load_addr}
+			if [ "x${dtb_file}" != "x" ] ; then
+				if [ -f "${DIR}/KERNEL/arch/arm/boot/${dtb_file}" ] ; then
+					sudo cp -v "${DIR}/KERNEL/arch/arm/boot/${dtb_file}" "${DIR}/deploy/disk/"
+				fi
+			fi
+		fi
+
 		if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
 			sudo rm -f "${DIR}/deploy/disk/uImage_bak" || true
 		fi

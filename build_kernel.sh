@@ -34,6 +34,8 @@ unset LOCAL_PATCH_DIR
 
 config="omap2plus_defconfig"
 
+kernel_targets="zImage modules dtbs"
+
 ARCH=$(uname -m)
 CCACHE=ccache
 
@@ -197,10 +199,10 @@ function make_menuconfig {
   cd ${DIR}/
 }
 
-function make_zImage_modules {
+function make_kernel {
 	cd ${DIR}/KERNEL/
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} zImage modules"
-	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} zImage modules
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} ${kernel_targets}"
+	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} ${kernel_targets}
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
 	if [ -f ./arch/arm/boot/zImage ] ; then
 		cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
@@ -290,7 +292,7 @@ fi
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 		sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
 	fi
-	make_zImage_modules
+	make_kernel
 if [ "${BUILD_UIMAGE}" ] ; then
 	make_uImage
 else
