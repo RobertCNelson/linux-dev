@@ -116,6 +116,13 @@ if [ ! $(which ccache) ];then
  APT=1
 fi
 
+if [ ! $(which dtc) ];then
+	echo "Missing device-tree-compiler"
+	UPACKAGE+="device-tree-compiler "
+	DPACKAGE+="device-tree-compiler "
+	APT=1
+fi
+
 #Just temp, as with 3.4, switching to xz
 if [ ! $(which lzma) ];then
 	echo "Missing lzma"
