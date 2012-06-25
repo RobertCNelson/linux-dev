@@ -32,7 +32,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -9
+	git format-patch -8 -o ${DIR}/patches/
 	exit
 }
 
