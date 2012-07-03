@@ -1559,6 +1559,9 @@ function am33x-cleanup {
 	git am "${DIR}/patches/beaglebone/0069-beaglebone-add-support-for-LCD3-rev-A1.patch"
 	git am "${DIR}/patches/beaglebone/0070-beaglebone-fix-buttons-spidev-clash-when-using-mcasp.patch"
 	git am "${DIR}/patches/beaglebone/0071-beaglebone-fix-LCD3-led-key-overlap.patch"
+	git am "${DIR}/patches/beaglebone/0072-beaglebone-fix-audio-spi-clash.patch"
+	git am "${DIR}/patches/beaglebone/0073-beaglebone-add-support-for-QuickLogic-Camera-interfa.patch"
+	git am "${DIR}/patches/beaglebone/0074-beaglebone-add-support-for-DVI-audio-and-audio-only-.patch"
 
 	git am "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	git am "${DIR}/patches/beaglebone/0001-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
