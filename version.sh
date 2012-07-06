@@ -11,7 +11,7 @@ unset BUILD
 RC_KERNEL=3.5
 RC_PATCH=-rc5
 
-ABI=0
+ABI=0.1
 
 BUILD=d${ABI}
 

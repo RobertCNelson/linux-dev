@@ -1,7 +1,7 @@
-From 7b106889464a0a1b1ad23df86a29ef81df79602d Mon Sep 17 00:00:00 2001
+From 866ec43ef87db10187735896fe4e32264f846ded Mon Sep 17 00:00:00 2001
 From: "Govindraj.R" <govindraj.raja@ti.com>
 Date: Tue, 6 Mar 2012 14:35:11 +0530
-Subject: [PATCH 5/7] omap3_beagle: init uart2 for beagle rev AX/BX only
+Subject: [PATCH 5/8] omap3_beagle: init uart2 for beagle rev AX/BX only
 
 All beagle boards rev > AX/BX have external usb hubs connected to ehci
 interface, external hub/peripheral uses a nreset sequence for which
@@ -25,9 +25,9 @@ Tested-by: Robert Nelson <robertcnelson@gmail.com>
 Signed-off-by: Govindraj.R <govindraj.raja@ti.com>
 ---
  arch/arm/mach-omap2/board-omap3beagle.c  |    6 ++++-
- arch/arm/mach-omap2/serial.c             |   40 +++++++++++++++++-------------
+ arch/arm/mach-omap2/serial.c             |   36 +++++++++++++++++-------------
  arch/arm/plat-omap/include/plat/serial.h |    3 ++-
- 3 files changed, 30 insertions(+), 19 deletions(-)
+ 3 files changed, 28 insertions(+), 17 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
 index a2527aa..2f2452a 100644
@@ -54,7 +54,7 @@ index a2527aa..2f2452a 100644
  				  mt46h32m32lf6_sdrc_params);
  
 diff --git a/arch/arm/mach-omap2/serial.c b/arch/arm/mach-omap2/serial.c
-index c1b93c7..3f83e1f 100644
+index c1b93c7..7bcfcfd 100644
 --- a/arch/arm/mach-omap2/serial.c
 +++ b/arch/arm/mach-omap2/serial.c
 @@ -331,29 +331,32 @@ void __init omap_serial_init_port(struct omap_board_data *bdata,
@@ -80,14 +80,6 @@ index c1b93c7..3f83e1f 100644
 -		bdata.flags = 0;
 -		bdata.pads = NULL;
 -		bdata.pads_cnt = 0;
--
--		omap_serial_check_wakeup(&bdata, uart);
--
--		if (!info)
--			omap_serial_init_port(&bdata, NULL);
--		else
--			omap_serial_init_port(&bdata, &info[uart->num]);
--	}
 +	list_for_each_entry(uart, &uart_list, node)
 +		if (uart->num == port_id) {
 +			bdata.id = uart->num;
@@ -96,8 +88,14 @@ index c1b93c7..3f83e1f 100644
 +			bdata.pads_cnt = 0;
 +
 +			omap_serial_check_wakeup(&bdata, uart);
-+
-+
+ 
+-		omap_serial_check_wakeup(&bdata, uart);
+ 
+-		if (!info)
+-			omap_serial_init_port(&bdata, NULL);
+-		else
+-			omap_serial_init_port(&bdata, &info[uart->num]);
+-	}
 +			if (!info)
 +				omap_serial_init_port(&bdata, NULL);
 +			else
@@ -131,5 +129,5 @@ index b073e5f..fd14d28 100644
  		struct omap_uart_port_info *platform_data);
  #endif
 -- 
-1.7.10
+1.7.10.4
 

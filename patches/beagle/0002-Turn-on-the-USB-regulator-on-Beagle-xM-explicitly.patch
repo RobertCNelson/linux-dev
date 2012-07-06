@@ -1,7 +1,7 @@
-From 2be0bf9cab68c56946218b83328dfc66f53623d5 Mon Sep 17 00:00:00 2001
+From b1a3970d84f6c3c07d4a6a366ad25c0113dc6336 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 23 Feb 2012 09:23:10 -0600
-Subject: [PATCH 2/7] Turn on the USB regulator on Beagle xM explicitly
+Subject: [PATCH 2/8] Turn on the USB regulator on Beagle xM explicitly
 
  Turn on the USB regulator on Beagle xM explicitly when the USB
  subsystem asks for it, rather than relying on u-boot to do it.
@@ -14,10 +14,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 19 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index f6a5554..e3026a6 100644
+index f97d03e..a2527aa 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -417,6 +417,24 @@ static struct regulator_consumer_supply beagle_vsim_supply[] = {
+@@ -526,6 +526,24 @@ static struct regulator_consumer_supply beagle_vsim_supply[] = {
  	REGULATOR_SUPPLY("vmmc_aux", "omap_hsmmc.0"),
  };
  
@@ -42,7 +42,7 @@ index f6a5554..e3026a6 100644
  static struct gpio_led gpio_leds[];
  
  static int beagle_twl_gpio_setup(struct device *dev,
-@@ -517,6 +535,7 @@ static struct twl4030_platform_data beagle_twldata = {
+@@ -642,6 +660,7 @@ static struct twl4030_platform_data beagle_twldata = {
  	.gpio		= &beagle_gpio_data,
  	.vmmc1		= &beagle_vmmc1,
  	.vsim		= &beagle_vsim,
@@ -51,5 +51,5 @@ index f6a5554..e3026a6 100644
  
  static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
 -- 
-1.7.10
+1.7.10.4
 

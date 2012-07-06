@@ -32,7 +32,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -8 -o ${DIR}/patches/
+	git format-patch -5 -o ${DIR}/patches/
 	exit
 }
 
@@ -65,9 +65,9 @@ beagle () {
 	git am "${DIR}/patches/beagle/0003-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
 	git am "${DIR}/patches/beagle/0004-default-to-fifo-mode-5-for-old-musb-beagles.patch"
 	git am "${DIR}/patches/beagle/0005-omap3_beagle-init-uart2-for-beagle-rev-AX-BX-only.patch"
-
 	git am "${DIR}/patches/beagle/0006-backlight-Add-TLC59108-backlight-control-driver.patch"
 	git am "${DIR}/patches/beagle/0007-tlc59108-adjust-for-beagleboard-uLCD7.patch"
+	git am "${DIR}/patches/beagle/0008-zeroMAP-Open-your-eyes.patch"
 }
 
 devkit8000 () {
@@ -78,7 +78,10 @@ devkit8000 () {
 panda () {
 	echo "Board Patches for: PandaBoard"
 	git am "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
-	git am "${DIR}/patches/panda/0003-ti-st-st-kim-fixing-firmware-path.patch"
+	git am "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
+	git am "${DIR}/patches/panda/0003-staging-OMAP4-thermal-introduce-bandgap-temperature-.patch"
+	git am "${DIR}/patches/panda/0004-staging-omap-thermal-common-code-to-expose-driver-to.patch"
+	git am "${DIR}/patches/panda/0005-staging-omap-thermal-add-OMAP4-data-structures.patch"
 }
 
 omap_fixes () {
