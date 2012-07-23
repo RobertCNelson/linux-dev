@@ -50,14 +50,15 @@ fi
 
 ##Linux Kernel Source location:
 ##
-##To Setup: using git, you need to clone the linux-stable git tree from kernel.org
-##to anywhere in your system, just adjust LINUX_GIT variable..
+##This script will clone torvalds linux git tree from kernel.org.  From this git tree
+##this script can generate a prinstine starting point before running the patch.sh script.
 ##
-###Note: (In Most systems ~/ is /home/username/)
-##cd ~/
-##git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-
-LINUX_GIT=~/linux-stable/
+##For most users, the default will work fine, for other kernel developers who have 
+##already cloned torvalds tree, and would like to safe file space, just define LINUX_GIT in this file.
+##
+##git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git ${HOME}/
+#
+#LINUX_GIT=${HOME}/linux-stable/
 
 ###OPTIONAL: (REQUIRED FOR RUNNING: ./tools/load_uImage.sh & ./tools/load_uImage.sh)
 
@@ -79,7 +80,7 @@ LINUX_GIT=~/linux-stable/
 ###ADVANCED: Allow the script to build uImage's directly, so-far safe for TI OMAP, but not Freescale..
 #BUILD_UIMAGE=1
 
-###OPTIONAL: (REQUIRED FOR RUNNING: ./tools/load_uImage.sh & ./tools/load_uImage-net.sh)
+###OPTIONAL: (REQUIRED FOR RUNNING: tools/install_image.sh )
 ##Note: This operates on raw disks, NOT PARTITIONS
 ##WRONG: MMC=/dev/mmcblk0p1
 ##CORRECT: MMC=/dev/mmcblk0

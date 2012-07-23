@@ -67,20 +67,29 @@ function git_kernel_stable {
 	git fetch git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git master --tags || true
 }
 
-function git_kernel {
-	if [ -f ${LINUX_GIT}/.git/config ] ; then
-		if [ -f ${LINUX_GIT}/version.sh ] ; then
-			echo ""
-			echo "Error, LINUX_GIT in system.sh is improperly set, do not clone a git tree on top of another.."
-			echo ""
-			echo "Quick Fix:"
-			echo "example: cd ~/"
-			echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-			echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
-			echo ""
-			exit
+function check_and_or_clone {
+	if [ ! "${LINUX_GIT}" ] ; then
+		if [ -f ~/linux-src/.git/config ] ; then
+			echo "Warning: LINUX_GIT not defined in system.sh, using default location: ${HOME}/linux-src"
+		else
+			echo "Warning: LINUX_GIT not defined in system.sh, cloning torvalds git tree to default location: ${HOME}/linux-src"
+			git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ${HOME}/linux-src
 		fi
+		LINUX_GIT="${HOME}/linux-src"
+	fi
+}
 
+function git_kernel {
+
+	check_and_or_clone
+
+	#In the past some users set LINUX_GIT = DIR, fix that...
+	if [ -f ${LINUX_GIT}/version.sh ] ; then
+		unset LINUX_GIT
+		check_and_or_clone
+	fi
+
+	if [ -f "${LINUX_GIT}/.git/config" ] ; then
 		cd ${LINUX_GIT}/
 		echo "Debug: LINUX_GIT setup..."
 		pwd
@@ -134,12 +143,8 @@ function git_kernel {
 		cd ${DIR}/
 	else
 		echo ""
-		echo "ERROR: LINUX_GIT variable in system.sh seems invalid, i'm not finding a valid git tree..."
-		echo ""
-		echo "Quick Fix:"
-		echo "example: cd ~/"
-		echo "example: git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-		echo "example: Set: LINUX_GIT=~/linux-stable/ in system.sh"
+		echo "error: failure in git_kernel"
+		echo "debug: LINUX_GIT = ${LINUX_GIT}"
 		echo ""
 		exit
 	fi
