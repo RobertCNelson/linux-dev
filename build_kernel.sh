@@ -69,7 +69,7 @@ function git_kernel_stable {
 
 function check_and_or_clone {
 	if [ ! "${LINUX_GIT}" ] ; then
-		if [ -f ~/linux-src/.git/config ] ; then
+		if [ -f "${HOME}/linux-src/.git/config" ] ; then
 			echo "Warning: LINUX_GIT not defined in system.sh, using default location: ${HOME}/linux-src"
 		else
 			echo "Warning: LINUX_GIT not defined in system.sh, cloning torvalds git tree to default location: ${HOME}/linux-src"
@@ -84,7 +84,7 @@ function git_kernel {
 	check_and_or_clone
 
 	#In the past some users set LINUX_GIT = DIR, fix that...
-	if [ -f ${LINUX_GIT}/version.sh ] ; then
+	if [ -f "${LINUX_GIT}/version.sh" ] ; then
 		unset LINUX_GIT
 		check_and_or_clone
 	fi
