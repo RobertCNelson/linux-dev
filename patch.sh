@@ -1663,6 +1663,9 @@ function am33x-cleanup {
 	git am "${DIR}/patches/beaglebone/0078-beaglebone-error-handling-for-DMA-completion-in-cssp.patch"
 	git am "${DIR}/patches/beaglebone/0079-AM335X-errata-OPP50-on-MPU-domain-is-not-supported.patch"
 	git am "${DIR}/patches/beaglebone/0080-vfs-Add-a-trace-point-in-the-mark_inode_dirty-functi.patch"
+	git am "${DIR}/patches/beaglebone/0081-beaglebone-add-support-for-LCD7-A3.patch"
+	git am "${DIR}/patches/beaglebone/0082-beaglebone-add-rudimentary-support-for-eMMC-cape.patch"
+	git am "${DIR}/patches/beaglebone/0083-beaglebone-add-extra-partnumber-for-camera-cape.patch"
 
 	git am "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	git am "${DIR}/patches/beaglebone/0001-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
