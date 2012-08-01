@@ -22,9 +22,8 @@
 
 #yeah, i'm getting lazy..
 
-unset NO_DEVTMPS
-
 DIR=$PWD
+unset BRANCH
 BRANCH="am33x-v3.2"
 
 if [ -e ${DIR}/version.sh ]; then
@@ -32,7 +31,7 @@ if [ -e ${DIR}/version.sh ]; then
 	unset STABLE_PATCH
 	. version.sh
 
-	if [ "${RC_PATCH}" ]; then
+	if [ "${RC_PATCH}" ] ; then
 		git commit -a -m "${RC_KERNEL}${RC_PATCH}-${BUILD} release" -s
 		git tag -a "${RC_KERNEL}${RC_PATCH}-${BUILD}" -m "${RC_KERNEL}${RC_PATCH}-${BUILD}"
 	else if [ "${STABLE_PATCH}" ] ; then

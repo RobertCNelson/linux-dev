@@ -92,71 +92,68 @@ Missing mkimage command.
 
 function debian_regs
 {
-unset PACKAGE
-unset APT
+	unset PACKAGE
+	unset APT
 
-if [ ! $(dpkg -l | grep build-essential | awk '{print $2}') ] ; then
-	echo "Missing build-essential"
-	UPACKAGE="build-essential "
-	DPACKAGE="build-essential "
-	APT=1
-fi
+	if [ ! $(dpkg -l | grep build-essential | awk '{print $2}') ] ; then
+		echo "Missing build-essential"
+		UPACKAGE="build-essential "
+		DPACKAGE="build-essential "
+		APT=1
+	fi
 
-if [ ! $(which mkimage) ];then
- echo "Missing uboot-mkimage"
- UPACKAGE="u-boot-tools "
- DPACKAGE="uboot-mkimage "
- APT=1
-fi
+	if [ ! $(which mkimage) ];then
+		echo "Missing uboot-mkimage"
+		UPACKAGE="u-boot-tools "
+		DPACKAGE="uboot-mkimage "
+		APT=1
+	fi
 
-if [ ! $(which ccache) ];then
- echo "Missing ccache"
- UPACKAGE+="ccache "
- DPACKAGE+="ccache "
- APT=1
-fi
+	if [ ! $(which ccache) ];then
+		echo "Missing ccache"
+		UPACKAGE+="ccache "
+		DPACKAGE+="ccache "
+		APT=1
+	fi
 
-if [ ! $(which dtc) ];then
-	echo "Missing device-tree-compiler"
-	UPACKAGE+="device-tree-compiler "
-	DPACKAGE+="device-tree-compiler "
-	APT=1
-fi
+	if [ ! $(which dtc) ];then
+		echo "Missing device-tree-compiler"
+		UPACKAGE+="device-tree-compiler "
+		DPACKAGE+="device-tree-compiler "
+		APT=1
+	fi
 
-#Just temp, as with 3.4, switching to xz
-if [ ! $(which lzma) ];then
-	echo "Missing lzma"
-	UPACKAGE+="lzma "
-	DPACKAGE+="lzma "
-	APT=1
-fi
+	#Just temp, as with 3.4, switching to xz
+	if [ ! $(which lzma) ];then
+		echo "Missing lzma"
+		UPACKAGE+="lzma "
+		DPACKAGE+="lzma "
+		APT=1
+	fi
 
-#Note: Without dpkg-dev from build-essential, this can be a false positive
-MULTIARCHLIB="/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`"
+	#Lucid -> Oneiric
+	if [ ! -f "/usr/lib/libncurses.so" ] ; then
+		#Precise ->
+		if [ ! -f "/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so" ] ; then
+			echo "Missing: libncurses.so"
+			UPACKAGE+="libncurses5-dev "
+			DPACKAGE+="libncurses5-dev "
+			APT=1
+		else
+			echo "Debug: found libncurses.so: /usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so"
+		fi
+	else
+		echo "Debug: found libncurses.so: /usr/lib/libncurses.so"
+	fi
 
-#oneiric is multiarch, but libncurses.so is under /usr/lib
-CHECK_ONEIRIC=$(lsb_release -c | grep oneiric | awk '{print $2}' 2>/dev/null)
-if [ "x${CHECK_ONEIRIC}" == "xoneiric" ] ; then
-	MULTIARCHLIB="/usr/lib/"
-fi
-
-if [ ! -f ${MULTIARCHLIB}/libncurses.so ] ; then
-	echo "Missing ncurses"
-	UPACKAGE+="libncurses5-dev "
-	DPACKAGE+="libncurses5-dev "
-	APT=1
-fi
-
-if [ "${APT}" ];then
- echo "Missing Dependicies"
- echo "Ubuntu: please install: sudo aptitude install ${UPACKAGE}"
- echo "Debian: please install: sudo aptitude install ${DPACKAGE}"
- echo "---------------------------------------------------------"
- return 1
-fi
+	if [ "${APT}" ];then
+		echo "Missing Dependicies"
+		echo "Ubuntu: please install: sudo aptitude install ${UPACKAGE}"
+		echo "Debian: please install: sudo aptitude install ${DPACKAGE}"
+		echo "---------------------------------------------------------"
+		return 1
+	fi
 }
-
-LC_ALL=C git --version
 
 BUILD_HOST=${BUILD_HOST:="$( detect_host )"}
 info "Detected build host [$BUILD_HOST]"
