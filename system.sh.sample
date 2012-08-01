@@ -7,23 +7,23 @@ ARCH=$(uname -m)
 #GCC_OVERRIDE="gcc-4.4"
 
 if [ "x${ARCH}" == "xarmv7l" ] ; then
- echo "Using: Native armv7l gcc Compiler"
- CC=
+	echo "Debug: using native armv7l gcc Compiler"
+	CC=
 else
- echo "Using: Cross Compiler"
- #CC=arm-linux-gnueabi-
+	echo "Debug: using Cross Compiler"
+	#CC=arm-linux-gnueabi-
 
- #Test that user actually modified the above CC line:
- if [ "-${CC}-" == "--" ] ; then
-  echo ""
-  echo "Error: You haven't setup the Cross Compiler (CC variable) in system.sh"
-  echo ""
-  echo "with a (sane editor) open system.sh and modify the commented Line 14: #CC=arm-linux-gnueabi-"
-  echo ""
-  echo "If you need hints on installing an ARM GCC Cross ToolChain, view README file"
-  echo ""
-  exit
- fi
+	#Test that user actually modified the above CC line:
+	if [ "x${CC}" == "x" ] ; then
+		echo ""
+		echo "Error: You haven't setup the Cross Compiler (CC variable) in system.sh"
+		echo ""
+		echo "with a (sane editor) open system.sh and modify the commented Line 14: #CC=arm-linux-gnueabi-"
+		echo ""
+		echo "If you need hints on installing an ARM GCC Cross ToolChain, view README file"
+		echo ""
+		exit
+	fi
 
 	GCC="gcc"
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
@@ -33,17 +33,17 @@ else
 	GCC_TEST=$(LC_ALL=C ${CC}${GCC} -v 2>&1 | grep "Target:" | grep arm || true)
 	GCC_REPORT=$(LC_ALL=C ${CC}${GCC} -v 2>&1 || true)
 
- if [ "-${GCC_TEST}-" == "--" ] ; then
-  echo ""
-  echo "Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable)."
-  echo "Doesn't seem to be valid for ARM, double check it's location, or that"
-  echo "you chose the correct GCC Cross Compiler."
-  echo ""
-	echo "Output of: ${CC}${GCC} -v"
-  echo "${GCC_REPORT}"
-  echo ""
-  exit
- fi
+	if [ "x${GCC_TEST}" == "x" ] ; then
+		echo ""
+		echo "Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable)."
+		echo "Doesn't seem to be valid for ARM, double check it's location, or that"
+		echo "you chose the correct GCC Cross Compiler."
+		echo ""
+		echo "Output of: ${CC}${GCC} -v"
+		echo "${GCC_REPORT}"
+		echo ""
+		exit
+	fi
 fi
 
 ###REQUIRED:
