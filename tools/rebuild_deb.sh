@@ -20,128 +20,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-unset KERNEL_REL
-unset STABLE_PATCH
-unset RC_KERNEL
-unset RC_PATCH
-unset BUILD
-unset CC
-unset LINUX_GIT
-unset LATEST_GIT
-unset DEBARCH
-
-unset LOCAL_PATCH_DIR
-
 DIR=$PWD
 
 mkdir -p ${DIR}/deploy/
 
-function git_kernel_torvalds {
-	echo "pulling from torvalds kernel.org tree"
-	git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags || true
-}
-
-function git_kernel_stable {
-	echo "fetching from stable kernel.org tree"
-	git fetch git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git master --tags || true
-}
-
-function check_and_or_clone {
-	if [ ! "${LINUX_GIT}" ] ; then
-		if [ -f "${HOME}/linux-src/.git/config" ] ; then
-			echo "Warning: LINUX_GIT not defined in system.sh, using default location: ${HOME}/linux-src"
-		else
-			echo "Warning: LINUX_GIT not defined in system.sh, cloning torvalds git tree to default location: ${HOME}/linux-src"
-			git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ${HOME}/linux-src
-		fi
-		LINUX_GIT="${HOME}/linux-src"
-	fi
-}
-
-function git_kernel {
-
-	check_and_or_clone
-
-	#In the past some users set LINUX_GIT = DIR, fix that...
-	if [ -f ${LINUX_GIT}/version.sh ] ; then
-		unset LINUX_GIT
-		check_and_or_clone
-	fi
-
-	if [ -f "${LINUX_GIT}/.git/config" ] ; then
-		cd ${LINUX_GIT}/
-		echo "Debug: LINUX_GIT setup..."
-		pwd
-		cat .git/config
-		echo "Updating LINUX_GIT tree via: git fetch"
-		git fetch || true
-		cd -
-
-		if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
-			rm -rf ${DIR}/KERNEL/ || true
-			git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
-		fi
-
-		cd ${DIR}/KERNEL/
-		#So we are now going to assume the worst, and create a new master branch
-		git am --abort || echo "git tree is clean..."
-		git add .
-		git commit --allow-empty -a -m 'empty cleanup commit'
-
-		git checkout origin/master -b tmp-master
-		git branch -D master &>/dev/null || true
-
-		git checkout origin/master -b master
-		git branch -D tmp-master &>/dev/null || true
-
-		git pull ${GIT_OPTS} || true
-
-		if [ ! "${LATEST_GIT}" ] ; then
-			if [ "${RC_PATCH}" ] ; then
-				git tag | grep v${RC_KERNEL}${RC_PATCH} &>/dev/null || git_kernel_torvalds
-				git branch -D v${RC_KERNEL}${RC_PATCH}-${BUILD} &>/dev/null || true
-				git checkout v${RC_KERNEL}${RC_PATCH} -b v${RC_KERNEL}${RC_PATCH}-${BUILD}
-			elif [ "${STABLE_PATCH}" ] ; then
-				git tag | grep v${KERNEL_REL}.${STABLE_PATCH} &>/dev/null || git_kernel_stable
-				git branch -D v${KERNEL_REL}.${STABLE_PATCH}-${BUILD} &>/dev/null || true
-				git checkout v${KERNEL_REL}.${STABLE_PATCH} -b v${KERNEL_REL}.${STABLE_PATCH}-${BUILD}
-			else
-				git tag | grep v${KERNEL_REL} | grep -v rc &>/dev/null || git_kernel_torvalds
-				git branch -D v${KERNEL_REL}-${BUILD} &>/dev/null || true
-				git checkout v${KERNEL_REL} -b v${KERNEL_REL}-${BUILD}
-			fi
-		else
-			git branch -D top-of-tree &>/dev/null || true
-			git checkout v${KERNEL_REL} -b top-of-tree
-			git describe
-			git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
-		fi
-
-		git describe
-
-		cd ${DIR}/
-	else
-		echo ""
-		echo "error: failure in git_kernel"
-		echo "debug: LINUX_GIT = ${LINUX_GIT}"
-		echo ""
-		exit
-	fi
-}
-
 function patch_kernel {
 	cd ${DIR}/KERNEL
+
 	export DIR GIT_OPTS
 	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
 	git add .
-	if [ "${RC_PATCH}" ] ; then
-		git commit --allow-empty -a -m ''$RC_KERNEL''$RC_PATCH'-'$BUILD' patchset'
-	elif [ "${STABLE_PATCH}" ] ; then
-		git commit --allow-empty -a -m ''$KERNEL_REL'.'$STABLE_PATCH'-'$BUILD' patchset'
-	else
-		git commit --allow-empty -a -m ''$KERNEL_REL'-'$BUILD' patchset'
-	fi
+	git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
 
 #Test Patches:
 #exit
@@ -181,15 +71,21 @@ function make_deb {
   /bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
 
 if [ -e ${DIR}/system.sh ] ; then
+	unset CC
+	unset DEBUG_SECTION
+	unset LATEST_GIT
+	unset LINUX_GIT
+	unset LOCAL_PATCH_DIR
 	source ${DIR}/system.sh
-	source ${DIR}/version.sh
 
-	GCC="gcc"
+	source ${DIR}/version.sh
+	export LINUX_GIT
+
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 		GCC="${GCC_OVERRIDE}"
 	fi
 	echo ""
-	echo "Debug: using $(LC_ALL=C ${CC}${GCC} --version)"
+	echo "Debug: using $(LC_ALL=C ${CC}gcc --version)"
 	echo ""
 
 	if [ "${LATEST_GIT}" ] ; then
@@ -203,7 +99,7 @@ if [ -e ${DIR}/system.sh ] ; then
 		CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
 	fi
 
-#	git_kernel
+#	/bin/bash -e "${DIR}/scripts/git.sh"
 #	patch_kernel
 #	copy_defconfig
 	make_menuconfig
