@@ -10,11 +10,9 @@ fi
 
 unset GIT_OPTS
 unset GIT_NOEDIT
-echo "Debug: `LC_ALL=C git --version`"
 LC_ALL=C git help pull | grep -m 1 -e "--no-edit" &>/dev/null && GIT_NOEDIT=1
 
 if [ "${GIT_NOEDIT}" ] ; then
-	echo "Debug: detected git 1.7.10 or later, this script will pull via [git pull --no-edit]"
 	GIT_OPTS+="--no-edit"
 fi
 
@@ -22,18 +20,13 @@ CCACHE=ccache
 
 config="omap2plus_defconfig"
 
+#Kernel/Build
 KERNEL_REL=3.2
+KERNEL_TAG=${KERNEL_REL}
+BUILD=psp19
 
-#for x.x.X
-#STABLE_PATCH=1
-
-#for x.x-rcX
-#RC_KERNEL=3.3
-#RC_PATCH=-rc1
-
-ABI=19
-
-BUILD=psp${ABI}
+#git branch
+BRANCH="am33x-v3.2"
 
 BUILDREV=1.0
 DISTRO=cross
