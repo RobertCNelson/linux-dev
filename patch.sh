@@ -1674,8 +1674,13 @@ function am33x-cleanup {
 #	git am "${DIR}/patches/fixes/0001-rt2x00-Add-support-for-D-Link-DWA-127-to-rt2800usb.patch"
 }
 
+rt_patchset () {
+	git am "${DIR}/patches/rt/0001-rt-patch-3.2.23-rt37.patch"
+}
+
 am33x-cleanup
 bugs_trivial
+#rt_patchset
 
 echo "patch.sh ran successful"
 
