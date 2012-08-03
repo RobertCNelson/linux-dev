@@ -32,7 +32,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -5 -o ${DIR}/patches/
+	git format-patch -1 -o ${DIR}/patches/
 	exit
 }
 
@@ -46,7 +46,6 @@ sakoman () {
 	git am "${DIR}/patches/sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
 	git am "${DIR}/patches/sakoman/0002-video-add-timings-for-hd720.patch"
 }
-
 
 beagle () {
 	echo "Board Patches for: BeagleBoard"
@@ -70,9 +69,14 @@ beagle () {
 	git am "${DIR}/patches/beagle/0008-zeroMAP-Open-your-eyes.patch"
 }
 
+sprz319_erratum () {
+	echo "sprz319 erratum 2.1"
+	git am "${DIR}/patches/sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
+}
+
 devkit8000 () {
 	echo "Board Patches for: devkit8000"
-	git am "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel-2.6.37-git10.patch"
+	git am "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel.patch"
 }
 
 panda () {
@@ -89,15 +93,7 @@ omap_fixes () {
 	git am "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 	git am "${DIR}/patches/omap_fixes/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
 	git am "${DIR}/patches/omap_fixes/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
-	git am "${DIR}/patches/omap_fixes/0004-Unconditional-call-to-smp_cross_call-on-UP-crashes.patch"
-#	git am "${DIR}/patches/omap_fixes/0005-OMAPDSS-fix-build-when-DEBUG_FS-or-DSS_DEBUG_SUPPORT.patch"
-#	git am "${DIR}/patches/omap_fixes/0006-OMAPDSS-Taal-fix-compilation-warning.patch"
-#	git am "${DIR}/patches/omap_fixes/0007-OMAPDSS-fix-bogus-WARN_ON-in-dss_runtime_put.patch"
-#	git am "${DIR}/patches/omap_fixes/0008-OMAPDSS-DSI-Fix-bug-when-calculating-LP-command-inte.patch"
-#	git am "${DIR}/patches/omap_fixes/0009-OMAPDSS-fix-registration-of-DPI-and-SDI-devices.patch"
-
-#breaks beagle c4, needs fix..
-#	git am "${DIR}/patches/omap_fixes/0001-Fix-sprz319-erratum-2.1.patch"
+	git am "${DIR}/patches/omap_fixes/0004-only-call-smp_send_stop-on-SMP.patch"
 }
 
 omapdrm () {
@@ -130,6 +126,10 @@ mainline_fixes () {
 distro
 sakoman
 beagle
+
+#disabled as it breaks beagle c4...
+#sprz319_erratum
+
 devkit8000
 panda
 omap_fixes
