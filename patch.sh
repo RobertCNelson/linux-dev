@@ -83,9 +83,10 @@ panda () {
 	echo "Board Patches for: PandaBoard"
 	git am "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
 	git am "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
-	git am "${DIR}/patches/panda/0003-staging-OMAP4-thermal-introduce-bandgap-temperature-.patch"
-	git am "${DIR}/patches/panda/0004-staging-omap-thermal-common-code-to-expose-driver-to.patch"
-	git am "${DIR}/patches/panda/0005-staging-omap-thermal-add-OMAP4-data-structures.patch"
+#	in 3.6-rc1
+#	git am "${DIR}/patches/panda/0003-staging-OMAP4-thermal-introduce-bandgap-temperature-.patch"
+#	git am "${DIR}/patches/panda/0004-staging-omap-thermal-common-code-to-expose-driver-to.patch"
+#	git am "${DIR}/patches/panda/0005-staging-omap-thermal-add-OMAP4-data-structures.patch"
 }
 
 omap_fixes () {
@@ -93,14 +94,16 @@ omap_fixes () {
 	git am "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 	git am "${DIR}/patches/omap_fixes/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
 	git am "${DIR}/patches/omap_fixes/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
-	git am "${DIR}/patches/omap_fixes/0004-only-call-smp_send_stop-on-SMP.patch"
+#	in 3.6-rc1
+#	git am "${DIR}/patches/omap_fixes/0004-only-call-smp_send_stop-on-SMP.patch"
 }
 
 omapdrm () {
 	echo "omap testing omapdrm/kms"
 
 	#posted: 13 Mar 2012 for 3.4
-	git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
+#       in 3.6-rc1
+#	git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
 
 	#might be merged in 3.4
 	git am "${DIR}/patches/drm/0002-ARM-OMAP2-3-HWMOD-Add-missing-flags-for-dispc-class.patch"
