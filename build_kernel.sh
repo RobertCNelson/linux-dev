@@ -65,8 +65,11 @@ function make_kernel {
 	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} zImage modules"
 	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} zImage modules
 
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} dtbs"
-	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} dtbs
+	DTBS=$(cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:")
+	if [ "x${DTBS}" != "x" ] ; then
+		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} dtbs"
+		time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} dtbs
+	fi
 
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
 	if [ -f ./arch/arm/boot/zImage ] ; then
@@ -107,6 +110,23 @@ function make_modules_pkg {
   cd ${DIR}/deploy/mod
   tar czf ../${KERNEL_UTS}-modules.tar.gz *
   cd ${DIR}/
+}
+
+function make_dtbs_pkg {
+	cd ${DIR}/KERNEL/
+
+	echo ""
+	echo "Building DTBS Archive"
+	echo ""
+
+	rm -rf ${DIR}/deploy/dtbs &> /dev/null || true
+	mkdir -p ${DIR}/deploy/dtbs
+	cp -v arch/arm/boot/*.dtb ${DIR}/deploy/dtbs
+	cd ${DIR}/deploy/dtbs
+	echo "Building ${KERNEL_UTS}-dtbs.tar.gz"
+	tar czf ../${KERNEL_UTS}-dtbs.tar.gz *
+
+	cd ${DIR}/
 }
 
 function make_headers_pkg {
@@ -172,6 +192,9 @@ if [ -e ${DIR}/system.sh ] ; then
 		echo ""
 	fi
 	make_modules_pkg
+	if [ "x${DTBS}" != "x" ] ; then
+		make_dtbs_pkg
+	fi
 	make_headers_pkg
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 		sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
