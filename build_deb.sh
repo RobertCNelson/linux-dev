@@ -61,11 +61,35 @@ function make_menuconfig {
 }
 
 function make_deb {
-  cd ${DIR}/KERNEL/
-  echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg"
-  time fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg
-  mv ${DIR}/*.deb ${DIR}/deploy/
-  cd ${DIR}/
+	cd ${DIR}/KERNEL/
+	echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg"
+	time fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg
+	mv ${DIR}/*.deb ${DIR}/deploy/
+
+	DTBS=$(cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:")
+	if [ "x${DTBS}" != "x" ] ; then
+		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} dtbs"
+		time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} dtbs
+	fi
+
+	cd ${DIR}/
+}
+
+function make_dtbs_pkg {
+	cd ${DIR}/KERNEL/
+
+	echo ""
+	echo "Building DTBS Archive"
+	echo ""
+
+	rm -rf ${DIR}/deploy/dtbs &> /dev/null || true
+	mkdir -p ${DIR}/deploy/dtbs
+	cp -v arch/arm/boot/*.dtb ${DIR}/deploy/dtbs
+	cd ${DIR}/deploy/dtbs
+	echo "Building ${KERNEL_UTS}-dtbs.tar.gz"
+	tar czf ../${KERNEL_UTS}-dtbs.tar.gz *
+
+	cd ${DIR}/
 }
 
   /bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
@@ -107,6 +131,9 @@ if [ -e ${DIR}/system.sh ] ; then
 		sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
 	fi
 	make_deb
+	if [ "x${DTBS}" != "x" ] ; then
+		make_dtbs_pkg
+	fi
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 		sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
 	fi

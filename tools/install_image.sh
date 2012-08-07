@@ -28,7 +28,7 @@ BOOT_PARITION="1"
 
 DIR=$PWD
 
-. version.sh
+source ${DIR}/version.sh
 
 backup_config () {
 	if [ -f "${DIR}/patches/previous_defconfig" ] ; then
@@ -98,43 +98,58 @@ mmc_write_boot () {
 		mkdir -p "${DIR}/deploy/disk/"
 	fi
 
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
+
+		if [ ! -d "${DIR}/deploy/disk/dtbs" ] ; then
+			sudo mkdir -p "${DIR}/deploy/disk/dtbs"
+		fi
+
+		sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${DIR}/deploy/disk/dtbs/"
+	fi
+
+	if [ -f "${DIR}/deploy/disk/SOC.sh" ] ; then
+		source "${DIR}/deploy/disk/SOC.sh"
+		ZRELADDR=${load_addr}
+	fi
+
+	if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
+		sudo rm -f "${DIR}/deploy/disk/uImage_bak" || true
+	fi
+
+	if [ -f "${DIR}/deploy/disk/uImage" ] ; then
+		sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
+		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
+	fi
+
+	if [ -f "${DIR}/deploy/disk/zImage_bak" ] ; then
+		sudo rm -f "${DIR}/deploy/disk/zImage_bak" || true
+	fi
+
+	if [ -f "${DIR}/deploy/disk/zImage" ] ; then
+		sudo mv "${DIR}/deploy/disk/zImage" "${DIR}/deploy/disk/zImage_bak"
+	fi
+
+	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/zImage"
+
+	cd "${DIR}/deploy/disk"
+	sync
+	sync
+	cd -
+	sudo umount "${DIR}/deploy/disk" || true
+	mmc_find_rootfs
+}
+
+mmc_mount_boot () {
+	if [ ! -d "${DIR}/deploy/disk/" ] ; then
+		mkdir -p "${DIR}/deploy/disk/"
+	fi
+
 	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
-
-		if [ -f "${DIR}/deploy/disk/SOC.sh" ] ; then
-			source "${DIR}/deploy/disk/SOC.sh"
-			ZRELADDR=${load_addr}
-			if [ "x${dtb_file}" != "x" ] ; then
-				if [ -f "${DIR}/KERNEL/arch/arm/boot/${dtb_file}" ] ; then
-					sudo cp -v "${DIR}/KERNEL/arch/arm/boot/${dtb_file}" "${DIR}/deploy/disk/"
-				fi
-			fi
-		fi
-
-		if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
-			sudo rm -f "${DIR}/deploy/disk/uImage_bak" || true
-		fi
-
-		if [ -f "${DIR}/deploy/disk/uImage" ] ; then
-			sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
-			sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
-		fi
-
-		if [ -f "${DIR}/deploy/disk/zImage_bak" ] ; then
-			sudo rm -f "${DIR}/deploy/disk/zImage_bak" || true
-		fi
-
-		if [ -f "${DIR}/deploy/disk/zImage" ] ; then
-			sudo mv "${DIR}/deploy/disk/zImage" "${DIR}/deploy/disk/zImage_bak"
-		fi
-
-		sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/zImage"
-
-		cd "${DIR}/deploy/disk"
-		sync
-		sync
-		cd -
-		sudo umount "${DIR}/deploy/disk" || true
-		mmc_find_rootfs
+		UNTAR="xfvo"
+		mmc_write_boot
+	elif sudo mount -t ext2 ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
+		mmc_write_boot
+		UNTAR="xfv"
 	else
 		echo "-----------------------------"
 		echo "ERROR: Unable to mount ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} at "${DIR}/deploy/disk/" to copy uImage..."
@@ -157,7 +172,7 @@ unmount_partitions () {
 	done
 
 	mkdir -p "${DIR}/deploy/disk/"
-	mmc_write_boot
+	mmc_mount_boot
 }
 
 check_mmc () {
@@ -189,7 +204,7 @@ check_mmc () {
 }
 
 if [ -f "${DIR}/system.sh" ] ; then
-	. system.sh
+	source ${DIR}/system.sh
 
 	if [ "x${ZRELADDR}" == "x" ] ; then
 		echo "ERROR: ZRELADDR is not defined in system.sh"
