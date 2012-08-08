@@ -70,6 +70,7 @@ function make_deb {
 	if [ "x${DTBS}" != "x" ] ; then
 		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} dtbs"
 		time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} dtbs
+		ls arch/arm/boot/* | grep dtb || unset DTBS
 	fi
 
 	cd ${DIR}/

@@ -116,6 +116,13 @@ function debian_regs
 		APT=1
 	fi
 
+	if [ ! $(which fakeroot) ];then
+		echo "Missing fakeroot"
+		UPACKAGE+="fakeroot "
+		DPACKAGE+="fakeroot "
+		APT=1
+	fi
+
 	if [ ! $(which dtc) ];then
 		echo "Missing device-tree-compiler"
 		UPACKAGE+="device-tree-compiler "
