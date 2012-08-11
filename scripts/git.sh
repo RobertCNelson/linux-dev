@@ -87,8 +87,9 @@ git_kernel () {
 			git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
 			git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
 		else
+			git tag | grep v${KERNEL_TAG} | grep -v rc &>/dev/null || git_kernel_torvalds
 			git branch -D top-of-tree &>/dev/null || true
-			git checkout v${KERNEL_REL} -b top-of-tree
+			git checkout v${KERNEL_TAG} -b top-of-tree
 			git describe
 			git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
 		fi
