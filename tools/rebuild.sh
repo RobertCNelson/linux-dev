@@ -159,6 +159,7 @@ if [ -e ${DIR}/system.sh ] ; then
 
 	source ${DIR}/version.sh
 	export LINUX_GIT
+	export LATEST_GIT
 
 	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 		GCC="${GCC_OVERRIDE}"
