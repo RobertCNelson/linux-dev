@@ -59,7 +59,10 @@ beagle () {
 	git am "${DIR}/patches/beagle/expansion/0007-Beagle-expansion-add-beaglefpga.patch"
 	git am "${DIR}/patches/beagle/expansion/0008-Enable-buddy-spidev.patch"
 
-	git am "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
+	#v3.5: looks to be removed:
+	#http://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=commit;h=b6e695abe710ee1ae248463d325169efac487e17
+	#git am "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
+
 	git am "${DIR}/patches/beagle/0002-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly.patch"
 	git am "${DIR}/patches/beagle/0003-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
 	git am "${DIR}/patches/beagle/0004-default-to-fifo-mode-5-for-old-musb-beagles.patch"
