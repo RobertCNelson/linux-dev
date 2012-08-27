@@ -146,7 +146,7 @@ function make_headers_pkg {
   cd ${DIR}/
 }
 
-  /bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
+/bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
 
 if [ -e ${DIR}/system.sh ] ; then
 	unset CC
@@ -155,17 +155,11 @@ if [ -e ${DIR}/system.sh ] ; then
 	unset LINUX_GIT
 	unset LOCAL_PATCH_DIR
 	source ${DIR}/system.sh
+	/bin/bash -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 
 	source ${DIR}/version.sh
 	export LINUX_GIT
 	export LATEST_GIT
-
-	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-		GCC="${GCC_OVERRIDE}"
-	fi
-	echo ""
-	echo "Debug: using $(LC_ALL=C ${CC}gcc --version)"
-	echo ""
 
 	if [ "${LATEST_GIT}" ] ; then
 		echo ""
@@ -179,7 +173,7 @@ if [ -e ${DIR}/system.sh ] ; then
 	fi
 
 	LATEST_GIT=1
-	/bin/bash -e "${DIR}/scripts/git.sh"
+	/bin/bash -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 	#patch_kernel
 	copy_defconfig
 	make_menuconfig
