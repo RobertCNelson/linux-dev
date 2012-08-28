@@ -6,54 +6,23 @@ ARCH=$(uname -m)
 ###ADVANCED, OPTIONAL: gcc version override (useful for gcc/kernel regressions)
 #GCC_OVERRIDE="gcc-4.4"
 
+#ARM Native gcc compiler (running gcc on arm target)
 if [ "x${ARCH}" == "xarmv7l" ] ; then
-	echo "Debug: using native armv7l gcc Compiler"
+	#Native arm gcc compiler
 	CC=
-else
-	echo "Debug: using Cross Compiler"
-	#CC=arm-linux-gnueabi-
-
-	#Test that user actually modified the above CC line:
-	if [ "x${CC}" == "x" ] ; then
-		echo ""
-		echo "Error: You haven't setup the Cross Compiler (CC variable) in system.sh"
-		echo ""
-		echo "with a (sane editor) open system.sh and modify the commented Line 14: #CC=arm-linux-gnueabi-"
-		echo ""
-		echo "If you need hints on installing an ARM GCC Cross ToolChain, view README file"
-		echo ""
-		exit
-	fi
-
-	GCC="gcc"
-	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-		GCC="${GCC_OVERRIDE}"
-	fi
-
-	GCC_TEST=$(LC_ALL=C ${CC}${GCC} -v 2>&1 | grep "Target:" | grep arm || true)
-	GCC_REPORT=$(LC_ALL=C ${CC}${GCC} -v 2>&1 || true)
-
-	if [ "x${GCC_TEST}" == "x" ] ; then
-		echo ""
-		echo "Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable)."
-		echo "Doesn't seem to be valid for ARM, double check it's location, or that"
-		echo "you chose the correct GCC Cross Compiler."
-		echo ""
-		echo "Output of: ${CC}${GCC} -v"
-		echo "${GCC_REPORT}"
-		echo ""
-		exit
-	fi
 fi
 
 ###REQUIRED:
+
+#ARM GCC CROSS Compiler: (See hints in Readme, for different gcc cross compiler versions)
+#CC=arm-linux-gnueabi-
 
 ##Linux Kernel Source location:
 ##
 ##This script will clone torvalds linux git tree from kernel.org.  From this git tree
 ##this script can generate a prinstine starting point before running the patch.sh script.
 ##
-##For most users, the default will work fine, for other kernel developers who have 
+##For most users, the default will work fine, for other kernel developers who have
 ##already cloned torvalds tree, and would like to safe file space, just define LINUX_GIT in this file.
 ##
 ##git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git ${HOME}/
@@ -76,6 +45,9 @@ fi
 
 ##MX53
 #ZRELADDR=0x70008000
+
+##MX6
+ZRELADDR=0x10008000
 
 ###ADVANCED: Allow the script to build uImage's directly, so-far safe for TI OMAP, but not Freescale..
 #BUILD_UIMAGE=1

@@ -149,8 +149,8 @@ mmc_mount_boot () {
 		UNTAR="xfvo"
 		mmc_write_boot
 	elif sudo mount -t ext2 ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
-		mmc_write_boot
 		UNTAR="xfv"
+		mmc_write_boot
 	else
 		echo "-----------------------------"
 		echo "ERROR: Unable to mount ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} at "${DIR}/deploy/disk/" to copy uImage..."

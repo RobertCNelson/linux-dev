@@ -92,20 +92,21 @@ Missing mkimage command.
 
 function debian_regs
 {
-	unset PACKAGE
 	unset APT
+	unset UPACKAGE
+	unset DPACKAGE
 
 	if [ ! $(dpkg -l | grep build-essential | awk '{print $2}') ] ; then
 		echo "Missing build-essential"
-		UPACKAGE="build-essential "
-		DPACKAGE="build-essential "
+		UPACKAGE+="build-essential "
+		DPACKAGE+="build-essential "
 		APT=1
 	fi
 
 	if [ ! $(which mkimage) ];then
 		echo "Missing uboot-mkimage"
-		UPACKAGE="u-boot-tools "
-		DPACKAGE="uboot-mkimage "
+		UPACKAGE+="u-boot-tools "
+		DPACKAGE+="uboot-mkimage "
 		APT=1
 	fi
 
