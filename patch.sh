@@ -105,7 +105,7 @@ omapdrm () {
 	echo "omap testing omapdrm/kms"
 
 	#posted: 13 Mar 2012 for 3.4
-#       in 3.6-rc1
+#	in 3.6-rc1
 #	git am "${DIR}/patches/drm/0001-omap2-add-drm-device.patch"
 
 	#might be merged in 3.4
@@ -127,6 +127,7 @@ sgx_mainline () {
 mainline_fixes () {
 	echo "mainline patches"
 	git am "${DIR}/patches/mainline-fixes/0001-arm-add-definition-of-strstr-to-decompress.c.patch"
+	git am "${DIR}/patches/mainline-fixes/0002-ARM-omap-add-dtb-targets.patch"
 }
 
 distro
