@@ -1,0 +1,38 @@
+From 5606e5c7ab64bd90eedd6862c75d6b8b5241e282 Mon Sep 17 00:00:00 2001
+From: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Date: Tue, 10 Jul 2012 11:24:46 +0530
+Subject: [PATCH 11/17] arm/dts: am33xx: Add dt data for usbss
+
+Added device tree data for usbss on am33xx. There are two musb controllers
+on am33xx platform so have port0_mode and port1_mode additional data.
+
+Signed-off-by: Ajay Kumar Gupta <ajay.gupta@ti.com>
+Signed-off-by: Ravi Babu <ravibabu@ti.com>
+---
+ arch/arm/boot/dts/am33xx.dtsi |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index 5f6c8e3..defab1f 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -163,5 +163,16 @@
+ 			ti,hwmods = "i2c3";
+ 			status = "disabled";
+ 		};
++
++		usb_otg_hs: usb_otg_hs {
++			compatible = "ti,musb-am33xx";
++			ti,hwmods = "usb_otg_hs";
++			multipoint = <1>;
++			num_eps = <16>;
++			ram_bits = <12>;
++			port0_mode = <3>;
++			port1_mode = <1>;
++			power = <250>;
++		};
+ 	};
+ };
+-- 
+1.7.10.4
+
