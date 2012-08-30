@@ -1,7 +1,7 @@
-From 2081cd665ce1124bf52a5a1f86f9fcb5bb33eed5 Mon Sep 17 00:00:00 2001
+From 0bc6a48ad53dc66c0e020510c37c17a17797c204 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Mon, 4 Jun 2012 14:38:02 +0200
-Subject: [PATCH 68/79] beaglebone: add support for LCD3 rev A1
+Subject: [PATCH 68/87] beaglebone: add support for LCD3 rev A1
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 83 insertions(+), 11 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index e360b22..d83431a 100644
+index 2d09364..b0d8e7a 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -1136,7 +1136,7 @@ static struct pinmux_config lcd3_keys_pin_mux[] = {
@@ -108,7 +108,7 @@ index e360b22..d83431a 100644
  		beaglebone_tsadcpins_free = 0;
 -		pr_info("BeagleBone cape: Registering gpio-keys for LCD cape\n");
 -		beaglebone_lcd3_keys_init(0,0);
-+		
++
 +		if (!strncmp("00A0", cape_config.version, 4)) {
 +			pr_info("BeagleBone cape: Registering gpio-keys for LCD3 rev A or earlier cape\n");
 +			int err;

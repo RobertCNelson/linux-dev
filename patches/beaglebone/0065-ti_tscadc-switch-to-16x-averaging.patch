@@ -1,7 +1,7 @@
-From 9dff2648027967fbb106621ee7e834cbfc17721b Mon Sep 17 00:00:00 2001
+From 20f7e938d86cf5dffb0ccf256a41d3c58a74260e Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Mon, 28 May 2012 09:56:45 +0200
-Subject: [PATCH 65/68] ti_tscadc: switch to 16x averaging
+Subject: [PATCH 65/87] ti_tscadc: switch to 16x averaging
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
@@ -9,17 +9,17 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-index 7df7bb2..ae6c4c4 100644
+index 525a620..61d5437 100644
 --- a/drivers/input/touchscreen/ti_tscadc.c
 +++ b/drivers/input/touchscreen/ti_tscadc.c
 @@ -161,7 +161,7 @@ static void tsc_adc_step_config(struct tscadc *ts_dev, int channel)
-  	 * sample channel 1 (SEL_INP mux bits = 0)
-  	 */
+ 	 * sample channel 1 (SEL_INP mux bits = 0)
+ 	 */
  	stepconfig = TSCADC_STEPCONFIG_MODE_SWONESHOT |
 -		TSCADC_STEPCONFIG_4SAMPLES_AVG |
 +		TSCADC_STEPCONFIG_16SAMPLES_AVG |
  		((channel-1) << 19);
- 	
+ 
  	delay = TSCADC_STEPCONFIG_SAMPLEDLY | TSCADC_STEPCONFIG_OPENDLY;
 @@ -242,7 +242,7 @@ static void tsc_step_config(struct tscadc *ts_dev)
  	delay = TSCADC_STEPCONFIG_SAMPLEDLY | TSCADC_STEPCONFIG_OPENDLY;
@@ -49,5 +49,5 @@ index 7df7bb2..ae6c4c4 100644
  				TSCADC_STEPCONFIG_YPN | TSCADC_STEPCONFIG_INM;
  	stepconfigz2 = stepconfigz1 | TSCADC_STEPCONFIG_Z1 |
 -- 
-1.7.10
+1.7.10.4
 

@@ -1,16 +1,16 @@
-From b4d2281d42418ca1fac908a635735c43fff2a5e8 Mon Sep 17 00:00:00 2001
+From 396d910103e46a8df6303f800d1c2feac104d321 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Mon, 14 May 2012 14:23:45 +0200
-Subject: [PATCH 40/56] beaglebone: export SPI2 as spidev when no capes are
+Subject: [PATCH 40/87] beaglebone: export SPI2 as spidev when no capes are
  using SPI
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |   25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ arch/arm/mach-omap2/board-am335xevm.c |   23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index c9ee0a2..a0fa53a 100644
+index 27025f7..ac9e52d 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -497,6 +497,7 @@ static bool beaglebone_cape_detected;
@@ -43,9 +43,8 @@ index c9ee0a2..a0fa53a 100644
  static void tt3201_init(int evm_id, int profile)
  {
 -	pr_info("TowerTech TT3201 CAN Cape\n");
--
 +	pr_info("TowerTech TT3201 CAN cape\n");
-+	
+ 
 +	beaglebone_spi1_free = 0;
  	setup_pin_mux(spi1_pin_mux);
  	setup_pin_mux(tt3201_pin_mux);
@@ -79,5 +78,5 @@ index c9ee0a2..a0fa53a 100644
  {
  	phydev->supported &= ~(SUPPORTED_100baseT_Half |
 -- 
-1.7.10
+1.7.10.4
 

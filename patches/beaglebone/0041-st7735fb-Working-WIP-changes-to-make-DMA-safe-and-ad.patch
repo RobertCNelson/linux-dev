@@ -1,7 +1,7 @@
-From 3fbd7def04c319508fdece4514fd7230d5a9344b Mon Sep 17 00:00:00 2001
+From cbf45671937f942c57eb48fe82f9a77fd5e88d4a Mon Sep 17 00:00:00 2001
 From: Matt Porter <mporter@ti.com>
 Date: Wed, 28 Mar 2012 23:35:44 -0400
-Subject: [PATCH 41/56] st7735fb: Working WIP changes to make DMA safe and add
+Subject: [PATCH 41/87] st7735fb: Working WIP changes to make DMA safe and add
  endian fix
 
 This removes the "from the stack" allocation of 1 byte buffers
@@ -22,7 +22,7 @@ Signed-off-by: Matt Porter <mporter@ti.com>
  2 files changed, 34 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/video/st7735fb.c b/drivers/video/st7735fb.c
-index 500cc88..0931ca2 100644
+index 32b28af..4a78c46 100644
 --- a/drivers/video/st7735fb.c
 +++ b/drivers/video/st7735fb.c
 @@ -145,11 +145,9 @@ static struct fb_var_screeninfo st7735fb_var __devinitdata = {
@@ -126,7 +126,7 @@ index 500cc88..0931ca2 100644
  	return retval;
  }
 diff --git a/include/video/st7735fb.h b/include/video/st7735fb.h
-index 250f036..e99cd05 100644
+index 6d3f68b..f33f9da 100644
 --- a/include/video/st7735fb.h
 +++ b/include/video/st7735fb.h
 @@ -36,6 +36,8 @@ struct st7735fb_par {
@@ -139,5 +139,5 @@ index 250f036..e99cd05 100644
  
  struct st7735fb_platform_data {
 -- 
-1.7.10
+1.7.10.4
 

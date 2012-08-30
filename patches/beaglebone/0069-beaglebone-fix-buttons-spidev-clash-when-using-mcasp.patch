@@ -1,7 +1,7 @@
-From 7d21db8123ce56088e4128523a9625fe7f29c9a9 Mon Sep 17 00:00:00 2001
+From abdb4e0c58fc360c00ac5d9610df8e558ea87afc Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Wed, 6 Jun 2012 11:20:21 +0200
-Subject: [PATCH 69/79] beaglebone: fix buttons/spidev clash when using
+Subject: [PATCH 69/87] beaglebone: fix buttons/spidev clash when using
  mcasp0_axr0.gpio3_16
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
@@ -10,7 +10,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index d83431a..15ee8af 100644
+index b0d8e7a..10bc007 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -1051,12 +1051,11 @@ static void volume_keys_init(int evm_id, int profile)
@@ -34,7 +34,7 @@ index d83431a..15ee8af 100644
 @@ -2738,6 +2737,7 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		pr_info("BeagleBone cape: Registering gpio-keys for LCD cape\n");
  		beaglebone_lcd7_keys_init(0,0);
- 		
+ 
 +		beaglebone_spi1_free = 0;
  		// A1 or newer
  		beaglebone_leds_free = 0;

@@ -1,17 +1,17 @@
-From 5cb1c62ee60d95c859ad9b4d288ff7758ce3ff18 Mon Sep 17 00:00:00 2001
+From b76fb3865aa2cbc71adabb9ee881c772f417178e Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Wed, 23 May 2012 15:51:12 +0200
-Subject: [PATCH 63/63] beaglebone: dvi cape audio hacks
+Subject: [PATCH 63/87] beaglebone: dvi cape audio hacks
 
 ---
- arch/arm/mach-omap2/board-am335xevm.c |   72 ++++++++++++++++++++++++++-------
+ arch/arm/mach-omap2/board-am335xevm.c |   70 +++++++++++++++++++++++++++------
  arch/arm/mach-omap2/devices.c         |    2 +-
  sound/soc/codecs/tlv320aic3x.c        |    2 +-
  sound/soc/davinci/davinci-evm.c       |    7 ++--
- 4 files changed, 64 insertions(+), 19 deletions(-)
+ 4 files changed, 63 insertions(+), 18 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index e8ce381..1f2d1fd 100644
+index 50dc59f..915a764 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -43,6 +43,8 @@
@@ -115,16 +115,14 @@ index e8ce381..1f2d1fd 100644
  static const char* cape_pins[] = {
  /*
    From SRM RevA5.0.1:
-@@ -2567,7 +2617,8 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
- 		
+@@ -2567,6 +2617,7 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
+ 
  		beaglebone_leds_free = 0;
  		dvileds_init(0,0);
--		
 +		mcasp0_init(0,0);
-+	
+ 
  		if (!strncmp("00A1", cape_config.version, 4) || !strncmp("000A", cape_config.version, 4)) {
  			pr_info("BeagleBone cape: DVI init for revision A1 or older\n");
- 			setup_pin_mux(dvia1_pin_mux);
 @@ -2715,6 +2766,9 @@ static struct at24_platform_data cape_eeprom_info = {
  };
  
@@ -173,7 +171,7 @@ index 9e029da..41c9b0f 100644
  }
  
 diff --git a/sound/soc/codecs/tlv320aic3x.c b/sound/soc/codecs/tlv320aic3x.c
-index d0dbac1..fc32b7f 100644
+index cdb473c..5567756 100644
 --- a/sound/soc/codecs/tlv320aic3x.c
 +++ b/sound/soc/codecs/tlv320aic3x.c
 @@ -52,7 +52,7 @@
@@ -213,5 +211,5 @@ index f6a62c3..7ad7b37 100644
  	platform_set_drvdata(evm_snd_device, evm_snd_dev_data);
  	ret = platform_device_add(evm_snd_device);
 -- 
-1.7.10
+1.7.10.4
 

@@ -1,7 +1,7 @@
-From d277348759b085e976dd7f35d9bc3b68d40bd347 Mon Sep 17 00:00:00 2001
+From 2c823ececb4e79817a43434fd38a6075c6caed01 Mon Sep 17 00:00:00 2001
 From: Bas Laarhoven <sjml@xs4all.nl>
 Date: Sun, 13 May 2012 18:14:22 +0200
-Subject: [PATCH 52/56] Implemented Bone Cape configuration from EEPROM. Only
+Subject: [PATCH 52/87] Implemented Bone Cape configuration from EEPROM. Only
  used for BEBOPR cape for now.
 
 Signed-off-by: Bas Laarhoven <sjml@xs4all.nl>
@@ -12,7 +12,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  2 files changed, 318 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index c6ec997..7fb8295 100644
+index 458c658..aa4f72c 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -2231,6 +2231,304 @@ static void tt3201_init(int evm_id, int profile)
@@ -119,15 +119,15 @@ index c6ec997..7fb8295 100644
 +*/
 +	struct {
 +		uint16_t    mux             : 3;
-+	  	uint16_t    pull_enable     : 1;
++		uint16_t    pull_enable     : 1;
 +		uint16_t    pull_up         : 1;
-+	  	uint16_t    rx_enable       : 1;
++		uint16_t    rx_enable       : 1;
 +		uint16_t    slew_rate       : 1;
-+	  	uint16_t    reserved        : 6;
-+	  	uint16_t    direction       : 2;
-+	  	uint16_t    used            : 1;
++		uint16_t    reserved        : 6;
++		uint16_t    direction       : 2;
++		uint16_t    used            : 1;
 +	};
-+  	uint16_t      value;
++	uint16_t      value;
 +} pin_def;
 +
 +#define DEBUG_EEPROM_CONFIG 0
@@ -139,14 +139,14 @@ index c6ec997..7fb8295 100644
 +	switch (setting.direction) {
 +	case 1:
 +	/* input */
-+	  	if (setting.pull_enable) {
++		if (setting.pull_enable) {
 +			if (setting.pull_up) {
-+			  	pin_setting = AM33XX_PIN_INPUT_PULLUP;
++				pin_setting = AM33XX_PIN_INPUT_PULLUP;
 +			} else {
-+			  	pin_setting = AM33XX_PIN_INPUT_PULLDOWN;
++				pin_setting = AM33XX_PIN_INPUT_PULLDOWN;
 +			}
 +		} else {
-+		  	pin_setting = AM33XX_PIN_INPUT;
++			pin_setting = AM33XX_PIN_INPUT;
 +		}
 +		if (!setting.rx_enable) {
 +#if DEBUG_EEPROM_CONFIG
@@ -156,14 +156,14 @@ index c6ec997..7fb8295 100644
 +		break;
 +	case 2:
 +	/* output */
-+	  	pin_setting = AM33XX_PIN_OUTPUT;
++		pin_setting = AM33XX_PIN_OUTPUT;
 +		break;
 +	case 3:
 +	/* bi-dir */
 +	default:
 +	/* reserved */
 +#if DEBUG_EEPROM_CONFIG
-+	  	pr_warning( "  pin ignored because it uses an unsupported mode: 0x%04x\n",
++		pr_warning( "  pin ignored because it uses an unsupported mode: 0x%04x\n",
 +			    setting.direction);
 +#endif
 +		return -1;
@@ -192,9 +192,9 @@ index c6ec997..7fb8295 100644
 +
 +	for (;;) {
 +		if (am33xx_mux_get_entry( index, &mux) < 0) {
-+		  	/* no more entries */
++			/* no more entries */
 +#if DEBUG_EEPROM_CONFIG
-+		  	pr_warning( "   configuration error, pin '%s' not found in mux database\n",
++			pr_warning( "   configuration error, pin '%s' not found in mux database\n",
 +				    pin_name);
 +#endif
 +			return NULL;
@@ -236,7 +236,7 @@ index c6ec997..7fb8295 100644
 +
 +	if (signal_name == NULL) {
 +#if DEBUG_EEPROM_CONFIG
-+	  	pr_warning( "    Configuration error, no signal found for pin '%s' in mode %d\n",
++		pr_warning( "    Configuration error, no signal found for pin '%s' in mode %d\n",
 +			    pin_name, eeprom_setting.mux);
 +#endif
 +		return -1;
@@ -246,16 +246,16 @@ index c6ec997..7fb8295 100644
 +	pr_info( "    setting pin '%s' to signal '%s'\n",
 +		 pin_name, signal_name);
 +#endif
-+  	l1 = strlen( pin_name);
++	l1 = strlen( pin_name);
 +	l2 = strlen( signal_name);
 +
 +	if (l1 + 1 + l2 + 1 > sizeof( full_name)) {
 +#if DEBUG_EEPROM_CONFIG
-+	  	pr_warning( "    Internal error, combined signal name too long\n");
++		pr_warning( "    Internal error, combined signal name too long\n");
 +#endif
 +		return -1;
 +	} else {
-+	  	memcpy( full_name, pin_name, l1);
++		memcpy( full_name, pin_name, l1);
 +		full_name[ l1] = '.';
 +		memcpy( full_name + l1 + 1, signal_name, l2);
 +		full_name[ l1 + 1 + l2] = '\0';
@@ -322,7 +322,7 @@ index c6ec997..7fb8295 100644
  	int ret;
 @@ -2280,6 +2578,12 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  	snprintf(tmp, sizeof(cape_config.partnumber) + 1, "%s", cape_config.partnumber);
- 	pr_info("BeagleBone cape partnumber: %s\n", tmp);   
+ 	pr_info("BeagleBone cape partnumber: %s\n", tmp);
  
 +	if (!strncmp( "BEBOPR", cape_config.name, 6)) {
 +		pr_info( "BeagleBone cape: initializing BEBOPR cape\n");
@@ -332,9 +332,9 @@ index c6ec997..7fb8295 100644
 +
  	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 15)) {
  		pr_info("BeagleBone cape: initializing DVI cape\n");
- 		
+ 
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
-index 72ac899..43c8989 100644
+index 879bc54..852f7f0 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
 +++ b/arch/arm/mach-omap2/mux33xx.c
 @@ -616,6 +616,20 @@ int __init am33xx_mux_init(struct omap_board_mux *board_subset)
@@ -359,5 +359,5 @@ index 72ac899..43c8989 100644
  int __init am33xx_mux_init(struct omap_board_mux *board_subset)
  {
 -- 
-1.7.10
+1.7.10.4
 

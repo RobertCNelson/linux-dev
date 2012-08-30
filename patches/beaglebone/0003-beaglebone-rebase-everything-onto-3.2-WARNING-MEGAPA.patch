@@ -1,7 +1,7 @@
-From 3f431131c38140cc627922ce18c2232176d37fb3 Mon Sep 17 00:00:00 2001
+From 3670b0543fc6af800dfa2e4cf4a592980b854615 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Mon, 30 Jan 2012 21:30:09 +0100
-Subject: [PATCH 03/56] beaglebone: rebase everything onto 3.2 - WARNING
+Subject: [PATCH 03/87] beaglebone: rebase everything onto 3.2 - WARNING
  MEGAPATCH
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
@@ -10,7 +10,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 415 insertions(+), 11 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 563bdf1..2741431 100644
+index bb92f5c..a8f3b49 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -19,6 +19,7 @@
@@ -218,7 +218,7 @@ index 563bdf1..2741431 100644
 +	{"lcd_vsync.lcd_vsync",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
 +	{"lcd_hsync.lcd_hsync",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
 +	{"lcd_pclk.lcd_pclk",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
-+	{"lcd_ac_bias_en.lcd_ac_bias_en", OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT}, 
++	{"lcd_ac_bias_en.lcd_ac_bias_en", OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
 +	{"gpmc_a2.gpio1_18", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, // Backlight
 +	{"ecap0_in_pwm0_out.gpio0_7", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT}, // AVDD_EN
 +	{NULL, 0},
@@ -330,10 +330,10 @@ index 563bdf1..2741431 100644
 +				"register LCD cape\n");
 +		return;
 +	}
-+	
++
 +	if (am33xx_register_lcdc(&bbtoys7_pdata))
 +		pr_info("Failed to register Beagleboardtoys 7\" LCD cape device\n");
-+	
++
 +	gpio_request(BEAGLEBONE_LCD_BL, "BONE_LCD_BL");
 +	gpio_direction_output(BEAGLEBONE_LCD_BL, 1);
 +	gpio_request(BEAGLEBONE_LCD_AVDD_EN, "BONE_LCD_AVDD_EN");
@@ -356,7 +356,7 @@ index 563bdf1..2741431 100644
 +				"register DVI adapter\n");
 +		return;
 +	}
-+	
++
 +	if (am33xx_register_lcdc(&dvi_pdata))
 +		pr_info("Failed to register BeagleBoardToys DVI cape\n");
 +	return;
@@ -377,7 +377,7 @@ index 563bdf1..2741431 100644
  	}
 +	if( gp_evm_revision == GP_EVM_ACTUALLY_BEAGLEBONE) {
 +		am335x_touchscreen_data.analog_input = 1;
-+		pr_info("TSC connected to BeagleBone\n");;	
++		pr_info("TSC connected to BeagleBone\n");;
 +	}
  	setup_pin_mux(tsc_pin_mux);
  
@@ -451,9 +451,8 @@ index 563bdf1..2741431 100644
 +	snprintf(manufacturer, sizeof(cape_config.manufacturer) + 1, "%s", cape_config.manufacturer);
 +	pr_info("BeagleBone cape: %s %s\n", manufacturer, name);
 +	snprintf(tmp, sizeof(cape_config.partnumber) + 1, "%s", cape_config.partnumber);
-+	pr_info("BeagleBone cape partnumber: %s\n", tmp);   
- 
--static struct i2c_board_info am335x_i2c_boardinfo2[] = {
++	pr_info("BeagleBone cape partnumber: %s\n", tmp);
++
 +	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 5)) {
 +			pr_info("BeagleBone cape: initializing DVI cape\n");
 +			dvi_init(0,0);
@@ -465,14 +464,14 @@ index 563bdf1..2741431 100644
 +		tsc_init(0,0);
 +		beaglebone_tsadcpins_free = 0;
 +	}
-+	
-+	
++
++
 +	if ((capecount > 3) && (beaglebone_tsadcpins_free == 1)) {
 +		pr_info("BeagleBone cape: exporting ADC pins to sysfs\n");
 +		bone_tsc_init(0,0);
 +		beaglebone_tsadcpins_free = 0;
 +	}
-+	
++
 +	return;
 +out:
 +	/*
@@ -484,7 +483,8 @@ index 563bdf1..2741431 100644
 +	beaglebone_cape_detected = false;
 +
 +}
-+
+ 
+-static struct i2c_board_info am335x_i2c_boardinfo2[] = {
 +static struct at24_platform_data cape_eeprom_info = {
 +        .byte_len       = (256*1024) / 8,
 +        .page_size      = 64,
@@ -559,5 +559,5 @@ index 563bdf1..2741431 100644
  	/* Beagle Bone has Micro-SD slot which doesn't have Write Protect pin */
  	am335x_mmc[0].gpio_wp = -EINVAL;
 -- 
-1.7.10
+1.7.10.4
 

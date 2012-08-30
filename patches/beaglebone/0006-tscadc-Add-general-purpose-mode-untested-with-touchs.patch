@@ -1,7 +1,7 @@
-From 06778391a55182d75eeca8ae0b42a047e23a8c99 Mon Sep 17 00:00:00 2001
+From 7856639c4778d182f6d941a8e40cd9c14e91c648 Mon Sep 17 00:00:00 2001
 From: Joel A Fernandes <joelagnel@ti.com>
 Date: Wed, 30 Nov 2011 15:00:40 +0100
-Subject: [PATCH 06/56] tscadc: Add general purpose mode, untested with
+Subject: [PATCH 06/87] tscadc: Add general purpose mode, untested with
  touchscreen functionality
 
 Signed-off-by: Joel A Fernandes <joelagnel@ti.com>
@@ -19,7 +19,7 @@ Conflicts:
  5 files changed, 178 insertions(+), 49 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index ba611c0..8f7ee0b 100644
+index d6b5798..a5f921c 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -2277,6 +2277,7 @@ static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
@@ -39,7 +39,7 @@ index ba611c0..8f7ee0b 100644
  };
  
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
-index 59e51e0..572ed16 100644
+index 5749d20..23391ef 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
 +++ b/arch/arm/mach-omap2/mux33xx.c
 @@ -584,6 +584,18 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
@@ -77,7 +77,7 @@ index 70a3012..348c8e5 100644
  #define AM33XX_CONTROL_PADCONF_AIN2_OFFSET			0x0B24
  #define AM33XX_CONTROL_PADCONF_AIN1_OFFSET			0x0B28
 diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
-index 835a0ba..c6dc6f0 100644
+index 835a0ba..e0d6cc6 100644
 --- a/drivers/input/touchscreen/ti_tscadc.c
 +++ b/drivers/input/touchscreen/ti_tscadc.c
 @@ -28,6 +28,8 @@
@@ -126,11 +126,11 @@ index 835a0ba..c6dc6f0 100644
 +	unsigned int	stepconfig = 0, delay = 0, chargeconfig = 0;
 +
 +	/*
-+ 	 * Step Configuration
-+ 	 * software-enabled continous mode
-+ 	 * 2 sample averaging
-+ 	 * sample channel 1 (SEL_INP mux bits = 0)
-+ 	 */
++	 * Step Configuration
++	 * software-enabled continous mode
++	 * 2 sample averaging
++	 * sample channel 1 (SEL_INP mux bits = 0)
++	 */
 +	stepconfig = TSCADC_STEPCONFIG_MODE_SWONESHOT |
 +		TSCADC_STEPCONFIG_2SAMPLES_AVG |
 +		(0x7 << 19);
@@ -141,7 +141,7 @@ index 835a0ba..c6dc6f0 100644
 +	tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY(10), delay);
 +
 +	/* Get the ball rolling, this will trigger the FSM to step through
-+ 	 * as soon as TSC_ADC_SS is turned on */
++	 * as soon as TSC_ADC_SS is turned on */
 +	tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB_GENERAL);
 +}
 +
@@ -168,7 +168,7 @@ index 835a0ba..c6dc6f0 100644
 +	if (status & TSCADC_IRQENB_FIFO0THRES) {
 +		fifo1count = tscadc_readl(ts_dev, TSCADC_REG_FIFO0CNT);
 +		printk("fifo 0 count = %d\n", fifo1count);
-+	
++
 +		for (i = 0; i < fifo1count; i++) {
 +			read_sample = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
 +			printk("sample: %d: %x\n", i, read_sample);
@@ -277,7 +277,7 @@ index 835a0ba..c6dc6f0 100644
  	clock_rate = clk_get_rate(clk);
 +
 +	/* clk_value of atleast 21MHz required
-+ 	 * Clock verified on BeagleBone to be 24MHz */
++	 * Clock verified on BeagleBone to be 24MHz */
 +
 +
  	clk_value = clock_rate / ADC_CLK;
@@ -402,5 +402,5 @@ index 2c547bb..850cd4b 100644
 +	int mode;
  };
 -- 
-1.7.10
+1.7.10.4
 

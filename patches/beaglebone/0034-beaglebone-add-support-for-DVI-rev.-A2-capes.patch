@@ -1,7 +1,7 @@
-From 6e161398e2e0bf0263c16cb6010950812af732e0 Mon Sep 17 00:00:00 2001
+From 1d8f1d1507d300e5af26b844215b2f3ec216434a Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Thu, 19 Apr 2012 14:23:06 +0200
-Subject: [PATCH 34/56] beaglebone: add support for DVI rev. A2 capes
+Subject: [PATCH 34/87] beaglebone: add support for DVI rev. A2 capes
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
@@ -9,11 +9,11 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 35 insertions(+), 115 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 6e7b203..e02c0b6 100644
+index 1144089..4c3b6b0 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -545,38 +545,6 @@ static struct pinmux_config batterycape_pin_mux[] = {
- 	
+ 
  /* Module pin mux for LCDC */
  static struct pinmux_config lcdc_pin_mux[] = {
 -	{"lcd_data0.lcd_data0",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT
@@ -195,7 +195,7 @@ index 6e7b203..e02c0b6 100644
  {
 +	setup_pin_mux(lcdc16_pin_mux);
  	setup_pin_mux(bbtoys35_pin_mux);
- 	
+ 
  	// we are being stupid and setting pixclock from here instead of da8xx-fb.c
 @@ -1618,13 +1526,12 @@ static void bbtoys35lcd_init(int evm_id, int profile)
  	return;
@@ -215,12 +215,12 @@ index 6e7b203..e02c0b6 100644
  	// we are being stupid and setting pixclock from here instead of da8xx-fb.c
  	if (conf_disp_pll(560000000)) {
 @@ -2218,8 +2125,21 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
- 	pr_info("BeagleBone cape partnumber: %s\n", tmp);   
+ 	pr_info("BeagleBone cape partnumber: %s\n", tmp);
  
  	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 15)) {
 -			pr_info("BeagleBone cape: initializing DVI cape\n");
 +		pr_info("BeagleBone cape: initializing DVI cape\n");
-+		
++
 +		if (!strncmp("00A1", cape_config.version, 4) || !strncmp("000A", cape_config.version, 4)) {
 +			pr_info("BeagleBone cape: DVI init for revision A1 or older\n");
 +			setup_pin_mux(dvia1_pin_mux);
@@ -238,5 +238,5 @@ index 6e7b203..e02c0b6 100644
  	if (!strncmp("BB-BONE-LCD7-01", cape_config.partnumber, 15)) {
  		pr_info("BeagleBone cape: initializing LCD cape\n");
 -- 
-1.7.10
+1.7.10.4
 

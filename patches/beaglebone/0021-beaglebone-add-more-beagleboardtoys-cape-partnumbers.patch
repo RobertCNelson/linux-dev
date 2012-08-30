@@ -1,21 +1,21 @@
-From 31494e5bbba418a35318febe42ecc33688919df7 Mon Sep 17 00:00:00 2001
+From e28d31720843f346935e4276f61aadb55bfd4821 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Mon, 19 Mar 2012 12:01:35 +0100
-Subject: [PATCH 21/56] beaglebone: add more beagleboardtoys cape partnumbers
+Subject: [PATCH 21/87] beaglebone: add more beagleboardtoys cape partnumbers
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |   25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap2/board-am335xevm.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index a8dfcdf..f854329 100644
+index 99064c4..a705214 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
-@@ -1947,11 +1947,34 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
+@@ -1947,6 +1947,29 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		beaglebone_tsadcpins_free = 0;
  	}
- 	
+ 
 +	if (!strncmp("BB-BONE-LCD3-01", cape_config.partnumber, 15)) {
 +		pr_info("BeagleBone cape: initializing LCD cape\n");
 +		bbtoys7lcd_init(0,0);
@@ -23,31 +23,25 @@ index a8dfcdf..f854329 100644
 +		tsc_init(0,0);
 +		beaglebone_tsadcpins_free = 0;
 +	}
-+	
++
 +	if (!strncmp("BB-BONE-VGA-01", cape_config.partnumber, 15)) {
 +		pr_info("BeagleBone cape: initializing VGA cape\n");
 +		dvi_init(0,0);
 +	}
-+	
++
 +	if (!strncmp("BB-BONE-BATT-01", cape_config.partnumber, 15)) {
 +		pr_info("BeagleBone cape: initializing battery cape\n");
 +		//foo_init(0,0);
 +	}
-+	
++
 +	if (!strncmp("BB-BONE-SERL", cape_config.partnumber, 12)) {
 +		pr_info("BeagleBone cape: initializing serial cape\n");
 +		//foo_init(0,0);
 +	}
-+	
++
  	if (!strncmp("TT3201-001", cape_config.partnumber, 10)) {
  		pr_info("BeagleBone cape: initializing CAN cape\n");
  		tt3201_init(0,0);
- 	}
--
-+	
- 	if ((capecount > 3) && (beaglebone_tsadcpins_free == 1)) {
- 		pr_info("BeagleBone cape: exporting ADC pins to sysfs\n");
- 		bone_tsc_init(0,0);
 -- 
-1.7.10
+1.7.10.4
 

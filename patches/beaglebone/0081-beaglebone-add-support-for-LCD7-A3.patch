@@ -1,14 +1,14 @@
-From b96039e0b744b29721794154c041fb24ffe88fac Mon Sep 17 00:00:00 2001
+From 32d1150ede06f79e77d474803507e1a0aae71709 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Tue, 24 Jul 2012 13:23:28 +0200
-Subject: [PATCH 81/83] beaglebone: add support for LCD7 A3
+Subject: [PATCH 81/87] beaglebone: add support for LCD7 A3
 
 ---
  arch/arm/mach-omap2/board-am335xevm.c |   93 ++++++++++++++++++++++++++++++++-
  1 file changed, 92 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 82020fc..0c305b6 100644
+index ede8a20..30f42e4 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -660,6 +660,12 @@ static struct pinmux_config bbtoys7a2_pin_mux[] = {
@@ -122,7 +122,7 @@ index 82020fc..0c305b6 100644
 +		} else if(!strncmp("00A3", cape_config.version, 4)) {
 +			setup_pin_mux(bbtoys7a3_pin_mux);
 +			gpio_request(BEAGLEBONE_LCD7A3_AVDD_EN, "BONE_LCD_AVDD_EN");
-+			gpio_direction_output(BEAGLEBONE_LCD7A3_AVDD_EN, 1);			
++			gpio_direction_output(BEAGLEBONE_LCD7A3_AVDD_EN, 1);
  		} else {
  			setup_pin_mux(bbtoys7_pin_mux);
  			gpio_request(BEAGLEBONE_LCD_AVDD_EN, "BONE_LCD_AVDD_EN");
@@ -136,7 +136,7 @@ index 82020fc..0c305b6 100644
 +		} else {
 +			beaglebone_lcd7_keys_init(0,0);
 +		}
- 		
+ 
  		beaglebone_spi1_free = 0;
  		// A1 or newer
 -- 

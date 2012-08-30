@@ -1,18 +1,18 @@
-From 56d6537c765af4c40d2a981761a89030e6b93810 Mon Sep 17 00:00:00 2001
+From 716764d16d4fb84490d43f3f6d7a9d67d79929dd Mon Sep 17 00:00:00 2001
 From: Alessandro Zummo <a.zummo@towertech.it>
 Date: Thu, 9 Feb 2012 12:46:52 +0100
-Subject: [PATCH 20/56] beaglebone: add support for Towertech TT3201 CAN cape
+Subject: [PATCH 20/87] beaglebone: add support for Towertech TT3201 CAN cape
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |   54 ++++++++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/board-am335xevm.c |   52 +++++++++++++++++++++++++++++++++
  arch/arm/mach-omap2/mux33xx.c         |    8 ++---
  drivers/net/can/dev.c                 |    8 ++---
- drivers/net/can/mcp251x.c             |   47 ++++++++++++++++++++++------
- 4 files changed, 98 insertions(+), 19 deletions(-)
+ drivers/net/can/mcp251x.c             |   47 ++++++++++++++++++++++-------
+ 4 files changed, 97 insertions(+), 18 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 3ba4bbc..a8dfcdf 100644
+index 4af4fe1..99064c4 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -40,6 +40,7 @@
@@ -84,21 +84,19 @@ index 3ba4bbc..a8dfcdf 100644
  static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context)
  {
  	capecount++;
-@@ -1899,7 +1947,11 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
+@@ -1899,6 +1947,10 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		beaglebone_tsadcpins_free = 0;
  	}
- 	
--	
+ 
 +	if (!strncmp("TT3201-001", cape_config.partnumber, 10)) {
 +		pr_info("BeagleBone cape: initializing CAN cape\n");
 +		tt3201_init(0,0);
 +	}
-+
+ 
  	if ((capecount > 3) && (beaglebone_tsadcpins_free == 1)) {
  		pr_info("BeagleBone cape: exporting ADC pins to sysfs\n");
- 		bone_tsc_init(0,0);
 diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
-index 0f71646..25dcedb 100644
+index 72ef7b8..30471f0 100644
 --- a/arch/arm/mach-omap2/mux33xx.c
 +++ b/arch/arm/mach-omap2/mux33xx.c
 @@ -312,16 +312,16 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
@@ -316,5 +314,5 @@ index 330140e..b3e231c 100644
  	}
  error_probe:
 -- 
-1.7.10
+1.7.10.4
 

@@ -1,19 +1,19 @@
-From cafd6ea254956de3d0d3ca6ce95c768f9af208bc Mon Sep 17 00:00:00 2001
+From 9eb98953e9f86a273daaa22a7de363aadb0f6afb Mon Sep 17 00:00:00 2001
 From: Bas Laarhoven <sjml@xs4all.nl>
 Date: Mon, 14 May 2012 14:31:37 +0200
-Subject: [PATCH 53/56] Replaced conditional debug code by pr_debug statements
+Subject: [PATCH 53/87] Replaced conditional debug code by pr_debug statements
  for cleaner code.
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |   91 +++++++++++++--------------------
- 1 file changed, 36 insertions(+), 55 deletions(-)
+ arch/arm/mach-omap2/board-am335xevm.c |   73 ++++++++++++---------------------
+ 1 file changed, 27 insertions(+), 46 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 7fb8295..d6a607a 100644
+index aa4f72c..8f0172a 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
-@@ -2323,23 +2323,23 @@ typedef union {
+@@ -2323,21 +2323,21 @@ typedef union {
    Bit 15     Pin is used or not: 0=Unused by Cape 1=Used by Cape
    Bit 14-13  Pin Direction: 10=Output 01=Input 11=BDIR
    Bit 12-7   Reserved
@@ -29,13 +29,13 @@ index 7fb8295..d6a607a 100644
  */
  	struct {
 -		uint16_t    mux             : 3;
--	  	uint16_t    pull_enable     : 1;
+-		uint16_t    pull_enable     : 1;
 -		uint16_t    pull_up         : 1;
--	  	uint16_t    rx_enable       : 1;
+-		uint16_t    rx_enable       : 1;
 -		uint16_t    slew_rate       : 1;
--	  	uint16_t    reserved        : 6;
--	  	uint16_t    direction       : 2;
--	  	uint16_t    used            : 1;
+-		uint16_t    reserved        : 6;
+-		uint16_t    direction       : 2;
+-		uint16_t    used            : 1;
 +		uint16_t    mux		    : 3;
 +		uint16_t    pull_enable	    : 1;
 +		uint16_t    pull_up	    : 1;
@@ -45,27 +45,10 @@ index 7fb8295..d6a607a 100644
 +		uint16_t    direction	    : 2;
 +		uint16_t    used	    : 1;
  	};
--  	uint16_t      value;
-+	uint16_t      value;
+ 	uint16_t      value;
  } pin_def;
- 
- #define DEBUG_EEPROM_CONFIG 0
-@@ -2351,39 +2351,33 @@ static int bone_io_get_mux_setting( pin_def setting)
- 	switch (setting.direction) {
- 	case 1:
- 	/* input */
--	  	if (setting.pull_enable) {
-+		if (setting.pull_enable) {
- 			if (setting.pull_up) {
--			  	pin_setting = AM33XX_PIN_INPUT_PULLUP;
-+				pin_setting = AM33XX_PIN_INPUT_PULLUP;
- 			} else {
--			  	pin_setting = AM33XX_PIN_INPUT_PULLDOWN;
-+				pin_setting = AM33XX_PIN_INPUT_PULLDOWN;
- 			}
- 		} else {
--		  	pin_setting = AM33XX_PIN_INPUT;
-+			pin_setting = AM33XX_PIN_INPUT;
+@@ -2361,9 +2361,7 @@ static int bone_io_get_mux_setting( pin_def setting)
+ 			pin_setting = AM33XX_PIN_INPUT;
  		}
  		if (!setting.rx_enable) {
 -#if DEBUG_EEPROM_CONFIG
@@ -75,16 +58,12 @@ index 7fb8295..d6a607a 100644
  		}
  		break;
  	case 2:
- 	/* output */
--	  	pin_setting = AM33XX_PIN_OUTPUT;
-+		pin_setting = AM33XX_PIN_OUTPUT;
- 		break;
- 	case 3:
+@@ -2374,16 +2372,12 @@ static int bone_io_get_mux_setting( pin_def setting)
  	/* bi-dir */
  	default:
  	/* reserved */
 -#if DEBUG_EEPROM_CONFIG
--	  	pr_warning( "  pin ignored because it uses an unsupported mode: 0x%04x\n",
+-		pr_warning( "  pin ignored because it uses an unsupported mode: 0x%04x\n",
 -			    setting.direction);
 -#endif
 +		pr_debug( "  pin ignored because it uses an unsupported mode: 0x%04x\n",
@@ -99,16 +78,14 @@ index 7fb8295..d6a607a 100644
  	switch (setting.mux) {
  	case 0: pin_setting |= OMAP_MUX_MODE0; break;
  	case 1: pin_setting |= OMAP_MUX_MODE1; break;
-@@ -2404,11 +2398,9 @@ static struct omap_mux* bone_io_pin_lookup( const char* pin_name)
- 
+@@ -2405,10 +2399,8 @@ static struct omap_mux* bone_io_pin_lookup( const char* pin_name)
  	for (;;) {
  		if (am33xx_mux_get_entry( index, &mux) < 0) {
--		  	/* no more entries */
+ 			/* no more entries */
 -#if DEBUG_EEPROM_CONFIG
--		  	pr_warning( "   configuration error, pin '%s' not found in mux database\n",
+-			pr_warning( "   configuration error, pin '%s' not found in mux database\n",
 -				    pin_name);
 -#endif
-+			/* no more entries */
 +			pr_debug( "   configuration error, pin '%s' not found in mux database\n",
 +				pin_name);
  			return NULL;
@@ -127,12 +104,12 @@ index 7fb8295..d6a607a 100644
  			return mux;
  		}
  		++index;
-@@ -2447,37 +2437,28 @@ static int bone_io_config_pin( const char* pin_name, pin_def eeprom_setting)
+@@ -2447,24 +2437,17 @@ static int bone_io_config_pin( const char* pin_name, pin_def eeprom_setting)
  	signal_name = mux->muxnames[ eeprom_setting.mux];
  
  	if (signal_name == NULL) {
 -#if DEBUG_EEPROM_CONFIG
--	  	pr_warning( "    Configuration error, no signal found for pin '%s' in mode %d\n",
+-		pr_warning( "    Configuration error, no signal found for pin '%s' in mode %d\n",
 -			    pin_name, eeprom_setting.mux);
 -#endif
 +		pr_debug( "    Configuration error, no signal found for pin '%s' in mode %d\n",
@@ -145,22 +122,18 @@ index 7fb8295..d6a607a 100644
 +	pr_debug( "    setting pin '%s' to signal '%s'\n",
  		 pin_name, signal_name);
 -#endif
--  	l1 = strlen( pin_name);
-+	l1 = strlen( pin_name);
+ 	l1 = strlen( pin_name);
  	l2 = strlen( signal_name);
  
  	if (l1 + 1 + l2 + 1 > sizeof( full_name)) {
 -#if DEBUG_EEPROM_CONFIG
--	  	pr_warning( "    Internal error, combined signal name too long\n");
+-		pr_warning( "    Internal error, combined signal name too long\n");
 -#endif
 +		pr_debug( "    Internal error, combined signal name too long\n");
  		return -1;
  	} else {
--	  	memcpy( full_name, pin_name, l1);
-+		memcpy( full_name, pin_name, l1);
- 		full_name[ l1] = '.';
- 		memcpy( full_name + l1 + 1, signal_name, l2);
- 		full_name[ l1 + 1 + l2] = '\0';
+ 		memcpy( full_name, pin_name, l1);
+@@ -2474,10 +2457,8 @@ static int bone_io_config_pin( const char* pin_name, pin_def eeprom_setting)
  		if (omap_mux_init_signal( full_name, pin_setting) < 0) {
  			return -1;
  		}
@@ -184,5 +157,5 @@ index 7fb8295..d6a607a 100644
  			}
  		} else {
 -- 
-1.7.10
+1.7.10.4
 

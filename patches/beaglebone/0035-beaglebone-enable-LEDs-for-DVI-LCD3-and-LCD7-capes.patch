@@ -1,7 +1,7 @@
-From 2add605d9396eba8857c89a746cb71ace875526f Mon Sep 17 00:00:00 2001
+From 7adac634321b296da442f2e878fd350b8ba30d4e Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Fri, 11 May 2012 13:08:24 +0200
-Subject: [PATCH 35/56] beaglebone: enable LEDs for DVI, LCD3 and LCD7 capes
+Subject: [PATCH 35/87] beaglebone: enable LEDs for DVI, LCD3 and LCD7 capes
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 131 insertions(+), 9 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index e02c0b6..8db33b9 100644
+index 4c3b6b0..5d48e0a 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -496,6 +496,7 @@ static bool beaglebone_cape_detected;
@@ -200,10 +200,10 @@ index e02c0b6..8db33b9 100644
 @@ -2127,6 +2241,9 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  	if (!strncmp("BB-BONE-DVID-01", cape_config.partnumber, 15)) {
  		pr_info("BeagleBone cape: initializing DVI cape\n");
- 		
+ 
 +		beaglebone_leds_free = 0;
 +		dvileds_init(0,0);
-+		
++
  		if (!strncmp("00A1", cape_config.version, 4) || !strncmp("000A", cape_config.version, 4)) {
  			pr_info("BeagleBone cape: DVI init for revision A1 or older\n");
  			setup_pin_mux(dvia1_pin_mux);
@@ -211,12 +211,12 @@ index e02c0b6..8db33b9 100644
  		beaglebone_tsadcpins_free = 0;
  		pr_info("BeagleBone cape: Registering gpio-keys for LCD cape\n");
  		beaglebone_lcd7_keys_init(0,0);
-+		
++
 +		// A1 or newer
 +		beaglebone_leds_free = 0;
 +		lcd7leds_init(0,0);
  	}
- 	
+ 
  	if (!strncmp("BB-BONE-LCD3-01", cape_config.partnumber, 15)) {
 @@ -2161,6 +2282,8 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		beaglebone_tsadcpins_free = 0;
@@ -225,7 +225,7 @@ index e02c0b6..8db33b9 100644
 +		beaglebone_leds_free = 0;
 +		lcd3leds_init(0,0);
  	}
- 	
+ 
  	if (!strncmp("BB-BONE-VGA-01", cape_config.partnumber, 14)) {
 @@ -2659,7 +2782,6 @@ static struct evm_dev_cfg beaglebone_dev_cfg[] = {
  	{usb1_init,	DEV_ON_BASEBOARD, PROFILE_NONE},
@@ -236,5 +236,5 @@ index e02c0b6..8db33b9 100644
  	{NULL, 0, 0},
  };
 -- 
-1.7.10
+1.7.10.4
 

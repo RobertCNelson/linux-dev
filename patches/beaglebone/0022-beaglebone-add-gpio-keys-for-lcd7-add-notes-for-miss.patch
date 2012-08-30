@@ -1,7 +1,7 @@
-From ccfaf918786e12c4a9352da39929a104da500eaf Mon Sep 17 00:00:00 2001
+From ba3ce9a2edbfcd939da64af98af06c65bcb055c9 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Mon, 19 Mar 2012 13:32:43 +0100
-Subject: [PATCH 22/56] beaglebone: add gpio-keys for lcd7, add notes for
+Subject: [PATCH 22/87] beaglebone: add gpio-keys for lcd7, add notes for
  missing functionality for other capes
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
@@ -10,7 +10,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 79 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index f854329..9e9cf5b 100644
+index a705214..6742fb0 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -994,6 +994,73 @@ static void volume_keys_init(int evm_id, int profile)
@@ -94,7 +94,7 @@ index f854329..9e9cf5b 100644
 +		pr_info("BeagleBone cape: Registering gpio-keys for LCD cape\n");
 +		beaglebone_lcd7_keys_init(0,0);
  	}
- 	
+ 
  	if (!strncmp("BB-BONE-LCD3-01", cape_config.partnumber, 15)) {
 @@ -1953,6 +2022,10 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		pr_info("BeagleBone cape: initializing LCD cape touchscreen\n");
@@ -105,17 +105,17 @@ index f854329..9e9cf5b 100644
 +		// gpio3_19 -> button
 +		// gpio1_28 -> button
  	}
- 	
+ 
  	if (!strncmp("BB-BONE-VGA-01", cape_config.partnumber, 15)) {
 @@ -1962,11 +2035,17 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
- 	
+ 
  	if (!strncmp("BB-BONE-BATT-01", cape_config.partnumber, 15)) {
  		pr_info("BeagleBone cape: initializing battery cape\n");
 +		// gpio1_6, P9_15 lowbat output
 +		// AIN4, P9_33 vbat
  		//foo_init(0,0);
  	}
- 	
+ 
  	if (!strncmp("BB-BONE-SERL", cape_config.partnumber, 12)) {
  		pr_info("BeagleBone cape: initializing serial cape\n");
 +		// 01 -> CAN
@@ -124,7 +124,7 @@ index f854329..9e9cf5b 100644
 +		// 04 -> RS485
  		//foo_init(0,0);
  	}
- 	
+ 
 -- 
-1.7.10
+1.7.10.4
 

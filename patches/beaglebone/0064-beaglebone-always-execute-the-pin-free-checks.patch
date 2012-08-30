@@ -1,17 +1,17 @@
-From e05a9f77459e70622349273c7a2b92aec251a2e3 Mon Sep 17 00:00:00 2001
+From a1f13998f73f7456755f60ce92d4de53cb4356d1 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Wed, 23 May 2012 17:39:12 +0200
-Subject: [PATCH 64/68] beaglebone: always execute the pin free checks
+Subject: [PATCH 64/87] beaglebone: always execute the pin free checks
 
 This code needs to run when there are no capes and when there are capes present.
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ arch/arm/mach-omap2/board-am335xevm.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 1f2d1fd..da6020b 100644
+index 915a764..70092ea 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -2589,7 +2589,7 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
@@ -47,8 +47,8 @@ index 1f2d1fd..da6020b 100644
 +			pr_info("BeagleBone cape: initializing w1-gpio\n");
  			bonew1_gpio_init(0,0);
  		}
--	}	
--	
+ 	}
+-
 -	return;
 -out:
 -	/*
@@ -59,10 +59,9 @@ index 1f2d1fd..da6020b 100644
 -	pr_err("Could not detect BeagleBone cape properly\n");
 -	beaglebone_cape_detected = false;
 -
-+	}
  }
  
  static struct at24_platform_data cape_eeprom_info = {
 -- 
-1.7.10
+1.7.10.4
 

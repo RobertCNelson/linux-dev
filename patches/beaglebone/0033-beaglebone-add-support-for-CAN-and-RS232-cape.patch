@@ -1,7 +1,7 @@
-From 0b3f037f58793ebd3aa530324105e0b817b6eb06 Mon Sep 17 00:00:00 2001
+From 14d2b9dd6648ac4cf3757326db0ac95b76660afa Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Fri, 4 May 2012 13:19:45 +0200
-Subject: [PATCH 33/56] beaglebone: add support for CAN and RS232 cape
+Subject: [PATCH 33/87] beaglebone: add support for CAN and RS232 cape
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 30 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 717bb8c..6e7b203 100644
+index db279cd..1144089 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -953,6 +953,18 @@ static struct pinmux_config tt3201_pin_mux[] = {
@@ -34,7 +34,7 @@ index 717bb8c..6e7b203 100644
 @@ -2250,12 +2262,24 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		#endif
  	}
- 	
+ 
 -	if (!strncmp("BB-BONE-SERL", cape_config.partnumber, 12)) {
 -		pr_info("BeagleBone cape: initializing serial cape\n");
 -		// 01 -> CAN
@@ -61,7 +61,7 @@ index 717bb8c..6e7b203 100644
 +		pr_info("BeagleBone cape: not initializing RS485 cape\n");
  		//foo_init(0,0);
  	}
- 	
+ 
 -- 
-1.7.10
+1.7.10.4
 

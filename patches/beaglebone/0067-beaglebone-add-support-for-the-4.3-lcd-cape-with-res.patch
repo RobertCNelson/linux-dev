@@ -1,7 +1,7 @@
-From 17aeb6b8b6486633ca79603ee939259484463e83 Mon Sep 17 00:00:00 2001
+From 15ee72582e797204d2d9cf11817e184d27988ccb Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Tue, 29 May 2012 14:12:44 +0200
-Subject: [PATCH 67/79] beaglebone: add support for the 4.3" lcd cape with
+Subject: [PATCH 67/87] beaglebone: add support for the 4.3" lcd cape with
  resistive touchscreen
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
@@ -10,7 +10,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 40 insertions(+), 8 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index da6020b..e360b22 100644
+index 70092ea..2d09364 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -272,6 +272,12 @@ struct da8xx_lcdc_platform_data bbtoys35_pdata = {
@@ -27,7 +27,7 @@ index da6020b..e360b22 100644
  	WVGA,
  	16,
 @@ -562,14 +568,14 @@ static struct pinmux_config batterycape_pin_mux[] = {
- 	
+ 
  /* Module pin mux for LCDC */
  static struct pinmux_config lcdc_pin_mux[] = {
 -	{"gpmc_ad8.lcd_data16",		OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT},
@@ -57,28 +57,27 @@ index da6020b..e360b22 100644
 +{
 +	setup_pin_mux(lcdc16_pin_mux);
 +	setup_pin_mux(lcdc_pin_mux);
-+	
++
 +	// we are being stupid and setting pixclock from here instead of da8xx-fb.c
 +	if (conf_disp_pll(18000000)) {
 +		pr_info("Failed to set pixclock to 18000000, not attempting to"
 +				"register LCD cape\n");
 +		return;
 +	}
-+	
++
 +	if (am33xx_register_lcdc(&bbtoys43_pdata))
 +		pr_info("Failed to register Beagleboardtoys 4.3\" LCD cape device\n");
-+	
++
 +	return;
 +}
 +
  #define BEAGLEBONEDVI_PDn_A1  GPIO_TO_PIN(1, 7)
  #define BEAGLEBONEDVI_PDn_A2  GPIO_TO_PIN(1, 31)
  
-@@ -2672,6 +2696,14 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
- 		beaglebone_leds_free = 0;
+@@ -2673,6 +2697,14 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		lcd3leds_init(0,0);
  	}
-+
+ 
 +	if (!strncmp("BB-BONE-LCD4-01", cape_config.partnumber, 15)) {
 +		pr_info("BeagleBone cape: initializing LCD cape\n");
 +		bbtoys43lcd_init(0,0);
@@ -86,9 +85,10 @@ index da6020b..e360b22 100644
 +		tsc_init(0,0);
 +		beaglebone_tsadcpins_free = 0;
 +	}
- 	
++
  	if (!strncmp("BB-BONE-VGA-01", cape_config.partnumber, 14)) {
  		pr_info("BeagleBone cape: initializing VGA cape\n");
+ 		dvi_init(0,0);
 -- 
 1.7.10.4
 

@@ -1,7 +1,7 @@
-From 74f652211d87ab0cebd5050c39f68227d677c09f Mon Sep 17 00:00:00 2001
+From 68da2408f136450f53dc7d98da39138fe62785af Mon Sep 17 00:00:00 2001
 From: Dan Aizenstros <daizenstros@quicklogic.com>
 Date: Fri, 29 Jun 2012 13:57:49 -0400
-Subject: [PATCH 72/79] beaglebone: add support for QuickLogic Camera
+Subject: [PATCH 72/87] beaglebone: add support for QuickLogic Camera
  interface on camera cape
 
 Signed-off-by: Dan Aizenstros <daizenstros@quicklogic.com>
@@ -12,15 +12,15 @@ Signed-off-by: Dan Aizenstros <daizenstros@quicklogic.com>
  drivers/media/video/Kconfig                   |    7 +
  drivers/media/video/Makefile                  |    2 +
  drivers/media/video/cssp_camera/Makefile      |    3 +
- drivers/media/video/cssp_camera/cssp_camera.c | 1119 +++++++++++++++++++++++++
+ drivers/media/video/cssp_camera/cssp_camera.c | 1118 +++++++++++++++++++++++++
  drivers/media/video/cssp_camera/cssp_camera.h |  148 ++++
- 8 files changed, 1478 insertions(+), 9 deletions(-)
+ 8 files changed, 1477 insertions(+), 9 deletions(-)
  create mode 100644 drivers/media/video/cssp_camera/Makefile
  create mode 100644 drivers/media/video/cssp_camera/cssp_camera.c
  create mode 100644 drivers/media/video/cssp_camera/cssp_camera.h
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index d2481af..22a740f 100644
+index 97855f7..97d90f9 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -65,6 +65,10 @@
@@ -330,10 +330,10 @@ index 0000000..d85a84e
 +obj-$(CONFIG_VIDEO_QL_CAMIF) += cssp_camera.o
 diff --git a/drivers/media/video/cssp_camera/cssp_camera.c b/drivers/media/video/cssp_camera/cssp_camera.c
 new file mode 100644
-index 0000000..39aa003
+index 0000000..dd59e9e
 --- /dev/null
 +++ b/drivers/media/video/cssp_camera/cssp_camera.c
-@@ -0,0 +1,1119 @@
+@@ -0,0 +1,1118 @@
 +/*
 + * cssp-camera driver
 + *
@@ -1452,7 +1452,6 @@ index 0000000..39aa003
 +MODULE_LICENSE("GPLv2");
 +MODULE_AUTHOR("Dan Aizenstros, Damian Eppel, Przemek Szewczyk");
 +MODULE_DESCRIPTION("QuickLogic Camera Interface driver");
-+
 diff --git a/drivers/media/video/cssp_camera/cssp_camera.h b/drivers/media/video/cssp_camera/cssp_camera.h
 new file mode 100644
 index 0000000..d018ca1

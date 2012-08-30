@@ -1,7 +1,7 @@
-From 9d2555b0f57592097ab46476e4b412d2678d9a6e Mon Sep 17 00:00:00 2001
+From 7ee3257645b9207079a1cf6ae89ae271e87a8fc4 Mon Sep 17 00:00:00 2001
 From: Matt Porter <mporter@ti.com>
 Date: Mon, 21 Nov 2011 12:55:23 -0500
-Subject: [PATCH 18/56] st7735fb: WIP framebuffer driver supporting Adafruit
+Subject: [PATCH 18/87] st7735fb: WIP framebuffer driver supporting Adafruit
  1.8" SPI LCD
 
 Signed-off-by: Matt Porter <mporter@ti.com>
@@ -10,8 +10,8 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  drivers/video/Kconfig    |   11 +
  drivers/video/Makefile   |    1 +
  drivers/video/st7735fb.c |  516 ++++++++++++++++++++++++++++++++++++++++++++++
- include/video/st7735fb.h |   86 ++++++++
- 4 files changed, 614 insertions(+)
+ include/video/st7735fb.h |   82 ++++++++
+ 4 files changed, 610 insertions(+)
  create mode 100644 drivers/video/st7735fb.c
  create mode 100644 include/video/st7735fb.h
 
@@ -51,7 +51,7 @@ index 9b9d8ff..c6d9851 100644
  obj-$(CONFIG_FB_UVESA)            += uvesafb.o
 diff --git a/drivers/video/st7735fb.c b/drivers/video/st7735fb.c
 new file mode 100644
-index 0000000..500cc88
+index 0000000..32b28af
 --- /dev/null
 +++ b/drivers/video/st7735fb.c
 @@ -0,0 +1,516 @@
@@ -181,12 +181,12 @@ index 0000000..500cc88
 +};
 +
 +static struct fb_fix_screeninfo st7735fb_fix __devinitdata = {
-+	.id =		"ST7735", 
++	.id =		"ST7735",
 +	.type =		FB_TYPE_PACKED_PIXELS,
 +	.visual =	FB_VISUAL_PSEUDOCOLOR,
 +	.xpanstep =	0,
 +	.ypanstep =	0,
-+	.ywrapstep =	0, 
++	.ywrapstep =	0,
 +	.line_length =	WIDTH*BPP/8,
 +	.accel =	FB_ACCEL_NONE,
 +};
@@ -356,7 +356,7 @@ index 0000000..500cc88
 +	st7735fb_update_display(par);
 +}
 +
-+void st7735fb_copyarea(struct fb_info *info, const struct fb_copyarea *area) 
++void st7735fb_copyarea(struct fb_info *info, const struct fb_copyarea *area)
 +{
 +	struct st7735fb_par *par = info->par;
 +
@@ -365,7 +365,7 @@ index 0000000..500cc88
 +	st7735fb_update_display(par);
 +}
 +
-+void st7735fb_imageblit(struct fb_info *info, const struct fb_image *image) 
++void st7735fb_imageblit(struct fb_info *info, const struct fb_image *image)
 +{
 +	struct st7735fb_par *par = info->par;
 +
@@ -527,7 +527,7 @@ index 0000000..500cc88
 +
 +	if (info) {
 +		unregister_framebuffer(info);
-+		vfree(info->screen_base);	
++		vfree(info->screen_base);
 +		framebuffer_release(info);
 +	}
 +
@@ -573,10 +573,10 @@ index 0000000..500cc88
 +MODULE_LICENSE("GPL");
 diff --git a/include/video/st7735fb.h b/include/video/st7735fb.h
 new file mode 100644
-index 0000000..250f036
+index 0000000..6d3f68b
 --- /dev/null
 +++ b/include/video/st7735fb.h
-@@ -0,0 +1,86 @@
+@@ -0,0 +1,82 @@
 +/*
 + * linux/include/video/st7735fb.h -- FB driver for ST7735 LCD controller
 + *
@@ -659,10 +659,6 @@ index 0000000..250f036
 +#define ST7735_GMCTRP1	0xE0
 +#define ST7735_GMCTRN1	0xE1
 +#define ST7735_PWCTR6	0xFC
-+
-+
-+
-+
 -- 
-1.7.10
+1.7.10.4
 

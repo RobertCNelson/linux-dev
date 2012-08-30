@@ -1,7 +1,7 @@
-From 96b8c76fabbc898d8bb850208b26aac160513632 Mon Sep 17 00:00:00 2001
+From 930f2ab208faf55514abd516d178047106f82693 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Thu, 26 Jul 2012 22:30:34 +0200
-Subject: [PATCH 82/83] beaglebone: add rudimentary support for eMMC cape
+Subject: [PATCH 82/87] beaglebone: add rudimentary support for eMMC cape
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
  1 file changed, 31 insertions(+), 11 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 0c305b6..579df6c 100644
+index 30f42e4..f2ee11f 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -913,6 +913,7 @@ static struct pinmux_config mmc1_pin_mux[] = {
@@ -57,19 +57,19 @@ index 0c305b6..579df6c 100644
  static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context)
  {
  	int ret;
-@@ -3102,6 +3124,12 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
- 		#endif
+@@ -3103,6 +3125,12 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		*/
  	}
-+
+ 
 +	if (!strncmp("BB-BONE-eMMC1-01", cape_config.partnumber, 15)) {
 +		pr_info("BeagleBone cape: initializing eMMC cape\n");
 +		beaglebone_w1gpio_free = 0;
 +		emmc_bone_init(0,0);
 +	}
- 	
++
  	if (!strncmp("BB-BONE-SERL-01", cape_config.partnumber, 15)) {
  		pr_info("BeagleBone cape: initializing CAN cape\n");
+ 		setup_pin_mux(uart1dcan1_pin_mux);
 @@ -3147,6 +3175,7 @@ out:
  	beaglebone_cape_detected = false;
  out2:

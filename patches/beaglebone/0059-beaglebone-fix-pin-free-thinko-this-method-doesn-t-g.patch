@@ -1,16 +1,16 @@
-From b68934e8fc344f57bd1cada89b54aa81fbf1a167 Mon Sep 17 00:00:00 2001
+From 04e6039d9c4fd48528a9839aba7d5c749325ccab Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Tue, 22 May 2012 11:00:00 +0200
-Subject: [PATCH 59/63] beaglebone: fix pin-free thinko, this method doesn't
+Subject: [PATCH 59/87] beaglebone: fix pin-free thinko, this method doesn't
  get called when there's a cape at 0x57
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
- arch/arm/mach-omap2/board-am335xevm.c |   46 +++++++++++++++------------------
- 1 file changed, 21 insertions(+), 25 deletions(-)
+ arch/arm/mach-omap2/board-am335xevm.c |   42 +++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 23 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index b079279..dfe8df5 100644
+index 87997c0..2798f01 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
 @@ -2542,25 +2542,6 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
@@ -39,17 +39,14 @@ index b079279..dfe8df5 100644
  		return;
  	}
  
-@@ -2693,12 +2674,27 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
- 		pr_info("BeagleBone cape: recognized Camera cape\n");
+@@ -2694,10 +2675,25 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
  		beaglebone_w1gpio_free = 0;
  	}
--	
+ 
 -	if ((capecount > 3) && (beaglebone_tsadcpins_free == 1)) {
 -		pr_info("BeagleBone cape: exporting ADC pins to sysfs\n");
 -		bone_tsc_init(0,0);
 -		beaglebone_tsadcpins_free = 0;
--	}
-+
 +	if (capecount > 3) {
 +		if (beaglebone_tsadcpins_free == 1) {
 +			pr_info("BeagleBone cape: exporting ADC pins to sysfs\n");
@@ -69,10 +66,9 @@ index b079279..dfe8df5 100644
 +		if(beaglebone_w1gpio_free == 1) {
 +			bonew1_gpio_init(0,0);
 +		}
-+	}	
- 	
+ 	}
+ 
  	return;
- out:
 -- 
-1.7.10
+1.7.10.4
 
