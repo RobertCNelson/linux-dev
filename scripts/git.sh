@@ -64,7 +64,7 @@ git_kernel () {
 	pwd
 	cat .git/config
 	echo "Updating LINUX_GIT tree via: git fetch"
-	git fetch || true
+	git fetch --all || true
 	cd -
 
 	if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
