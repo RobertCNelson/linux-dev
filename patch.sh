@@ -45,13 +45,12 @@ echo "bugs and trivial stuff"
 
 function am33x-cleanup {
 	echo "[git] am33x-cleanup"
-	echo "pulling ti_am33x_v3.2-staging_3"
-	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_3
+	echo "pulling ti_am33x_v3.2-staging_4"
+	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_4
 
 	#place older when diffing...
-	git am "${DIR}/patches/3.2.25/0073-Linux-3.2.25.patch"
+	git am "${DIR}/patches/3.2.28/0038-Linux-3.2.28.patch"
 
-	git am "${DIR}/patches/led/0001-leds-heartbeat-stop-on-shutdown-reboot-or-panic.patch"
 	git am "${DIR}/patches/led/0002-led-triggers-rename-trigger-to-trig-for-unified-nami.patch"
 	git am "${DIR}/patches/led/0003-led-triggers-create-a-trigger-for-CPU-activity.patch"
 	git am "${DIR}/patches/led/0004-ARM-use-new-LEDS-CPU-trigger-stub-to-replace-old-one.patch"
@@ -71,6 +70,14 @@ function am33x-cleanup {
 	git am "${DIR}/patches/libertas/0014-libertas-CS-convert-to-asynchronous-firmware-loading.patch"
 	git am "${DIR}/patches/libertas/0015-libertas-add-missing-include.patch"
 	git am "${DIR}/patches/libertas/0016-remove-debug-msgs-due-to-missing-in_interrupt.patch"
+
+	git am "${DIR}/patches/pwm/0001-PWM-ecap-Correct-configuration-of-polarity.patch"
+	git am "${DIR}/patches/pwm/0002-ARM-OMAP2-am335x-mux-add-ecap2_in_pwm2_out-string-en.patch"
+	git am "${DIR}/patches/pwm/0003-ARM-OMAP2-AM335x-hwmod-Remove-PRCM-entries-for-PWMSS.patch"
+	git am "${DIR}/patches/pwm/0004-PWM-ecap-Resets-the-PWM-output-to-low-on-stop.patch"
+	git am "${DIR}/patches/pwm/0005-PWM-ecap-Fix-for-throwing-PWM-output-before-running.patch"
+	git am "${DIR}/patches/pwm/0006-pwm-ehrpwm-Configure-polarity-on-pwm_start.patch"
+
 	git am "${DIR}/patches/beaglebone/0001-f_rndis-HACK-around-undefined-variables.patch"
 	git am "${DIR}/patches/beaglebone/0002-da8xx-fb-add-DVI-support-for-beaglebone.patch"
 	git am "${DIR}/patches/beaglebone/0003-beaglebone-rebase-everything-onto-3.2-WARNING-MEGAPA.patch"
@@ -154,6 +161,12 @@ function am33x-cleanup {
 	git am "${DIR}/patches/beaglebone/0081-beaglebone-add-support-for-LCD7-A3.patch"
 	git am "${DIR}/patches/beaglebone/0082-beaglebone-add-rudimentary-support-for-eMMC-cape.patch"
 	git am "${DIR}/patches/beaglebone/0083-beaglebone-add-extra-partnumber-for-camera-cape.patch"
+	git am "${DIR}/patches/beaglebone/0084-beaglebone-cssp_camera-driver-cleanup.patch"
+	git am "${DIR}/patches/beaglebone/0085-beaglebone-mux-camera-cape-orientation-pin-to-gpio.patch"
+	git am "${DIR}/patches/beaglebone/0086-board-am335xevm-Add-Beaglebone-Motor-Cape-Support.patch"
+	git am "${DIR}/patches/beaglebone/0087-mux33xx-Fix-MUXENTRYs-for-MCASP0_ACLKX-FSX-to-add-eh.patch"
+
+	git am "${DIR}/patches/led/0001-leds-heartbeat-stop-on-shutdown-reboot-or-panic.patch"
 
 	git am "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	git am "${DIR}/patches/beaglebone/0001-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
