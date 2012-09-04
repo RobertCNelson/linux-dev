@@ -35,7 +35,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -1 -o ${DIR}/patches/
+	git format-patch -4 -o ${DIR}/patches/
 	exit
 }
 
@@ -62,21 +62,18 @@ beagle () {
 	${git} "${DIR}/patches/beagle/expansion/0007-Beagle-expansion-add-beaglefpga.patch"
 	${git} "${DIR}/patches/beagle/expansion/0008-Enable-buddy-spidev.patch"
 
-	#v3.5: looks to be removed:
+	#v3.5: looks to be removed: (might want to revert it back in...)
 	#http://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=commit;h=b6e695abe710ee1ae248463d325169efac487e17
 	#git am "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
 
-	${git} "${DIR}/patches/beagle/0002-Turn-on-the-USB-regulator-on-Beagle-xM-explicitly.patch"
-	${git} "${DIR}/patches/beagle/0003-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
+	#Status: for meego guys..
+	${git} "${DIR}/patches/beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
 
-#	just use boot args...
-#	${git} "${DIR}/patches/beagle/0004-default-to-fifo-mode-5-for-old-musb-beagles.patch"
-
-	${git} "${DIR}/patches/beagle/0006-backlight-Add-TLC59108-backlight-control-driver.patch"
-	${git} "${DIR}/patches/beagle/0007-tlc59108-adjust-for-beagleboard-uLCD7.patch"
+	${git} "${DIR}/patches/beagle/0002-backlight-Add-TLC59108-backlight-control-driver.patch"
+	${git} "${DIR}/patches/beagle/0003-tlc59108-adjust-for-beagleboard-uLCD7.patch"
 
 	#Status: not for upstream
-	${git} "${DIR}/patches/beagle/0008-zeroMAP-Open-your-eyes.patch"
+	${git} "${DIR}/patches/beagle/0004-zeroMAP-Open-your-eyes.patch"
 }
 
 sprz319_erratum () {
