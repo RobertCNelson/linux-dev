@@ -83,11 +83,6 @@ sprz319_erratum () {
 	${git} "${DIR}/patches/sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
-devkit8000 () {
-	echo "Board Patches for: devkit8000"
-	${git} "${DIR}/patches/devkit8000/0001-arm-omap-devkit8000-for-lcd-use-samsung_lte_panel.patch"
-}
-
 panda () {
 	echo "Board Patches for: PandaBoard"
 	${git} "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
@@ -119,7 +114,6 @@ beagle
 #disabled as it breaks beagle c4...
 #sprz319_erratum
 
-devkit8000
 panda
 omap_fixes
 sgx
