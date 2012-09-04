@@ -92,10 +92,6 @@ panda () {
 	echo "Board Patches for: PandaBoard"
 	${git} "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
 	${git} "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
-#	in 3.6-rc1
-#	${git} "${DIR}/patches/panda/0003-staging-OMAP4-thermal-introduce-bandgap-temperature-.patch"
-#	${git} "${DIR}/patches/panda/0004-staging-omap-thermal-common-code-to-expose-driver-to.patch"
-#	${git} "${DIR}/patches/panda/0005-staging-omap-thermal-add-OMAP4-data-structures.patch"
 }
 
 omap_fixes () {
@@ -103,8 +99,6 @@ omap_fixes () {
 	${git} "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 	${git} "${DIR}/patches/omap_fixes/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
 	${git} "${DIR}/patches/omap_fixes/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
-#	in 3.6-rc1
-#	${git} "${DIR}/patches/omap_fixes/0004-only-call-smp_send_stop-on-SMP.patch"
 }
 
 sgx () {
