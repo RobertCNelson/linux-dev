@@ -72,38 +72,51 @@ beagle () {
 #	just use boot args...
 #	${git} "${DIR}/patches/beagle/0004-default-to-fifo-mode-5-for-old-musb-beagles.patch"
 
-	${git} "${DIR}/patches/beagle/0005-omap3_beagle-init-uart2-for-beagle-rev-AX-BX-only.patch"
 	${git} "${DIR}/patches/beagle/0006-backlight-Add-TLC59108-backlight-control-driver.patch"
 	${git} "${DIR}/patches/beagle/0007-tlc59108-adjust-for-beagleboard-uLCD7.patch"
+
+	#Status: not for upstream
 	${git} "${DIR}/patches/beagle/0008-zeroMAP-Open-your-eyes.patch"
 }
 
 sprz319_erratum () {
 	echo "sprz319 erratum 2.1"
+	#Breaks: Beagle C4, hardlocks on bootup...
+	#Status: no response from users:
+	#https://groups.google.com/forum/#!topic/beagleboard/m7DLkYMKNkg
 	${git} "${DIR}/patches/sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
 panda () {
 	echo "Board Patches for: PandaBoard"
+	#Status: not for upstream: push device tree version upstream...
 	${git} "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
+	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 }
 
 omap_fixes () {
 	echo "omap cherry pick fixes"
+	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
 	${git} "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
+	#Status: unknown: seem to be dropped after v3.4-rc-fixes request
 	${git} "${DIR}/patches/omap_fixes/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
 	${git} "${DIR}/patches/omap_fixes/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
 }
 
 sgx () {
 	echo "patches needed for external sgx bins"
+	#Status: TI 4.06.00.xx needs this
 	${git} "${DIR}/patches/sgx/0001-Revert-drm-kill-drm_sman.patch"
 }
 
 mainline_fixes () {
 	echo "mainline patches"
+	#Status: v2 Review:
+	#http://lists.infradead.org/pipermail/linux-arm-kernel/2012-August/112440.html
 	${git} "${DIR}/patches/mainline-fixes/0001-arm-add-definition-of-strstr-to-decompress.c.patch"
+	#Status:
+	#http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap.git;a=shortlog;h=refs/heads/devel-dt
 	${git} "${DIR}/patches/mainline-fixes/0002-ARM-omap-add-dtb-targets.patch"
 }
 
