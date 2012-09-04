@@ -120,11 +120,6 @@ omapdrm () {
 	${git} "${DIR}/patches/drm/0004-ARM-OMAP3-HWMOD-Add-omap_hwmod_class_sysconfig-for-d.patch"
 }
 
-dsp () {
-	echo "dsp patches"
-	${git} "${DIR}/patches/dsp/0001-dsp-add-memblock-include.patch"
-}
-
 sgx_mainline () {
 	echo "patches needed for external sgx bins"
 	${git} "${DIR}/patches/sgx/0001-Revert-drm-kill-drm_sman.patch"
@@ -147,7 +142,6 @@ devkit8000
 panda
 omap_fixes
 omapdrm
-dsp
 sgx_mainline
 mainline_fixes
 
