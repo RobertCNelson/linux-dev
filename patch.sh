@@ -48,8 +48,8 @@ echo "bugs and trivial stuff"
 
 function am33x-cleanup {
 	echo "[git] am33x-cleanup"
-	echo "pulling ti_am33x_v3.2-staging_4"
-	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_4
+	echo "pulling ti_am33x_v3.2-staging_5"
+	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_5
 
 	#place older when diffing...
 	${git} "${DIR}/patches/3.2.28/0038-Linux-3.2.28.patch"
