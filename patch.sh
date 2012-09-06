@@ -22,10 +22,14 @@
 
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
-# DIR=`pwd`
-
 git="git am"
 #git="git am --whitespace=fix"
+
+source ${DIR}/system.sh
+
+if [ "${RUN_BISECT}" ] ; then
+	git="git apply"
+fi
 
 echo "Starting patch.sh"
 
