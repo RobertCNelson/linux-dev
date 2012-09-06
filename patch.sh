@@ -25,7 +25,9 @@
 git="git am"
 #git="git am --whitespace=fix"
 
-source ${DIR}/system.sh
+if [ -f ${DIR}/system.sh ] ; then
+	source ${DIR}/system.sh
+fi
 
 if [ "${RUN_BISECT}" ] ; then
 	git="git apply"
