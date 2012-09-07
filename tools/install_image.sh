@@ -145,7 +145,7 @@ mmc_write_boot () {
 		sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
 	fi
 
-	if [ "x${ZRELADDR}" ] ; then
+	if [ "${ZRELADDR}" ] ; then
 		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
 	fi
 
