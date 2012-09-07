@@ -53,6 +53,21 @@ mmc_write_modules () {
 	sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${DIR}/deploy/disk"
 }
 
+mmc_write_image () {
+	if [ -f "${DIR}/deploy/disk/boot/uImage" ] ; then
+		echo "Looks like Angstrom:"
+		echo "-----------------------------"
+		if [ "x${ZRELADDR}" == "x" ] ; then
+			echo "ERROR: ZRELADDR is not defined in system.sh, can't install uImage to rootfs partition"
+			echo "-----------------------------"
+		else
+			echo "Installing uImage to rootfs partition"
+			echo "-----------------------------"
+			sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/boot/uImage"
+		fi
+	fi
+}
+
 mmc_find_rootfs () {
 	echo "Starting search for rootfs"
 	echo "-----------------------------"
@@ -72,6 +87,7 @@ mmc_find_rootfs () {
 			if [ -f "${DIR}/deploy/disk/etc/fstab" ] ; then
 				echo "Found /etc/fstab, using ${PART}"
 				echo "-----------------------------"
+				mmc_write_image
 				mmc_write_modules
 			fi
 
@@ -120,8 +136,6 @@ mmc_write_boot () {
 		sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
 	fi
 
-	sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
-
 	if [ -f "${DIR}/deploy/disk/zImage_bak" ] ; then
 		sudo rm -f "${DIR}/deploy/disk/zImage_bak" || true
 	fi
@@ -130,6 +144,7 @@ mmc_write_boot () {
 		sudo mv "${DIR}/deploy/disk/zImage" "${DIR}/deploy/disk/zImage_bak"
 	fi
 
+	#Assuming boot via zImage on first partition...
 	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/zImage"
 
 	cd "${DIR}/deploy/disk"
@@ -149,6 +164,9 @@ mmc_mount_boot () {
 		UNTAR="xfvo"
 		mmc_write_boot
 	elif sudo mount -t ext2 ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
+		echo "-----------------------------"
+		echo "So its not vfat, retrying with ext2"
+		echo "-----------------------------"
 		UNTAR="xfv"
 		mmc_write_boot
 	else
@@ -207,23 +225,19 @@ check_mmc () {
 if [ -f "${DIR}/system.sh" ] ; then
 	source ${DIR}/system.sh
 
-	if [ "x${ZRELADDR}" == "x" ] ; then
-		echo "ERROR: ZRELADDR is not defined in system.sh"
-	else
-		if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
-			KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
-			if [ "x${MMC}" == "x" ] ; then
-				echo "ERROR: MMC is not defined in system.sh"
-			else
-				unset PARTITION_PREFIX
-				if [[ "${MMC}" =~ "mmcblk" ]] ; then
-					PARTITION_PREFIX="p"
-				fi
-				check_mmc
-			fi
+	if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
+		KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
+		if [ "x${MMC}" == "x" ] ; then
+			echo "ERROR: MMC is not defined in system.sh"
 		else
-			echo "ERROR: Please run build_kernel.sh before running this script..."
+			unset PARTITION_PREFIX
+			if [[ "${MMC}" =~ "mmcblk" ]] ; then
+				PARTITION_PREFIX="p"
+			fi
+			check_mmc
 		fi
+	else
+		echo "ERROR: Please run build_kernel.sh before running this script..."
 	fi
 else
 	echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
