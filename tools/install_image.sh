@@ -63,6 +63,15 @@ mmc_write_image () {
 		else
 			echo "Installing uImage to rootfs partition"
 			echo "-----------------------------"
+
+			if [ -f "${DIR}/deploy/disk/boot/uImage_bak" ] ; then
+				sudo rm -f "${DIR}/deploy/disk/boot/uImage_bak" || true
+			fi
+
+			if [ -f "${DIR}/deploy/disk/boot/uImage" ] ; then
+				sudo mv "${DIR}/deploy/disk/boot/uImage" "${DIR}/deploy/disk/boot/uImage_bak"
+			fi
+
 			sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/boot/uImage"
 		fi
 	fi
