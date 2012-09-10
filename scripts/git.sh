@@ -64,7 +64,7 @@ git_kernel () {
 	pwd
 	cat .git/config
 	echo "Updating LINUX_GIT tree via: git fetch"
-	git fetch --all || true
+	git fetch || true
 	cd -
 
 	if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
@@ -73,6 +73,11 @@ git_kernel () {
 	fi
 
 	cd ${DIR}/KERNEL/
+
+	if [ "${RUN_BISECT}" ] ; then
+		git bisect reset || true
+	fi
+
 	#So we are now going to assume the worst, and create a new master branch
 	git am --abort || echo "git tree is clean..."
 	git add .
@@ -104,5 +109,6 @@ git_kernel () {
 }
 
 source ${DIR}/version.sh
+source ${DIR}/system.sh
 git_kernel
 

@@ -22,10 +22,16 @@
 
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
-# DIR=`pwd`
-
 git="git am"
 #git="git am --whitespace=fix"
+
+if [ -f ${DIR}/system.sh ] ; then
+	source ${DIR}/system.sh
+fi
+
+if [ "${RUN_BISECT}" ] ; then
+	git="git apply"
+fi
 
 echo "Starting patch.sh"
 
@@ -42,8 +48,8 @@ cleanup () {
 function bugs_trivial {
 echo "bugs and trivial stuff"
 
-	${git} < "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
-	${git} < "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
+	${git} "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
+	${git} "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
 }
 
 function am33x-cleanup {

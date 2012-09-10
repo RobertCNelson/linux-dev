@@ -30,8 +30,10 @@ function patch_kernel {
 	export DIR GIT_OPTS
 	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
-	git add .
-	git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
+	if [ ! "${RUN_BISECT}" ] ; then
+		git add .
+		git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
+	fi
 
 #Test Patches:
 #exit
@@ -174,6 +176,11 @@ if [ -e ${DIR}/system.sh ] ; then
 	fi
 
 	/bin/bash -e "${DIR}/scripts/git.sh" || { exit 1 ; }
+
+	if [ "${RUN_BISECT}" ] ; then
+		/bin/bash -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
+	fi
+
 	patch_kernel
 	copy_defconfig
 	make_menuconfig
