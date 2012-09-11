@@ -22,8 +22,8 @@
 
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
-git="git am"
-#git="git am --whitespace=fix"
+#git="git am"
+git="git am --whitespace=fix"
 
 if [ -f ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
@@ -41,7 +41,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -4 -o ${DIR}/patches/
+	git format-patch -6 -o ${DIR}/patches/
 	exit
 }
 
@@ -96,6 +96,13 @@ panda () {
 	${git} "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
 	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
+
+	#Status: https://lkml.org/lkml/2012/9/11/303
+	${git} "${DIR}/patches/panda/0003-staging-omap-thermal-Correct-checkpatch.pl-warnings.patch"
+	${git} "${DIR}/patches/panda/0004-staging-omap-thermal-remove-checkpatch.pl-warnings-o.patch"
+	${git} "${DIR}/patches/panda/0005-staging-omap-thermal-fix-polling-period-settings.patch"
+	${git} "${DIR}/patches/panda/0006-staging-omap-thermal-improve-conf-data-handling-and-.patch"
+	cleanup
 }
 
 omap_fixes () {
