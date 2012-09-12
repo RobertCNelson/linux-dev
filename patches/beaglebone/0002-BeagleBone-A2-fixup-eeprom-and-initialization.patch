@@ -1,4 +1,4 @@
-From 3322690654175c11cd2c19341415649dc60da243 Mon Sep 17 00:00:00 2001
+From d3c1f688e8f2fa6240da3d9ea4fba210efae1e9a Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 17 May 2012 16:02:29 -0500
 Subject: [PATCH 2/2] BeagleBone A2: fixup eeprom and initialization
@@ -9,10 +9,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
-index 3b533a2..dd29d97 100644
+index c582d6b..b839e4b 100644
 --- a/arch/arm/mach-omap2/board-am335xevm.c
 +++ b/arch/arm/mach-omap2/board-am335xevm.c
-@@ -539,6 +539,7 @@ unsigned int gigabit_enable = 1;
+@@ -540,6 +540,7 @@ unsigned int gigabit_enable = 1;
  static char am335x_mac_addr[EEPROM_NO_OF_MAC_ADDR][ETH_ALEN];
  
  #define AM335X_EEPROM_HEADER		0xEE3355AA
@@ -20,7 +20,7 @@ index 3b533a2..dd29d97 100644
  
  /* current profile if exists else PROFILE_0 on error */
  static u32 am335x_get_profile_selection(void)
-@@ -3609,12 +3610,13 @@ static struct evm_dev_cfg ip_phn_evm_dev_cfg[] = {
+@@ -3618,12 +3619,13 @@ static struct evm_dev_cfg ip_phn_evm_dev_cfg[] = {
  
  /* Beaglebone < Rev A3 */
  static struct evm_dev_cfg beaglebone_old_dev_cfg[] = {
@@ -35,7 +35,7 @@ index 3b533a2..dd29d97 100644
  	{NULL, 0, 0},
  };
  
-@@ -3706,6 +3708,11 @@ static void setup_beaglebone_old(void)
+@@ -3715,6 +3717,11 @@ static void setup_beaglebone_old(void)
  
  	/* Fill up global evmid */
  	am33xx_evmid_fillup(BEAGLE_BONE_OLD);
@@ -47,7 +47,7 @@ index 3b533a2..dd29d97 100644
  }
  
  /* BeagleBone after Rev A3 */
-@@ -3784,12 +3791,24 @@ static void am335x_evm_setup(struct memory_accessor *mem_acc, void *context)
+@@ -3793,12 +3800,24 @@ static void am335x_evm_setup(struct memory_accessor *mem_acc, void *context)
  		goto out;
  	}
  

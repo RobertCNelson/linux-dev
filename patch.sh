@@ -46,20 +46,20 @@ cleanup () {
 }
 
 function bugs_trivial {
-echo "bugs and trivial stuff"
-
+	echo "bugs and trivial stuff"
 	${git} "${DIR}/patches/trivial/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
 	${git} "${DIR}/patches/trivial/0001-kbuild-Fix-link-to-headers-in-make-deb-pkg.patch"
 }
 
 function am33x-cleanup {
 	echo "[git] am33x-cleanup"
-	echo "pulling ti_am33x_v3.2-staging_5"
-	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_5
+	echo "pulling ti_am33x_v3.2-staging_6"
+	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_6
 
-	#place older when diffing...
-	${git} "${DIR}/patches/3.2.28/0038-Linux-3.2.28.patch"
+	#place holder when diffing...
+	${git} "${DIR}/patches/3.2.29/0094-Linux-3.2.29.patch"
 
+	${git} "${DIR}/patches/led/0001-leds-heartbeat-stop-on-shutdown-reboot-or-panic.patch"
 	${git} "${DIR}/patches/led/0002-led-triggers-rename-trigger-to-trig-for-unified-nami.patch"
 	${git} "${DIR}/patches/led/0003-led-triggers-create-a-trigger-for-CPU-activity.patch"
 	${git} "${DIR}/patches/led/0004-ARM-use-new-LEDS-CPU-trigger-stub-to-replace-old-one.patch"
@@ -87,6 +87,8 @@ function am33x-cleanup {
 	${git} "${DIR}/patches/pwm/0004-PWM-ecap-Resets-the-PWM-output-to-low-on-stop.patch"
 	${git} "${DIR}/patches/pwm/0005-PWM-ecap-Fix-for-throwing-PWM-output-before-running.patch"
 	${git} "${DIR}/patches/pwm/0006-pwm-ehrpwm-Configure-polarity-on-pwm_start.patch"
+
+	${git} "${DIR}/patches/mfd/0001-Add-TPS65217-Backlight-Driver.patch"
 
 	${git} "${DIR}/patches/beaglebone/0001-f_rndis-HACK-around-undefined-variables.patch"
 	${git} "${DIR}/patches/beaglebone/0002-da8xx-fb-add-DVI-support-for-beaglebone.patch"
@@ -175,8 +177,8 @@ function am33x-cleanup {
 	${git} "${DIR}/patches/beaglebone/0085-beaglebone-mux-camera-cape-orientation-pin-to-gpio.patch"
 	${git} "${DIR}/patches/beaglebone/0086-board-am335xevm-Add-Beaglebone-Motor-Cape-Support.patch"
 	${git} "${DIR}/patches/beaglebone/0087-mux33xx-Fix-MUXENTRYs-for-MCASP0_ACLKX-FSX-to-add-eh.patch"
-
-	${git} "${DIR}/patches/led/0001-leds-heartbeat-stop-on-shutdown-reboot-or-panic.patch"
+	${git} "${DIR}/patches/beaglebone/0088-beaglebone-add-a-method-to-skip-mmc-init.patch"
+	${git} "${DIR}/patches/beaglebone/0089-beaglebone-do-mmc-init-in-TT3202-setup-method.patch"
 
 	${git} "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	${git} "${DIR}/patches/beaglebone/0002-BeagleBone-A2-fixup-eeprom-and-initialization.patch"

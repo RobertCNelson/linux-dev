@@ -1,0 +1,29 @@
+From d664049cb976143ce8d48687bebbb3af42e647f3 Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 11 Sep 2012 11:41:36 +0200
+Subject: [PATCH 89/89] beaglebone: do mmc init in TT3202 setup method
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ arch/arm/mach-omap2/board-am335xevm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/board-am335xevm.c b/arch/arm/mach-omap2/board-am335xevm.c
+index 8bed0cb..9105e7d 100644
+--- a/arch/arm/mach-omap2/board-am335xevm.c
++++ b/arch/arm/mach-omap2/board-am335xevm.c
+@@ -3156,6 +3156,11 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
+ 	}
+ 
+ 	if (!strncmp("TT3201-001", cape_config.partnumber, 10)) {
++		beaglebone_skip_mmc0_init = 1;
++
++		pr_info("BeagleBone cape: initializing mmc");
++		mmc0_init(0,0);
++
+ 		pr_info("BeagleBone cape: initializing CAN cape\n");
+ 		tt3201_init(0,0);
+ 	}
+-- 
+1.7.10.4
+
