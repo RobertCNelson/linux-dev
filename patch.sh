@@ -41,7 +41,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -2 -o ${DIR}/patches/
+	git format-patch -1 -o ${DIR}/patches/
 	exit
 }
 
@@ -188,7 +188,7 @@ function am33x-cleanup {
 }
 
 rt_patchset () {
-	${git} "${DIR}/patches/rt/0001-rt-patch-3.2.24-rt38.patch"
+	${git} "${DIR}/patches/rt/0001-rt-patch-3.2.28-rt42.patch"
 }
 
 am33x-cleanup
