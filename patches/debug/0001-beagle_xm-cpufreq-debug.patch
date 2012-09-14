@@ -5,40 +5,27 @@ Subject: [PATCH] beagle_xm: cpufreq debug
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/plat-omap/clock.c     |    2 ++
- drivers/cpufreq/omap-cpufreq.c |    1 +
- 2 files changed, 3 insertions(+)
+ arch/arm/plat-omap/clock.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/arch/arm/plat-omap/clock.c b/arch/arm/plat-omap/clock.c
-index b392bf5..11822fd 100644
+index b392bf5..36f8ba7 100644
 --- a/arch/arm/plat-omap/clock.c
 +++ b/arch/arm/plat-omap/clock.c
 @@ -128,11 +128,13 @@ int clk_set_rate(struct clk *clk, unsigned long rate)
  	if (!arch_clock || !arch_clock->clk_set_rate)
  		return ret;
  
-+	pr_info("clock: clk_set_rate: rate %ld\n", rate);
++	pr_info("cpufreq: clk_set_rate: requesting: %ld\n", rate);
  	spin_lock_irqsave(&clockfw_lock, flags);
  	ret = arch_clock->clk_set_rate(clk, rate);
  	if (ret == 0)
  		propagate_rate(clk);
  	spin_unlock_irqrestore(&clockfw_lock, flags);
-+	pr_info("clock: clk_set_rate: rate %ld Success\n", rate);
++	pr_info("cpufreq: clk_set_rate: setting: %ld Success\n", rate);
  
  	return ret;
  }
-diff --git a/drivers/cpufreq/omap-cpufreq.c b/drivers/cpufreq/omap-cpufreq.c
-index b47034e..b35e351 100644
---- a/drivers/cpufreq/omap-cpufreq.c
-+++ b/drivers/cpufreq/omap-cpufreq.c
-@@ -148,6 +148,7 @@ static int omap_target(struct cpufreq_policy *policy,
- 
- 	ret = clk_set_rate(mpu_clk, freqs.new * 1000);
- 
-+	pr_info("cpufreq: omap_target: cleared: clk_set_rate\n");
- 	/* scaling down?  scale voltage after frequency */
- 	if (mpu_reg && (freqs.new < freqs.old)) {
- 		r = regulator_set_voltage(mpu_reg, volt - tol, volt + tol);
 -- 
 1.7.10.4
 

@@ -80,6 +80,9 @@ beagle () {
 
 	#Status: not for upstream
 	${git} "${DIR}/patches/beagle/0004-zeroMAP-Open-your-eyes.patch"
+
+	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
+	${git} "${DIR}/patches/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 }
 
 sprz319_erratum () {
@@ -129,6 +132,11 @@ mainline_fixes () {
 	${git} "${DIR}/patches/mainline-fixes/0002-ARM-omap-add-dtb-targets.patch"
 }
 
+debug () {
+	echo "debug: cpufreq"
+	${git} "${DIR}/patches/debug/0001-beagle_xm-cpufreq-debug.patch"
+}
+
 distro
 sakoman
 beagle
@@ -140,6 +148,7 @@ panda
 omap_fixes
 sgx
 mainline_fixes
+#debug
 
 echo "patch.sh ran successful"
 
