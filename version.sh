@@ -23,10 +23,10 @@ config="omap2plus_defconfig"
 #Kernel/Build
 KERNEL_REL=3.6
 KERNEL_TAG=${KERNEL_REL}-rc6
-BUILD=d3
+BUILD=bone0
 
 #git branch
-#BRANCH=
+BRANCH="am33x-v3.6"
 
 BUILDREV=1.0
 DISTRO=cross
