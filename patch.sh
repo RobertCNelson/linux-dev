@@ -370,6 +370,8 @@ dma
 pwm
 st7735
 
+beaglebone
+
 distro
 sakoman
 beagle
