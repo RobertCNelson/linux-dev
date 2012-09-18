@@ -254,6 +254,16 @@ st7735 () {
 	${git} "${DIR}/patches/st7735/0007-video-st7735fb-remove-FOREIGN_ENDIAN-flag.patch"
 	${git} "${DIR}/patches/st7735/0008-video-st7735fb-fix-fbcon-color-problem.patch"
 	${git} "${DIR}/patches/st7735/0009-beaglebone-3.6-enable-EHRPWM1A-backlight-for-st7735f.patch"
+	${git} "${DIR}/patches/st7735/0010-video-st7735fb-add-pinctrl-support.patch"
+}
+
+i2c () {
+	echo "Patches from: i2c"
+	${git} "${DIR}/patches/i2c/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
+	${git} "${DIR}/patches/i2c/0002-i2c-pinctrl-ify-i2c-omap.c.patch"
+	${git} "${DIR}/patches/i2c/0003-Bone-DTS-working-i2c2-i2c3-in-the-tree.patch"
+	${git} "${DIR}/patches/i2c/0004-am33xx-Convert-I2C-from-omap-to-am33xx-names.patch"
+	${git} "${DIR}/patches/i2c/0005-beaglebone-fix-backlight-entry-in-DT.patch"
 }
 
 beaglebone () {
@@ -369,6 +379,7 @@ adc
 dma
 pwm
 st7735
+i2c
 
 beaglebone
 
