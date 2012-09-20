@@ -1,0 +1,52 @@
+From 20ac628bdcdd48828bdca10e91a8ef29a9aae527 Mon Sep 17 00:00:00 2001
+From: Jon Hunter <jon-hunter@ti.com>
+Date: Fri, 13 Jul 2012 15:12:03 -0500
+Subject: [PATCH 003/136] ARM: OMAP2+: Fix dmtimer set source clock failure
+
+commit 54f32a35f4d3a653a18a2c8c239f19ae060bd803 upstream.
+
+Calling the dmtimer function omap_dm_timer_set_source() fails if following a
+call to pm_runtime_put() to disable the timer. For example the following
+sequence would fail to set the parent clock ...
+
+	omap_dm_timer_stop(gptimer);
+	omap_dm_timer_set_source(gptimer, OMAP_TIMER_SRC_32_KHZ);
+
+The following error message would be seen ...
+
+omap_dm_timer_set_source: failed to set timer_32k_ck as parent
+
+The problem is that, by design, pm_runtime_put() simply decrements the usage
+count and returns before the timer has actually been disabled. Therefore,
+setting the parent clock failed because the timer was still active when the
+trying to set the parent clock. Setting a parent clock will fail if the clock
+you are setting the parent of has a non-zero usage count. To ensure that this
+does not fail use pm_runtime_put_sync() when disabling the timer.
+
+Note that this will not be seen on OMAP1 devices, because these devices do
+not use the clock framework for dmtimers.
+
+Signed-off-by: Jon Hunter <jon-hunter@ti.com>
+Acked-by: Kevin Hilman <khilman@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ arch/arm/plat-omap/dmtimer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/plat-omap/dmtimer.c b/arch/arm/plat-omap/dmtimer.c
+index af3b92b..f9adbbb 100644
+--- a/arch/arm/plat-omap/dmtimer.c
++++ b/arch/arm/plat-omap/dmtimer.c
+@@ -236,7 +236,7 @@ EXPORT_SYMBOL_GPL(omap_dm_timer_enable);
+ 
+ void omap_dm_timer_disable(struct omap_dm_timer *timer)
+ {
+-	pm_runtime_put(&timer->pdev->dev);
++	pm_runtime_put_sync(&timer->pdev->dev);
+ }
+ EXPORT_SYMBOL_GPL(omap_dm_timer_disable);
+ 
+-- 
+1.7.10.4
+

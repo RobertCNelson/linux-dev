@@ -1,0 +1,27 @@
+From 7ccd957b90286d5adf070164ad00f9c28d3f150b Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 20 Sep 2012 11:59:13 -0500
+Subject: [PATCH 137/137] Revert "ARM: OMAP2+: Fix dmtimer set source clock
+ failure"
+
+This reverts commit 61906681567d63f4f9c940d1699c4e218bb76adf.
+---
+ arch/arm/plat-omap/dmtimer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/plat-omap/dmtimer.c b/arch/arm/plat-omap/dmtimer.c
+index 45f5b86..329586a 100644
+--- a/arch/arm/plat-omap/dmtimer.c
++++ b/arch/arm/plat-omap/dmtimer.c
+@@ -233,7 +233,7 @@ EXPORT_SYMBOL_GPL(omap_dm_timer_enable);
+ 
+ void omap_dm_timer_disable(struct omap_dm_timer *timer)
+ {
+-	pm_runtime_put_sync(&timer->pdev->dev);
++	pm_runtime_put(&timer->pdev->dev);
+ }
+ EXPORT_SYMBOL_GPL(omap_dm_timer_disable);
+ 
+-- 
+1.7.10.4
+

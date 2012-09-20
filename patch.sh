@@ -41,7 +41,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -1 -o ${DIR}/patches/
+	git format-patch -${number} -o ${DIR}/patches/
 	exit
 }
 
@@ -53,11 +53,13 @@ function bugs_trivial {
 
 function am33x-cleanup {
 	echo "[git] am33x-cleanup"
-	echo "pulling ti_am33x_v3.2-staging_6"
-	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_6
+	echo "pulling ti_am33x_v3.2-staging_7"
+	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_7
 
 	#place holder when diffing...
-	${git} "${DIR}/patches/3.2.29/0094-Linux-3.2.29.patch"
+	${git} "${DIR}/patches/3.2.30/0136-Linux-3.2.30.patch"
+	#Breaks: BeagleBone: eth0: dhcp doesn't get ip address...
+	${git} "${DIR}/patches/3.2.30/0137-Revert-ARM-OMAP2-Fix-dmtimer-set-source-clock-failur.patch"
 
 	${git} "${DIR}/patches/led/0001-leds-heartbeat-stop-on-shutdown-reboot-or-panic.patch"
 	${git} "${DIR}/patches/led/0002-led-triggers-rename-trigger-to-trig-for-unified-nami.patch"
