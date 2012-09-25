@@ -1,0 +1,276 @@
+From 21e7e05f7d0ed734e8d1e695fc9e953e3be49810 Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Fri, 21 Sep 2012 11:33:56 +0300
+Subject: [PATCH 45/50] ARM: OMAP4: VC: setup I2C parameters based on board
+ data
+
+VC code now provides a table of pre-calculated I2C setup parameters,
+which will be used based on the capacitance value calculated for the I2C
+trace on the PCB. A default trace length of 6.3cm is used unless board
+defines its own value during init. The parameters set will be the I2C
+internal pull setup and the I2C timing parameters for high speed use
+mode. Full speed mode is not supported as of now.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ arch/arm/mach-omap2/omap_twl.c |    3 +
+ arch/arm/mach-omap2/pm.h       |    2 +
+ arch/arm/mach-omap2/vc.c       |  149 +++++++++++++++++++++++++++++++++++++---
+ arch/arm/mach-omap2/voltage.h  |    1 +
+ 4 files changed, 147 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/omap_twl.c b/arch/arm/mach-omap2/omap_twl.c
+index ecae989..611cb63 100644
+--- a/arch/arm/mach-omap2/omap_twl.c
++++ b/arch/arm/mach-omap2/omap_twl.c
+@@ -183,6 +183,7 @@ static struct omap_voltdm_pmic omap4_mpu_pmic = {
+ 	.volt_reg_addr		= OMAP4_VDD_MPU_SR_VOLT_REG,
+ 	.cmd_reg_addr		= OMAP4_VDD_MPU_SR_CMD_REG,
+ 	.i2c_high_speed		= true,
++	.i2c_pad_load		= 3,
+ 	.vsel_to_uv		= twl6030_vsel_to_uv,
+ 	.uv_to_vsel		= twl6030_uv_to_vsel,
+ };
+@@ -200,6 +201,7 @@ static struct omap_voltdm_pmic omap4_iva_pmic = {
+ 	.volt_reg_addr		= OMAP4_VDD_IVA_SR_VOLT_REG,
+ 	.cmd_reg_addr		= OMAP4_VDD_IVA_SR_CMD_REG,
+ 	.i2c_high_speed		= true,
++	.i2c_pad_load		= 3,
+ 	.vsel_to_uv		= twl6030_vsel_to_uv,
+ 	.uv_to_vsel		= twl6030_uv_to_vsel,
+ };
+@@ -216,6 +218,7 @@ static struct omap_voltdm_pmic omap4_core_pmic = {
+ 	.i2c_slave_addr		= OMAP4_SRI2C_SLAVE_ADDR,
+ 	.volt_reg_addr		= OMAP4_VDD_CORE_SR_VOLT_REG,
+ 	.cmd_reg_addr		= OMAP4_VDD_CORE_SR_CMD_REG,
++	.i2c_pad_load		= 3,
+ 	.vsel_to_uv		= twl6030_vsel_to_uv,
+ 	.uv_to_vsel		= twl6030_uv_to_vsel,
+ };
+diff --git a/arch/arm/mach-omap2/pm.h b/arch/arm/mach-omap2/pm.h
+index 583b40f..d070ac6 100644
+--- a/arch/arm/mach-omap2/pm.h
++++ b/arch/arm/mach-omap2/pm.h
+@@ -139,9 +139,11 @@ static inline int omap4_twl_init(void)
+ #ifdef CONFIG_PM
+ extern void omap_pm_setup_oscillator(u32 tstart, u32 tshut);
+ extern void omap_pm_get_oscillator(u32 *tstart, u32 *tshut);
++extern void omap_pm_setup_sr_i2c_pcb_length(u32 mm);
+ #else
+ static inline void omap_pm_setup_oscillator(u32 tstart, u32 tshut) { }
+ static inline void omap_pm_get_oscillator(u32 *tstart, u32 *tshut) { }
++static inline void omap_pm_setup_sr_i2c_pcb_length(u32 mm) { }
+ #endif
+ 
+ #endif
+diff --git a/arch/arm/mach-omap2/vc.c b/arch/arm/mach-omap2/vc.c
+index a63c53a..2e5191d 100644
+--- a/arch/arm/mach-omap2/vc.c
++++ b/arch/arm/mach-omap2/vc.c
+@@ -26,6 +26,7 @@
+ #include "prm44xx.h"
+ #include "pm.h"
+ #include "scrm44xx.h"
++#include "control.h"
+ 
+ /**
+  * struct omap_vc_channel_cfg - describe the cfg_channel bitfield
+@@ -71,6 +72,9 @@ static struct omap_vc_channel_cfg vc_mutant_channel_cfg = {
+ };
+ 
+ static struct omap_vc_channel_cfg *vc_cfg_bits;
++
++/* Default I2C trace length on pcb, 6.3cm. Used for capacitance calculations. */
++static u32 sr_i2c_pcb_length = 63;
+ #define CFG_CHANNEL_MASK 0x1f
+ 
+ /**
+@@ -567,22 +571,135 @@ static void omap4_set_timings(struct voltagedomain *voltdm, bool off_mode)
+ /* OMAP4 specific voltage init functions */
+ static void __init omap4_vc_init_channel(struct voltagedomain *voltdm)
+ {
+-	static bool is_initialized;
+-	u32 vc_val;
+-
+ 	omap4_set_timings(voltdm, true);
+ 	omap4_set_timings(voltdm, false);
++}
++
++struct i2c_init_data {
++	u8 loadbits;
++	u8 load;
++	u8 hsscll_38_4;
++	u8 hsscll_26;
++	u8 hsscll_19_2;
++	u8 hsscll_16_8;
++	u8 hsscll_12;
++};
++
++static const __initdata struct i2c_init_data omap4_i2c_timing_data[] = {
++	{
++		.load = 50,
++		.loadbits = 0x3,
++		.hsscll_38_4 = 13,
++		.hsscll_26 = 11,
++		.hsscll_19_2 = 9,
++		.hsscll_16_8 = 9,
++		.hsscll_12 = 8,
++	},
++	{
++		.load = 25,
++		.loadbits = 0x2,
++		.hsscll_38_4 = 13,
++		.hsscll_26 = 11,
++		.hsscll_19_2 = 9,
++		.hsscll_16_8 = 9,
++		.hsscll_12 = 8,
++	},
++	{
++		.load = 12,
++		.loadbits = 0x1,
++		.hsscll_38_4 = 11,
++		.hsscll_26 = 10,
++		.hsscll_19_2 = 9,
++		.hsscll_16_8 = 9,
++		.hsscll_12 = 8,
++	},
++	{
++		.load = 0,
++		.loadbits = 0x0,
++		.hsscll_38_4 = 12,
++		.hsscll_26 = 10,
++		.hsscll_19_2 = 9,
++		.hsscll_16_8 = 8,
++		.hsscll_12 = 8,
++	},
++};
++
++/**
++ * omap4_vc_i2c_timing_init - sets up board I2C timing parameters
++ * @voltdm: voltagedomain pointer to get data from
++ *
++ * Use PMIC + board supplied settings for calculating the total I2C
++ * channel capacitance and set the timing parameters based on this.
++ * Pre-calculated values are provided in data tables, as it is not
++ * too straightforward to calculate these runtime.
++ */
++static void __init omap4_vc_i2c_timing_init(struct voltagedomain *voltdm)
++{
++	u32 capacitance;
++	u32 val;
++	u16 hsscll;
++	const struct i2c_init_data *i2c_data;
+ 
+-	if (is_initialized)
++	if (!voltdm->pmic->i2c_high_speed) {
++		pr_warn("%s: only high speed supported!\n", __func__);
+ 		return;
++	}
++
++	/* PCB trace capacitance, 0.125pF / mm => mm / 8 */
++	capacitance = DIV_ROUND_UP(sr_i2c_pcb_length, 8);
+ 
+-	/* XXX These are magic numbers and do not belong! */
+-	vc_val = (0x60 << OMAP4430_SCLL_SHIFT | 0x26 << OMAP4430_SCLH_SHIFT);
+-	voltdm->write(vc_val, OMAP4_PRM_VC_CFG_I2C_CLK_OFFSET);
++	/* OMAP pad capacitance */
++	capacitance += 4;
+ 
+-	is_initialized = true;
++	/* PMIC pad capacitance */
++	capacitance += voltdm->pmic->i2c_pad_load;
++
++	/* Search for capacitance match in the table */
++	i2c_data = omap4_i2c_timing_data;
++
++	while (i2c_data->load > capacitance)
++		i2c_data++;
++
++	/* Select proper values based on sysclk frequency */
++	switch (voltdm->sys_clk.rate) {
++	case 38400000:
++		hsscll = i2c_data->hsscll_38_4;
++		break;
++	case 26000000:
++		hsscll = i2c_data->hsscll_26;
++		break;
++	case 19200000:
++		hsscll = i2c_data->hsscll_19_2;
++		break;
++	case 16800000:
++		hsscll = i2c_data->hsscll_16_8;
++		break;
++	case 12000000:
++		hsscll = i2c_data->hsscll_12;
++		break;
++	default:
++		pr_warn("%s: unsupported sysclk rate: %d!\n", __func__,
++			voltdm->sys_clk.rate);
++		return;
++	}
++
++	/* Loadbits define pull setup for the I2C channels */
++	val = i2c_data->loadbits << 25 | i2c_data->loadbits << 29;
++
++	/* Write to SYSCTRL_PADCONF_WKUP_CTRL_I2C_2 to setup I2C pull */
++	__raw_writel(val, OMAP2_L4_IO_ADDRESS(OMAP4_CTRL_MODULE_PAD_WKUP +
++				OMAP4_CTRL_MODULE_PAD_WKUP_CONTROL_I2C_2));
++
++	/* HSSCLH can always be zero */
++	val = hsscll << OMAP4430_HSSCLL_SHIFT;
++	val |= (0x28 << OMAP4430_SCLL_SHIFT | 0x2c << OMAP4430_SCLH_SHIFT);
++
++	/* Write setup times to I2C config register */
++	voltdm->write(val, OMAP4_PRM_VC_CFG_I2C_CLK_OFFSET);
+ }
+ 
++
++
+ /**
+  * omap_vc_i2c_init - initialize I2C interface to PMIC
+  * @voltdm: voltage domain containing VC data
+@@ -622,6 +739,9 @@ static void __init omap_vc_i2c_init(struct voltagedomain *voltdm)
+ 			    mcode << __ffs(vc->common->i2c_mcode_mask),
+ 			    vc->common->i2c_cfg_reg);
+ 
++	if (cpu_is_omap44xx())
++		omap4_vc_i2c_timing_init(voltdm);
++
+ 	initialized = true;
+ }
+ 
+@@ -649,6 +769,19 @@ static u8 omap_vc_calc_vsel(struct voltagedomain *voltdm, u32 uvolt)
+ 	return voltdm->pmic->uv_to_vsel(uvolt);
+ }
+ 
++/**
++ * omap_pm_setup_sr_i2c_pcb_length - set length of SR I2C traces on PCB
++ * @mm: length of the PCB trace in millimetres
++ *
++ * Sets the PCB trace length for the I2C channel. By default uses 63mm.
++ * This is needed for properly calculating the capacitance value for
++ * the PCB trace, and for setting the SR I2C channel timing parameters.
++ */
++void __init omap_pm_setup_sr_i2c_pcb_length(u32 mm)
++{
++	sr_i2c_pcb_length = mm;
++}
++
+ void __init omap_vc_init_channel(struct voltagedomain *voltdm)
+ {
+ 	struct omap_vc_channel *vc = voltdm->vc;
+diff --git a/arch/arm/mach-omap2/voltage.h b/arch/arm/mach-omap2/voltage.h
+index 106a240..d51bcd1 100644
+--- a/arch/arm/mach-omap2/voltage.h
++++ b/arch/arm/mach-omap2/voltage.h
+@@ -150,6 +150,7 @@ struct omap_voltdm_pmic {
+ 	u32 vddmax;
+ 	u8 vp_timeout_us;
+ 	bool i2c_high_speed;
++	u32 i2c_pad_load;
+ 	u8 i2c_mcode;
+ 	unsigned long (*vsel_to_uv) (const u8 vsel);
+ 	u8 (*uv_to_vsel) (unsigned long uV);
+-- 
+1.7.10.4
+

@@ -1,0 +1,34 @@
+From 2703e26819c27ad32f4c5ebb01eea919aae1305d Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Thu, 20 Sep 2012 11:09:58 +0300
+Subject: [PATCH 44/50] ARM: OMAP4: vc: fix channel configuration
+
+RACEN bit should only be set if the voltage and command register addresses
+are the same.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ arch/arm/mach-omap2/vc.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/vc.c b/arch/arm/mach-omap2/vc.c
+index 2ca00bc..a63c53a 100644
+--- a/arch/arm/mach-omap2/vc.c
++++ b/arch/arm/mach-omap2/vc.c
+@@ -695,9 +695,12 @@ void __init omap_vc_init_channel(struct voltagedomain *voltdm)
+ 		voltdm->rmw(vc->smps_cmdra_mask,
+ 			    vc->cmd_reg_addr << __ffs(vc->smps_cmdra_mask),
+ 			    vc->smps_cmdra_reg);
+-		vc->cfg_channel |= vc_cfg_bits->rac | vc_cfg_bits->racen;
++		vc->cfg_channel |= vc_cfg_bits->rac;
+ 	}
+ 
++	if (vc->cmd_reg_addr == vc->volt_reg_addr)
++		vc->cfg_channel |= vc_cfg_bits->racen;
++
+ 	/* Set up the on, inactive, retention and off voltage */
+ 	on_vsel = omap_vc_calc_vsel(voltdm, voltdm->vc_param->on);
+ 	onlp_vsel = omap_vc_calc_vsel(voltdm, voltdm->vc_param->onlp);
+-- 
+1.7.10.4
+

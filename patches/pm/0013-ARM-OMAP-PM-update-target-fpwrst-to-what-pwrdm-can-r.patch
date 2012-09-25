@@ -1,0 +1,33 @@
+From d27477f9545bb7000edf87857612a25d7c8f1641 Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Wed, 19 Sep 2012 11:24:23 +0300
+Subject: [PATCH 13/50] ARM: OMAP: PM: update target fpwrst to what pwrdm can
+ reach
+
+As the code within pwrdm_set_fpwrst is updating powerstate and logic
+states according to powerdomain capabilities, it may alter the target
+fpwrst also. Update the target fpwrst status according to these checks,
+otherwise rest of the code in this function will malfunction.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ arch/arm/mach-omap2/powerdomain.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/powerdomain.c b/arch/arm/mach-omap2/powerdomain.c
+index 37dfabf..d6daa81 100644
+--- a/arch/arm/mach-omap2/powerdomain.c
++++ b/arch/arm/mach-omap2/powerdomain.c
+@@ -709,6 +709,9 @@ int pwrdm_set_fpwrst(struct powerdomain *pwrdm, enum pwrdm_func_state fpwrst)
+ 		return -EINVAL;
+ 	}
+ 
++	/* Refresh target fprwst according to what we can reach */
++	fpwrst = _pwrdm_pwrst_to_fpwrst(pwrdm, pwrst, logic);
++
+ 	pr_debug("%s: set fpwrst %0x to pwrdm %s\n",
+ 		 __func__, fpwrst, pwrdm->name);
+ 
+-- 
+1.7.10.4
+

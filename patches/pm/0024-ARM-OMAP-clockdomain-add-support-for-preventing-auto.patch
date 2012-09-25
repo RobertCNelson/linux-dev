@@ -1,0 +1,56 @@
+From c9f8a41fbfebf1ecc18366800574f13a0667ad9e Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Wed, 15 Feb 2012 16:44:37 +0200
+Subject: [PATCH 24/50] ARM: OMAP: clockdomain: add support for preventing
+ autodep delete
+
+Some clockdomains bug out if their autodeps are deleted before idle.
+This happens namely with OMAP3 PER domain, it will bug out if it
+doesn't have wakedeps enabled when it enters off-mode. This patch
+adds support for new flag 'CLKDM_NO_AUTODEP_DISABLE' which does this.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ arch/arm/mach-omap2/clockdomain.c |    3 +++
+ arch/arm/mach-omap2/clockdomain.h |    4 ++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/clockdomain.c b/arch/arm/mach-omap2/clockdomain.c
+index 7715353..4f01c8f 100644
+--- a/arch/arm/mach-omap2/clockdomain.c
++++ b/arch/arm/mach-omap2/clockdomain.c
+@@ -201,6 +201,9 @@ void _clkdm_del_autodeps(struct clockdomain *clkdm)
+ 	if (!autodeps || clkdm->flags & CLKDM_NO_AUTODEPS)
+ 		return;
+ 
++	if (clkdm->flags & CLKDM_NO_AUTODEP_DISABLE)
++		return;
++
+ 	for (autodep = autodeps; autodep->clkdm.ptr; autodep++) {
+ 		if (IS_ERR(autodep->clkdm.ptr))
+ 			continue;
+diff --git a/arch/arm/mach-omap2/clockdomain.h b/arch/arm/mach-omap2/clockdomain.h
+index 5601dc1..9b8733e 100644
+--- a/arch/arm/mach-omap2/clockdomain.h
++++ b/arch/arm/mach-omap2/clockdomain.h
+@@ -34,6 +34,9 @@
+  * CLKDM_ACTIVE_WITH_MPU: The PRCM guarantees that this clockdomain is
+  *     active whenever the MPU is active.  True for interconnects and
+  *     the WKUP clockdomains.
++ * CLKDM_NO_AUTODEP_DISABLE: Prevent clockdomain code from deleting autodeps.
++ *     Needed for PER domain on omap3, as it will bug out with off-mode if
++ *     wakedeps are removed.
+  */
+ #define CLKDM_CAN_FORCE_SLEEP			(1 << 0)
+ #define CLKDM_CAN_FORCE_WAKEUP			(1 << 1)
+@@ -41,6 +44,7 @@
+ #define CLKDM_CAN_DISABLE_AUTO			(1 << 3)
+ #define CLKDM_NO_AUTODEPS			(1 << 4)
+ #define CLKDM_ACTIVE_WITH_MPU			(1 << 5)
++#define CLKDM_NO_AUTODEP_DISABLE		(1 << 6)
+ 
+ #define CLKDM_CAN_HWSUP		(CLKDM_CAN_ENABLE_AUTO | CLKDM_CAN_DISABLE_AUTO)
+ #define CLKDM_CAN_SWSUP		(CLKDM_CAN_FORCE_SLEEP | CLKDM_CAN_FORCE_WAKEUP)
+-- 
+1.7.10.4
+

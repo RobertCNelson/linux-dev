@@ -1,0 +1,36 @@
+From c95b5ee9ce35b23a1e788ae500fd18c04aa60cb3 Mon Sep 17 00:00:00 2001
+From: Rajendra Nayak <rnayak@ti.com>
+Date: Thu, 10 Feb 2011 15:01:51 +0530
+Subject: [PATCH 16/50] ARM: OMAP4: suspend: Program all domains to retention
+
+Remove the FIXME's in the suspend sequence since
+we now intend to support system level RET support.
+
+Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Reviewed-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+---
+ arch/arm/mach-omap2/pm44xx.c |    7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm44xx.c b/arch/arm/mach-omap2/pm44xx.c
+index e03a3cc..c8965a2 100644
+--- a/arch/arm/mach-omap2/pm44xx.c
++++ b/arch/arm/mach-omap2/pm44xx.c
+@@ -96,13 +96,6 @@ static int __init pwrdms_setup(struct powerdomain *pwrdm, void *unused)
+ 	if (!strncmp(pwrdm->name, "cpu", 3))
+ 		return 0;
+ 
+-	/*
+-	 * FIXME: Remove this check when core retention is supported
+-	 * Only MPUSS power domain is added in the list.
+-	 */
+-	if (strcmp(pwrdm->name, "mpu_pwrdm"))
+-		return 0;
+-
+ 	pwrst = kmalloc(sizeof(struct power_state), GFP_ATOMIC);
+ 	if (!pwrst)
+ 		return -ENOMEM;
+-- 
+1.7.10.4
+

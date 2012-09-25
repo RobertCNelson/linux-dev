@@ -1,0 +1,236 @@
+From 1aa5178f64f20518528ce0c4dc347728205dac5d Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Wed, 15 Feb 2012 11:25:21 +0200
+Subject: [PATCH 22/50] ARM: OMAP3: add manual control for mpu / core pwrdm
+ usecounting
+
+mpu / core powerdomain usecounts are now statically increased
+by 1 during MPU activity. This allows the domains to reflect
+actual usage, and will allow the usecount to reach 0 just before
+all CPUs are ready to idle. Proper powerdomain usecounts are
+propageted to voltagedomain level also, and will allow vc
+callbacks to be triggered at right point of time.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Kevin Hilman <khilman@ti.com>
+---
+ arch/arm/mach-omap2/common.h              |    6 +++
+ arch/arm/mach-omap2/omap-mpuss-lowpower.c |   72 ++++++++++++++++++++++++++++-
+ arch/arm/mach-omap2/omap-smp.c            |    2 +
+ arch/arm/mach-omap2/pm34xx.c              |   21 +++++++++
+ 4 files changed, 100 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
+index 6ea837a..a445a02 100644
+--- a/arch/arm/mach-omap2/common.h
++++ b/arch/arm/mach-omap2/common.h
+@@ -292,6 +292,8 @@ extern int omap4_finish_suspend(unsigned long cpu_state);
+ extern void omap4_cpu_resume(void);
+ extern int omap4_hotplug_cpu(unsigned int cpu, unsigned int power_state);
+ extern u32 omap4_mpuss_read_prev_context_state(void);
++extern void omap4_pm_cpu_online(void);
++extern void omap4_pm_cpu_offline(void);
+ #else
+ static inline int omap4_enter_lowpower(unsigned int cpu,
+ 					unsigned int power_state)
+@@ -323,6 +325,10 @@ static inline u32 omap4_mpuss_read_prev_context_state(void)
+ {
+ 	return 0;
+ }
++
++static inline void omap4_pm_cpu_online(void) { }
++
++static inline void omap4_pm_cpu_offline(void) { }
+ #endif
+ 
+ struct omap_sdrc_params;
+diff --git a/arch/arm/mach-omap2/omap-mpuss-lowpower.c b/arch/arm/mach-omap2/omap-mpuss-lowpower.c
+index 230bdcd..0ad2337 100644
+--- a/arch/arm/mach-omap2/omap-mpuss-lowpower.c
++++ b/arch/arm/mach-omap2/omap-mpuss-lowpower.c
+@@ -72,8 +72,9 @@ struct omap4_cpu_pm_info {
+ };
+ 
+ static DEFINE_PER_CPU(struct omap4_cpu_pm_info, omap4_pm_info);
+-static struct powerdomain *mpuss_pd;
++static struct powerdomain *mpuss_pd, *core_pd;
+ static void __iomem *sar_base;
++static atomic_t __initdata init_cpu_online_count;
+ 
+ /*
+  * Program the wakeup routine address for the CPU0 and CPU1
+@@ -216,6 +217,50 @@ static void save_l2x0_context(void)
+ #endif
+ 
+ /**
++ * omap4_pm_cpu_online - increase the number of online CPUs
++ *
++ * This function increases the usecounts for MPU and CORE powerdomains,
++ * which allows the domains to properly reflect usage with online CPUs
++ * also. CORE powerdomain usecount is increased, as MPU is using memories,
++ * which are powered through CORE powerdomain (SDRAM). If this function is
++ * called before PM init has completed (mpuss_pd / core_pd are not defined),
++ * a temporary init time variable is increased instead; its contents
++ * will be moved to the powerdomain usecounts once PM init completes.
++ */
++void omap4_pm_cpu_online(void)
++{
++	if (!mpuss_pd || !core_pd) {
++		atomic_inc(&init_cpu_online_count);
++		return;
++	}
++
++	pwrdm_clkdm_enable(mpuss_pd);
++	pwrdm_clkdm_enable(core_pd);
++}
++
++/**
++ * omap4_pm_cpu_offline - decrease the number of online CPUs
++ *
++ * This function decreases the usecounts for MPU and CORE powerdomains,
++ * which allows the domains to properly reflect usage with online CPUs
++ * also. CORE powerdomain usecount is decreased, as MPU is using memories,
++ * which are powered through CORE powerdomain (SDRAM). If this function is
++ * called before PM init has completed (mpuss_pd / core_pd are not defined),
++ * a temporary init time variable is increased instead; its contents
++ * will be moved to the powerdomain usecounts once PM init completes.
++ */
++void omap4_pm_cpu_offline(void)
++{
++	if (!mpuss_pd || !core_pd) {
++		atomic_dec(&init_cpu_online_count);
++		return;
++	}
++
++	pwrdm_clkdm_disable(mpuss_pd);
++	pwrdm_clkdm_disable(core_pd);
++}
++
++/**
+  * omap4_enter_lowpower: OMAP4 MPUSS Low Power Entry Function
+  * The purpose of this function is to manage low power programming
+  * of OMAP4 MPUSS subsystem
+@@ -274,11 +319,17 @@ int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state)
+ 	scu_pwrst_prepare(cpu, power_state);
+ 	l2x0_pwrst_prepare(cpu, save_state);
+ 
++	/* Decrement usecounts for MPU and CORE pd as we are entering idle */
++	omap4_pm_cpu_offline();
++
+ 	/*
+ 	 * Call low level function  with targeted low power state.
+ 	 */
+ 	cpu_suspend(save_state, omap4_finish_suspend);
+ 
++	/* Increment usecounts for MPU and CORE pd as we are leaving idle */
++	omap4_pm_cpu_online();
++
+ 	/*
+ 	 * Restore the CPUx power state to ON otherwise CPUx
+ 	 * power domain can transitions to programmed low power
+@@ -315,6 +366,8 @@ int __cpuinit omap4_hotplug_cpu(unsigned int cpu, unsigned int power_state)
+ 	set_cpu_wakeup_addr(cpu, virt_to_phys(pm_info->secondary_startup));
+ 	scu_pwrst_prepare(cpu, power_state);
+ 
++	omap4_pm_cpu_offline();
++
+ 	/*
+ 	 * CPU never retuns back if targeted power state is OFF mode.
+ 	 * CPU ONLINE follows normal CPU ONLINE ptah via
+@@ -322,6 +375,8 @@ int __cpuinit omap4_hotplug_cpu(unsigned int cpu, unsigned int power_state)
+ 	 */
+ 	omap4_finish_suspend(cpu_state);
+ 
++	omap4_pm_cpu_online();
++
+ 	set_cpu_next_pwrst(cpu, PWRDM_FUNC_PWRST_ON);
+ 	return 0;
+ }
+@@ -386,9 +441,24 @@ int __init omap4_mpuss_init(void)
+ 		pr_err("Failed to lookup MPUSS power domain\n");
+ 		return -ENODEV;
+ 	}
++	core_pd = pwrdm_lookup("core_pwrdm");
++	if (!core_pd) {
++		pr_err("Failed to lookup CORE power domain\n");
++		return -ENODEV;
++	}
+ 	pwrdm_clear_all_prev_pwrst(mpuss_pd);
+ 	mpuss_clear_prev_logic_pwrst();
+ 
++	/* Notify pwrdm usecounters about active CPU */
++	omap4_pm_cpu_online();
++
++	/*
++	 * If CPUs became online / offline during init time, push
++	 * the pending counter updates also.
++	 */
++	while (atomic_dec_return(&init_cpu_online_count) >= 0)
++		omap4_pm_cpu_online();
++
+ 	/* Save device type on scratchpad for low level code to use */
+ 	if (omap_type() != OMAP2_DEVICE_TYPE_GP)
+ 		__raw_writel(1, sar_base + OMAP_TYPE_OFFSET);
+diff --git a/arch/arm/mach-omap2/omap-smp.c b/arch/arm/mach-omap2/omap-smp.c
+index b9738e2..f296e35 100644
+--- a/arch/arm/mach-omap2/omap-smp.c
++++ b/arch/arm/mach-omap2/omap-smp.c
+@@ -71,6 +71,8 @@ void __cpuinit platform_secondary_init(unsigned int cpu)
+ 	 */
+ 	gic_secondary_init(0);
+ 
++	omap4_pm_cpu_online();
++
+ 	/*
+ 	 * Synchronise with the boot thread.
+ 	 */
+diff --git a/arch/arm/mach-omap2/pm34xx.c b/arch/arm/mach-omap2/pm34xx.c
+index 5b6505f..7a423f7 100644
+--- a/arch/arm/mach-omap2/pm34xx.c
++++ b/arch/arm/mach-omap2/pm34xx.c
+@@ -294,6 +294,14 @@ void omap_sram_idle(void)
+ 	omap3_intc_prepare_idle();
+ 
+ 	/*
++	 * CPU going offline, update pwrdm counters. Core pwrdm
++	 * count is decreased as MPU is using SDRAM which resides
++	 * under core pwrdm.
++	 */
++	pwrdm_clkdm_disable(mpu_pwrdm);
++	pwrdm_clkdm_disable(core_pwrdm);
++
++	/*
+ 	 * On EMU/HS devices ROM code restores a SRDC value
+ 	 * from scratchpad which has automatic self refresh on timeout
+ 	 * of AUTO_CNT = 1 enabled. This takes care of erratum ID i443.
+@@ -324,6 +332,12 @@ void omap_sram_idle(void)
+ 	    core_next_state == PWRDM_FUNC_PWRST_OFF)
+ 		sdrc_write_reg(sdrc_pwr, SDRC_POWER);
+ 
++	/*
++	 * CPU is coming back online, increase pwrdm usecounts
++	 */
++	pwrdm_clkdm_enable(mpu_pwrdm);
++	pwrdm_clkdm_enable(core_pwrdm);
++
+ 	/* CORE */
+ 	if (core_next_state < PWRDM_FUNC_PWRST_ON) {
+ 		core_prev_state = pwrdm_read_prev_fpwrst(core_pwrdm);
+@@ -718,6 +732,13 @@ int __init omap3_pm_init(void)
+ 	omap_pm_suspend = omap3_pm_suspend;
+ #endif
+ 
++	/*
++	 * CPU online, increase pwrdm usecounts for MPU and CORE domains.
++	 * MPU is using memory subsystem which resides in CORE domain.
++	 */
++	pwrdm_clkdm_enable(mpu_pwrdm);
++	pwrdm_clkdm_enable(core_pwrdm);
++
+ 	arm_pm_idle = omap3_pm_idle;
+ 	omap3_idle_init();
+ 
+-- 
+1.7.10.4
+

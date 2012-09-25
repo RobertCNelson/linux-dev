@@ -1,0 +1,30 @@
+From 14e8da566ebea1babb694c70d3260290cd47c8f4 Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Thu, 17 Nov 2011 16:03:00 +0200
+Subject: [PATCH 41/50] ARM: OMAP: beagle: set oscillator startup time to 10ms
+ for rev c4
+
+Based on the oscillator datasheet for this device.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 65f1bae..5368f05 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -867,6 +867,9 @@ static void __init beagle_opp_init(void)
+ 			opp_disable(mpu_dev, 720000000);
+ 			opp_disable(iva_dev, 520000000);
+ 		}
++
++		/* Set oscillator startup time to 10ms, shutdown not used */
++		omap_pm_setup_oscillator(10000, ULONG_MAX);
+ 	}
+ 
+ 	/* Custom OPP enabled for all xM versions */
+-- 
+1.7.10.4
+

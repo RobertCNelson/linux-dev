@@ -1,0 +1,33 @@
+From 0bdb53195bdb83a7ffa11ac5b25ee22624e60a2e Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Wed, 19 Sep 2012 18:15:56 +0300
+Subject: [PATCH 26/50] ARM: OMAP4: clock data: set autoidle flag for dss_fck
+
+dss_fck is currently being used improperly within the hwmod database
+as an interface clock for DSS hwmods. This causes the dss_fck to
+be enabled even if the dss powerdomain itself is idle, resulting
+in wrong data within the powerdomain usecounts. Marked dss_fck as
+autoidle which makes the clock to disappear from usecounts for now.
+This patch can be reverted once the interface clocks for DSS hwmods
+have been properly fixed.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ arch/arm/mach-omap2/clock44xx_data.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-omap2/clock44xx_data.c b/arch/arm/mach-omap2/clock44xx_data.c
+index d7f55e4..95834d7 100644
+--- a/arch/arm/mach-omap2/clock44xx_data.c
++++ b/arch/arm/mach-omap2/clock44xx_data.c
+@@ -1408,6 +1408,7 @@ static struct clk dss_fck = {
+ 	.clkdm_name	= "l3_dss_clkdm",
+ 	.parent		= &l3_div_ck,
+ 	.recalc		= &followparent_recalc,
++	.autoidle	= true,
+ };
+ 
+ static struct clk efuse_ctrl_cust_fck = {
+-- 
+1.7.10.4
+

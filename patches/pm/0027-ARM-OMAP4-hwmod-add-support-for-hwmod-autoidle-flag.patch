@@ -1,0 +1,78 @@
+From 3042846b30d905e5340e43401b52f3ff95c4e71a Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Thu, 20 Sep 2012 10:14:08 +0300
+Subject: [PATCH 27/50] ARM: OMAP4: hwmod: add support for hwmod autoidle flag
+
+If a hwmod is in HWAUTO mode, it will idle automatically and should not
+be accounted for in the clkdm / pwrdm usecounts. Thus, flag modules in
+such mode as autoidle during init, and ignore these in subsequent
+usecount calculations.
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+---
+ arch/arm/mach-omap2/clockdomain.c            |    6 ++++++
+ arch/arm/mach-omap2/omap_hwmod.c             |    3 +++
+ arch/arm/plat-omap/include/plat/omap_hwmod.h |    2 ++
+ 3 files changed, 11 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/clockdomain.c b/arch/arm/mach-omap2/clockdomain.c
+index 4f01c8f..af88ae5 100644
+--- a/arch/arm/mach-omap2/clockdomain.c
++++ b/arch/arm/mach-omap2/clockdomain.c
+@@ -1063,6 +1063,9 @@ int clkdm_hwmod_enable(struct clockdomain *clkdm, struct omap_hwmod *oh)
+ 	if (!oh)
+ 		return -EINVAL;
+ 
++	if (oh->flags & HWMOD_AUTOIDLE)
++		return 0;
++
+ 	return _clkdm_clk_hwmod_enable(clkdm);
+ }
+ 
+@@ -1094,6 +1097,9 @@ int clkdm_hwmod_disable(struct clockdomain *clkdm, struct omap_hwmod *oh)
+ 	if (!oh)
+ 		return -EINVAL;
+ 
++	if (oh->flags & HWMOD_AUTOIDLE)
++		return 0;
++
+ 	return _clkdm_clk_hwmod_disable(clkdm);
+ }
+ 
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 9d28918..4ee403d 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -2378,6 +2378,9 @@ static int __init _register(struct omap_hwmod *oh)
+ 	INIT_LIST_HEAD(&oh->slave_ports);
+ 	spin_lock_init(&oh->_lock);
+ 
++	if (cpu_is_omap44xx() && oh->prcm.omap4.modulemode == MODULEMODE_HWCTRL)
++		oh->flags |= HWMOD_AUTOIDLE;
++
+ 	oh->_state = _HWMOD_STATE_REGISTERED;
+ 
+ 	/*
+diff --git a/arch/arm/plat-omap/include/plat/omap_hwmod.h b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+index 0f840a9..36130f9 100644
+--- a/arch/arm/plat-omap/include/plat/omap_hwmod.h
++++ b/arch/arm/plat-omap/include/plat/omap_hwmod.h
+@@ -440,6 +440,7 @@ struct omap_hwmod_omap4_prcm {
+  *     in order to complete the reset. Optional clocks will be disabled
+  *     again after the reset.
+  * HWMOD_16BIT_REG: Module has 16bit registers
++ * HWMOD_AUTOIDLE: Module is controlled automatically by hardware
+  */
+ #define HWMOD_SWSUP_SIDLE			(1 << 0)
+ #define HWMOD_SWSUP_MSTANDBY			(1 << 1)
+@@ -450,6 +451,7 @@ struct omap_hwmod_omap4_prcm {
+ #define HWMOD_NO_IDLEST				(1 << 6)
+ #define HWMOD_CONTROL_OPT_CLKS_IN_RESET		(1 << 7)
+ #define HWMOD_16BIT_REG				(1 << 8)
++#define HWMOD_AUTOIDLE				(1 << 9)
+ 
+ /*
+  * omap_hwmod._int_flags definitions
+-- 
+1.7.10.4
+

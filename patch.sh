@@ -41,7 +41,7 @@ git_add () {
 }
 
 cleanup () {
-	git format-patch -6 -o ${DIR}/patches/
+	git format-patch -${number} -o ${DIR}/patches/
 	exit
 }
 
@@ -137,6 +137,65 @@ debug () {
 	${git} "${DIR}/patches/debug/0001-beagle_xm-cpufreq-debug.patch"
 }
 
+pm () {
+	echo "omap: pm patches"
+	#git pull git://gitorious.org/~kristo/omap-pm/omap-pm-work.git mainline-3.6-rc5-omap-auto-ret-v7
+
+	${git} "${DIR}/patches/pm/0001-ARM-OMAP4-hwmod-flag-hwmods-modules-not-supporting-m.patch"
+	${git} "${DIR}/patches/pm/0002-ARM-OMAP-hwmod-Add-support-for-per-hwmod-module-cont.patch"
+	${git} "${DIR}/patches/pm/0003-ARM-OMAP4-powerdomain-add-support-for-reading-prev-l.patch"
+
+	#in 3.6-rc7
+	#${git} "${DIR}/patches/pm/0004-ARM-OMAP4-hwmod-data-temporarily-comment-out-data-fo.patch"
+
+	${git} "${DIR}/patches/pm/0005-ARM-OMAP4-HWMOD-add-support-for-lostcontext_mask.patch"
+	${git} "${DIR}/patches/pm/0006-ARM-OMAP2-PM-introduce-power-domains-functional-stat.patch"
+	${git} "${DIR}/patches/pm/0007-ARM-OMAP2-PM-add-a-lock-to-protect-the-powerdomains-.patch"
+	${git} "${DIR}/patches/pm/0008-ARM-OMAP2-PM-use-the-functional-power-states-API.patch"
+	${git} "${DIR}/patches/pm/0009-ARM-OMAP2-PM-use-power-domain-functional-state-in-st.patch"
+	${git} "${DIR}/patches/pm/0010-ARM-OMAP2-PM-debug-trace-the-functional-power-domain.patch"
+	${git} "${DIR}/patches/pm/0011-ARM-OMAP2-powerdomain-add-error-logs.patch"
+	${git} "${DIR}/patches/pm/0012-ARM-OMAP2-PM-reorganize-the-powerdomain-API-in-publi.patch"
+	${git} "${DIR}/patches/pm/0013-ARM-OMAP-PM-update-target-fpwrst-to-what-pwrdm-can-r.patch"
+	${git} "${DIR}/patches/pm/0014-ARM-OMAP4-PM-add-errata-support.patch"
+	${git} "${DIR}/patches/pm/0015-ARM-OMAP4460-Workaround-for-ROM-bug-because-of-CA9-r.patch"
+	${git} "${DIR}/patches/pm/0016-ARM-OMAP4-suspend-Program-all-domains-to-retention.patch"
+	${git} "${DIR}/patches/pm/0017-ARM-OMAP4-PM-put-all-domains-to-OSWR-during-suspend.patch"
+	${git} "${DIR}/patches/pm/0018-ARM-OMAP4-retrigger-localtimers-after-re-enabling-gi.patch"
+	${git} "${DIR}/patches/pm/0019-ARM-OMAP-clockdomain-Fix-locking-on-_clkdm_clk_hwmod.patch"
+	${git} "${DIR}/patches/pm/0020-ARM-OMAP3-voltage-pwrdm-clkdm-clock-add-recursive-us.patch"
+	${git} "${DIR}/patches/pm/0021-ARM-OMAP3-voltage-add-support-for-voltagedomain-usec.patch"
+	${git} "${DIR}/patches/pm/0022-ARM-OMAP3-add-manual-control-for-mpu-core-pwrdm-usec.patch"
+	${git} "${DIR}/patches/pm/0023-ARM-OMAP3-set-autoidle-flag-for-sdrc_ick.patch"
+	${git} "${DIR}/patches/pm/0024-ARM-OMAP-clockdomain-add-support-for-preventing-auto.patch"
+	${git} "${DIR}/patches/pm/0025-ARM-OMAP3-do-not-delete-per_clkdm-autodeps-during-id.patch"
+	${git} "${DIR}/patches/pm/0026-ARM-OMAP4-clock-data-set-autoidle-flag-for-dss_fck.patch"
+	${git} "${DIR}/patches/pm/0027-ARM-OMAP4-hwmod-add-support-for-hwmod-autoidle-flag.patch"
+	${git} "${DIR}/patches/pm/0028-ARM-OMAP4-hwmod-data-set-mpu-hwmod-modulemode-to-hwa.patch"
+	${git} "${DIR}/patches/pm/0029-ARM-OMAP4-clock-data-flag-hw-controlled-clocks-as-au.patch"
+	${git} "${DIR}/patches/pm/0030-ARM-OMAP3-PM-VP-use-uV-for-max-and-min-voltage-limit.patch"
+	${git} "${DIR}/patches/pm/0031-ARM-OMAP-voltage-renamed-vp_vddmin-and-vp_vddmax-fie.patch"
+	${git} "${DIR}/patches/pm/0032-ARM-OMAP3-voltage-introduce-omap-vc-vp-params-for-vo.patch"
+	${git} "${DIR}/patches/pm/0033-ARM-OMAP3-VC-calculate-ramp-times.patch"
+	${git} "${DIR}/patches/pm/0034-ARM-OMAP4-voltage-add-support-for-VOLTSETUP_x_OFF-re.patch"
+	${git} "${DIR}/patches/pm/0035-ARM-OMAP4-VC-calculate-ramp-times.patch"
+	${git} "${DIR}/patches/pm/0036-ARM-OMAP-add-support-for-oscillator-setup.patch"
+	${git} "${DIR}/patches/pm/0037-ARM-OMAP3-vp-use-new-vp_params-for-calculating-vddmi.patch"
+	${git} "${DIR}/patches/pm/0038-ARM-OMAP3-voltage-use-oscillator-data-to-calculate-s.patch"
+	${git} "${DIR}/patches/pm/0039-ARM-OMAP-TWL-change-the-vddmin-vddmax-voltages-to-sp.patch"
+	${git} "${DIR}/patches/pm/0040-TEMP-ARM-OMAP3-beagle-rev-c4-enable-OPP6.patch"
+	${git} "${DIR}/patches/pm/0041-ARM-OMAP-beagle-set-oscillator-startup-time-to-10ms-.patch"
+	${git} "${DIR}/patches/pm/0042-ARM-OMAP3-vc-auto_ret-auto_off-support.patch"
+	${git} "${DIR}/patches/pm/0043-ARM-OMAP3-voltage-remove-unused-volt_setup_time-para.patch"
+	${git} "${DIR}/patches/pm/0044-ARM-OMAP4-vc-fix-channel-configuration.patch"
+	${git} "${DIR}/patches/pm/0045-ARM-OMAP4-VC-setup-I2C-parameters-based-on-board-dat.patch"
+	${git} "${DIR}/patches/pm/0046-ARM-OMAP4-TWL-enable-high-speed-mode-for-PMIC-commun.patch"
+	${git} "${DIR}/patches/pm/0047-ARM-OMAP4-OPP-add-OMAP4460-definitions.patch"
+	${git} "${DIR}/patches/pm/0048-ARM-OMAP3-PM-introduce-a-central-pmic-control.patch"
+	${git} "${DIR}/patches/pm/0049-ARM-OMAP2-PM-Add-support-for-TPS62361.patch"
+	${git} "${DIR}/patches/pm/0050-ARM-OMAP4-vc-auto-retention-support.patch"
+}
+
 distro
 sakoman
 beagle
@@ -149,6 +208,7 @@ omap_fixes
 sgx
 mainline_fixes
 #debug
+#pm
 
 echo "patch.sh ran successful"
 
