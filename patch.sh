@@ -102,7 +102,6 @@ vaibhav () {
 	${git} "${DIR}/patches/vaibhav/0006-CUSTOM-Enable-APPENDED_DTB-ATAG_DTB_COMPAT-option-in.patch"
 	${git} "${DIR}/patches/vaibhav/0007-ARM-OMAP2-irq-Increase-no-of-supported-interrupts-to.patch"
 	${git} "${DIR}/patches/vaibhav/0008-ARM-OMAP2-AM335x-hwmod-do-not-reset-GPIO0.patch"
-	${git} "${DIR}/patches/vaibhav/0009-ARM-OMAP2-gpmc-add-am33xx-support-in-gpmc.c.patch"
 }
 
 net_next_am335x () {
@@ -169,6 +168,8 @@ mmc () {
 da8xx_fb () {
 	echo "Patches from: da8xx_fb"
 	${git} "${DIR}/patches/da8xx-fb/0001-da8xx-fb-allow-frame-to-complete-after-disabling-LCD.patch"
+	${git} "${DIR}/patches/da8xx-fb/0002-da8xx-fb-enable-LCDC-if-FB-is-unblanked.patch"
+	${git} "${DIR}/patches/da8xx-fb/0003-da8xx-fb-add-pm_runtime-support.patch"
 }
 
 fixes () {
@@ -264,6 +265,20 @@ i2c () {
 	${git} "${DIR}/patches/i2c/0003-Bone-DTS-working-i2c2-i2c3-in-the-tree.patch"
 	${git} "${DIR}/patches/i2c/0004-am33xx-Convert-I2C-from-omap-to-am33xx-names.patch"
 	${git} "${DIR}/patches/i2c/0005-beaglebone-fix-backlight-entry-in-DT.patch"
+}
+
+w1 () {
+	echo "Patches from: w1"
+	${git} "${DIR}/patches/w1/0001-onewire-w1-gpio-add-ext_pullup_enable-pin-in-platfor.patch"
+	${git} "${DIR}/patches/w1/0002-onewire-w1-gpio-add-DT-bindings.patch"
+}
+
+pruss () {
+	echo "Patches from: pruss"
+	${git} "${DIR}/patches/pruss/0001-uio-uio_pruss-port-to-AM33xx.patch"
+	${git} "${DIR}/patches/pruss/0002-ARM-OMAP2-hwmod-add-horrible-hack-to-pull-PRUSS-out-.patch"
+	${git} "${DIR}/patches/pruss/0003-ARM-dts-AM33xx-PRUSS-support.patch"
+	${git} "${DIR}/patches/pruss/0004-Documentation-DT-add-TI-PRUSS-binding.patch"
 }
 
 beaglebone () {
@@ -380,6 +395,8 @@ dma
 pwm
 st7735
 i2c
+w1
+pruss
 
 beaglebone
 
