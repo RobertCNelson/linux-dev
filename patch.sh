@@ -276,9 +276,8 @@ w1 () {
 pruss () {
 	echo "Patches from: pruss"
 	${git} "${DIR}/patches/pruss/0001-uio-uio_pruss-port-to-AM33xx.patch"
-	${git} "${DIR}/patches/pruss/0002-ARM-OMAP2-hwmod-add-horrible-hack-to-pull-PRUSS-out-.patch"
+	${git} "${DIR}/patches/pruss/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 	${git} "${DIR}/patches/pruss/0003-ARM-dts-AM33xx-PRUSS-support.patch"
-	${git} "${DIR}/patches/pruss/0004-Documentation-DT-add-TI-PRUSS-binding.patch"
 }
 
 beaglebone () {
