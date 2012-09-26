@@ -371,6 +371,11 @@ mainline_fixes () {
 	#Status:
 	#http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap.git;a=shortlog;h=refs/heads/devel-dt
 #	${git} "${DIR}/patches/mainline-fixes/0002-ARM-omap-add-dtb-targets.patch"
+
+	#From: https://github.com/RobertCNelson/linux-dev/issues/7
+	#DisplayLink fb driver (udlfb.ko)
+	#Status: https://patchwork.kernel.org/patch/1361471/
+	${git} "${DIR}/patches/mainline-fixes/0003-ARM-export-read_current_timer.patch"
 }
 
 debug () {
