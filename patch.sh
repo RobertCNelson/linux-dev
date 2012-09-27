@@ -147,6 +147,7 @@ pinctrl () {
 	${git} "${DIR}/patches/pinctrl/0002-arm-dts-AM33XX-Add-basic-pinctrl-device-tree-data.patch"
 	${git} "${DIR}/patches/pinctrl/0003-arm-dts-AM33XX-Configure-pinmuxs-for-user-leds-contr.patch"
 	${git} "${DIR}/patches/pinctrl/0004-beaglebone-DT-set-default-triggers-for-LEDS.patch"
+	${git} "${DIR}/patches/pinctrl/0005-pinctrl-pinctrl-single-add-debugfs-pin-h-w-state-inf.patch"
 }
 
 rtc () {
