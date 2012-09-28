@@ -190,7 +190,7 @@ function am33x-cleanup {
 }
 
 rt_patchset () {
-	${git} "${DIR}/patches/rt/0001-rt-patch-3.2.28-rt42.patch"
+	${git} "${DIR}/patches/rt/0001-rt-patch-3.2.30-rt45.patch"
 }
 
 am33x-cleanup

@@ -1,7 +1,7 @@
 From 11430a0a547b2b006cda4acbd1a0de5d8e1b4d7f Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 12 Sep 2012 10:57:40 -0500
-Subject: [PATCH] rt: patch-3.2.28-rt42
+Date: Fri, 28 Sep 2012 16:47:50 -0500
+Subject: [PATCH] rt: patch-3.2.30-rt45
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
@@ -170,9 +170,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/scsi/libfc/fc_exch.c                       |    4 +-
  drivers/scsi/qla2xxx/qla_inline.h                  |    4 +-
  drivers/tty/serial/8250.c                          |   29 +-
- drivers/tty/serial/cpm_uart/cpm_uart_core.c        |    2 +-
  drivers/tty/serial/omap-serial.c                   |    8 +-
- drivers/tty/sysrq.c                                |   23 +
  drivers/tty/tty_buffer.c                           |    4 +
  drivers/tty/tty_ldisc.c                            |    4 +-
  drivers/usb/core/hcd.c                             |    4 +-
@@ -244,7 +242,6 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  include/linux/spinlock_types_raw.h                 |   56 +
  include/linux/spinlock_types_rt.h                  |   49 +
  include/linux/sysctl.h                             |    1 +
- include/linux/sysrq.h                              |    5 +
  include/linux/timer.h                              |    2 +-
  include/linux/uaccess.h                            |   41 +-
  include/linux/vmstat.h                             |    4 +
@@ -284,7 +281,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  kernel/posix-timers.c                              |   37 +-
  kernel/power/hibernate.c                           |    7 +
  kernel/power/suspend.c                             |    4 +
- kernel/printk.c                                    |  102 +-
+ kernel/printk.c                                    |  101 +-
  kernel/rcupdate.c                                  |    2 +
  kernel/rcutiny.c                                   |    2 +
  kernel/rcutree.c                                   |   19 +-
@@ -326,7 +323,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  kernel/workqueue.c                                 |  110 +-
  kernel/workqueue_sched.h                           |    5 +-
  lib/Kconfig                                        |    1 +
- lib/Kconfig.debug                                  |   24 +-
+ lib/Kconfig.debug                                  |    2 +-
  lib/Makefile                                       |    3 +
  lib/debugobjects.c                                 |    7 +-
  lib/radix-tree.c                                   |    5 +-
@@ -355,7 +352,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/packet/af_packet.c                             |    5 +-
  net/rds/ib_rdma.c                                  |    3 +-
  scripts/mkcompile_h                                |    4 +-
- 350 files changed, 9566 insertions(+), 1728 deletions(-)
+ 347 files changed, 9514 insertions(+), 1727 deletions(-)
  create mode 100644 Documentation/hwlat_detector.txt
  create mode 100644 Documentation/trace/histograms.txt
  create mode 100644 drivers/misc/hwlat_detector.c
@@ -706,7 +703,7 @@ index fadd5f8..4a0a0af 100644
  
  #ifdef CONFIG_ALPHA_LARGE_VMALLOC
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 24d51af..6dabeb6 100644
+index 1b71368..0bb62f2 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
 @@ -29,6 +29,7 @@ config ARM
@@ -1847,7 +1844,7 @@ index 616921e..2961d75 100644
  _GLOBAL(call_handle_irq)
  	ld	r8,0(r6)
 diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 6df7090..abdedd3 100644
+index fe04b4a..2216eb2 100644
 --- a/arch/powerpc/kernel/smp.c
 +++ b/arch/powerpc/kernel/smp.c
 @@ -187,8 +187,8 @@ int smp_request_message_ipi(int virq, int msg)
@@ -5663,7 +5660,7 @@ index 9656dd0..ef7df09 100644
  
  	/* pci_power_off (pdev, -1); */
 diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
-index 83199fd..97d238c 100644
+index d0722a7..0e4c2e7 100644
 --- a/drivers/net/ethernet/freescale/gianfar.c
 +++ b/drivers/net/ethernet/freescale/gianfar.c
 @@ -1671,7 +1671,7 @@ void stop_gfar(struct net_device *dev)
@@ -6459,19 +6456,6 @@ index 70585b6..f15a1df 100644
  }
  
  static int __init serial8250_console_setup(struct console *co, char *options)
-diff --git a/drivers/tty/serial/cpm_uart/cpm_uart_core.c b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-index b418947..a8b0559 100644
---- a/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-+++ b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-@@ -1226,7 +1226,7 @@ static void cpm_uart_console_write(struct console *co, const char *s,
- {
- 	struct uart_cpm_port *pinfo = &cpm_uart_ports[co->index];
- 	unsigned long flags;
--	int nolock = oops_in_progress;
-+	int nolock = oops_in_progress || sysrq_in_progress;
- 
- 	if (unlikely(nolock)) {
- 		local_irq_save(flags);
 diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
 index ca24ab3..51e5df3 100644
 --- a/drivers/tty/serial/omap-serial.c
@@ -6502,54 +6486,6 @@ index ca24ab3..51e5df3 100644
  }
  
  static int __init
-diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-index 43db715..5219738 100644
---- a/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -492,6 +492,23 @@ static void __sysrq_put_key_op(int key, struct sysrq_key_op *op_p)
-                 sysrq_key_table[i] = op_p;
- }
- 
-+#ifdef CONFIG_MAGIC_SYSRQ_FORCE_PRINTK
-+
-+int sysrq_in_progress;
-+
-+static void set_sysrq_in_progress(int value)
-+{
-+	sysrq_in_progress = value;
-+}
-+
-+#else
-+
-+static void set_sysrq_in_progress(int value)
-+{
-+}
-+
-+#endif
-+
- void __handle_sysrq(int key, bool check_mask)
- {
- 	struct sysrq_key_op *op_p;
-@@ -500,6 +517,9 @@ void __handle_sysrq(int key, bool check_mask)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&sysrq_key_table_lock, flags);
-+
-+	set_sysrq_in_progress(1);
-+
- 	/*
- 	 * Raise the apparent loglevel to maximum so that the sysrq header
- 	 * is shown to provide the user with positive feedback.  We do not
-@@ -541,6 +561,9 @@ void __handle_sysrq(int key, bool check_mask)
- 		printk("\n");
- 		console_loglevel = orig_log_level;
- 	}
-+
-+	set_sysrq_in_progress(0);
-+
- 	spin_unlock_irqrestore(&sysrq_key_table_lock, flags);
- }
- 
 diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
 index 6c9b7cd..a56c223 100644
 --- a/drivers/tty/tty_buffer.c
@@ -8346,10 +8282,10 @@ index 0000000..c38a44b
 +
 +#endif
 diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index cb52340..ea28f93 100644
+index 00ca32b..9ec24b3 100644
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -1751,6 +1751,7 @@ struct softnet_data {
+@@ -1755,6 +1755,7 @@ struct softnet_data {
  	unsigned		dropped;
  	struct sk_buff_head	input_pkt_queue;
  	struct napi_struct	backlog;
@@ -10269,22 +10205,6 @@ index 703cfa3..b954c41 100644
  
  /* For the /proc/sys support */
  struct ctl_table;
-diff --git a/include/linux/sysrq.h b/include/linux/sysrq.h
-index 7faf933..d224c0b 100644
---- a/include/linux/sysrq.h
-+++ b/include/linux/sysrq.h
-@@ -38,6 +38,11 @@ struct sysrq_key_op {
- 	int enable_mask;
- };
- 
-+#ifdef CONFIG_MAGIC_SYSRQ_FORCE_PRINTK
-+extern int sysrq_in_progress;
-+#else
-+#define sysrq_in_progress 0
-+#endif
- #ifdef CONFIG_MAGIC_SYSRQ
- 
- /* Generic SysRq interface -- you may call it from any device driver, supplying
 diff --git a/include/linux/timer.h b/include/linux/timer.h
 index 6abd913..b703477 100644
 --- a/include/linux/timer.h
@@ -11251,10 +11171,10 @@ index 4802eb5..5b7455f 100644
  	return r;
  }
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 58690af..4d9159a 100644
+index 7d1f05e..7975149 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -5420,6 +5420,7 @@ static void perf_swevent_init_hrtimer(struct perf_event *event)
+@@ -5428,6 +5428,7 @@ static void perf_swevent_init_hrtimer(struct perf_event *event)
  
  	hrtimer_init(&hwc->hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
  	hwc->hrtimer.function = perf_swevent_hrtimer;
@@ -12576,18 +12496,10 @@ index af48faa..ad3690c 100644
  	BUG_ON(irqs_disabled());
  
 diff --git a/kernel/printk.c b/kernel/printk.c
-index 7982a0a..66e83e5 100644
+index 7982a0a..85d8795 100644
 --- a/kernel/printk.c
 +++ b/kernel/printk.c
-@@ -21,6 +21,7 @@
- #include <linux/tty.h>
- #include <linux/tty_driver.h>
- #include <linux/console.h>
-+#include <linux/sysrq.h>
- #include <linux/init.h>
- #include <linux/jiffies.h>
- #include <linux/nmi.h>
-@@ -44,13 +45,6 @@
+@@ -44,13 +44,6 @@
  
  #include <asm/uaccess.h>
  
@@ -12601,7 +12513,7 @@ index 7982a0a..66e83e5 100644
  #define __LOG_BUF_LEN	(1 << CONFIG_LOG_BUF_SHIFT)
  
  /* printk's without a loglevel use this.. */
-@@ -511,6 +505,7 @@ static void __call_console_drivers(unsigned start, unsigned end)
+@@ -511,6 +504,7 @@ static void __call_console_drivers(unsigned start, unsigned end)
  {
  	struct console *con;
  
@@ -12609,7 +12521,7 @@ index 7982a0a..66e83e5 100644
  	for_each_console(con) {
  		if (exclusive_console && con != exclusive_console)
  			continue;
-@@ -519,7 +514,61 @@ static void __call_console_drivers(unsigned start, unsigned end)
+@@ -519,7 +513,61 @@ static void __call_console_drivers(unsigned start, unsigned end)
  				(con->flags & CON_ANYTIME)))
  			con->write(con, &LOG_BUF(start), end - start);
  	}
@@ -12671,7 +12583,7 @@ index 7982a0a..66e83e5 100644
  
  static int __read_mostly ignore_loglevel;
  
-@@ -781,12 +830,18 @@ static inline int can_use_console(unsigned int cpu)
+@@ -781,12 +829,18 @@ static inline int can_use_console(unsigned int cpu)
   * interrupts disabled. It should return with 'lockbuf_lock'
   * released but interrupts still disabled.
   */
@@ -12681,8 +12593,8 @@ index 7982a0a..66e83e5 100644
  {
  	int retval = 0, wake = 0;
 +#ifdef CONFIG_PREEMPT_RT_FULL
-+	int lock = (!early_boot_irqs_disabled && !irqs_disabled_flags(flags) &&
-+		(preempt_count() <= 1)) || sysrq_in_progress;
++	int lock = !early_boot_irqs_disabled && !irqs_disabled_flags(flags) &&
++		(preempt_count() <= 1);
 +#else
 +	int lock = 1;
 +#endif
@@ -12692,7 +12604,7 @@ index 7982a0a..66e83e5 100644
  		retval = 1;
  
  		/*
-@@ -837,10 +892,17 @@ asmlinkage int vprintk(const char *fmt, va_list args)
+@@ -837,10 +891,17 @@ asmlinkage int vprintk(const char *fmt, va_list args)
  	size_t plen;
  	char special;
  
@@ -12711,7 +12623,7 @@ index 7982a0a..66e83e5 100644
  	/* This stops the holder of console_sem just where we want him */
  	raw_local_irq_save(flags);
  	this_cpu = smp_processor_id();
-@@ -957,14 +1019,21 @@ asmlinkage int vprintk(const char *fmt, va_list args)
+@@ -957,14 +1018,21 @@ asmlinkage int vprintk(const char *fmt, va_list args)
  	 * will release 'logbuf_lock' regardless of whether it
  	 * actually gets the semaphore or not.
  	 */
@@ -12735,7 +12647,7 @@ index 7982a0a..66e83e5 100644
  	return printed_len;
  }
  EXPORT_SYMBOL(printk);
-@@ -1221,8 +1290,8 @@ void printk_tick(void)
+@@ -1221,8 +1289,8 @@ void printk_tick(void)
  
  int printk_needs_cpu(int cpu)
  {
@@ -12746,7 +12658,7 @@ index 7982a0a..66e83e5 100644
  	return __this_cpu_read(printk_pending);
  }
  
-@@ -1268,11 +1337,16 @@ again:
+@@ -1268,11 +1336,16 @@ again:
  		_con_start = con_start;
  		_log_end = log_end;
  		con_start = log_end;		/* Flush */
@@ -16569,7 +16481,7 @@ index 793548c..c901f33 100644
  
  	/* Get the next period (per cpu) */
 diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 03e67d4..991259a 100644
+index 5ee1ac0..5147437 100644
 --- a/kernel/time/timekeeping.c
 +++ b/kernel/time/timekeeping.c
 @@ -139,8 +139,8 @@ static inline s64 timekeeping_get_ns_raw(void)
@@ -16654,7 +16566,7 @@ index 03e67d4..991259a 100644
  	timespec_add_ns(ts_raw, nsecs_raw);
  	timespec_add_ns(ts_real, nsecs_real);
 @@ -385,7 +385,8 @@ int do_settimeofday(const struct timespec *tv)
- 	if ((unsigned long)tv->tv_nsec >= NSEC_PER_SEC)
+ 	if (!timespec_valid_strict(tv))
  		return -EINVAL;
  
 -	write_seqlock_irqsave(&xtime_lock, flags);
@@ -16673,7 +16585,7 @@ index 03e67d4..991259a 100644
  
  	/* signal hrtimers about time change */
  	clock_was_set();
-@@ -421,7 +423,8 @@ int timekeeping_inject_offset(struct timespec *ts)
+@@ -423,7 +425,8 @@ int timekeeping_inject_offset(struct timespec *ts)
  	if ((unsigned long)ts->tv_nsec >= NSEC_PER_SEC)
  		return -EINVAL;
  
@@ -16683,8 +16595,8 @@ index 03e67d4..991259a 100644
  
  	timekeeping_forward_now();
  
-@@ -430,7 +433,8 @@ int timekeeping_inject_offset(struct timespec *ts)
- 
+@@ -439,7 +442,8 @@ int timekeeping_inject_offset(struct timespec *ts)
+ error: /* even if we error out, we forwarded the time, so call update */
  	timekeeping_update(true);
  
 -	write_sequnlock_irqrestore(&xtime_lock, flags);
@@ -16693,7 +16605,7 @@ index 03e67d4..991259a 100644
  
  	/* signal hrtimers about time change */
  	clock_was_set();
-@@ -502,11 +506,11 @@ void getrawmonotonic(struct timespec *ts)
+@@ -511,11 +515,11 @@ void getrawmonotonic(struct timespec *ts)
  	s64 nsecs;
  
  	do {
@@ -16707,7 +16619,7 @@ index 03e67d4..991259a 100644
  
  	timespec_add_ns(ts, nsecs);
  }
-@@ -522,11 +526,11 @@ int timekeeping_valid_for_hres(void)
+@@ -531,11 +535,11 @@ int timekeeping_valid_for_hres(void)
  	int ret;
  
  	do {
@@ -16721,9 +16633,9 @@ index 03e67d4..991259a 100644
  
  	return ret;
  }
-@@ -584,7 +588,8 @@ void __init timekeeping_init(void)
- 	read_persistent_clock(&now);
- 	read_boot_clock(&boot);
+@@ -606,7 +610,8 @@ void __init timekeeping_init(void)
+ 		boot.tv_nsec = 0;
+ 	}
  
 -	write_seqlock_irqsave(&xtime_lock, flags);
 +	raw_spin_lock_irqsave(&xtime_lock, flags);
@@ -16731,7 +16643,7 @@ index 03e67d4..991259a 100644
  
  	ntp_init();
  
-@@ -606,7 +611,8 @@ void __init timekeeping_init(void)
+@@ -628,7 +633,8 @@ void __init timekeeping_init(void)
  	update_rt_offset();
  	total_sleep_time.tv_sec = 0;
  	total_sleep_time.tv_nsec = 0;
@@ -16741,7 +16653,7 @@ index 03e67d4..991259a 100644
  }
  
  /* time in seconds when suspend began */
-@@ -659,14 +665,16 @@ void timekeeping_inject_sleeptime(struct timespec *delta)
+@@ -681,14 +687,16 @@ void timekeeping_inject_sleeptime(struct timespec *delta)
  	if (!(ts.tv_sec == 0 && ts.tv_nsec == 0))
  		return;
  
@@ -16760,7 +16672,7 @@ index 03e67d4..991259a 100644
  
  	/* signal hrtimers about time change */
  	clock_was_set();
-@@ -689,7 +697,8 @@ static void timekeeping_resume(void)
+@@ -711,7 +719,8 @@ static void timekeeping_resume(void)
  
  	clocksource_resume();
  
@@ -16770,7 +16682,7 @@ index 03e67d4..991259a 100644
  
  	if (timespec_compare(&ts, &timekeeping_suspend_time) > 0) {
  		ts = timespec_sub(ts, timekeeping_suspend_time);
-@@ -700,7 +709,8 @@ static void timekeeping_resume(void)
+@@ -722,7 +731,8 @@ static void timekeeping_resume(void)
  	timekeeper.ntp_error = 0;
  	timekeeping_suspended = 0;
  	timekeeping_update(false);
@@ -16780,7 +16692,7 @@ index 03e67d4..991259a 100644
  
  	touch_softlockup_watchdog();
  
-@@ -718,7 +728,8 @@ static int timekeeping_suspend(void)
+@@ -740,7 +750,8 @@ static int timekeeping_suspend(void)
  
  	read_persistent_clock(&timekeeping_suspend_time);
  
@@ -16790,7 +16702,7 @@ index 03e67d4..991259a 100644
  	timekeeping_forward_now();
  	timekeeping_suspended = 1;
  
-@@ -741,7 +752,8 @@ static int timekeeping_suspend(void)
+@@ -763,7 +774,8 @@ static int timekeeping_suspend(void)
  		timekeeping_suspend_time =
  			timespec_add(timekeeping_suspend_time, delta_delta);
  	}
@@ -16800,7 +16712,7 @@ index 03e67d4..991259a 100644
  
  	clockevents_notify(CLOCK_EVT_NOTIFY_SUSPEND, NULL);
  	clocksource_suspend();
-@@ -1126,13 +1138,13 @@ void get_monotonic_boottime(struct timespec *ts)
+@@ -1152,13 +1164,13 @@ void get_monotonic_boottime(struct timespec *ts)
  	WARN_ON(timekeeping_suspended);
  
  	do {
@@ -16816,7 +16728,7 @@ index 03e67d4..991259a 100644
  
  	set_normalized_timespec(ts, ts->tv_sec + tomono.tv_sec + sleep.tv_sec,
  			ts->tv_nsec + tomono.tv_nsec + sleep.tv_nsec + nsecs);
-@@ -1183,10 +1195,10 @@ struct timespec current_kernel_time(void)
+@@ -1209,10 +1221,10 @@ struct timespec current_kernel_time(void)
  	unsigned long seq;
  
  	do {
@@ -16829,7 +16741,7 @@ index 03e67d4..991259a 100644
  
  	return now;
  }
-@@ -1198,11 +1210,11 @@ struct timespec get_monotonic_coarse(void)
+@@ -1224,11 +1236,11 @@ struct timespec get_monotonic_coarse(void)
  	unsigned long seq;
  
  	do {
@@ -16843,7 +16755,7 @@ index 03e67d4..991259a 100644
  
  	set_normalized_timespec(&now, now.tv_sec + mono.tv_sec,
  				now.tv_nsec + mono.tv_nsec);
-@@ -1234,11 +1246,11 @@ void get_xtime_and_monotonic_and_sleep_offset(struct timespec *xtim,
+@@ -1260,11 +1272,11 @@ void get_xtime_and_monotonic_and_sleep_offset(struct timespec *xtim,
  	unsigned long seq;
  
  	do {
@@ -16857,7 +16769,7 @@ index 03e67d4..991259a 100644
  }
  
  #ifdef CONFIG_HIGH_RES_TIMERS
-@@ -1257,7 +1269,7 @@ ktime_t ktime_get_update_offsets(ktime_t *real, ktime_t *boot)
+@@ -1283,7 +1295,7 @@ ktime_t ktime_get_update_offsets(ktime_t *real, ktime_t *boot)
  	u64 secs, nsecs;
  
  	do {
@@ -16866,7 +16778,7 @@ index 03e67d4..991259a 100644
  
  		secs = xtime.tv_sec;
  		nsecs = xtime.tv_nsec;
-@@ -1267,7 +1279,7 @@ ktime_t ktime_get_update_offsets(ktime_t *real, ktime_t *boot)
+@@ -1293,7 +1305,7 @@ ktime_t ktime_get_update_offsets(ktime_t *real, ktime_t *boot)
  
  		*real = offs_real;
  		*boot = offs_boot;
@@ -16875,7 +16787,7 @@ index 03e67d4..991259a 100644
  
  	now = ktime_add_ns(ktime_set(secs, 0), nsecs);
  	now = ktime_sub(now, *real);
-@@ -1284,9 +1296,9 @@ ktime_t ktime_get_monotonic_offset(void)
+@@ -1310,9 +1322,9 @@ ktime_t ktime_get_monotonic_offset(void)
  	struct timespec wtom;
  
  	do {
@@ -16887,7 +16799,7 @@ index 03e67d4..991259a 100644
  	return timespec_to_ktime(wtom);
  }
  
-@@ -1298,7 +1310,9 @@ ktime_t ktime_get_monotonic_offset(void)
+@@ -1324,7 +1336,9 @@ ktime_t ktime_get_monotonic_offset(void)
   */
  void xtime_update(unsigned long ticks)
  {
@@ -19129,7 +19041,7 @@ index 1d7bca7..c0c47d7 100644
  
  static int watchdog_enable(int cpu)
 diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index a650bee..8aa7176 100644
+index 979d4de..5eda615 100644
 --- a/kernel/workqueue.c
 +++ b/kernel/workqueue.c
 @@ -137,6 +137,7 @@ struct worker {
@@ -19263,7 +19175,7 @@ index a650bee..8aa7176 100644
  		     atomic_read(get_gcwq_nr_running(gcwq->cpu)));
  }
  
-@@ -3521,6 +3509,25 @@ static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
+@@ -3524,6 +3512,25 @@ static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
  				kthread_stop(new_trustee);
  			return NOTIFY_BAD;
  		}
@@ -19289,7 +19201,7 @@ index a650bee..8aa7176 100644
  	}
  
  	/* some are called w/ irq disabled, don't disturb irq status */
-@@ -3540,16 +3547,6 @@ static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
+@@ -3543,16 +3550,6 @@ static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
  		gcwq->first_idle = new_worker;
  		break;
  
@@ -19306,7 +19218,7 @@ index a650bee..8aa7176 100644
  	case CPU_POST_DEAD:
  		gcwq->trustee_state = TRUSTEE_BUTCHER;
  		/* fall through */
-@@ -3583,6 +3580,7 @@ static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
+@@ -3586,6 +3583,7 @@ static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
  
  	spin_unlock_irqrestore(&gcwq->lock, flags);
  
@@ -19340,39 +19252,10 @@ index 32f3e5a..63d81e8 100644
  	  Use dynamic allocation for cpumask_var_t, instead of putting
  	  them on the stack.  This is a bit more expensive, but avoids
 diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 82928f5..13a937b 100644
+index 82928f5..c347db3 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
-@@ -62,6 +62,28 @@ config MAGIC_SYSRQ
- 	  keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
- 	  unless you really know what this hack does.
- 
-+config MAGIC_SYSRQ_FORCE_PRINTK
-+	bool "Force printk from Magic SysRq"
-+	depends on MAGIC_SYSRQ && PREEMPT_RT_FULL
-+	default n
-+	help
-+	  Allow the output from Magic SysRq to be output immediately, even if
-+	  this causes large latencies.  This can cause performance problems
-+	  for real-time processes.
-+
-+	  If PREEMPT_RT_FULL, printk() will not try to acquire the console lock
-+	  when interrupts or preemption are disabled.  If the console lock is
-+	  not acquired the printk() output will be buffered, but will not be
-+	  output immediately.  Some drivers call into the Magic SysRq code
-+	  with interrupts or preemption disabled, so the output of Magic SysRq
-+	  will be buffered instead of printing immediately if this option is
-+	  not selected.
-+
-+	  Even with this option selected, Magic SysRq output will be delayed
-+	  if the attempt to acquire the console lock fails.
-+
-+	  Don't say Y unless you really know what this hack does.
-+
- config STRIP_ASM_SYMS
- 	bool "Strip assembler-generated symbols during link"
- 	default n
-@@ -151,7 +173,7 @@ config DEBUG_KERNEL
+@@ -151,7 +151,7 @@ config DEBUG_KERNEL
  
  config DEBUG_SHIRQ
  	bool "Debug shared IRQ handlers"
@@ -19543,11 +19426,11 @@ index 5f3eacd..f824704 100644
 +#endif
 diff --git a/localversion-rt b/localversion-rt
 new file mode 100644
-index 0000000..8bdfb9a
+index 0000000..38c40b2
 --- /dev/null
 +++ b/localversion-rt
 @@ -0,0 +1 @@
-+-rt42
++-rt45
 diff --git a/mm/Kconfig b/mm/Kconfig
 index 011b110..0526445 100644
 --- a/mm/Kconfig
@@ -21051,7 +20934,7 @@ index 8fd603b..726f0b6 100644
  
  void __dec_zone_page_state(struct page *page, enum zone_stat_item item)
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 4b18703..e590a6c 100644
+index 832ba6d..405217c 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
 @@ -222,14 +222,14 @@ static inline struct hlist_head *dev_index_hash(struct net *net, int ifindex)
@@ -21071,7 +20954,7 @@ index 4b18703..e590a6c 100644
  #endif
  }
  
-@@ -1804,6 +1804,7 @@ static inline void __netif_reschedule(struct Qdisc *q)
+@@ -1819,6 +1819,7 @@ static inline void __netif_reschedule(struct Qdisc *q)
  	sd->output_queue_tailp = &q->next_sched;
  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
  	local_irq_restore(flags);
@@ -21079,7 +20962,7 @@ index 4b18703..e590a6c 100644
  }
  
  void __netif_schedule(struct Qdisc *q)
-@@ -1825,6 +1826,7 @@ void dev_kfree_skb_irq(struct sk_buff *skb)
+@@ -1840,6 +1841,7 @@ void dev_kfree_skb_irq(struct sk_buff *skb)
  		sd->completion_queue = skb;
  		raise_softirq_irqoff(NET_TX_SOFTIRQ);
  		local_irq_restore(flags);
@@ -21087,7 +20970,7 @@ index 4b18703..e590a6c 100644
  	}
  }
  EXPORT_SYMBOL(dev_kfree_skb_irq);
-@@ -2943,6 +2945,7 @@ enqueue:
+@@ -2961,6 +2963,7 @@ enqueue:
  	rps_unlock(sd);
  
  	local_irq_restore(flags);
@@ -21095,7 +20978,7 @@ index 4b18703..e590a6c 100644
  
  	atomic_long_inc(&skb->dev->rx_dropped);
  	kfree_skb(skb);
-@@ -2981,7 +2984,7 @@ int netif_rx(struct sk_buff *skb)
+@@ -2999,7 +3002,7 @@ int netif_rx(struct sk_buff *skb)
  		struct rps_dev_flow voidflow, *rflow = &voidflow;
  		int cpu;
  
@@ -21104,7 +20987,7 @@ index 4b18703..e590a6c 100644
  		rcu_read_lock();
  
  		cpu = get_rps_cpu(skb->dev, skb, &rflow);
-@@ -2991,13 +2994,13 @@ int netif_rx(struct sk_buff *skb)
+@@ -3009,13 +3012,13 @@ int netif_rx(struct sk_buff *skb)
  		ret = enqueue_to_backlog(skb, cpu, &rflow->last_qtail);
  
  		rcu_read_unlock();
@@ -21121,7 +21004,7 @@ index 4b18703..e590a6c 100644
  	}
  #endif
  	return ret;
-@@ -3008,16 +3011,46 @@ int netif_rx_ni(struct sk_buff *skb)
+@@ -3026,16 +3029,46 @@ int netif_rx_ni(struct sk_buff *skb)
  {
  	int err;
  
@@ -21171,7 +21054,7 @@ index 4b18703..e590a6c 100644
  static void net_tx_action(struct softirq_action *h)
  {
  	struct softnet_data *sd = &__get_cpu_var(softnet_data);
-@@ -3056,7 +3089,7 @@ static void net_tx_action(struct softirq_action *h)
+@@ -3074,7 +3107,7 @@ static void net_tx_action(struct softirq_action *h)
  			head = head->next_sched;
  
  			root_lock = qdisc_lock(q);
@@ -21180,7 +21063,7 @@ index 4b18703..e590a6c 100644
  				smp_mb__before_clear_bit();
  				clear_bit(__QDISC_STATE_SCHED,
  					  &q->state);
-@@ -3381,7 +3414,7 @@ static void flush_backlog(void *arg)
+@@ -3399,7 +3432,7 @@ static void flush_backlog(void *arg)
  	skb_queue_walk_safe(&sd->input_pkt_queue, skb, tmp) {
  		if (skb->dev == dev) {
  			__skb_unlink(skb, &sd->input_pkt_queue);
@@ -21189,7 +21072,7 @@ index 4b18703..e590a6c 100644
  			input_queue_head_incr(sd);
  		}
  	}
-@@ -3390,10 +3423,13 @@ static void flush_backlog(void *arg)
+@@ -3408,10 +3441,13 @@ static void flush_backlog(void *arg)
  	skb_queue_walk_safe(&sd->process_queue, skb, tmp) {
  		if (skb->dev == dev) {
  			__skb_unlink(skb, &sd->process_queue);
@@ -21204,7 +21087,7 @@ index 4b18703..e590a6c 100644
  }
  
  static int napi_gro_complete(struct sk_buff *skb)
-@@ -3731,6 +3767,7 @@ static void net_rps_action_and_irq_enable(struct softnet_data *sd)
+@@ -3749,6 +3785,7 @@ static void net_rps_action_and_irq_enable(struct softnet_data *sd)
  	} else
  #endif
  		local_irq_enable();
@@ -21212,7 +21095,7 @@ index 4b18703..e590a6c 100644
  }
  
  static int process_backlog(struct napi_struct *napi, int quota)
-@@ -3803,6 +3840,7 @@ void __napi_schedule(struct napi_struct *n)
+@@ -3821,6 +3858,7 @@ void __napi_schedule(struct napi_struct *n)
  	local_irq_save(flags);
  	____napi_schedule(&__get_cpu_var(softnet_data), n);
  	local_irq_restore(flags);
@@ -21220,7 +21103,7 @@ index 4b18703..e590a6c 100644
  }
  EXPORT_SYMBOL(__napi_schedule);
  
-@@ -3877,10 +3915,17 @@ static void net_rx_action(struct softirq_action *h)
+@@ -3895,10 +3933,17 @@ static void net_rx_action(struct softirq_action *h)
  	struct softnet_data *sd = &__get_cpu_var(softnet_data);
  	unsigned long time_limit = jiffies + 2;
  	int budget = netdev_budget;
@@ -21238,7 +21121,7 @@ index 4b18703..e590a6c 100644
  	while (!list_empty(&sd->poll_list)) {
  		struct napi_struct *n;
  		int work, weight;
-@@ -6306,6 +6351,7 @@ static int dev_cpu_callback(struct notifier_block *nfb,
+@@ -6325,6 +6370,7 @@ static int dev_cpu_callback(struct notifier_block *nfb,
  
  	raise_softirq_irqoff(NET_TX_SOFTIRQ);
  	local_irq_enable();
@@ -21246,7 +21129,7 @@ index 4b18703..e590a6c 100644
  
  	/* Process offline CPU's input_pkt_queue */
  	while ((skb = __skb_dequeue(&oldsd->process_queue))) {
-@@ -6316,6 +6362,9 @@ static int dev_cpu_callback(struct notifier_block *nfb,
+@@ -6335,6 +6381,9 @@ static int dev_cpu_callback(struct notifier_block *nfb,
  		netif_rx(skb);
  		input_queue_head_incr(oldsd);
  	}
@@ -21256,7 +21139,7 @@ index 4b18703..e590a6c 100644
  
  	return NOTIFY_OK;
  }
-@@ -6582,8 +6631,9 @@ static int __init net_dev_init(void)
+@@ -6601,8 +6650,9 @@ static int __init net_dev_init(void)
  		struct softnet_data *sd = &per_cpu(softnet_data, i);
  
  		memset(sd, 0, sizeof(*sd));
@@ -21269,10 +21152,10 @@ index 4b18703..e590a6c 100644
  		INIT_LIST_HEAD(&sd->poll_list);
  		sd->output_queue = NULL;
 diff --git a/net/core/sock.c b/net/core/sock.c
-index 8d095b9..718314b 100644
+index 018fd41..7b6161d 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
-@@ -2034,12 +2034,11 @@ void lock_sock_nested(struct sock *sk, int subclass)
+@@ -2035,12 +2035,11 @@ void lock_sock_nested(struct sock *sk, int subclass)
  	if (sk->sk_lock.owned)
  		__lock_sock(sk);
  	sk->sk_lock.owned = 1;
@@ -21386,7 +21269,7 @@ index cda4875..6791b22 100644
  	if (WARN_ON(status->band < 0 ||
  		    status->band >= IEEE80211_NUM_BANDS))
 diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index d9d4970..ed8ef1e 100644
+index 85afc13..684f510 100644
 --- a/net/packet/af_packet.c
 +++ b/net/packet/af_packet.c
 @@ -89,6 +89,7 @@
