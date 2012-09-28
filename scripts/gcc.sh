@@ -24,8 +24,8 @@ DIR=$PWD
 
 source ${DIR}/system.sh
 
-#Test that user actually modified the CC line:
-if [ "x${CC}" == "x" ] ; then
+ARCH=$(uname -m)
+if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	echo "-----------------------------"
 	echo "Error: You haven't setup the Cross Compiler (CC variable) in system.sh"
 	echo ""
