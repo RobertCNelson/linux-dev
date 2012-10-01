@@ -243,6 +243,7 @@ pwm () {
 	${git} "${DIR}/patches/pwm/0014-dts-support-for-config-space.patch"
 	${git} "${DIR}/patches/pwm/0015-pwm-pwm-tiehrpwm-Fix-conflicting-channel-period-sett.patch"
 	${git} "${DIR}/patches/pwm/0016-PWM-ti-ehrpwm-fix-up-merge-conflict.patch"
+	${git} "${DIR}/patches/pwm/0017-pwm-pwm_test-Driver-support-for-PWM-module-testing.patch"
 }
 
 st7735 () {
