@@ -185,7 +185,7 @@ function am33x-cleanup {
 	${git} "${DIR}/patches/beaglebone/0091-beaglebone-add-support-for-LCD3-rev-A2.patch"
 	${git} "${DIR}/patches/beaglebone/0092-beaglebone-add-support-for-LCD4-rev-A1-button-suppor.patch"
 
-	${git} "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
+#	${git} "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	${git} "${DIR}/patches/beaglebone/0002-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
 
 #	${git} "${DIR}/patches/beaglebone/0001-ARM-omap-am335x-BeagleBone-userspace-SPI-support.patch"
