@@ -181,6 +181,9 @@ function am33x-cleanup {
 	${git} "${DIR}/patches/beaglebone/0087-mux33xx-Fix-MUXENTRYs-for-MCASP0_ACLKX-FSX-to-add-eh.patch"
 	${git} "${DIR}/patches/beaglebone/0088-beaglebone-add-a-method-to-skip-mmc-init.patch"
 	${git} "${DIR}/patches/beaglebone/0089-beaglebone-do-mmc-init-in-TT3202-setup-method.patch"
+	${git} "${DIR}/patches/beaglebone/0090-beaglebone-map-LCD7-A4-to-A3-for-the-time-being.patch"
+	${git} "${DIR}/patches/beaglebone/0091-beaglebone-add-support-for-LCD3-rev-A2.patch"
+	${git} "${DIR}/patches/beaglebone/0092-beaglebone-add-support-for-LCD4-rev-A1-button-suppor.patch"
 
 	${git} "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	${git} "${DIR}/patches/beaglebone/0002-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
