@@ -23,7 +23,7 @@ config="omap2plus_defconfig"
 #Kernel/Build
 KERNEL_REL=3.2
 KERNEL_TAG=${KERNEL_REL}
-BUILD=psp23.3
+BUILD=psp24
 
 #git branch
 BRANCH="am33x-v3.2"
