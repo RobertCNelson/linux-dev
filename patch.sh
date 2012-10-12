@@ -194,12 +194,20 @@ function am33x-cleanup {
 }
 
 rt_patchset () {
+	#Unsupported: enable at your own peril
 	${git} "${DIR}/patches/rt/0001-rt-patch-3.2.30-rt45.patch"
+}
+
+xenomai_patchset () {
+	#Unsupported: enable at your own peril
+	${git} "${DIR}/patches/xenomai/0001-ipipe-core-3.2.21-arm-1.patch"
 }
 
 am33x-cleanup
 bugs_trivial
+
 #rt_patchset
+#xenomai_patchset
 
 echo "patch.sh ran successful"
 
