@@ -1,0 +1,159 @@
+From f12ee7d15197c51e0c2dbca51b161b1ee0230221 Mon Sep 17 00:00:00 2001
+From: Mike Turquette <mturquette@ti.com>
+Date: Wed, 3 Oct 2012 18:26:09 -0700
+Subject: [PATCH 07/12] ARM: omap: add ABB PRM_IRQSTATUS handlers
+
+Some PRM_IRQSTATUS registers contain a bit to signal that an ABB LDO
+transition has completed.  These tranxdone bits exist for every instance
+of an ABB LDO; thus these tranxdone bits are supported on 36xx variants
+for the MPU voltage domain, and on 44xx variants for the MPU and IVA
+voltage domains.
+
+This patch introduces some data structures and helper functions for
+checking on and clearing the TRANXDONE bits.  They are a copy-paste of
+existing VP functions of similar nature and will be used in forthcoming
+patches that control the ABB programming sequence during a DVFS
+transition.
+
+Some previous discussion on the design of the ABB PRM handlers can be
+found here:
+http://article.gmane.org/gmane.linux.ports.arm.omap/63609
+
+Signed-off-by: Mike Turquette <mturquette@ti.com>
+Signed-off-by: Mike Turquette <mturquette@linaro.org>
+---
+ arch/arm/mach-omap2/prm2xxx_3xxx.c |   36 +++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/prm2xxx_3xxx.h |    4 ++++
+ arch/arm/mach-omap2/prm44xx.c      |   44 ++++++++++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/prm44xx.h      |    4 ++++
+ 4 files changed, 88 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/prm2xxx_3xxx.c b/arch/arm/mach-omap2/prm2xxx_3xxx.c
+index 9529984..48bca29 100644
+--- a/arch/arm/mach-omap2/prm2xxx_3xxx.c
++++ b/arch/arm/mach-omap2/prm2xxx_3xxx.c
+@@ -363,3 +363,39 @@ static int __init omap3xxx_prcm_init(void)
+ 	return ret;
+ }
+ subsys_initcall(omap3xxx_prcm_init);
++
++/* PRM ABB */
++
++/*
++ * struct omap36xx_abb - OMAP3 ABB register access description
++ * @tranxdone_status: ABB_xxx_DONE_ST bitmask in PRM_IRQSTATUS reg
++ */
++struct omap36xx_abb {
++	u32 tranxdone_status;
++};
++
++static struct omap36xx_abb omap36xx_abb[] = {
++	[OMAP3_VP_VDD_MPU_ID] = {
++		.tranxdone_status = OMAP3630_ABB_LDO_TRANXDONE_ST_MASK,
++	},
++};
++
++#define MAX_ABB_ID ARRAY_SIZE(omap36xx_abb);
++
++u32 omap3_prm_abb_check_txdone(u8 abb_id)
++{
++	struct omap36xx_abb *abb = &omap36xx_abb[abb_id];
++	u32 irqstatus;
++
++	irqstatus = omap2_prm_read_mod_reg(OCP_MOD,
++					   OMAP3_PRM_IRQSTATUS_MPU_OFFSET);
++	return irqstatus & abb->tranxdone_status;
++}
++
++void omap3_prm_abb_clear_txdone(u8 abb_id)
++{
++	struct omap36xx_abb *abb = &omap36xx_abb[abb_id];
++
++	omap2_prm_write_mod_reg(abb->tranxdone_status,
++				OCP_MOD, OMAP3_PRM_IRQSTATUS_MPU_OFFSET);
++}
+diff --git a/arch/arm/mach-omap2/prm2xxx_3xxx.h b/arch/arm/mach-omap2/prm2xxx_3xxx.h
+index c9eea9a..c24c039 100644
+--- a/arch/arm/mach-omap2/prm2xxx_3xxx.h
++++ b/arch/arm/mach-omap2/prm2xxx_3xxx.h
+@@ -249,6 +249,10 @@ extern int omap2_prm_deassert_hardreset(s16 prm_mod, u8 rst_shift, u8 st_shift);
+ u32 omap3_prm_vp_check_txdone(u8 vp_id);
+ void omap3_prm_vp_clear_txdone(u8 vp_id);
+ 
++/* OMAP36xx-specific ABB functions */
++u32 omap3_prm_abb_check_txdone(u8 vp_id);
++void omap3_prm_abb_clear_txdone(u8 vp_id);
++
+ /*
+  * OMAP3 access functions for voltage controller (VC) and
+  * voltage proccessor (VP) in the PRM.
+diff --git a/arch/arm/mach-omap2/prm44xx.c b/arch/arm/mach-omap2/prm44xx.c
+index f0c4d5f..860f32f 100644
+--- a/arch/arm/mach-omap2/prm44xx.c
++++ b/arch/arm/mach-omap2/prm44xx.c
+@@ -300,3 +300,47 @@ static int __init omap4xxx_prcm_init(void)
+ 	return 0;
+ }
+ subsys_initcall(omap4xxx_prcm_init);
++
++/* PRM ABB */
++
++/*
++ * struct omap4_vp - OMAP4 VP register access description.
++ * @irqstatus_mpu: offset to IRQSTATUS_MPU register for VP
++ * @tranxdone_status: VP_TRANXDONE_ST bitmask in PRM_IRQSTATUS_MPU reg
++ */
++struct omap4_abb {
++	u32 irqstatus_mpu;
++	u32 tranxdone_status;
++};
++
++static struct omap4_abb omap4_abb[] = {
++	[OMAP4_VP_VDD_MPU_ID] = {
++		.irqstatus_mpu = OMAP4_PRM_IRQSTATUS_MPU_2_OFFSET,
++		.tranxdone_status = OMAP4430_ABB_MPU_DONE_ST_MASK,
++	},
++	[OMAP4_VP_VDD_IVA_ID] = {
++		.irqstatus_mpu = OMAP4_PRM_IRQSTATUS_MPU_OFFSET,
++		.tranxdone_status = OMAP4430_ABB_IVA_DONE_ST_MASK,
++	},
++};
++
++u32 omap4_prm_abb_check_txdone(u8 abb_id)
++{
++	struct omap4_abb *abb = &omap4_abb[abb_id];
++	u32 irqstatus;
++
++	irqstatus = omap4_prminst_read_inst_reg(OMAP4430_PRM_PARTITION,
++						OMAP4430_PRM_OCP_SOCKET_INST,
++						abb->irqstatus_mpu);
++	return irqstatus & abb->tranxdone_status;
++}
++
++void omap4_prm_abb_clear_txdone(u8 abb_id)
++{
++	struct omap4_abb *abb = &omap4_abb[abb_id];
++
++	omap4_prminst_write_inst_reg(abb->tranxdone_status,
++				     OMAP4430_PRM_PARTITION,
++				     OMAP4430_PRM_OCP_SOCKET_INST,
++				     abb->irqstatus_mpu);
++};
+diff --git a/arch/arm/mach-omap2/prm44xx.h b/arch/arm/mach-omap2/prm44xx.h
+index ee72ae6..6a0a00c 100644
+--- a/arch/arm/mach-omap2/prm44xx.h
++++ b/arch/arm/mach-omap2/prm44xx.h
+@@ -755,6 +755,10 @@ extern u32 omap4_prm_rmw_inst_reg_bits(u32 mask, u32 bits, s16 inst, s16 idx);
+ u32 omap4_prm_vp_check_txdone(u8 vp_id);
+ void omap4_prm_vp_clear_txdone(u8 vp_id);
+ 
++/* OMAP4-specific ABB functions */
++u32 omap4_prm_abb_check_txdone(u8 abb_id);
++void omap4_prm_abb_clear_txdone(u8 abb_id);
++
+ /*
+  * OMAP4 access functions for voltage controller (VC) and
+  * voltage proccessor (VP) in the PRM.
+-- 
+1.7.10.4
+

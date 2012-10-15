@@ -8,14 +8,14 @@ This reverts commit ccddd916dcde141a6fb5612da622a8ae060c12b8.
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- drivers/media/video/omap3isp/ispvideo.c |   79 -------------------------------
- 1 file changed, 79 deletions(-)
+ drivers/media/platform/omap3isp/ispvideo.c |   80 ----------------------------
+ 1 file changed, 80 deletions(-)
 
-diff --git a/drivers/media/video/omap3isp/ispvideo.c b/drivers/media/video/omap3isp/ispvideo.c
-index ffad91e..3f5065a 100644
---- a/drivers/media/video/omap3isp/ispvideo.c
-+++ b/drivers/media/video/omap3isp/ispvideo.c
-@@ -952,81 +952,6 @@ isp_video_dqbuf(struct file *file, void *fh, struct v4l2_buffer *b)
+diff --git a/drivers/media/platform/omap3isp/ispvideo.c b/drivers/media/platform/omap3isp/ispvideo.c
+index b7fb120..637f984 100644
+--- a/drivers/media/platform/omap3isp/ispvideo.c
++++ b/drivers/media/platform/omap3isp/ispvideo.c
+@@ -962,82 +962,6 @@ isp_video_dqbuf(struct file *file, void *fh, struct v4l2_buffer *b)
  					  file->f_flags & O_NONBLOCK);
  }
  
@@ -72,7 +72,8 @@ index ffad91e..3f5065a 100644
 -		return ret;
 -	}
 -
--	pipe->external_bpp = omap3isp_video_format_info(fmt.format.code)->bpp;
+-	pipe->external_width =
+-		omap3isp_video_format_info(fmt.format.code)->width;
 -
 -	memset(&ctrls, 0, sizeof(ctrls));
 -	memset(&ctrl, 0, sizeof(ctrl));
@@ -97,7 +98,7 @@ index ffad91e..3f5065a 100644
  /*
   * Stream management
   *
-@@ -1114,10 +1039,6 @@ isp_video_streamon(struct file *file, void *fh, enum v4l2_buf_type type)
+@@ -1125,10 +1049,6 @@ isp_video_streamon(struct file *file, void *fh, enum v4l2_buf_type type)
  	else
  		state = ISP_PIPELINE_STREAM_INPUT | ISP_PIPELINE_IDLE_INPUT;
  

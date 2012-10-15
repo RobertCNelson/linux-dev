@@ -8,15 +8,15 @@ This reverts commit a6d7a62dcd1fccb3140100551b205315491eadc5.
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- drivers/media/video/omap3isp/ispccdc.c  |   65 ---------------------
- drivers/media/video/omap3isp/ispvideo.c |   95 +++++++++++++++++++++++++++----
+ drivers/media/platform/omap3isp/ispccdc.c  |   65 -------------------
+ drivers/media/platform/omap3isp/ispvideo.c |   95 ++++++++++++++++++++++++----
  2 files changed, 84 insertions(+), 76 deletions(-)
 
-diff --git a/drivers/media/video/omap3isp/ispccdc.c b/drivers/media/video/omap3isp/ispccdc.c
-index f1220d3..c1a0e89 100644
---- a/drivers/media/video/omap3isp/ispccdc.c
-+++ b/drivers/media/video/omap3isp/ispccdc.c
-@@ -2155,69 +2155,6 @@ static int ccdc_set_format(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh,
+diff --git a/drivers/media/platform/omap3isp/ispccdc.c b/drivers/media/platform/omap3isp/ispccdc.c
+index 60181ab..60f1ef7 100644
+--- a/drivers/media/platform/omap3isp/ispccdc.c
++++ b/drivers/media/platform/omap3isp/ispccdc.c
+@@ -2211,69 +2211,6 @@ static int ccdc_set_format(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh,
  }
  
  /*
@@ -47,7 +47,7 @@ index f1220d3..c1a0e89 100644
 -	if (in_info->flavor != out_info->flavor)
 -		return false;
 -
--	return in_info->bpp - out_info->bpp + additional_shift <= 6;
+-	return in_info->width - out_info->width + additional_shift <= 6;
 -}
 -
 -static int ccdc_link_validate(struct v4l2_subdev *sd,
@@ -86,7 +86,7 @@ index f1220d3..c1a0e89 100644
   * ccdc_init_formats - Initialize formats on all pads
   * @sd: ISP CCDC V4L2 subdevice
   * @fh: V4L2 subdev file handle
-@@ -2261,7 +2198,6 @@ static const struct v4l2_subdev_pad_ops ccdc_v4l2_pad_ops = {
+@@ -2317,7 +2254,6 @@ static const struct v4l2_subdev_pad_ops ccdc_v4l2_pad_ops = {
  	.set_fmt = ccdc_set_format,
  	.get_selection = ccdc_get_selection,
  	.set_selection = ccdc_set_selection,
@@ -94,7 +94,7 @@ index f1220d3..c1a0e89 100644
  };
  
  /* V4L2 subdev operations */
-@@ -2371,7 +2307,6 @@ static int ccdc_link_setup(struct media_entity *entity,
+@@ -2427,7 +2363,6 @@ static int ccdc_link_setup(struct media_entity *entity,
  /* media operations */
  static const struct media_entity_operations ccdc_media_ops = {
  	.link_setup = ccdc_link_setup,
@@ -102,11 +102,11 @@ index f1220d3..c1a0e89 100644
  };
  
  void omap3isp_ccdc_unregister_entities(struct isp_ccdc_device *ccdc)
-diff --git a/drivers/media/video/omap3isp/ispvideo.c b/drivers/media/video/omap3isp/ispvideo.c
-index b37379d..66bc674 100644
---- a/drivers/media/video/omap3isp/ispvideo.c
-+++ b/drivers/media/video/omap3isp/ispvideo.c
-@@ -130,6 +130,37 @@ omap3isp_video_format_info(enum v4l2_mbus_pixelcode code)
+diff --git a/drivers/media/platform/omap3isp/ispvideo.c b/drivers/media/platform/omap3isp/ispvideo.c
+index a0b737fe..140b8c3 100644
+--- a/drivers/media/platform/omap3isp/ispvideo.c
++++ b/drivers/media/platform/omap3isp/ispvideo.c
+@@ -140,6 +140,37 @@ omap3isp_video_format_info(enum v4l2_mbus_pixelcode code)
  }
  
  /*
@@ -144,7 +144,7 @@ index b37379d..66bc674 100644
   * isp_video_mbus_to_pix - Convert v4l2_mbus_framefmt to v4l2_pix_format
   * @video: ISP video instance
   * @mbus: v4l2_mbus_framefmt format (input)
-@@ -284,24 +315,51 @@ static int isp_video_get_graph_data(struct isp_video *video,
+@@ -294,24 +325,51 @@ static int isp_video_get_graph_data(struct isp_video *video,
  static int isp_video_validate_pipeline(struct isp_pipeline *pipe)
  {
  	struct isp_device *isp = pipe->output->isp;
@@ -196,7 +196,7 @@ index b37379d..66bc674 100644
  		/* Retrieve the source format. Return an error if no source
  		 * entity can be found, and stop checking the pipeline if the
  		 * source entity isn't a subdev.
-@@ -314,6 +372,32 @@ static int isp_video_validate_pipeline(struct isp_pipeline *pipe)
+@@ -324,6 +382,32 @@ static int isp_video_validate_pipeline(struct isp_pipeline *pipe)
  			break;
  
  		subdev = media_entity_to_v4l2_subdev(pad->entity);
@@ -229,7 +229,7 @@ index b37379d..66bc674 100644
  	}
  
  	return 0;
-@@ -940,17 +1024,6 @@ static int isp_video_check_external_subdevs(struct isp_video *video,
+@@ -951,17 +1035,6 @@ static int isp_video_check_external_subdevs(struct isp_video *video,
  
  	pipe->external_rate = ctrl.value64;
  

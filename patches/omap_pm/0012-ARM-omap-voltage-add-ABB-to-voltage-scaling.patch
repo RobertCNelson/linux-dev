@@ -1,0 +1,76 @@
+From d9b0ac591a87dfd5f6d51f0c8c7150a24d11bd8a Mon Sep 17 00:00:00 2001
+From: Mike Turquette <mturquette@ti.com>
+Date: Wed, 3 Oct 2012 18:26:14 -0700
+Subject: [PATCH 12/12] ARM: omap: voltage: add ABB to voltage scaling
+
+Adaptive Body-Bias ldo state should be transitioned (if necessary)
+during any voltage scaling operation.
+
+This patch initializes ABB LDO's as a part of the greater voltage domain
+initialization sequence and adds the ABB transition callbacks to the
+primary voltage domain scaling function, voltdm_scale().
+
+Signed-off-by: Mike Turquette <mturquette@ti.com>
+Signed-off-by: Mike Turquette <mturquette@linaro.org>
+---
+ arch/arm/mach-omap2/voltage.c |   28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/voltage.c b/arch/arm/mach-omap2/voltage.c
+index d9a1971..0ea4a92 100644
+--- a/arch/arm/mach-omap2/voltage.c
++++ b/arch/arm/mach-omap2/voltage.c
+@@ -41,6 +41,7 @@
+ 
+ #include "vc.h"
+ #include "vp.h"
++#include "abb.h"
+ 
+ static LIST_HEAD(voltdm_list);
+ 
+@@ -101,10 +102,30 @@ int voltdm_scale(struct voltagedomain *voltdm,
+ 		return -EINVAL;
+ 	}
+ 
++	ret = omap_abb_pre_scale(voltdm, volt);
++	if (ret) {
++		pr_err("%s: abb prescale failed for vdd%s: %d\n",
++				__func__, voltdm->name, ret);
++		goto out;
++	}
++
+ 	ret = voltdm->scale(voltdm, volt);
+-	if (!ret)
+-		voltdm->nominal_volt = volt;
++	if (ret) {
++		pr_err("%s: vdd_%s failed to scale: %d\n",
++				__func__, voltdm->name, ret);
++		goto out;
++	}
++
++	voltdm->nominal_volt = volt;
+ 
++	ret = omap_abb_post_scale(voltdm, volt);
++	if (ret) {
++		pr_err("%s: abb postscale failed for vdd%s: %d\n",
++				__func__, voltdm->name, ret);
++		goto out;
++	}
++
++out:
+ 	return ret;
+ }
+ 
+@@ -300,6 +321,9 @@ int __init omap_voltage_late_init(void)
+ 			omap_vp_init(voltdm);
+ 		}
+ 
++		if (voltdm->abb)
++			omap_abb_init(voltdm);
++
+ 		/*
+ 		 * XXX If voltdm->nominal_volt is zero after calling
+ 		 * voltdm->get_voltage then we are likely running this
+-- 
+1.7.10.4
+

@@ -5,14 +5,14 @@ Subject: [PATCH 2/9] Beagle: expansion: add zippy
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c |  161 +++++++++++++++++++++++++++++--
- 1 file changed, 155 insertions(+), 6 deletions(-)
+ arch/arm/mach-omap2/board-omap3beagle.c |  163 +++++++++++++++++++++++++++++--
+ 1 file changed, 157 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index aac3b29..01b1adb 100644
+index e07feb0..0a2a6c6 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -163,6 +163,86 @@ static void __init omap3_beagle_init_rev(void)
+@@ -161,6 +161,86 @@ static void __init omap3_beagle_init_rev(void)
  
  char expansionboard_name[16];
  
@@ -57,7 +57,7 @@ index aac3b29..01b1adb 100644
 +#define OMAP3BEAGLE_GPIO_ZIPPY_MMC_CD 162
 +
 +#if defined(CONFIG_ENC28J60) || defined(CONFIG_ENC28J60_MODULE)
-+#include <plat/mcspi.h>
++#include <linux/platform_data/spi-omap2-mcspi.h>
 +#include <linux/spi/spi.h>
 +
 +#define OMAP3BEAGLE_GPIO_ENC28J60_IRQ 157
@@ -99,7 +99,7 @@ index aac3b29..01b1adb 100644
  static struct mtd_partition omap3beagle_nand_partitions[] = {
  	/* All the partition sizes are listed in terms of NAND block size */
  	{
-@@ -239,6 +319,23 @@ static struct omap2_hsmmc_info mmc[] = {
+@@ -237,6 +317,23 @@ static struct omap2_hsmmc_info mmc[] = {
  	{}	/* Terminator */
  };
  
@@ -123,7 +123,7 @@ index aac3b29..01b1adb 100644
  static struct regulator_consumer_supply beagle_vmmc1_supply[] = {
  	REGULATOR_SUPPLY("vmmc", "omap_hsmmc.0"),
  };
-@@ -254,10 +351,21 @@ static int beagle_twl_gpio_setup(struct device *dev,
+@@ -252,10 +349,21 @@ static int beagle_twl_gpio_setup(struct device *dev,
  {
  	int r;
  
@@ -132,7 +132,7 @@ index aac3b29..01b1adb 100644
 -	mmc[0].gpio_cd = gpio + 0;
 -	omap_hsmmc_late_init(mmc);
 +	switch (expansion_config.mmc_settings) {
-+	case 1:
++	case EXPANSION_MMC_ZIPPY:
 +		mmc_zippy[0].gpio_wp = beagle_config.mmc1_gpio_wp;
 +		/* gpio + 0 is "mmc0_cd" (input/IRQ) */
 +		mmc_zippy[0].gpio_cd = gpio + 0;
@@ -149,26 +149,28 @@ index aac3b29..01b1adb 100644
  
  	/*
  	 * TWL4030_GPIO_MAX + 0 == ledA, EHCI nEN_USB_PWR (out, XM active
-@@ -353,6 +461,12 @@ static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
+@@ -348,6 +456,14 @@ static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
         },
  };
  
 +static struct i2c_board_info __initdata zippy_i2c2_rtc[] = {
++#if defined(CONFIG_RTC_DRV_DS1307) || defined(CONFIG_RTC_DRV_DS1307_MODULE)
 +	{
 +		I2C_BOARD_INFO("ds1307", 0x68),
 +	},
++#endif
 +};
 +
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -363,6 +477,15 @@ static int __init omap3_beagle_i2c_init(void)
+@@ -358,6 +474,15 @@ static int __init omap3_beagle_i2c_init(void)
  	beagle_twldata.vpll2->constraints.name = "VDVI";
  
  	omap3_pmic_init("twl4030", &beagle_twldata);
 +
 +	switch (expansion_config.i2c_settings) {
-+	case 1:
++	case EXPANSION_I2C_ZIPPY:
 +		omap_register_i2c_bus(2, 400, zippy_i2c2_rtc, ARRAY_SIZE(zippy_i2c2_rtc));
 +		break;
 +	default:
@@ -178,7 +180,7 @@ index aac3b29..01b1adb 100644
  	/* Bus 3 is attached to the DVI port where devices like the pico DLP
  	 * projector don't work reliably with 400kHz */
  	omap_register_i2c_bus(3, 100, beagle_i2c_eeprom, ARRAY_SIZE(beagle_i2c_eeprom));
-@@ -509,10 +632,30 @@ static void __init omap3_beagle_init(void)
+@@ -504,10 +629,30 @@ static void __init omap3_beagle_init(void)
  	omap3_mux_init(board_mux, OMAP_PACKAGE_CBB);
  	omap3_beagle_init_rev();
  
@@ -200,7 +202,7 @@ index aac3b29..01b1adb 100644
 -	omap_hsmmc_init(mmc);
 +
 +	switch (expansion_config.mmc_settings) {
-+	case 1:
++	case EXPANSION_MMC_ZIPPY:
 +		mmc_zippy[0].caps = beagle_config.mmc_caps;
 +		omap_hsmmc_init(mmc_zippy);
 +		break;
@@ -211,7 +213,7 @@ index aac3b29..01b1adb 100644
  
  	omap3_beagle_i2c_init();
  
-@@ -527,6 +670,12 @@ static void __init omap3_beagle_init(void)
+@@ -522,6 +667,12 @@ static void __init omap3_beagle_init(void)
  	omap_sdrc_init(mt46h32m32lf6_sdrc_params,
  				  mt46h32m32lf6_sdrc_params);
  

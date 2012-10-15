@@ -104,19 +104,16 @@ panda () {
 	${git} "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 
 	#Status: https://lkml.org/lkml/2012/9/11/303
-	${git} "${DIR}/patches/panda/0003-staging-omap-thermal-Correct-checkpatch.pl-warnings.patch"
-	${git} "${DIR}/patches/panda/0004-staging-omap-thermal-remove-checkpatch.pl-warnings-o.patch"
-	${git} "${DIR}/patches/panda/0005-staging-omap-thermal-fix-polling-period-settings.patch"
-	${git} "${DIR}/patches/panda/0006-staging-omap-thermal-improve-conf-data-handling-and-.patch"
+#	${git} "${DIR}/patches/panda/0003-staging-omap-thermal-Correct-checkpatch.pl-warnings.patch"
+#	${git} "${DIR}/patches/panda/0004-staging-omap-thermal-remove-checkpatch.pl-warnings-o.patch"
+#	${git} "${DIR}/patches/panda/0005-staging-omap-thermal-fix-polling-period-settings.patch"
+#	${git} "${DIR}/patches/panda/0006-staging-omap-thermal-improve-conf-data-handling-and-.patch"
 }
 
 omap_fixes () {
 	echo "omap cherry pick fixes"
 	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
 	${git} "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
-	#Status: unknown: seem to be dropped after v3.4-rc-fixes request
-	${git} "${DIR}/patches/omap_fixes/0002-OMAP2-UART-enable-tx-wakeup-bit-for-wer-reg.patch"
-	${git} "${DIR}/patches/omap_fixes/0003-OMAP2-UART-replace-omap34xx-omap4xx-cpu-checks-with-.patch"
 }
 
 sgx () {
@@ -132,7 +129,7 @@ mainline_fixes () {
 	${git} "${DIR}/patches/mainline-fixes/0001-arm-add-definition-of-strstr-to-decompress.c.patch"
 	#Status:
 	#http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap.git;a=shortlog;h=refs/heads/devel-dt
-	${git} "${DIR}/patches/mainline-fixes/0002-ARM-omap-add-dtb-targets.patch"
+#	${git} "${DIR}/patches/mainline-fixes/0002-ARM-omap-add-dtb-targets.patch"
 
 	#From: https://github.com/RobertCNelson/linux-dev/issues/7
 	#DisplayLink fb driver (udlfb.ko)
@@ -146,71 +143,32 @@ debug () {
 }
 
 omap3isp () {
+	echo "omap3isp"
 	#omap3isp: Revert to v3.4.x, till we figure out, how to actually set the 'pixel rate control'
-	#"no pixel rate control in subdev %s\n","
-	${git} "${DIR}/patches/omap3isp/0001-Revert-media-omap3isp-Move-CCDC-link-validation-to-c.patch"
-	${git} "${DIR}/patches/omap3isp/0002-Revert-media-omap3isp-Default-link-validation-for-cc.patch"
-	${git} "${DIR}/patches/omap3isp/0003-Revert-media-omap3isp-Use-external-rate-instead-of-v.patch"
-	${git} "${DIR}/patches/omap3isp/0004-Revert-media-omap3isp-Introduce-isp_video_check_exte.patch"
+	#"no pixel rate control in subdev %s\n
+#	${git} "${DIR}/patches/omap3isp/0001-Revert-media-omap3isp-Move-CCDC-link-validation-to-c.patch"
+#	${git} "${DIR}/patches/omap3isp/0002-Revert-media-omap3isp-Default-link-validation-for-cc.patch"
+#	${git} "${DIR}/patches/omap3isp/0003-Revert-media-omap3isp-Use-external-rate-instead-of-v.patch"
+#	${git} "${DIR}/patches/omap3isp/0004-Revert-media-omap3isp-Introduce-isp_video_check_exte.patch"
 }
 
-pm () {
-	echo "omap: pm patches"
-	#git pull git://gitorious.org/~kristo/omap-pm/omap-pm-work.git mainline-3.6-rc5-omap-auto-ret-v7
+omap_pm () {
+	echo "omap_pm: pm patches"
+	#Status: http://www.spinics.net/lists/linux-omap/msg78896.html
+	${git} "${DIR}/patches/omap_pm/0001-ARM-omap-vc-replace-data_shift-with-data_mask.patch"
+	${git} "${DIR}/patches/omap_pm/0002-ARM-omap-introduce-.get_voltage-callback.patch"
+	${git} "${DIR}/patches/omap_pm/0003-ARM-omap-vc-.get_voltage-callback.patch"
+	${git} "${DIR}/patches/omap_pm/0004-ARM-omap-vp-.get_voltage-callback.patch"
+	${git} "${DIR}/patches/omap_pm/0005-ARM-omap-initialize-voltdm-nominal_volt.patch"
 
-	${git} "${DIR}/patches/pm/0001-ARM-OMAP4-hwmod-flag-hwmods-modules-not-supporting-m.patch"
-	${git} "${DIR}/patches/pm/0002-ARM-OMAP-hwmod-Add-support-for-per-hwmod-module-cont.patch"
-	${git} "${DIR}/patches/pm/0003-ARM-OMAP4-powerdomain-add-support-for-reading-prev-l.patch"
-
-	#in 3.6-rc7
-	#${git} "${DIR}/patches/pm/0004-ARM-OMAP4-hwmod-data-temporarily-comment-out-data-fo.patch"
-
-	${git} "${DIR}/patches/pm/0005-ARM-OMAP4-HWMOD-add-support-for-lostcontext_mask.patch"
-	${git} "${DIR}/patches/pm/0006-ARM-OMAP2-PM-introduce-power-domains-functional-stat.patch"
-	${git} "${DIR}/patches/pm/0007-ARM-OMAP2-PM-add-a-lock-to-protect-the-powerdomains-.patch"
-	${git} "${DIR}/patches/pm/0008-ARM-OMAP2-PM-use-the-functional-power-states-API.patch"
-	${git} "${DIR}/patches/pm/0009-ARM-OMAP2-PM-use-power-domain-functional-state-in-st.patch"
-	${git} "${DIR}/patches/pm/0010-ARM-OMAP2-PM-debug-trace-the-functional-power-domain.patch"
-	${git} "${DIR}/patches/pm/0011-ARM-OMAP2-powerdomain-add-error-logs.patch"
-	${git} "${DIR}/patches/pm/0012-ARM-OMAP2-PM-reorganize-the-powerdomain-API-in-publi.patch"
-	${git} "${DIR}/patches/pm/0013-ARM-OMAP-PM-update-target-fpwrst-to-what-pwrdm-can-r.patch"
-	${git} "${DIR}/patches/pm/0014-ARM-OMAP4-PM-add-errata-support.patch"
-	${git} "${DIR}/patches/pm/0015-ARM-OMAP4460-Workaround-for-ROM-bug-because-of-CA9-r.patch"
-	${git} "${DIR}/patches/pm/0016-ARM-OMAP4-suspend-Program-all-domains-to-retention.patch"
-	${git} "${DIR}/patches/pm/0017-ARM-OMAP4-PM-put-all-domains-to-OSWR-during-suspend.patch"
-	${git} "${DIR}/patches/pm/0018-ARM-OMAP4-retrigger-localtimers-after-re-enabling-gi.patch"
-	${git} "${DIR}/patches/pm/0019-ARM-OMAP-clockdomain-Fix-locking-on-_clkdm_clk_hwmod.patch"
-	${git} "${DIR}/patches/pm/0020-ARM-OMAP3-voltage-pwrdm-clkdm-clock-add-recursive-us.patch"
-	${git} "${DIR}/patches/pm/0021-ARM-OMAP3-voltage-add-support-for-voltagedomain-usec.patch"
-	${git} "${DIR}/patches/pm/0022-ARM-OMAP3-add-manual-control-for-mpu-core-pwrdm-usec.patch"
-	${git} "${DIR}/patches/pm/0023-ARM-OMAP3-set-autoidle-flag-for-sdrc_ick.patch"
-	${git} "${DIR}/patches/pm/0024-ARM-OMAP-clockdomain-add-support-for-preventing-auto.patch"
-	${git} "${DIR}/patches/pm/0025-ARM-OMAP3-do-not-delete-per_clkdm-autodeps-during-id.patch"
-	${git} "${DIR}/patches/pm/0026-ARM-OMAP4-clock-data-set-autoidle-flag-for-dss_fck.patch"
-	${git} "${DIR}/patches/pm/0027-ARM-OMAP4-hwmod-add-support-for-hwmod-autoidle-flag.patch"
-	${git} "${DIR}/patches/pm/0028-ARM-OMAP4-hwmod-data-set-mpu-hwmod-modulemode-to-hwa.patch"
-	${git} "${DIR}/patches/pm/0029-ARM-OMAP4-clock-data-flag-hw-controlled-clocks-as-au.patch"
-	${git} "${DIR}/patches/pm/0030-ARM-OMAP3-PM-VP-use-uV-for-max-and-min-voltage-limit.patch"
-	${git} "${DIR}/patches/pm/0031-ARM-OMAP-voltage-renamed-vp_vddmin-and-vp_vddmax-fie.patch"
-	${git} "${DIR}/patches/pm/0032-ARM-OMAP3-voltage-introduce-omap-vc-vp-params-for-vo.patch"
-	${git} "${DIR}/patches/pm/0033-ARM-OMAP3-VC-calculate-ramp-times.patch"
-	${git} "${DIR}/patches/pm/0034-ARM-OMAP4-voltage-add-support-for-VOLTSETUP_x_OFF-re.patch"
-	${git} "${DIR}/patches/pm/0035-ARM-OMAP4-VC-calculate-ramp-times.patch"
-	${git} "${DIR}/patches/pm/0036-ARM-OMAP-add-support-for-oscillator-setup.patch"
-	${git} "${DIR}/patches/pm/0037-ARM-OMAP3-vp-use-new-vp_params-for-calculating-vddmi.patch"
-	${git} "${DIR}/patches/pm/0038-ARM-OMAP3-voltage-use-oscillator-data-to-calculate-s.patch"
-	${git} "${DIR}/patches/pm/0039-ARM-OMAP-TWL-change-the-vddmin-vddmax-voltages-to-sp.patch"
-	${git} "${DIR}/patches/pm/0040-TEMP-ARM-OMAP3-beagle-rev-c4-enable-OPP6.patch"
-	${git} "${DIR}/patches/pm/0041-ARM-OMAP-beagle-set-oscillator-startup-time-to-10ms-.patch"
-	${git} "${DIR}/patches/pm/0042-ARM-OMAP3-vc-auto_ret-auto_off-support.patch"
-	${git} "${DIR}/patches/pm/0043-ARM-OMAP3-voltage-remove-unused-volt_setup_time-para.patch"
-	${git} "${DIR}/patches/pm/0044-ARM-OMAP4-vc-fix-channel-configuration.patch"
-	${git} "${DIR}/patches/pm/0045-ARM-OMAP4-VC-setup-I2C-parameters-based-on-board-dat.patch"
-	${git} "${DIR}/patches/pm/0046-ARM-OMAP4-TWL-enable-high-speed-mode-for-PMIC-commun.patch"
-	${git} "${DIR}/patches/pm/0047-ARM-OMAP4-OPP-add-OMAP4460-definitions.patch"
-	${git} "${DIR}/patches/pm/0048-ARM-OMAP3-PM-introduce-a-central-pmic-control.patch"
-	${git} "${DIR}/patches/pm/0049-ARM-OMAP2-PM-Add-support-for-TPS62361.patch"
-	${git} "${DIR}/patches/pm/0050-ARM-OMAP4-vc-auto-retention-support.patch"
+	#Status: http://www.spinics.net/lists/linux-omap/msg78898.html
+	${git} "${DIR}/patches/omap_pm/0006-ARM-omap-add-3630-PRM-register-definitions.patch"
+	${git} "${DIR}/patches/omap_pm/0007-ARM-omap-add-ABB-PRM_IRQSTATUS-handlers.patch"
+	${git} "${DIR}/patches/omap_pm/0008-ARM-omap-Adaptive-Body-Bias-structures-data.patch"
+	${git} "${DIR}/patches/omap_pm/0009-ARM-omap-opp-add-ABB-data-to-voltage-tables.patch"
+	${git} "${DIR}/patches/omap_pm/0010-ARM-omap-voltage-per-voltage-domain-ABB-data.patch"
+	${git} "${DIR}/patches/omap_pm/0011-ARM-omap-abb-init-transition-functions.patch"
+	${git} "${DIR}/patches/omap_pm/0012-ARM-omap-voltage-add-ABB-to-voltage-scaling.patch"
 }
 
 distro
@@ -224,8 +182,9 @@ panda
 omap_fixes
 sgx
 mainline_fixes
-#debug
-omap3isp
+omap_pm
+
+#omap3isp
 
 echo "patch.sh ran successful"
 

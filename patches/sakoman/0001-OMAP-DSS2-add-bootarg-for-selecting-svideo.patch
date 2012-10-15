@@ -13,10 +13,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  2 files changed, 31 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/video/omap2/dss/venc.c b/drivers/video/omap2/dss/venc.c
-index 3907c8b..77b5ef0 100644
+index 56efa3b..d46f7f8 100644
 --- a/drivers/video/omap2/dss/venc.c
 +++ b/drivers/video/omap2/dss/venc.c
-@@ -87,6 +87,11 @@
+@@ -86,6 +86,11 @@
  #define VENC_OUTPUT_TEST			0xC8
  #define VENC_DAC_B__DAC_C			0xC8
  
@@ -28,9 +28,9 @@ index 3907c8b..77b5ef0 100644
  struct venc_config {
  	u32 f_control;
  	u32 vidout_ctrl;
-@@ -454,6 +459,23 @@ static int venc_power_on(struct omap_dss_device *dssdev)
+@@ -465,6 +470,23 @@ static int venc_power_on(struct omap_dss_device *dssdev)
  	if (r)
- 		goto err;
+ 		goto err2;
  
 +	/* Allow the TV output to be overriden */
 +	if (tv_connection) {
@@ -51,12 +51,12 @@ index 3907c8b..77b5ef0 100644
 +
  	return 0;
  
- err:
+ err2:
 diff --git a/drivers/video/omap2/omapfb/omapfb-main.c b/drivers/video/omap2/omapfb/omapfb-main.c
-index 3450ea0..fc1c837 100644
+index 16db158..dca8650 100644
 --- a/drivers/video/omap2/omapfb/omapfb-main.c
 +++ b/drivers/video/omap2/omapfb/omapfb-main.c
-@@ -2001,7 +2001,15 @@ static int omapfb_mode_to_timings(const char *mode_str,
+@@ -2033,7 +2033,15 @@ static int omapfb_mode_to_timings(const char *mode_str,
  	int r;
  
  #ifdef CONFIG_OMAP2_DSS_VENC

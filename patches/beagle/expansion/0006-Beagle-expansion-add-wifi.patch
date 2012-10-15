@@ -5,14 +5,14 @@ Subject: [PATCH 6/9] Beagle: expansion: add wifi
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c |  113 +++++++++++++++++++++++++++++++
- 1 file changed, 113 insertions(+)
+ arch/arm/mach-omap2/board-omap3beagle.c |  117 +++++++++++++++++++++++++++++++
+ 1 file changed, 117 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index e39846c..524cd18 100644
+index 1e36a40..65eab9c 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -189,6 +189,71 @@ static struct {
+@@ -187,6 +187,71 @@ static struct {
  	.i2c_settings = EXPANSION_I2C_NONE,
  };
  
@@ -84,7 +84,7 @@ index e39846c..524cd18 100644
  //rcn-ee: this is just a fake regulator, the zippy hardware provides 3.3/1.8 with jumper..
  static struct fixed_voltage_config beagle_vzippy = {
  	.supply_name = "vzippy",
-@@ -427,6 +492,26 @@ static struct omap2_hsmmc_info mmc_zippy[] = {
+@@ -425,6 +490,26 @@ static struct omap2_hsmmc_info mmc_zippy[] = {
  	},
  	{}	/* Terminator */
  };
@@ -111,47 +111,50 @@ index e39846c..524cd18 100644
  static struct regulator_consumer_supply beagle_vmmc1_supply[] = {
  	REGULATOR_SUPPLY("vmmc", "omap_hsmmc.0"),
  };
-@@ -443,6 +528,13 @@ static int beagle_twl_gpio_setup(struct device *dev,
+@@ -441,6 +526,13 @@ static int beagle_twl_gpio_setup(struct device *dev,
  	int r;
  
  	switch (expansion_config.mmc_settings) {
-+	case 2:
++	case EXPANSION_MMC_WIFI:
 +		mmcbbt[0].gpio_wp = beagle_config.mmc1_gpio_wp;
 +		/* gpio + 0 is "mmc0_cd" (input/IRQ) */
 +		mmcbbt[0].gpio_cd = gpio + 0;
 +
 +		omap_hsmmc_late_init(mmcbbt);
 +		break;
- 	case 1:
+ 	case EXPANSION_MMC_ZIPPY:
  		mmc_zippy[0].gpio_wp = beagle_config.mmc1_gpio_wp;
  		/* gpio + 0 is "mmc0_cd" (input/IRQ) */
-@@ -797,6 +889,11 @@ static void __init omap3_beagle_init(void)
+@@ -793,6 +885,13 @@ static void __init omap3_beagle_init(void)
  		omap_mux_init_gpio(OMAP3BEAGLE_GPIO_ZIPPY_MMC_CD, OMAP_PIN_INPUT);
  	}
  
++#if defined(CONFIG_WL12XX) || defined(CONFIG_WL12XX_MODULE)
 +	if (!strcmp(expansionboard_name, "bbtoys-wifi"))
 +	{
 +		expansion_config.mmc_settings = EXPANSION_MMC_WIFI;
 +	}
++#endif
 +
  	if (!strcmp(expansionboard2_name, "bbtoys-ulcd"))
  	{
  		int r;
-@@ -816,6 +913,10 @@ static void __init omap3_beagle_init(void)
+@@ -812,6 +911,10 @@ static void __init omap3_beagle_init(void)
  		omap_mux_init_gpio(beagle_config.mmc1_gpio_wp, OMAP_PIN_INPUT);
  
  	switch (expansion_config.mmc_settings) {
-+	case 2:
++	case EXPANSION_MMC_WIFI:
 +		mmcbbt[0].caps = beagle_config.mmc_caps;
 +		omap_hsmmc_init(mmcbbt);
 +		break;
- 	case 1:
+ 	case EXPANSION_MMC_ZIPPY:
  		mmc_zippy[0].caps = beagle_config.mmc_caps;
  		omap_hsmmc_init(mmc_zippy);
-@@ -881,6 +982,18 @@ static void __init omap3_beagle_init(void)
+@@ -877,6 +980,20 @@ static void __init omap3_beagle_init(void)
  		gpio_export(162, 1);
  	}
  
++#if defined(CONFIG_WL12XX) || defined(CONFIG_WL12XX_MODULE)
 +	if (!strcmp(expansionboard_name, "bbtoys-wifi"))
 +	{
 +		omap_beagle_wlan_data.irq = gpio_to_irq(OMAP_BEAGLE_WLAN_IRQ_GPIO);
@@ -163,6 +166,7 @@ index e39846c..524cd18 100644
 +		printk(KERN_INFO "Beagle expansionboard: registering wl12xx wifi platform device\n");
 +		platform_device_register(&omap_vwlan_device);
 +	}
++#endif
 +
  	if (!strcmp(expansionboard2_name, "bbtoys-ulcd"))
  	{
