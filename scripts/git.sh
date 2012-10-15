@@ -24,12 +24,12 @@ DIR=$PWD
 
 git_kernel_stable () {
 	echo "fetching from stable kernel.org tree"
-	git fetch git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git master --tags || true
+	git fetch ${linux_stable} master --tags || true
 }
 
 git_kernel_torvalds () {
 	echo "pulling from torvalds kernel.org tree"
-	git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master --tags || true
+	git pull ${GIT_OPTS} ${torvalds_linux} master --tags || true
 	git tag | grep v${KERNEL_TAG} &>/dev/null || git_kernel_stable
 }
 
@@ -39,7 +39,7 @@ check_and_or_clone () {
 			echo "Warning: LINUX_GIT not defined in system.sh, using default location: ${HOME}/linux-src"
 		else
 			echo "Warning: LINUX_GIT not defined in system.sh, cloning torvalds git tree to default location: ${HOME}/linux-src"
-			git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ${HOME}/linux-src
+			git clone ${torvalds_linux} ${HOME}/linux-src
 		fi
 		LINUX_GIT="${HOME}/linux-src"
 	fi
@@ -100,7 +100,7 @@ git_kernel () {
 		git branch -D top-of-tree &>/dev/null || true
 		git checkout v${KERNEL_TAG} -b top-of-tree
 		git describe
-		git pull ${GIT_OPTS} git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master || true
+		git pull ${GIT_OPTS} ${torvalds_linux} master || true
 	fi
 
 	git describe
@@ -110,5 +110,13 @@ git_kernel () {
 
 source ${DIR}/version.sh
 source ${DIR}/system.sh
+
+if [ "${GIT_OVER_HTTP}" ] ; then
+	torvalds_linux="http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+	linux_stable="http://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+else
+	torvalds_linux="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+	linux_stable="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+fi
 git_kernel
 
