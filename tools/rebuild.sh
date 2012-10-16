@@ -45,19 +45,19 @@ function patch_kernel {
 }
 
 function copy_defconfig {
-  cd ${DIR}/KERNEL/
-  make ARCH=arm CROSS_COMPILE=${CC} distclean
-  make ARCH=arm CROSS_COMPILE=${CC} ${config}
-  cp -v .config ${DIR}/patches/ref_${config}
-  cp -v ${DIR}/patches/defconfig .config
-  cd ${DIR}/
+	cd ${DIR}/KERNEL/
+	make ARCH=arm CROSS_COMPILE=${CC} distclean
+	make ARCH=arm CROSS_COMPILE=${CC} ${config}
+	cp -v .config ${DIR}/patches/ref_${config}
+	cp -v ${DIR}/patches/defconfig .config
+	cd ${DIR}/
 }
 
 function make_menuconfig {
-  cd ${DIR}/KERNEL/
-  make ARCH=arm CROSS_COMPILE=${CC} menuconfig
-  cp -v .config ${DIR}/patches/defconfig
-  cd ${DIR}/
+	cd ${DIR}/KERNEL/
+	make ARCH=arm CROSS_COMPILE=${CC} menuconfig
+	cp -v .config ${DIR}/patches/defconfig
+	cd ${DIR}/
 }
 
 function make_kernel {
@@ -99,19 +99,19 @@ function make_uImage {
 }
 
 function make_modules_pkg {
-  cd ${DIR}/KERNEL/
+	cd ${DIR}/KERNEL/
 
-  echo ""
-  echo "Building Module Archive"
-  echo ""
+	echo ""
+	echo "Building Module Archive"
+	echo ""
 
-  rm -rf ${DIR}/deploy/mod &> /dev/null || true
-  mkdir -p ${DIR}/deploy/mod
-  make ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=${DIR}/deploy/mod
-  echo "Building ${KERNEL_UTS}-modules.tar.gz"
-  cd ${DIR}/deploy/mod
-  tar czf ../${KERNEL_UTS}-modules.tar.gz *
-  cd ${DIR}/
+	rm -rf ${DIR}/deploy/mod &> /dev/null || true
+	mkdir -p ${DIR}/deploy/mod
+	make ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=${DIR}/deploy/mod
+	echo "Building ${KERNEL_UTS}-modules.tar.gz"
+	cd ${DIR}/deploy/mod
+	tar czf ../${KERNEL_UTS}-modules.tar.gz *
+	cd ${DIR}/
 }
 
 function make_dtbs_pkg {
@@ -132,75 +132,68 @@ function make_dtbs_pkg {
 }
 
 function make_headers_pkg {
-  cd ${DIR}/KERNEL/
+	cd ${DIR}/KERNEL/
 
-  echo ""
-  echo "Building Header Archive"
-  echo ""
+	echo ""
+	echo "Building Header Archive"
+	echo ""
 
-  rm -rf ${DIR}/deploy/headers &> /dev/null || true
-  mkdir -p ${DIR}/deploy/headers/usr
-  make ARCH=arm CROSS_COMPILE=${CC} headers_install INSTALL_HDR_PATH=${DIR}/deploy/headers/usr
-  cd ${DIR}/deploy/headers
-  echo "Building ${KERNEL_UTS}-headers.tar.gz"
-  tar czf ../${KERNEL_UTS}-headers.tar.gz *
-  cd ${DIR}/
+	rm -rf ${DIR}/deploy/headers &> /dev/null || true
+	mkdir -p ${DIR}/deploy/headers/usr
+	make ARCH=arm CROSS_COMPILE=${CC} headers_install INSTALL_HDR_PATH=${DIR}/deploy/headers/usr
+	cd ${DIR}/deploy/headers
+	echo "Building ${KERNEL_UTS}-headers.tar.gz"
+	tar czf ../${KERNEL_UTS}-headers.tar.gz *
+	cd ${DIR}/
 }
 
 /bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
 
-if [ -e ${DIR}/system.sh ] ; then
-	unset CC
-	unset DEBUG_SECTION
-	unset LATEST_GIT
-	unset LINUX_GIT
-	unset LOCAL_PATCH_DIR
-	source ${DIR}/system.sh
-	/bin/bash -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
+if [ ! -f ${DIR}/system.sh ] ; then
+	cp ${DIR}/system.sh.sample ${DIR}/system.sh
+fi
 
-	source ${DIR}/version.sh
-	export LINUX_GIT
-	export LATEST_GIT
+unset CC
+unset DEBUG_SECTION
+unset LATEST_GIT
+unset LINUX_GIT
+unset LOCAL_PATCH_DIR
+source ${DIR}/system.sh
+/bin/bash -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 
-	if [ "${LATEST_GIT}" ] ; then
-		echo ""
-		echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
-		echo ""
-	fi
+source ${DIR}/version.sh
+export LINUX_GIT
+export LATEST_GIT
 
-	unset CONFIG_DEBUG_SECTION
-	if [ "${DEBUG_SECTION}" ] ; then
-		CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
-	fi
-
-#	/bin/bash -e "${DIR}/scripts/git.sh" || { exit 1 ; }
-#	patch_kernel
-#	copy_defconfig
-	make_menuconfig
-	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-		sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
-	fi
-	make_kernel
-	if [ "${BUILD_UIMAGE}" ] ; then
-		make_uImage
-	else
-		echo ""
-		echo "NOTE: enable BUILD_UIMAGE variables in system.sh to build uImage's"
-		echo ""
-	fi
-	make_modules_pkg
-	if [ "x${DTBS}" != "x" ] ; then
-		make_dtbs_pkg
-	fi
-	#make_headers_pkg
-	if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-		sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
-	fi
-else
+if [ "${LATEST_GIT}" ] ; then
 	echo ""
-	echo "ERROR: Missing (your system) specific system.sh, please copy system.sh.sample to system.sh and edit as needed."
-	echo ""
-	echo "example: cp system.sh.sample system.sh"
-	echo "example: gedit system.sh"
+	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
 	echo ""
 fi
+
+unset CONFIG_DEBUG_SECTION
+if [ "${DEBUG_SECTION}" ] ; then
+	CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
+fi
+
+#/bin/bash -e "${DIR}/scripts/git.sh" || { exit 1 ; }
+
+#patch_kernel
+#copy_defconfig
+make_menuconfig
+if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+	sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
+fi
+make_kernel
+if [ "${BUILD_UIMAGE}" ] ; then
+	make_uImage
+fi
+make_modules_pkg
+if [ "x${DTBS}" != "x" ] ; then
+	make_dtbs_pkg
+fi
+#make_headers_pkg
+if [ "x${GCC_OVERRIDE}" != "x" ] ; then
+	sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
+fi
+
