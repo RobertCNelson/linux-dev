@@ -5,25 +5,18 @@ Script Bugs: "bugs@rcn-ee.com"
 Supported Boards:
 BeagleBoard Cx
 BeagleBoard xM
-PandaBoard (no audio)
-PandaBoard ES (no audio)
-
-Supported Addons:
-zippy1/2
-ulcd
-
-Weakly Support Boards:
-BeagleBoard Bx
-igevp2 (no video)
-touchbook (no video)
+PandaBoard
+PandaBoard ES
 
 Dependencies: GCC ARM Cross ToolChain
 
 Ubuntu (for target "armel", prior to 12.04):
 sudo apt-get install gcc-arm-linux-gnueabi
+set: "CC=arm-linux-gnueabi-" in system.sh
 
 Ubuntu (for target "armhf", 12.04+ is available in armhf):
 sudo apt-get install gcc-arm-linux-gnueabihf
+set: "CC=arm-linux-gnueabihf-" in system.sh
 
 Linaro:
 http://www.linaro.org/downloads/
@@ -33,38 +26,33 @@ http://www.angstrom-distribution.org/simplified-development-setup
 
 Dependencies: Linux Kernel Source
 
-This script needs a local copy of the mainline kernel source. Using that local copy, this script will then pull specific tags/trees/commits from kernel.org.  For example, to clone this local copy into your user directory:
+This git repo contains just scripts/patches to build a specific kernel for these
+ARM devices. It doesn't any of the mainline kernel source, so it must clone a
+local tree for use.
 
-cd ~/
-git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+By default this script will clone the linux-stable tree, to ${HOME}/linux-src:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
 
-Then update "LINUX_GIT" to "LINUX_GIT=~/linux-stable/" in system.sh to point to your new local kernel source copy.
+If you've already cloned torvalds tree and would like to save some hard drive
+space, just modify the LINUX_GIT variable in system.sh to point to your current
+git clone.
 
-Build: zImage/Modules:
+Build Kernel Image:
 
-"./build_kernel.sh"
+./build_kernel.sh
 
-Install to SD card: zImage/Modules:
+Optional: Build Debian Package:
 
-"./tools/install_image.sh"
+./build_deb.sh
 
-Build: Debian deb package:
+Install Kernel Image to SD card: (requires MMC set in system.sh)
 
-"./build_deb.sh"
+./tools/install_image.sh
 
-Create SGX install Package: (OMAP3/DM37xx only, no PandaBoard Support)
+Development/Hacking:
 
-"./create_sgx_package.sh"
+first run (to setup baseline tree): ./build_kernel.sh
+then modify files under KERNEL directory
+then run (to rebuild with your changes): ./tools/rebuild.sh
 
-Create DSP install Package: (OMAP3/DM37xx only, no PandaBoard Support)
-
-"./create_dsp_package.sh"
-
-Hacking: Made some some changes but don't want to rebuild the whole tree:
-
-zImage/Modules:
-"./tools/rebuild.sh"
-
-Deb:
-"./tools/rebuild_deb.sh"
 

@@ -17,69 +17,71 @@ fi
 #ARM GCC CROSS Compiler: (See hints in Readme, for different gcc cross compiler versions)
 #CC=arm-linux-gnueabi-
 
-##Linux Kernel Source location:
-##
-##This script will clone torvalds linux git tree from kernel.org.  From this git tree
-##this script can generate a prinstine starting point before running the patch.sh script.
-##
-##For most users, the default will work fine, for other kernel developers who have
-##already cloned torvalds tree, and would like to safe file space, just define LINUX_GIT in this file.
-##
-##git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git ${HOME}/
-#
-#LINUX_GIT=${HOME}/linux-stable/
+###OPTIONAL:
 
-###OPTIONAL: clone over http: git clone http://
+###OPTIONAL: LINUX_GIT: specify location of locally cloned git tree.
+#
+#LINUX_GIT=/home/user/linux-stable/
+
+###OPTIONAL: GIT_OVER_HTTP: clone over http vs git: git clone http://
+#
 #GIT_OVER_HTTP=1
 
-###OPTIONAL: (REQUIRED FOR RUNNING: ./tools/install_image.sh)
-
-##Since 2.6.39?, it's now possible to build a Linux Kernel for devices that have
-##different physical address of the kernel entry point or "ZRELADDR".  This also means
-##these scripts only create zImage's, if you'd like uImage, run mkimage yourself, or use
-##the ./tools/load_uImage.sh to load the uImage on a MMC card.
-
-##For TI: OMAP3/4/AM35xx
-#ZRELADDR=0x80008000
-
-##For Freescale:
-##MX51 Family
-#ZRELADDR=0x90008000
-
-##MX53
-#ZRELADDR=0x70008000
-
-##MX6
-#ZRELADDR=0x10008000
-
-###ADVANCED: Allow the script to build uImage's directly, so-far safe for TI OMAP, but not Freescale..
+###OPTIONAL: BUILD_UIMAGE: also build uImage vs just zImage
+#
 #BUILD_UIMAGE=1
 
-###OPTIONAL: (REQUIRED FOR RUNNING: tools/install_image.sh )
-##Note: This operates on raw disks, NOT PARTITIONS
-##WRONG: MMC=/dev/mmcblk0p1
-##CORRECT: MMC=/dev/mmcblk0
-##WRONG: MMC=/dev/sde1
-##CORRECT: MMC=/dev/sde
+###OPTIONAL: ZRELADDR: needed when building uImage's.
+#
+##For TI: OMAP3/4/AM35xx
+#ZRELADDR=0x80008000
+#
+##For Freescale: i.mx51:
+#ZRELADDR=0x90008000
+#
+##For Freescale: i.mx53:
+#ZRELADDR=0x70008000
+#
+##For Freescale: i.mx6:
+#ZRELADDR=0x10008000
 
+###OPTIONAL: MMC: (REQUIRED FOR RUNNING: tools/install_image.sh)
+#Note: This operates on raw disks, NOT PARTITIONS..
+#
+#WRONG: MMC=/dev/mmcblk0p1
+#CORRECT: MMC=/dev/mmcblk0
+#
+#WRONG: MMC=/dev/sde1
+#CORRECT: MMC=/dev/sde
+#
 #MMC=/dev/sde
 
-###ADVANCED: Secret Sauce Patches:
+###ADVANCED:
 
-##Have some secret sauce, you dont want to share with the community??
-##
-##It'll look specifically for *.patch files... Doesn't care about order/etc.. And I don't care about enhancing it.. ;)
-
-#LOCAL_PATCH_DIR=/full/path/to/dir/
-
-###ADVANCED: Pull in Torvalds current master tree before applying local patchset
-#This is very useful during an intial 'rc0' merge.
-#It is never supported... Enable at your own risk
+###ADVANCED: LATEST_GIT: useful with rebasing patchset during the rc0 merge
+#Do not enable, unless you know exactly what you are doing..
+#
+#This is only useful during an 'rc0' merge, when Tovalds begings pulling in
+#patches to form the '-rc1' release..
+#
+#It is never supported... Enable at your own risk...
+#
 #LATEST_GIT=1
 
-###ADVANCED: enable DEBUG_SECTION_MISMATCH
+###ADVANCED: DEBUG_SECTION: enable DEBUG_SECTION_MISMATCH
 #http://cateee.net/lkddb/web-lkddb/DEBUG_SECTION_MISMATCH.html
+#
 #DEBUG_SECTION=1
 
-###ADVANCED: run git bisect
+###ADVANCED: RUN_BISECT: used with ./scripts/bisect.sh
+#
 #RUN_BISECT=1
+
+###ADVANCED: LOCAL_PATCH_DIR: Secret Sauce Patches:
+#Have some secret sauce, you dont want to share with the community??
+#
+#It'll look specifically for *.patch files... Doesn't care about order/etc..
+#And I don't care about enhancing it.. ;)
+#
+#LOCAL_PATCH_DIR=/full/path/to/dir/
+
