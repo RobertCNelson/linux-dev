@@ -332,6 +332,10 @@ function am33x-cleanup {
 	${git} "${DIR}/patches/beaglebone/0090-beaglebone-map-LCD7-A4-to-A3-for-the-time-being.patch"
 	${git} "${DIR}/patches/beaglebone/0091-beaglebone-add-support-for-LCD3-rev-A2.patch"
 	${git} "${DIR}/patches/beaglebone/0092-beaglebone-add-support-for-LCD4-rev-A1-button-suppor.patch"
+	${git} "${DIR}/patches/beaglebone/0093-beaglebone-update-cssp_camera-driver-to-support-revi.patch"
+	${git} "${DIR}/patches/beaglebone/0094-beaglebone-make-LCD4-Rev-A1-display-work-no-button-s.patch"
+	${git} "${DIR}/patches/beaglebone/0095-beaglebone-convert-LCD4-to-16-bit-add-button-support.patch"
+	${git} "${DIR}/patches/beaglebone/0096-beaglebone-camera-cape-sensor-orientation-support-fo.patch"
 
 #	${git} "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	${git} "${DIR}/patches/beaglebone/0002-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
