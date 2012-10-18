@@ -186,7 +186,9 @@ fi
 
 patch_kernel
 copy_defconfig
-make_menuconfig
+if [ ! ${AUTO_BUILD} ] ; then
+	make_menuconfig
+fi
 if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 	sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
 fi
