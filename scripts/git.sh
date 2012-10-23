@@ -51,11 +51,21 @@ git_kernel () {
 	#In the past some users set LINUX_GIT = DIR, fix that...
 	if [ -f "${LINUX_GIT}/version.sh" ] ; then
 		unset LINUX_GIT
+		echo "Warning: LINUX_GIT is set as DIR:"
 		check_and_or_clone
 	fi
 
+	#is the git directory user writable?
+	if [ ! -w "${LINUX_GIT}" ] ; then
+		unset LINUX_GIT
+		echo "Warning: LINUX_GIT is not writable:"
+		check_and_or_clone
+	fi
+
+	#is it actually a git repo?
 	if [ ! -f "${LINUX_GIT}/.git/config" ] ; then
 		unset LINUX_GIT
+		echo "Warning: LINUX_GIT is an invalid tree:"
 		check_and_or_clone
 	fi
 
@@ -67,7 +77,13 @@ git_kernel () {
 	git fetch || true
 	cd -
 
-	if [ ! -f ${DIR}/KERNEL/.git/config ] ; then
+	if [ ! -f "${DIR}/KERNEL/.git/config" ] ; then
+		rm -rf ${DIR}/KERNEL/ || true
+		git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
+	fi
+
+	#Automaticly, just recover the git repo from a git crash
+	if [ -f "${DIR}/KERNEL/.git/index.lock" ] ; then
 		rm -rf ${DIR}/KERNEL/ || true
 		git clone --shared ${LINUX_GIT} ${DIR}/KERNEL
 	fi
