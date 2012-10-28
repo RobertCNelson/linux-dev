@@ -18,10 +18,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 144 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index b5b6892..6e091fd 100644
+index 9829fb5..b95aee3 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -167,6 +167,7 @@ static void __init omap3_beagle_init_rev(void)
+@@ -168,6 +168,7 @@ static void __init omap3_beagle_init_rev(void)
  
  char expansionboard_name[16];
  char expansionboard2_name[16];
@@ -29,7 +29,7 @@ index b5b6892..6e091fd 100644
  
  enum {
  	EXPANSION_MMC_NONE = 0,
-@@ -519,6 +520,14 @@ static struct regulator_consumer_supply beagle_vsim_supply[] = {
+@@ -520,6 +521,14 @@ static struct regulator_consumer_supply beagle_vsim_supply[] = {
  	REGULATOR_SUPPLY("vmmc_aux", "omap_hsmmc.0"),
  };
  
@@ -44,7 +44,7 @@ index b5b6892..6e091fd 100644
  static struct gpio_led gpio_leds[];
  
  static int beagle_twl_gpio_setup(struct device *dev,
-@@ -627,11 +636,43 @@ static struct regulator_init_data beagle_vsim = {
+@@ -628,11 +637,43 @@ static struct regulator_init_data beagle_vsim = {
  	.consumer_supplies	= beagle_vsim_supply,
  };
  
@@ -88,7 +88,7 @@ index b5b6892..6e091fd 100644
  };
  
  static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
-@@ -696,6 +737,65 @@ static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] = {};
+@@ -697,6 +738,65 @@ static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] = {};
  static void __init omap3beagle_tsc2007_init(void) { return; }
  #endif
  
@@ -154,7 +154,7 @@ index b5b6892..6e091fd 100644
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -826,6 +926,15 @@ static int __init expansionboard2_setup(char *str)
+@@ -827,6 +927,15 @@ static int __init expansionboard2_setup(char *str)
  	return 0;
  }
  
@@ -167,11 +167,11 @@ index b5b6892..6e091fd 100644
 +	return 0;
 +}
 +
- static void __init beagle_opp_init(void)
+ static int __init beagle_opp_init(void)
  {
  	int r = 0;
-@@ -1098,8 +1207,43 @@ static void __init omap3_beagle_init(void)
- 	beagle_opp_init();
+@@ -1102,8 +1211,43 @@ static void __init omap3_beagle_init(void)
+ 	omap_mux_init_signal("sdrc_cke1", OMAP_PIN_OUTPUT);
  }
  
 +static int __init omap3_beagle_late_initcall(void)

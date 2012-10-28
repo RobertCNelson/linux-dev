@@ -9,10 +9,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 157 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index e07feb0..0a2a6c6 100644
+index c1c6332..3ce1f93d 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -161,6 +161,86 @@ static void __init omap3_beagle_init_rev(void)
+@@ -162,6 +162,86 @@ static void __init omap3_beagle_init_rev(void)
  
  char expansionboard_name[16];
  
@@ -99,7 +99,7 @@ index e07feb0..0a2a6c6 100644
  static struct mtd_partition omap3beagle_nand_partitions[] = {
  	/* All the partition sizes are listed in terms of NAND block size */
  	{
-@@ -237,6 +317,23 @@ static struct omap2_hsmmc_info mmc[] = {
+@@ -238,6 +318,23 @@ static struct omap2_hsmmc_info mmc[] = {
  	{}	/* Terminator */
  };
  
@@ -123,7 +123,7 @@ index e07feb0..0a2a6c6 100644
  static struct regulator_consumer_supply beagle_vmmc1_supply[] = {
  	REGULATOR_SUPPLY("vmmc", "omap_hsmmc.0"),
  };
-@@ -252,10 +349,21 @@ static int beagle_twl_gpio_setup(struct device *dev,
+@@ -253,10 +350,21 @@ static int beagle_twl_gpio_setup(struct device *dev,
  {
  	int r;
  
@@ -149,7 +149,7 @@ index e07feb0..0a2a6c6 100644
  
  	/*
  	 * TWL4030_GPIO_MAX + 0 == ledA, EHCI nEN_USB_PWR (out, XM active
-@@ -348,6 +456,14 @@ static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
+@@ -349,6 +457,14 @@ static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
         },
  };
  
@@ -164,7 +164,7 @@ index e07feb0..0a2a6c6 100644
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -358,6 +474,15 @@ static int __init omap3_beagle_i2c_init(void)
+@@ -359,6 +475,15 @@ static int __init omap3_beagle_i2c_init(void)
  	beagle_twldata.vpll2->constraints.name = "VDVI";
  
  	omap3_pmic_init("twl4030", &beagle_twldata);
@@ -180,7 +180,7 @@ index e07feb0..0a2a6c6 100644
  	/* Bus 3 is attached to the DVI port where devices like the pico DLP
  	 * projector don't work reliably with 400kHz */
  	omap_register_i2c_bus(3, 100, beagle_i2c_eeprom, ARRAY_SIZE(beagle_i2c_eeprom));
-@@ -504,10 +629,30 @@ static void __init omap3_beagle_init(void)
+@@ -510,10 +635,30 @@ static void __init omap3_beagle_init(void)
  	omap3_mux_init(board_mux, OMAP_PACKAGE_CBB);
  	omap3_beagle_init_rev();
  
@@ -213,7 +213,7 @@ index e07feb0..0a2a6c6 100644
  
  	omap3_beagle_i2c_init();
  
-@@ -522,6 +667,12 @@ static void __init omap3_beagle_init(void)
+@@ -528,6 +673,12 @@ static void __init omap3_beagle_init(void)
  	omap_sdrc_init(mt46h32m32lf6_sdrc_params,
  				  mt46h32m32lf6_sdrc_params);
  

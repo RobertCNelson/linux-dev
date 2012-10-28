@@ -134,7 +134,7 @@ mainline_fixes () {
 	#From: https://github.com/RobertCNelson/linux-dev/issues/7
 	#DisplayLink fb driver (udlfb.ko)
 	#Status: https://patchwork.kernel.org/patch/1361471/
-	${git} "${DIR}/patches/mainline-fixes/0003-ARM-export-read_current_timer.patch"
+#	${git} "${DIR}/patches/mainline-fixes/0003-ARM-export-read_current_timer.patch"
 }
 
 debug () {
