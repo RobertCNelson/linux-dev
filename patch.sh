@@ -25,8 +25,12 @@
 git="git am"
 #git="git am --whitespace=fix"
 
+am33x_linux="git://github.com/RobertCNelson/linux.git"
 if [ -f ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
+	if [ "${GIT_OVER_HTTP}" ] ; then
+		am33x_linux="https://github.com/RobertCNelson/linux.git"
+	fi
 fi
 
 if [ "${RUN_BISECT}" ] ; then
@@ -54,7 +58,7 @@ function bugs_trivial {
 function am33x-cleanup {
 	echo "[git] am33x-cleanup"
 	echo "pulling ti_am33x_v3.2-staging_8"
-	git pull ${GIT_OPTS} git://github.com/RobertCNelson/linux.git ti_am33x_v3.2-staging_8
+	git pull ${GIT_OPTS} ${am33x_linux} ti_am33x_v3.2-staging_8
 
 	#Breaks: BeagleBone: eth0: dhcp doesn't get ip address...
 	${git} "${DIR}/patches/3.2.30/0137-Revert-ARM-OMAP2-Fix-dmtimer-set-source-clock-failur.patch"
