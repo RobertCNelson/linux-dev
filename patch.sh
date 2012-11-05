@@ -457,7 +457,8 @@ function am33x-cleanup {
 
 rt_patchset () {
 	#Unsupported: enable at your own peril
-	${git} "${DIR}/patches/rt/0001-rt-patch-3.2.30-rt45.patch"
+	#From: http://www.kernel.org/pub/linux/kernel/projects/rt/
+	${git} "${DIR}/patches/rt/0001-rt-patch-3.2.32-rt49.patch"
 }
 
 xenomai_patchset () {
