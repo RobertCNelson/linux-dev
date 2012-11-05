@@ -1,0 +1,35 @@
+From beed8bd5227cdd9fb17c64faa78fe06160927c15 Mon Sep 17 00:00:00 2001
+From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Date: Sun, 21 Oct 2012 20:54:26 +0800
+Subject: [PATCH 3/3] OMAPDSS: HDMI: fix missing unlock on error in
+ hdmi_dump_regs()
+
+Add the missing unlock on the error handling path in function
+hdmi_dump_regs().
+
+Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Reviewed-by: Sumit Semwal <sumit.semwal@ti.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/hdmi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/video/omap2/dss/hdmi.c b/drivers/video/omap2/dss/hdmi.c
+index a48a7dd..8c9b8b3 100644
+--- a/drivers/video/omap2/dss/hdmi.c
++++ b/drivers/video/omap2/dss/hdmi.c
+@@ -644,8 +644,10 @@ static void hdmi_dump_regs(struct seq_file *s)
+ {
+ 	mutex_lock(&hdmi.lock);
+ 
+-	if (hdmi_runtime_get())
++	if (hdmi_runtime_get()) {
++		mutex_unlock(&hdmi.lock);
+ 		return;
++	}
+ 
+ 	hdmi.ip_data.ops->dump_wrapper(&hdmi.ip_data, s);
+ 	hdmi.ip_data.ops->dump_pll(&hdmi.ip_data, s);
+-- 
+1.7.10.4
+

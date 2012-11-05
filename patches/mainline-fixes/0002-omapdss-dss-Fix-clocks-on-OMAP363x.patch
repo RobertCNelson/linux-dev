@@ -1,0 +1,40 @@
+From 36c07f829f53f04f9fe27f027df5719591d09e10 Mon Sep 17 00:00:00 2001
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Date: Thu, 25 Oct 2012 20:42:10 +0200
+Subject: [PATCH 2/3] omapdss: dss: Fix clocks on OMAP363x
+
+Commit 185bae1095188aa199c9be64d6030d8dbfc65e0a ("OMAPDSS: DSS: Cleanup
+cpu_is_xxxx checks") broke the DSS clocks configuration by erroneously
+using the clock parameters applicable to all other OMAP34xx SoCs for the
+OMAP363x. This went unnoticed probably because the cpu_is_omap34xx()
+class check wasn't seen as matching the OMAP363x subclass.
+
+Fix it by checking for the OMAP363x subclass before checking for the
+OMAP34xx class.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/dss.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/dss.c b/drivers/video/omap2/dss/dss.c
+index 2ab1c3e..0bb7406 100644
+--- a/drivers/video/omap2/dss/dss.c
++++ b/drivers/video/omap2/dss/dss.c
+@@ -805,10 +805,10 @@ static int __init dss_init_features(struct device *dev)
+ 
+ 	if (cpu_is_omap24xx())
+ 		src = &omap24xx_dss_feats;
+-	else if (cpu_is_omap34xx())
+-		src = &omap34xx_dss_feats;
+ 	else if (cpu_is_omap3630())
+ 		src = &omap3630_dss_feats;
++	else if (cpu_is_omap34xx())
++		src = &omap34xx_dss_feats;
+ 	else if (cpu_is_omap44xx())
+ 		src = &omap44xx_dss_feats;
+ 	else if (soc_is_omap54xx())
+-- 
+1.7.10.4
+

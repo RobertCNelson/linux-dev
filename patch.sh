@@ -135,6 +135,10 @@ mainline_fixes () {
 	#DisplayLink fb driver (udlfb.ko)
 	#Status: https://patchwork.kernel.org/patch/1361471/
 #	${git} "${DIR}/patches/mainline-fixes/0003-ARM-export-read_current_timer.patch"
+
+	${git} "${DIR}/patches/mainline-fixes/0001-OMAPDSS-DSI-fix-dsi_get_dsidev_from_id.patch"
+	${git} "${DIR}/patches/mainline-fixes/0002-omapdss-dss-Fix-clocks-on-OMAP363x.patch"
+	${git} "${DIR}/patches/mainline-fixes/0003-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
 }
 
 debug () {
@@ -182,7 +186,7 @@ panda
 omap_fixes
 sgx
 mainline_fixes
-omap_pm
+#omap_pm
 
 #omap3isp
 
