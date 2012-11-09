@@ -175,6 +175,19 @@ omap_pm () {
 	${git} "${DIR}/patches/omap_pm/0012-ARM-omap-voltage-add-ABB-to-voltage-scaling.patch"
 }
 
+usbnet () {
+	${git} "${DIR}/patches/usbnet/0001-usbnet-introduce-usbnet-3-command-helpers.patch"
+	${git} "${DIR}/patches/usbnet/0002-usbnet-smsc75xx-apply-introduced-usb-command-APIs.patch"
+	${git} "${DIR}/patches/usbnet/0003-usbnet-smsc95xx-apply-introduced-usb-command-APIs.patch"
+	${git} "${DIR}/patches/usbnet/0004-smsc95xx-add-wol-support-for-more-frame-types.patch"
+	${git} "${DIR}/patches/usbnet/0005-smsc75xx-add-wol-support-for-more-frame-types.patch"
+	${git} "${DIR}/patches/usbnet/0006-usbnet-introduce-usbnet_-read-write-_cmd_nopm.patch"
+	${git} "${DIR}/patches/usbnet/0007-usbnet-smsc75xx-apply-the-introduced-usbnet_-read-wr.patch"
+	${git} "${DIR}/patches/usbnet/0008-usbnet-smsc95xx-fix-memory-leak-in-smsc95xx_suspend.patch"
+	${git} "${DIR}/patches/usbnet/0009-usbnet-smsc95xx-apply-the-introduced-usbnet_-read-wr.patch"
+	${git} "${DIR}/patches/usbnet/0010-usbnet-runtime-wake-up-device-before-calling-usbnet_.patch"
+}
+
 distro
 sakoman
 beagle
@@ -189,6 +202,7 @@ mainline_fixes
 #omap_pm
 
 #omap3isp
+usbnet
 
 echo "patch.sh ran successful"
 
