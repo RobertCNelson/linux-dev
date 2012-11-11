@@ -39,7 +39,7 @@ backup_config () {
 	fi
 	cp "${DIR}/KERNEL/.config" "${DIR}/patches/current_defconfig"
 	echo "-----------------------------"
-	echo "Done:"
+	echo "This script has finished successfully..."
 }
 
 mmc_write_modules () {
