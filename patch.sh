@@ -447,6 +447,8 @@ function am33x-cleanup {
 	${git} "${DIR}/patches/beaglebone/0094-beaglebone-make-LCD4-Rev-A1-display-work-no-button-s.patch"
 	${git} "${DIR}/patches/beaglebone/0095-beaglebone-convert-LCD4-to-16-bit-add-button-support.patch"
 	${git} "${DIR}/patches/beaglebone/0096-beaglebone-camera-cape-sensor-orientation-support-fo.patch"
+	${git} "${DIR}/patches/beaglebone/0097-beaglebone-improve-performance-of-mt9t112-driver-for.patch"
+	${git} "${DIR}/patches/beaglebone/0098-beaglebone-Remove-optimization-from-square-resolutio.patch"
 
 #	${git} "${DIR}/patches/beaglebone/0001-bone-disable-OPPTURBO.patch"
 	${git} "${DIR}/patches/beaglebone/0002-BeagleBone-A2-fixup-eeprom-and-initialization.patch"
