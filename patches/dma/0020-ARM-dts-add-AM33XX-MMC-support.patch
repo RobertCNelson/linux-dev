@@ -1,0 +1,94 @@
+From eb1bc902298d896f6ffba9f523370feb40164d08 Mon Sep 17 00:00:00 2001
+From: Matt Porter <mporter@ti.com>
+Date: Wed, 10 Oct 2012 15:14:03 -0400
+Subject: [PATCH 20/31] ARM: dts: add AM33XX MMC support
+
+Adds AM33XX MMC support for am335x-bone and am335x-evm.
+
+Signed-off-by: Matt Porter <mporter@ti.com>
+---
+ arch/arm/boot/dts/am335x-bone.dts |    6 ++++++
+ arch/arm/boot/dts/am335x-evm.dts  |    6 ++++++
+ arch/arm/boot/dts/am33xx.dtsi     |   27 +++++++++++++++++++++++++++
+ 3 files changed, 39 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index c634f87..5510979 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -70,6 +70,8 @@
+ 		};
+ 
+ 		ldo3_reg: regulator@5 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+@@ -78,3 +80,7 @@
+ 		};
+ 	};
+ };
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
+diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
+index 185d632..d63fce8 100644
+--- a/arch/arm/boot/dts/am335x-evm.dts
++++ b/arch/arm/boot/dts/am335x-evm.dts
+@@ -114,7 +114,13 @@
+ 		};
+ 
+ 		vmmc_reg: regulator@12 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 	};
+ };
++
++&mmc1 {
++	vmmc-supply = <&vmmc_reg>;
++};
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index ab9c78f..26a6af7 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -234,6 +234,33 @@
+ 			status = "disabled";
+ 		};
+ 
++		mmc1: mmc@48060000 {
++			compatible = "ti,omap3-hsmmc";
++			ti,hwmods = "mmc1";
++			ti,dual-volt;
++			ti,needs-special-reset;
++			dmas = <&edma 24
++				&edma 25>;
++			dma-names = "tx", "rx";
++		};
++
++		mmc2: mmc@481d8000 {
++			compatible = "ti,omap3-hsmmc";
++			ti,hwmods = "mmc2";
++			ti,needs-special-reset;
++			dmas = <&edma 2
++				&edma 3>;
++			dma-names = "tx", "rx";
++			status = "disabled";
++		};
++
++		mmc3: mmc@47810000 {
++			compatible = "ti,omap3-hsmmc";
++			ti,hwmods = "mmc3";
++			ti,needs-special-reset;
++			status = "disabled";
++		};
++
+ 		wdt2: wdt@44e35000 {
+ 			compatible = "ti,omap3-wdt";
+ 			ti,hwmods = "wd_timer2";
+-- 
+1.7.10.4
+
