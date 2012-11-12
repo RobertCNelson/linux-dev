@@ -29,10 +29,10 @@ Signed-off-by: Richard Watts <rrw@kynesim.co.uk>
  6 files changed, 82 insertions(+), 10 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/clkt_clksel.c b/arch/arm/mach-omap2/clkt_clksel.c
-index 04d551b..c67a91c 100644
+index 3ff2211..a607632 100644
 --- a/arch/arm/mach-omap2/clkt_clksel.c
 +++ b/arch/arm/mach-omap2/clkt_clksel.c
-@@ -461,6 +461,21 @@ int omap2_clksel_set_rate(struct clk *clk, unsigned long rate)
+@@ -481,6 +481,21 @@ int omap2_clksel_set_rate(struct clk *clk, unsigned long rate)
  	return 0;
  }
  
@@ -55,7 +55,7 @@ index 04d551b..c67a91c 100644
   * Clksel parent setting function - not passed in struct clk function
   * pointer - instead, the OMAP clock code currently assumes that any
 diff --git a/arch/arm/mach-omap2/clock.h b/arch/arm/mach-omap2/clock.h
-index a1bb23a..c32a89e 100644
+index 35ec5f3..5be4dea 100644
 --- a/arch/arm/mach-omap2/clock.h
 +++ b/arch/arm/mach-omap2/clock.h
 @@ -61,6 +61,12 @@ void omap3_dpll_allow_idle(struct clk *clk);
@@ -80,7 +80,7 @@ index a1bb23a..c32a89e 100644
  /* clkt_iclk.c public functions */
  extern void omap2_clkt_iclk_allow_idle(struct clk *clk);
 diff --git a/arch/arm/mach-omap2/clock3xxx.c b/arch/arm/mach-omap2/clock3xxx.c
-index 794d827..6b611e1 100644
+index 83bb014..5f30950 100644
 --- a/arch/arm/mach-omap2/clock3xxx.c
 +++ b/arch/arm/mach-omap2/clock3xxx.c
 @@ -41,6 +41,60 @@
@@ -144,7 +144,7 @@ index 794d827..6b611e1 100644
  int omap3_dpll4_set_rate(struct clk *clk, unsigned long rate)
  {
  	/*
-@@ -60,19 +114,14 @@ int omap3_dpll4_set_rate(struct clk *clk, unsigned long rate)
+@@ -59,19 +113,14 @@ int omap3_dpll4_set_rate(struct clk *clk, unsigned long rate)
  void __init omap3_clk_lock_dpll5(void)
  {
  	struct clk *dpll5_clk;
@@ -152,18 +152,18 @@ index 794d827..6b611e1 100644
  
  	dpll5_clk = clk_get(NULL, "dpll5_ck");
  	clk_set_rate(dpll5_clk, DPLL5_FREQ_FOR_USBHOST);
--	clk_enable(dpll5_clk);
+-	clk_prepare_enable(dpll5_clk);
  
 -	/* Program dpll5_m2_clk divider for no division */
 -	dpll5_m2_clk = clk_get(NULL, "dpll5_m2_ck");
--	clk_enable(dpll5_m2_clk);
+-	clk_prepare_enable(dpll5_m2_clk);
 -	clk_set_rate(dpll5_m2_clk, DPLL5_FREQ_FOR_USBHOST);
 +	/* dpll5_m2_ck is now (grottily!) handled by dpll5_clk's set routine,
 +	 * to cope with an erratum on DM3730
 +	 */
  
--	clk_disable(dpll5_m2_clk);
--	clk_disable(dpll5_clk);
+-	clk_disable_unprepare(dpll5_m2_clk);
+-	clk_disable_unprepare(dpll5_clk);
  	return;
  }
  
@@ -180,10 +180,10 @@ index 8bbeeaf..0ede513 100644
  void omap3_clk_lock_dpll5(void);
  
 diff --git a/arch/arm/mach-omap2/clock3xxx_data.c b/arch/arm/mach-omap2/clock3xxx_data.c
-index 1efdec2..b3fa2a7 100644
+index 1f42c9d..97c953c 100644
 --- a/arch/arm/mach-omap2/clock3xxx_data.c
 +++ b/arch/arm/mach-omap2/clock3xxx_data.c
-@@ -944,7 +944,7 @@ static struct clk dpll5_ck = {
+@@ -932,7 +932,7 @@ static struct clk dpll5_ck = {
  	.parent		= &sys_ck,
  	.dpll_data	= &dpll5_dd,
  	.round_rate	= &omap2_dpll_round_rate,
@@ -193,10 +193,10 @@ index 1efdec2..b3fa2a7 100644
  	.recalc		= &omap3_dpll_recalc,
  };
 diff --git a/arch/arm/mach-omap2/dpll3xxx.c b/arch/arm/mach-omap2/dpll3xxx.c
-index f0f10be..3be52f5 100644
+index 814e180..a5ec5c3 100644
 --- a/arch/arm/mach-omap2/dpll3xxx.c
 +++ b/arch/arm/mach-omap2/dpll3xxx.c
-@@ -288,7 +288,7 @@ static void _lookup_sddiv(struct clk *clk, u8 *sd_div, u16 m, u8 n)
+@@ -300,7 +300,7 @@ static void _lookup_sddiv(struct clk *clk, u8 *sd_div, u16 m, u8 n)
   * Program the DPLL with the supplied M, N values, and wait for the DPLL to
   * lock..  Returns -EINVAL upon error, or 0 upon success.
   */

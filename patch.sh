@@ -67,8 +67,6 @@ beagle () {
 	${git} "${DIR}/patches/beagle/expansion/0006-Beagle-expansion-add-wifi.patch"
 	${git} "${DIR}/patches/beagle/expansion/0007-Beagle-expansion-add-beaglefpga.patch"
 	${git} "${DIR}/patches/beagle/expansion/0008-Enable-buddy-spidev.patch"
-
-	#note: had to revert a few omap3isp patches to make this work...
 	${git} "${DIR}/patches/beagle/expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
 
 	#v3.5: looks to be removed: (might want to revert it back in...)
@@ -102,12 +100,6 @@ panda () {
 	${git} "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
 	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
-
-	#Status: https://lkml.org/lkml/2012/9/11/303
-#	${git} "${DIR}/patches/panda/0003-staging-omap-thermal-Correct-checkpatch.pl-warnings.patch"
-#	${git} "${DIR}/patches/panda/0004-staging-omap-thermal-remove-checkpatch.pl-warnings-o.patch"
-#	${git} "${DIR}/patches/panda/0005-staging-omap-thermal-fix-polling-period-settings.patch"
-#	${git} "${DIR}/patches/panda/0006-staging-omap-thermal-improve-conf-data-handling-and-.patch"
 }
 
 omap_fixes () {
@@ -127,52 +119,17 @@ mainline_fixes () {
 	#Status: v2 Review:
 	#http://lists.infradead.org/pipermail/linux-arm-kernel/2012-August/112440.html
 	${git} "${DIR}/patches/mainline-fixes/0001-arm-add-definition-of-strstr-to-decompress.c.patch"
-	#Status:
-	#http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap.git;a=shortlog;h=refs/heads/devel-dt
-#	${git} "${DIR}/patches/mainline-fixes/0002-ARM-omap-add-dtb-targets.patch"
 
-	#From: https://github.com/RobertCNelson/linux-dev/issues/7
-	#DisplayLink fb driver (udlfb.ko)
-	#Status: https://patchwork.kernel.org/patch/1361471/
-#	${git} "${DIR}/patches/mainline-fixes/0003-ARM-export-read_current_timer.patch"
-
-	${git} "${DIR}/patches/mainline-fixes/0001-OMAPDSS-DSI-fix-dsi_get_dsidev_from_id.patch"
-	${git} "${DIR}/patches/mainline-fixes/0002-omapdss-dss-Fix-clocks-on-OMAP363x.patch"
-	${git} "${DIR}/patches/mainline-fixes/0003-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
+	${git} "${DIR}/patches/mainline-fixes/0002-OMAPDSS-DSI-fix-dsi_get_dsidev_from_id.patch"
+	${git} "${DIR}/patches/mainline-fixes/0003-omapdss-dss-Fix-clocks-on-OMAP363x.patch"
+	${git} "${DIR}/patches/mainline-fixes/0004-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
 }
 
-debug () {
+xm_cpufreq_debug () {
 	echo "debug: cpufreq"
 	${git} "${DIR}/patches/debug/0001-beagle_xm-cpufreq-debug.patch"
-}
 
-omap3isp () {
-	echo "omap3isp"
-	#omap3isp: Revert to v3.4.x, till we figure out, how to actually set the 'pixel rate control'
-	#"no pixel rate control in subdev %s\n
-#	${git} "${DIR}/patches/omap3isp/0001-Revert-media-omap3isp-Move-CCDC-link-validation-to-c.patch"
-#	${git} "${DIR}/patches/omap3isp/0002-Revert-media-omap3isp-Default-link-validation-for-cc.patch"
-#	${git} "${DIR}/patches/omap3isp/0003-Revert-media-omap3isp-Use-external-rate-instead-of-v.patch"
-#	${git} "${DIR}/patches/omap3isp/0004-Revert-media-omap3isp-Introduce-isp_video_check_exte.patch"
-}
-
-omap_pm () {
-	echo "omap_pm: pm patches"
-	#Status: http://www.spinics.net/lists/linux-omap/msg78896.html
-	${git} "${DIR}/patches/omap_pm/0001-ARM-omap-vc-replace-data_shift-with-data_mask.patch"
-	${git} "${DIR}/patches/omap_pm/0002-ARM-omap-introduce-.get_voltage-callback.patch"
-	${git} "${DIR}/patches/omap_pm/0003-ARM-omap-vc-.get_voltage-callback.patch"
-	${git} "${DIR}/patches/omap_pm/0004-ARM-omap-vp-.get_voltage-callback.patch"
-	${git} "${DIR}/patches/omap_pm/0005-ARM-omap-initialize-voltdm-nominal_volt.patch"
-
-	#Status: http://www.spinics.net/lists/linux-omap/msg78898.html
-	${git} "${DIR}/patches/omap_pm/0006-ARM-omap-add-3630-PRM-register-definitions.patch"
-	${git} "${DIR}/patches/omap_pm/0007-ARM-omap-add-ABB-PRM_IRQSTATUS-handlers.patch"
-	${git} "${DIR}/patches/omap_pm/0008-ARM-omap-Adaptive-Body-Bias-structures-data.patch"
-	${git} "${DIR}/patches/omap_pm/0009-ARM-omap-opp-add-ABB-data-to-voltage-tables.patch"
-	${git} "${DIR}/patches/omap_pm/0010-ARM-omap-voltage-per-voltage-domain-ABB-data.patch"
-	${git} "${DIR}/patches/omap_pm/0011-ARM-omap-abb-init-transition-functions.patch"
-	${git} "${DIR}/patches/omap_pm/0012-ARM-omap-voltage-add-ABB-to-voltage-scaling.patch"
+	patch -p1 -R < "${DIR}/patches/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 }
 
 distro
@@ -186,9 +143,7 @@ panda
 omap_fixes
 sgx
 mainline_fixes
-#omap_pm
 
-#omap3isp
+#xm_cpufreq_debug
 
 echo "patch.sh ran successful"
-
