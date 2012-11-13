@@ -125,6 +125,16 @@ mainline_fixes () {
 	${git} "${DIR}/patches/mainline-fixes/0004-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
 }
 
+mainline () {
+	echo "dir: mainline/omap_thermal"
+	#Status: https://lkml.org/lkml/2012/11/13/341
+	${git} "${DIR}/patches/mainline/omap_thermal/0001-staging-omap-thermal-fix-compilation.patch"
+	${git} "${DIR}/patches/mainline/omap_thermal/0002-staging-omap-thermal-remove-platform-data-nomenclatu.patch"
+	${git} "${DIR}/patches/mainline/omap_thermal/0003-staging-omap-thermal-remove-freq_clip-table.patch"
+	${git} "${DIR}/patches/mainline/omap_thermal/0004-staging-omap-thermal-add-IRQ-debugging-messaging.patch"
+	${git} "${DIR}/patches/mainline/omap_thermal/0005-staging-omap-thermal-fix-context-restore-function.patch"
+}
+
 xm_cpufreq_debug () {
 	echo "debug: cpufreq"
 	${git} "${DIR}/patches/debug/0001-beagle_xm-cpufreq-debug.patch"
@@ -143,6 +153,7 @@ panda
 omap_fixes
 sgx
 mainline_fixes
+mainline
 
 #xm_cpufreq_debug
 
