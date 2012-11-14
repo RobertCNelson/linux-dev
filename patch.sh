@@ -45,45 +45,70 @@ cleanup () {
 	exit
 }
 
-distro () {
-	echo "Distro Specific Patches"
-	${git} "${DIR}/patches/distro/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
+arm () {
+	echo "dir: arm"
+	${git} "${DIR}/patches/arm/0001-kbuild-deb-pkg-set-host-machine-after-dpkg-gencontro.patch"
+
+	#Status: v2 Review:
+	#http://lists.infradead.org/pipermail/linux-arm-kernel/2012-August/112440.html
+	${git} "${DIR}/patches/arm/0002-arm-add-definition-of-strstr-to-decompress.c.patch"
 }
 
-sakoman () {
-	echo "Patches from: Sakoman git tree"
-	${git} "${DIR}/patches/sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
-	${git} "${DIR}/patches/sakoman/0002-video-add-timings-for-hd720.patch"
-}
+omap () {
+	echo "dir: omap/sakoman"
+	${git} "${DIR}/patches/omap/sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
+	${git} "${DIR}/patches/omap/sakoman/0002-video-add-timings-for-hd720.patch"
 
-beagle () {
-	echo "Board Patches for: BeagleBoard"
+	echo "dir: omap/beagle/expansion"
+	${git} "${DIR}/patches/omap/beagle/expansion/0001-Beagle-expansion-add-buddy-param-for-expansionboard-.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0002-Beagle-expansion-add-zippy.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0003-Beagle-expansion-add-zippy2.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0004-Beagle-expansion-add-trainer.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0005-Beagle-expansion-add-CircuitCo-ulcd-Support.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0006-Beagle-expansion-add-wifi.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0007-Beagle-expansion-add-beaglefpga.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0008-Enable-buddy-spidev.patch"
+	${git} "${DIR}/patches/omap/beagle/expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
 
-	${git} "${DIR}/patches/beagle/expansion/0001-Beagle-expansion-add-buddy-param-for-expansionboard-.patch"
-	${git} "${DIR}/patches/beagle/expansion/0002-Beagle-expansion-add-zippy.patch"
-	${git} "${DIR}/patches/beagle/expansion/0003-Beagle-expansion-add-zippy2.patch"
-	${git} "${DIR}/patches/beagle/expansion/0004-Beagle-expansion-add-trainer.patch"
-	${git} "${DIR}/patches/beagle/expansion/0005-Beagle-expansion-add-CircuitCo-ulcd-Support.patch"
-	${git} "${DIR}/patches/beagle/expansion/0006-Beagle-expansion-add-wifi.patch"
-	${git} "${DIR}/patches/beagle/expansion/0007-Beagle-expansion-add-beaglefpga.patch"
-	${git} "${DIR}/patches/beagle/expansion/0008-Enable-buddy-spidev.patch"
-	${git} "${DIR}/patches/beagle/expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
-
-	#v3.5: looks to be removed: (might want to revert it back in...)
-	#http://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=commit;h=b6e695abe710ee1ae248463d325169efac487e17
-	#git am "${DIR}/patches/beagle/0001-beagleboard-reinstate-usage-of-hi-speed-PLL-divider.patch"
-
+	echo "dir: omap/beagle"
 	#Status: for meego guys..
-	${git} "${DIR}/patches/beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
+	${git} "${DIR}/patches/omap/beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
 
-	${git} "${DIR}/patches/beagle/0002-backlight-Add-TLC59108-backlight-control-driver.patch"
-	${git} "${DIR}/patches/beagle/0003-tlc59108-adjust-for-beagleboard-uLCD7.patch"
+	${git} "${DIR}/patches/omap/beagle/0002-backlight-Add-TLC59108-backlight-control-driver.patch"
+	${git} "${DIR}/patches/omap/beagle/0003-tlc59108-adjust-for-beagleboard-uLCD7.patch"
 
 	#Status: not for upstream
-	${git} "${DIR}/patches/beagle/0004-zeroMAP-Open-your-eyes.patch"
+	${git} "${DIR}/patches/omap/beagle/0004-zeroMAP-Open-your-eyes.patch"
 
 	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
-	${git} "${DIR}/patches/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
+	${git} "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
+
+	echo "dir: omap/panda"
+	#Status: not for upstream: push device tree version upstream...
+	${git} "${DIR}/patches/omap/panda/0001-panda-fix-wl12xx-regulator.patch"
+	#Status: unknown: cherry picked from linaro
+	${git} "${DIR}/patches/omap/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
+
+	echo "dir: omap/sgx"
+	#Status: TI 4.06.00.xx needs this, when building drm modues for Xorg.
+	${git} "${DIR}/patches/omap/sgx/0001-Revert-drm-kill-drm_sman.patch"
+
+	echo "dir: omap/fixes"
+	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
+	${git} "${DIR}/patches/omap/fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
+
+	#Status: unknown:
+	${git} "${DIR}/patches/omap/fixes/0002-OMAPDSS-DSI-fix-dsi_get_dsidev_from_id.patch"
+	${git} "${DIR}/patches/omap/fixes/0003-omapdss-dss-Fix-clocks-on-OMAP363x.patch"
+	${git} "${DIR}/patches/omap/fixes/0004-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
+
+	echo "dir: omap/thermal"
+	#Status: https://lkml.org/lkml/2012/11/13/341
+	${git} "${DIR}/patches/omap/thermal/0001-staging-omap-thermal-fix-compilation.patch"
+	${git} "${DIR}/patches/omap/thermal/0002-staging-omap-thermal-remove-platform-data-nomenclatu.patch"
+	${git} "${DIR}/patches/omap/thermal/0003-staging-omap-thermal-remove-freq_clip-table.patch"
+	${git} "${DIR}/patches/omap/thermal/0004-staging-omap-thermal-add-IRQ-debugging-messaging.patch"
+	${git} "${DIR}/patches/omap/thermal/0005-staging-omap-thermal-fix-context-restore-function.patch"
 }
 
 sprz319_erratum () {
@@ -91,69 +116,21 @@ sprz319_erratum () {
 	#Breaks: Beagle C4, hardlocks on bootup...
 	#Status: no response from users:
 	#https://groups.google.com/forum/#!topic/beagleboard/m7DLkYMKNkg
-	${git} "${DIR}/patches/sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
-}
-
-panda () {
-	echo "Board Patches for: PandaBoard"
-	#Status: not for upstream: push device tree version upstream...
-	${git} "${DIR}/patches/panda/0001-panda-fix-wl12xx-regulator.patch"
-	#Status: unknown: cherry picked from linaro
-	${git} "${DIR}/patches/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
-}
-
-omap_fixes () {
-	echo "omap cherry pick fixes"
-	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
-	${git} "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
-}
-
-sgx () {
-	echo "patches needed for external sgx bins"
-	#Status: TI 4.06.00.xx needs this
-	${git} "${DIR}/patches/sgx/0001-Revert-drm-kill-drm_sman.patch"
-}
-
-mainline_fixes () {
-	echo "mainline patches"
-	#Status: v2 Review:
-	#http://lists.infradead.org/pipermail/linux-arm-kernel/2012-August/112440.html
-	${git} "${DIR}/patches/mainline-fixes/0001-arm-add-definition-of-strstr-to-decompress.c.patch"
-
-	${git} "${DIR}/patches/mainline-fixes/0002-OMAPDSS-DSI-fix-dsi_get_dsidev_from_id.patch"
-	${git} "${DIR}/patches/mainline-fixes/0003-omapdss-dss-Fix-clocks-on-OMAP363x.patch"
-	${git} "${DIR}/patches/mainline-fixes/0004-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
-}
-
-mainline () {
-	echo "dir: mainline/omap_thermal"
-	#Status: https://lkml.org/lkml/2012/11/13/341
-	${git} "${DIR}/patches/mainline/omap_thermal/0001-staging-omap-thermal-fix-compilation.patch"
-	${git} "${DIR}/patches/mainline/omap_thermal/0002-staging-omap-thermal-remove-platform-data-nomenclatu.patch"
-	${git} "${DIR}/patches/mainline/omap_thermal/0003-staging-omap-thermal-remove-freq_clip-table.patch"
-	${git} "${DIR}/patches/mainline/omap_thermal/0004-staging-omap-thermal-add-IRQ-debugging-messaging.patch"
-	${git} "${DIR}/patches/mainline/omap_thermal/0005-staging-omap-thermal-fix-context-restore-function.patch"
+	${git} "${DIR}/patches/omap/sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
 xm_cpufreq_debug () {
 	echo "debug: cpufreq"
 	${git} "${DIR}/patches/debug/0001-beagle_xm-cpufreq-debug.patch"
 
-	patch -p1 -R < "${DIR}/patches/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
+	patch -p1 -R < "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 }
 
-distro
-sakoman
-beagle
+arm
+omap
 
 #disabled as it breaks beagle c4...
 #sprz319_erratum
-
-panda
-omap_fixes
-sgx
-mainline_fixes
-mainline
 
 #xm_cpufreq_debug
 
