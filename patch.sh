@@ -83,6 +83,10 @@ omap () {
 	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
 	${git} "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 
+	#With this hack, ondemand no longer, locks up the Beagle C4 on software reset...
+	#CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+	#${git} "${DIR}/patches/omap/beagle/0006-HACK-arm-omap-beagle-c4-fix-hardlock-on-software-res.patch"
+
 	echo "dir: omap/panda"
 	#Status: not for upstream: push device tree version upstream...
 	${git} "${DIR}/patches/omap/panda/0001-panda-fix-wl12xx-regulator.patch"
