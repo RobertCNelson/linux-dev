@@ -55,6 +55,9 @@ arm () {
 }
 
 omap () {
+	echo "dir: omap"
+	${git} "${DIR}/patches/omap/0001-mach-omap2-board-igep0020.c-Fix-reboot-problem.patch"
+
 	echo "dir: omap/sakoman"
 	${git} "${DIR}/patches/omap/sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
 	${git} "${DIR}/patches/omap/sakoman/0002-video-add-timings-for-hd720.patch"
@@ -83,9 +86,7 @@ omap () {
 	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
 	${git} "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 
-	#With this hack, ondemand no longer, locks up the Beagle C4 on software reset...
-	#CONFIG_CPU_FREQ_GOV_ONDEMAND=m
-	#${git} "${DIR}/patches/omap/beagle/0006-HACK-arm-omap-beagle-c4-fix-hardlock-on-software-res.patch"
+	${git} "${DIR}/patches/omap/beagle/0006-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
 
 	echo "dir: omap/panda"
 	#Status: not for upstream: push device tree version upstream...
