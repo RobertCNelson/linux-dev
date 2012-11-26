@@ -45,7 +45,7 @@ cleanup () {
 	exit
 }
 
-dma () {
+am33x () {
 	echo "dir: dma"
 	${git} "${DIR}/patches/dma/0001-video-st7735fb-add-st7735-framebuffer-driver.patch"
 	${git} "${DIR}/patches/dma/0002-regulator-tps65910-fix-BUG_ON-shown-with-vrtc-regula.patch"
@@ -78,30 +78,22 @@ dma () {
 	${git} "${DIR}/patches/dma/0029-ARM-configs-working-da850-edma-dmaengine-defconfig.patch"
 	${git} "${DIR}/patches/dma/0030-misc-gpevt-null-terminate-the-of_match_table.patch"
 	${git} "${DIR}/patches/dma/0031-proposed-probe-fix-works-for-me-on-evm.patch"
-}
 
-cpsw () {
 	echo "dir: cpsw"
 	${git} "${DIR}/patches/cpsw/0001-ARM-OMAP3-hwmod-Add-AM33XX-HWMOD-data-for-davinci_md.patch"
 	${git} "${DIR}/patches/cpsw/0002-net-davinci_mdio-Fix-type-mistake-in-calling-runtime.patch"
 	${git} "${DIR}/patches/cpsw/0003-net-cpsw-Add-parent-child-relation-support-between-c.patch"
 	${git} "${DIR}/patches/cpsw/0004-arm-dts-am33xx-Add-cpsw-and-mdio-module-nodes-for-AM.patch"
-}
 
-pinctrl () {
 	echo "dir: pinctrl"
 	${git} "${DIR}/patches/pinctrl/0001-i2c-pinctrl-ify-i2c-omap.c.patch"
 	${git} "${DIR}/patches/pinctrl/0002-arm-dts-AM33XX-Configure-pinmuxs-for-user-leds-contr.patch"
 	${git} "${DIR}/patches/pinctrl/0003-beaglebone-DT-set-default-triggers-for-LEDS.patch"
 	${git} "${DIR}/patches/pinctrl/0004-beaglebone-add-a-cpu-led-trigger.patch"
-}
 
-cpufreq () {
 	echo "dir: cpufreq"
 	${git} "${DIR}/patches/cpufreq/0001-arm-dts-AM33XX-Add-device-tree-OPP-table.patch"
-}
 
-adc () {
 	echo "dir: adc"
 	${git} "${DIR}/patches/adc/0001-input-TSC-ti_tscadc-Correct-register-usage.patch"
 	${git} "${DIR}/patches/adc/0002-input-TSC-ti_tscadc-Add-Step-configuration-as-platfo.patch"
@@ -116,9 +108,7 @@ adc () {
 	${git} "${DIR}/patches/adc/0011-input-ti_am335x_tsc-Add-variance-filters.patch"
 	${git} "${DIR}/patches/adc/0012-ti_tscadc-Update-with-IIO-map-interface-deal-with-pa.patch"
 	${git} "${DIR}/patches/adc/0013-ti_tscadc-Match-mfd-sub-devices-to-regmap-interface.patch"
-}
 
-pwm () {
 	echo "dir: pwm"
 	${git} "${DIR}/patches/pwm/0001-ARM-OMAP3-hwmod-Corrects-resource-data-for-PWM-devic.patch"
 	${git} "${DIR}/patches/pwm/0002-pwm_backlight-Add-device-tree-support-for-Low-Thresh.patch"
@@ -129,17 +119,13 @@ pwm () {
 	${git} "${DIR}/patches/pwm/0007-pwm-pwm_test-Driver-support-for-PWM-module-testing.patch"
 	${git} "${DIR}/patches/pwm/0008-arm-dts-DT-support-for-EHRPWM-and-ECAP-device.patch"
 	${git} "${DIR}/patches/pwm/0009-pwm-pwm-tiehrpwm-Add-device-tree-binding-support-EHR.patch"
-}
 
-i2c () {
 	echo "dir: i2c"
 	${git} "${DIR}/patches/i2c/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
 	${git} "${DIR}/patches/i2c/0002-Bone-DTS-working-i2c2-i2c3-in-the-tree.patch"
 	${git} "${DIR}/patches/i2c/0003-am33xx-Convert-I2C-from-omap-to-am33xx-names.patch"
 	${git} "${DIR}/patches/i2c/0004-beaglebone-fix-backlight-entry-in-DT.patch"
-}
 
-usb () {
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-Shut-up-musb.patch"
 	${git} "${DIR}/patches/usb/0002-musb-Fix-crashes-and-other-weirdness.patch"
@@ -150,9 +136,7 @@ usb () {
 	${git} "${DIR}/patches/usb/0007-usb-musb-dsps-add-phy-control-logic-to-glue.patch"
 	${git} "${DIR}/patches/usb/0008-usb-musb-dsps-enable-phy-control-for-am335x.patch"
 	${git} "${DIR}/patches/usb/0009-ARM-am33xx-fix-mem-regions-in-USB-hwmod.patch"
-}
 
-da8xx_fb () {
 	echo "dir: da8xx-fb"
 	${git} "${DIR}/patches/da8xx-fb/0001-omap2-clk-Add-missing-lcdc-clock-definition.patch"
 	${git} "${DIR}/patches/da8xx-fb/0002-da8xx-Allow-use-by-am33xx-based-devices.patch"
@@ -161,21 +145,15 @@ da8xx_fb () {
 	${git} "${DIR}/patches/da8xx-fb/0005-da8xx-Add-standard-panel-definition.patch"
 	${git} "${DIR}/patches/da8xx-fb/0006-da8xx-Add-CDTech_S035Q01-panel-used-by-LCD3-bone-cap.patch"
 	${git} "${DIR}/patches/da8xx-fb/0007-da8xx-fb-add-panel-definition-for-beaglebone-LCD7-ca.patch"
-}
 
-mmc () {
 	echo "dir: mmc"
 	${git} "${DIR}/patches/mmc/0001-mmc-omap_hsmmc-Enable-HSPE-bit-for-high-speed-cards.patch"
 	${git} "${DIR}/patches/mmc/0002-am33xx.dtsi-enable-MMC-HSPE-bit-for-all-3-controller.patch"
 	${git} "${DIR}/patches/mmc/0003-omap-hsmmc-Correct-usage-of-of_find_node_by_name.patch"
-}
 
-fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-ARM-AM33XX-hwmod-Remove-wrong-INIT_NO_RESET-IDLE-fla.patch"
-}
 
-capebus () {
 	echo "dir: capebus"
 	${git} "${DIR}/patches/capebus/0001-i2c-EEPROM-Export-memory-accessor.patch"
 	${git} "${DIR}/patches/capebus/0002-omap-Export-omap_hwmod_lookup-omap_device_build-omap.patch"
@@ -209,6 +187,9 @@ arm () {
 }
 
 omap () {
+	echo "dir: omap"
+	${git} "${DIR}/patches/omap/0001-mach-omap2-board-igep0020.c-Fix-reboot-problem.patch"
+
 	echo "dir: omap/sakoman"
 	${git} "${DIR}/patches/omap/sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
 	${git} "${DIR}/patches/omap/sakoman/0002-video-add-timings-for-hd720.patch"
@@ -236,6 +217,8 @@ omap () {
 
 	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
 	${git} "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
+
+	${git} "${DIR}/patches/omap/beagle/0006-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
 
 	echo "dir: omap/panda"
 	#Status: not for upstream: push device tree version upstream...
@@ -280,19 +263,7 @@ xm_cpufreq_debug () {
 	patch -p1 -R < "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 }
 
-dma
-cpsw
-pinctrl
-cpufreq
-adc
-pwm
-i2c
-usb
-da8xx_fb
-mmc
-fixes
-capebus
-
+am33x
 arm
 omap
 

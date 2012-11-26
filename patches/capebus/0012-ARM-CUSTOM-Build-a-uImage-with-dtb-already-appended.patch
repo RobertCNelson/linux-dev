@@ -31,12 +31,12 @@ index 5f914fc..05df486 100644
  	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $(boot)/$@
  
 diff --git a/arch/arm/boot/Makefile b/arch/arm/boot/Makefile
-index f2aa09e..bdebcd1 100644
+index 9137df5..416fbe9 100644
 --- a/arch/arm/boot/Makefile
 +++ b/arch/arm/boot/Makefile
 @@ -57,6 +57,9 @@ $(obj)/zImage:	$(obj)/compressed/vmlinux FORCE
  	$(call if_changed,objcopy)
- 	$(kecho) '  Kernel: $@ is ready'
+ 	@$(kecho) '  Kernel: $@ is ready'
  
 +$(obj)/zImage-dtb.%:	$(obj)/%.dtb $(obj)/zImage
 +	cat $(obj)/zImage $< > $@
@@ -46,7 +46,7 @@ index f2aa09e..bdebcd1 100644
  targets += $(dtb-y)
 @@ -92,6 +95,10 @@ $(obj)/uImage:	$(obj)/zImage FORCE
  	$(call if_changed,uimage)
- 	$(kecho) '  Image $@ is ready'
+ 	@$(kecho) '  Image $@ is ready'
  
 +$(obj)/uImage-dtb.%:	$(obj)/zImage-dtb.% FORCE
 +	$(call if_changed,uimage)
