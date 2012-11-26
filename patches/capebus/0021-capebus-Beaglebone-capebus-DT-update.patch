@@ -1,14 +1,18 @@
-From 2fdbecc02913ee3a6f14bd52634b5de4a2eb90ea Mon Sep 17 00:00:00 2001
+From c8badb3fa710fd683bd8a44674d3d598e11bef90 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Tue, 30 Oct 2012 21:16:57 +0200
-Subject: [PATCH 19/20] capebus: Beaglebone capebus DT update
+Subject: [PATCH 21/26] capebus: Beaglebone capebus DT update
 
+Update the common beaglebone's DTS with the required DT
+entries for all known working capes as of now.
+
+Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi |  689 +++++++++++++++++++++++++++--
- 1 file changed, 659 insertions(+), 30 deletions(-)
+ arch/arm/boot/dts/am335x-bone-common.dtsi |  687 +++++++++++++++++++++++++++--
+ 1 file changed, 657 insertions(+), 30 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 1f2ebef..46d5f27 100644
+index 1f2ebef..b1d0375 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -51,6 +51,143 @@
@@ -172,13 +176,17 @@ index 1f2ebef..46d5f27 100644
  		gpevt {
  			compatible = "gpevt";
  			pinctrl-names = "default";
-@@ -110,15 +237,117 @@
- 			dma-names = "gpioevt";
- 			gpio-evt = <&gpio3 2 0>;
+@@ -112,13 +239,113 @@
  		};
-+
-+	};
-+
+ 	};
+ 
+-	backlight {
+-			compatible	= "pwm-backlight";
+-			pwms = <&ehrpwm1 0 500000 0>;
+-			pwm-names = "st7735fb";
+-			brightness-levels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100>;
+-			default-brightness-level = <50>; /* index to the array above */
+-		};
 +	capebus: capebus@0 {
 +			compatible = "bone-capebus";
 +
@@ -242,15 +250,7 @@ index 1f2ebef..46d5f27 100644
 +//				manufacturer = "Beagleboardtoys";
 +//				/* TODO: Add the rest */
 +//			};
- 	};
- 
--	backlight {
--			compatible	= "pwm-backlight";
--			pwms = <&ehrpwm1 0 500000 0>;
--			pwm-names = "st7735fb";
--			brightness-levels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100>;
--			default-brightness-level = <50>; /* index to the array above */
--		};
++	};
 +};
 +
 +&i2c0 {
@@ -297,7 +297,7 @@ index 1f2ebef..46d5f27 100644
  };
  
  /include/ "tps65217.dtsi"
-@@ -165,6 +394,7 @@
+@@ -165,6 +392,7 @@
  			regulator-always-on;
  		};
  	};
@@ -305,7 +305,7 @@ index 1f2ebef..46d5f27 100644
  };
  
  &mmc1 {
-@@ -172,21 +402,8 @@
+@@ -172,21 +400,8 @@
  };
  
  &spi1 {
@@ -327,7 +327,7 @@ index 1f2ebef..46d5f27 100644
  };
  
  &edma {
-@@ -200,3 +417,415 @@
+@@ -200,3 +415,415 @@
  &cpsw_emac1 {
  	phy_id = "4a101000.mdio:01";
  };

@@ -154,6 +154,24 @@ am33x () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-ARM-AM33XX-hwmod-Remove-wrong-INIT_NO_RESET-IDLE-fla.patch"
 
+	echo "dir: 6lowpan"
+	${git} "${DIR}/patches/6lowpan/0001-6lowpan-lowpan_is_iid_16_bit_compressable-does-not-d.patch"
+	${git} "${DIR}/patches/6lowpan/0002-6lowpan-next-header-is-not-properly-set-upon-decompr.patch"
+	${git} "${DIR}/patches/6lowpan/0003-6lowpan-always-enable-link-layer-acknowledgments.patch"
+	${git} "${DIR}/patches/6lowpan/0004-mac802154-turn-on-ACK-when-enabled-by-the-upper-laye.patch"
+	${git} "${DIR}/patches/6lowpan/0005-6lowpan-use-short-IEEE-802.15.4-addresses-for-broadc.patch"
+	${git} "${DIR}/patches/6lowpan/0006-6lowpan-fix-first-fragment-FRAG1-handling.patch"
+	${git} "${DIR}/patches/6lowpan/0007-6lowpan-store-fragment-tag-values-per-device-instead.patch"
+	${git} "${DIR}/patches/6lowpan/0008-6lowpan-obtain-IEEE802.15.4-sequence-number-from-the.patch"
+	${git} "${DIR}/patches/6lowpan/0009-6lowpan-add-a-new-parameter-in-sysfs-to-turn-on-off-.patch"
+	${git} "${DIR}/patches/6lowpan/0010-6lowpan-use-the-PANID-provided-by-the-device-instead.patch"
+	${git} "${DIR}/patches/6lowpan/0011-6lowpan-modify-udp-compression-uncompression-to-matc.patch"
+	${git} "${DIR}/patches/6lowpan/0012-6lowpan-make-memory-allocation-atomic-during-6lowpan.patch"
+	${git} "${DIR}/patches/6lowpan/0013-mac802154-make-mem-alloc-ATOMIC-to-prevent-schedulin.patch"
+	${git} "${DIR}/patches/6lowpan/0014-mac802154-remove-unnecessary-spinlocks.patch"
+	${git} "${DIR}/patches/6lowpan/0015-mac802154-re-introduce-MAC-primitives-required-to-se.patch"
+	${git} "${DIR}/patches/6lowpan/0016-serial-initial-import-of-the-IEEE-802.15.4-serial-dr.patch"
+
 	echo "dir: capebus"
 	${git} "${DIR}/patches/capebus/0001-i2c-EEPROM-Export-memory-accessor.patch"
 	${git} "${DIR}/patches/capebus/0002-omap-Export-omap_hwmod_lookup-omap_device_build-omap.patch"
@@ -169,12 +187,27 @@ am33x () {
 	${git} "${DIR}/patches/capebus/0012-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
 	${git} "${DIR}/patches/capebus/0013-beaglebone-create-a-shared-dtsi-for-beaglebone-based.patch"
 	${git} "${DIR}/patches/capebus/0014-beaglebone-enable-emmc-for-bonelt.patch"
-	${git} "${DIR}/patches/capebus/0015-capebus-Core-capebus-support.patch"
-	${git} "${DIR}/patches/capebus/0016-capebus-Add-beaglebone-board-support.patch"
-	${git} "${DIR}/patches/capebus/0017-capebus-Beaglebone-generic-board.patch"
-	${git} "${DIR}/patches/capebus/0018-capebus-Add-beaglebone-geiger-cape.patch"
-	${git} "${DIR}/patches/capebus/0019-capebus-Beaglebone-capebus-DT-update.patch"
-	${git} "${DIR}/patches/capebus/0020-beaglebone-Update-default-config-for-capebus.patch"
+	${git} "${DIR}/patches/capebus/0015-da8xx-dt-Create-da8xx-DT-adapter-device.patch"
+	${git} "${DIR}/patches/capebus/0016-ti-tscadc-dt-Create-ti-tscadc-dt-DT-adapter-device.patch"
+	${git} "${DIR}/patches/capebus/0017-capebus-Core-capebus-support.patch"
+	${git} "${DIR}/patches/capebus/0018-capebus-Add-beaglebone-board-support.patch"
+	${git} "${DIR}/patches/capebus/0019-capebus-Beaglebone-generic-cape-support.patch"
+	${git} "${DIR}/patches/capebus/0020-capebus-Beaglebone-geiger-cape-support.patch"
+	${git} "${DIR}/patches/capebus/0021-capebus-Beaglebone-capebus-DT-update.patch"
+	${git} "${DIR}/patches/capebus/0022-capebus-Document-DT-bindings.patch"
+	${git} "${DIR}/patches/capebus/0023-capebus-Documentation-capebus-summary.patch"
+	${git} "${DIR}/patches/capebus/0024-beaglebone-Update-default-config-for-capebus.patch"
+	${git} "${DIR}/patches/capebus/0025-capebus-Geiger-Cape-config-bugfixs.patch"
+	${git} "${DIR}/patches/capebus/0026-am335x-bone-Add-spi0-pins-defines.patch"
+
+	echo "dir: hdmi"
+	${git} "${DIR}/patches/hdmi/0001-Import-working-HDMI-driver-from-3.2-kernel.patch"
+	${git} "${DIR}/patches/hdmi/0002-Added-DT-binding-to-NXP-driver.patch"
+	${git} "${DIR}/patches/hdmi/0003-da8xx-fb-Add-timings-for-720x480-60.patch"
+	${git} "${DIR}/patches/hdmi/0004-video-Kconfig-Makefile-Add-new-Kconfig-for-old-drive.patch"
+	${git} "${DIR}/patches/hdmi/0005-am335x-bonelt-dts-Add-DT-node-to-probe-NXP-driver.patch"
+	${git} "${DIR}/patches/hdmi/0006-Add-capebus-override-and-pinmux-for-da8xx-dt.patch"
+	${git} "${DIR}/patches/hdmi/0007-nxp-Makefile-Undefine-TDA_CEC-we-don-t-use-CEC-featu.patch"
 }
 
 arm () {
@@ -233,11 +266,6 @@ omap () {
 	echo "dir: omap/fixes"
 	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
 	${git} "${DIR}/patches/omap/fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
-
-	#Status: unknown:
-	${git} "${DIR}/patches/omap/fixes/0002-OMAPDSS-DSI-fix-dsi_get_dsidev_from_id.patch"
-	${git} "${DIR}/patches/omap/fixes/0003-omapdss-dss-Fix-clocks-on-OMAP363x.patch"
-	${git} "${DIR}/patches/omap/fixes/0004-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
 
 	echo "dir: omap/thermal"
 	#Status: https://lkml.org/lkml/2012/11/13/341
