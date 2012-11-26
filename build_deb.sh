@@ -30,8 +30,10 @@ function patch_kernel {
 	export DIR GIT_OPTS
 	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
-	git add .
-	git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
+	if [ ! "${RUN_BISECT}" ] ; then
+		git add .
+		git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
+	fi
 
 #Test Patches:
 #exit
@@ -62,7 +64,9 @@ function make_menuconfig {
 
 function make_deb {
 	cd ${DIR}/KERNEL/
+	echo "-----------------------------"
 	echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg"
+	echo "-----------------------------"
 	time fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg
 	mv ${DIR}/*.deb ${DIR}/deploy/
 
@@ -82,17 +86,18 @@ function make_deb {
 function make_dtbs_pkg {
 	cd ${DIR}/KERNEL/
 
-	echo ""
+	echo "-----------------------------"
 	echo "Building DTBS Archive"
-	echo ""
+	echo "-----------------------------"
 
 	rm -rf ${DIR}/deploy/dtbs &> /dev/null || true
 	mkdir -p ${DIR}/deploy/dtbs
 	cp -v arch/arm/boot/*.dtb ${DIR}/deploy/dtbs
 	cd ${DIR}/deploy/dtbs
+	echo "-----------------------------"
 	echo "Building ${KERNEL_UTS}-dtbs.tar.gz"
 	tar czf ../${KERNEL_UTS}-dtbs.tar.gz *
-
+	echo "-----------------------------"
 	cd ${DIR}/
 }
 
@@ -109,15 +114,17 @@ unset LINUX_GIT
 unset LOCAL_PATCH_DIR
 source ${DIR}/system.sh
 /bin/bash -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
+source ${DIR}/.CC
+echo "debug: CC=${CC}"
 
 source ${DIR}/version.sh
 export LINUX_GIT
 export LATEST_GIT
 
 if [ "${LATEST_GIT}" ] ; then
-	echo ""
+	echo "-----------------------------"
 	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
-	echo ""
+	echo "-----------------------------"
 fi
 
 unset CONFIG_DEBUG_SECTION
@@ -125,10 +132,18 @@ if [ "${DEBUG_SECTION}" ] ; then
 	CONFIG_DEBUG_SECTION="CONFIG_DEBUG_SECTION_MISMATCH=y"
 fi
 
-/bin/bash -e "${DIR}/scripts/git.sh" || { exit 1 ; }
+#unset FULL_REBUILD
+FULL_REBUILD=1
+if [ "${FULL_REBUILD}" ] ; then
+	/bin/bash -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 
-patch_kernel
-copy_defconfig
+	if [ "${RUN_BISECT}" ] ; then
+		/bin/bash -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
+	fi
+
+	patch_kernel
+	copy_defconfig
+fi
 if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
@@ -142,4 +157,3 @@ fi
 if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 	sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
 fi
-
