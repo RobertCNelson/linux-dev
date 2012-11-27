@@ -92,65 +92,61 @@ Missing mkimage command.
 
 function debian_regs
 {
-	unset APT
-	unset UPACKAGE
-	unset DPACKAGE
-
-	if [ ! $(dpkg -l | grep build-essential | awk '{print $2}') ] ; then
-		echo "Missing build-essential"
-		UPACKAGE+="build-essential "
-		DPACKAGE+="build-essential "
-		APT=1
-	fi
-
-	if [ ! $(which mkimage) ];then
-		echo "Missing uboot-mkimage"
-		UPACKAGE+="u-boot-tools "
-		DPACKAGE+="uboot-mkimage "
-		APT=1
-	fi
-
-	if [ ! $(which ccache) ];then
-		echo "Missing ccache"
-		UPACKAGE+="ccache "
-		DPACKAGE+="ccache "
-		APT=1
-	fi
-
-	if [ ! $(which fakeroot) ];then
-		echo "Missing fakeroot"
-		UPACKAGE+="fakeroot "
-		DPACKAGE+="fakeroot "
-		APT=1
-	fi
-
-	if [ ! $(which dtc) ];then
-		echo "Missing device-tree-compiler"
-		UPACKAGE+="device-tree-compiler "
-		DPACKAGE+="device-tree-compiler "
-		APT=1
-	fi
+	unset deb_pkgs
+	dpkg -l | grep build-essential >/dev/null || deb_pkgs+="build-essential "
+	dpkg -l | grep ccache >/dev/null || deb_pkgs+="ccache "
+	dpkg -l | grep device-tree-compiler >/dev/null || deb_pkgs+="device-tree-compiler "
+	dpkg -l | grep lsb-release >/dev/null || deb_pkgs+="lsb-release "
+	dpkg -l | grep lzma >/dev/null || deb_pkgs+="lzma "
+	dpkg -l | grep fakeroot >/dev/null || deb_pkgs+="fakeroot "
 
 	#Lucid -> Oneiric
 	if [ ! -f "/usr/lib/libncurses.so" ] ; then
 		#Precise ->
 		if [ ! -f "/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so" ] ; then
-			echo "Missing: libncurses.so"
-			UPACKAGE+="libncurses5-dev "
-			DPACKAGE+="libncurses5-dev "
-			APT=1
+			deb_pkgs+="libncurses5-dev "
 		else
+		echo "-----------------------------"
 			echo "Debug: found libncurses.so: /usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so"
+		echo "-----------------------------"
 		fi
 	else
+		echo "-----------------------------"
 		echo "Debug: found libncurses.so: /usr/lib/libncurses.so"
+		echo "-----------------------------"
 	fi
 
-	if [ "${APT}" ];then
-		echo "Missing Dependicies"
-		echo "Ubuntu: please install: sudo aptitude install ${UPACKAGE}"
-		echo "Debian: please install: sudo aptitude install ${DPACKAGE}"
-		echo "---------------------------------------------------------"
+	#lsb_release might not be installed...
+	if [ $(which lsb_release) ] ; then
+		deb_distro=$(lsb_release -cs)
+
+		#mkimage
+		case "${deb_distro}" in
+		squeeze|lucid|maverick)
+			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs+="uboot-mkimage "
+			;;
+		wheezy|natty|oneiric|precise|quantal|raring)
+			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs+="u-boot-tools "
+			;;
+		esac
+
+		cpu_arch=$(uname -m)
+		if [ "x${cpu_arch}" == "xx86_64" ] ; then
+			case "${deb_distro}" in
+			squeeze|wheezy|lucid|maverick|natty|oneiric|precise|quantal|raring)
+				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs+="ia32-libs "
+				;;
+			esac
+		fi
+
+	fi
+
+	if [ "${deb_pkgs}" ] ; then
+		echo "Missing Dependicies: Please Install"
+		echo "-----------------------------"
+		echo "Ubuntu/Debian"
+		echo "sudo apt-get install ${deb_pkgs}"
+		echo "-----------------------------"
 		return 1
 	fi
 }
