@@ -102,11 +102,6 @@ omap () {
 	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
 	${git} "${DIR}/patches/omap/fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 
-	#Status: unknown:
-	${git} "${DIR}/patches/omap/fixes/0002-OMAPDSS-DSI-fix-dsi_get_dsidev_from_id.patch"
-	${git} "${DIR}/patches/omap/fixes/0003-omapdss-dss-Fix-clocks-on-OMAP363x.patch"
-	${git} "${DIR}/patches/omap/fixes/0004-OMAPDSS-HDMI-fix-missing-unlock-on-error-in-hdmi_dum.patch"
-
 	echo "dir: omap/thermal"
 	#Status: https://lkml.org/lkml/2012/11/13/341
 	${git} "${DIR}/patches/omap/thermal/0001-staging-omap-thermal-fix-compilation.patch"
