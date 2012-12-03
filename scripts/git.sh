@@ -119,12 +119,16 @@ git_kernel () {
 
 	git pull ${GIT_OPTS} || true
 
+	git tag | grep v${KERNEL_TAG} | grep -v rc &>/dev/null || git_kernel_torvalds
+
 	if [ ! "${LATEST_GIT}" ] ; then
-		git tag | grep v${KERNEL_TAG} | grep -v rc &>/dev/null || git_kernel_torvalds
 		git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
-		git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
+		if [ ! "${KERNEL_SHA}" ] ; then
+			git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
+		else
+			git checkout ${KERNEL_SHA} -b v${KERNEL_TAG}-${BUILD}
+		fi
 	else
-		git tag | grep v${KERNEL_TAG} | grep -v rc &>/dev/null || git_kernel_torvalds
 		git branch -D top-of-tree &>/dev/null || true
 		git checkout v${KERNEL_TAG} -b top-of-tree
 		git describe
