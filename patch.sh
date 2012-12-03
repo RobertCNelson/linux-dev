@@ -119,6 +119,7 @@ am33x () {
 	${git} "${DIR}/patches/pwm/0007-pwm-pwm_test-Driver-support-for-PWM-module-testing.patch"
 	${git} "${DIR}/patches/pwm/0008-arm-dts-DT-support-for-EHRPWM-and-ECAP-device.patch"
 	${git} "${DIR}/patches/pwm/0009-pwm-pwm-tiehrpwm-Add-device-tree-binding-support-EHR.patch"
+	${git} "${DIR}/patches/pwm/0010-ARM-OMAP2-PWM-limit-am33xx_register_ehrpwm-to-soc_is.patch"
 
 	echo "dir: i2c"
 	${git} "${DIR}/patches/i2c/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
@@ -153,6 +154,28 @@ am33x () {
 
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-ARM-AM33XX-hwmod-Remove-wrong-INIT_NO_RESET-IDLE-fla.patch"
+
+	echo "dir: f2fs"
+	${git} "${DIR}/patches/f2fs/0001-f2fs-add-document.patch"
+	${git} "${DIR}/patches/f2fs/0002-f2fs-add-on-disk-layout.patch"
+	${git} "${DIR}/patches/f2fs/0003-f2fs-add-superblock-and-major-in-memory-structure.patch"
+	${git} "${DIR}/patches/f2fs/0004-f2fs-add-super-block-operations.patch"
+	${git} "${DIR}/patches/f2fs/0005-f2fs-add-checkpoint-operations.patch"
+	${git} "${DIR}/patches/f2fs/0006-f2fs-add-node-operations.patch"
+	${git} "${DIR}/patches/f2fs/0007-f2fs-add-segment-operations.patch"
+	${git} "${DIR}/patches/f2fs/0008-f2fs-add-file-operations.patch"
+	${git} "${DIR}/patches/f2fs/0009-f2fs-add-address-space-operations-for-data.patch"
+	${git} "${DIR}/patches/f2fs/0010-f2fs-add-core-inode-operations.patch"
+	${git} "${DIR}/patches/f2fs/0011-f2fs-add-inode-operations-for-special-inodes.patch"
+	${git} "${DIR}/patches/f2fs/0012-f2fs-add-core-directory-operations.patch"
+	${git} "${DIR}/patches/f2fs/0013-f2fs-add-xattr-and-acl-functionalities.patch"
+	${git} "${DIR}/patches/f2fs/0014-f2fs-add-garbage-collection-functions.patch"
+	${git} "${DIR}/patches/f2fs/0015-f2fs-add-recovery-routines-for-roll-forward.patch"
+	${git} "${DIR}/patches/f2fs/0016-f2fs-update-Kconfig-and-Makefile.patch"
+	${git} "${DIR}/patches/f2fs/0017-f2fs-gc.h-make-should_do_checkpoint-inline.patch"
+	${git} "${DIR}/patches/f2fs/0018-f2fs-move-statistics-code-into-one-file.patch"
+	${git} "${DIR}/patches/f2fs/0019-f2fs-move-proc-files-to-debugfs.patch"
+	${git} "${DIR}/patches/f2fs/0020-f2fs-compile-fix.patch"
 
 	echo "dir: 6lowpan"
 	${git} "${DIR}/patches/6lowpan/0001-6lowpan-lowpan_is_iid_16_bit_compressable-does-not-d.patch"
@@ -199,6 +222,10 @@ am33x () {
 	${git} "${DIR}/patches/capebus/0024-beaglebone-Update-default-config-for-capebus.patch"
 	${git} "${DIR}/patches/capebus/0025-capebus-Geiger-Cape-config-bugfixs.patch"
 	${git} "${DIR}/patches/capebus/0026-am335x-bone-Add-spi0-pins-defines.patch"
+	${git} "${DIR}/patches/capebus/0027-Allow-more-than-one-instance-of-generic-devices.patch"
+	${git} "${DIR}/patches/capebus/0028-Mark-the-device-as-PRIVATE.patch"
+	${git} "${DIR}/patches/capebus/0029-DT-overlay.patch"
+	${git} "${DIR}/patches/capebus/0030-Bug-fixes-pinctl-gpio-reset.patch"
 
 	echo "dir: hdmi"
 	${git} "${DIR}/patches/hdmi/0001-Import-working-HDMI-driver-from-3.2-kernel.patch"
@@ -224,56 +251,61 @@ omap () {
 	${git} "${DIR}/patches/omap/0001-mach-omap2-board-igep0020.c-Fix-reboot-problem.patch"
 
 	echo "dir: omap/sakoman"
-	${git} "${DIR}/patches/omap/sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
-	${git} "${DIR}/patches/omap/sakoman/0002-video-add-timings-for-hd720.patch"
+	${git} "${DIR}/patches/omap_sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
+	${git} "${DIR}/patches/omap_sakoman/0002-video-add-timings-for-hd720.patch"
 
 	echo "dir: omap/beagle/expansion"
-	${git} "${DIR}/patches/omap/beagle/expansion/0001-Beagle-expansion-add-buddy-param-for-expansionboard-.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0002-Beagle-expansion-add-zippy.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0003-Beagle-expansion-add-zippy2.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0004-Beagle-expansion-add-trainer.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0005-Beagle-expansion-add-CircuitCo-ulcd-Support.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0006-Beagle-expansion-add-wifi.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0007-Beagle-expansion-add-beaglefpga.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0008-Enable-buddy-spidev.patch"
-	${git} "${DIR}/patches/omap/beagle/expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0001-Beagle-expansion-add-buddy-param-for-expansionboard-.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0002-Beagle-expansion-add-zippy.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0003-Beagle-expansion-add-zippy2.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0004-Beagle-expansion-add-trainer.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0005-Beagle-expansion-add-CircuitCo-ulcd-Support.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0006-Beagle-expansion-add-wifi.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0007-Beagle-expansion-add-beaglefpga.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0008-Enable-buddy-spidev.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
 
 	echo "dir: omap/beagle"
 	#Status: for meego guys..
-	${git} "${DIR}/patches/omap/beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
+	${git} "${DIR}/patches/omap_beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
 
-	${git} "${DIR}/patches/omap/beagle/0002-backlight-Add-TLC59108-backlight-control-driver.patch"
-	${git} "${DIR}/patches/omap/beagle/0003-tlc59108-adjust-for-beagleboard-uLCD7.patch"
+	${git} "${DIR}/patches/omap_beagle/0002-backlight-Add-TLC59108-backlight-control-driver.patch"
+	${git} "${DIR}/patches/omap_beagle/0003-tlc59108-adjust-for-beagleboard-uLCD7.patch"
 
 	#Status: not for upstream
-	${git} "${DIR}/patches/omap/beagle/0004-zeroMAP-Open-your-eyes.patch"
+	${git} "${DIR}/patches/omap_beagle/0004-zeroMAP-Open-your-eyes.patch"
 
 	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
-	${git} "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
+	${git} "${DIR}/patches/omap_beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 
-	${git} "${DIR}/patches/omap/beagle/0006-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
+	${git} "${DIR}/patches/omap_beagle/0006-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
 
 	echo "dir: omap/panda"
 	#Status: not for upstream: push device tree version upstream...
-	${git} "${DIR}/patches/omap/panda/0001-panda-fix-wl12xx-regulator.patch"
+	${git} "${DIR}/patches/omap_panda/0001-panda-fix-wl12xx-regulator.patch"
 	#Status: unknown: cherry picked from linaro
-	${git} "${DIR}/patches/omap/panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
+	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 
 	echo "dir: omap/sgx"
 	#Status: TI 4.06.00.xx needs this, when building drm modues for Xorg.
-	${git} "${DIR}/patches/omap/sgx/0001-Revert-drm-kill-drm_sman.patch"
+	${git} "${DIR}/patches/omap_sgx/0001-Revert-drm-kill-drm_sman.patch"
 
 	echo "dir: omap/fixes"
 	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
-	${git} "${DIR}/patches/omap/fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
+	${git} "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 
 	echo "dir: omap/thermal"
 	#Status: https://lkml.org/lkml/2012/11/13/341
-	${git} "${DIR}/patches/omap/thermal/0001-staging-omap-thermal-fix-compilation.patch"
-	${git} "${DIR}/patches/omap/thermal/0002-staging-omap-thermal-remove-platform-data-nomenclatu.patch"
-	${git} "${DIR}/patches/omap/thermal/0003-staging-omap-thermal-remove-freq_clip-table.patch"
-	${git} "${DIR}/patches/omap/thermal/0004-staging-omap-thermal-add-IRQ-debugging-messaging.patch"
-	${git} "${DIR}/patches/omap/thermal/0005-staging-omap-thermal-fix-context-restore-function.patch"
+	${git} "${DIR}/patches/omap_thermal/0001-staging-omap-thermal-fix-compilation.patch"
+	${git} "${DIR}/patches/omap_thermal/0002-staging-omap-thermal-remove-platform-data-nomenclatu.patch"
+	${git} "${DIR}/patches/omap_thermal/0003-staging-omap-thermal-remove-freq_clip-table.patch"
+	${git} "${DIR}/patches/omap_thermal/0004-staging-omap-thermal-add-IRQ-debugging-messaging.patch"
+	${git} "${DIR}/patches/omap_thermal/0005-staging-omap-thermal-fix-context-restore-function.patch"
+}
+
+am33x_after () {
+	echo "dir: net"
+	${git} "${DIR}/patches/net/0001-Attempted-SMC911x-BQL-patch.patch"
 }
 
 sprz319_erratum () {
@@ -281,7 +313,7 @@ sprz319_erratum () {
 	#Breaks: Beagle C4, hardlocks on bootup...
 	#Status: no response from users:
 	#https://groups.google.com/forum/#!topic/beagleboard/m7DLkYMKNkg
-	${git} "${DIR}/patches/omap/sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
+	${git} "${DIR}/patches/omap_sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
 xm_cpufreq_debug () {
@@ -294,6 +326,7 @@ xm_cpufreq_debug () {
 am33x
 arm
 omap
+am33x_after
 
 #disabled as it breaks beagle c4...
 #sprz319_erratum
