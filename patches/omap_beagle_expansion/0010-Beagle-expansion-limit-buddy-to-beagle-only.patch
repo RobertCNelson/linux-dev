@@ -1,0 +1,47 @@
+From efc3c252e663c18260be00bc4587c86734c71d39 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 6 Dec 2012 10:00:05 -0600
+Subject: [PATCH 10/10] Beagle: expansion: limit buddy to beagle only
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index c097e3c..21ad9d6 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -953,6 +953,9 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 
+ static int __init expansionboard_setup(char *str)
+ {
++	if (!machine_is_omap3_beagle())
++		return 0;
++
+ 	if (!str)
+ 		return -EINVAL;
+ 	strncpy(expansionboard_name, str, 16);
+@@ -962,6 +965,9 @@ static int __init expansionboard_setup(char *str)
+ 
+ static int __init expansionboard2_setup(char *str)
+ {
++	if (!machine_is_omap3_beagle())
++		return 0;
++
+ 	if (!str)
+ 		return -EINVAL;
+ 	strncpy(expansionboard2_name, str, 16);
+@@ -971,6 +977,9 @@ static int __init expansionboard2_setup(char *str)
+ 
+ static int __init camera_setup(char *str)
+ {
++	if (!machine_is_omap3_beagle())
++		return 0;
++
+ 	if (!str)
+ 		return -EINVAL;
+ 	strncpy(camera_name, str, 16);
+-- 
+1.7.10.4
+

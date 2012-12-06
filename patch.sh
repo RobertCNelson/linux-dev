@@ -93,6 +93,7 @@ am33x () {
 
 	echo "dir: cpufreq"
 	${git} "${DIR}/patches/cpufreq/0001-arm-dts-AM33XX-Add-device-tree-OPP-table.patch"
+	${git} "${DIR}/patches/cpufreq/0002-am33xx-DT-add-commented-out-OPP-values-for-ES2.0.patch"
 
 	echo "dir: adc"
 	${git} "${DIR}/patches/adc/0001-input-TSC-ti_tscadc-Correct-register-usage.patch"
@@ -226,6 +227,7 @@ am33x () {
 	${git} "${DIR}/patches/capebus/0028-Mark-the-device-as-PRIVATE.patch"
 	${git} "${DIR}/patches/capebus/0029-DT-overlay.patch"
 	${git} "${DIR}/patches/capebus/0030-Bug-fixes-pinctl-gpio-reset.patch"
+	${git} "${DIR}/patches/capebus/0031-ARM-HSMMC-fix-error-path-when-no-gpio_reset.patch"
 
 	echo "dir: hdmi"
 	${git} "${DIR}/patches/hdmi/0001-Import-working-HDMI-driver-from-3.2-kernel.patch"
@@ -235,6 +237,11 @@ am33x () {
 	${git} "${DIR}/patches/hdmi/0005-am335x-bonelt-dts-Add-DT-node-to-probe-NXP-driver.patch"
 	${git} "${DIR}/patches/hdmi/0006-Add-capebus-override-and-pinmux-for-da8xx-dt.patch"
 	${git} "${DIR}/patches/hdmi/0007-nxp-Makefile-Undefine-TDA_CEC-we-don-t-use-CEC-featu.patch"
+
+	echo "dir: pruss"
+	${git} "${DIR}/patches/pruss/0001-uio-uio_pruss-port-to-AM33xx.patch"
+	${git} "${DIR}/patches/pruss/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
+	${git} "${DIR}/patches/pruss/0003-ARM-dts-AM33xx-PRUSS-support.patch"
 }
 
 arm () {
@@ -264,6 +271,7 @@ omap () {
 	${git} "${DIR}/patches/omap_beagle_expansion/0007-Beagle-expansion-add-beaglefpga.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0008-Enable-buddy-spidev.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0010-Beagle-expansion-limit-buddy-to-beagle-only.patch"
 
 	echo "dir: omap/beagle"
 	#Status: for meego guys..
