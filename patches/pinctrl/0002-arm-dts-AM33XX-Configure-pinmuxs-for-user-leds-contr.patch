@@ -1,0 +1,73 @@
+From 8bf71b0f3b16819d65b5a5bc517212fac640503c Mon Sep 17 00:00:00 2001
+From: "AnilKumar, Chimata" <anilkumar@ti.com>
+Date: Fri, 31 Aug 2012 09:29:18 +0000
+Subject: [PATCH 2/4] arm/dts: AM33XX: Configure pinmuxs for user leds control
+ on Bone
+
+Adds GPIO pinctrl nodes to am3358_pinmux master node to control
+user leds (USR0, USR1, USR2 and USR3) present on BeagleBone.
+
+Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
+---
+ arch/arm/boot/dts/am335x-bone.dts |   38 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index 47c17e8..3a089c0 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -38,6 +38,14 @@
+ 				0x090 0x37	/* gpmc_advn_ale.gpio2_2, INPUT_PULLUP | MODE7 */
+ 			>;
+ 		};
++		userled_pins: pinmux_userled_pins {
++			pinctrl-single,pins = <
++				0x54 0x7	/* gpmc_a5.gpio1_21, OUTPUT | MODE7 */
++				0x58 0x17	/* gpmc_a6.gpio1_22, OUTPUT_PULLUP | MODE7 */
++				0x5c 0x7	/* gpmc_a7.gpio1_23, OUTPUT | MODE7 */
++				0x60 0x17	/* gpmc_a8.gpio1_24, OUTPUT_PULLUP | MODE7 */
++			>;
++		};
+ 	};
+ 
+ 	ocp {
+@@ -45,6 +53,36 @@
+ 			status = "okay";
+ 		};
+ 
++		gpio-leds {
++			compatible = "gpio-leds";
++			pinctrl-names = "default";
++			pinctrl-0 = <&userled_pins>;
++
++			led0 {
++				label = "beaglebone:green:usr0";
++				gpios = <&gpio2 21 0>;
++				default-state = "off";
++			};
++
++			led1 {
++				label = "beaglebone:green:usr1";
++				gpios = <&gpio2 22 0>;
++				default-state = "off";
++			};
++
++			led2 {
++				label = "beaglebone:green:usr2";
++				gpios = <&gpio2 23 0>;
++				default-state = "off";
++			};
++
++			led3 {
++				label = "beaglebone:green:usr3";
++				gpios = <&gpio2 24 0>;
++				default-state = "off";
++			};
++		};
++
+ 		i2c1: i2c@44e0b000 {
+ 			status = "okay";
+ 			clock-frequency = <400000>;
+-- 
+1.7.10.4
+
