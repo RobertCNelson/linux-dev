@@ -228,15 +228,17 @@ am33x () {
 	${git} "${DIR}/patches/capebus/0029-DT-overlay.patch"
 	${git} "${DIR}/patches/capebus/0030-Bug-fixes-pinctl-gpio-reset.patch"
 	${git} "${DIR}/patches/capebus/0031-ARM-HSMMC-fix-error-path-when-no-gpio_reset.patch"
+	${git} "${DIR}/patches/capebus/0032-capebus-Add-PRUSS-DT-bindings.patch"
 
 	echo "dir: hdmi"
 	${git} "${DIR}/patches/hdmi/0001-Import-working-HDMI-driver-from-3.2-kernel.patch"
 	${git} "${DIR}/patches/hdmi/0002-Added-DT-binding-to-NXP-driver.patch"
 	${git} "${DIR}/patches/hdmi/0003-da8xx-fb-Add-timings-for-720x480-60.patch"
-	${git} "${DIR}/patches/hdmi/0004-video-Kconfig-Makefile-Add-new-Kconfig-for-old-drive.patch"
-	${git} "${DIR}/patches/hdmi/0005-am335x-bonelt-dts-Add-DT-node-to-probe-NXP-driver.patch"
-	${git} "${DIR}/patches/hdmi/0006-Add-capebus-override-and-pinmux-for-da8xx-dt.patch"
-	${git} "${DIR}/patches/hdmi/0007-nxp-Makefile-Undefine-TDA_CEC-we-don-t-use-CEC-featu.patch"
+	${git} "${DIR}/patches/hdmi/0004-Add-capebus-override-and-pinmux-for-da8xx-dt.patch"
+	${git} "${DIR}/patches/hdmi/0005-video-Kconfig-Makefile-Add-new-Kconfig-for-old-drive.patch"
+	${git} "${DIR}/patches/hdmi/0006-am335x-bonelt-dts-Add-DT-node-to-probe-NXP-driver.patch"
+	${git} "${DIR}/patches/hdmi/0007-tda-driver-enable-1280x720.patch"
+	${git} "${DIR}/patches/hdmi/0008-Makefile-Disable-CEC.patch"
 
 	echo "dir: pruss"
 	${git} "${DIR}/patches/pruss/0001-uio-uio_pruss-port-to-AM33xx.patch"
@@ -272,6 +274,7 @@ omap () {
 	${git} "${DIR}/patches/omap_beagle_expansion/0008-Enable-buddy-spidev.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0010-Beagle-expansion-limit-buddy-to-beagle-only.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0011-ARM-OMAP-Beagle-add-LSR-COM6L-Adapter-Board-support.patch"
 
 	echo "dir: omap/beagle"
 	#Status: for meego guys..
@@ -314,6 +317,9 @@ omap () {
 am33x_after () {
 	echo "dir: net"
 	${git} "${DIR}/patches/net/0001-Attempted-SMC911x-BQL-patch.patch"
+
+	echo "dir: spi"
+	${git} "${DIR}/patches/spi/0001-spi-spidev-Add-device-tree-bindings.patch"
 }
 
 sprz319_erratum () {
