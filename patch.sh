@@ -296,10 +296,6 @@ omap () {
 	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 
-	echo "dir: omap/sgx"
-	#Status: TI 4.06.00.xx needs this, when building drm modues for Xorg.
-	${git} "${DIR}/patches/omap_sgx/0001-Revert-drm-kill-drm_sman.patch"
-
 	echo "dir: omap/fixes"
 	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
 	${git} "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
