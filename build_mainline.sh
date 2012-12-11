@@ -132,7 +132,7 @@ function make_dtbs_pkg {
 
 	rm -rf ${DIR}/deploy/dtbs &> /dev/null || true
 	mkdir -p ${DIR}/deploy/dtbs
-	cp -v arch/arm/boot/*.dtb ${DIR}/deploy/dtbs
+	find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/dtbs/ \;
 	cd ${DIR}/deploy/dtbs
 	echo "-----------------------------"
 	echo "Building ${KERNEL_UTS}-dtbs.tar.gz"
