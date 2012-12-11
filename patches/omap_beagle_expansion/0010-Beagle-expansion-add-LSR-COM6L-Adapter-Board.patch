@@ -9,18 +9,18 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 55 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 1eccc59..ddff957 100644
+index 9c9e2e5..2b86a5d 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -168,6 +168,7 @@ static void __init omap3_beagle_init_rev(void)
- 
+@@ -169,6 +169,7 @@ static void __init omap3_beagle_init_rev(void)
  char expansionboard_name[16];
+ char expansionboard2_name[16];
  char camera_name[16];
 +char wl12xx_name[16];
  
  enum {
  	EXPANSION_MMC_NONE = 0,
-@@ -203,6 +204,10 @@ struct wl12xx_platform_data omap_beagle_wlan_data __initdata = {
+@@ -204,6 +205,10 @@ struct wl12xx_platform_data omap_beagle_wlan_data __initdata = {
  	.board_ref_clock = WL12XX_REFCLOCK_38, /* 38.4 MHz */
  };
  
@@ -31,7 +31,7 @@ index 1eccc59..ddff957 100644
  static struct ti_st_plat_data wilink_platform_data = {
  	.nshutdown_gpio	= OMAP_BEAGLE_BT_EN_GPIO,
  	.dev_name		= "/dev/ttyO1",
-@@ -938,6 +943,18 @@ static int __init camera_setup(char *str)
+@@ -951,6 +956,18 @@ static int __init camera_setup(char *str)
  	return 0;
  }
  
@@ -50,7 +50,7 @@ index 1eccc59..ddff957 100644
  static int __init beagle_opp_init(void)
  {
  	int r = 0;
-@@ -1080,8 +1097,28 @@ static void __init omap3_beagle_init(void)
+@@ -1079,8 +1096,28 @@ static void __init omap3_beagle_init(void)
  	}
  
  #if defined(CONFIG_WL12XX) || defined(CONFIG_WL12XX_MODULE)
@@ -80,13 +80,14 @@ index 1eccc59..ddff957 100644
  		expansion_config.mmc_settings = EXPANSION_MMC_WIFI;
  	}
  #endif
-@@ -1168,11 +1205,23 @@ static void __init omap3_beagle_init(void)
+@@ -1172,12 +1209,24 @@ static void __init omap3_beagle_init(void)
+ 		gpio_export(162, 1);
  	}
  
- #if defined(CONFIG_WL12XX) || defined(CONFIG_WL12XX_MODULE)
 -	if (!strcmp(expansionboard_name, "bbtoys-wifi"))
 +	if ((!strcmp(expansionboard_name, "bbtoys-wifi")) || (!strcmp(expansionboard_name, "lsr-com6l-adpt")))
  	{
+ 	#if defined(CONFIG_WL12XX) || defined(CONFIG_WL12XX_MODULE)
 -		omap_beagle_wlan_data.irq = gpio_to_irq(OMAP_BEAGLE_WLAN_IRQ_GPIO);
 -		if (wl12xx_set_platform_data(&omap_beagle_wlan_data))
 -			pr_err("error setting wl12xx data\n");
@@ -108,9 +109,9 @@ index 1eccc59..ddff957 100644
  		pr_info("Beagle expansionboard: registering wl12xx bt platform device\n");
  		platform_device_register(&wl12xx_device);
  		platform_device_register(&btwilink_device);
-@@ -1247,6 +1296,7 @@ static int __init omap3_beagle_late_initcall(void)
- 
+@@ -1261,6 +1310,7 @@ static int __init omap3_beagle_late_initcall(void)
  early_param("buddy", expansionboard_setup);
+ early_param("buddy2", expansionboard2_setup);
  early_param("camera", camera_setup);
 +early_param("wl12xx_clk", wl12xx_setup);
  
