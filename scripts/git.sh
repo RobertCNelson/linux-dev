@@ -121,6 +121,10 @@ git_kernel () {
 
 	git tag | grep v${KERNEL_TAG} | grep -v rc &>/dev/null || git_kernel_torvalds
 
+	if [ "${KERNEL_SHA}" ] ; then
+		git_kernel_torvalds
+	fi
+
 	if [ ! "${LATEST_GIT}" ] ; then
 		git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
 		if [ ! "${KERNEL_SHA}" ] ; then
