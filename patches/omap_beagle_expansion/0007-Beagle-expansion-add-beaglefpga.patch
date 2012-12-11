@@ -1,7 +1,7 @@
-From 809bc79efc73221d88489e5c5a92fc2edb411a74 Mon Sep 17 00:00:00 2001
+From 485e4267b887eb8b55977eedc82406ed62f21f93 Mon Sep 17 00:00:00 2001
 From: Bas van der Doorn <bas@doornvd.com>
-Date: Sat, 19 May 2012 17:09:28 +0200
-Subject: [PATCH 7/9] Beagle: expansion: add beaglefpga
+Date: Tue, 11 Dec 2012 06:52:22 -0600
+Subject: [PATCH 07/10] Beagle: expansion: add beaglefpga
 
 Added SPI dev and McBSP 3 mux when FPGA is detected
 
@@ -12,7 +12,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 74 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 25819e7..a2c9be5 100644
+index 57e9060..d867a0b 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -39,6 +39,7 @@
@@ -23,7 +23,7 @@ index 25819e7..a2c9be5 100644
  
  #include "common.h"
  #include <video/omapdss.h>
-@@ -874,6 +875,68 @@ static int __init beagle_opp_init(void)
+@@ -867,6 +868,68 @@ static int __init beagle_opp_init(void)
  }
  device_initcall(beagle_opp_init);
  
@@ -98,7 +98,7 @@ index 25819e7..a2c9be5 100644
  
 +	if (!strcmp(expansionboard_name, "beaglefpga"))
 +	{
-+		printk(KERN_INFO "Beagle FPGA expansionboard: enabling SPIdev for McSPI3/4 and pin muxing for McBSP3 slave mode\n");
++		pr_info("Beagle expansionboard: enabling SPIdev for McSPI3/4 and pin muxing for McBSP3 slave mode\n");
 +
 +		/* FPGA pin settings configure McSPI 3, McSPI 4 and McBSP 3 */
 +		omap3_beagle_config_fpga_mux();
@@ -107,9 +107,9 @@ index 25819e7..a2c9be5 100644
 +		spi_register_board_info(beagle_mcspi_board_info, ARRAY_SIZE(beagle_mcspi_board_info));
 +	}
 +
- 	if (!strcmp(expansionboard2_name, "bbtoys-ulcd"))
- 	{
- 		printk(KERN_INFO "Beagle second expansionboard: initializing touchscreen: tsc2007\n");
+ 	usb_musb_init(NULL);
+ 	usbhs_init(&usbhs_bdata);
+ 	omap_nand_flash_init(NAND_BUSWIDTH_16, omap3beagle_nand_partitions,
 -- 
 1.7.10.4
 
