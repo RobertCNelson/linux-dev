@@ -1,4 +1,4 @@
-From b33b42fd5c739b9d7ef868b0acb81c5020a79a2b Mon Sep 17 00:00:00 2001
+From bf1fe1ea4dc9cdc1ca1e44af16d563bb963721f7 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Tue, 11 Dec 2012 07:02:40 -0600
 Subject: [PATCH 10/10] Beagle: expansion: add LSR COM6L Adapter Board
@@ -9,7 +9,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 55 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 9c9e2e5..2b86a5d 100644
+index c64ea55..4fa880a 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -169,6 +169,7 @@ static void __init omap3_beagle_init_rev(void)
@@ -50,13 +50,14 @@ index 9c9e2e5..2b86a5d 100644
  static int __init beagle_opp_init(void)
  {
  	int r = 0;
-@@ -1079,8 +1096,28 @@ static void __init omap3_beagle_init(void)
+@@ -1078,9 +1095,29 @@ static void __init omap3_beagle_init(void)
+ 		omap_mux_init_gpio(OMAP3BEAGLE_GPIO_ZIPPY_MMC_CD, OMAP_PIN_INPUT);
  	}
  
- #if defined(CONFIG_WL12XX) || defined(CONFIG_WL12XX_MODULE)
 -	if (!strcmp(expansionboard_name, "bbtoys-wifi"))
 +	if ((!strcmp(expansionboard_name, "bbtoys-wifi")) || (!strcmp(expansionboard_name, "lsr-com6l-adpt")))
  	{
+ 	#if defined(CONFIG_WL12XX) || defined(CONFIG_WL12XX_MODULE)
 +		pr_info("Beagle expansion: wl12xx: setting up gpio pinmux\n");
 +
 +		omap_mux_init_gpio(OMAP_BEAGLE_FM_EN_BT_WU, OMAP_PIN_OUTPUT);
@@ -78,8 +79,8 @@ index 9c9e2e5..2b86a5d 100644
 +		omap_mux_init_signal("sdmmc2_dat3.sdmmc2_dat3", OMAP_PIN_INPUT_PULLUP);
 +
  		expansion_config.mmc_settings = EXPANSION_MMC_WIFI;
+ 	#endif
  	}
- #endif
 @@ -1172,12 +1209,24 @@ static void __init omap3_beagle_init(void)
  		gpio_export(162, 1);
  	}
