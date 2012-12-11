@@ -332,10 +332,10 @@ xm_cpufreq_debug () {
 	patch -p1 -R < "${DIR}/patches/omap/beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
 }
 
-am33x
+#am33x
 arm
 omap
-am33x_after
+#am33x_after
 
 #disabled as it breaks beagle c4...
 #sprz319_erratum
