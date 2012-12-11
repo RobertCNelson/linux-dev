@@ -138,12 +138,12 @@ function debian_regs
 				;;
 			esac
 
-			case "${deb_distro}" in
-			wheezy)
-				unset wheezy_multiarch
-				dpkg -l | grep ia32-libs-i386 >/dev/null || wheezy_multiarch=1
-				;;
-			esac
+#			case "${deb_distro}" in
+#			wheezy)
+#				unset wheezy_multiarch
+#				dpkg -l | grep ia32-libs-i386 >/dev/null || wheezy_multiarch=1
+#				;;
+#			esac
 
 			if [ "${wheezy_multiarch}" ] ; then
 				deb_pkgs+="ia32-libs-i386 "
