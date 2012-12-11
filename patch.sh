@@ -275,6 +275,7 @@ omap () {
 	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0010-Beagle-expansion-limit-buddy-to-beagle-only.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0011-ARM-OMAP-Beagle-add-LSR-COM6L-Adapter-Board-support.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0012-Beagle-Expansion-TiWi5-needs-26Mhz-clk-no-eeprom-use.patch"
 
 	echo "dir: omap/beagle"
 	#Status: for meego guys..

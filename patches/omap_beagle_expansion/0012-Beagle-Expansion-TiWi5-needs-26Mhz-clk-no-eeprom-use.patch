@@ -1,0 +1,90 @@
+From 915dd55e6a0303420d0918c380a6173218aa7471 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Mon, 10 Dec 2012 19:12:25 -0600
+Subject: [PATCH 12/12] Beagle: Expansion: TiWi5 needs 26Mhz clk, no eeprom:
+ use new kernel wl12xx_clk=wl12xx_26mhz
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/board-omap3beagle.c |   37 +++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
+index 02e3049..1534ddd 100644
+--- a/arch/arm/mach-omap2/board-omap3beagle.c
++++ b/arch/arm/mach-omap2/board-omap3beagle.c
+@@ -169,6 +169,7 @@ static void __init omap3_beagle_init_rev(void)
+ char expansionboard_name[16];
+ char expansionboard2_name[16];
+ char camera_name[16];
++char wl12xx_name[16];
+ 
+ enum {
+ 	EXPANSION_MMC_NONE = 0,
+@@ -201,7 +202,11 @@ static struct {
+ #define OMAP_BEAGLE_FM_EN_BT_WU     (136)
+ 
+ struct wl12xx_platform_data omap_beagle_wlan_data __initdata = {
+-	.board_ref_clock = 2, /* 38.4 MHz */
++	.board_ref_clock = WL12XX_REFCLOCK_38, /* 38.4 MHz */
++};
++
++struct wl12xx_platform_data omap_beagle_wlan_data_26mhz __initdata = {
++	.board_ref_clock = WL12XX_REFCLOCK_26, /* 26 MHz */
+ };
+ 
+ static struct ti_st_plat_data wilink_platform_data = {
+@@ -951,6 +956,18 @@ static int __init camera_setup(char *str)
+ 	return 0;
+ }
+ 
++static int __init wl12xx_setup(char *str)
++{
++	if (!machine_is_omap3_beagle())
++		return 0;
++
++	if (!str)
++		return -EINVAL;
++	strncpy(wl12xx_name, str, 16);
++	printk(KERN_INFO "Beagle wl12xx clk: %s\n", wl12xx_name);
++	return 0;
++}
++
+ static int __init beagle_opp_init(void)
+ {
+ 	int r = 0;
+@@ -1197,9 +1214,20 @@ static void __init omap3_beagle_init(void)
+ 	if ((!strcmp(expansionboard_name, "bbtoys-wifi")) || (!strcmp(expansionboard_name, "lsr-com6l-adpt")))
+ 	{
+ 		pr_info("Beagle expansionboard: initializing wl12xx platform\n");
+-		omap_beagle_wlan_data.irq = gpio_to_irq(OMAP_BEAGLE_WLAN_IRQ_GPIO);
+-		if (wl12xx_set_platform_data(&omap_beagle_wlan_data))
+-			pr_err("error setting wl12xx data\n");
++
++		if (!strcmp(wl12xx_name, "wl12xx_26mhz")) {
++			pr_info("wl12xx: 26Mhz reference clock (TiWi5)\n");
++			omap_beagle_wlan_data_26mhz.irq = gpio_to_irq(OMAP_BEAGLE_WLAN_IRQ_GPIO);
++			if (wl12xx_set_platform_data(&omap_beagle_wlan_data_26mhz))
++				pr_err("error setting wl12xx data\n");
++		} else {
++			pr_info("wl12xx: 38.4Mhz reference clock (TiWi2/TiWi-BLE)\n");
++			pr_info("wl12xx: for (TiWi5) support pass kernel [wl12xx_clk=wl12xx_26mhz]\n");
++			omap_beagle_wlan_data.irq = gpio_to_irq(OMAP_BEAGLE_WLAN_IRQ_GPIO);
++			if (wl12xx_set_platform_data(&omap_beagle_wlan_data))
++				pr_err("error setting wl12xx data\n");
++		}
++
+ 		printk(KERN_INFO "Beagle expansionboard: registering wl12xx bt platform device\n");
+ 		platform_device_register(&wl12xx_device);
+ 		platform_device_register(&btwilink_device);
+@@ -1281,6 +1309,7 @@ static int __init omap3_beagle_late_initcall(void)
+ early_param("buddy", expansionboard_setup);
+ early_param("buddy2", expansionboard2_setup);
+ early_param("camera", camera_setup);
++early_param("wl12xx_clk", wl12xx_setup);
+ 
+ late_initcall(omap3_beagle_late_initcall);
+ 
+-- 
+1.7.10.4
+
