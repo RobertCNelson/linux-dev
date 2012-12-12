@@ -300,13 +300,13 @@ omap () {
 	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
 	${git} "${DIR}/patches/omap_fixes/0001-omap3-Increase-limit-on-bootarg-mpurate.patch"
 
-	echo "dir: omap/thermal"
-	#Status: https://lkml.org/lkml/2012/11/13/341
-	${git} "${DIR}/patches/omap_thermal/0001-staging-omap-thermal-fix-compilation.patch"
-	${git} "${DIR}/patches/omap_thermal/0002-staging-omap-thermal-remove-platform-data-nomenclatu.patch"
-	${git} "${DIR}/patches/omap_thermal/0003-staging-omap-thermal-remove-freq_clip-table.patch"
-	${git} "${DIR}/patches/omap_thermal/0004-staging-omap-thermal-add-IRQ-debugging-messaging.patch"
-	${git} "${DIR}/patches/omap_thermal/0005-staging-omap-thermal-fix-context-restore-function.patch"
+#	echo "dir: omap/thermal"
+#	#Status: https://lkml.org/lkml/2012/11/13/341
+#	${git} "${DIR}/patches/omap_thermal/0001-staging-omap-thermal-fix-compilation.patch"
+#	${git} "${DIR}/patches/omap_thermal/0002-staging-omap-thermal-remove-platform-data-nomenclatu.patch"
+#	${git} "${DIR}/patches/omap_thermal/0003-staging-omap-thermal-remove-freq_clip-table.patch"
+#	${git} "${DIR}/patches/omap_thermal/0004-staging-omap-thermal-add-IRQ-debugging-messaging.patch"
+#	${git} "${DIR}/patches/omap_thermal/0005-staging-omap-thermal-fix-context-restore-function.patch"
 }
 
 am33x_after () {
