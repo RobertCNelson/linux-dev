@@ -259,6 +259,9 @@ omap () {
 	echo "dir: omap"
 	${git} "${DIR}/patches/omap/0001-mach-omap2-board-igep0020.c-Fix-reboot-problem.patch"
 
+	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
+	${git} "${DIR}/patches/omap/0002-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
+
 	echo "dir: omap/sakoman"
 	${git} "${DIR}/patches/omap_sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
 	${git} "${DIR}/patches/omap_sakoman/0002-video-add-timings-for-hd720.patch"
@@ -285,10 +288,7 @@ omap () {
 	#Status: not for upstream
 	${git} "${DIR}/patches/omap_beagle/0004-zeroMAP-Open-your-eyes.patch"
 
-	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
-	${git} "${DIR}/patches/omap_beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
-
-	${git} "${DIR}/patches/omap_beagle/0006-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
+	${git} "${DIR}/patches/omap_beagle/0005-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
 
 	echo "dir: omap/panda"
 	#Status: not for upstream: push device tree version upstream...
