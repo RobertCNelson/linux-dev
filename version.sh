@@ -27,7 +27,7 @@ KERNEL_TAG=${KERNEL_REL}
 BUILD=d0
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="1ebaf4f4e6912199f8a4e30ba3ab55da2b71bcdf"
+KERNEL_SHA="9977d9b379cb77e0f67bd6f4563618106e58e11d"
 
 #git branch
 #BRANCH="v3.8.x"
