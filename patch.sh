@@ -22,8 +22,8 @@
 
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
-git="git am"
-#git="git am --whitespace=fix"
+#git="git am"
+git="git am --whitespace=fix"
 
 if [ -f ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
@@ -74,16 +74,9 @@ am33x () {
 	${git} "${DIR}/patches/dma/0025-ARM-dts-add-BeagleBone-Adafruit-1.8-LCD-support.patch"
 	${git} "${DIR}/patches/dma/0026-misc-add-gpevt-driver.patch"
 	${git} "${DIR}/patches/dma/0027-ARM-dts-add-BeagleBone-gpevt-support.patch"
-	${git} "${DIR}/patches/dma/0028-ARM-configs-working-AM33XX-edma-dmaengine-defconfig.patch"
-	${git} "${DIR}/patches/dma/0029-ARM-configs-working-da850-edma-dmaengine-defconfig.patch"
-	${git} "${DIR}/patches/dma/0030-misc-gpevt-null-terminate-the-of_match_table.patch"
-	${git} "${DIR}/patches/dma/0031-proposed-probe-fix-works-for-me-on-evm.patch"
-
-	echo "dir: cpsw"
-	${git} "${DIR}/patches/cpsw/0001-ARM-OMAP3-hwmod-Add-AM33XX-HWMOD-data-for-davinci_md.patch"
-	${git} "${DIR}/patches/cpsw/0002-net-davinci_mdio-Fix-type-mistake-in-calling-runtime.patch"
-	${git} "${DIR}/patches/cpsw/0003-net-cpsw-Add-parent-child-relation-support-between-c.patch"
-	${git} "${DIR}/patches/cpsw/0004-arm-dts-am33xx-Add-cpsw-and-mdio-module-nodes-for-AM.patch"
+	${git} "${DIR}/patches/dma/0028-misc-gpevt-null-terminate-the-of_match_table.patch"
+	${git} "${DIR}/patches/dma/0029-proposed-probe-fix-works-for-me-on-evm.patch"
+	${git} "${DIR}/patches/dma/0030-am33xx-remove-duplicate-SPI-nodes.patch"
 
 	echo "dir: pinctrl"
 	${git} "${DIR}/patches/pinctrl/0001-i2c-pinctrl-ify-i2c-omap.c.patch"
@@ -92,8 +85,7 @@ am33x () {
 	${git} "${DIR}/patches/pinctrl/0004-beaglebone-add-a-cpu-led-trigger.patch"
 
 	echo "dir: cpufreq"
-	${git} "${DIR}/patches/cpufreq/0001-arm-dts-AM33XX-Add-device-tree-OPP-table.patch"
-	${git} "${DIR}/patches/cpufreq/0002-am33xx-DT-add-commented-out-OPP-values-for-ES2.0.patch"
+	${git} "${DIR}/patches/cpufreq/0001-am33xx-DT-add-commented-out-OPP-values-for-ES2.0.patch"
 
 	echo "dir: adc"
 	${git} "${DIR}/patches/adc/0001-input-TSC-ti_tscadc-Correct-register-usage.patch"
@@ -127,17 +119,7 @@ am33x () {
 	${git} "${DIR}/patches/i2c/0002-Bone-DTS-working-i2c2-i2c3-in-the-tree.patch"
 	${git} "${DIR}/patches/i2c/0003-am33xx-Convert-I2C-from-omap-to-am33xx-names.patch"
 	${git} "${DIR}/patches/i2c/0004-beaglebone-fix-backlight-entry-in-DT.patch"
-
-	echo "dir: usb"
-	${git} "${DIR}/patches/usb/0001-Shut-up-musb.patch"
-	${git} "${DIR}/patches/usb/0002-musb-Fix-crashes-and-other-weirdness.patch"
-	${git} "${DIR}/patches/usb/0003-musb-revert-parts-of-032ec49f.patch"
-	${git} "${DIR}/patches/usb/0004-usb-musb-dsps-get-the-PHY-using-phandle-api.patch"
-	${git} "${DIR}/patches/usb/0005-drivers-usb-otg-add-device-tree-support-to-otg-libra.patch"
-	${git} "${DIR}/patches/usb/0006-usb-otg-nop-add-dt-support.patch"
-	${git} "${DIR}/patches/usb/0007-usb-musb-dsps-add-phy-control-logic-to-glue.patch"
-	${git} "${DIR}/patches/usb/0008-usb-musb-dsps-enable-phy-control-for-am335x.patch"
-	${git} "${DIR}/patches/usb/0009-ARM-am33xx-fix-mem-regions-in-USB-hwmod.patch"
+	${git} "${DIR}/patches/i2c/0005-am335x-evm-hack-around-i2c-node-names.patch"
 
 	echo "dir: da8xx-fb"
 	${git} "${DIR}/patches/da8xx-fb/0001-omap2-clk-Add-missing-lcdc-clock-definition.patch"
@@ -147,14 +129,12 @@ am33x () {
 	${git} "${DIR}/patches/da8xx-fb/0005-da8xx-Add-standard-panel-definition.patch"
 	${git} "${DIR}/patches/da8xx-fb/0006-da8xx-Add-CDTech_S035Q01-panel-used-by-LCD3-bone-cap.patch"
 	${git} "${DIR}/patches/da8xx-fb/0007-da8xx-fb-add-panel-definition-for-beaglebone-LCD7-ca.patch"
+	${git} "${DIR}/patches/da8xx-fb/0008-video-da8xx-fb-fb_check_var-enhancement.patch"
+	${git} "${DIR}/patches/da8xx-fb/0009-video-da8xx-fb-clk_get-on-connection-id-fck.patch"
 
 	echo "dir: mmc"
-	${git} "${DIR}/patches/mmc/0001-mmc-omap_hsmmc-Enable-HSPE-bit-for-high-speed-cards.patch"
-	${git} "${DIR}/patches/mmc/0002-am33xx.dtsi-enable-MMC-HSPE-bit-for-all-3-controller.patch"
-	${git} "${DIR}/patches/mmc/0003-omap-hsmmc-Correct-usage-of-of_find_node_by_name.patch"
-
-	echo "dir: fixes"
-	${git} "${DIR}/patches/fixes/0001-ARM-AM33XX-hwmod-Remove-wrong-INIT_NO_RESET-IDLE-fla.patch"
+	${git} "${DIR}/patches/mmc/0001-am33xx.dtsi-enable-MMC-HSPE-bit-for-all-3-controller.patch"
+	${git} "${DIR}/patches/mmc/0002-omap-hsmmc-Correct-usage-of-of_find_node_by_name.patch"
 
 	echo "dir: f2fs"
 	${git} "${DIR}/patches/f2fs/0001-f2fs-add-document.patch"
@@ -205,45 +185,13 @@ am33x () {
 	${git} "${DIR}/patches/capebus/0006-i2c-Export-capability-to-probe-devices.patch"
 	${git} "${DIR}/patches/capebus/0007-pwm-backlight-Pinctrl-fy.patch"
 	${git} "${DIR}/patches/capebus/0008-spi-Export-OF-interfaces-for-capebus-use.patch"
-	${git} "${DIR}/patches/capebus/0009-w1-gpio-Pinctrl-fy.patch"
-	${git} "${DIR}/patches/capebus/0010-w1-gpio-Simplify-get-rid-of-defines.patch"
-	${git} "${DIR}/patches/capebus/0011-arm-dt-Enable-DT-proc-updates.patch"
-	${git} "${DIR}/patches/capebus/0012-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
-	${git} "${DIR}/patches/capebus/0013-beaglebone-create-a-shared-dtsi-for-beaglebone-based.patch"
-	${git} "${DIR}/patches/capebus/0014-beaglebone-enable-emmc-for-bonelt.patch"
-	${git} "${DIR}/patches/capebus/0015-da8xx-dt-Create-da8xx-DT-adapter-device.patch"
-	${git} "${DIR}/patches/capebus/0016-ti-tscadc-dt-Create-ti-tscadc-dt-DT-adapter-device.patch"
-	${git} "${DIR}/patches/capebus/0017-capebus-Core-capebus-support.patch"
-	${git} "${DIR}/patches/capebus/0018-capebus-Add-beaglebone-board-support.patch"
-	${git} "${DIR}/patches/capebus/0019-capebus-Beaglebone-generic-cape-support.patch"
-	${git} "${DIR}/patches/capebus/0020-capebus-Beaglebone-geiger-cape-support.patch"
-	${git} "${DIR}/patches/capebus/0021-capebus-Beaglebone-capebus-DT-update.patch"
-	${git} "${DIR}/patches/capebus/0022-capebus-Document-DT-bindings.patch"
-	${git} "${DIR}/patches/capebus/0023-capebus-Documentation-capebus-summary.patch"
-	${git} "${DIR}/patches/capebus/0024-beaglebone-Update-default-config-for-capebus.patch"
-	${git} "${DIR}/patches/capebus/0025-capebus-Geiger-Cape-config-bugfixs.patch"
-	${git} "${DIR}/patches/capebus/0026-am335x-bone-Add-spi0-pins-defines.patch"
-	${git} "${DIR}/patches/capebus/0027-Allow-more-than-one-instance-of-generic-devices.patch"
-	${git} "${DIR}/patches/capebus/0028-Mark-the-device-as-PRIVATE.patch"
-	${git} "${DIR}/patches/capebus/0029-DT-overlay.patch"
-	${git} "${DIR}/patches/capebus/0030-Bug-fixes-pinctl-gpio-reset.patch"
-	${git} "${DIR}/patches/capebus/0031-ARM-HSMMC-fix-error-path-when-no-gpio_reset.patch"
-	${git} "${DIR}/patches/capebus/0032-capebus-Add-PRUSS-DT-bindings.patch"
-
-	echo "dir: hdmi"
-	${git} "${DIR}/patches/hdmi/0001-Import-working-HDMI-driver-from-3.2-kernel.patch"
-	${git} "${DIR}/patches/hdmi/0002-Added-DT-binding-to-NXP-driver.patch"
-	${git} "${DIR}/patches/hdmi/0003-da8xx-fb-Add-timings-for-720x480-60.patch"
-	${git} "${DIR}/patches/hdmi/0004-Add-capebus-override-and-pinmux-for-da8xx-dt.patch"
-	${git} "${DIR}/patches/hdmi/0005-video-Kconfig-Makefile-Add-new-Kconfig-for-old-drive.patch"
-	${git} "${DIR}/patches/hdmi/0006-am335x-bonelt-dts-Add-DT-node-to-probe-NXP-driver.patch"
-	${git} "${DIR}/patches/hdmi/0007-tda-driver-enable-1280x720.patch"
-	${git} "${DIR}/patches/hdmi/0008-Makefile-Disable-CEC.patch"
-
-	echo "dir: pruss"
-	${git} "${DIR}/patches/pruss/0001-uio-uio_pruss-port-to-AM33xx.patch"
-	${git} "${DIR}/patches/pruss/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
-	${git} "${DIR}/patches/pruss/0003-ARM-dts-AM33xx-PRUSS-support.patch"
+	${git} "${DIR}/patches/capebus/0009-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
+	${git} "${DIR}/patches/capebus/0010-beaglebone-create-a-shared-dtsi-for-beaglebone-based.patch"
+	${git} "${DIR}/patches/capebus/0011-beaglebone-enable-emmc-for-bonelt.patch"
+	${git} "${DIR}/patches/capebus/0012-da8xx-dt-Create-da8xx-DT-adapter-device.patch"
+	${git} "${DIR}/patches/capebus/0013-ti-tscadc-dt-Create-ti-tscadc-dt-DT-adapter-device.patch"
+	${git} "${DIR}/patches/capebus/0014-capebus-Add-beaglebone-board-support.patch"
+	${git} "${DIR}/patches/capebus/0015-capebus-Beaglebone-generic-cape-support.patch"
 }
 
 arm () {
@@ -295,9 +243,6 @@ omap () {
 	${git} "${DIR}/patches/omap_panda/0001-panda-fix-wl12xx-regulator.patch"
 	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
-
-	echo "dir: omap/fixes"
-	${git} "${DIR}/patches/omap_fixes/0001-merge-cleanup-ispvideo.c-remove-includes.patch"
 }
 
 am33x_after () {
@@ -308,6 +253,13 @@ am33x_after () {
 	${git} "${DIR}/patches/spi/0001-spi-spidev-Add-device-tree-bindings.patch"
 }
 
+merge () {
+	echo "dir: merge"
+	${git} "${DIR}/patches/merge/0001-merge-cleanup-ispvideo.c-remove-includes.patch"
+	${git} "${DIR}/patches/merge/0002-merge-clock-and-omap_device-includes-in-board-direct.patch"
+
+}
+
 sprz319_erratum () {
 	echo "sprz319 erratum 2.1"
 	#Breaks: Beagle C4, hardlocks on bootup...
@@ -316,10 +268,11 @@ sprz319_erratum () {
 	${git} "${DIR}/patches/omap_sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
-#am33x
+am33x
 arm
 omap
-#am33x_after
+am33x_after
+merge
 
 #disabled as it breaks beagle c4...
 #sprz319_erratum

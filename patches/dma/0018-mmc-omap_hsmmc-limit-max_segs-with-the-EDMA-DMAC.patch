@@ -1,7 +1,7 @@
-From 91b5d68ee3ed97beb4d41714b712ef8dbb386418 Mon Sep 17 00:00:00 2001
+From 5c3c126b87fec849697d055ab81023c5bcfa155f Mon Sep 17 00:00:00 2001
 From: Matt Porter <mporter@ti.com>
 Date: Thu, 20 Sep 2012 08:55:41 -0400
-Subject: [PATCH 18/31] mmc: omap_hsmmc: limit max_segs with the EDMA DMAC
+Subject: [PATCH 18/29] mmc: omap_hsmmc: limit max_segs with the EDMA DMAC
 
 The EDMA DMAC has a hardware limitation that prevents supporting
 scatter gather lists with any number of segments. Since the EDMA
@@ -14,13 +14,13 @@ API to query the DMAC's segment size limit.
 Signed-off-by: Matt Porter <mporter@ti.com>
 ---
  drivers/mmc/host/omap_hsmmc.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ 1 files changed, 10 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
-index f74141e..4fe62b0 100644
+index e79b12d..bdece4e 100644
 --- a/drivers/mmc/host/omap_hsmmc.c
 +++ b/drivers/mmc/host/omap_hsmmc.c
-@@ -1833,6 +1833,16 @@ static int __devinit omap_hsmmc_probe(struct platform_device *pdev)
+@@ -1877,6 +1877,16 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
  	 * as we want. */
  	mmc->max_segs = 1024;
  
@@ -38,5 +38,5 @@ index f74141e..4fe62b0 100644
  	mmc->max_blk_count = 0xFFFF;    /* No. of Blocks is 16 bits */
  	mmc->max_req_size = mmc->max_blk_size * mmc->max_blk_count;
 -- 
-1.7.10.4
+1.7.7.6
 
