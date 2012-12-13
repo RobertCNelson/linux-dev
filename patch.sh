@@ -256,7 +256,7 @@ am33x_after () {
 merge () {
 	echo "dir: merge"
 	${git} "${DIR}/patches/merge/0001-merge-cleanup-ispvideo.c-remove-includes.patch"
-	${git} "${DIR}/patches/merge/0002-merge-clock-and-omap_device-includes-in-board-direct.patch"
+#	${git} "${DIR}/patches/merge/0002-merge-clock-and-omap_device-includes-in-board-direct.patch"
 
 }
 
@@ -268,10 +268,10 @@ sprz319_erratum () {
 	${git} "${DIR}/patches/omap_sprz319-erratum-2.1/0001-Fix-sprz319-erratum-2.1.patch"
 }
 
-am33x
+#am33x
 arm
 omap
-am33x_after
+#am33x_after
 merge
 
 #disabled as it breaks beagle c4...
