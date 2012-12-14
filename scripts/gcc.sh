@@ -24,6 +24,7 @@ ARCH=$(uname -m)
 DIR=$PWD
 
 source ${DIR}/system.sh
+source ${DIR}/version.sh
 
 ubuntu_arm_gcc_installed () {
 	unset armel_pkg
@@ -99,10 +100,42 @@ armv7_toolchain () {
 	CC="${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/bin/arm-linux-gnueabi-"
 }
 
+armv7hf_toolchain () {
+	WGET="wget -c --directory-prefix=${DIR}/dl/"
+	#https://launchpad.net/linaro-toolchain-binaries/+download
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.11/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2012.11-20121123_linux.tar.bz2
+
+	armv7hf_ver="2012.11"
+	armv7hf_date="20121123"
+	armv7hf_gcc="gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux.tar.bz2"
+	if [ ! -f ${DIR}/dl/${armv7hf_date} ] ; then
+		echo "Installing gcc-arm toolchain"
+		echo "-----------------------------"
+		${WGET} https://launchpad.net/linaro-toolchain-binaries/trunk/${armv7hf_ver}/+download/${armv7hf_gcc}
+		touch ${DIR}/dl/${armv7hf_date}
+		if [ -d ${DIR}/dl/${armv7hf_ver} ] ; then
+			rm -rf ${DIR}/dl/${armv7hf_ver} || true
+		fi
+		tar xjf ${DIR}/dl/${armv7hf_gcc} -C ${DIR}/dl/
+	fi
+
+	if [ "x${ARCH}" == "xarmv7l" ] ; then
+		#using native gcc
+		CC=
+	else
+		CC="${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/bin/arm-linux-gnueabihf-"
+	fi
+}
+
 if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	ubuntu_arm_gcc_installed
 	if [ "x${CC}" == "x" ] ; then
-		armv7_toolchain
+		if [ "x${DEBARCH}" == "xarmel" ] ; then
+			armv7_toolchain
+		fi
+		if [ "x${DEBARCH}" == "xarmhf" ] ; then
+			armv7hf_toolchain
+		fi
 	fi
 fi
 
