@@ -259,6 +259,9 @@ omap () {
 	echo "dir: omap"
 	${git} "${DIR}/patches/omap/0001-mach-omap2-board-igep0020.c-Fix-reboot-problem.patch"
 
+	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
+	${git} "${DIR}/patches/omap/0002-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
+
 	echo "dir: omap/sakoman"
 	${git} "${DIR}/patches/omap_sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
 	${git} "${DIR}/patches/omap_sakoman/0002-video-add-timings-for-hd720.patch"
@@ -271,11 +274,10 @@ omap () {
 	${git} "${DIR}/patches/omap_beagle_expansion/0005-Beagle-expansion-add-CircuitCo-ulcd-Support.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0006-Beagle-expansion-add-wifi.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0007-Beagle-expansion-add-beaglefpga.patch"
-	${git} "${DIR}/patches/omap_beagle_expansion/0008-Enable-buddy-spidev.patch"
-	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-Camera-add-MT9P031-Aptina-image-sensor-driver.patch"
-	${git} "${DIR}/patches/omap_beagle_expansion/0010-Beagle-expansion-limit-buddy-to-beagle-only.patch"
-	${git} "${DIR}/patches/omap_beagle_expansion/0011-ARM-OMAP-Beagle-add-LSR-COM6L-Adapter-Board-support.patch"
-	${git} "${DIR}/patches/omap_beagle_expansion/0012-Beagle-Expansion-TiWi5-needs-26Mhz-clk-no-eeprom-use.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0008-Beagle-expansion-add-spidev.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-expansion-add-Aptina-li5m03-camera.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0010-Beagle-expansion-add-LSR-COM6L-Adapter-Board.patch"
+	#${git} "${DIR}/patches/omap_beagle_expansion/0011-WIP-Beagle-expansion-extend-spidev-to-uart2.patch"
 
 	echo "dir: omap/beagle"
 	#Status: for meego guys..
@@ -287,10 +289,7 @@ omap () {
 	#Status: not for upstream
 	${git} "${DIR}/patches/omap_beagle/0004-zeroMAP-Open-your-eyes.patch"
 
-	#cpufreq: only 800Mhz seems to cause hard lock... disable for now..
-	${git} "${DIR}/patches/omap_beagle/0005-TEMP-Beagle-xM-cpufreq-disable-800Mhz-opp.patch"
-
-	${git} "${DIR}/patches/omap_beagle/0006-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
+	${git} "${DIR}/patches/omap_beagle/0005-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
 
 	echo "dir: omap/panda"
 	#Status: not for upstream: push device tree version upstream...
