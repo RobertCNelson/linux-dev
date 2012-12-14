@@ -1,6 +1,7 @@
 #!/bin/bash
-
+#
 ARCH=$(uname -m)
+DISABLE_MASTER_BRANCH=1
 
 CORES=1
 if [ "x${ARCH}" == "xx86_64" ] || [ "x${ARCH}" == "xi686" ] ; then
@@ -24,6 +25,9 @@ config="omap2plus_defconfig"
 KERNEL_REL=3.2
 KERNEL_TAG=${KERNEL_REL}
 BUILD=psp26.1
+
+#v3.X-rcX + upto SHA
+#KERNEL_SHA=""
 
 #git branch
 BRANCH="am33x-v3.2"

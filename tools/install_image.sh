@@ -82,14 +82,14 @@ mmc_find_rootfs () {
 	echo "-----------------------------"
 	NUMBER=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep "Linux" | grep -v "swap" | wc -l)
 
+	if [ ! -d "${DIR}/deploy/disk/" ] ; then
+		mkdir -p "${DIR}/deploy/disk/"
+	fi
+
 	for (( c=1; c<=${NUMBER}; c++ ))
 	do
 		PART=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep "Linux" | grep -v "swap" | head -${c} | tail -1 | awk '{print $1}')
 		echo "Trying ${PART}"
-
-		if [ ! -d "${DIR}/deploy/disk/" ] ; then
-			mkdir -p "${DIR}/deploy/disk/"
-		fi
 
 		if sudo mount ${PART} "${DIR}/deploy/disk/" ; then
 
@@ -98,6 +98,9 @@ mmc_find_rootfs () {
 				echo "-----------------------------"
 				mmc_write_image
 				mmc_write_modules
+			else
+				echo "-----------------------------"
+				echo "Trying Next Partition"
 			fi
 
 			cd "${DIR}/deploy/disk"
@@ -250,7 +253,7 @@ if [ -f "${DIR}/system.sh" ] ; then
 			check_mmc
 		fi
 	else
-		echo "ERROR: Please run build_kernel.sh before running this script..."
+		echo "ERROR: arch/arm/boot/zImage not found, Please run build_kernel.sh before running this script..."
 	fi
 else
 	echo "Missing system.sh, please copy system.sh.sample to system.sh and edit as needed"
