@@ -257,6 +257,9 @@ merge () {
 	echo "dir: merge"
 	${git} "${DIR}/patches/merge/0001-merge-cleanup-ispvideo.c-remove-includes.patch"
 #	${git} "${DIR}/patches/merge/0002-merge-clock-and-omap_device-includes-in-board-direct.patch"
+	${git} "${DIR}/patches/merge/0003-cpts-Fix-build-error-caused-by-include-of-plat-clock.patch"
+#	${git} "${DIR}/patches/merge/0004-usb-musb-dsps-header-movement-build-error-fix.patch"
+	${git} "${DIR}/patches/merge/0005-ARM-OMAP2-common-remove-use-of-vram.patch"
 
 }
 
