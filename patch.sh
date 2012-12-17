@@ -22,8 +22,8 @@
 
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
-#git="git am"
-git="git am --whitespace=fix"
+git="git am"
+#git="git am --whitespace=fix"
 
 if [ -f ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
