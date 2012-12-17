@@ -210,6 +210,14 @@ unmount_partitions () {
 	mmc_mount_boot
 }
 
+debug_display_partitions () {
+	echo ""
+	echo "Debug: Existing Partition on drive:"
+	echo "-----------------------------"
+	LC_ALL=C sudo fdisk -l ${MMC}
+	unmount_partitions
+}
+
 check_mmc () {
 	FDISK=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk ${MMC}" | awk '{print $2}')
 
@@ -223,7 +231,7 @@ check_mmc () {
 		mount | grep -v none | grep "/dev/" --color=never
 		echo ""
 		read -p "Are you 100% sure, on selecting [${MMC}] (y/n)? "
-		[ "${REPLY}" == "y" ] && unmount_partitions
+		[ "${REPLY}" == "y" ] && debug_display_partitions
 		echo ""
 	else
 		echo ""
