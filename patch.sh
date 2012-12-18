@@ -260,7 +260,7 @@ merge () {
 	${git} "${DIR}/patches/merge/0003-cpts-Fix-build-error-caused-by-include-of-plat-clock.patch"
 #	${git} "${DIR}/patches/merge/0004-usb-musb-dsps-header-movement-build-error-fix.patch"
 	${git} "${DIR}/patches/merge/0005-ARM-OMAP2-common-remove-use-of-vram.patch"
-
+	${git} "${DIR}/patches/merge/0006-ARM-OMAP-timer.c-prom_add_property-of_add_property.patch
 }
 
 sprz319_erratum () {
