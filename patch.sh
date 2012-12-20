@@ -259,9 +259,9 @@ merge () {
 #	${git} "${DIR}/patches/merge/0002-merge-clock-and-omap_device-includes-in-board-direct.patch"
 #	${git} "${DIR}/patches/merge/0003-cpts-Fix-build-error-caused-by-include-of-plat-clock.patch"
 #	${git} "${DIR}/patches/merge/0004-usb-musb-dsps-header-movement-build-error-fix.patch"
-	${git} "${DIR}/patches/merge/0005-ARM-OMAP2-common-remove-use-of-vram.patch"
+#	${git} "${DIR}/patches/merge/0005-ARM-OMAP2-common-remove-use-of-vram.patch"
 	${git} "${DIR}/patches/merge/0006-ARM-OMAP-timer.c-prom_add_property-of_add_property.patch"
-	${git} "${DIR}/patches/merge/0007-ARM-OMAP-Fix-build-breakage-due-to-missing-include-i.patch"
+#	${git} "${DIR}/patches/merge/0007-ARM-OMAP-Fix-build-breakage-due-to-missing-include-i.patch"
 }
 
 sprz319_erratum () {
