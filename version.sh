@@ -22,12 +22,12 @@ CCACHE=ccache
 config="omap2plus_defconfig"
 
 #Kernel/Build
-KERNEL_REL=3.7
-KERNEL_TAG=${KERNEL_REL}
+KERNEL_REL=3.8
+KERNEL_TAG=${KERNEL_REL}-rc1
 BUILD=d0
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="54e37b8dbe9a398f74cef313404bd2f1deca7853"
+#KERNEL_SHA="54e37b8dbe9a398f74cef313404bd2f1deca7853"
 
 #git branch
 #BRANCH="v3.8.x"

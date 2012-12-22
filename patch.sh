@@ -262,7 +262,7 @@ merge () {
 #	${git} "${DIR}/patches/merge/0005-ARM-OMAP2-common-remove-use-of-vram.patch"
 #	${git} "${DIR}/patches/merge/0006-ARM-OMAP-timer.c-prom_add_property-of_add_property.patch"
 #	${git} "${DIR}/patches/merge/0007-ARM-OMAP-Fix-build-breakage-due-to-missing-include-i.patch"
-	${git} "${DIR}/patches/merge/0008-NFS-Fix-build-breakge-when-CONFIG_NFS_FSCACHE-is-not.patch"
+#	${git} "${DIR}/patches/merge/0008-NFS-Fix-build-breakge-when-CONFIG_NFS_FSCACHE-is-not.patch"
 }
 
 sprz319_erratum () {
