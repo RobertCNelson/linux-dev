@@ -90,6 +90,7 @@ am33x () {
 	${git} "${DIR}/patches/pinctrl/0002-arm-dts-AM33XX-Configure-pinmuxs-for-user-leds-contr.patch"
 	${git} "${DIR}/patches/pinctrl/0003-beaglebone-DT-set-default-triggers-for-LEDS.patch"
 	${git} "${DIR}/patches/pinctrl/0004-beaglebone-add-a-cpu-led-trigger.patch"
+	${git} "${DIR}/patches/pinctrl/0005-pinctrl-pinctrl-single-Fix-the-pins-debug-output.patch"
 
 	echo "dir: cpufreq"
 	${git} "${DIR}/patches/cpufreq/0001-arm-dts-AM33XX-Add-device-tree-OPP-table.patch"
@@ -277,6 +278,8 @@ omap () {
 	${git} "${DIR}/patches/omap_beagle_expansion/0008-Beagle-expansion-add-spidev.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-expansion-add-Aptina-li5m03-camera.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0010-Beagle-expansion-add-LSR-COM6L-Adapter-Board.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0011-Beagle-expansion-LSR-COM6L-Adapter-Board-also-initia.patch"
+
 	#${git} "${DIR}/patches/omap_beagle_expansion/0011-WIP-Beagle-expansion-extend-spidev-to-uart2.patch"
 
 	echo "dir: omap/beagle"
@@ -300,6 +303,13 @@ omap () {
 	echo "dir: omap/sgx"
 	#Status: TI 4.06.00.xx needs this, when building drm modues for Xorg.
 	${git} "${DIR}/patches/omap_sgx/0001-Revert-drm-kill-drm_sman.patch"
+	#Status: TI: 4.08.00.02, needs this revert...
+	${git} "${DIR}/patches/omap_sgx/0002-Revert-OMAPDSS-Remove-old-way-of-setting-manager-and.patch"
+	#Status: not for upstream: http://www.spinics.net/lists/arm-kernel/msg214633.html
+	#Fixes:
+	#WARNING: "v7_dma_flush_range" *pvrsrvkm.ko] undefined!
+	#WARNING: "v7_dma_map_area" *pvrsrvkm.ko] undefined!
+	${git} "${DIR}/patches/omap_sgx/0003-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 
 	echo "dir: omap/fixes"
 	#Status: unknown: only needed when forcing mpurate over 999 using bootargs...
@@ -320,6 +330,9 @@ am33x_after () {
 
 	echo "dir: spi"
 	${git} "${DIR}/patches/spi/0001-spi-spidev-Add-device-tree-bindings.patch"
+
+	echo "dir: capes"
+	${git} "${DIR}/patches/capes/0001-da8xx-fb-add-Chalk-Electronics-LVDS-cape-and-10in-di.patch"
 }
 
 sprz319_erratum () {
