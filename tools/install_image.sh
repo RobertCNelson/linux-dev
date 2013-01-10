@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -171,6 +171,16 @@ mmc_write_boot () {
 	mmc_find_rootfs
 }
 
+mmc_write_imx_bootlets () {
+	echo "Installing ${KERNEL_UTS}.sd_mmc_bootstream.raw to boot partition"
+	echo "-----------------------------"
+
+	sudo dd if="${DIR}/deploy/${KERNEL_UTS}.sd_mmc_bootstream.raw" of=${MMC}${PARTITION_PREFIX}${BOOT_PARITION}
+	sync
+	sync
+	mmc_find_rootfs
+}
+
 mmc_mount_boot () {
 	if [ ! -d "${DIR}/deploy/disk/" ] ; then
 		mkdir -p "${DIR}/deploy/disk/"
@@ -207,7 +217,11 @@ unmount_partitions () {
 	done
 
 	mkdir -p "${DIR}/deploy/disk/"
-	mmc_mount_boot
+	if [ "${imx_bootlets_target}" ] ; then
+		mmc_write_imx_bootlets
+	else
+		mmc_mount_boot
+	fi
 }
 
 debug_display_partitions () {

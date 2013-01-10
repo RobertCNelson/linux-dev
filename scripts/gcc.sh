@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -78,6 +78,28 @@ ubuntu_arm_gcc_installed () {
 	fi
 }
 
+arm_embedded () {
+	WGET="wget -c --directory-prefix=${DIR}/dl/"
+	#wget https://launchpad.net/gcc-arm-embedded/4.6/4.6-2012-q4-update/+download/gcc-arm-none-eabi-4_6-2012q4-20121016.tar.bz2
+
+	arm_embedded_dir="4.6/4.6-2012-q4-update"
+	arm_embedded_ver="4_6-2012q4"
+	arm_embedded_date="20121016"
+	ARM_EMBEDDED_GCC="gcc-arm-none-eabi-${arm_embedded_ver}-${arm_embedded_date}.tar.bz2"
+	if [ ! -f ${DIR}/dl/${arm_embedded_date} ] ; then
+		echo "Installing gcc-arm-embedded toolchain"
+		echo "-----------------------------"
+		${WGET} https://launchpad.net/gcc-arm-embedded/${arm_embedded_dir}/+download/${ARM_EMBEDDED_GCC}
+		touch ${DIR}/dl/${arm_embedded_date}
+		if [ -d ${DIR}/dl/gcc-arm-none-eabi-${arm_embedded_ver}/ ] ; then
+			rm -rf ${DIR}/dl/gcc-arm-none-eabi-${arm_embedded_ver}/ || true
+		fi
+		tar xjf ${DIR}/dl/${ARM_EMBEDDED_GCC} -C ${DIR}/dl/
+	fi
+
+	ARM_NONE_CC="${DIR}/dl/gcc-arm-none-eabi-${arm_embedded_ver}/bin/arm-none-eabi-"
+}
+
 armv7_toolchain () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
 	#https://launchpad.net/linaro-toolchain-binaries/+download
@@ -91,13 +113,18 @@ armv7_toolchain () {
 		echo "-----------------------------"
 		${WGET} https://launchpad.net/linaro-toolchain-binaries/trunk/${armv7_ver}/+download/${ARMV7_GCC}
 		touch ${DIR}/dl/${armv7_date}
-		if [ -d ${DIR}/dl/${armv7_ver} ] ; then
-			rm -rf ${DIR}/dl/${armv7_ver} || true
+		if [ -d ${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/ ] ; then
+			rm -rf ${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/ || true
 		fi
 		tar xjf ${DIR}/dl/${ARMV7_GCC} -C ${DIR}/dl/
 	fi
 
-	CC="${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/bin/arm-linux-gnueabi-"
+	if [ "x${ARCH}" == "xarmv7l" ] ; then
+		#using native gcc
+		CC=
+	else
+		CC="${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/bin/arm-linux-gnueabi-"
+	fi
 }
 
 armv7hf_toolchain () {
@@ -113,8 +140,8 @@ armv7hf_toolchain () {
 		echo "-----------------------------"
 		${WGET} https://launchpad.net/linaro-toolchain-binaries/trunk/${armv7hf_ver}/+download/${armv7hf_gcc}
 		touch ${DIR}/dl/${armv7hf_date}
-		if [ -d ${DIR}/dl/${armv7hf_ver} ] ; then
-			rm -rf ${DIR}/dl/${armv7hf_ver} || true
+		if [ -d ${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/ ] ; then
+			rm -rf ${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/ || true
 		fi
 		tar xjf ${DIR}/dl/${armv7hf_gcc} -C ${DIR}/dl/
 	fi
@@ -139,6 +166,10 @@ if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	fi
 fi
 
+if [ "${IMX_BOOTLETS}" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
+	arm_embedded
+fi
+
 GCC="gcc"
 if [ "x${GCC_OVERRIDE}" != "x" ] ; then
 	GCC="${GCC_OVERRIDE}"
@@ -161,6 +192,13 @@ if [ "x${GCC_TEST}" == "x" ] ; then
 else
 	echo "-----------------------------"
 	echo "scripts/gcc: Debug Using: `LC_ALL=C ${CC}${GCC} --version`"
+	if [ "${IMX_BOOTLETS}" ] ; then
+		echo "-----------------------------"
+		echo "scripts/gcc: imx-bootlets Using: `LC_ALL=C ${ARM_NONE_CC}${GCC} --version`"
+	fi
 	echo "-----------------------------"
 	echo "CC=${CC}" > ${DIR}/.CC
+	if [ "${IMX_BOOTLETS}" ] ; then
+		echo "ARM_NONE_CC=${ARM_NONE_CC}" >> ${DIR}/.CC
+	fi
 fi
