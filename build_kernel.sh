@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -103,6 +103,28 @@ function make_uImage {
 		echo "Error: make uImage failed"
 		exit
 	fi
+	cd ${DIR}/
+}
+
+function make_bootlets {
+	cd ${DIR}/ignore/imx-bootlets/
+
+	echo "-----------------------------"
+	echo "Building IMX BOOTLETS"
+	echo "-----------------------------"
+
+	make CROSS_COMPILE=${ARM_NONE_CC} clean 2>/dev/null
+	cat ${DIR}/KERNEL/arch/arm/boot/zImage ${DIR}/KERNEL/arch/arm/boot/${imx_bootlets_target}.dtb > ${DIR}/ignore/imx-bootlets/zImage
+	make CROSS_COMPILE=${ARM_NONE_CC} 2>/dev/null
+
+	if [ -f ${DIR}/ignore/imx-bootlets/sd_mmc_bootstream.raw ] ; then
+		cp ${DIR}/ignore/imx-bootlets/sd_mmc_bootstream.raw ${DIR}/deploy/${KERNEL_UTS}.sd_mmc_bootstream.raw
+	else
+		echo "-----------------------------"
+		echo "Error: make_bootlets failed"
+		exit
+	fi
+
 	cd ${DIR}/
 }
 
@@ -212,6 +234,9 @@ fi
 make_kernel
 if [ "${BUILD_UIMAGE}" ] ; then
 	make_uImage
+fi
+if [ "${IMX_BOOTLETS}" ] ; then
+	make_bootlets
 fi
 make_modules_pkg
 if [ "x${DTBS}" != "x" ] ; then
