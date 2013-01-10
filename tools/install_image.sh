@@ -44,6 +44,7 @@ backup_config () {
 
 mmc_write_modules () {
 	echo "Installing ${KERNEL_UTS}-modules.tar.gz to rootfs partition"
+	echo "Installing ${KERNEL_UTS}-firmware.tar.gz to rootfs partition"
 	echo "-----------------------------"
 
 	if [ -d "${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}" ] ; then
@@ -51,6 +52,7 @@ mmc_write_modules () {
 	fi
 
 	sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${DIR}/deploy/disk"
+	sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/disk"
 }
 
 mmc_write_image () {

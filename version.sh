@@ -25,16 +25,16 @@ config="omap2plus_defconfig"
 #imx_bootlets_target="imx23-olinuxino"
 
 #Kernel/Build
-KERNEL_REL=3.7
-KERNEL_TAG=${KERNEL_REL}.1
-BUILD=bone4
+KERNEL_REL=3.8
+KERNEL_TAG=${KERNEL_REL}-rc3
+BUILD=bone0
 
 #v3.X-rcX + upto SHA
 #KERNEL_SHA=""
 
 #git branch
-BRANCH="am33x-v3.7"
+BRANCH="am33x-v3.8"
 
 BUILDREV=1.0
 DISTRO=cross
-DEBARCH=armel
+DEBARCH=armhf
