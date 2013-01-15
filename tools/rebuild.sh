@@ -146,6 +146,24 @@ function make_modules_pkg {
 	cd ${DIR}/
 }
 
+function make_firmware_pkg {
+	cd ${DIR}/KERNEL/
+
+	echo "-----------------------------"
+	echo "Building Firmware Archive"
+	echo "-----------------------------"
+
+	rm -rf ${DIR}/deploy/fir &> /dev/null || true
+	mkdir -p ${DIR}/deploy/fir
+	make ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/fir
+	echo "-----------------------------"
+	echo "Building ${KERNEL_UTS}-firmware.tar.gz"
+	cd ${DIR}/deploy/fir
+	tar czf ../${KERNEL_UTS}-firmware.tar.gz *
+	echo "-----------------------------"
+	cd ${DIR}/
+}
+
 function make_dtbs_pkg {
 	cd ${DIR}/KERNEL/
 
@@ -239,6 +257,7 @@ if [ "${IMX_BOOTLETS}" ] ; then
 	make_bootlets
 fi
 make_modules_pkg
+make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
 fi
