@@ -300,6 +300,8 @@ omap () {
 	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 
+	${git} "${DIR}/patches/omap_panda/0003-OMAP-omap4-panda-add-WiLink-shared-transport-power-f.patch"
+
 	echo "dir: omap/sgx"
 	#Status: TI 4.06.00.xx needs this, when building drm modues for Xorg.
 	${git} "${DIR}/patches/omap_sgx/0001-Revert-drm-kill-drm_sman.patch"

@@ -1,0 +1,107 @@
+From a09367f472a726bf9e22550f425f3780267fa4a1 Mon Sep 17 00:00:00 2001
+From: Luciano Coelho <coelho@ti.com>
+Date: Wed, 16 Jan 2013 23:45:02 +0200
+Subject: [PATCH 3/3] ] OMAP: omap4-panda: add WiLink shared transport power
+ functions
+
+The code to enable and disable the WiLink shared transport has been
+removed from the TI-ST driver, so it must be implemented in the board
+files instead.  Add the relevant operations to Panda's board file.
+
+Additionally, add the UART2 muxing data, so it's properly configured.
+
+Cc: stable <stable@vger.kernel.org> [3.7]
+Signed-off-by: Luciano Coelho <coelho@ti.com>
+---
+ arch/arm/mach-omap2/board-omap4panda.c |   50 +++++++++++++++++++++++++++++---
+ 1 file changed, 46 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
+index bfcd397..b99ca7e 100644
+--- a/arch/arm/mach-omap2/board-omap4panda.c
++++ b/arch/arm/mach-omap2/board-omap4panda.c
+@@ -53,21 +53,53 @@
+ #define GPIO_HUB_NRESET		62
+ #define GPIO_WIFI_PMENA		43
+ #define GPIO_WIFI_IRQ		53
++#define GPIO_BT_EN		46
+ #define HDMI_GPIO_CT_CP_HPD 60 /* HPD mode enable/disable */
+ #define HDMI_GPIO_LS_OE 41 /* Level shifter for HDMI */
+ #define HDMI_GPIO_HPD  63 /* Hotplug detect */
+ 
+ /* wl127x BT, FM, GPS connectivity chip */
++static int plat_kim_chip_enable(struct kim_data_s *kim_data)
++{
++	gpio_set_value(GPIO_BT_EN, GPIO_LOW);
++	mdelay(5);
++	gpio_set_value(GPIO_BT_EN, GPIO_HIGH);
++	mdelay(100);
++
++	return 0;
++}
++
++static int plat_kim_chip_disable(struct kim_data_s *kim_data)
++{
++	gpio_set_value(GPIO_BT_EN, GPIO_LOW);
++	mdelay(1);
++	gpio_set_value(GPIO_BT_EN, GPIO_HIGH);
++	mdelay(1);
++	gpio_set_value(GPIO_BT_EN, GPIO_LOW);
++
++	return 0;
++}
++
+ static struct ti_st_plat_data wilink_platform_data = {
+-	.nshutdown_gpio	= 46,
+ 	.dev_name	= "/dev/ttyO1",
+ 	.flow_cntrl	= 1,
+ 	.baud_rate	= 3000000,
+-	.chip_enable	= NULL,
+-	.suspend	= NULL,
+-	.resume		= NULL,
++	.chip_enable	= plat_kim_chip_enable,
++	.chip_disable	= plat_kim_chip_disable,
+ };
+ 
++static int wilink_st_init(void)
++{
++	int status;
++
++	status = gpio_request_one(GPIO_BT_EN, GPIOF_OUT_INIT_LOW, "kim");
++	if (status)
++		pr_err("%s: failed to request gpio %d\n", __func__,
++		       GPIO_BT_EN);
++
++	return status;
++}
++
+ static struct platform_device wl1271_device = {
+ 	.name	= "kim",
+ 	.id	= -1,
+@@ -402,6 +434,12 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 		  OMAP_PULL_ENA),
+ 	OMAP4_MUX(ABE_MCBSP1_FSX, OMAP_MUX_MODE0 | OMAP_PIN_INPUT),
+ 
++	/* UART2 - BT/FM/GPS shared transport */
++	OMAP4_MUX(UART2_CTS,	OMAP_PIN_INPUT	| OMAP_MUX_MODE0),
++	OMAP4_MUX(UART2_RTS,	OMAP_PIN_OUTPUT	| OMAP_MUX_MODE0),
++	OMAP4_MUX(UART2_RX,	OMAP_PIN_INPUT	| OMAP_MUX_MODE0),
++	OMAP4_MUX(UART2_TX,	OMAP_PIN_OUTPUT	| OMAP_MUX_MODE0),
++
+ 	{ .reg_offset = OMAP_MUX_TERMINATOR },
+ };
+ 
+@@ -500,6 +538,10 @@ static void __init omap4_panda_init(void)
+ 	if (ret)
+ 		pr_err("error setting wl12xx data: %d\n", ret);
+ 
++	ret = wilink_st_init();
++	if (ret)
++		pr_err("WiLink shared transport init failed: %d\n", ret);
++
+ 	omap4_panda_init_rev();
+ 	omap4_panda_i2c_init();
+ 	platform_add_devices(panda_devices, ARRAY_SIZE(panda_devices));
+-- 
+1.7.10.4
+
