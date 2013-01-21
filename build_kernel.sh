@@ -146,6 +146,24 @@ function make_modules_pkg {
 	cd ${DIR}/
 }
 
+function make_firmware_pkg {
+	cd ${DIR}/KERNEL/
+
+	echo "-----------------------------"
+	echo "Building Firmware Archive"
+	echo "-----------------------------"
+
+	rm -rf ${DIR}/deploy/fir &> /dev/null || true
+	mkdir -p ${DIR}/deploy/fir
+	make ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/fir
+	echo "-----------------------------"
+	echo "Building ${KERNEL_UTS}-firmware.tar.gz"
+	cd ${DIR}/deploy/fir
+	tar czf ../${KERNEL_UTS}-firmware.tar.gz *
+	echo "-----------------------------"
+	cd ${DIR}/
+}
+
 function make_dtbs_pkg {
 	cd ${DIR}/KERNEL/
 
@@ -228,9 +246,6 @@ fi
 if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
-fi
 make_kernel
 if [ "${BUILD_UIMAGE}" ] ; then
 	make_uImage
@@ -239,12 +254,10 @@ if [ "${IMX_BOOTLETS}" ] ; then
 	make_bootlets
 fi
 make_modules_pkg
+make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
 fi
 if [ "${FULL_REBUILD}" ] ; then
 	make_headers_pkg
-fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
 fi

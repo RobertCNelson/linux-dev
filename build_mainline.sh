@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -105,6 +105,28 @@ function make_uImage {
 	cd ${DIR}/
 }
 
+function make_bootlets {
+	cd ${DIR}/ignore/imx-bootlets/
+
+	echo "-----------------------------"
+	echo "Building IMX BOOTLETS"
+	echo "-----------------------------"
+
+	make CROSS_COMPILE=${ARM_NONE_CC} clean 2>/dev/null
+	cat ${DIR}/KERNEL/arch/arm/boot/zImage ${DIR}/KERNEL/arch/arm/boot/${imx_bootlets_target}.dtb > ${DIR}/ignore/imx-bootlets/zImage
+	make CROSS_COMPILE=${ARM_NONE_CC} 2>/dev/null
+
+	if [ -f ${DIR}/ignore/imx-bootlets/sd_mmc_bootstream.raw ] ; then
+		cp ${DIR}/ignore/imx-bootlets/sd_mmc_bootstream.raw ${DIR}/deploy/${KERNEL_UTS}.sd_mmc_bootstream.raw
+	else
+		echo "-----------------------------"
+		echo "Error: make_bootlets failed"
+		exit
+	fi
+
+	cd ${DIR}/
+}
+
 function make_modules_pkg {
 	cd ${DIR}/KERNEL/
 
@@ -119,6 +141,24 @@ function make_modules_pkg {
 	echo "Building ${KERNEL_UTS}-modules.tar.gz"
 	cd ${DIR}/deploy/mod
 	tar czf ../${KERNEL_UTS}-modules.tar.gz *
+	echo "-----------------------------"
+	cd ${DIR}/
+}
+
+function make_firmware_pkg {
+	cd ${DIR}/KERNEL/
+
+	echo "-----------------------------"
+	echo "Building Firmware Archive"
+	echo "-----------------------------"
+
+	rm -rf ${DIR}/deploy/fir &> /dev/null || true
+	mkdir -p ${DIR}/deploy/fir
+	make ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/fir
+	echo "-----------------------------"
+	echo "Building ${KERNEL_UTS}-firmware.tar.gz"
+	cd ${DIR}/deploy/fir
+	tar czf ../${KERNEL_UTS}-firmware.tar.gz *
 	echo "-----------------------------"
 	cd ${DIR}/
 }
@@ -205,20 +245,18 @@ fi
 if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
-fi
 make_kernel
 if [ "${BUILD_UIMAGE}" ] ; then
 	make_uImage
 fi
+if [ "${IMX_BOOTLETS}" ] ; then
+	make_bootlets
+fi
 make_modules_pkg
+make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
 fi
 if [ "${FULL_REBUILD}" ] ; then
 	make_headers_pkg
-fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
 fi

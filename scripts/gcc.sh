@@ -35,7 +35,7 @@ ubuntu_arm_gcc_installed () {
 			distro_release=$(lsb_release -cs)
 
 			case "${distro_release}" in
-			maverick|natty|oneiric|precise|quantal|raring)
+			oneiric|precise|quantal|raring)
 				#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
 				armel_pkg="gcc-arm-linux-gnueabi"
 				;;
@@ -154,15 +154,19 @@ armv7hf_toolchain () {
 	fi
 }
 
+dl_toolchain () {
+	if [ "x${DEBARCH}" == "xarmel" ] ; then
+		armv7_toolchain
+	fi
+	if [ "x${DEBARCH}" == "xarmhf" ] ; then
+		armv7hf_toolchain
+	fi
+}
+
 if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	ubuntu_arm_gcc_installed
 	if [ "x${CC}" == "x" ] ; then
-		if [ "x${DEBARCH}" == "xarmel" ] ; then
-			armv7_toolchain
-		fi
-		if [ "x${DEBARCH}" == "xarmhf" ] ; then
-			armv7hf_toolchain
-		fi
+		dl_toolchain
 	fi
 fi
 
@@ -170,35 +174,23 @@ if [ "${IMX_BOOTLETS}" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	arm_embedded
 fi
 
-GCC="gcc"
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	GCC="${GCC_OVERRIDE}"
-fi
-
-GCC_TEST=$(LC_ALL=C ${CC}${GCC} -v 2>&1 | grep "Target:" | grep arm || true)
-GCC_REPORT=$(LC_ALL=C ${CC}${GCC} -v 2>&1 || true)
+GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
 
 if [ "x${GCC_TEST}" == "x" ] ; then
 	echo "-----------------------------"
-	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable)."
-	echo "Doesn't seem to be valid for ARM, double check it's location, or that"
-	echo "you chose the correct GCC Cross Compiler."
-	echo ""
-	echo "Output of: LC_ALL=C ${CC}${GCC} --version"
+	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable) is invalid."
 	echo "-----------------------------"
-	echo "${GCC_REPORT}"
+	dl_toolchain
+fi
+
+echo "-----------------------------"
+echo "scripts/gcc: Debug Using: `LC_ALL=C ${CC}gcc --version`"
+if [ "${IMX_BOOTLETS}" ] ; then
 	echo "-----------------------------"
-	exit 1
-else
-	echo "-----------------------------"
-	echo "scripts/gcc: Debug Using: `LC_ALL=C ${CC}${GCC} --version`"
-	if [ "${IMX_BOOTLETS}" ] ; then
-		echo "-----------------------------"
-		echo "scripts/gcc: imx-bootlets Using: `LC_ALL=C ${ARM_NONE_CC}${GCC} --version`"
-	fi
-	echo "-----------------------------"
-	echo "CC=${CC}" > ${DIR}/.CC
-	if [ "${IMX_BOOTLETS}" ] ; then
-		echo "ARM_NONE_CC=${ARM_NONE_CC}" >> ${DIR}/.CC
-	fi
+	echo "scripts/gcc: imx-bootlets Using: `LC_ALL=C ${ARM_NONE_CC}gcc --version`"
+fi
+echo "-----------------------------"
+echo "CC=${CC}" > ${DIR}/.CC
+if [ "${IMX_BOOTLETS}" ] ; then
+	echo "ARM_NONE_CC=${ARM_NONE_CC}" >> ${DIR}/.CC
 fi
