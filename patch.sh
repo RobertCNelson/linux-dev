@@ -210,6 +210,8 @@ omap () {
 	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
 	${git} "${DIR}/patches/omap/0002-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
 
+	${git} "${DIR}/patches/omap/0003-ARM-OMAP2-fix-build-break-for-omapdrm.patch"
+
 	echo "dir: omap/sakoman"
 	${git} "${DIR}/patches/omap_sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
 	${git} "${DIR}/patches/omap_sakoman/0002-video-add-timings-for-hd720.patch"
@@ -225,6 +227,7 @@ omap () {
 	${git} "${DIR}/patches/omap_beagle_expansion/0008-Beagle-expansion-add-spidev.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0009-Beagle-expansion-add-Aptina-li5m03-camera.patch"
 	${git} "${DIR}/patches/omap_beagle_expansion/0010-Beagle-expansion-add-LSR-COM6L-Adapter-Board.patch"
+	${git} "${DIR}/patches/omap_beagle_expansion/0011-Beagle-expansion-LSR-COM6L-Adapter-Board-also-initia.patch"
 
 	echo "dir: omap/beagle"
 	#Status: for meego guys..
