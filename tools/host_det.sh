@@ -98,6 +98,7 @@ function debian_regs
 	dpkg -l | grep device-tree-compiler >/dev/null || deb_pkgs+="device-tree-compiler "
 	dpkg -l | grep lsb-release >/dev/null || deb_pkgs+="lsb-release "
 	dpkg -l | grep lzma >/dev/null || deb_pkgs+="lzma "
+	dpkg -l | grep lzop >/dev/null || deb_pkgs+="lzop "
 	dpkg -l | grep fakeroot >/dev/null || deb_pkgs+="fakeroot "
 
 	#Lucid -> Oneiric

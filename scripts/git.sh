@@ -125,18 +125,11 @@ git_kernel () {
 		git_kernel_torvalds
 	fi
 
-	if [ ! "${LATEST_GIT}" ] ; then
-		git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
-		if [ ! "${KERNEL_SHA}" ] ; then
-			git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
-		else
-			git checkout ${KERNEL_SHA} -b v${KERNEL_TAG}-${BUILD}
-		fi
+	git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
+	if [ ! "${KERNEL_SHA}" ] ; then
+		git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
 	else
-		git branch -D top-of-tree &>/dev/null || true
-		git checkout v${KERNEL_TAG} -b top-of-tree
-		git describe
-		git pull ${GIT_OPTS} ${torvalds_linux} master || true
+		git checkout ${KERNEL_SHA} -b v${KERNEL_TAG}-${BUILD}
 	fi
 
 	git describe

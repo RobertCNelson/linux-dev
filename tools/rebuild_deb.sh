@@ -149,7 +149,6 @@ fi
 
 unset CC
 unset DEBUG_SECTION
-unset LATEST_GIT
 unset LINUX_GIT
 unset LOCAL_PATCH_DIR
 source ${DIR}/system.sh
@@ -159,13 +158,6 @@ echo "debug: CC=${CC}"
 
 source ${DIR}/version.sh
 export LINUX_GIT
-export LATEST_GIT
-
-if [ "${LATEST_GIT}" ] ; then
-	echo "-----------------------------"
-	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
-	echo "-----------------------------"
-fi
 
 unset CONFIG_DEBUG_SECTION
 if [ "${DEBUG_SECTION}" ] ; then
@@ -187,9 +179,6 @@ fi
 if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
-fi
 make_deb
 if [ "${IMX_BOOTLETS}" ] ; then
 	make_bootlets
@@ -197,7 +186,4 @@ fi
 make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
-fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
 fi
