@@ -464,7 +464,7 @@ am33x_after () {
 	${git} "${DIR}/patches/rcu-cpufreq/0003-PM-devfreq-add-locking-documentation-for-recommended.patch"
 
 	echo "dir: hacks"
-	${git} "${DIR}/patches/hacks/0002-reboot-fix-from-jsbeaudry.patch"
+	${git} "${DIR}/patches/hacks/0001-ARM-AM33xx-Add-SoC-specific-restart-hook.patch"
 }
 
 am33x
