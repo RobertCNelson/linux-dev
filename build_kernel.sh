@@ -89,23 +89,6 @@ function make_kernel {
 	cd ${DIR}/
 }
 
-function make_uImage {
-	cd ${DIR}/KERNEL/
-	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CCACHE} ${CC}\" ${CONFIG_DEBUG_SECTION} uImage"
-	echo "-----------------------------"
-	time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${CONFIG_DEBUG_SECTION} uImage
-	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-	if [ -f ./arch/arm/boot/uImage ] ; then
-		cp arch/arm/boot/uImage ${DIR}/deploy/${KERNEL_UTS}.uImage
-	else
-		echo "-----------------------------"
-		echo "Error: make uImage failed"
-		exit
-	fi
-	cd ${DIR}/
-}
-
 function make_bootlets {
 	cd ${DIR}/ignore/imx-bootlets/
 
@@ -182,24 +165,6 @@ function make_dtbs_pkg {
 	cd ${DIR}/
 }
 
-function make_headers_pkg {
-	cd ${DIR}/KERNEL/
-
-	echo "-----------------------------"
-	echo "Building Header Archive"
-	echo "-----------------------------"
-
-	rm -rf ${DIR}/deploy/headers &> /dev/null || true
-	mkdir -p ${DIR}/deploy/headers/usr
-	make ARCH=arm CROSS_COMPILE=${CC} headers_install INSTALL_HDR_PATH=${DIR}/deploy/headers/usr
-	cd ${DIR}/deploy/headers
-	echo "-----------------------------"	
-	echo "Building ${KERNEL_UTS}-headers.tar.gz"
-	tar czf ../${KERNEL_UTS}-headers.tar.gz *
-	echo "-----------------------------"	
-	cd ${DIR}/
-}
-
 /bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
 
 if [ ! -f ${DIR}/system.sh ] ; then
@@ -239,9 +204,6 @@ if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
 make_kernel
-if [ "${BUILD_UIMAGE}" ] ; then
-	make_uImage
-fi
 if [ "${IMX_BOOTLETS}" ] ; then
 	make_bootlets
 fi
@@ -249,7 +211,4 @@ make_modules_pkg
 make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
-fi
-if [ "${FULL_REBUILD}" ] ; then
-	make_headers_pkg
 fi
