@@ -180,10 +180,17 @@ if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
 make_deb
-if [ "${IMX_BOOTLETS}" ] ; then
-	make_bootlets
-fi
 make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
+fi
+if [ "${IMX_BOOTLETS}" ] ; then
+	if [ ! $(which elftosb2) ] ; then
+		echo "-----------------------------"
+		echo "Error: Please install elftosb"
+		echo "See: http://eewiki.net/display/linuxonarm/iMX233-OLinuXino#iMX233-OLinuXino-elftosb"
+		echo "-----------------------------"
+		exit
+	fi
+	make_bootlets
 fi
