@@ -267,7 +267,6 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0010-am335x-bone-dtsi-Clean-up.patch"
 	${git} "${DIR}/patches/not-capebus/0011-am335x-bone-dtsi-Introduce-new-I2C-entries.patch"
 	${git} "${DIR}/patches/not-capebus/0012-am335x-dt-Add-I2C0-pinctrl-entries.patch"
-	${git} "${DIR}/patches/not-capebus/0013-omap3beagle-compile-fix.patch"
 	${git} "${DIR}/patches/not-capebus/0014-Cleanup-am33xx.dtsi.patch"
 	${git} "${DIR}/patches/not-capebus/0015-Fix-platform-device-resource-linking.patch"
 	${git} "${DIR}/patches/not-capebus/0016-Link-platform-device-resources-properly.patch"
