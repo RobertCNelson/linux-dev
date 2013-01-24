@@ -255,9 +255,6 @@ am33x_after () {
 	${git} "${DIR}/patches/net/0002-Attempted-SMC911x-BQL-patch.patch"
 	${git} "${DIR}/patches/net/0003-cpsw-Fix-interrupt-storm-among-other-things.patch"
 
-	echo "dir: merge"
-	${git} "${DIR}/patches/merge/0001-merge-cleanup-ispvideo.c-remove-includes.patch"
-
 	echo "dir: not-capebus"
 	${git} "${DIR}/patches/not-capebus/0001-drm-cma-add-debugfs-helpers.patch"
 	${git} "${DIR}/patches/not-capebus/0002-drm-small-fix-in-drm_send_vblank_event.patch"
@@ -464,7 +461,7 @@ am33x_after () {
 	${git} "${DIR}/patches/rcu-cpufreq/0003-PM-devfreq-add-locking-documentation-for-recommended.patch"
 
 	echo "dir: hacks"
-	${git} "${DIR}/patches/hacks/0001-ARM-AM33xx-Add-SoC-specific-restart-hook.patch"
+	${git} "${DIR}/patches/reboot/0001-ARM-AM33xx-Add-SoC-specific-restart-hook.patch"
 }
 
 am33x
