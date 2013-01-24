@@ -132,6 +132,11 @@ git_kernel () {
 		git checkout ${KERNEL_SHA} -b v${KERNEL_TAG}-${BUILD}
 	fi
 
+	if [ "${TOPOFTREE}" ] ; then
+		git pull ${GIT_OPTS} ${torvalds_linux} master || true
+		git pull ${GIT_OPTS} ${torvalds_linux} master --tags || true
+	fi
+
 	git describe
 
 	cd ${DIR}/
