@@ -208,10 +208,9 @@ arm () {
 
 omap () {
 	echo "dir: omap"
-	${git} "${DIR}/patches/omap/0001-mach-omap2-board-igep0020.c-Fix-reboot-problem.patch"
-
 	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
-	${git} "${DIR}/patches/omap/0002-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
+	${git} "${DIR}/patches/omap/0001-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
+	${git} "${DIR}/patches/omap/0002-omap2-twl-common-Add-default-power-configuration.patch"
 
 	echo "dir: omap/sakoman"
 	${git} "${DIR}/patches/omap_sakoman/0001-OMAP-DSS2-add-bootarg-for-selecting-svideo.patch"
@@ -240,7 +239,7 @@ omap () {
 	#Status: not for upstream
 	${git} "${DIR}/patches/omap_beagle/0004-zeroMAP-Open-your-eyes.patch"
 
-	${git} "${DIR}/patches/omap_beagle/0005-ARM-OMAP-Beagle-C4-fix-reboot-problem.patch"
+	${git} "${DIR}/patches/omap_beagle/0005-ARM-OMAP-Beagle-use-TWL4030-generic-reset-script.patch"
 
 	echo "dir: omap/panda"
 	#Status: not for upstream: push device tree version upstream...
