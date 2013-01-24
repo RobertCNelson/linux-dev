@@ -24,7 +24,6 @@ ARCH=$(uname -m)
 DIR=$PWD
 
 source ${DIR}/system.sh
-source ${DIR}/version.sh
 
 ubuntu_arm_gcc_installed () {
 	unset armel_pkg
@@ -80,12 +79,13 @@ ubuntu_arm_gcc_installed () {
 
 arm_embedded () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	#wget https://launchpad.net/gcc-arm-embedded/4.6/4.6-2012-q4-update/+download/gcc-arm-none-eabi-4_6-2012q4-20121016.tar.bz2
+	#https://launchpad.net/gcc-arm-embedded/+download
+	#https://launchpad.net/gcc-arm-embedded/4.7/4.7-2012-q4-major/+download/gcc-arm-none-eabi-4_7-2012q4-20121208-linux.tar.bz2
 
-	arm_embedded_dir="4.6/4.6-2012-q4-update"
-	arm_embedded_ver="4_6-2012q4"
-	arm_embedded_date="20121016"
-	ARM_EMBEDDED_GCC="gcc-arm-none-eabi-${arm_embedded_ver}-${arm_embedded_date}.tar.bz2"
+	arm_embedded_dir="4.7/4.7-2012-q4-major"
+	arm_embedded_ver="4_7-2012q4"
+	arm_embedded_date="20121208"
+	ARM_EMBEDDED_GCC="gcc-arm-none-eabi-${arm_embedded_ver}-${arm_embedded_date}-linux.tar.bz2"
 	if [ ! -f ${DIR}/dl/${arm_embedded_date} ] ; then
 		echo "Installing gcc-arm-embedded toolchain"
 		echo "-----------------------------"
@@ -103,37 +103,10 @@ arm_embedded () {
 armv7_toolchain () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
 	#https://launchpad.net/linaro-toolchain-binaries/+download
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.04/+download/gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.12/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2012.12-20121214_linux.tar.bz2
 
-	armv7_ver="2012.04"
-	armv7_date="20120426"
-	ARMV7_GCC="gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux.tar.bz2"
-	if [ ! -f ${DIR}/dl/${armv7_date} ] ; then
-		echo "Installing gcc-arm toolchain"
-		echo "-----------------------------"
-		${WGET} https://launchpad.net/linaro-toolchain-binaries/trunk/${armv7_ver}/+download/${ARMV7_GCC}
-		touch ${DIR}/dl/${armv7_date}
-		if [ -d ${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/ ] ; then
-			rm -rf ${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/ || true
-		fi
-		tar xjf ${DIR}/dl/${ARMV7_GCC} -C ${DIR}/dl/
-	fi
-
-	if [ "x${ARCH}" == "xarmv7l" ] ; then
-		#using native gcc
-		CC=
-	else
-		CC="${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/bin/arm-linux-gnueabi-"
-	fi
-}
-
-armv7hf_toolchain () {
-	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	#https://launchpad.net/linaro-toolchain-binaries/+download
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.11/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2012.11-20121123_linux.tar.bz2
-
-	armv7hf_ver="2012.11"
-	armv7hf_date="20121123"
+	armv7hf_ver="2012.12"
+	armv7hf_date="20121214"
 	armv7hf_gcc="gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux.tar.bz2"
 	if [ ! -f ${DIR}/dl/${armv7hf_date} ] ; then
 		echo "Installing gcc-arm toolchain"
@@ -154,19 +127,10 @@ armv7hf_toolchain () {
 	fi
 }
 
-dl_toolchain () {
-	if [ "x${DEBARCH}" == "xarmel" ] ; then
-		armv7_toolchain
-	fi
-	if [ "x${DEBARCH}" == "xarmhf" ] ; then
-		armv7hf_toolchain
-	fi
-}
-
 if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	ubuntu_arm_gcc_installed
 	if [ "x${CC}" == "x" ] ; then
-		dl_toolchain
+		armv7_toolchain
 	fi
 fi
 
@@ -180,7 +144,7 @@ if [ "x${GCC_TEST}" == "x" ] ; then
 	echo "-----------------------------"
 	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable) is invalid."
 	echo "-----------------------------"
-	dl_toolchain
+	armv7_toolchain
 fi
 
 echo "-----------------------------"

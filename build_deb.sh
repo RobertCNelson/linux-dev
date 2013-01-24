@@ -149,7 +149,6 @@ fi
 
 unset CC
 unset DEBUG_SECTION
-unset LATEST_GIT
 unset LINUX_GIT
 unset LOCAL_PATCH_DIR
 source ${DIR}/system.sh
@@ -159,13 +158,6 @@ echo "debug: CC=${CC}"
 
 source ${DIR}/version.sh
 export LINUX_GIT
-export LATEST_GIT
-
-if [ "${LATEST_GIT}" ] ; then
-	echo "-----------------------------"
-	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
-	echo "-----------------------------"
-fi
 
 unset CONFIG_DEBUG_SECTION
 if [ "${DEBUG_SECTION}" ] ; then
@@ -188,10 +180,17 @@ if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
 make_deb
-if [ "${IMX_BOOTLETS}" ] ; then
-	make_bootlets
-fi
 make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
+fi
+if [ "${IMX_BOOTLETS}" ] ; then
+	if [ ! $(which elftosb2) ] ; then
+		echo "-----------------------------"
+		echo "Error: Please install elftosb"
+		echo "See: http://eewiki.net/display/linuxonarm/iMX233-OLinuXino#iMX233-OLinuXino-elftosb"
+		echo "-----------------------------"
+		exit
+	fi
+	make_bootlets
 fi
