@@ -20,17 +20,14 @@ fi
 CCACHE=ccache
 
 config="omap2plus_defconfig"
-#FIXME: need to find a better way to support more then one...
-#imx_bootlets_tag="imx233-olinuxino-10.05.02"
-#imx_bootlets_target="imx23-olinuxino"
 
 #Kernel/Build
 KERNEL_REL=3.8
 KERNEL_TAG=${KERNEL_REL}-rc4
-BUILD=d0.1
+BUILD=d0.2
 
 #v3.X-rcX + upto SHA
-#KERNEL_SHA="54e37b8dbe9a398f74cef313404bd2f1deca7853"
+KERNEL_SHA="66e2d3e8c2294543a6f0453d974940171829e7dd"
 
 #git branch
 #BRANCH="v3.8.x"

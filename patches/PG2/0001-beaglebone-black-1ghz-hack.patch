@@ -1,0 +1,51 @@
+From eee2e4271b11aa1d495500bcf42cdd4a55c97ebc Mon Sep 17 00:00:00 2001
+From: Koen Kooi <koen@dominion.thruhere.net>
+Date: Tue, 22 Jan 2013 17:52:18 +0100
+Subject: [PATCH] beaglebone black: 1ghz hack
+
+Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+---
+ arch/arm/boot/dts/am335x-bonelt.dts |   16 ++++++++++++++++
+ arch/arm/boot/dts/am33xx.dtsi       |    2 +-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/am335x-bonelt.dts b/arch/arm/boot/dts/am335x-bonelt.dts
+index 755892e..48023db 100644
+--- a/arch/arm/boot/dts/am335x-bonelt.dts
++++ b/arch/arm/boot/dts/am335x-bonelt.dts
+@@ -32,3 +32,19 @@
+ 	ti,non-removable;
+ 	status = "okay";
+ };
++
++
++&cpu {
++	/*
++	 * To consider voltage drop between PMIC and SoC,
++	 * tolerance value is reduced to 2% from 4% and
++	 * voltage value is increased as a precaution.
++	 */
++	operating-points = <
++		/* kHz    uV */
++		1000000	1350000
++		800000	1300000
++		600000  1112000
++		300000   969000
++	>;
++};
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index 18485bb..41e6224 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -24,7 +24,7 @@
+ 	};
+ 
+ 	cpus {
+-		cpu@0 {
++		cpu: cpu@0 {
+ 			compatible = "arm,cortex-a8";
+ 
+ 			/*
+-- 
+1.7.10.4
+

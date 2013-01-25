@@ -1,4 +1,4 @@
-From 8161bc039edee613f14fd05c73d8d14f913761f9 Mon Sep 17 00:00:00 2001
+From b5577375fd561fed476af07616489d4898cf6aa3 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Fri, 14 Sep 2012 17:51:11 +0300
 Subject: [PATCH 1/4] i2c: pinctrl-ify i2c-omap.c
@@ -6,31 +6,30 @@ Subject: [PATCH 1/4] i2c: pinctrl-ify i2c-omap.c
 Conflicts:
 	drivers/i2c/busses/i2c-omap.c
 ---
- drivers/i2c/busses/i2c-omap.c |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 3525c9e..b4952b7 100644
+index 20d41bf..2f37824 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -43,6 +43,8 @@
- #include <linux/slab.h>
+@@ -44,6 +44,7 @@
  #include <linux/i2c-omap.h>
  #include <linux/pm_runtime.h>
-+#include <linux/pinctrl/consumer.h>
+ #include <linux/pinctrl/consumer.h>
 +#include <linux/err.h>
  
  /* I2C controller revisions */
  #define OMAP_I2C_OMAP1_REV_2		0x20
-@@ -1060,6 +1062,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	const struct of_device_id *match;
- 	int irq;
+@@ -1083,6 +1084,7 @@ omap_i2c_probe(struct platform_device *pdev)
  	int r;
+ 	u32 rev;
+ 	u16 minor, major, scheme;
 +	struct pinctrl *pinctrl;
  
  	/* NOTE: driver uses the static register mapping */
  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -1200,6 +1203,13 @@ omap_i2c_probe(struct platform_device *pdev)
+@@ -1252,6 +1254,13 @@ omap_i2c_probe(struct platform_device *pdev)
  
  	of_i2c_register_devices(adap);
  
@@ -38,8 +37,8 @@ index 3525c9e..b4952b7 100644
 +	if (IS_ERR(pinctrl))
 +		dev_warn(dev->dev, "unable to select pin group\n");
 +
-+	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
-+		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
++	/* dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
++		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed); */
 +
  	pm_runtime_mark_last_busy(dev->dev);
  	pm_runtime_put_autosuspend(dev->dev);
