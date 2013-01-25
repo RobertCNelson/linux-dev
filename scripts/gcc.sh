@@ -77,29 +77,6 @@ ubuntu_arm_gcc_installed () {
 	fi
 }
 
-arm_embedded () {
-	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	#https://launchpad.net/gcc-arm-embedded/+download
-	#https://launchpad.net/gcc-arm-embedded/4.7/4.7-2012-q4-major/+download/gcc-arm-none-eabi-4_7-2012q4-20121208-linux.tar.bz2
-
-	arm_embedded_dir="4.7/4.7-2012-q4-major"
-	arm_embedded_ver="4_7-2012q4"
-	arm_embedded_date="20121208"
-	ARM_EMBEDDED_GCC="gcc-arm-none-eabi-${arm_embedded_ver}-${arm_embedded_date}-linux.tar.bz2"
-	if [ ! -f ${DIR}/dl/${arm_embedded_date} ] ; then
-		echo "Installing gcc-arm-embedded toolchain"
-		echo "-----------------------------"
-		${WGET} https://launchpad.net/gcc-arm-embedded/${arm_embedded_dir}/+download/${ARM_EMBEDDED_GCC}
-		touch ${DIR}/dl/${arm_embedded_date}
-		if [ -d ${DIR}/dl/gcc-arm-none-eabi-${arm_embedded_ver}/ ] ; then
-			rm -rf ${DIR}/dl/gcc-arm-none-eabi-${arm_embedded_ver}/ || true
-		fi
-		tar xjf ${DIR}/dl/${ARM_EMBEDDED_GCC} -C ${DIR}/dl/
-	fi
-
-	ARM_NONE_CC="${DIR}/dl/gcc-arm-none-eabi-${arm_embedded_ver}/bin/arm-none-eabi-"
-}
-
 armv7_toolchain () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
 	#https://launchpad.net/linaro-toolchain-binaries/+download
@@ -134,10 +111,6 @@ if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	fi
 fi
 
-if [ "${IMX_BOOTLETS}" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
-	arm_embedded
-fi
-
 GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
 
 if [ "x${GCC_TEST}" == "x" ] ; then
@@ -149,12 +122,5 @@ fi
 
 echo "-----------------------------"
 echo "scripts/gcc: Debug Using: `LC_ALL=C ${CC}gcc --version`"
-if [ "${IMX_BOOTLETS}" ] ; then
-	echo "-----------------------------"
-	echo "scripts/gcc: imx-bootlets Using: `LC_ALL=C ${ARM_NONE_CC}gcc --version`"
-fi
 echo "-----------------------------"
 echo "CC=${CC}" > ${DIR}/.CC
-if [ "${IMX_BOOTLETS}" ] ; then
-	echo "ARM_NONE_CC=${ARM_NONE_CC}" >> ${DIR}/.CC
-fi
