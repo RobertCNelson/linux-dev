@@ -23,11 +23,11 @@ config="omap2plus_defconfig"
 
 #Kernel/Build
 KERNEL_REL=3.8
-KERNEL_TAG=${KERNEL_REL}-rc4
-BUILD=bone0.13
+KERNEL_TAG=${KERNEL_REL}-rc5
+BUILD=bone1
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="66e2d3e8c2294543a6f0453d974940171829e7dd"
+#KERNEL_SHA="66e2d3e8c2294543a6f0453d974940171829e7dd"
 
 #git branch
 BRANCH="am33x-v3.8"
