@@ -30,181 +30,149 @@ DIR=$PWD
 
 source ${DIR}/version.sh
 
-backup_config () {
-	if [ -f "${DIR}/patches/previous_defconfig" ] ; then
-		rm -f "${DIR}/patches/previous_defconfig" || true
-	fi
-	if [ -f "${DIR}/patches/current_defconfig" ] ; then
-		mv "${DIR}/patches/current_defconfig" "${DIR}/patches/previous_defconfig"
-	fi
-	cp "${DIR}/KERNEL/.config" "${DIR}/patches/current_defconfig"
-	echo "-----------------------------"
-	echo "This script has finished successfully..."
-}
+mmc_write_rootfs () {
+	echo "Installing ${KERNEL_UTS}-modules.tar.gz to ${partition}"
 
-mmc_write_modules () {
-	echo "Installing ${KERNEL_UTS}-modules.tar.gz to rootfs partition"
-	echo "-----------------------------"
-
-	if [ -d "${DIR}/deploy/disk/lib/modules/${KERNEL_UTS}" ] ; then
-		sudo rm -rf ${DIR}/deploy/disk/lib/modules/${KERNEL_UTS} || true
+	if [ -d "${location}/lib/modules/${KERNEL_UTS}" ] ; then
+		sudo rm -rf "${location}/lib/modules/${KERNEL_UTS}" || true
 	fi
 
-	sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${DIR}/deploy/disk"
+	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}"
 	sync
 
-	echo "Installing ${KERNEL_UTS}-firmware.tar.gz to rootfs partition"
-	echo "-----------------------------"
+	echo "Installing ${KERNEL_UTS}-firmware.tar.gz to ${partition}"
 
-	sudo mkdir -p "${DIR}/deploy/disk/tmp/fir"
-	sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/disk/tmp/fir/"
+	sudo mkdir -p "${location}/tmp/fir"
+	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${location}/tmp/fir/"
 	sync
 
-	sudo cp -v "${DIR}"/deploy/disk/tmp/fir/cape-*.dtbo "${DIR}/deploy/disk/lib/firmware/"
+	sudo cp -v "${location}"/tmp/fir/cape-*.dtbo "${location}/lib/firmware/" 2>/dev/null
 	sync
-}
 
-mmc_write_image () {
-	if [ -f "${DIR}/deploy/disk/boot/uImage" ] ; then
-		echo "Looks like Angstrom:"
-		echo "-----------------------------"
-		if [ "x${ZRELADDR}" == "x" ] ; then
-			echo "ERROR: ZRELADDR is not defined in system.sh, can't install uImage to rootfs partition"
-			echo "-----------------------------"
-		else
-			echo "Installing uImage to rootfs partition"
-			echo "-----------------------------"
+	if [ "${ZRELADDR}" ] ; then
+		if [ ! -f "${location}/boot/SOC.sh" ] ; then
+			if [ -f "${location}/boot/uImage" ] ; then
+			#Possibly Angstrom: dump a newer uImage if one exists..
+				if [ -f "${location}/boot/uImage_bak" ] ; then
+					sudo rm -f "${location}/boot/uImage_bak" || true
+				fi
 
-			if [ -f "${DIR}/deploy/disk/boot/uImage_bak" ] ; then
-				sudo rm -f "${DIR}/deploy/disk/boot/uImage_bak" || true
+				sudo mv "${location}/boot/uImage" "${location}/boot/uImage_bak"
+				sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/boot/uImage"
 			fi
-
-			if [ -f "${DIR}/deploy/disk/boot/uImage" ] ; then
-				sudo mv "${DIR}/deploy/disk/boot/uImage" "${DIR}/deploy/disk/boot/uImage_bak"
-			fi
-
-			sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/boot/uImage"
 		fi
 	fi
-}
-
-mmc_find_rootfs () {
-	echo "Starting search for rootfs"
-	echo "-----------------------------"
-	NUMBER=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep "Linux" | grep -v "swap" | wc -l)
-
-	if [ ! -d "${DIR}/deploy/disk/" ] ; then
-		mkdir -p "${DIR}/deploy/disk/"
-	fi
-
-	for (( c=1; c<=${NUMBER}; c++ ))
-	do
-		PART=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep "Linux" | grep -v "swap" | head -${c} | tail -1 | awk '{print $1}')
-		echo "Trying ${PART}"
-
-		if sudo mount ${PART} "${DIR}/deploy/disk/" ; then
-
-			if [ -f "${DIR}/deploy/disk/etc/fstab" ] ; then
-				echo "Found /etc/fstab, using ${PART}"
-				echo "-----------------------------"
-				mmc_write_image
-				mmc_write_modules
-			else
-				echo "-----------------------------"
-				echo "Trying Next Partition"
-			fi
-
-			cd "${DIR}/deploy/disk"
-			sync
-			sync
-			cd -
-			sudo umount "${DIR}/deploy/disk" || true
-
-		else
-			echo "-----------------------------"
-			echo "Trying Next Partition"
-		fi
-	done
-
-	backup_config
 }
 
 mmc_write_boot () {
-	echo "Installing ${KERNEL_UTS} to boot partition"
-	echo "-----------------------------"
+	echo "Installing ${KERNEL_UTS} to ${partition}"
 
-	if [ ! -d "${DIR}/deploy/disk/" ] ; then
-		mkdir -p "${DIR}/deploy/disk/"
-	fi
-
-	if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
-
-		if [ ! -d "${DIR}/deploy/disk/dtbs" ] ; then
-			sudo mkdir -p "${DIR}/deploy/disk/dtbs"
-		fi
-
-		sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${DIR}/deploy/disk/dtbs/"
-	fi
-
-	if [ -f "${DIR}/deploy/disk/SOC.sh" ] ; then
-		source "${DIR}/deploy/disk/SOC.sh"
+	if [ -f "${location}/SOC.sh" ] ; then
+		source "${location}/SOC.sh"
 		ZRELADDR=${load_addr}
 	fi
 
-	if [ -f "${DIR}/deploy/disk/uImage_bak" ] ; then
-		sudo rm -f "${DIR}/deploy/disk/uImage_bak" || true
+	if [ -f "${location}/uImage_bak" ] ; then
+		sudo rm -f "${location}/uImage_bak" || true
 	fi
 
-	if [ -f "${DIR}/deploy/disk/uImage" ] ; then
-		sudo mv "${DIR}/deploy/disk/uImage" "${DIR}/deploy/disk/uImage_bak"
+	if [ -f "${location}/uImage" ] ; then
+		sudo mv "${location}/uImage" "${location}/uImage_bak"
 	fi
 
 	if [ "${ZRELADDR}" ] ; then
-		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/uImage"
+		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/uImage"
 	fi
 
-	if [ -f "${DIR}/deploy/disk/zImage_bak" ] ; then
-		sudo rm -f "${DIR}/deploy/disk/zImage_bak" || true
+	if [ -f "${location}/zImage_bak" ] ; then
+		sudo rm -f "${location}/zImage_bak" || true
 	fi
 
-	if [ -f "${DIR}/deploy/disk/zImage" ] ; then
-		sudo mv "${DIR}/deploy/disk/zImage" "${DIR}/deploy/disk/zImage_bak"
+	if [ -f "${location}/zImage" ] ; then
+		sudo mv "${location}/zImage" "${location}/zImage_bak"
 	fi
 
 	#Assuming boot via zImage on first partition...
-	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${DIR}/deploy/disk/zImage"
+	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/zImage"
 
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
+
+		if [ -d "${location}/dtbs" ] ; then
+			sudo rm -rf "${location}/dtbs" || true
+		fi
+
+		sudo mkdir -p "${location}/dtbs"
+
+		echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
+		sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
+		sync
+	fi
+}
+
+mmc_partition_discover () {
+	if [ -f "${DIR}/deploy/disk/uEnv.txt" ] ; then
+		location="${DIR}/deploy/disk"
+		mmc_write_boot
+	fi
+
+	if [ -f "${DIR}/deploy/disk/boot/uEnv.txt" ] ; then
+		location="${DIR}/deploy/disk/boot"
+		mmc_write_boot
+	fi
+
+	if [ -f "${DIR}/deploy/disk/etc/fstab" ] ; then
+		location="${DIR}/deploy/disk"
+		mmc_write_rootfs
+	fi
+}
+
+mmc_unmount () {
 	cd "${DIR}/deploy/disk"
 	sync
 	sync
 	cd -
 	sudo umount "${DIR}/deploy/disk" || true
-	mmc_find_rootfs
 }
 
-mmc_mount_boot () {
-	if [ ! -d "${DIR}/deploy/disk/" ] ; then
-		mkdir -p "${DIR}/deploy/disk/"
-	fi
+mmc_detect_n_mount () {
+	echo "Starting Partition Search"
+	echo "-----------------------------"
+	num_partitions=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | wc -l)
 
-	if sudo mount -t vfat ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
-		UNTAR="xfvo"
-		mmc_write_boot
-	elif sudo mount -t ext2 ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} "${DIR}/deploy/disk/" ; then
-		echo "-----------------------------"
-		echo "So its not vfat, retrying with ext2"
-		echo "-----------------------------"
-		UNTAR="xfv"
-		mmc_write_boot
-	else
-		echo "-----------------------------"
-		echo "ERROR: Unable to mount ${MMC}${PARTITION_PREFIX}${BOOT_PARITION} at "${DIR}/deploy/disk/" to copy uImage..."
-		echo "Please retry running the script, sometimes rebooting your system helps."
-		echo "-----------------------------"
-	fi
+	for (( c=1; c<=${num_partitions}; c++ ))
+	do
+		partition=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | head -${c} | tail -1 | awk '{print $1}')
+		echo "Trying ${partition}"
+
+		if [ ! -d "${DIR}/deploy/disk/" ] ; then
+			mkdir -p "${DIR}/deploy/disk/"
+		fi
+
+		echo "Partition: [${partition}] trying: [vfat], [ext4]"
+		if sudo mount -t vfat ${partition} "${DIR}/deploy/disk/" 2>/dev/null ; then
+			echo "Partition: [vfat]"
+			UNTAR="xfo"
+			mmc_partition_discover
+			mmc_unmount
+		elif sudo mount -t ext4 ${partition} "${DIR}/deploy/disk/" 2>/dev/null ; then
+			echo "Partition: [extX]"
+			UNTAR="xf"
+			mmc_partition_discover
+			mmc_unmount
+		fi
+	done
+
+	echo "-----------------------------"
+	echo "This script has finished..."
+	echo "Always test your device for verification..."
 }
 
 unmount_partitions () {
+	echo ""
+	echo "Debug: Existing Partition on drive:"
+	echo "-----------------------------"
+	LC_ALL=C sudo fdisk -l ${MMC}
+
 	echo ""
 	echo "Unmounting Partitions"
 	echo "-----------------------------"
@@ -218,15 +186,7 @@ unmount_partitions () {
 	done
 
 	mkdir -p "${DIR}/deploy/disk/"
-	mmc_mount_boot
-}
-
-debug_display_partitions () {
-	echo ""
-	echo "Debug: Existing Partition on drive:"
-	echo "-----------------------------"
-	LC_ALL=C sudo fdisk -l ${MMC}
-	unmount_partitions
+	mmc_detect_n_mount
 }
 
 check_mmc () {
@@ -242,7 +202,7 @@ check_mmc () {
 		mount | grep -v none | grep "/dev/" --color=never
 		echo ""
 		read -p "Are you 100% sure, on selecting [${MMC}] (y/n)? "
-		[ "${REPLY}" == "y" ] && debug_display_partitions
+		[ "${REPLY}" == "y" ] && unmount_partitions
 		echo ""
 	else
 		echo ""
