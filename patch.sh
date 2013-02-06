@@ -51,7 +51,7 @@ am33x () {
 	${git} "${DIR}/patches/dma/0002-ARM-OMAP-Hack-AM33xx-clock-data-to-allow-JTAG-use.patch"
 	${git} "${DIR}/patches/dma/0003-fb-Rework-locking-to-fix-lock-ordering-on-takeover.patch"
 	${git} "${DIR}/patches/dma/0004-video-st7735fb-add-st7735-framebuffer-driver.patch"
-	${git} "${DIR}/patches/dma/0005-mfd-tps65910-Select-REGMAP_IRQ-in-Kconfig-to-fix-bui.patch"
+#	${git} "${DIR}/patches/dma/0005-mfd-tps65910-Select-REGMAP_IRQ-in-Kconfig-to-fix-bui.patch"
 	${git} "${DIR}/patches/dma/0006-dmaengine-add-helper-function-to-request-a-slave-DMA.patch"
 	${git} "${DIR}/patches/dma/0007-of-Add-generic-device-tree-DMA-helpers.patch"
 	${git} "${DIR}/patches/dma/0008-of-dma-fix-build-break-for-CONFIG_OF.patch"
