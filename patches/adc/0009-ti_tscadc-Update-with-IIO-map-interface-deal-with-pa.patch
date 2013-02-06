@@ -1,34 +1,39 @@
-From ac9f3cccdf420f595f806c6a97d7d27a49cd1736 Mon Sep 17 00:00:00 2001
+From a070cc0b1ed04a719e3e397f82202e3d7a098d8d Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Sat, 13 Oct 2012 16:37:24 +0300
-Subject: [PATCH 4/5] ti_tscadc: Update with IIO map interface & deal with
+Subject: [PATCH 09/14] ti_tscadc: Update with IIO map interface & deal with
  partial activation
 
 Add an IIO map interface that consumers can use.
 While we're here fix the mfd device in the case where a subdevice
 might not be activated.
+
+Conflicts:
+	drivers/iio/adc/ti_am335x_adc.c
 ---
- drivers/iio/adc/ti_am335x_adc.c      |   53 ++++++++++++++++++++++++++++------
- drivers/mfd/ti_am335x_tscadc.c       |   30 +++++++++++++------
- include/linux/mfd/ti_am335x_tscadc.h |    8 ++---
+ drivers/iio/adc/ti_am335x_adc.c      | 53 ++++++++++++++++++++++++++++++------
+ drivers/mfd/ti_am335x_tscadc.c       | 30 ++++++++++++++------
+ include/linux/mfd/ti_am335x_tscadc.h |  8 ++----
  3 files changed, 68 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-index cd030e1..9b0708f 100644
+index 8e7b089..40e09eb 100644
 --- a/drivers/iio/adc/ti_am335x_adc.c
 +++ b/drivers/iio/adc/ti_am335x_adc.c
-@@ -20,8 +20,9 @@
+@@ -20,10 +20,11 @@
  #include <linux/slab.h>
  #include <linux/interrupt.h>
  #include <linux/platform_device.h>
 -#include <linux/io.h>
  #include <linux/iio/iio.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
 +#include <linux/iio/machine.h>
 +#include <linux/iio/driver.h>
  
  #include <linux/mfd/ti_am335x_tscadc.h>
  #include <linux/platform_data/ti_am335x_adc.h>
-@@ -29,6 +30,8 @@
+@@ -31,6 +32,8 @@
  struct tiadc_device {
  	struct ti_tscadc_dev *mfd_tscadc;
  	int channels;
@@ -37,7 +42,7 @@ index cd030e1..9b0708f 100644
  };
  
  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
-@@ -75,25 +78,57 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
+@@ -77,25 +80,57 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
  static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
  {
  	struct iio_chan_spec *chan_array;
@@ -104,10 +109,10 @@ index cd030e1..9b0708f 100644
  }
  
 diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index e9f3fb5..83f2a94 100644
+index 87b446b..0632d59 100644
 --- a/drivers/mfd/ti_am335x_tscadc.c
 +++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -173,26 +173,38 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+@@ -186,26 +186,38 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
  	ctrl |= CNTRLREG_TSCSSENB;
  	tscadc_writel(tscadc, REG_CTRL, ctrl);
  
@@ -182,5 +187,5 @@ index 9624fea..50a245f 100644
  
  	/* tsc device */
 -- 
-1.7.7.6
+1.8.1
 

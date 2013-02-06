@@ -1,7 +1,7 @@
-From 5ecd6ffa0db8e1df9777b5b95753d279ccfacffe Mon Sep 17 00:00:00 2001
+From 6ba0db6edb220fc08b81cb612e8f2ca03d2b1ad5 Mon Sep 17 00:00:00 2001
 From: "Patil, Rachna" <rachna@ti.com>
 Date: Mon, 22 Oct 2012 10:15:18 +0000
-Subject: [PATCH 3/5] input: ti_am335x_tsc: Add variance filters
+Subject: [PATCH 11/14] input: ti_am335x_tsc: Add variance filters
 
 Only fine tuning variance present in tslib utility
 does not help in removing all the wanted ADC noise.
@@ -9,15 +9,18 @@ This logic of filtering is necessary to get this
 touchscreen to work finely.
 
 Signed-off-by: Patil, Rachna <rachna@ti.com>
+
+Conflicts:
+	drivers/input/touchscreen/ti_am335x_tsc.c
 ---
- drivers/input/touchscreen/ti_am335x_tsc.c |   15 ++++++++++++++-
- 1 files changed, 14 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/ti_am335x_tsc.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 0c460f9..3fbc9a0 100644
+index edba36b..2461631 100644
 --- a/drivers/input/touchscreen/ti_am335x_tsc.c
 +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -32,6 +32,8 @@
+@@ -35,6 +35,8 @@
  #define ADCFSM_STEPID		0x10
  #define SEQ_SETTLE		275
  #define MAX_12BIT		((1 << 12) - 1)
@@ -26,7 +29,7 @@ index 0c460f9..3fbc9a0 100644
  
  /*
   * Refer to function regbit_map() to
-@@ -51,6 +53,8 @@ struct titsc {
+@@ -54,6 +56,8 @@ struct titsc {
  	unsigned int		wires;
  	unsigned int		x_plate_resistance;
  	unsigned int		enable_bits;
@@ -35,12 +38,12 @@ index 0c460f9..3fbc9a0 100644
  	bool			pen_down;
  	int			steps_to_configure;
  	int			config_inp[20];
-@@ -309,12 +313,18 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+@@ -315,11 +319,18 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+ 	unsigned int x = 0, y = 0;
  	unsigned int z1, z2, z;
  	unsigned int fsm;
- 	unsigned int fifo1count, fifo0count;
 +	unsigned int diffx = 0, diffy = 0;
- 	int i;
++	int i;
  
  	status = titsc_readl(ts_dev, REG_IRQSTATUS);
  	if (status & IRQENB_FIFO0THRES) {
@@ -54,7 +57,7 @@ index 0c460f9..3fbc9a0 100644
  		z1 = titsc_readl(ts_dev, REG_FIFO0) & 0xfff;
  		z2 = titsc_readl(ts_dev, REG_FIFO1) & 0xfff;
  
-@@ -338,7 +348,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+@@ -335,7 +346,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
  			z /= z1;
  			z = (z + 2047) >> 12;
  
@@ -64,7 +67,7 @@ index 0c460f9..3fbc9a0 100644
  				input_report_abs(input_dev, ABS_X, x);
  				input_report_abs(input_dev, ABS_Y, y);
  				input_report_abs(input_dev, ABS_PRESSURE, z);
-@@ -361,6 +372,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+@@ -358,6 +370,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
  		fsm = titsc_readl(ts_dev, REG_ADCFSM);
  		if (fsm == ADCFSM_STEPID) {
  			ts_dev->pen_down = false;
@@ -74,5 +77,5 @@ index 0c460f9..3fbc9a0 100644
  			input_report_abs(input_dev, ABS_PRESSURE, 0);
  			input_sync(input_dev);
 -- 
-1.7.7.6
+1.8.1
 

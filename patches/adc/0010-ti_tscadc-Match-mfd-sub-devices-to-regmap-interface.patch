@@ -1,20 +1,23 @@
-From 1563a7865717cf87b87ebb3b9e416eb89faa3806 Mon Sep 17 00:00:00 2001
+From 13d60198b9ac2bfcf9a34fedd52044b15474a9c5 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Fri, 26 Oct 2012 14:01:05 +0300
-Subject: [PATCH 5/5] ti_tscadc: Match mfd sub devices to regmap interface
+Subject: [PATCH 10/14] ti_tscadc: Match mfd sub devices to regmap interface
 
+Conflicts:
+	drivers/input/touchscreen/ti_am335x_tsc.c
+	drivers/mfd/ti_am335x_tscadc.c
 ---
- drivers/iio/adc/ti_am335x_adc.c           |   27 +++++++++++++++++++--------
- drivers/input/touchscreen/ti_am335x_tsc.c |   16 +++++++++++++---
- drivers/mfd/ti_am335x_tscadc.c            |    7 +++++--
- 3 files changed, 37 insertions(+), 13 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c           | 27 +++++++++++++++++++--------
+ drivers/input/touchscreen/ti_am335x_tsc.c | 16 +++++++++++++---
+ drivers/mfd/ti_am335x_tscadc.c            |  1 +
+ 3 files changed, 33 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-index 9b0708f..9d8535f 100644
+index 40e09eb..d8bc836 100644
 --- a/drivers/iio/adc/ti_am335x_adc.c
 +++ b/drivers/iio/adc/ti_am335x_adc.c
-@@ -23,7 +23,9 @@
- #include <linux/iio/iio.h>
+@@ -25,7 +25,9 @@
+ #include <linux/of_device.h>
  #include <linux/iio/machine.h>
  #include <linux/iio/driver.h>
 +#include <linux/regmap.h>
@@ -23,7 +26,7 @@ index 9b0708f..9d8535f 100644
  #include <linux/mfd/ti_am335x_tscadc.h>
  #include <linux/platform_data/ti_am335x_adc.h>
  
-@@ -36,13 +38,17 @@ struct tiadc_device {
+@@ -38,13 +40,17 @@ struct tiadc_device {
  
  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
  {
@@ -43,7 +46,7 @@ index 9b0708f..9d8535f 100644
  }
  
  static void tiadc_step_config(struct tiadc_device *adc_dev)
-@@ -75,22 +81,24 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
+@@ -77,22 +83,24 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
  	tiadc_writel(adc_dev, REG_SE, STPENB_STEPENB);
  }
  
@@ -72,7 +75,7 @@ index 9b0708f..9d8535f 100644
  
  		len = sprintf(s, "AIN%d", i);
  
-@@ -105,8 +113,9 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+@@ -107,8 +115,9 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
  	}
  
  	indio_dev->channels = chan_array;
@@ -83,7 +86,7 @@ index 9b0708f..9d8535f 100644
  	adc_dev->map = kzalloc(size, GFP_KERNEL);
  	if (adc_dev->map == NULL) {
  		kfree(chan_array);
-@@ -203,7 +212,7 @@ static int tiadc_probe(struct platform_device *pdev)
+@@ -221,7 +230,7 @@ static int tiadc_probe(struct platform_device *pdev)
  
  	tiadc_step_config(adc_dev);
  
@@ -92,7 +95,7 @@ index 9b0708f..9d8535f 100644
  	if (err < 0)
  		goto err_free_device;
  
-@@ -213,6 +222,8 @@ static int tiadc_probe(struct platform_device *pdev)
+@@ -231,6 +240,8 @@ static int tiadc_probe(struct platform_device *pdev)
  
  	platform_set_drvdata(pdev, indio_dev);
  
@@ -102,18 +105,18 @@ index 9b0708f..9d8535f 100644
  
  err_free_channels:
 diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 3fbc9a0..5fbcaae 100644
+index 6ff5a76..edba36b 100644
 --- a/drivers/input/touchscreen/ti_am335x_tsc.c
 +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -26,6 +26,7 @@
- #include <linux/io.h>
- #include <linux/input/ti_am335x_tsc.h>
+@@ -28,6 +28,7 @@
  #include <linux/delay.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
 +#include <linux/regmap.h>
  
  #include <linux/mfd/ti_am335x_tscadc.h>
  
-@@ -64,13 +65,17 @@ struct titsc {
+@@ -62,13 +63,17 @@ struct titsc {
  
  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
  {
@@ -133,7 +136,7 @@ index 3fbc9a0..5fbcaae 100644
  }
  
  /*
-@@ -455,10 +460,15 @@ static int titsc_probe(struct platform_device *pdev)
+@@ -500,10 +505,15 @@ static int titsc_probe(struct platform_device *pdev)
  
  	/* register to the input system */
  	err = input_register_device(input_dev);
@@ -151,10 +154,10 @@ index 3fbc9a0..5fbcaae 100644
  
  err_free_irq:
 diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index 83f2a94..613adb2 100644
+index 0632d59..899534d 100644
 --- a/drivers/mfd/ti_am335x_tscadc.c
 +++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -31,6 +31,7 @@ static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
+@@ -33,6 +33,7 @@ static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
  {
  	unsigned int val;
  
@@ -162,26 +165,6 @@ index 83f2a94..613adb2 100644
  	regmap_read(tsadc->regmap_tscadc, reg, &val);
  	return val;
  }
-@@ -67,7 +68,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	struct mfd_cell		*cell;
- 	int			err, ctrl;
- 	int			clk_value, clock_rate;
--	int			tsc_wires, adc_channels = 0, total_channels;
-+	int			tsc_wires = 0, adc_channels = 0, total_channels;
- 
- 	if (!pdata) {
- 		dev_err(&pdev->dev, "Could not find platform data\n");
-@@ -77,7 +78,9 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	if (pdata->adc_init)
- 		adc_channels = pdata->adc_init->adc_channels;
- 
--	tsc_wires = pdata->tsc_init->wires;
-+	if (pdata->tsc_init)
-+		tsc_wires = pdata->tsc_init->wires;
-+
- 	total_channels = tsc_wires + adc_channels;
- 
- 	if (total_channels > 8) {
 -- 
-1.7.7.6
+1.8.1
 
