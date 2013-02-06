@@ -42,8 +42,8 @@ mmc_write_rootfs () {
 
 	echo "Installing ${KERNEL_UTS}-firmware.tar.gz to ${partition}"
 
-	sudo mkdir -p "${DIR}/deploy/tmp/fir"
-	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/tmp/fir/"
+	mkdir -p "${DIR}/deploy/tmp/fir"
+	tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/tmp/fir/"
 	sync
 
 	sudo cp -v "${DIR}/deploy/tmp/fir"/*.dtbo "${location}/lib/firmware/" 2>/dev/null
