@@ -46,7 +46,7 @@ mmc_write_rootfs () {
 	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${location}/tmp/fir/"
 	sync
 
-	sudo cp -v "${location}"/tmp/fir/*.dtbo "${location}/lib/firmware/" 2>/dev/null
+	sudo cp -v "${location}"/tmp/fir/cape-*.dtbo "${location}/lib/firmware/" 2>/dev/null
 	sync
 
 	if [ "${ZRELADDR}" ] ; then
