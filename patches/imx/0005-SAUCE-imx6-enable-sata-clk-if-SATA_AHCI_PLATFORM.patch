@@ -1,0 +1,33 @@
+From 0091972a616c0bdc655d3325a3bdbac5c10634b7 Mon Sep 17 00:00:00 2001
+From: Paolo Pisati <paolo.pisati@canonical.com>
+Date: Thu, 31 Jan 2013 18:33:46 +0100
+Subject: [PATCH 5/5] SAUCE: imx6: enable sata clk if SATA_AHCI_PLATFORM
+
+Clock modifications in 24d340ac "ARM i.MX6: Fix ethernet PLL clocks" broke the
+SATA clk, fix it.
+
+More info: http://www.spinics.net/lists/arm-kernel/msg221503.html
+
+Original-code-from: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Paolo Pisati <paolo.pisati@canonical.com>
+---
+ arch/arm/mach-imx/clk-imx6q.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+index c0c4e72..8f756af 100644
+--- a/arch/arm/mach-imx/clk-imx6q.c
++++ b/arch/arm/mach-imx/clk-imx6q.c
+@@ -436,6 +436,9 @@ int __init mx6q_clocks_init(void)
+ 	for (i = 0; i < ARRAY_SIZE(clks_init_on); i++)
+ 		clk_prepare_enable(clk[clks_init_on[i]]);
+ 
++	if (IS_ENABLED(CONFIG_SATA_AHCI_PLATFORM))
++		clk_prepare_enable(clk[sata_ref_100m]);
++
+ 	/* Set initial power mode */
+ 	imx6q_set_lpm(WAIT_CLOCKED);
+ 
+-- 
+1.7.10.4
+
