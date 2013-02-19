@@ -110,7 +110,7 @@ mmc_write_boot () {
 }
 
 mmc_partition_discover () {
-	if [ -f "${DIR}/deploy/disk/uEnv.txt" ] ; then
+	if [ -f "${DIR}/deploy/disk/uEnv.txt" ] || [ -f "${DIR}/deploy/disk/BOOT.BIN" ] ; then
 		location="${DIR}/deploy/disk"
 		mmc_write_boot
 	fi
