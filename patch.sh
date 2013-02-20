@@ -67,7 +67,7 @@ imx () {
 omap () {
 	echo "dir: omap"
 	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
-	${git} "${DIR}/patches/omap/0001-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
+#	${git} "${DIR}/patches/omap/0001-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
 	${git} "${DIR}/patches/omap/0002-omap2-twl-common-Add-default-power-configuration.patch"
 
 	echo "dir: omap/sakoman"
