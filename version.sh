@@ -24,10 +24,10 @@ config="omap2plus_defconfig"
 #Kernel/Build
 KERNEL_REL=3.8
 KERNEL_TAG=${KERNEL_REL}
-BUILD=d0.6
+BUILD=d0.7
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="024e4ec1856d57bb78c06ec903d29dcf716f5f47"
+KERNEL_SHA="74e1a2a39355b2d3ae8c60c78d8add162c6d7183"
 
 #git branch
 #BRANCH="v3.9.x"
