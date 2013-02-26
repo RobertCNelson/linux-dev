@@ -1,0 +1,49 @@
+From a98376b8f77599ffcd71c185938fd12d23a39a8d Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Tue, 29 Jan 2013 16:45:07 +0530
+Subject: [PATCH 19/32] ARM: DTS: AM33XX: Add nodes for OCMC RAM and WKUP-M3
+
+Since AM33XX supports only DT-boot, this is needed
+for the appropriate device nodes to be created.
+
+Note: OCMC RAM is part of the PER power domain and supports
+retention. The assembly code for low power entry/exit will
+run from OCMC RAM. To ensure that the OMAP PM code does not
+attempt to disable the clock to OCMC RAM as part of the
+suspend process add the no_idle_on_suspend flag.
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Acked-by: Peter Korsgaard <jacmet@sunsite.dk>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/boot/dts/am33xx.dtsi |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index c2f14e8..0957645 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -385,5 +385,19 @@
+ 				mac-address = [ 00 00 00 00 00 00 ];
+ 			};
+ 		};
++
++		ocmcram: ocmcram@40300000 {
++			compatible = "ti,am3352-ocmcram";
++			reg = <0x40300000 0x10000>;
++			ti,hwmods = "ocmcram";
++			ti,no_idle_on_suspend;
++		};
++
++		wkup_m3: wkup_m3@44d00000 {
++			compatible = "ti,am3353-wkup-m3";
++			reg = <0x44d00000 0x4000	/* M3 UMEM */
++			       0x44d80000 0x2000>;	/* M3 DMEM */
++			ti,hwmods = "wkup_m3";
++		};
+ 	};
+ };
+-- 
+1.7.10.4
+

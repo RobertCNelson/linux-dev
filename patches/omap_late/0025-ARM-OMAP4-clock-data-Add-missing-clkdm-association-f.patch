@@ -1,0 +1,63 @@
+From 3c00608ad344ea10c2b112828de9f138773b4518 Mon Sep 17 00:00:00 2001
+From: Rajendra Nayak <rnayak@ti.com>
+Date: Fri, 8 Feb 2013 08:35:14 -0700
+Subject: [PATCH 25/32] ARM: OMAP4: clock data: Add missing clkdm association
+ for dpll_usb
+
+dpll_usb needs the clkdm association so the clkdm can be
+turned on before a relock. All other dplls for omap4 belong
+to the ALWON (always on) domain.
+
+The association was present as part of the older data file
+(clock44xx_data.c) but looks like got accidently dropped with
+the common clk convertion.
+
+More details of the patch which fixed this up in the older
+data file can be dound here..
+http://www.spinics.net/lists/linux-omap/msg63076.html
+
+Adding the .clkdm_name as part of the clk_hw_omap struct also
+means a new .init needs to be part of the clk_ops for dpll_usb
+to initialise the clkdm.
+
+Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/cclock44xx_data.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/cclock44xx_data.c b/arch/arm/mach-omap2/cclock44xx_data.c
+index cebe2b3..3d58f33 100644
+--- a/arch/arm/mach-omap2/cclock44xx_data.c
++++ b/arch/arm/mach-omap2/cclock44xx_data.c
+@@ -605,15 +605,26 @@ static const char *dpll_usb_ck_parents[] = {
+ 
+ static struct clk dpll_usb_ck;
+ 
++static const struct clk_ops dpll_usb_ck_ops = {
++	.enable		= &omap3_noncore_dpll_enable,
++	.disable	= &omap3_noncore_dpll_disable,
++	.recalc_rate	= &omap3_dpll_recalc,
++	.round_rate	= &omap2_dpll_round_rate,
++	.set_rate	= &omap3_noncore_dpll_set_rate,
++	.get_parent	= &omap2_init_dpll_parent,
++	.init		= &omap2_init_clk_clkdm,
++};
++
+ static struct clk_hw_omap dpll_usb_ck_hw = {
+ 	.hw = {
+ 		.clk = &dpll_usb_ck,
+ 	},
+ 	.dpll_data	= &dpll_usb_dd,
++	.clkdm_name	= "l3_init_clkdm",
+ 	.ops		= &clkhwops_omap3_dpll,
+ };
+ 
+-DEFINE_STRUCT_CLK(dpll_usb_ck, dpll_usb_ck_parents, dpll_ck_ops);
++DEFINE_STRUCT_CLK(dpll_usb_ck, dpll_usb_ck_parents, dpll_usb_ck_ops);
+ 
+ static const char *dpll_usb_clkdcoldo_ck_parents[] = {
+ 	"dpll_usb_ck",
+-- 
+1.7.10.4
+

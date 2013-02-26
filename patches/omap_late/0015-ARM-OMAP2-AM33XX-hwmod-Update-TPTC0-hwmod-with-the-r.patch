@@ -1,0 +1,33 @@
+From e95672874746b653c5da70eaced1d1e1aa509bf6 Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Tue, 29 Jan 2013 16:45:03 +0530
+Subject: [PATCH 15/32] ARM: OMAP2+: AM33XX: hwmod: Update TPTC0 hwmod with
+ the right flags
+
+Third Party Transfer Controller (TPTC0) needs to be idled and
+put to standby under SW control. Add the appropriate flags in
+the TPTC0 hwmod entry.
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Acked-by: Peter Korsgaard <jacmet@sunsite.dk>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_33xx_data.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+index 8280f11..94254e8 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+@@ -1823,6 +1823,7 @@ static struct omap_hwmod am33xx_tptc0_hwmod = {
+ 	.class		= &am33xx_tptc_hwmod_class,
+ 	.clkdm_name	= "l3_clkdm",
+ 	.mpu_irqs	= am33xx_tptc0_irqs,
++	.flags		= HWMOD_SWSUP_SIDLE | HWMOD_SWSUP_MSTANDBY,
+ 	.main_clk	= "l3_gclk",
+ 	.prcm		= {
+ 		.omap4	= {
+-- 
+1.7.10.4
+

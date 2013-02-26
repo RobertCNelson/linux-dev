@@ -1,0 +1,61 @@
+From c2f18bb3db7477a2a5c9154817c355a3ee28bbc3 Mon Sep 17 00:00:00 2001
+From: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Date: Fri, 8 Feb 2013 20:41:44 +0530
+Subject: [PATCH 24/32] ARM: OMAP2+: PM: Fix the dt return condition in
+ pm_late_init()
+
+Commit 1416408d {ARM: OMAP2+: PM: share some suspend-related functions
+across OMAP2, 3, 4} moved suspend code to common place but now with
+that change, for DT build on OMAP4, suspend hooks are not getting
+registered which results in no suspend support.
+
+The DT return condition is limited to PMIC and smartreflex
+initialization and hence restrict it so that suspend ops gets
+registered.
+
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Kevin Hilman <khilman@deeprootsystems.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Reviewed-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/pm.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index cd6682d..673a4c1 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -282,19 +282,19 @@ int __init omap2_common_pm_late_init(void)
+ 	 * a completely different mechanism.
+ 	 * Disable this part if a DT blob is available.
+ 	 */
+-	if (of_have_populated_dt())
+-		return 0;
++	if (!of_have_populated_dt()) {
+ 
+-	/* Init the voltage layer */
+-	omap_pmic_late_init();
+-	omap_voltage_late_init();
++		/* Init the voltage layer */
++		omap_pmic_late_init();
++		omap_voltage_late_init();
+ 
+-	/* Initialize the voltages */
+-	omap3_init_voltages();
+-	omap4_init_voltages();
++		/* Initialize the voltages */
++		omap3_init_voltages();
++		omap4_init_voltages();
+ 
+-	/* Smartreflex device init */
+-	omap_devinit_smartreflex();
++		/* Smartreflex device init */
++		omap_devinit_smartreflex();
++	}
+ 
+ #ifdef CONFIG_SUSPEND
+ 	suspend_set_ops(&omap_pm_ops);
+-- 
+1.7.10.4
+

@@ -1,0 +1,38 @@
+From 44ee5b3b142efa7cbacde04df74cfa974de4c25b Mon Sep 17 00:00:00 2001
+From: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Date: Tue, 29 Jan 2013 16:45:04 +0530
+Subject: [PATCH 16/32] ARM: OMAP2+: AM33XX: hwmod: Fixup cpgmac0 hwmod entry
+
+The current HWMOD code expects the memory region with
+the IP's SYSCONFIG register to be marked with ADDR_TYPE_RT
+flag.
+
+CPGMAC0 hwmod entry specifies two memory regions and marks
+both with the flag ADDR_TYPE_RT although only the 2nd region
+has the SYSCONFIG register. This leads to the HWMOD code
+accessing the wrong memory address for idle and standby
+operations. Fix this by removing the ADDR_TYPE_RT flag from
+the 1st memory region in CPGMAC0 hwmod entry.
+
+Signed-off-by: Vaibhav Bedia <vaibhav.bedia@ti.com>
+Acked-by: Peter Korsgaard <jacmet@sunsite.dk>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/omap_hwmod_33xx_data.c |    1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+index 94254e8..40bfde3 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+@@ -2496,7 +2496,6 @@ static struct omap_hwmod_addr_space am33xx_cpgmac0_addr_space[] = {
+ 	{
+ 		.pa_start	= 0x4a100000,
+ 		.pa_end		= 0x4a100000 + SZ_2K - 1,
+-		.flags		= ADDR_TYPE_RT,
+ 	},
+ 	/* cpsw wr */
+ 	{
+-- 
+1.7.10.4
+

@@ -1,0 +1,78 @@
+From d542ae8a0e16dfe301b865b80d8e8567ff5915fd Mon Sep 17 00:00:00 2001
+From: Rajendra Nayak <rnayak@ti.com>
+Date: Mon, 4 Feb 2013 17:54:43 +0530
+Subject: [PATCH 11/32] ARM: OMAP4: PM: Warn users about usage of older
+ bootloaders
+
+OMAP4 CHIP level PM works only with newer bootloaders. The
+dependency on the bootloader comes from the fact that the
+kernel is missing reset and initialization code for some
+devices.
+
+While the right thing to do is to add reset and init code in
+the kernel, for some co-processor IP blocks like DSP and IVA
+it means downloading firmware into each one of them to execute
+idle instructions.
+
+While a feasible solution is worked upon on how such IP blocks
+can be better handled in the kernel, in the interim, to avoid
+any further frustration to users testing PM on OMAP4 and finding
+it broken, warn them about the bootloader being a possible
+cause.
+
+Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Cc: R Sricharan <r.sricharan@ti.com>
+[paul@pwsan.com: tweaked warning messages and comments slightly]
+Acked-by: Kevin Hilman <khilman@linaro.org>
+[paul@pwsan.com: fixed checkpatch warning]
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+---
+ arch/arm/mach-omap2/pm44xx.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm44xx.c b/arch/arm/mach-omap2/pm44xx.c
+index aa6fd98..ea62e75 100644
+--- a/arch/arm/mach-omap2/pm44xx.c
++++ b/arch/arm/mach-omap2/pm44xx.c
+@@ -77,10 +77,20 @@ static int omap4_pm_suspend(void)
+ 		omap_set_pwrdm_state(pwrst->pwrdm, pwrst->saved_state);
+ 		pwrdm_set_logic_retst(pwrst->pwrdm, pwrst->saved_logic_state);
+ 	}
+-	if (ret)
++	if (ret) {
+ 		pr_crit("Could not enter target state in pm_suspend\n");
+-	else
++		/*
++		 * OMAP4 chip PM currently works only with certain (newer)
++		 * versions of bootloaders. This is due to missing code in the
++		 * kernel to properly reset and initialize some devices.
++		 * Warn the user about the bootloader version being one of the
++		 * possible causes.
++		 * http://www.spinics.net/lists/arm-kernel/msg218641.html
++		 */
++		pr_warn("A possible cause could be an old bootloader - try u-boot >= v2012.07\n");
++	} else {
+ 		pr_info("Successfully put all powerdomains to target state\n");
++	}
+ 
+ 	return 0;
+ }
+@@ -146,6 +156,13 @@ int __init omap4_pm_init(void)
+ 	}
+ 
+ 	pr_err("Power Management for TI OMAP4.\n");
++	/*
++	 * OMAP4 chip PM currently works only with certain (newer)
++	 * versions of bootloaders. This is due to missing code in the
++	 * kernel to properly reset and initialize some devices.
++	 * http://www.spinics.net/lists/arm-kernel/msg218641.html
++	 */
++	pr_warn("OMAP4 PM: u-boot >= v2012.07 is required for full PM support\n");
+ 
+ 	ret = pwrdm_for_each(pwrdms_setup, NULL);
+ 	if (ret) {
+-- 
+1.7.10.4
+

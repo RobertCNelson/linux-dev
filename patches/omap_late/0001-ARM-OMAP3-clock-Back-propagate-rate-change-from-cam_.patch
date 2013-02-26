@@ -1,0 +1,52 @@
+From 0d3bef4d2f37ae5043e4288ddb543bdb4901b535 Mon Sep 17 00:00:00 2001
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Date: Sat, 10 Nov 2012 12:04:15 +0100
+Subject: [PATCH 01/32] ARM: OMAP3: clock: Back-propagate rate change from
+ cam_mclk to dpll4_m5
+
+The cam_mclk clock is generated through the following clocks chain:
+
+dpll4 -> dpll4_m5 -> dpll4_m5x2 -> cam_mclk
+
+As dpll4_m5 and dpll4_m5x2 do not driver any clock other than cam_mclk,
+back-propagate the cam_clk rate changes up to dpll4_m5.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Mike Turquette <mturquette@linaro.org>
+Acked-by: Sakari Ailus <sakari.ailus@iki.fi>
+Tested-by: Sakari Ailus <sakari.ailus@iki.fi>
+---
+ arch/arm/mach-omap2/cclock3xxx_data.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/cclock3xxx_data.c b/arch/arm/mach-omap2/cclock3xxx_data.c
+index 6ef8758..4579c3c 100644
+--- a/arch/arm/mach-omap2/cclock3xxx_data.c
++++ b/arch/arm/mach-omap2/cclock3xxx_data.c
+@@ -426,6 +426,7 @@ static struct clk dpll4_m5x2_ck_3630 = {
+ 	.parent_names	= dpll4_m5x2_ck_parent_names,
+ 	.num_parents	= ARRAY_SIZE(dpll4_m5x2_ck_parent_names),
+ 	.ops		= &dpll4_m5x2_ck_3630_ops,
++	.flags		= CLK_SET_RATE_PARENT,
+ };
+ 
+ static struct clk cam_mclk;
+@@ -443,7 +444,14 @@ static struct clk_hw_omap cam_mclk_hw = {
+ 	.clkdm_name	= "cam_clkdm",
+ };
+ 
+-DEFINE_STRUCT_CLK(cam_mclk, cam_mclk_parent_names, aes2_ick_ops);
++static struct clk cam_mclk = {
++	.name		= "cam_mclk",
++	.hw		= &cam_mclk_hw.hw,
++	.parent_names	= cam_mclk_parent_names,
++	.num_parents	= ARRAY_SIZE(cam_mclk_parent_names),
++	.ops		= &aes2_ick_ops,
++	.flags		= CLK_SET_RATE_PARENT,
++};
+ 
+ static const struct clksel_rate clkout2_src_core_rates[] = {
+ 	{ .div = 1, .val = 0, .flags = RATE_IN_3XXX },
+-- 
+1.7.10.4
+
