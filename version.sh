@@ -24,7 +24,7 @@ config="omap2plus_defconfig"
 #Kernel/Build
 KERNEL_REL=3.8
 KERNEL_TAG=${KERNEL_REL}
-BUILD=d0.13
+BUILD=d0.14
 
 #v3.X-rcX + upto SHA
 KERNEL_SHA="d895cb1af15c04c522a25c79cc429076987c089b"
