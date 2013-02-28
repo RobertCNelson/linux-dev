@@ -8,11 +8,11 @@ After removing the device, issue lsusb to cause it to scan the bus again.
 
 Crappy, I know, but at least works.
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi |  6 ++++
- arch/arm/boot/dts/am33xx.dtsi             |  9 ++++--
- drivers/usb/musb/musb_core.c              | 45 ++++++++++++++++++++++++----
- drivers/usb/musb/musb_dsps.c              | 49 +++++++++++++++++++++++++++++--
- drivers/usb/musb/musb_host.c              |  7 +++--
+ arch/arm/boot/dts/am335x-bone-common.dtsi |    6 ++++
+ arch/arm/boot/dts/am33xx.dtsi             |    9 ++++--
+ drivers/usb/musb/musb_core.c              |   45 +++++++++++++++++++++++---
+ drivers/usb/musb/musb_dsps.c              |   49 +++++++++++++++++++++++++++--
+ drivers/usb/musb/musb_host.c              |    7 +++--
  5 files changed, 105 insertions(+), 11 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
@@ -30,10 +30,10 @@ index 96bce02..213addb 100644
 +	status = "okay";
 +};
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 872d501..18485bb 100644
+index d89c801..d8bbc1b 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -490,11 +490,15 @@
+@@ -489,11 +489,15 @@
  
  		};
  
@@ -51,7 +51,7 @@ index 872d501..18485bb 100644
  			compatible = "ti,musb-am33xx";
  			reg = <0x47400000 0x1000	/* usbss */
  			       0x47401000 0x800		/* musb instance 0 */
-@@ -509,6 +513,7 @@
+@@ -508,6 +512,7 @@
  			port1-mode = <1>;
  			power = <250>;
  			ti,hwmods = "usb_otg_hs";
@@ -60,7 +60,7 @@ index 872d501..18485bb 100644
  
  		mac: ethernet@4a100000 {
 diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index fd34867..cd738d1 100644
+index 60b41cc..4afa92a 100644
 --- a/drivers/usb/musb/musb_core.c
 +++ b/drivers/usb/musb/musb_core.c
 @@ -1955,11 +1955,43 @@ musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl)
@@ -124,7 +124,7 @@ index fd34867..cd738d1 100644
  fail3:
  	pm_runtime_put_sync(musb->controller);
 diff --git a/drivers/usb/musb/musb_dsps.c b/drivers/usb/musb/musb_dsps.c
-index f7d764d..29e28f6 100644
+index 341a4b5..85a4502 100644
 --- a/drivers/usb/musb/musb_dsps.c
 +++ b/drivers/usb/musb/musb_dsps.c
 @@ -415,19 +415,30 @@ static int dsps_musb_init(struct musb *musb)
@@ -143,7 +143,7 @@ index f7d764d..29e28f6 100644
 +#endif
 +	if (IS_ERR_OR_NULL(musb->xceiv)) {
 +		dev_err(dev, "%s:%d %s: FAIL\n", __FILE__, __LINE__, __func__);
- 		return -ENODEV;
+ 		return -EPROBE_DEFER;
 +	}
  
  	/* Returns zero if e.g. not clocked */
@@ -234,5 +234,5 @@ index e9f0fd9..86442a2 100644
  
  static int musb_bus_resume(struct usb_hcd *hcd)
 -- 
-1.8.1
+1.7.10.4
 
