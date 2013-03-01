@@ -13,30 +13,30 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  3 files changed, 13 insertions(+)
 
 diff --git a/arch/arm/boot/dts/imx53-qsb.dts b/arch/arm/boot/dts/imx53-qsb.dts
-index b007553..2bda76a 100644
+index 05cc562..eb03dae 100644
 --- a/arch/arm/boot/dts/imx53-qsb.dts
 +++ b/arch/arm/boot/dts/imx53-qsb.dts
-@@ -213,6 +213,10 @@
- 				status = "okay";
- 			};
- 		};
-+
-+		ahci@0x10000000 { /* AHCI SATA */
-+			status = "okay";
-+		};
+@@ -255,6 +255,10 @@
  	};
+ };
  
- 	gpio-keys {
++&ahci {
++	status = "okay";
++};
++
+ &audmux {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_audmux_1>;
 diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
-index edc3f1e..6646dc2 100644
+index d05aa21..9197a74 100644
 --- a/arch/arm/boot/dts/imx53.dtsi
 +++ b/arch/arm/boot/dts/imx53.dtsi
-@@ -664,5 +664,13 @@
+@@ -732,5 +732,13 @@
  				status = "disabled";
  			};
  		};
 +
-+		ahci@0x10000000 { /* AHCI SATA */
++		ahci: ahci@0x10000000 { /* AHCI SATA */
 +			compatible = "fsl,imx53-ahci";
 +			reg = <0x10000000 0x4000>;
 +			interrupts = <28>;

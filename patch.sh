@@ -55,7 +55,6 @@ imx () {
 	${git} "${DIR}/patches/imx/0001-ARM-imx-Enable-UART1-for-Sabrelite.patch"
 	${git} "${DIR}/patches/imx/0002-Add-IMX6Q-AHCI-support.patch"
 	${git} "${DIR}/patches/imx/0003-imx-Add-IMX53-AHCI-support.patch"
-#	${git} "${DIR}/patches/imx/0004-cpufreq-add-imx6q-cpufreq-driver.patch"
 	${git} "${DIR}/patches/imx/0005-SAUCE-imx6-enable-sata-clk-if-SATA_AHCI_PLATFORM.patch"
 }
 
@@ -101,45 +100,8 @@ omap () {
 	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 }
 
-omap_late () {
-	echo "dir: omap_late"
-	${git} "${DIR}/patches/omap_late/0001-ARM-OMAP3-clock-Back-propagate-rate-change-from-cam_.patch"
-	${git} "${DIR}/patches/omap_late/0002-omap3isp-Set-cam_mclk-rate-directly.patch"
-	${git} "${DIR}/patches/omap_late/0003-ARM-OMAP2-dpll-am335x-avoid-freqsel.patch"
-	${git} "${DIR}/patches/omap_late/0004-ARM-OMAP2-clock-data-add-DEFINE_STRUCT_CLK_FLAGS-hel.patch"
-	${git} "${DIR}/patches/omap_late/0005-ARM-OMAP-AM33XX-clock-data-SET_RATE_PARENT-in-lcd-pa.patch"
-	${git} "${DIR}/patches/omap_late/0006-ARM-OMAP2-AM33xx-Add-SoC-specific-restart-hook.patch"
-	${git} "${DIR}/patches/omap_late/0007-ARM-OMAP2-Get-rid-of-custom-OMAP_32K_TIMER_HZ.patch"
-	${git} "${DIR}/patches/omap_late/0008-ARM-OMAP2-AM33XX-id-Add-support-for-AM335x-PG2.0.patch"
-	${git} "${DIR}/patches/omap_late/0009-ARM-OMAP2xxx-PM-enter-WFI-via-inline-asm-if-CORE-sta.patch"
-	${git} "${DIR}/patches/omap_late/0010-ARM-OMAP-AM3517-05-hwmod-data-block-WFI-when-EMAC-ac.patch"
-	${git} "${DIR}/patches/omap_late/0011-ARM-OMAP4-PM-Warn-users-about-usage-of-older-bootloa.patch"
-	${git} "${DIR}/patches/omap_late/0012-ARM-OMAP2-AM33XX-CM-Get-rid-of-unnecessary-header-in.patch"
-	${git} "${DIR}/patches/omap_late/0013-ARM-OMAP2-AM33XX-CM-PRM-Use-__ASSEMBLER__-macros-in-.patch"
-	${git} "${DIR}/patches/omap_late/0014-ARM-OMAP2-AM33XX-hwmod-Register-OCMC-RAM-hwmod.patch"
-	${git} "${DIR}/patches/omap_late/0015-ARM-OMAP2-AM33XX-hwmod-Update-TPTC0-hwmod-with-the-r.patch"
-	${git} "${DIR}/patches/omap_late/0016-ARM-OMAP2-AM33XX-hwmod-Fixup-cpgmac0-hwmod-entry.patch"
-	${git} "${DIR}/patches/omap_late/0017-ARM-OMAP2-AM33XX-hwmod-Update-the-WKUP-M3-hwmod-with.patch"
-	${git} "${DIR}/patches/omap_late/0018-ARM-OMAP2-AM33XX-Update-the-hardreset-API.patch"
-	${git} "${DIR}/patches/omap_late/0019-ARM-DTS-AM33XX-Add-nodes-for-OCMC-RAM-and-WKUP-M3.patch"
-	${git} "${DIR}/patches/omap_late/0020-ARM-OMAP-AM33xx-hwmod-Corrects-PWM-subsystem-HWMOD-e.patch"
-	${git} "${DIR}/patches/omap_late/0021-ARM-OMAP-AM33xx-hwmod-Add-parent-child-relationship-.patch"
-	${git} "${DIR}/patches/omap_late/0022-ARM-OMAP2-AM33xx-hwmod-add-missing-HWMOD_NO_IDLEST-f.patch"
-	${git} "${DIR}/patches/omap_late/0023-ARM-OMAP2-am33xx-hwmod-Fix-register-offset-NULL-chec.patch"
-	${git} "${DIR}/patches/omap_late/0024-ARM-OMAP2-PM-Fix-the-dt-return-condition-in-pm_late_.patch"
-	${git} "${DIR}/patches/omap_late/0025-ARM-OMAP4-clock-data-Add-missing-clkdm-association-f.patch"
-	${git} "${DIR}/patches/omap_late/0026-ARM-OMAP2-hwmod-add-enable_preprogram-hook.patch"
-	${git} "${DIR}/patches/omap_late/0027-ASoC-TI-AESS-add-autogating-enable-function-callable.patch"
-	${git} "${DIR}/patches/omap_late/0028-ARM-OMAP4-AESS-enable-internal-auto-gating-during-in.patch"
-	${git} "${DIR}/patches/omap_late/0029-ARM-OMAP4-hwmod-data-Update-AESS-data-with-memory-ba.patch"
-	${git} "${DIR}/patches/omap_late/0030-ARM-OMAP4-hwmod-data-Enable-AESS-hwmod-device.patch"
-	${git} "${DIR}/patches/omap_late/0031-ARM-OMAP2-fix-some-omap_device_build-calls-that-aren.patch"
-	${git} "${DIR}/patches/omap_late/0032-ARM-omap2-include-linux-errno.h-in-hwmod_reset.patch"
-}
-
 arm
 imx
 omap
-omap_late
 
 echo "patch.sh ran successful"

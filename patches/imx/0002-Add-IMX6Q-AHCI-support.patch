@@ -7,37 +7,36 @@ Adds device tree node and ahci_platform bits to make AHCI work on sabrelite IMX6
 
 Signed-off-by: Allen Ibara <allen@zee.aero>
 ---
- arch/arm/boot/dts/imx6q-sabrelite.dts |    5 +++++
+ arch/arm/boot/dts/imx6q-sabrelite.dts |    4 ++++
  arch/arm/boot/dts/imx6q.dtsi          |    8 ++++++++
  drivers/ata/ahci_platform.c           |   28 +++++++++++++++++++++-------
- 3 files changed, 34 insertions(+), 7 deletions(-)
+ 3 files changed, 33 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
-index daa2946..3e0b188 100644
+index 83affea..816428b 100644
 --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
 +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
-@@ -136,6 +136,11 @@
- 				};
- 			};
- 		};
-+
-+		ahci@0x02200000 { /* AHCI SATA */
-+			status = "okay";
-+		};
-+
+@@ -104,6 +104,10 @@
  	};
+ };
  
- 	regulators {
++&ahci {
++	status = "okay";
++};
++
+ &usbotg {
+ 	vbus-supply = <&reg_usb_otg_vbus>;
+ 	pinctrl-names = "default";
 diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-index 7abd714..d7d2dca 100644
+index fa954cf..0774f10 100644
 --- a/arch/arm/boot/dts/imx6q.dtsi
 +++ b/arch/arm/boot/dts/imx6q.dtsi
-@@ -1063,5 +1063,13 @@
+@@ -299,5 +299,13 @@
  			clocks = <&clks 133>, <&clks 134>, <&clks 137>;
  			clock-names = "bus", "di0", "di1";
  		};
 +
-+		ahci@0x02200000 { /* AHCI SATA */
++		ahci: ahci@0x02200000 { /* AHCI SATA */
 +			compatible = "fsl,imx6q-ahci";
 +			reg = <0x02200000 0x4000>;
 +			interrupts = <0 39 0x04>;

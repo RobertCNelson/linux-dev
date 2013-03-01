@@ -7,31 +7,32 @@ This updates the device tree for the sabrelite to enable UART1 pads in the USDHC
 
 Signed-off-by: Brian Viele <viele@zee.aero>
 ---
- arch/arm/boot/dts/imx6q-sabrelite.dts |    5 +++++
+ arch/arm/boot/dts/imx6q-sabrelite.dts |    6 ++++++
  arch/arm/boot/dts/imx6q.dtsi          |    7 +++++++
- 2 files changed, 12 insertions(+)
+ 2 files changed, 13 insertions(+)
 
 diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
-index d152328..daa2946 100644
+index 2ce355c..83affea 100644
 --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
 +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
-@@ -24,6 +24,11 @@
- 	soc {
- 		aips-bus@02000000 { /* AIPS1 */
- 			spba-bus@02000000 {
-+				uart1: serial@02020000 {
-+					pinctrl-names = "default";
-+					pinctrl-0 = <&pinctrl_uart1_2>;
-+					status = "okay";
-+				};
- 				ecspi@02008000 { /* eCSPI1 */
- 					fsl,spi-num-chipselects = <1>;
- 					cs-gpios = <&gpio3 19 0>;
+@@ -148,6 +148,12 @@
+ 	pinctrl-0 = <&pinctrl_audmux_1>;
+ };
+ 
++&uart1 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1_2>;
++};
++
+ &uart2 {
+ 	status = "okay";
+ 	pinctrl-names = "default";
 diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-index d6265ca..7abd714 100644
+index cba021e..fa954cf 100644
 --- a/arch/arm/boot/dts/imx6q.dtsi
 +++ b/arch/arm/boot/dts/imx6q.dtsi
-@@ -679,6 +679,13 @@
+@@ -181,6 +181,13 @@
  							1148 0x1b0b1	/* MX6Q_PAD_CSI0_DAT11__UART1_RXD */
  						>;
  					};
