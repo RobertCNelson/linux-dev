@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -125,18 +125,16 @@ git_kernel () {
 		git_kernel_torvalds
 	fi
 
-	if [ ! "${LATEST_GIT}" ] ; then
-		git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
-		if [ ! "${KERNEL_SHA}" ] ; then
-			git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
-		else
-			git checkout ${KERNEL_SHA} -b v${KERNEL_TAG}-${BUILD}
-		fi
+	git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
+	if [ ! "${KERNEL_SHA}" ] ; then
+		git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
 	else
-		git branch -D top-of-tree &>/dev/null || true
-		git checkout v${KERNEL_TAG} -b top-of-tree
-		git describe
+		git checkout ${KERNEL_SHA} -b v${KERNEL_TAG}-${BUILD}
+	fi
+
+	if [ "${TOPOFTREE}" ] ; then
 		git pull ${GIT_OPTS} ${torvalds_linux} master || true
+		git pull ${GIT_OPTS} ${torvalds_linux} master --tags || true
 	fi
 
 	git describe

@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@ ARCH=$(uname -m)
 DIR=$PWD
 
 source ${DIR}/system.sh
-source ${DIR}/version.sh
 
 ubuntu_arm_gcc_installed () {
 	unset armel_pkg
@@ -35,7 +34,7 @@ ubuntu_arm_gcc_installed () {
 			distro_release=$(lsb_release -cs)
 
 			case "${distro_release}" in
-			maverick|natty|oneiric|precise|quantal|raring)
+			oneiric|precise|quantal|raring)
 				#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
 				armel_pkg="gcc-arm-linux-gnueabi"
 				;;
@@ -81,40 +80,18 @@ ubuntu_arm_gcc_installed () {
 armv7_toolchain () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
 	#https://launchpad.net/linaro-toolchain-binaries/+download
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.04/+download/gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.12/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2012.12-20121214_linux.tar.bz2
 
-	armv7_ver="2012.04"
-	armv7_date="20120426"
-	ARMV7_GCC="gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux.tar.bz2"
-	if [ ! -f ${DIR}/dl/${armv7_date} ] ; then
-		echo "Installing gcc-arm toolchain"
-		echo "-----------------------------"
-		${WGET} https://launchpad.net/linaro-toolchain-binaries/trunk/${armv7_ver}/+download/${ARMV7_GCC}
-		touch ${DIR}/dl/${armv7_date}
-		if [ -d ${DIR}/dl/${armv7_ver} ] ; then
-			rm -rf ${DIR}/dl/${armv7_ver} || true
-		fi
-		tar xjf ${DIR}/dl/${ARMV7_GCC} -C ${DIR}/dl/
-	fi
-
-	CC="${DIR}/dl/gcc-linaro-arm-linux-gnueabi-${armv7_ver}-${armv7_date}_linux/bin/arm-linux-gnueabi-"
-}
-
-armv7hf_toolchain () {
-	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	#https://launchpad.net/linaro-toolchain-binaries/+download
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.11/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2012.11-20121123_linux.tar.bz2
-
-	armv7hf_ver="2012.11"
-	armv7hf_date="20121123"
+	armv7hf_ver="2012.12"
+	armv7hf_date="20121214"
 	armv7hf_gcc="gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux.tar.bz2"
 	if [ ! -f ${DIR}/dl/${armv7hf_date} ] ; then
 		echo "Installing gcc-arm toolchain"
 		echo "-----------------------------"
 		${WGET} https://launchpad.net/linaro-toolchain-binaries/trunk/${armv7hf_ver}/+download/${armv7hf_gcc}
 		touch ${DIR}/dl/${armv7hf_date}
-		if [ -d ${DIR}/dl/${armv7hf_ver} ] ; then
-			rm -rf ${DIR}/dl/${armv7hf_ver} || true
+		if [ -d ${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/ ] ; then
+			rm -rf ${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/ || true
 		fi
 		tar xjf ${DIR}/dl/${armv7hf_gcc} -C ${DIR}/dl/
 	fi
@@ -130,37 +107,20 @@ armv7hf_toolchain () {
 if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	ubuntu_arm_gcc_installed
 	if [ "x${CC}" == "x" ] ; then
-		if [ "x${DEBARCH}" == "xarmel" ] ; then
-			armv7_toolchain
-		fi
-		if [ "x${DEBARCH}" == "xarmhf" ] ; then
-			armv7hf_toolchain
-		fi
+		armv7_toolchain
 	fi
 fi
 
-GCC="gcc"
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	GCC="${GCC_OVERRIDE}"
-fi
-
-GCC_TEST=$(LC_ALL=C ${CC}${GCC} -v 2>&1 | grep "Target:" | grep arm || true)
-GCC_REPORT=$(LC_ALL=C ${CC}${GCC} -v 2>&1 || true)
+GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
 
 if [ "x${GCC_TEST}" == "x" ] ; then
 	echo "-----------------------------"
-	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable)."
-	echo "Doesn't seem to be valid for ARM, double check it's location, or that"
-	echo "you chose the correct GCC Cross Compiler."
-	echo ""
-	echo "Output of: LC_ALL=C ${CC}${GCC} --version"
+	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable) is invalid."
 	echo "-----------------------------"
-	echo "${GCC_REPORT}"
-	echo "-----------------------------"
-	exit 1
-else
-	echo "-----------------------------"
-	echo "scripts/gcc: Debug Using: `LC_ALL=C ${CC}${GCC} --version`"
-	echo "-----------------------------"
-	echo "CC=${CC}" > ${DIR}/.CC
+	armv7_toolchain
 fi
+
+echo "-----------------------------"
+echo "scripts/gcc: Debug Using: `LC_ALL=C ${CC}gcc --version`"
+echo "-----------------------------"
+echo "CC=${CC}" > ${DIR}/.CC

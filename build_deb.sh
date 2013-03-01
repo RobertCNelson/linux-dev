@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -83,6 +83,24 @@ function make_deb {
 	cd ${DIR}/
 }
 
+function make_firmware_pkg {
+	cd ${DIR}/KERNEL/
+
+	echo "-----------------------------"
+	echo "Building Firmware Archive"
+	echo "-----------------------------"
+
+	rm -rf ${DIR}/deploy/fir &> /dev/null || true
+	mkdir -p ${DIR}/deploy/fir
+	make ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/fir
+	echo "-----------------------------"
+	echo "Building ${KERNEL_UTS}-firmware.tar.gz"
+	cd ${DIR}/deploy/fir
+	tar czf ../${KERNEL_UTS}-firmware.tar.gz *
+	echo "-----------------------------"
+	cd ${DIR}/
+}
+
 function make_dtbs_pkg {
 	cd ${DIR}/KERNEL/
 
@@ -109,7 +127,6 @@ fi
 
 unset CC
 unset DEBUG_SECTION
-unset LATEST_GIT
 unset LINUX_GIT
 unset LOCAL_PATCH_DIR
 source ${DIR}/system.sh
@@ -119,13 +136,6 @@ echo "debug: CC=${CC}"
 
 source ${DIR}/version.sh
 export LINUX_GIT
-export LATEST_GIT
-
-if [ "${LATEST_GIT}" ] ; then
-	echo "-----------------------------"
-	echo "Warning LATEST_GIT is enabled from system.sh I hope you know what your doing.."
-	echo "-----------------------------"
-fi
 
 unset CONFIG_DEBUG_SECTION
 if [ "${DEBUG_SECTION}" ] ; then
@@ -147,13 +157,8 @@ fi
 if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)gcc:CROSS_COMPILE)'$GCC_OVERRIDE':g' ${DIR}/KERNEL/Makefile
-fi
 make_deb
+make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
-fi
-if [ "x${GCC_OVERRIDE}" != "x" ] ; then
-	sed -i -e 's:CROSS_COMPILE)'$GCC_OVERRIDE':CROSS_COMPILE)gcc:g' ${DIR}/KERNEL/Makefile
 fi
