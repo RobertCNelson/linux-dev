@@ -50,8 +50,34 @@ arm () {
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 }
 
+dma () {
+	echo "dir: dma"
+
+	#[PATCH v2] arm: davinci: fix edma dmaengine induced null pointer dereference on da830
+	${git} "${DIR}/patches/dma/0001-arm-davinci-fix-edma-dmaengine-induced-null-pointer-.patch"
+
+	#[PATCH v8 0/9] DMA Engine support for AM33XX
+	${git} "${DIR}/patches/dma/0002-ARM-davinci-move-private-EDMA-API-to-arm-common.patch"
+	${git} "${DIR}/patches/dma/0003-ARM-edma-remove-unused-transfer-controller-handlers.patch"
+	${git} "${DIR}/patches/dma/0004-ARM-edma-add-AM33XX-support-to-the-private-EDMA-API.patch"
+	${git} "${DIR}/patches/dma/0005-dmaengine-edma-enable-build-for-AM33XX.patch"
+	${git} "${DIR}/patches/dma/0006-dmaengine-edma-Add-TI-EDMA-device-tree-binding.patch"
+	${git} "${DIR}/patches/dma/0007-ARM-dts-add-AM33XX-EDMA-support.patch"
+	${git} "${DIR}/patches/dma/0008-spi-omap2-mcspi-convert-to-dma_request_slave_channel.patch"
+	${git} "${DIR}/patches/dma/0009-spi-omap2-mcspi-add-generic-DMA-request-support-to-t.patch"
+	${git} "${DIR}/patches/dma/0010-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
+}
+
+mmc () {
+	echo "dir: mmc"
+	#[PATCH v2 0/3] omap_hsmmc DT DMA Client support
+	${git} "${DIR}/patches/mmc/0001-mmc-omap_hsmmc-convert-to-dma_request_slave_channel_.patch"
+	${git} "${DIR}/patches/mmc/0002-mmc-omap_hsmmc-Skip-platform_get_resource_byname-for.patch"
+	${git} "${DIR}/patches/mmc/0003-mmc-omap_hsmmc-add-generic-DMA-request-support-to-th.patch"
+}
+
 imx () {
-	echo "imx patches"
+	echo "dir: imx"
 	${git} "${DIR}/patches/imx/0001-ARM-imx-Enable-UART1-for-Sabrelite.patch"
 	${git} "${DIR}/patches/imx/0002-Add-IMX6Q-AHCI-support.patch"
 	${git} "${DIR}/patches/imx/0003-imx-Add-IMX53-AHCI-support.patch"
@@ -99,6 +125,9 @@ omap () {
 	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 }
+
+dma
+mmc
 
 arm
 imx
