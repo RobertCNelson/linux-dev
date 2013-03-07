@@ -1,0 +1,109 @@
+From 78f1819e69d2299752ee302749727b73aaa3795d Mon Sep 17 00:00:00 2001
+From: Matt Porter <mporter@ti.com>
+Date: Thu, 18 Oct 2012 21:10:47 -0400
+Subject: [PATCH 15/17] mmc: davinci: get SG segment limits with
+ dma_get_slave_sg_limits()
+
+Replace the hardcoded values used to set max_segs/max_seg_size with
+a dma_get_slave_sg_limits() query to the dmaengine driver.
+
+Signed-off-by: Matt Porter <mporter@ti.com>
+---
+ drivers/mmc/host/davinci_mmc.c            |   37 ++++++++---------------------
+ include/linux/platform_data/mmc-davinci.h |    3 ---
+ 2 files changed, 10 insertions(+), 30 deletions(-)
+
+diff --git a/drivers/mmc/host/davinci_mmc.c b/drivers/mmc/host/davinci_mmc.c
+index f5d46ea..3e5b247 100644
+--- a/drivers/mmc/host/davinci_mmc.c
++++ b/drivers/mmc/host/davinci_mmc.c
+@@ -145,18 +145,6 @@
+ /* MMCSD Init clock in Hz in opendrain mode */
+ #define MMCSD_INIT_CLOCK		200000
+ 
+-/*
+- * One scatterlist dma "segment" is at most MAX_CCNT rw_threshold units,
+- * and we handle up to MAX_NR_SG segments.  MMC_BLOCK_BOUNCE kicks in only
+- * for drivers with max_segs == 1, making the segments bigger (64KB)
+- * than the page or two that's otherwise typical. nr_sg (passed from
+- * platform data) == 16 gives at least the same throughput boost, using
+- * EDMA transfer linkage instead of spending CPU time copying pages.
+- */
+-#define MAX_CCNT	((1 << 16) - 1)
+-
+-#define MAX_NR_SG	16
+-
+ static unsigned rw_threshold = 32;
+ module_param(rw_threshold, uint, S_IRUGO);
+ MODULE_PARM_DESC(rw_threshold,
+@@ -217,8 +205,6 @@ struct mmc_davinci_host {
+ 	u8 version;
+ 	/* for ns in one cycle calculation */
+ 	unsigned ns_in_one_cycle;
+-	/* Number of sg segments */
+-	u8 nr_sg;
+ #ifdef CONFIG_CPU_FREQ
+ 	struct notifier_block	freq_transition;
+ #endif
+@@ -1166,6 +1152,7 @@ static int __init davinci_mmcsd_probe(struct platform_device *pdev)
+ 	struct resource *r, *mem = NULL;
+ 	int ret = 0, irq = 0;
+ 	size_t mem_size;
++	struct dma_slave_sg_limits *dma_sg_limits;
+ 
+ 	/* REVISIT:  when we're fully converted, fail if pdata is NULL */
+ 
+@@ -1215,12 +1202,6 @@ static int __init davinci_mmcsd_probe(struct platform_device *pdev)
+ 
+ 	init_mmcsd_host(host);
+ 
+-	if (pdata->nr_sg)
+-		host->nr_sg = pdata->nr_sg - 1;
+-
+-	if (host->nr_sg > MAX_NR_SG || !host->nr_sg)
+-		host->nr_sg = MAX_NR_SG;
+-
+ 	host->use_dma = use_dma;
+ 	host->mmc_irq = irq;
+ 	host->sdio_irq = platform_get_irq(pdev, 1);
+@@ -1249,14 +1230,16 @@ static int __init davinci_mmcsd_probe(struct platform_device *pdev)
+ 		mmc->caps |= pdata->caps;
+ 	mmc->ocr_avail = MMC_VDD_32_33 | MMC_VDD_33_34;
+ 
+-	/* With no iommu coalescing pages, each phys_seg is a hw_seg.
+-	 * Each hw_seg uses one EDMA parameter RAM slot, always one
+-	 * channel and then usually some linked slots.
+-	 */
+-	mmc->max_segs		= MAX_NR_SG;
++	/* Just check one channel for the DMA SG limits */
++	dma_sg_limits = dma_get_slave_sg_limits(
++				host->dma_tx,
++				DMA_SLAVE_BUSWIDTH_4_BYTES,
++				rw_threshold / DMA_SLAVE_BUSWIDTH_4_BYTES);
+ 
+-	/* EDMA limit per hw segment (one or two MBytes) */
+-	mmc->max_seg_size	= MAX_CCNT * rw_threshold;
++	if (dma_sg_limits) {
++		mmc->max_segs = dma_sg_limits->max_seg_nr;
++		mmc->max_seg_size = dma_sg_limits->max_seg_len;
++	}
+ 
+ 	/* MMC/SD controller limits for multiblock requests */
+ 	mmc->max_blk_size	= 4095;  /* BLEN is 12 bits */
+diff --git a/include/linux/platform_data/mmc-davinci.h b/include/linux/platform_data/mmc-davinci.h
+index 5ba6b22..6910209 100644
+--- a/include/linux/platform_data/mmc-davinci.h
++++ b/include/linux/platform_data/mmc-davinci.h
+@@ -25,9 +25,6 @@ struct davinci_mmc_config {
+ 
+ 	/* Version of the MMC/SD controller */
+ 	u8	version;
+-
+-	/* Number of sg segments */
+-	u8	nr_sg;
+ };
+ void davinci_setup_mmc(int module, struct davinci_mmc_config *config);
+ 
+-- 
+1.7.10.4
+

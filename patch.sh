@@ -45,35 +45,30 @@ cleanup () {
 	exit
 }
 
+edma () {
+	echo "dir: edma"
+	${git} "${DIR}/patches/edma/0001-arm-davinci-fix-edma-dmaengine-induced-null-pointer-.patch"
+	${git} "${DIR}/patches/edma/0002-ARM-davinci-move-private-EDMA-API-to-arm-common.patch"
+	${git} "${DIR}/patches/edma/0003-ARM-edma-remove-unused-transfer-controller-handlers.patch"
+	${git} "${DIR}/patches/edma/0004-ARM-edma-add-AM33XX-support-to-the-private-EDMA-API.patch"
+	${git} "${DIR}/patches/edma/0005-dmaengine-edma-enable-build-for-AM33XX.patch"
+	${git} "${DIR}/patches/edma/0006-dmaengine-edma-Add-TI-EDMA-device-tree-binding.patch"
+	${git} "${DIR}/patches/edma/0007-ARM-dts-add-AM33XX-EDMA-support.patch"
+	${git} "${DIR}/patches/edma/0008-spi-omap2-mcspi-convert-to-dma_request_slave_channel.patch"
+	${git} "${DIR}/patches/edma/0009-spi-omap2-mcspi-add-generic-DMA-request-support-to-t.patch"
+	${git} "${DIR}/patches/edma/0010-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
+	${git} "${DIR}/patches/edma/0011-mmc-omap_hsmmc-convert-to-dma_request_slave_channel_.patch"
+	${git} "${DIR}/patches/edma/0012-mmc-omap_hsmmc-add-generic-DMA-request-support-to-th.patch"
+	${git} "${DIR}/patches/edma/0013-dmaengine-add-dma_get_slave_sg_limits.patch"
+	${git} "${DIR}/patches/edma/0014-dma-edma-add-device_slave_sg_limits-support.patch"
+	${git} "${DIR}/patches/edma/0015-mmc-davinci-get-SG-segment-limits-with-dma_get_slave.patch"
+	${git} "${DIR}/patches/edma/0016-mmc-omap_hsmmc-set-max_segs-based-on-dma-engine-limi.patch"
+	${git} "${DIR}/patches/edma/0017-ARM-dts-add-AM33XX-MMC-support.patch"
+}
+
 arm () {
 	echo "dir: arm"
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
-}
-
-dma () {
-	echo "dir: dma"
-
-	#[PATCH v2] arm: davinci: fix edma dmaengine induced null pointer dereference on da830
-	${git} "${DIR}/patches/dma/0001-arm-davinci-fix-edma-dmaengine-induced-null-pointer-.patch"
-
-	#[PATCH v8 0/9] DMA Engine support for AM33XX
-	${git} "${DIR}/patches/dma/0002-ARM-davinci-move-private-EDMA-API-to-arm-common.patch"
-	${git} "${DIR}/patches/dma/0003-ARM-edma-remove-unused-transfer-controller-handlers.patch"
-	${git} "${DIR}/patches/dma/0004-ARM-edma-add-AM33XX-support-to-the-private-EDMA-API.patch"
-	${git} "${DIR}/patches/dma/0005-dmaengine-edma-enable-build-for-AM33XX.patch"
-	${git} "${DIR}/patches/dma/0006-dmaengine-edma-Add-TI-EDMA-device-tree-binding.patch"
-	${git} "${DIR}/patches/dma/0007-ARM-dts-add-AM33XX-EDMA-support.patch"
-	${git} "${DIR}/patches/dma/0008-spi-omap2-mcspi-convert-to-dma_request_slave_channel.patch"
-	${git} "${DIR}/patches/dma/0009-spi-omap2-mcspi-add-generic-DMA-request-support-to-t.patch"
-	${git} "${DIR}/patches/dma/0010-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
-}
-
-mmc () {
-	echo "dir: mmc"
-	#[PATCH v2 0/3] omap_hsmmc DT DMA Client support
-	${git} "${DIR}/patches/mmc/0001-mmc-omap_hsmmc-convert-to-dma_request_slave_channel_.patch"
-	${git} "${DIR}/patches/mmc/0002-mmc-omap_hsmmc-Skip-platform_get_resource_byname-for.patch"
-	${git} "${DIR}/patches/mmc/0003-mmc-omap_hsmmc-add-generic-DMA-request-support-to-th.patch"
 }
 
 imx () {
@@ -126,8 +121,7 @@ omap () {
 	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 }
 
-dma
-mmc
+edma
 
 arm
 imx
