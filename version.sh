@@ -17,8 +17,6 @@ if [ "${GIT_NOEDIT}" ] ; then
 	GIT_OPTS+="--no-edit"
 fi
 
-CCACHE=ccache
-
 config="omap2plus_defconfig"
 
 #Kernel/Build
