@@ -484,6 +484,9 @@ am33x_after () {
 	${git} "${DIR}/patches/gpmc/0003-ARM-OMAP-gpmc-nand-drop-__init-annotation.patch"
 	${git} "${DIR}/patches/gpmc/0004-ARM-OMAP-gpmc-enable-hwecc-for-AM33xx-SoCs.patch"
 	${git} "${DIR}/patches/gpmc/0005-ARM-OMAP-gpmc-add-DT-bindings-for-GPMC-timings-and-N.patch"
+
+	echo "dir: firmware"
+	${git} "${DIR}/patches/firmware/0001-firmware-add-for-beaglebone.patch"
 }
 
 am33x
