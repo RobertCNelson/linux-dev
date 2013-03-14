@@ -42,7 +42,7 @@ git_add () {
 
 cleanup () {
 	git format-patch -${number} -o ${DIR}/patches/
-#	exit
+	exit
 }
 
 am33x () {
