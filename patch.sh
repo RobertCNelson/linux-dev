@@ -42,7 +42,7 @@ git_add () {
 
 cleanup () {
 	git format-patch -${number} -o ${DIR}/patches/
-	exit
+#	exit
 }
 
 am33x () {
@@ -182,8 +182,6 @@ am33x () {
 	echo "dir: mmc"
 	${git} "${DIR}/patches/mmc/0001-am33xx.dtsi-enable-MMC-HSPE-bit-for-all-3-controller.patch"
 	${git} "${DIR}/patches/mmc/0002-omap-hsmmc-Correct-usage-of-of_find_node_by_name.patch"
-	#v3.8.1
-	#${git} "${DIR}/patches/mmc/0003-mmc-core-expose-RPMB-partition-only-for-CMD23-capabl.patch"
 
 	echo "dir: crypto"
 	${git} "${DIR}/patches/crypto/0001-ARM-OMAP2xxx-hwmod-Convert-SHAM-crypto-device-data-t.patch"
@@ -281,7 +279,6 @@ omap () {
 	echo "dir: omap/beagle"
 	#Status: for meego guys..
 	${git} "${DIR}/patches/omap_beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
-
 	${git} "${DIR}/patches/omap_beagle/0002-backlight-Add-TLC59108-backlight-control-driver.patch"
 	${git} "${DIR}/patches/omap_beagle/0003-tlc59108-adjust-for-beagleboard-uLCD7.patch"
 

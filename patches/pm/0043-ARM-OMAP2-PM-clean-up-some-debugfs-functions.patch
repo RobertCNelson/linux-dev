@@ -1,4 +1,4 @@
-From be65148c198bfd2b6aa1ef5661a2b5f8070a9573 Mon Sep 17 00:00:00 2001
+From 3ba2e400ad633f3091a38b5779c10736456e6b7a Mon Sep 17 00:00:00 2001
 From: Paul Walmsley <paul@pwsan.com>
 Date: Sun, 23 Dec 2012 01:45:48 -0700
 Subject: [PATCH 43/69] ARM: OMAP2+: PM: clean up some debugfs functions
@@ -16,12 +16,12 @@ Signed-off-by: Paul Walmsley <paul@pwsan.com>
 Cc: Tero Kristo <t-kristo@ti.com>
 Cc: Kevin Hilman <khilman@deeprootsystems.com>
 ---
- arch/arm/mach-omap2/clockdomain.c |   18 +++++++-
- arch/arm/mach-omap2/clockdomain.h |    2 +
- arch/arm/mach-omap2/pm-debug.c    |   77 ++--------------------------------
- arch/arm/mach-omap2/powerdomain.c |   84 +++++++++++++++++++++++++++++++++++++
- arch/arm/mach-omap2/powerdomain.h |    4 ++
- 5 files changed, 110 insertions(+), 75 deletions(-)
+ arch/arm/mach-omap2/clockdomain.c | 18 ++++++++-
+ arch/arm/mach-omap2/clockdomain.h |  2 +
+ arch/arm/mach-omap2/pm-debug.c    | 77 ++---------------------------------
+ arch/arm/mach-omap2/powerdomain.c | 85 +++++++++++++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/powerdomain.h |  4 ++
+ 5 files changed, 111 insertions(+), 75 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/clockdomain.c b/arch/arm/mach-omap2/clockdomain.c
 index 2da3b5e..ec7ca7c 100644
@@ -165,7 +165,7 @@ index 4bbcc5e..7f7b1d8 100644
  
  static int pwrdm_suspend_get(void *data, u64 *val)
 diff --git a/arch/arm/mach-omap2/powerdomain.c b/arch/arm/mach-omap2/powerdomain.c
-index d38f493..e8ae1d1 100644
+index d38f493..658f4ed 100644
 --- a/arch/arm/mach-omap2/powerdomain.c
 +++ b/arch/arm/mach-omap2/powerdomain.c
 @@ -8,6 +8,10 @@
@@ -187,7 +187,7 @@ index d38f493..e8ae1d1 100644
  
  #include <trace/events/power.h>
  
-@@ -1447,3 +1452,82 @@ bool pwrdm_supports_fpwrst(struct powerdomain *pwrdm, u8 fpwrst)
+@@ -1447,3 +1452,83 @@ bool pwrdm_supports_fpwrst(struct powerdomain *pwrdm, u8 fpwrst)
  
  	return true;
  }
@@ -270,6 +270,7 @@ index d38f493..e8ae1d1 100644
 +#endif
 +	return 0;
 +}
++
 diff --git a/arch/arm/mach-omap2/powerdomain.h b/arch/arm/mach-omap2/powerdomain.h
 index ef51987b..c19bdc3 100644
 --- a/arch/arm/mach-omap2/powerdomain.h
@@ -284,5 +285,5 @@ index ef51987b..c19bdc3 100644
 +
  #endif
 -- 
-1.7.10.4
+1.8.1
 

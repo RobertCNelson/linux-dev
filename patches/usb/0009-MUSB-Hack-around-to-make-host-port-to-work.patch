@@ -1,4 +1,4 @@
-From 69bb04620b1127e1b293914d60f8d69fef380056 Mon Sep 17 00:00:00 2001
+From 069f17ee9fc53d21e1bb162e747b2646e775a80e Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Tue, 22 Jan 2013 22:25:06 +0200
 Subject: [PATCH 9/9] MUSB: Hack around to make host port to work.
@@ -8,15 +8,15 @@ After removing the device, issue lsusb to cause it to scan the bus again.
 
 Crappy, I know, but at least works.
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi |    6 ++++
- arch/arm/boot/dts/am33xx.dtsi             |    9 ++++--
- drivers/usb/musb/musb_core.c              |   45 +++++++++++++++++++++++---
- drivers/usb/musb/musb_dsps.c              |   49 +++++++++++++++++++++++++++--
- drivers/usb/musb/musb_host.c              |    7 +++--
+ arch/arm/boot/dts/am335x-bone-common.dtsi |  6 ++++
+ arch/arm/boot/dts/am33xx.dtsi             |  9 ++++--
+ drivers/usb/musb/musb_core.c              | 45 ++++++++++++++++++++++++----
+ drivers/usb/musb/musb_dsps.c              | 49 +++++++++++++++++++++++++++++--
+ drivers/usb/musb/musb_host.c              |  7 +++--
  5 files changed, 105 insertions(+), 11 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 96bce02..213addb 100644
+index 23a8b01..bf34fc1 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -373,3 +373,9 @@
@@ -30,10 +30,10 @@ index 96bce02..213addb 100644
 +	status = "okay";
 +};
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index d89c801..d8bbc1b 100644
+index 29ab2fd..1d27635 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -489,11 +489,15 @@
+@@ -399,11 +399,15 @@
  
  		};
  
@@ -51,7 +51,7 @@ index d89c801..d8bbc1b 100644
  			compatible = "ti,musb-am33xx";
  			reg = <0x47400000 0x1000	/* usbss */
  			       0x47401000 0x800		/* musb instance 0 */
-@@ -508,6 +512,7 @@
+@@ -418,6 +422,7 @@
  			port1-mode = <1>;
  			power = <250>;
  			ti,hwmods = "usb_otg_hs";
@@ -234,5 +234,5 @@ index e9f0fd9..86442a2 100644
  
  static int musb_bus_resume(struct usb_hcd *hcd)
 -- 
-1.7.10.4
+1.8.1.4
 
