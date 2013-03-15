@@ -22,10 +22,10 @@ config="omap2plus_defconfig"
 #Kernel/Build
 KERNEL_REL=3.9
 KERNEL_TAG=${KERNEL_REL}-rc2
-BUILD=armv7-d2.1
+BUILD=armv7-d2.2
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="4febd95a8a85dd38b1a71fcf9726e19c7fd20039"
+KERNEL_SHA="a2362d24764a4e9a3187fc46b14e1d2cd0657700"
 
 #git branch
 #BRANCH="v3.9.x"
