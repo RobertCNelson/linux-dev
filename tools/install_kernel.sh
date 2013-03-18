@@ -47,7 +47,6 @@ mmc_write_rootfs () {
 	sync
 
 	sudo cp -v "${DIR}/deploy/tmp/fir"/*.dtbo "${location}/lib/firmware/" 2>/dev/null
-	sudo cp -v "${DIR}/deploy/tmp/fir/am335x-pm-firmware.bin" "${location}/lib/firmware/" 2>/dev/null
 	sync
 
 	if [ "${ZRELADDR}" ] ; then
