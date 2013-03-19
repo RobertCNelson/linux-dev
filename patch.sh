@@ -438,6 +438,12 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0122-bone-tester-Add-overrides-for-BB-BONE-TESTER.patch"
 	${git} "${DIR}/patches/not-capebus/0123-cape-tester-Add-uart-specific-default-pinmux-state.patch"
 	${git} "${DIR}/patches/not-capebus/0124-cape-tester-Add-pinmux-helper-for-drvvbus-gpio.patch"
+	${git} "${DIR}/patches/not-capebus/0125-cape-Added-support-for-IIO-helper-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0126-cape-Added-example-IIO-tester-dynamics-overlay.patch"
+	${git} "${DIR}/patches/not-capebus/0127-docs-Added-capemanager-extra_override-usage.patch"
+	${git} "${DIR}/patches/not-capebus/0128-capemgr-Added-module-param-descriptions.patch"
+	${git} "${DIR}/patches/not-capebus/0129-beaglebone-Add-Adafruit-RTC-prototype-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0130-cape-vsense-scale-division-by-zero-check.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
