@@ -1,0 +1,179 @@
+From 666dbf4220470c63e21157b0e93a9cf20cca9fb2 Mon Sep 17 00:00:00 2001
+From: Jon Hunter <jon-hunter@ti.com>
+Date: Fri, 11 Jan 2013 16:39:22 +0000
+Subject: [PATCH 36/48] ARM: dts: OMAP3: Add support for OMAP3430 SDP board
+
+Adds basic device-tree support for OMAP3430 SDP board which has 256MB
+of RAM, 128MB ONENAND flash, 256MB NAND flash and uses the TWL4030
+power management IC.
+
+Signed-off-by: Jon Hunter <jon-hunter@ti.com>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/Makefile         |    1 +
+ arch/arm/boot/dts/omap3430-sdp.dts |  141 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 142 insertions(+)
+ create mode 100644 arch/arm/boot/dts/omap3430-sdp.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index de29da5..a38dcd4 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -115,6 +115,7 @@ dtb-$(CONFIG_ARCH_MXS) += imx23-evk.dtb \
+ 	imx28-tx28.dtb
+ dtb-$(CONFIG_ARCH_NOMADIK) += ste-nomadik-s8815.dtb
+ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
++	omap3430-sdp.dtb \
+ 	omap3-beagle.dtb \
+ 	omap3-beagle-xm.dtb \
+ 	omap3-evm.dtb \
+diff --git a/arch/arm/boot/dts/omap3430-sdp.dts b/arch/arm/boot/dts/omap3430-sdp.dts
+new file mode 100644
+index 0000000..535a6f9
+--- /dev/null
++++ b/arch/arm/boot/dts/omap3430-sdp.dts
+@@ -0,0 +1,141 @@
++/*
++ * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++/include/ "omap3.dtsi"
++
++/ {
++	model = "TI OMAP3430 SDP";
++	compatible = "ti,omap3430-sdp", "ti,omap3";
++
++	memory {
++		device_type = "memory";
++		reg = <0x80000000 0x10000000>; /* 256 MB */
++	};
++};
++
++&i2c1 {
++	clock-frequency = <2600000>;
++
++	twl: twl@48 {
++		reg = <0x48>;
++		interrupts = <7>; /* SYS_NIRQ cascaded to intc */
++	};
++};
++
++/include/ "twl4030.dtsi"
++
++&mmc1 {
++	vmmc-supply = <&vmmc1>;
++	vmmc_aux-supply = <&vsim>;
++	bus-width = <8>;
++};
++
++&mmc2 {
++	status = "disabled";
++};
++
++&mmc3 {
++	status = "disabled";
++};
++
++&gpmc {
++	ranges = <1 0 0x28000000 0x08000000>,
++		 <2 0 0x20000000 0x10000000>;
++
++	nand@1,0 {
++		linux,mtd-name= "micron,mt29f1g08abb";
++		#address-cells = <1>;
++		#size-cells = <1>;
++		reg = <1 0 0x08000000>;
++		nand-bus-width = <8>;
++
++		ti,nand-ecc-opt = "sw";
++		gpmc,device-nand;
++		gpmc,cs-on = <0>;
++		gpmc,cs-rd-off = <36>;
++		gpmc,cs-wr-off = <36>;
++		gpmc,adv-on = <6>;
++		gpmc,adv-rd-off = <24>;
++		gpmc,adv-wr-off = <36>;
++		gpmc,oe-on = <6>;
++		gpmc,oe-off = <48>;
++		gpmc,we-on = <6>;
++		gpmc,we-off = <30>;
++		gpmc,rd-cycle = <72>;
++		gpmc,wr-cycle = <72>;
++		gpmc,access = <54>;
++		gpmc,wr-access = <30>;
++
++		partition@0 {
++			label = "xloader-nand";
++			reg = <0 0x80000>;
++		};
++		partition@0x80000 {
++			label = "bootloader-nand";
++			reg = <0x80000 0x140000>;
++		};
++		partition@0x1c0000 {
++			label = "params-nand";
++			reg = <0x1c0000 0xc0000>;
++		};
++		partition@0x280000 {
++			label = "kernel-nand";
++			reg = <0x280000 0x500000>;
++		};
++		partition@0x780000 {
++			label = "filesystem-nand";
++			reg = <0x780000 0x7880000>;
++		};
++	};
++
++	onenand@2,0 {
++		linux,mtd-name= "samsung,kfm2g16q2m-deb8";
++		#address-cells = <1>;
++		#size-cells = <1>;
++		reg = <2 0 0x10000000>;
++
++		gpmc,device-width = <2>;
++		gpmc,mux-add-data = <2>;
++		gpmc,cs-on = <0>;
++		gpmc,cs-rd-off = <84>;
++		gpmc,cs-wr-off = <72>;
++		gpmc,adv-on = <0>;
++		gpmc,adv-rd-off = <18>;
++		gpmc,adv-wr-off = <18>;
++		gpmc,oe-on = <30>;
++		gpmc,oe-off = <84>;
++		gpmc,we-on = <0>;
++		gpmc,we-off = <42>;
++		gpmc,rd-cycle = <108>;
++		gpmc,wr-cycle = <96>;
++		gpmc,access = <78>;
++		gpmc,wr-data-mux-bus = <30>;
++
++		partition@0 {
++			label = "xloader-onenand";
++			reg = <0 0x80000>;
++		};
++		partition@0x80000 {
++			label = "bootloader-onenand";
++			reg = <0x80000 0x40000>;
++		};
++		partition@0xc0000 {
++			label = "params-onenand";
++			reg = <0xc0000 0x20000>;
++		};
++		partition@0xe0000 {
++			label = "kernel-onenand";
++			reg = <0xe0000 0x200000>;
++		};
++		partition@0x2e0000 {
++			label = "filesystem-onenand";
++			reg = <0x2e0000 0xfd20000>;
++		};
++	};
++};
+-- 
+1.7.10.4
+

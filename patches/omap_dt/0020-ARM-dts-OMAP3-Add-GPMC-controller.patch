@@ -1,0 +1,37 @@
+From 1d6ff9999a4729d42866a3049c425546736699c4 Mon Sep 17 00:00:00 2001
+From: Florian Vaussard <florian.vaussard@epfl.ch>
+Date: Mon, 28 Jan 2013 18:54:07 +0100
+Subject: [PATCH 20/48] ARM: dts: OMAP3: Add GPMC controller
+
+Add device-tree support for the GPMC controller on the OMAP3.
+
+Signed-off-by: Florian Vaussard <florian.vaussard@epfl.ch>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/omap3.dtsi |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+index 1acc261..9f36531 100644
+--- a/arch/arm/boot/dts/omap3.dtsi
++++ b/arch/arm/boot/dts/omap3.dtsi
+@@ -397,5 +397,16 @@
+ 			ti,timer-alwon;
+ 			ti,timer-secure;
+ 		};
++
++		gpmc: gpmc@6e000000 {
++			compatible = "ti,omap3430-gpmc";
++			ti,hwmods = "gpmc";
++			reg = <0x6e000000 0x1000000>;
++			interrupts = <20>;
++			gpmc,num-cs = <8>;
++			gpmc,num-waitpins = <4>;
++			#address-cells = <2>;
++			#size-cells = <1>;
++		};
+ 	};
+ };
+-- 
+1.7.10.4
+

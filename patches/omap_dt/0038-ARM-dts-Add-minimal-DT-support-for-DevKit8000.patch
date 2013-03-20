@@ -1,0 +1,161 @@
+From e4ef82512dd27f1e861f32becd2d86f98a08a525 Mon Sep 17 00:00:00 2001
+From: Anil Kumar <anilk4.v@gmail.com>
+Date: Sat, 16 Mar 2013 15:29:21 +0530
+Subject: [PATCH 38/48] ARM: dts: Add minimal DT support for DevKit8000
+
+DevKit8000 is a beagle board clone from Timll, sold by
+armkits.com. The DevKit8000 has RS232 serial port, LCD, DVI-D,
+S-Video, Ethernet, SD/MMC, keyboard, camera, SPI, I2C, USB and
+JTAG interface.
+
+Add the basic DT support for devkit8000. It includes:
+- twl4030 (PMIC)
+- MMC1
+- I2C1
+- leds
+
+Signed-off-by: Anil Kumar <anilk4.v@gmail.com>
+Tested-by: Thomas Weber <thomas@tomweber.eu>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/Makefile             |    1 +
+ arch/arm/boot/dts/omap3-devkit8000.dts |  102 ++++++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/board-generic.c    |    1 +
+ 3 files changed, 104 insertions(+)
+ create mode 100644 arch/arm/boot/dts/omap3-devkit8000.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index a38dcd4..f4c2dde 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -117,6 +117,7 @@ dtb-$(CONFIG_ARCH_NOMADIK) += ste-nomadik-s8815.dtb
+ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
+ 	omap3430-sdp.dtb \
+ 	omap3-beagle.dtb \
++	omap3-devkit8000.dtb \
+ 	omap3-beagle-xm.dtb \
+ 	omap3-evm.dtb \
+ 	omap3-tobi.dtb \
+diff --git a/arch/arm/boot/dts/omap3-devkit8000.dts b/arch/arm/boot/dts/omap3-devkit8000.dts
+new file mode 100644
+index 0000000..d6cff34
+--- /dev/null
++++ b/arch/arm/boot/dts/omap3-devkit8000.dts
+@@ -0,0 +1,102 @@
++/*
++ * Author: Anil Kumar <anilk4.v@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++/include/ "omap3.dtsi"
++/ {
++	model = "TimLL OMAP3 Devkit8000";
++	compatible = "timll,omap3-devkit8000", "ti,omap3";
++
++	memory {
++		device_type = "memory";
++		reg = <0x80000000 0x10000000>;	/* 256 MB */
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		heartbeat {
++			label = "devkit8000::led1";
++			gpios = <&gpio6 26 0>;	/* 186 -> LED1 */
++			default-state = "on";
++			linux,default-trigger = "heartbeat";
++		};
++
++		mmc {
++			label = "devkit8000::led2";
++			gpios = <&gpio6 3 0>;	/* 163 -> LED2 */
++			default-state = "on";
++			linux,default-trigger = "none";
++		};
++
++		usr {
++			label = "devkit8000::led3";
++			gpios = <&gpio6 4 0>;	/* 164 -> LED3 */
++			default-state = "on";
++			linux,default-trigger = "usr";
++                };
++
++	};
++};
++
++&i2c1 {
++	clock-frequency = <2600000>;
++
++	twl: twl@48 {
++		reg = <0x48>;
++		interrupts = <7>;	/* SYS_NIRQ cascaded to intc */
++	};
++};
++
++&i2c2 {
++	status = "disabled";
++};
++
++&i2c3 {
++	status = "disabled";
++};
++
++/include/ "twl4030.dtsi"
++
++&mmc1 {
++	vmmc-supply = <&vmmc1>;
++	vmmc_aux-supply = <&vsim>;
++	bus-width = <8>;
++};
++
++&mmc2 {
++	status = "disabled";
++};
++
++&mmc3 {
++	status = "disabled";
++};
++
++&wdt2 {
++	status = "disabled";
++};
++
++&mcbsp1 {
++	status = "disabled";
++};
++
++&mcbsp2 {
++	status = "disabled";
++};
++
++&mcbsp3 {
++	status = "disabled";
++};
++
++&mcbsp4 {
++	status = "disabled";
++};
++
++&mcbsp5 {
++	status = "disabled";
++};
+diff --git a/arch/arm/mach-omap2/board-generic.c b/arch/arm/mach-omap2/board-generic.c
+index e54a480..afa509a 100644
+--- a/arch/arm/mach-omap2/board-generic.c
++++ b/arch/arm/mach-omap2/board-generic.c
+@@ -110,6 +110,7 @@ MACHINE_END
+ 
+ static const char *omap3_gp_boards_compat[] __initdata = {
+ 	"ti,omap3-beagle",
++	"timll,omap3-devkit8000",
+ 	NULL,
+ };
+ 
+-- 
+1.7.10.4
+

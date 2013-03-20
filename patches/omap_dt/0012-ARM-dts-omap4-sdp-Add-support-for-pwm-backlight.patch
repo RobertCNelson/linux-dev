@@ -1,0 +1,38 @@
+From 3bf75b66f9d1cbe6089352b4f35e906b39a5c57f Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Fri, 18 Jan 2013 15:00:47 +0100
+Subject: [PATCH 12/48] ARM: dts: omap4-sdp: Add support for pwm-backlight
+
+Section to describe the backlight for the LCD panels.
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/omap4-sdp.dts |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
+index 8101a94..c2dee41 100644
+--- a/arch/arm/boot/dts/omap4-sdp.dts
++++ b/arch/arm/boot/dts/omap4-sdp.dts
+@@ -95,6 +95,17 @@
+ 		};
+ 	};
+ 
++	backlight {
++		compatible = "pwm-backlight";
++		pwms = <&twl_pwm 1 7812500>;
++		brightness-levels = <
++				0 10 20 30 40
++				50 60 70 80 90
++				100 110 120 127
++				>;
++		default-brightness-level = <13>;
++	};
++
+ 	sound {
+ 		compatible = "ti,abe-twl6040";
+ 		ti,model = "SDP4430";
+-- 
+1.7.10.4
+

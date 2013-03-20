@@ -1,0 +1,61 @@
+From 966ba7b81a8aa084bca431a70cebc42ab1b405fb Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Tue, 12 Mar 2013 14:36:44 -0500
+Subject: [PATCH 42/48] ARM: dts: OMAP36xx: Add CPU OPP table
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add DT OPP table for OMAP36xx/37xx family of devices. This data is
+decoded by OF with of_init_opp_table() helper function.
+
+OPP data here is based on existing opp3xxx_data.c
+
+This is in preparation to use generic cpufreq-cpu0 driver for device
+tree enabled boot. Legacy non device tree enabled boot continues to
+use omap-cpufreq.c and opp3xxx_data.c.
+
+Cc: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: Jon Hunter <jon-hunter@ti.com>
+Cc: "Benoît Cousson" <b-cousson@ti.com>
+Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Cc: Shawn Guo <shawn.guo@linaro.org>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: linux-omap@vger.kernel.org
+Cc: devicetree-discuss@lists.ozlabs.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: cpufreq@vger.kernel.org
+Cc: linux-pm@vger.kernel.org
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/boot/dts/omap36xx.dtsi |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap36xx.dtsi b/arch/arm/boot/dts/omap36xx.dtsi
+index 96bf028..b89233e 100644
+--- a/arch/arm/boot/dts/omap36xx.dtsi
++++ b/arch/arm/boot/dts/omap36xx.dtsi
+@@ -15,6 +15,19 @@
+ 		serial3 = &uart4;
+ 	};
+ 
++	cpus {
++		/* OMAP3630/OMAP37xx 'standard device' variants OPP50 to OPP130 */
++		cpu@0 {
++			operating-points = <
++				/* kHz    uV */
++				300000   975000
++				600000  1075000
++				800000  1200000
++			>;
++			clock-latency = <300000>; /* From legacy driver */
++		};
++	};
++
+ 	ocp {
+ 		uart4: serial@49042000 {
+ 			compatible = "ti,omap3-uart";
+-- 
+1.7.10.4
+

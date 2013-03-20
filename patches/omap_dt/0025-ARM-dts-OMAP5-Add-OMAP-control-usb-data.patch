@@ -1,0 +1,39 @@
+From 51cb3cfcf1b3a28a4cb985c31d4aacf36b31ebc6 Mon Sep 17 00:00:00 2001
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Date: Thu, 7 Mar 2013 19:05:17 +0530
+Subject: [PATCH 25/48] ARM: dts: OMAP5: Add OMAP control usb data
+
+Add omap control usb data in OMAP5 device tree file.
+This will have the register address of registers to
+power on the USB2 PHY and USB3 PHY.
+
+The information for the node added here is available in
+Documentation/devicetree/bindings/usb/omap-usb.txt
+
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/omap5.dtsi |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 9e182a9..116123b 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -536,5 +536,13 @@
+ 			hw-caps-ll-interface;
+ 			hw-caps-temp-alert;
+ 		};
++
++		omap_control_usb: omap-control-usb@4a002300 {
++			compatible = "ti,omap-control-usb";
++			reg = <0x4a002300 0x4>,
++			      <0x4a002370 0x4>;
++			reg-names = "control_dev_conf", "phy_power_usb";
++			ti,type = <2>;
++		};
+ 	};
+ };
+-- 
+1.7.10.4
+

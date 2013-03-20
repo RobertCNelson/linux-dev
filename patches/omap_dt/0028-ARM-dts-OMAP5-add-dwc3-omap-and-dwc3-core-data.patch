@@ -1,0 +1,52 @@
+From 5d36230e46955edebce852f84902765f03591b4f Mon Sep 17 00:00:00 2001
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Date: Thu, 7 Mar 2013 19:05:20 +0530
+Subject: [PATCH 28/48] ARM: dts: OMAP5: add dwc3 omap and dwc3 core data
+
+Add dwc3 omap glue data to the omap5 dt data file.
+The information about the dt node added here is available @
+Documentation/devicetree/bindings/usb/omap-usb.txt.
+
+Also added dwc3 core dt data as a subnode to dwc3 omap glue
+data in omap5 dt data file.
+The information for the entered data node is available @
+Documentation/devicetree/bindings/usb/dwc3.txt
+
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/omap5.dtsi |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 4094bfa..130fbf2 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -545,6 +545,24 @@
+ 			ti,type = <2>;
+ 		};
+ 
++		omap_dwc3@4a020000 {
++			compatible = "ti,dwc3";
++			ti,hwmods = "usb_otg_ss";
++			reg = <0x4a020000 0x1000>;
++			interrupts = <0 93 4>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++			utmi-mode = <2>;
++			ranges;
++			dwc3@4a030000 {
++				compatible = "synopsys,dwc3";
++				reg = <0x4a030000 0x1000>;
++				interrupts = <0 92 4>;
++				usb-phy = <&usb2_phy>, <&usb3_phy>;
++				tx-fifo-resize;
++			};
++		};
++
+ 		ocp2scp {
+ 			compatible = "ti,omap-ocp2scp";
+ 			#address-cells = <1>;
+-- 
+1.7.10.4
+

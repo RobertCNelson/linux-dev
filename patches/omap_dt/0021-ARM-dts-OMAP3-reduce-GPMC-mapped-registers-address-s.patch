@@ -1,0 +1,42 @@
+From c932da1611223f1feedaa97c3d0edf85b402b935 Mon Sep 17 00:00:00 2001
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Date: Wed, 27 Feb 2013 02:30:51 +0100
+Subject: [PATCH 21/48] ARM: dts: OMAP3: reduce GPMC mapped registers address
+ space
+
+Currently the OMAP General-Purpose Memory Controller (GPMC) device
+node maps 16 MB of address space for its hardware registers.
+
+This is because the OMAP Technical Reference Manual says that the
+GPMC module register address space size is 16 MB. But in practice
+the maximum address offset used by a GPMC register is 0x02d0.
+
+So, there is no need to map such a big address space for GPMC regs.
+
+This change was suggested by Jon Hunter [1].
+
+[1]: https://patchwork.kernel.org/patch/2057111/
+
+Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Acked-by: Jon Hunter <jon-hunter@ti.com>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/omap3.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+index 9f36531..33c3a6e 100644
+--- a/arch/arm/boot/dts/omap3.dtsi
++++ b/arch/arm/boot/dts/omap3.dtsi
+@@ -401,7 +401,7 @@
+ 		gpmc: gpmc@6e000000 {
+ 			compatible = "ti,omap3430-gpmc";
+ 			ti,hwmods = "gpmc";
+-			reg = <0x6e000000 0x1000000>;
++			reg = <0x6e000000 0x02d0>;
+ 			interrupts = <20>;
+ 			gpmc,num-cs = <8>;
+ 			gpmc,num-waitpins = <4>;
+-- 
+1.7.10.4
+

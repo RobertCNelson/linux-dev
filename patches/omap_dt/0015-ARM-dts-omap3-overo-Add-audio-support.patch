@@ -1,0 +1,48 @@
+From a609b5b9916e31d3e21808f19d1b796ef04879ac Mon Sep 17 00:00:00 2001
+From: Florian Vaussard <florian.vaussard@epfl.ch>
+Date: Wed, 23 Jan 2013 18:56:52 +0100
+Subject: [PATCH 15/48] ARM: dts: omap3-overo: Add audio support
+
+Add the needed sections to enable audio support on Overo.
+
+Signed-off-by: Florian Vaussard <florian.vaussard@epfl.ch>
+Signed-off-by: Benoit Cousson <benoit.cousson@linaro.org>
+---
+ arch/arm/boot/dts/omap3-overo.dtsi |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-overo.dtsi b/arch/arm/boot/dts/omap3-overo.dtsi
+index 800be29..81341fa 100644
+--- a/arch/arm/boot/dts/omap3-overo.dtsi
++++ b/arch/arm/boot/dts/omap3-overo.dtsi
+@@ -23,6 +23,14 @@
+ 			max-brightness = <127>;
+ 		};
+ 	};
++
++	sound {
++		compatible = "ti,omap-twl4030";
++		ti,model = "overo";
++
++		ti,mcbsp = <&mcbsp2>;
++		ti,codec = <&twl_audio>;
++	};
+ };
+ 
+ &i2c1 {
+@@ -32,6 +40,12 @@
+ 		reg = <0x48>;
+ 		interrupts = <7>; /* SYS_NIRQ cascaded to intc */
+ 		interrupt-parent = <&intc>;
++
++		twl_audio: audio {
++			compatible = "ti,twl4030-audio";
++			codec {
++			};
++		};
+ 	};
+ };
+ 
+-- 
+1.7.10.4
+
