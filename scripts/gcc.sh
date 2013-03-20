@@ -80,10 +80,10 @@ ubuntu_arm_gcc_installed () {
 armv7_toolchain () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
 	#https://launchpad.net/linaro-toolchain-binaries/+download
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.02/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.02-01-20130221_linux.tar.bz2
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-	armv7hf_ver="2013.02"
-	armv7hf_date="01-20130221"
+	armv7hf_ver="2013.03"
+	armv7hf_date="20130313"
 	armv7hf_gcc="gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux.tar.bz2"
 	if [ ! -f ${DIR}/dl/${armv7hf_date} ] ; then
 		echo "Installing gcc-arm toolchain"

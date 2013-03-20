@@ -187,3 +187,7 @@ make_firmware_pkg
 if [ "x${DTBS}" != "x" ] ; then
 	make_dtbs_pkg
 fi
+echo "-----------------------------"
+echo "Script Complete"
+echo "eewiki.net: [user@localhost:~$ export kernel_version=${KERNEL_UTS}]"
+echo "-----------------------------"
