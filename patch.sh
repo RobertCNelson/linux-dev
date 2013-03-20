@@ -477,7 +477,8 @@ am33x_after () {
 	${git} "${DIR}/patches/iio/0006-pwm-pca9685-skeleton-i2c-client-driver-for-PCA9685-1.patch"
 
 	echo "dir: w1"
-	${git} "${DIR}/patches/w1/0001-W1-w1-gpio-fix-incorrect-__init-__exit-markups.patch"
+	#v3.8.4
+	#${git} "${DIR}/patches/w1/0001-W1-w1-gpio-fix-incorrect-__init-__exit-markups.patch"
 	${git} "${DIR}/patches/w1/0002-W1-w1-gpio-switch-to-using-dev_pm_ops.patch"
 	${git} "${DIR}/patches/w1/0003-W1-w1-gpio-guard-DT-IDs-with-CONFIG_OF.patch"
 	${git} "${DIR}/patches/w1/0004-W1-w1-gpio-rework-handling-of-platform-data.patch"

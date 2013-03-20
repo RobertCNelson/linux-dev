@@ -9,15 +9,15 @@ out and fixed in Contiki. This patch is basicaly a port of their fix.
 
 Signed-off-by: Tony Cheneau <tony.cheneau@amnesiak.org>
 ---
- net/ieee802154/6lowpan.h | 14 ++++++++------
+ net/ieee802154/6lowpan.h |   14 ++++++++------
  1 file changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/net/ieee802154/6lowpan.h b/net/ieee802154/6lowpan.h
-index 8c2251f..efd1a57 100644
+index bba5f83..8f421a8 100644
 --- a/net/ieee802154/6lowpan.h
 +++ b/net/ieee802154/6lowpan.h
 @@ -87,14 +87,16 @@
- #define is_addr_link_local(a) (((a)->s6_addr16[0]) == 0x80FE)
+ #define is_addr_link_local(a) (((a)->s6_addr16[0]) == htons(0xFE80))
  
  /*
 - * check whether we can compress the IID to 16 bits,
@@ -40,5 +40,5 @@ index 8c2251f..efd1a57 100644
  /* multicast address */
  #define is_addr_mcast(a) (((a)->s6_addr[0]) == 0xFF)
 -- 
-1.8.1.4
+1.7.10.4
 

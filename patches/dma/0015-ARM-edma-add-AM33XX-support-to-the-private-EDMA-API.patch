@@ -10,12 +10,12 @@ support.
 
 Signed-off-by: Matt Porter <mporter@ti.com>
 ---
- arch/arm/common/edma.c             | 314 +++++++++++++++++++++++++++++++++++--
- include/linux/platform_data/edma.h |   1 +
- 2 files changed, 306 insertions(+), 9 deletions(-)
+ arch/arm/common/edma.c             |  311 ++++++++++++++++++++++++++++++++++--
+ include/linux/platform_data/edma.h |    1 +
+ 2 files changed, 303 insertions(+), 9 deletions(-)
 
 diff --git a/arch/arm/common/edma.c b/arch/arm/common/edma.c
-index 2dce245..beeb1d2 100644
+index 6f93acf..4c07461 100644
 --- a/arch/arm/common/edma.c
 +++ b/arch/arm/common/edma.c
 @@ -24,6 +24,13 @@
@@ -32,17 +32,7 @@ index 2dce245..beeb1d2 100644
  
  #include <linux/platform_data/edma.h>
  
-@@ -723,6 +730,9 @@ EXPORT_SYMBOL(edma_free_channel);
-  */
- int edma_alloc_slot(unsigned ctlr, int slot)
- {
-+	if (!edma_cc[ctlr])
-+		return -EINVAL;
-+
- 	if (slot >= 0)
- 		slot = EDMA_CHAN_SLOT(slot);
- 
-@@ -1366,31 +1376,291 @@ void edma_clear_event(unsigned channel)
+@@ -1369,31 +1376,291 @@ void edma_clear_event(unsigned channel)
  EXPORT_SYMBOL(edma_clear_event);
  
  /*-----------------------------------------------------------------------*/
@@ -338,7 +328,7 @@ index 2dce245..beeb1d2 100644
  			if (found)
  				break;
  			else
-@@ -1465,8 +1735,22 @@ static int edma_probe(struct platform_device *pdev)
+@@ -1468,8 +1735,22 @@ static int edma_probe(struct platform_device *pdev)
  			}
  		}
  
@@ -363,7 +353,7 @@ index 2dce245..beeb1d2 100644
  		edma_cc[j]->irq_res_start = irq[j];
  		status = request_irq(irq[j], dma_irq_handler, 0, "edma",
  					&pdev->dev);
-@@ -1476,8 +1760,12 @@ static int edma_probe(struct platform_device *pdev)
+@@ -1479,8 +1760,12 @@ static int edma_probe(struct platform_device *pdev)
  			goto fail;
  		}
  
@@ -378,7 +368,7 @@ index 2dce245..beeb1d2 100644
  		edma_cc[j]->irq_res_end = err_irq[j];
  		status = request_irq(err_irq[j], dma_ccerr_handler, 0,
  					"edma_error", &pdev->dev);
-@@ -1538,9 +1826,17 @@ fail1:
+@@ -1541,9 +1826,17 @@ fail1:
  	return status;
  }
  
@@ -410,5 +400,5 @@ index 2344ea2..ffc1fb2 100644
  
  #endif
 -- 
-1.8.1.4
+1.7.10.4
 
