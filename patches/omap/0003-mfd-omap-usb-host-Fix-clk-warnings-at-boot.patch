@@ -1,0 +1,68 @@
+From a564a60d9a56c331685992d02b37f73131f22a58 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Mon, 18 Feb 2013 11:44:59 +0200
+Subject: [PATCH 3/3] mfd: omap-usb-host: Fix clk warnings at boot
+
+utmi_p1_gfclk and utmi_p2_gfclk are just clock multiplexers and
+don't have a gate. So don't call clk_enable/disable on them.
+
+Gets rid of warnings like below
+
+[    0.716613] ------------[ cut here ]------------
+[    0.716644] WARNING: at drivers/clk/clk.c:522 __clk_enable+0x94/0xa4()
+[    0.716674] Modules linked in:
+[    0.716735] [<c001b210>] (unwind_backtrace+0x0/0xf0) from [<c0041730>] (warn_slowpath_common+0x4c/0x64)
+[    0.716766] [<c0041730>] (warn_slowpath_common+0x4c/0x64) from [<c0041764>] (warn_slowpath_null+0x1c/0x24)
+[    0.716766] [<c0041764>] (warn_slowpath_null+0x1c/0x24) from [<c0409908>] (__clk_enable+0x94/0xa4)
+[    0.716796] [<c0409908>] (__clk_enable+0x94/0xa4) from [<c0409938>] (clk_enable+0x20/0x3c)
+[    0.716857] [<c0409938>] (clk_enable+0x20/0x3c) from [<c032f420>] (usbhs_runtime_resume+0x1c/0x34)
+[    0.716888] [<c032f420>] (usbhs_runtime_resume+0x1c/0x34) from [<c031a3b4>] (pm_generic_runtime_resume+0x2c/0x38)
+[    0.716918] [<c031a3b4>] (pm_generic_runtime_resume+0x2c/0x38) from [<c031dec0>] (__rpm_callback+0x2c/0x60)
+[    0.716949] [<c031dec0>] (__rpm_callback+0x2c/0x60) from [<c031edec>] (rpm_resume+0x39c/0x60c)
+[    0.716979] [<c031edec>] (rpm_resume+0x39c/0x60c) from [<c031f2c4>] (__pm_runtime_resume+0x48/0x60)
+[    0.717010] [<c031f2c4>] (__pm_runtime_resume+0x48/0x60) from [<c032f770>] (usbhs_omap_probe+0x1f8/0x85c)
+[    0.717041] [<c032f770>] (usbhs_omap_probe+0x1f8/0x85c) from [<c0316e7c>] (platform_drv_probe+0x18/0x1c)
+[    0.717041] [<c0316e7c>] (platform_drv_probe+0x18/0x1c) from [<c0315c00>] (driver_probe_device+0x74/0x218)
+[    0.717071] [<c0315c00>] (driver_probe_device+0x74/0x218) from [<c0315e38>] (__driver_attach+0x94/0x98)
+[    0.717132] [<c0315e38>] (__driver_attach+0x94/0x98) from [<c0314398>] (bus_for_each_dev+0x4c/0x80)
+[    0.717132] [<c0314398>] (bus_for_each_dev+0x4c/0x80) from [<c0315430>] (bus_add_driver+0x174/0x240)
+[    0.717163] [<c0315430>] (bus_add_driver+0x174/0x240) from [<c0316304>] (driver_register+0x78/0x14c)
+[    0.717193] [<c0316304>] (driver_register+0x78/0x14c) from [<c0317068>] (platform_driver_probe+0x18/0x9c)
+[    0.717224] [<c0317068>] (platform_driver_probe+0x18/0x9c) from [<c00087a4>] (do_one_initcall+0xfc/0x168)
+[    0.717254] [<c00087a4>] (do_one_initcall+0xfc/0x168) from [<c06dc908>] (kernel_init_freeable+0xfc/0x1cc)
+[    0.717285] [<c06dc908>] (kernel_init_freeable+0xfc/0x1cc) from [<c04ce3ec>] (kernel_init+0x8/0xe4)
+[    0.717315] [<c04ce3ec>] (kernel_init+0x8/0xe4) from [<c00137f0>] (ret_from_fork+0x14/0x24)
+[    0.717498] ---[ end trace 3ac11fdde949a96e ]---
+
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ drivers/mfd/omap-usb-host.c |    6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/mfd/omap-usb-host.c b/drivers/mfd/omap-usb-host.c
+index 05164d7..f6f5b18 100644
+--- a/drivers/mfd/omap-usb-host.c
++++ b/drivers/mfd/omap-usb-host.c
+@@ -299,9 +299,6 @@ static int usbhs_runtime_resume(struct device *dev)
+ 	if (is_ehci_tll_mode(pdata->port_mode[1]))
+ 		clk_enable(omap->usbhost_p2_fck);
+ 
+-	clk_enable(omap->utmi_p1_fck);
+-	clk_enable(omap->utmi_p2_fck);
+-
+ 	spin_unlock_irqrestore(&omap->lock, flags);
+ 
+ 	return 0;
+@@ -327,9 +324,6 @@ static int usbhs_runtime_suspend(struct device *dev)
+ 	if (is_ehci_tll_mode(pdata->port_mode[1]))
+ 		clk_disable(omap->usbhost_p2_fck);
+ 
+-	clk_disable(omap->utmi_p2_fck);
+-	clk_disable(omap->utmi_p1_fck);
+-
+ 	if (omap->ehci_logic_fck && !IS_ERR(omap->ehci_logic_fck))
+ 		clk_disable(omap->ehci_logic_fck);
+ 
+-- 
+1.7.10.4
+
