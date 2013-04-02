@@ -473,6 +473,9 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0148-am335x-bone-common-DT-Override-for-MRF24J40-Cape.patch"
 	${git} "${DIR}/patches/not-capebus/0149-beaglebone-black-limit-LDO3-to-1.8V.patch"
 	${git} "${DIR}/patches/not-capebus/0150-beaglebone-black-add-new-fixed-regulator-for-uSD-eMM.patch"
+	${git} "${DIR}/patches/not-capebus/0151-capemgr-Implement-disable-overrides-on-the-cmd-line.patch"
+	${git} "${DIR}/patches/not-capebus/0152-tilcdc-Enable-pinmux-states.patch"
+	${git} "${DIR}/patches/not-capebus/0153-cape-Add-a-simple-cape-for-handling-the-uSD-button.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
