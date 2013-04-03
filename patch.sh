@@ -493,6 +493,7 @@ am33x_after () {
 	${git} "${DIR}/patches/usb/0008-USB-MUSB-OMAP-get-PHY-by-phandle-for-dt-boot.patch"
 	${git} "${DIR}/patches/usb/0009-MUSB-Hack-around-to-make-host-port-to-work.patch"
 	${git} "${DIR}/patches/usb/0010-make-sure-we-register-unregister-the-NOP-xceiver-onl.patch"
+	${git} "${DIR}/patches/usb/0011-ARM-OMAP-am335x-musb-use-250-for-power.patch"
 
 	echo "dir: PG2"
 	${git} "${DIR}/patches/PG2/0001-beaglebone-black-1ghz-hack.patch"
