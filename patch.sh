@@ -476,6 +476,8 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0151-capemgr-Implement-disable-overrides-on-the-cmd-line.patch"
 	${git} "${DIR}/patches/not-capebus/0152-tilcdc-Enable-pinmux-states.patch"
 	${git} "${DIR}/patches/not-capebus/0153-cape-Add-a-simple-cape-for-handling-the-uSD-button.patch"
+	${git} "${DIR}/patches/not-capebus/0154-beaglebone-add-support-for-DVI-00A3.patch"
+	${git} "${DIR}/patches/not-capebus/0155-beaglebone-remove-audio-section-from-DVID-rev-2-and-.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
@@ -586,6 +588,9 @@ am33x_after () {
 	${git} "${DIR}/patches/ssd130x/0002-ssd1307fb-Rework-the-communication-functions.patch"
 	${git} "${DIR}/patches/ssd130x/0003-ssd1307fb-Speed-up-the-communication-with-the-contro.patch"
 	${git} "${DIR}/patches/ssd130x/0004-ssd1307fb-Make-use-of-horizontal-addressing-mode.patch"
+
+	#echo "dir: build"
+	#${git} "${DIR}/patches/build/0001-ARM-force-march-armv7a-for-thumb2-builds-http-lists..patch"
 
 	echo "dir: firmware"
 	${git} "${DIR}/patches/firmware/0001-firmware-add-for-beaglebone.patch"
