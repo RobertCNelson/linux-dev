@@ -480,13 +480,13 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0154-beaglebone-add-support-for-DVI-00A3.patch"
 	${git} "${DIR}/patches/not-capebus/0155-beaglebone-remove-audio-section-from-DVID-rev-2-and-.patch"
 	${git} "${DIR}/patches/not-capebus/0156-beaglebone-add-dts-for-audio-cape.patch"
-	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
+#	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
 	${git} "${DIR}/patches/pru/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 	${git} "${DIR}/patches/pru/0003-ARM-dts-AM33xx-PRUSS-support.patch"
-	${git} "${DIR}/patches/pru/0004-uio_pruss-add-dt-support-replicape-00A1.patch"
+#	${git} "${DIR}/patches/pru/0004-uio_pruss-add-dt-support-replicape-00A1.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
