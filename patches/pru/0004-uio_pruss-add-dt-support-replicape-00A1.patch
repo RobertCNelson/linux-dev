@@ -10,7 +10,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 40 insertions(+)
 
 diff --git a/drivers/uio/uio_pruss.c b/drivers/uio/uio_pruss.c
-index 563a337..2262780 100644
+index 563a337..6f49ea1 100644
 --- a/drivers/uio/uio_pruss.c
 +++ b/drivers/uio/uio_pruss.c
 @@ -19,6 +19,7 @@
@@ -62,9 +62,9 @@ index 563a337..2262780 100644
 +
 +			dev_dbg(&dev->dev, "Child has %u gpios\n", count);
 +			for(cnt=0; cnt<count; cnt++){
-+				ret = of_property_read_string_index(child, 
++				ret = of_property_read_string_index(child,
 +					"pin-names", cnt, &pin_name);
-+				if (ret != 0) 
++				if (ret != 0)
 +					dev_err(&dev->dev, "Error on pin-name #%d\n", cnt);
 +				gpio = of_get_gpio_flags(child, cnt, &flags);
 +				ret = devm_gpio_request_one(&dev->dev, gpio, flags, pin_name);
