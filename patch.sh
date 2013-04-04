@@ -308,6 +308,7 @@ am33x_after () {
 	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 	${git} "${DIR}/patches/net/0002-Attempted-SMC911x-BQL-patch.patch"
 	${git} "${DIR}/patches/net/0003-cpsw-Fix-interrupt-storm-among-other-things.patch"
+	${git} "${DIR}/patches/net/0004-drivers-net-ethernet-davinci_emac-use-netif_wake_que.patch"
 
 	echo "dir: drm"
 	${git} "${DIR}/patches/drm/0001-am33xx-Add-clock-for-the-lcdc-DRM-driver.patch"
@@ -478,6 +479,7 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0153-cape-Add-a-simple-cape-for-handling-the-uSD-button.patch"
 	${git} "${DIR}/patches/not-capebus/0154-beaglebone-add-support-for-DVI-00A3.patch"
 	${git} "${DIR}/patches/not-capebus/0155-beaglebone-remove-audio-section-from-DVID-rev-2-and-.patch"
+	${git} "${DIR}/patches/not-capebus/0156-beaglebone-add-dts-for-audio-cape.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
