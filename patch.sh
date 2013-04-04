@@ -178,7 +178,7 @@ am33x () {
 	${git} "${DIR}/patches/pwm/0006-pwm-pwm-tiehrpwm-Update-the-clock-handling-of-pwm-ti.patch"
 	${git} "${DIR}/patches/pwm/0007-ARM-AM33XX-clk-Add-clock-node-for-EHRPWM-TBCLK.patch"
 	${git} "${DIR}/patches/pwm/0008-HACK-am33xx.dtsi-turn-on-all-PWMs.patch"
-	${git} "${DIR}/patches/pwm/0009-pwm-fix-the-pwm_test-driver-to-work-with-device-tree.patch"
+#	${git} "${DIR}/patches/pwm/0009-pwm-fix-the-pwm_test-driver-to-work-with-device-tree.patch"
 
 	echo "dir: mmc"
 	${git} "${DIR}/patches/mmc/0001-am33xx.dtsi-enable-MMC-HSPE-bit-for-all-3-controller.patch"
@@ -480,11 +480,13 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0154-beaglebone-add-support-for-DVI-00A3.patch"
 	${git} "${DIR}/patches/not-capebus/0155-beaglebone-remove-audio-section-from-DVID-rev-2-and-.patch"
 	${git} "${DIR}/patches/not-capebus/0156-beaglebone-add-dts-for-audio-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
 	${git} "${DIR}/patches/pru/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 	${git} "${DIR}/patches/pru/0003-ARM-dts-AM33xx-PRUSS-support.patch"
+	${git} "${DIR}/patches/pru/0004-uio_pruss-add-dt-support-replicape-00A1.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
