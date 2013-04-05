@@ -308,7 +308,8 @@ am33x_after () {
 	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 	${git} "${DIR}/patches/net/0002-Attempted-SMC911x-BQL-patch.patch"
 	${git} "${DIR}/patches/net/0003-cpsw-Fix-interrupt-storm-among-other-things.patch"
-	${git} "${DIR}/patches/net/0004-drivers-net-ethernet-davinci_emac-use-netif_wake_que.patch"
+	#3.8.6
+	#${git} "${DIR}/patches/net/0004-drivers-net-ethernet-davinci_emac-use-netif_wake_que.patch"
 
 	echo "dir: drm"
 	${git} "${DIR}/patches/drm/0001-am33xx-Add-clock-for-the-lcdc-DRM-driver.patch"
