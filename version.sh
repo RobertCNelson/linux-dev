@@ -22,7 +22,7 @@ config="omap2plus_defconfig"
 #Kernel/Build
 KERNEL_REL=3.2
 KERNEL_TAG=${KERNEL_REL}
-BUILD=psp26.2
+BUILD=psp27
 
 #v3.X-rcX + upto SHA
 #KERNEL_SHA=""
