@@ -481,13 +481,17 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0154-beaglebone-add-support-for-DVI-00A3.patch"
 	${git} "${DIR}/patches/not-capebus/0155-beaglebone-remove-audio-section-from-DVID-rev-2-and-.patch"
 	${git} "${DIR}/patches/not-capebus/0156-beaglebone-add-dts-for-audio-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0157-cape-bone-hexy-add-iio-helper.patch"
+	${git} "${DIR}/patches/not-capebus/0158-cape-Add-CAPE-BONE-EXPTEST-to-capemaps.patch"
+	${git} "${DIR}/patches/not-capebus/0159-tester-button-cape.patch"
+
 #	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
 	${git} "${DIR}/patches/pru/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 	${git} "${DIR}/patches/pru/0003-ARM-dts-AM33xx-PRUSS-support.patch"
-#	${git} "${DIR}/patches/pru/0004-uio_pruss-add-dt-support-replicape-00A1.patch"
+	${git} "${DIR}/patches/pru/0004-uio_pruss-add-dt-support-replicape-00A1.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
@@ -501,6 +505,7 @@ am33x_after () {
 	${git} "${DIR}/patches/usb/0009-MUSB-Hack-around-to-make-host-port-to-work.patch"
 	${git} "${DIR}/patches/usb/0010-make-sure-we-register-unregister-the-NOP-xceiver-onl.patch"
 	${git} "${DIR}/patches/usb/0011-ARM-OMAP-am335x-musb-use-250-for-power.patch"
+	${git} "${DIR}/patches/usb/0012-ARM-OMAP2-MUSB-Specify-omap4-has-mailbox.patch"
 
 	echo "dir: PG2"
 	${git} "${DIR}/patches/PG2/0001-beaglebone-black-1ghz-hack.patch"
@@ -596,8 +601,12 @@ am33x_after () {
 
 	#echo "dir: build"
 	#${git} "${DIR}/patches/build/0001-ARM-force-march-armv7a-for-thumb2-builds-http-lists..patch"
+	#${git} "${DIR}/patches/build/0002-headers_install-Fix-build-failures-on-deep-directory.patch"
 
 	echo "dir: firmware"
+	#git clone git://arago-project.org/git/projects/am33x-cm3.git
+	#cp -v ../am33x-cm3/bin/am335x-pm-firmware.bin ./firmware/
+	#git add ./firmware/am335x-pm-firmware.bin
 	${git} "${DIR}/patches/firmware/0001-firmware-add-for-beaglebone.patch"
 }
 
