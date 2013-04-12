@@ -26,8 +26,12 @@ elif [ -f /etc/SuSE-release ] ; then
     trim "suse-$REV"
 elif [ -f /etc/debian_version ] ; then
 	DIST="Debian Based"
-	REV=""
-    echo "debian-$REV"
+	if [ $(which lsb_release) ] ; then
+		debian=$(lsb_release -sd)
+	else
+		debian="debian"
+	fi
+    echo "${debian}"
 fi
 
 }
@@ -106,29 +110,28 @@ function debian_regs
 		#Precise ->
 		if [ ! -f "/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so" ] ; then
 			deb_pkgs+="libncurses5-dev "
-		else
-		echo "-----------------------------"
-			echo "Debug: found libncurses.so: /usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so"
-		echo "-----------------------------"
 		fi
-	else
-		echo "-----------------------------"
-		echo "Debug: found libncurses.so: /usr/lib/libncurses.so"
-		echo "-----------------------------"
 	fi
+
+	#Linux Mint:
+	#nadia=quantal
 
 	unset warn_dpkg_ia32
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
 		deb_distro=$(lsb_release -cs)
 
+		unset error_unknown_deb_distro
 		#mkimage
 		case "${deb_distro}" in
 		squeeze|lucid)
 			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs+="uboot-mkimage "
 			;;
-		wheezy|natty|oneiric|precise|quantal|raring)
+		wheezy|natty|oneiric|precise|nadia|quantal|raring)
 			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs+="u-boot-tools "
+			;;
+		*)
+			error_unknown_deb_distro=1
 			;;
 		esac
 
@@ -139,7 +142,7 @@ function debian_regs
 			squeeze|lucid|natty|oneiric|precise)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs+="ia32-libs "
 				;;
-			wheezy|quantal|raring)
+			wheezy|nadia|quantal|raring)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs+="ia32-libs "
 				dpkg -l | grep ia32-libs >/dev/null || dpkg_multiarch=1
 				;;
@@ -155,8 +158,21 @@ function debian_regs
 		fi
 	fi
 
+	if [ "${error_unknown_deb_distro}" ] ; then
+		echo "Unrecognized deb based system:"
+		echo "-----------------------------"
+		echo "Please cut, paste and email to: bugs@rcn-ee.com"
+		echo "-----------------------------"
+		echo "uname -m"
+		uname -m
+		echo "lsb_release -a"
+		lsb_release -a
+		echo "-----------------------------"
+		return 1
+	fi
+
 	if [ "${deb_pkgs}" ] ; then
-		echo "Ubuntu/Debian, missing dependicies, please install:"
+		echo "Debian/Ubuntu/Mint: missing dependicies, please install:"
 		echo "-----------------------------"
 		if [ "${warn_dpkg_ia32}" ] ; then
 			echo "sudo dpkg --add-architecture i386"
