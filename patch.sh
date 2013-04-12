@@ -484,6 +484,13 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0157-cape-bone-hexy-add-iio-helper.patch"
 	${git} "${DIR}/patches/not-capebus/0158-cape-Add-CAPE-BONE-EXPTEST-to-capemaps.patch"
 	${git} "${DIR}/patches/not-capebus/0159-tester-button-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0160-pwm_test-fix-some-issues.patch"
+	${git} "${DIR}/patches/not-capebus/0161-pwm_test-Clean-up-and-make-it-work-on-DT-correctly.patch"
+	${git} "${DIR}/patches/not-capebus/0162-capes-Add-PWM-test-example-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0163-Sync-tester-DTS-with-am335x-common.patch"
+	${git} "${DIR}/patches/not-capebus/0164-Add-in-missing-cape-bone-tester-back-in.patch"
+	${git} "${DIR}/patches/not-capebus/0165-cape-bone-hexy-move-OLED-to-different-reset-gpio.patch"
+	${git} "${DIR}/patches/not-capebus/0166-firmware-capes-added-dts-file-for-every-PWM-pin.patch"
 
 #	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
 
