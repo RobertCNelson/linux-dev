@@ -26,12 +26,8 @@ elif [ -f /etc/SuSE-release ] ; then
     trim "suse-$REV"
 elif [ -f /etc/debian_version ] ; then
 	DIST="Debian Based"
-	if [ $(which lsb_release) ] ; then
-		debian=$(lsb_release -sd)
-	else
-		debian="debian"
-	fi
-    echo "${debian}"
+	debian="debian"
+	echo "${debian}"
 fi
 
 }
@@ -185,7 +181,11 @@ function debian_regs
 }
 
 BUILD_HOST=${BUILD_HOST:="$( detect_host )"}
-info "Detected build host [$BUILD_HOST]"
+if [ $(which lsb_release) ] ; then
+	info "Detected build host [`lsb_release -sd`]"
+else
+	info "Detected build host [$BUILD_HOST]"
+fi
 case "$BUILD_HOST" in
     redhat*)
 	    redhat_reqs

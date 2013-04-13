@@ -117,7 +117,7 @@ armv7_toolchain () {
 	#Used for Cortex-A
 	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
 
-	toolchain_name="gcc-linaro-arm-linux-gnueabi"
+	toolchain_name="gcc-linaro-arm-linux-gnueabihf"
 	site="https://launchpad.net/linaro-toolchain-binaries"
 	version="trunk/2013.03"
 	filename="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2"
