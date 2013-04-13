@@ -77,31 +77,57 @@ ubuntu_arm_gcc_installed () {
 	fi
 }
 
-armv7_toolchain () {
+dl_gcc_generic () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	#https://launchpad.net/linaro-toolchain-binaries/+download
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
-
-	armv7hf_ver="2013.03"
-	armv7hf_date="20130313"
-	armv7hf_gcc="gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux.tar.bz2"
-	if [ ! -f ${DIR}/dl/${armv7hf_date} ] ; then
-		echo "Installing gcc-arm toolchain"
+	if [ ! -f ${DIR}/dl/${datestamp} ] ; then
+		echo "Installing: ${toolchain_name}"
 		echo "-----------------------------"
-		${WGET} https://launchpad.net/linaro-toolchain-binaries/trunk/${armv7hf_ver}/+download/${armv7hf_gcc}
-		touch ${DIR}/dl/${armv7hf_date}
-		if [ -d ${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/ ] ; then
-			rm -rf ${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/ || true
+		${WGET} ${site}/${version}/+download/${filename}
+		touch ${DIR}/dl/${datestamp}
+		if [ -d ${DIR}/dl/${directory} ] ; then
+			rm -rf ${DIR}/dl/${directory} || true
 		fi
-		tar xjf ${DIR}/dl/${armv7hf_gcc} -C ${DIR}/dl/
+		tar xjf ${DIR}/dl/${filename} -C ${DIR}/dl/
 	fi
 
 	if [ "x${ARCH}" == "xarmv7l" ] ; then
 		#using native gcc
 		CC=
 	else
-		CC="${DIR}/dl/gcc-linaro-arm-linux-gnueabihf-4.7-${armv7hf_ver}-${armv7hf_date}_linux/bin/arm-linux-gnueabihf-"
+		CC="${DIR}/dl/${directory}/${binary}"
 	fi
+}
+
+armv7_toolchain () {
+	#https://launchpad.net/linaro-toolchain-binaries/+download
+
+	#Used for ARM9
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.04/+download/gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2
+
+#	toolchain_name="gcc-linaro-arm-linux-gnueabi"
+#	site="https://launchpad.net/linaro-toolchain-binaries"
+#	version="trunk/2012.04"
+#	filename="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2"
+#	directory="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux"
+#	datestamp="20120426"
+##	datestamp="20120426-gcc-linaro-arm-linux-gnueabi"
+
+#	binary="bin/arm-linux-gnueabi-"
+
+	#Used for Cortex-A
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+
+	toolchain_name="gcc-linaro-arm-linux-gnueabihf"
+	site="https://launchpad.net/linaro-toolchain-binaries"
+	version="trunk/2013.03"
+	filename="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2"
+	directory="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux"
+	datestamp="20130313"
+	datestamp="20130313-gcc-linaro-arm-linux-gnueabihf"
+
+	binary="bin/arm-linux-gnueabihf-"
+
+	dl_gcc_generic
 }
 
 if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
@@ -121,6 +147,6 @@ if [ "x${GCC_TEST}" == "x" ] ; then
 fi
 
 echo "-----------------------------"
-echo "scripts/gcc: Debug Using: `LC_ALL=C ${CC}gcc --version`"
+echo "scripts/gcc: Using: `LC_ALL=C ${CC}gcc --version`"
 echo "-----------------------------"
 echo "CC=${CC}" > ${DIR}/.CC

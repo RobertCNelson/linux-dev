@@ -96,15 +96,21 @@ function make_modules_pkg {
 	echo "Building Module Archive"
 	echo "-----------------------------"
 
-	rm -rf ${DIR}/deploy/mod &> /dev/null || true
-	mkdir -p ${DIR}/deploy/mod
-	make ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=${DIR}/deploy/mod
+	if [ -d ${DIR}/deploy/tmp ] ; then
+		rm -rf ${DIR}/deploy/tmp || true
+	fi
+	mkdir -p ${DIR}/deploy/tmp
+
+	make ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
+
+	cd ${DIR}/deploy/tmp
 	echo "-----------------------------"
 	echo "Building ${KERNEL_UTS}-modules.tar.gz"
-	cd ${DIR}/deploy/mod
 	tar czf ../${KERNEL_UTS}-modules.tar.gz *
 	echo "-----------------------------"
+
 	cd ${DIR}/
+	rm -rf ${DIR}/deploy/tmp || true
 }
 
 function make_firmware_pkg {
@@ -114,15 +120,21 @@ function make_firmware_pkg {
 	echo "Building Firmware Archive"
 	echo "-----------------------------"
 
-	rm -rf ${DIR}/deploy/fir &> /dev/null || true
-	mkdir -p ${DIR}/deploy/fir
-	make ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/fir
+	if [ -d ${DIR}/deploy/tmp ] ; then
+		rm -rf ${DIR}/deploy/tmp || true
+	fi
+	mkdir -p ${DIR}/deploy/tmp
+
+	make ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
+
+	cd ${DIR}/deploy/tmp
 	echo "-----------------------------"
 	echo "Building ${KERNEL_UTS}-firmware.tar.gz"
-	cd ${DIR}/deploy/fir
 	tar czf ../${KERNEL_UTS}-firmware.tar.gz *
 	echo "-----------------------------"
+
 	cd ${DIR}/
+	rm -rf ${DIR}/deploy/tmp || true
 }
 
 function make_dtbs_pkg {
@@ -132,15 +144,21 @@ function make_dtbs_pkg {
 	echo "Building DTBS Archive"
 	echo "-----------------------------"
 
-	rm -rf ${DIR}/deploy/dtbs &> /dev/null || true
-	mkdir -p ${DIR}/deploy/dtbs
-	find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/dtbs/ \;
-	cd ${DIR}/deploy/dtbs
+	if [ -d ${DIR}/deploy/tmp ] ; then
+		rm -rf ${DIR}/deploy/tmp || true
+	fi
+	mkdir -p ${DIR}/deploy/tmp
+
+	find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
+
+	cd ${DIR}/deploy/tmp
 	echo "-----------------------------"
 	echo "Building ${KERNEL_UTS}-dtbs.tar.gz"
 	tar czf ../${KERNEL_UTS}-dtbs.tar.gz *
 	echo "-----------------------------"
+
 	cd ${DIR}/
+	rm -rf ${DIR}/deploy/tmp || true
 }
 
 /bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }

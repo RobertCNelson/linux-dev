@@ -26,8 +26,8 @@ elif [ -f /etc/SuSE-release ] ; then
     trim "suse-$REV"
 elif [ -f /etc/debian_version ] ; then
 	DIST="Debian Based"
-	REV=""
-    echo "debian-$REV"
+	debian="debian"
+	echo "${debian}"
 fi
 
 }
@@ -106,63 +106,74 @@ function debian_regs
 		#Precise ->
 		if [ ! -f "/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so" ] ; then
 			deb_pkgs+="libncurses5-dev "
-		else
-		echo "-----------------------------"
-			echo "Debug: found libncurses.so: /usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so"
-		echo "-----------------------------"
 		fi
-	else
-		echo "-----------------------------"
-		echo "Debug: found libncurses.so: /usr/lib/libncurses.so"
-		echo "-----------------------------"
 	fi
 
+	#Linux Mint:
+	#nadia=quantal
+
+	unset warn_dpkg_ia32
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
 		deb_distro=$(lsb_release -cs)
 
+		unset error_unknown_deb_distro
 		#mkimage
 		case "${deb_distro}" in
-		squeeze|lucid|maverick)
+		squeeze|lucid)
 			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs+="uboot-mkimage "
 			;;
-		wheezy|natty|oneiric|precise|quantal|raring)
+		wheezy|natty|oneiric|precise|nadia|quantal|raring)
 			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs+="u-boot-tools "
+			;;
+		*)
+			error_unknown_deb_distro=1
 			;;
 		esac
 
 		cpu_arch=$(uname -m)
 		if [ "x${cpu_arch}" == "xx86_64" ] ; then
+			unset dpkg_multiarch
 			case "${deb_distro}" in
-			squeeze|wheezy|lucid|maverick|natty|oneiric|precise|quantal|raring)
+			squeeze|lucid|natty|oneiric|precise)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs+="ia32-libs "
 				;;
-			esac
-
-			case "${deb_distro}" in
-			wheezy)
-				unset wheezy_multiarch
-				dpkg -l | grep ia32-libs >/dev/null || wheezy_multiarch=1
+			wheezy|nadia|quantal|raring)
+				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs+="ia32-libs "
+				dpkg -l | grep ia32-libs >/dev/null || dpkg_multiarch=1
 				;;
 			esac
 
-			if [ "${wheezy_multiarch}" ] ; then
-				echo "-----------------------------"
-				echo "Note: for Debian Wheezy `uname -m`: to install ia32-libs:"
-				echo "-----------------------------"
-				echo "sudo dpkg --add-architecture i386"
-				echo "sudo apt-get update"
-				echo "sudo apt-get install ia32-libs"
-				echo "-----------------------------"
+			if [ "${dpkg_multiarch}" ] ; then
+				unset check_foreign
+				check_foreign=$(LC_ALL=C dpkg --print-foreign-architectures)
+				if [ "x" == "x${check_foreign}" ] ; then
+					warn_dpkg_ia32=1
+				fi
 			fi
 		fi
+	fi
 
+	if [ "${error_unknown_deb_distro}" ] ; then
+		echo "Unrecognized deb based system:"
+		echo "-----------------------------"
+		echo "Please cut, paste and email to: bugs@rcn-ee.com"
+		echo "-----------------------------"
+		echo "uname -m"
+		uname -m
+		echo "lsb_release -a"
+		lsb_release -a
+		echo "-----------------------------"
+		return 1
 	fi
 
 	if [ "${deb_pkgs}" ] ; then
-		echo "Missing Dependicies: Please Install"
+		echo "Debian/Ubuntu/Mint: missing dependicies, please install:"
 		echo "-----------------------------"
-		echo "Ubuntu/Debian"
+		if [ "${warn_dpkg_ia32}" ] ; then
+			echo "sudo dpkg --add-architecture i386"
+		fi
+		echo "sudo apt-get update"
 		echo "sudo apt-get install ${deb_pkgs}"
 		echo "-----------------------------"
 		return 1
@@ -170,7 +181,11 @@ function debian_regs
 }
 
 BUILD_HOST=${BUILD_HOST:="$( detect_host )"}
-info "Detected build host [$BUILD_HOST]"
+if [ $(which lsb_release) ] ; then
+	info "Detected build host [`lsb_release -sd`]"
+else
+	info "Detected build host [$BUILD_HOST]"
+fi
 case "$BUILD_HOST" in
     redhat*)
 	    redhat_reqs
