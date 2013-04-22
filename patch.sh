@@ -610,6 +610,11 @@ am33x_after () {
 	#${git} "${DIR}/patches/build/0001-ARM-force-march-armv7a-for-thumb2-builds-http-lists..patch"
 	#${git} "${DIR}/patches/build/0002-headers_install-Fix-build-failures-on-deep-directory.patch"
 
+	echo "dir: hdmi"
+	${git} "${DIR}/patches/hdmi/0001-video-Add-generic-HDMI-infoframe-helpers.patch"
+	${git} "${DIR}/patches/hdmi/0002-BeagleBone-Black-TDA998x-Initial-HDMI-Audio-support.patch"
+	${git} "${DIR}/patches/hdmi/0003-Clean-up-some-formating-and-debug-in-Davinci-MCASP-d.patch"
+
 	echo "dir: firmware"
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git
 	#cp -v ../am33x-cm3/bin/am335x-pm-firmware.bin ./firmware/
