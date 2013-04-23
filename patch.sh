@@ -491,6 +491,7 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0164-Add-in-missing-cape-bone-tester-back-in.patch"
 	${git} "${DIR}/patches/not-capebus/0165-cape-bone-hexy-move-OLED-to-different-reset-gpio.patch"
 	${git} "${DIR}/patches/not-capebus/0166-firmware-capes-added-dts-file-for-every-PWM-pin.patch"
+	${git} "${DIR}/patches/not-capebus/0167-capes-add-LCD7-A3.patch"
 
 #	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
 
@@ -614,6 +615,16 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0001-video-Add-generic-HDMI-infoframe-helpers.patch"
 	${git} "${DIR}/patches/hdmi/0002-BeagleBone-Black-TDA998x-Initial-HDMI-Audio-support.patch"
 	${git} "${DIR}/patches/hdmi/0003-Clean-up-some-formating-and-debug-in-Davinci-MCASP-d.patch"
+
+	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
+	${git} "${DIR}/patches/resetctrl/0002-capemgr-Implement-cape-priorities.patch"
+	${git} "${DIR}/patches/resetctrl/0003-rstctl-Reset-control-subsystem.patch"
+	${git} "${DIR}/patches/resetctrl/0004-omap_hsmmc-Enable-rstctl-bindings.patch"
+	${git} "${DIR}/patches/resetctrl/0005-bone-Add-rstctl-DT-binding-for-beaglebone.patch"
+	${git} "${DIR}/patches/resetctrl/0006-bone-eMMC-Add-rstctl-rstctl-DT-bindings.patch"
+	${git} "${DIR}/patches/resetctrl/0007-capes-Add-testing-capes-for-rstctl.patch"
+	${git} "${DIR}/patches/resetctrl/0008-omap_hsmmc-Bail-out-when-rstctl-error-is-unrecoverab.patch"
+	${git} "${DIR}/patches/resetctrl/0009-bone-Put-priorities-in-built-in-capes.patch"
 
 	echo "dir: firmware"
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git
