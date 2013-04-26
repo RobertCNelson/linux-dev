@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -23,14 +23,14 @@
 ARCH=$(uname -m)
 DIR=$PWD
 
-source ${DIR}/system.sh
+. ${DIR}/system.sh
 
 ubuntu_arm_gcc_installed () {
 	unset armel_pkg
 	unset armhf_pkg
 	if [ $(which lsb_release) ] ; then
 		distro=$(lsb_release -is)
-		if [ "x${distro}" == "xUbuntu" ] ; then
+		if [ "x${distro}" = "xUbuntu" ] ; then
 			distro_release=$(lsb_release -cs)
 
 			case "${distro_release}" in
@@ -90,7 +90,7 @@ dl_gcc_generic () {
 		tar xjf ${DIR}/dl/${filename} -C ${DIR}/dl/
 	fi
 
-	if [ "x${ARCH}" == "xarmv7l" ] ; then
+	if [ "x${ARCH}" = "xarmv7l" ] ; then
 		#using native gcc
 		CC=
 	else
@@ -130,16 +130,16 @@ armv7_toolchain () {
 	dl_gcc_generic
 }
 
-if [ "x${CC}" == "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
+if [ "x${CC}" = "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	ubuntu_arm_gcc_installed
-	if [ "x${CC}" == "x" ] ; then
+	if [ "x${CC}" = "x" ] ; then
 		armv7_toolchain
 	fi
 fi
 
 GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
 
-if [ "x${GCC_TEST}" == "x" ] ; then
+if [ "x${GCC_TEST}" = "x" ] ; then
 	echo "-----------------------------"
 	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable) is invalid."
 	echo "-----------------------------"

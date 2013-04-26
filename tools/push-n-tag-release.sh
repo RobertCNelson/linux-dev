@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 #
 # Copyright (c) 2009-2012 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -26,7 +26,7 @@ DIR=$PWD
 
 if [ -e ${DIR}/version.sh ]; then
 	unset BRANCH
-	source ${DIR}/version.sh
+	. ${DIR}/version.sh
 
 	git commit -a -m "${KERNEL_TAG}-${BUILD} release" -s
 	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}"

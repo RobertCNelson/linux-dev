@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -e
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -28,7 +28,7 @@ BOOT_PARITION="1"
 
 DIR=$PWD
 
-source ${DIR}/version.sh
+. ${DIR}/version.sh
 
 mmc_write_rootfs () {
 	echo "Installing ${KERNEL_UTS}-modules.tar.gz to ${partition}"
@@ -74,7 +74,7 @@ mmc_write_boot () {
 	echo "Installing ${KERNEL_UTS} to ${partition}"
 
 	if [ -f "${location}/SOC.sh" ] ; then
-		source "${location}/SOC.sh"
+		. "${location}/SOC.sh"
 		ZRELADDR=${load_addr}
 	fi
 
@@ -145,7 +145,7 @@ mmc_detect_n_mount () {
 	echo "-----------------------------"
 	num_partitions=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | wc -l)
 
-	for (( c=1; c<=${num_partitions}; c++ ))
+	for (i=1;i<=${num_partitions};i++)
 	do
 		partition=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | head -${c} | tail -1 | awk '{print $1}')
 		echo "Trying ${partition}"
@@ -185,10 +185,10 @@ unmount_partitions () {
 
 	NUM_MOUNTS=$(mount | grep -v none | grep "${MMC}" | wc -l)
 
-	for (( c=1; c<=${NUM_MOUNTS}; c++ ))
+	for (i=1;i<=${num_partitions};i++)
 	do
 		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
-		sudo umount ${DRIVE} &> /dev/null || true
+		sudo umount ${DRIVE} >/dev/null 2>&1 || true
 	done
 
 	mkdir -p "${DIR}/deploy/disk/"
@@ -212,8 +212,11 @@ check_mmc () {
 			mount | grep -v none | grep "/dev/" --color=never
 		fi
 		echo ""
-		read -p "Are you 100% sure, on selecting [${MMC}] (y/n)? "
-		[ "${REPLY}" == "y" ] && unmount_partitions
+		echo -n "Are you 100% sure, on selecting [${MMC}] (y/n)? "
+		read response
+		if [ "x${response}" = "xy" ] ; then
+			unmount_partitions
+		}
 		echo ""
 	else
 		echo ""
@@ -229,17 +232,15 @@ check_mmc () {
 }
 
 if [ -f "${DIR}/system.sh" ] ; then
-	source ${DIR}/system.sh
+	. ${DIR}/system.sh
 
 	if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
 		KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
-		if [ "x${MMC}" == "x" ] ; then
+		if [ "x${MMC}" = "x" ] ; then
 			echo "ERROR: MMC is not defined in system.sh"
 		else
 			unset PARTITION_PREFIX
-			if [[ "${MMC}" =~ "mmcblk" ]] ; then
-				PARTITION_PREFIX="p"
-			fi
+			echo ${MMC} | grep mmcblk >/dev/null && PARTITION_PREFIX="p"
 			check_mmc
 		fi
 	else
