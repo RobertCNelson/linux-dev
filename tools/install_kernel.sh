@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -145,7 +145,7 @@ mmc_detect_n_mount () {
 	echo "-----------------------------"
 	num_partitions=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | wc -l)
 
-	for (i=1;i<=${num_partitions};i++)
+	for (( i=1; i<=${num_partitions}; i++ ))
 	do
 		partition=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | head -${c} | tail -1 | awk '{print $1}')
 		echo "Trying ${partition}"
@@ -185,7 +185,7 @@ unmount_partitions () {
 
 	NUM_MOUNTS=$(mount | grep -v none | grep "${MMC}" | wc -l)
 
-	for (i=1;i<=${num_partitions};i++)
+	for (( i=1; i<=${NUM_MOUNTS}; i++ ))
 	do
 		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
 		sudo umount ${DRIVE} >/dev/null 2>&1 || true
@@ -216,7 +216,7 @@ check_mmc () {
 		read response
 		if [ "x${response}" = "xy" ] ; then
 			unmount_partitions
-		}
+		fi
 		echo ""
 	else
 		echo ""

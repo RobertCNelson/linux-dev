@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -26,7 +26,7 @@ git="git am"
 #git="git am --whitespace=fix"
 
 if [ -f ${DIR}/system.sh ] ; then
-	source ${DIR}/system.sh
+	. ${DIR}/system.sh
 fi
 
 if [ "${RUN_BISECT}" ] ; then
@@ -266,6 +266,7 @@ omap () {
 	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
 	${git} "${DIR}/patches/omap/0001-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
 	${git} "${DIR}/patches/omap/0002-omap2-twl-common-Add-default-power-configuration.patch"
+	${git} "${DIR}/patches/omap/0003-omap2-irq-fix-interrupt-latency.patch"
 	${git} "${DIR}/patches/omap/0003-mfd-omap-usb-host-Fix-clk-warnings-at-boot.patch"
 
 	echo "dir: omap/sakoman"
@@ -536,11 +537,43 @@ am33x_after () {
 	${git} "${DIR}/patches/w1/0004-W1-w1-gpio-switch-to-using-managed-resources-devm.patch"
 
 	echo "dir: gpmc"
-	${git} "${DIR}/patches/gpmc/0001-ARM-OMAP-gpmc-don-t-create-devices-from-initcall-on-.patch"
-	${git} "${DIR}/patches/gpmc/0002-mtd-omap-nand-pass-device_node-in-platform-data.patch"
-	${git} "${DIR}/patches/gpmc/0003-ARM-OMAP-gpmc-nand-drop-__init-annotation.patch"
-	${git} "${DIR}/patches/gpmc/0004-ARM-OMAP-gpmc-enable-hwecc-for-AM33xx-SoCs.patch"
-	${git} "${DIR}/patches/gpmc/0005-ARM-OMAP-gpmc-add-DT-bindings-for-GPMC-timings-and-N.patch"
+	${git} "${DIR}/patches/gpmc/0001-ARM-OMAP-Clear-GPMC-bits-when-applying-new-setting.patch"
+	${git} "${DIR}/patches/gpmc/0002-ARM-omap2-gpmc-Mark-local-scoped-functions-static.patch"
+	${git} "${DIR}/patches/gpmc/0003-ARM-omap2-gpmc-Remove-unused-gpmc_round_ns_to_ticks-.patch"
+	${git} "${DIR}/patches/gpmc/0004-ARM-omap2-gpmc-Fix-gpmc_cs_reserved-return-value.patch"
+	${git} "${DIR}/patches/gpmc/0005-ARM-omap2-gpmc-nand-Print-something-useful-on-CS-req.patch"
+	${git} "${DIR}/patches/gpmc/0006-ARM-omap2-gpmc-onenand-Print-something-useful-on-CS-.patch"
+	${git} "${DIR}/patches/gpmc/0007-ARM-omap2-gpmc-onenand-Replace-pr_err-with-dev_err.patch"
+	${git} "${DIR}/patches/gpmc/0008-ARM-omap2-gpmc-onenand-Replace-printk-KERN_ERR-with-.patch"
+	${git} "${DIR}/patches/gpmc/0009-ARM-omap2-gpmc-Remove-redundant-chip-select-out-of-r.patch"
+	${git} "${DIR}/patches/gpmc/0010-ARM-OMAP2-Simplify-code-configuring-ONENAND-devices.patch"
+	${git} "${DIR}/patches/gpmc/0011-ARM-OMAP2-Add-variable-to-store-number-of-GPMC-waitp.patch"
+	${git} "${DIR}/patches/gpmc/0012-ARM-OMAP2-Add-structure-for-storing-GPMC-settings.patch"
+	${git} "${DIR}/patches/gpmc/0013-ARM-OMAP2-Add-function-for-configuring-GPMC-settings.patch"
+	${git} "${DIR}/patches/gpmc/0014-ARM-OMAP2-Convert-ONENAND-to-use-gpmc_cs_program_set.patch"
+	${git} "${DIR}/patches/gpmc/0015-ARM-OMAP2-Convert-NAND-to-use-gpmc_cs_program_settin.patch"
+	${git} "${DIR}/patches/gpmc/0016-ARM-OMAP2-Convert-SMC91x-to-use-gpmc_cs_program_sett.patch"
+	${git} "${DIR}/patches/gpmc/0017-ARM-OMAP2-Convert-TUSB-to-use-gpmc_cs_program_settin.patch"
+	${git} "${DIR}/patches/gpmc/0018-ARM-OMAP2-Don-t-configure-of-chip-select-options-in-.patch"
+	${git} "${DIR}/patches/gpmc/0019-ARM-OMAP2-Add-function-to-read-GPMC-settings-from-de.patch"
+	${git} "${DIR}/patches/gpmc/0020-ARM-OMAP2-Add-additional-GPMC-timing-parameters.patch"
+	${git} "${DIR}/patches/gpmc/0021-ARM-OMAP2-Add-device-tree-support-for-NOR-flash.patch"
+	${git} "${DIR}/patches/gpmc/0022-ARM-OMAP2-Convert-NAND-to-retrieve-GPMC-settings-fro.patch"
+	${git} "${DIR}/patches/gpmc/0023-ARM-OMAP2-Convert-ONENAND-to-retrieve-GPMC-settings-.patch"
+	${git} "${DIR}/patches/gpmc/0024-ARM-OMAP2-Detect-incorrectly-aligned-GPMC-base-addre.patch"
+	${git} "${DIR}/patches/gpmc/0025-ARM-OMAP2-Remove-unnecesssary-GPMC-definitions-and-v.patch"
+	${git} "${DIR}/patches/gpmc/0026-ARM-OMAP2-Allow-GPMC-probe-to-complete-even-if-CS-ma.patch"
+	${git} "${DIR}/patches/gpmc/0027-ARM-OMAP2-return-ENODEV-if-GPMC-child-device-creatio.patch"
+	${git} "${DIR}/patches/gpmc/0028-ARM-OMAP2-rename-gpmc_probe_nor_child-to-gpmc_probe_.patch"
+	${git} "${DIR}/patches/gpmc/0029-ARM-OMAP2-Add-GPMC-DT-support-for-Ethernet-child-nod.patch"
+	${git} "${DIR}/patches/gpmc/0030-mtd-omap-nand-pass-device_node-in-platform-data.patch"
+	${git} "${DIR}/patches/gpmc/0031-ARM-OMAP-gpmc-nand-drop-__init-annotation.patch"
+	${git} "${DIR}/patches/gpmc/0032-ARM-OMAP-gpmc-enable-hwecc-for-AM33xx-SoCs.patch"
+	${git} "${DIR}/patches/gpmc/0033-ARM-OMAP-gpmc-don-t-create-devices-from-initcall-on-.patch"
+	${git} "${DIR}/patches/gpmc/0034-ARM-OMAP2-gpmc-onenand-drop-__init-annotation.patch"
+	${git} "${DIR}/patches/gpmc/0035-gpmc-Add-missing-gpmc-includes.patch"
+	${git} "${DIR}/patches/gpmc/0036-mtd-omap-onenand-pass-device_node-in-platform-data.patch"
+	${git} "${DIR}/patches/gpmc/0037-ARM-OMAP2-Convert-ONENAND-to-use-gpmc_cs_program_set.patch"
 
 	echo "dir: mxt"
 	${git} "${DIR}/patches/mxt/0001-CHROMIUM-Input-atmel_mxt_ts-refactor-i2c-error-handl.patch"
