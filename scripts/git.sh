@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -32,7 +32,7 @@ git_kernel_torvalds () {
 	echo "-----------------------------"
 	echo "scripts/git: pulling from: ${torvalds_linux}"
 	git pull ${GIT_OPTS} ${torvalds_linux} master --tags || true
-	git tag | grep v${KERNEL_TAG} &>/dev/null || git_kernel_stable
+	git tag | grep v${KERNEL_TAG} >/dev/null 2>&1 || git_kernel_stable
 }
 
 check_and_or_clone () {
@@ -112,20 +112,20 @@ git_kernel () {
 	git commit --allow-empty -a -m 'empty cleanup commit'
 
 	git checkout origin/master -b tmp-master
-	git branch -D master &>/dev/null || true
+	git branch -D master >/dev/null 2>&1 || true
 
 	git checkout origin/master -b master
-	git branch -D tmp-master &>/dev/null || true
+	git branch -D tmp-master >/dev/null 2>&1 || true
 
 	git pull ${GIT_OPTS} || true
 
-	git tag | grep v${KERNEL_TAG} | grep -v rc &>/dev/null || git_kernel_torvalds
+	git tag | grep v${KERNEL_TAG} | grep -v rc >/dev/null 2>&1 || git_kernel_torvalds
 
 	if [ "${KERNEL_SHA}" ] ; then
 		git_kernel_torvalds
 	fi
 
-	git branch -D v${KERNEL_TAG}-${BUILD} &>/dev/null || true
+	git branch -D v${KERNEL_TAG}-${BUILD} >/dev/null 2>&1 || true
 	if [ ! "${KERNEL_SHA}" ] ; then
 		git checkout v${KERNEL_TAG} -b v${KERNEL_TAG}-${BUILD}
 	else
@@ -142,8 +142,8 @@ git_kernel () {
 	cd ${DIR}/
 }
 
-source ${DIR}/version.sh
-source ${DIR}/system.sh
+. ${DIR}/version.sh
+. ${DIR}/system.sh
 
 if [ "${GIT_OVER_HTTP}" ] ; then
 	torvalds_linux="http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
@@ -155,7 +155,7 @@ fi
 
 unset ON_MASTER
 if [ "${DISABLE_MASTER_BRANCH}" ] ; then
-	git branch | grep "*" | grep master &>/dev/null && ON_MASTER=1
+	git branch | grep "*" | grep master >/dev/null 2>&1 && ON_MASTER=1
 fi
 
 if [ ! "${ON_MASTER}" ] ; then

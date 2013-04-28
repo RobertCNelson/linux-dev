@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -24,11 +24,11 @@ DIR=$PWD
 
 mkdir -p ${DIR}/deploy/
 
-function patch_kernel {
+patch_kernel () {
 	cd ${DIR}/KERNEL
 
 	export DIR GIT_OPTS
-	/bin/bash -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
+	/bin/sh -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
 	if [ ! "${RUN_BISECT}" ] ; then
 		git add .
@@ -40,13 +40,13 @@ function patch_kernel {
 
 	if [ "${LOCAL_PATCH_DIR}" ] ; then
 		for i in ${LOCAL_PATCH_DIR}/*.patch ; do patch  -s -p1 < $i ; done
-		BUILD+='+'
+		BUILD="${BUILD}+"
 	fi
 
 	cd ${DIR}/
 }
 
-function copy_defconfig {
+copy_defconfig () {
 	cd ${DIR}/KERNEL/
 	make ARCH=arm CROSS_COMPILE=${CC} distclean
 	make ARCH=arm CROSS_COMPILE=${CC} ${config}
@@ -55,26 +55,26 @@ function copy_defconfig {
 	cd ${DIR}/
 }
 
-function make_menuconfig {
+make_menuconfig () {
 	cd ${DIR}/KERNEL/
 	make ARCH=arm CROSS_COMPILE=${CC} menuconfig
 	cp -v .config ${DIR}/patches/defconfig
 	cd ${DIR}/
 }
 
-function make_deb {
+make_deb () {
 	cd ${DIR}/KERNEL/
 	echo "-----------------------------"
 	echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg"
 	echo "-----------------------------"
-	time fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg
+	fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=${BUILDREV}${DISTRO} ${CONFIG_DEBUG_SECTION} deb-pkg
 	mv ${DIR}/*.deb ${DIR}/deploy/
 
 	unset DTBS
-	cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:" &> /dev/null && DTBS=1
+	cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:" >/dev/null 2>&1 && DTBS=1
 	if [ "x${DTBS}" != "x" ] ; then
 		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" ${CONFIG_DEBUG_SECTION} dtbs"
-		time make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${CONFIG_DEBUG_SECTION} dtbs
+		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${CONFIG_DEBUG_SECTION} dtbs
 		ls arch/arm/boot/* | grep dtb || unset DTBS
 	fi
 
@@ -83,7 +83,7 @@ function make_deb {
 	cd ${DIR}/
 }
 
-function make_firmware_pkg {
+make_firmware_pkg () {
 	cd ${DIR}/KERNEL/
 
 	echo "-----------------------------"
@@ -107,7 +107,7 @@ function make_firmware_pkg {
 	rm -rf ${DIR}/deploy/tmp || true
 }
 
-function make_dtbs_pkg {
+make_dtbs_pkg () {
 	cd ${DIR}/KERNEL/
 
 	echo "-----------------------------"
@@ -131,7 +131,7 @@ function make_dtbs_pkg {
 	rm -rf ${DIR}/deploy/tmp || true
 }
 
-/bin/bash -e ${DIR}/tools/host_det.sh || { exit 1 ; }
+/bin/sh -e ${DIR}/tools/host_det.sh || { exit 1 ; }
 
 if [ ! -f ${DIR}/system.sh ] ; then
 	cp ${DIR}/system.sh.sample ${DIR}/system.sh
@@ -141,12 +141,12 @@ unset CC
 unset DEBUG_SECTION
 unset LINUX_GIT
 unset LOCAL_PATCH_DIR
-source ${DIR}/system.sh
-/bin/bash -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
-source ${DIR}/.CC
+. ${DIR}/system.sh
+/bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
+. ${DIR}/.CC
 echo "debug: CC=${CC}"
 
-source ${DIR}/version.sh
+. ${DIR}/version.sh
 export LINUX_GIT
 
 unset CONFIG_DEBUG_SECTION
@@ -157,10 +157,10 @@ fi
 #unset FULL_REBUILD
 FULL_REBUILD=1
 if [ "${FULL_REBUILD}" ] ; then
-	/bin/bash -e "${DIR}/scripts/git.sh" || { exit 1 ; }
+	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 
 	if [ "${RUN_BISECT}" ] ; then
-		/bin/bash -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
+		/bin/sh -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
 	fi
 
 	patch_kernel

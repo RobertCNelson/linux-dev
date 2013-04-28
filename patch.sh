@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -26,7 +26,7 @@ git="git am"
 #git="git am --whitespace=fix"
 
 if [ -f ${DIR}/system.sh ] ; then
-	source ${DIR}/system.sh
+	. ${DIR}/system.sh
 fi
 
 if [ "${RUN_BISECT}" ] ; then
