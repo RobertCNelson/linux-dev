@@ -29,34 +29,34 @@ ubuntu_arm_gcc_installed () {
 	unset armel_pkg
 	unset armhf_pkg
 	if [ $(which lsb_release) ] ; then
-		distro=$(lsb_release -is)
-		if [ "x${distro}" = "xUbuntu" ] ; then
-			distro_release=$(lsb_release -cs)
+		distro_release=$(lsb_release -cs)
 
-			case "${distro_release}" in
-			oneiric|precise|quantal|raring)
-				#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
-				armel_pkg="gcc-arm-linux-gnueabi"
-				;;
-			esac
+		#Linux Mint:
+		#Ubuntu Quantal = nadia
 
-			case "${distro_release}" in
-			oneiric|precise|quantal|raring)
-				#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
-				armhf_pkg="gcc-arm-linux-gnueabihf"
-				;;
-			esac
+		case "${distro_release}" in
+		oneiric|precise|quantal|nadia|raring)
+			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
+			armel_pkg="gcc-arm-linux-gnueabi"
+			;;
+		esac
 
-			if [ "${armel_pkg}" ] || [ "${armhf_pkg}" ] ; then
-				echo "fyi: ${distro} ${distro_release} has these ARM gcc cross compilers available in their repo:"
-				if [ "${armel_pkg}" ] ; then
-					echo "sudo apt-get install ${armel_pkg}"
-				fi
-				if [ "${armhf_pkg}" ] ; then
-					echo "sudo apt-get install ${armhf_pkg}"
-				fi
-				echo "-----------------------------"
+		case "${distro_release}" in
+		oneiric|precise|quantal|nadia|raring)
+			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
+			armhf_pkg="gcc-arm-linux-gnueabihf"
+			;;
+		esac
+
+		if [ "${armel_pkg}" ] || [ "${armhf_pkg}" ] ; then
+			echo "fyi: ${distro} ${distro_release} has these ARM gcc cross compilers available in their repo:"
+			if [ "${armel_pkg}" ] ; then
+				echo "sudo apt-get install ${armel_pkg}"
 			fi
+			if [ "${armhf_pkg}" ] ; then
+				echo "sudo apt-get install ${armhf_pkg}"
+			fi
+			echo "-----------------------------"
 		fi
 	fi
 
@@ -79,15 +79,17 @@ ubuntu_arm_gcc_installed () {
 
 dl_gcc_generic () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	if [ ! -f ${DIR}/dl/${datestamp} ] ; then
+	if [ ! -f ${DIR}/dl/${directory}/${datestamp} ] ; then
 		echo "Installing: ${toolchain_name}"
 		echo "-----------------------------"
 		${WGET} ${site}/${version}/+download/${filename}
-		touch ${DIR}/dl/${datestamp}
 		if [ -d ${DIR}/dl/${directory} ] ; then
 			rm -rf ${DIR}/dl/${directory} || true
 		fi
 		tar xjf ${DIR}/dl/${filename} -C ${DIR}/dl/
+		if [ -f ${DIR}/dl/${directory}/${binary}gcc ] ; then
+			touch ${DIR}/dl/${directory}/${datestamp}
+		fi
 	fi
 
 	if [ "x${ARCH}" = "xarmv7l" ] ; then
@@ -109,8 +111,7 @@ armv7_toolchain () {
 #	version="trunk/2012.04"
 #	filename="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2"
 #	directory="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux"
-#	datestamp="20120426"
-##	datestamp="20120426-gcc-linaro-arm-linux-gnueabi"
+#	datestamp="20120426-gcc-linaro-arm-linux-gnueabi"
 
 #	binary="bin/arm-linux-gnueabi-"
 
@@ -122,10 +123,21 @@ armv7_toolchain () {
 	version="trunk/2013.03"
 	filename="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2"
 	directory="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux"
-	datestamp="20130313"
 	datestamp="20130313-gcc-linaro-arm-linux-gnueabihf"
 
 	binary="bin/arm-linux-gnueabihf-"
+
+	#Used for Cortex-A: gcc-4.8 testing, as "every" branch is broken...
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.04/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux.tar.bz2
+
+#	toolchain_name="gcc-linaro-arm-linux-gnueabihf"
+#	site="https://launchpad.net/linaro-toolchain-binaries"
+#	version="trunk/2013.04"
+#	directory="${toolchain_name}-4.8-2013.04-20130417_linux"
+#	filename="${directory}.tar.bz2"
+#	datestamp="20130313-${toolchain_name}"
+
+#	binary="bin/arm-linux-gnueabihf-"
 
 	dl_gcc_generic
 }
