@@ -86,7 +86,7 @@ dl_gcc_generic () {
 		if [ -d ${DIR}/dl/${directory} ] ; then
 			rm -rf ${DIR}/dl/${directory} || true
 		fi
-		tar xjf ${DIR}/dl/${filename} -C ${DIR}/dl/
+		${untar} ${DIR}/dl/${filename} -C ${DIR}/dl/
 		if [ -f ${DIR}/dl/${directory}/${binary}gcc ] ; then
 			touch ${DIR}/dl/${directory}/${datestamp}
 		fi
@@ -112,6 +112,7 @@ armv7_toolchain () {
 #	filename="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2"
 #	directory="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux"
 #	datestamp="20120426-gcc-linaro-arm-linux-gnueabi"
+#	untar="tar -xjf"
 
 #	binary="bin/arm-linux-gnueabi-"
 
@@ -124,6 +125,7 @@ armv7_toolchain () {
 	filename="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2"
 	directory="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux"
 	datestamp="20130313-gcc-linaro-arm-linux-gnueabihf"
+	untar="tar -xjf"
 
 	binary="bin/arm-linux-gnueabihf-"
 
@@ -136,6 +138,7 @@ armv7_toolchain () {
 #	directory="${toolchain_name}-4.8-2013.04-20130417_linux"
 #	filename="${directory}.tar.bz2"
 #	datestamp="20130313-${toolchain_name}"
+#	untar="tar -xJf"
 
 #	binary="bin/arm-linux-gnueabihf-"
 

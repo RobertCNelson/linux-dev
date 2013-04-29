@@ -36,18 +36,26 @@ git_kernel_torvalds () {
 }
 
 check_and_or_clone () {
-	if [ ! "${LINUX_GIT}" ] ; then
-		if [ -f "${HOME}/linux-src/.git/config" ] ; then
+	#For Legacy: moving to "${DIR}/ignore/linux-src/" for all new installs
+	if [ ! "${LINUX_GIT}" ] && [ -f "${HOME}/linux-src/.git/config" ] ; then
+		echo "-----------------------------"
+		echo "scripts/git: Warning: LINUX_GIT not defined in system.sh"
+		echo "using legacy location: ${HOME}/linux-src"
+		LINUX_GIT="${HOME}/linux-src"
+	fi
+
+	if [ ! "${LINUX_GIT}" ]; then
+		if [ -f "${DIR}/ignore/linux-src/.git/config" ] ; then
 			echo "-----------------------------"
 			echo "scripts/git: Warning: LINUX_GIT not defined in system.sh"
-			echo "using default location: ${HOME}/linux-src"
+			echo "using default location: ${DIR}/ignore/linux-src/"
 		else
 			echo "-----------------------------"
 			echo "scripts/git: Warning: LINUX_GIT not defined in system.sh"
-			echo "cloning ${torvalds_linux} to default location: ${HOME}/linux-src"
-			git clone ${torvalds_linux} ${HOME}/linux-src
+			echo "cloning ${torvalds_linux} to default location: ${DIR}/ignore/linux-src"
+			git clone ${torvalds_linux} ${DIR}/ignore/linux-src
 		fi
-		LINUX_GIT="${HOME}/linux-src"
+		LINUX_GIT="${DIR}/ignore/linux-src"
 	fi
 }
 
