@@ -178,6 +178,6 @@ omap
 #sprz319_erratum
 
 imx
-chipidea
+#chipidea
 
 echo "patch.sh ran successful"
