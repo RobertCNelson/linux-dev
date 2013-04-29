@@ -1,0 +1,30 @@
+From f2a3a37a5acf1a19342eac8246b637e00337b802 Mon Sep 17 00:00:00 2001
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+Date: Tue, 27 Nov 2012 17:16:57 +0100
+Subject: [PATCH 20/25] usb: chipidea: usbmisc: unset global varibale usbmisc
+ on driver remove
+
+The probe function checks usbmisc to be NULL in the beginning. Without
+this patch the can only be loaded once.
+
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+---
+ drivers/usb/chipidea/usbmisc_imx.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/chipidea/usbmisc_imx.c b/drivers/usb/chipidea/usbmisc_imx.c
+index efeb983..293e778 100644
+--- a/drivers/usb/chipidea/usbmisc_imx.c
++++ b/drivers/usb/chipidea/usbmisc_imx.c
+@@ -131,6 +131,7 @@ static int usbmisc_imx_remove(struct platform_device *pdev)
+ {
+ 	usbmisc_unset_ops(&imx6q_usbmisc_ops);
+ 	clk_disable_unprepare(usbmisc->clk);
++	usbmisc = NULL;
+ 	return 0;
+ }
+ 
+-- 
+1.7.10.4
+

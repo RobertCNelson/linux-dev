@@ -1,0 +1,161 @@
+From 3087a866b903441ebc699a09747387c067843b92 Mon Sep 17 00:00:00 2001
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Date: Tue, 27 Nov 2012 17:17:01 +0100
+Subject: [PATCH 24/25] usb: chipidea: usbmisc: add post handling and errata
+ fix for mx25
+
+This adds a post handling routine which is called after
+ci13xxx_add_device was called. The first user is the mx25, which has to
+disable the external-vbus-divider after the udc has started.
+
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ .../devicetree/bindings/usb/ci13xxx-imx.txt        |    2 ++
+ drivers/usb/chipidea/ci13xxx_imx.c                 |   12 +++++++
+ drivers/usb/chipidea/ci13xxx_imx.h                 |    3 ++
+ drivers/usb/chipidea/usbmisc_imx.c                 |   33 ++++++++++++++++++++
+ 4 files changed, 50 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/usb/ci13xxx-imx.txt b/Documentation/devicetree/bindings/usb/ci13xxx-imx.txt
+index 22b4805..2bb6c22 100644
+--- a/Documentation/devicetree/bindings/usb/ci13xxx-imx.txt
++++ b/Documentation/devicetree/bindings/usb/ci13xxx-imx.txt
+@@ -22,6 +22,7 @@ Optional properties:
+ default value, please add this flag. Below is the pin selection for imx6q:
+ 	- ENET_RX_ER: 0  (defalt)
+ 	- GPIO_1: 1
++- external-vbus-divider: enables off-chip resistor divider for Vbus
+ 
+ Examples:
+ usb@02184000 { /* USB OTG */
+@@ -32,4 +33,5 @@ usb@02184000 { /* USB OTG */
+ 	fsl,usbmisc = <&usbmisc 0>;
+ 	disable-over-current;
+ 	otg_id_pin_select_change;
++	external-vbus-divider;
+ };
+diff --git a/drivers/usb/chipidea/ci13xxx_imx.c b/drivers/usb/chipidea/ci13xxx_imx.c
+index 5a2b196..039b7fb 100644
+--- a/drivers/usb/chipidea/ci13xxx_imx.c
++++ b/drivers/usb/chipidea/ci13xxx_imx.c
+@@ -82,6 +82,9 @@ int usbmisc_get_init_data(struct device *dev, struct usbmisc_usb_device *usbdev)
+ 	if (of_find_property(np, "disable-over-current", NULL))
+ 		usbdev->disable_oc = 1;
+ 
++	if (of_find_property(np, "external-vbus-divider", NULL))
++		usbdev->evdo = 1;
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(usbmisc_get_init_data);
+@@ -228,6 +231,15 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 		goto err_clk;
+ 	}
+ 
++	if (usbmisc_ops && usbmisc_ops->post) {
++		ret = usbmisc_ops->post(&pdev->dev);
++		if (ret) {
++			dev_err(&pdev->dev,
++				"usbmisc post failed, ret=%d\n", ret);
++			goto err_clk;
++		}
++	}
++
+ 	data->ci_pdev = plat_ci;
+ 	platform_set_drvdata(pdev, data);
+ 
+diff --git a/drivers/usb/chipidea/ci13xxx_imx.h b/drivers/usb/chipidea/ci13xxx_imx.h
+index 9cd2e91..550bfa4 100644
+--- a/drivers/usb/chipidea/ci13xxx_imx.h
++++ b/drivers/usb/chipidea/ci13xxx_imx.h
+@@ -13,6 +13,8 @@
+ struct usbmisc_ops {
+ 	/* It's called once when probe a usb device */
+ 	int (*init)(struct device *dev);
++	/* It's called once after adding a usb device */
++	int (*post)(struct device *dev);
+ };
+ 
+ struct usbmisc_usb_device {
+@@ -20,6 +22,7 @@ struct usbmisc_usb_device {
+ 	int index;
+ 
+ 	unsigned int disable_oc:1; /* over current detect disabled */
++	unsigned int evdo:1; /* set external vbus divider option */
+ };
+ 
+ int usbmisc_set_ops(const struct usbmisc_ops *ops);
+diff --git a/drivers/usb/chipidea/usbmisc_imx.c b/drivers/usb/chipidea/usbmisc_imx.c
+index 5f385b0..d559873 100644
+--- a/drivers/usb/chipidea/usbmisc_imx.c
++++ b/drivers/usb/chipidea/usbmisc_imx.c
+@@ -14,11 +14,15 @@
+ #include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/io.h>
++#include <linux/delay.h>
+ 
+ #include "ci13xxx_imx.h"
+ 
+ #define USB_DEV_MAX 4
+ 
++#define MX25_USB_PHY_CTRL_OFFSET	0x08
++#define MX25_BM_EXTERNAL_VBUS_DIVIDER	BIT(23)
++
+ #define MX53_USB_OTG_PHY_CTRL_0_OFFSET	0x08
+ #define MX53_USB_UH2_CTRL_OFFSET	0x14
+ #define MX53_USB_UH3_CTRL_OFFSET	0x18
+@@ -59,6 +63,30 @@ static struct usbmisc_usb_device *get_usbdev(struct device *dev)
+ 	return &usbmisc->usbdev[i];
+ }
+ 
++static int usbmisc_imx25_post(struct device *dev)
++{
++	struct usbmisc_usb_device *usbdev;
++	void __iomem *reg;
++	unsigned long flags;
++	u32 val;
++
++	usbdev = get_usbdev(dev);
++	if (IS_ERR(usbdev))
++		return PTR_ERR(usbdev);
++
++	reg = usbmisc->base + MX25_USB_PHY_CTRL_OFFSET;
++
++	if (usbdev->evdo) {
++		spin_lock_irqsave(&usbmisc->lock, flags);
++		val = readl(reg);
++		writel(val | MX25_BM_EXTERNAL_VBUS_DIVIDER, reg);
++		spin_unlock_irqrestore(&usbmisc->lock, flags);
++		usleep_range(5000, 10000); /* needed to stabilize voltage */
++	}
++
++	return 0;
++}
++
+ static int usbmisc_imx53_init(struct device *dev)
+ {
+ 	struct usbmisc_usb_device *usbdev;
+@@ -120,6 +148,10 @@ static int usbmisc_imx6q_init(struct device *dev)
+ 	return 0;
+ }
+ 
++static const struct usbmisc_ops imx25_usbmisc_ops = {
++	.post = usbmisc_imx25_post,
++};
++
+ static const struct usbmisc_ops imx53_usbmisc_ops = {
+ 	.init = usbmisc_imx53_init,
+ };
+@@ -129,6 +161,7 @@ static const struct usbmisc_ops imx6q_usbmisc_ops = {
+ };
+ 
+ static const struct of_device_id usbmisc_imx_dt_ids[] = {
++	{ .compatible = "fsl,imx25-usbmisc", .data = (void *)&imx25_usbmisc_ops },
+ 	{ .compatible = "fsl,imx53-usbmisc", .data = (void *)&imx53_usbmisc_ops },
+ 	{ .compatible = "fsl,imx6q-usbmisc", .data = (void *)&imx6q_usbmisc_ops },
+ 	{ /* sentinel */ }
+-- 
+1.7.10.4
+

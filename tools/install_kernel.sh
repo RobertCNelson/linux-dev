@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/sh -e
 #
 # Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
 #
@@ -145,9 +145,8 @@ mmc_detect_n_mount () {
 	echo "-----------------------------"
 	num_partitions=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | wc -l)
 
-	for (( i=1; i<=${num_partitions}; i++ ))
-	do
-		partition=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | head -${c} | tail -1 | awk '{print $1}')
+	i=0 ; while test $i -le ${num_partitions} ; do
+		partition=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | head -${i} | tail -1 | awk '{print $1}')
 		echo "Trying ${partition}"
 
 		if [ ! -d "${DIR}/deploy/disk/" ] ; then
@@ -166,6 +165,7 @@ mmc_detect_n_mount () {
 			mmc_partition_discover
 			mmc_unmount
 		fi
+		i=$(($i+1))
 	done
 
 	echo "-----------------------------"
@@ -185,10 +185,10 @@ unmount_partitions () {
 
 	NUM_MOUNTS=$(mount | grep -v none | grep "${MMC}" | wc -l)
 
-	for (( i=1; i<=${NUM_MOUNTS}; i++ ))
-	do
+	i=0 ; while test $i -le ${NUM_MOUNTS} ; do
 		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
 		sudo umount ${DRIVE} >/dev/null 2>&1 || true
+		i=$(($i+1)
 	done
 
 	mkdir -p "${DIR}/deploy/disk/"

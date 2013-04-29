@@ -71,15 +71,6 @@ arm () {
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 }
 
-imx () {
-	echo "dir: imx"
-	${git} "${DIR}/patches/imx/0001-ARM-imx-Enable-UART1-for-Sabrelite.patch"
-	${git} "${DIR}/patches/imx/0002-Add-IMX6Q-AHCI-support.patch"
-	${git} "${DIR}/patches/imx/0003-imx-Add-IMX53-AHCI-support.patch"
-	${git} "${DIR}/patches/imx/0005-SAUCE-imx6-enable-sata-clk-if-SATA_AHCI_PLATFORM.patch"
-#	${git} "${DIR}/patches/imx/0005-staging-imx-drm-request-irq-only-after-adding-the-cr.patch"
-}
-
 omap () {
 	echo "dir: omap"
 	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
@@ -106,7 +97,6 @@ omap () {
 	echo "dir: omap/beagle"
 	#Status: for meego guys..
 	${git} "${DIR}/patches/omap_beagle/0001-meego-modedb-add-Toshiba-LTA070B220F-800x480-support.patch"
-
 	${git} "${DIR}/patches/omap_beagle/0002-backlight-Add-TLC59108-backlight-control-driver.patch"
 	${git} "${DIR}/patches/omap_beagle/0003-tlc59108-adjust-for-beagleboard-uLCD7.patch"
 
@@ -122,65 +112,72 @@ omap () {
 	#Status: unknown: cherry picked from linaro
 	${git} "${DIR}/patches/omap_panda/0002-ti-st-st-kim-fixing-firmware-path.patch"
 	${git} "${DIR}/patches/omap_panda/0003-Panda-expansion-add-spidev.patch"
+	${git} "${DIR}/patches/omap_panda/0004-HACK-PandaES-disable-cpufreq-so-board-will-boot.patch"
+#	${git} "${DIR}/patches/omap_panda/0005-HACK-panda-enable-OMAP4_ERRATA_I688.patch"
+	${git} "${DIR}/patches/omap_panda/0006-ARM-hw_breakpoint-Enable-debug-powerdown-only-if-sys.patch"
+
+	#Status: not for upstream: http://www.spinics.net/lists/arm-kernel/msg214633.html
+	#Fixes:
+	#WARNING: "v7_dma_flush_range" *pvrsrvkm.ko] undefined!
+	#WARNING: "v7_dma_map_area" *pvrsrvkm.ko] undefined!
+	${git} "${DIR}/patches/omap_sgx/0001-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 }
 
-omap_dt () {
-	echo "dir: omap_dt"
-	${git} "${DIR}/patches/omap_dt/0001-ARM-dts-AM33XX-Rename-I2C-and-GPIO-nodes.patch"
-	${git} "${DIR}/patches/omap_dt/0002-ARM-dts-omap3-Add-generic-DT-support-for-IGEP-device.patch"
-	${git} "${DIR}/patches/omap_dt/0003-ARM-dts-omap3-Add-support-for-IGEPv2-board.patch"
-	${git} "${DIR}/patches/omap_dt/0004-ARM-dts-omap3-Add-support-for-IGEP-COM-Module.patch"
-	${git} "${DIR}/patches/omap_dt/0005-ARM-dts-omap3-igep-Add-uart1-and-uart2-to-igep-board.patch"
-	${git} "${DIR}/patches/omap_dt/0006-ARM-dts-AM33XX-Add-d_can-instances-to-aliases.patch"
-	${git} "${DIR}/patches/omap_dt/0007-ARM-dts-AM33XX-Add-memory-resource-to-d_can-node.patch"
-	${git} "${DIR}/patches/omap_dt/0008-ARM-dts-twl4030-Add-PWM-support.patch"
-	${git} "${DIR}/patches/omap_dt/0009-ARM-dts-twl6030-Add-PWM-support.patch"
-	${git} "${DIR}/patches/omap_dt/0010-ARM-dts-omap3-beagle-xm-Use-pwm-leds-for-pmu_stat-LE.patch"
-	${git} "${DIR}/patches/omap_dt/0011-ARM-dts-omap4-sdp-Add-support-for-pwm-leds-keypad-an.patch"
-	${git} "${DIR}/patches/omap_dt/0012-ARM-dts-omap4-sdp-Add-support-for-pwm-backlight.patch"
-	${git} "${DIR}/patches/omap_dt/0013-ARM-dts-omap3-overo-Add-support-for-pwm-leds.patch"
-	${git} "${DIR}/patches/omap_dt/0014-ARM-dts-omap4-sdp-Add-I2c-pinctrl-data.patch"
-	${git} "${DIR}/patches/omap_dt/0015-ARM-dts-omap3-overo-Add-audio-support.patch"
-	${git} "${DIR}/patches/omap_dt/0016-ARM-dts-omap5-evm-Add-I2c-pinctrl-data.patch"
-	${git} "${DIR}/patches/omap_dt/0017-ARM-dts-omap4-panda-Add-I2c-pinctrl-data.patch"
-	${git} "${DIR}/patches/omap_dt/0018-ARM-dts-OMAP5-Add-SPI-nodes.patch"
-	${git} "${DIR}/patches/omap_dt/0019-ARM-dts-omap5-evm-Add-mcspi-data.patch"
-	${git} "${DIR}/patches/omap_dt/0020-ARM-dts-OMAP3-Add-GPMC-controller.patch"
-	${git} "${DIR}/patches/omap_dt/0021-ARM-dts-OMAP3-reduce-GPMC-mapped-registers-address-s.patch"
-	${git} "${DIR}/patches/omap_dt/0022-ARM-dts-OMAP4-Add-omap-control-usb-data.patch"
-	${git} "${DIR}/patches/omap_dt/0023-ARM-dts-OMAP4-Add-omap-usb2-data.patch"
-	${git} "${DIR}/patches/omap_dt/0024-ARM-dts-OMAP-Add-usb_otg-and-glue-data-to-OMAP3-boar.patch"
-	${git} "${DIR}/patches/omap_dt/0025-ARM-dts-OMAP5-Add-OMAP-control-usb-data.patch"
-	${git} "${DIR}/patches/omap_dt/0026-ARM-dts-OMAP5-Add-ocp2scp-data.patch"
-	${git} "${DIR}/patches/omap_dt/0027-ARM-dts-OMAP5-Add-omap-usb3-and-omap-usb2-data.patch"
-	${git} "${DIR}/patches/omap_dt/0028-ARM-dts-OMAP5-add-dwc3-omap-and-dwc3-core-data.patch"
-	${git} "${DIR}/patches/omap_dt/0029-ARM-OMAP2-Prepare-for-device-tree-PMU-support.patch"
-	${git} "${DIR}/patches/omap_dt/0030-ARM-dts-OMAP2-Add-PMU-nodes.patch"
-	${git} "${DIR}/patches/omap_dt/0031-ARM-dts-OMAP2-Add-SDMA-controller-bindings-and-nodes.patch"
-	${git} "${DIR}/patches/omap_dt/0032-ARM-dts-Add-GPMC-node-for-OMAP2-OMAP4-and-OMAP5.patch"
-	${git} "${DIR}/patches/omap_dt/0033-ARM-dts-Add-OMAP2-gpio-bindings.patch"
-	${git} "${DIR}/patches/omap_dt/0034-ARM-dts-OMAP3-Correct-gpio-interrupts-cells-property.patch"
-	${git} "${DIR}/patches/omap_dt/0035-ARM-dts-OMAP3-Add-reg-and-interrupt-properties-for-g.patch"
-	${git} "${DIR}/patches/omap_dt/0036-ARM-dts-OMAP3-Add-support-for-OMAP3430-SDP-board.patch"
-	${git} "${DIR}/patches/omap_dt/0037-ARM-dts-OMAP2-Add-SDMA-Audio-IPs-bindings.patch"
-	${git} "${DIR}/patches/omap_dt/0038-ARM-dts-Add-minimal-DT-support-for-DevKit8000.patch"
-	${git} "${DIR}/patches/omap_dt/0039-ARM-dts-omap3-devkit8000-Enable-audio-support.patch"
-	${git} "${DIR}/patches/omap_dt/0040-ARM-dts-omap3-devkit8000-Add-NAND-DT-node.patch"
-	${git} "${DIR}/patches/omap_dt/0041-ARM-dts-OMAP34xx-35xx-Add-CPU-OPP-table.patch"
-	${git} "${DIR}/patches/omap_dt/0042-ARM-dts-OMAP36xx-Add-CPU-OPP-table.patch"
-	${git} "${DIR}/patches/omap_dt/0043-ARM-dts-OMAP3-use-twl4030-vdd1-regulator-for-CPU.patch"
-	${git} "${DIR}/patches/omap_dt/0044-ARM-dts-OMAP443x-Add-CPU-OPP-table.patch"
-	${git} "${DIR}/patches/omap_dt/0045-ARM-dts-omap4-panda-move-generic-sections-to-panda-c.patch"
-	${git} "${DIR}/patches/omap_dt/0046-ARM-dts-OMAP4460-Add-CPU-OPP-table.patch"
-	${git} "${DIR}/patches/omap_dt/0047-ARM-OMAP3-use-cpu0-cpufreq-driver-in-device-tree-sup.patch"
-	${git} "${DIR}/patches/omap_dt/0048-cpufreq-OMAP-donot-allow-to-be-used-with-device-tree.patch"
+sprz319_erratum () {
+	echo "dir: omap_sprz319-erratum-2.1"
+	${git} "${DIR}/patches/omap_sprz319-erratum-2.1/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum.patch"
+}
+
+imx () {
+	echo "dir: imx"
+	${git} "${DIR}/patches/imx/0001-ARM-imx-Enable-UART1-for-Sabrelite.patch"
+	${git} "${DIR}/patches/imx/0002-Add-IMX6Q-AHCI-support.patch"
+	${git} "${DIR}/patches/imx/0003-imx-Add-IMX53-AHCI-support.patch"
+	${git} "${DIR}/patches/imx/0005-SAUCE-imx6-enable-sata-clk-if-SATA_AHCI_PLATFORM.patch"
+#	${git} "${DIR}/patches/imx/0005-staging-imx-drm-request-irq-only-after-adding-the-cr.patch"
+	${git} "${DIR}/patches/imx/0006-arm-fec-use-random-mac-when-everything-else-fails.patch"
+}
+
+chipidea () {
+	echo "dir: chipidea"
+	${git} "${DIR}/patches/chipidea/0001-USB-move-bulk-of-otg-otg.c-to-phy-phy.c.patch"
+	${git} "${DIR}/patches/chipidea/0002-USB-add-devicetree-helpers-for-determining-dr_mode-a.patch"
+	${git} "${DIR}/patches/chipidea/0003-USB-chipidea-ci13xxx-imx-create-dynamic-platformdata.patch"
+	${git} "${DIR}/patches/chipidea/0004-USB-chipidea-add-PTW-and-PTS-handling.patch"
+	${git} "${DIR}/patches/chipidea/0005-USB-chipidea-introduce-dual-role-mode-pdata-flags.patch"
+	${git} "${DIR}/patches/chipidea/0006-USB-chipidea-i.MX-introduce-dr_mode-property.patch"
+	${git} "${DIR}/patches/chipidea/0007-USB-mxs-phy-Register-phy-with-framework.patch"
+	${git} "${DIR}/patches/chipidea/0008-USB-chipidea-i.MX-use-devm_usb_get_phy_by_phandle-to.patch"
+	${git} "${DIR}/patches/chipidea/0009-Revert-USB-chipidea-add-vbus-detect-for-udc.patch"
+	${git} "${DIR}/patches/chipidea/0010-usb-chipidea-add-otg-file.patch"
+	${git} "${DIR}/patches/chipidea/0011-usb-chipidea-add-otg-id-switch-and-vbus-connect-disc.patch"
+	${git} "${DIR}/patches/chipidea/0012-usb-chipidea-udc-add-pullup-pulldown-dp-at-hw_device.patch"
+	${git} "${DIR}/patches/chipidea/0013-usb-chipidea-udc-retire-the-flag-CI13_PULLUP_ON_VBUS.patch"
+	${git} "${DIR}/patches/chipidea/0014-usb-chipidea-add-vbus-regulator-control.patch"
+	${git} "${DIR}/patches/chipidea/0015-usb-chipidea-delete-the-delayed-work.patch"
+	${git} "${DIR}/patches/chipidea/0016-usb-chipidea-imx-add-getting-vbus-regulator-code.patch"
+	${git} "${DIR}/patches/chipidea/0017-usb-chipidea-udc-fix-the-oops-when-plugs-in-usb-cabl.patch"
+	${git} "${DIR}/patches/chipidea/0018-usb-chipidea-imx-select-usb-id-pin-using-syscon-inte.patch"
+	${git} "${DIR}/patches/chipidea/0019-usb-chipidea-usbmisc-rename-file-struct-and-function.patch"
+	${git} "${DIR}/patches/chipidea/0020-usb-chipidea-usbmisc-unset-global-varibale-usbmisc-o.patch"
+	${git} "${DIR}/patches/chipidea/0021-usb-chipidea-usbmisc-fix-a-potential-race-condition.patch"
+	${git} "${DIR}/patches/chipidea/0022-usb-chipidea-usbmisc-prepare-driver-to-handle-more-t.patch"
+	${git} "${DIR}/patches/chipidea/0023-usb-chipidea-usbmisc-add-mx53-support.patch"
+	${git} "${DIR}/patches/chipidea/0024-usb-chipidea-usbmisc-add-post-handling-and-errata-fi.patch"
+	${git} "${DIR}/patches/chipidea/0025-usb-chipidea-imx-Add-system-suspend-resume-API.patch"
+	${git} "${DIR}/patches/chipidea/0026-ARM-dts-imx-add-imx5x-usbmisc-entries.patch"
+	${git} "${DIR}/patches/chipidea/0027-ARM-dts-imx-add-imx5x-usb-clock-DT-lookups.patch"
+	${git} "${DIR}/patches/chipidea/0028-ARM-dts-imx-use-usb-nop-xceiv-usbphy-entries-for-imx.patch"
+	${git} "${DIR}/patches/chipidea/0029-ARM-dts-imx-imx53-qsb.dts-enable-usbotg-and-usbh1.patch"
 }
 
 edma
-
 arm
-imx
 omap
-omap_dt
+#Disabled for testing...
+#sprz319_erratum
+
+imx
+chipidea
 
 echo "patch.sh ran successful"

@@ -1,0 +1,41 @@
+From 96f76b06268a1048768a8544da0300fa7fed750e Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 27 Mar 2013 17:37:45 -0500
+Subject: [PATCH] HACK: panda: enable OMAP4_ERRATA_I688
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/include/asm/barrier.h |    3 ++-
+ arch/arm/mach-omap2/Kconfig    |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/include/asm/barrier.h b/arch/arm/include/asm/barrier.h
+index 8dcd9c7..3937ac3 100644
+--- a/arch/arm/include/asm/barrier.h
++++ b/arch/arm/include/asm/barrier.h
+@@ -38,7 +38,8 @@
+ #endif
+ 
+ #ifdef CONFIG_ARCH_HAS_BARRIERS
+-#include <mach/barriers.h>
++//#include <mach/barriers.h>
++#include "../mach-omap2/include/mach/barriers.h"
+ #elif defined(CONFIG_ARM_DMA_MEM_BUFFERABLE) || defined(CONFIG_SMP)
+ #define mb()		do { dsb(); outer_sync(); } while (0)
+ #define rmb()		dsb()
+diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
+index 1d01905..1dba009 100644
+--- a/arch/arm/mach-omap2/Kconfig
++++ b/arch/arm/mach-omap2/Kconfig
+@@ -409,7 +409,7 @@ config OMAP3_SDRC_AC_TIMING
+ 
+ config OMAP4_ERRATA_I688
+ 	bool "OMAP4 errata: Async Bridge Corruption"
+-	depends on ARCH_OMAP4 && !ARCH_MULTIPLATFORM
++	depends on ARCH_OMAP4
+ 	select ARCH_HAS_BARRIERS
+ 	help
+ 	  If a data is stalled inside asynchronous bridge because of back
+-- 
+1.7.10.4
+

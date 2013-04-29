@@ -1,0 +1,80 @@
+From b4d60d840ea01addb9276766ba31677db26bdd17 Mon Sep 17 00:00:00 2001
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Date: Tue, 17 Jul 2012 22:38:20 +0200
+Subject: [PATCH 03/25] USB: chipidea: ci13xxx-imx: create dynamic
+ platformdata
+
+This patch removes the limitation of having only one instance of the
+ci13xxx-imx platformdata and makes different configurations possible.
+
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Reviewed-by: Peter Chen <peter.chen@freescale.com>
+---
+ drivers/usb/chipidea/ci13xxx_imx.c |   25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/usb/chipidea/ci13xxx_imx.c b/drivers/usb/chipidea/ci13xxx_imx.c
+index 8c29122..69024e0 100644
+--- a/drivers/usb/chipidea/ci13xxx_imx.c
++++ b/drivers/usb/chipidea/ci13xxx_imx.c
+@@ -85,17 +85,10 @@ EXPORT_SYMBOL_GPL(usbmisc_get_init_data);
+ 
+ /* End of common functions shared by usbmisc drivers*/
+ 
+-static struct ci13xxx_platform_data ci13xxx_imx_platdata  = {
+-	.name			= "ci13xxx_imx",
+-	.flags			= CI13XXX_REQUIRE_TRANSCEIVER |
+-				  CI13XXX_PULLUP_ON_VBUS |
+-				  CI13XXX_DISABLE_STREAMING,
+-	.capoffset		= DEF_CAPOFFSET,
+-};
+-
+ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ {
+ 	struct ci13xxx_imx_data *data;
++	struct ci13xxx_platform_data *pdata;
+ 	struct platform_device *plat_ci, *phy_pdev;
+ 	struct device_node *phy_np;
+ 	struct resource *res;
+@@ -107,6 +100,18 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 		&& !usbmisc_ops)
+ 		return -EPROBE_DEFER;
+ 
++	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata) {
++		dev_err(&pdev->dev, "Failed to allocate CI13xxx-IMX pdata!\n");
++		return -ENOMEM;
++	}
++
++	pdata->name = "ci13xxx_imx";
++	pdata->capoffset = DEF_CAPOFFSET;
++	pdata->flags = CI13XXX_REQUIRE_TRANSCEIVER |
++		       CI13XXX_PULLUP_ON_VBUS |
++		       CI13XXX_DISABLE_STREAMING;
++
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data) {
+ 		dev_err(&pdev->dev, "Failed to allocate CI13xxx-IMX data!\n");
+@@ -168,7 +173,7 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 		reg_vbus = NULL;
+ 	}
+ 
+-	ci13xxx_imx_platdata.phy = data->phy;
++	pdata->phy = data->phy;
+ 
+ 	if (!pdev->dev.dma_mask) {
+ 		pdev->dev.dma_mask = devm_kzalloc(&pdev->dev,
+@@ -193,7 +198,7 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 
+ 	plat_ci = ci13xxx_add_device(&pdev->dev,
+ 				pdev->resource, pdev->num_resources,
+-				&ci13xxx_imx_platdata);
++				pdata);
+ 	if (IS_ERR(plat_ci)) {
+ 		ret = PTR_ERR(plat_ci);
+ 		dev_err(&pdev->dev,
+-- 
+1.7.10.4
+

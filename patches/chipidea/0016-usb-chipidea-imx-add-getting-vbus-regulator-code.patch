@@ -1,0 +1,95 @@
+From f8487e8ce26cc1b4a83848fc0d881aebff587385 Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@freescale.com>
+Date: Fri, 1 Mar 2013 17:48:30 +0800
+Subject: [PATCH 16/25] usb: chipidea: imx: add getting vbus regulator code
+
+Signed-off-by: Peter Chen <peter.chen@freescale.com>
+---
+ drivers/usb/chipidea/ci13xxx_imx.c |   28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/usb/chipidea/ci13xxx_imx.c b/drivers/usb/chipidea/ci13xxx_imx.c
+index dc2453c..ebed129 100644
+--- a/drivers/usb/chipidea/ci13xxx_imx.c
++++ b/drivers/usb/chipidea/ci13xxx_imx.c
+@@ -33,7 +33,6 @@ struct ci13xxx_imx_data {
+ 	struct usb_phy *phy;
+ 	struct platform_device *ci_pdev;
+ 	struct clk *clk;
+-	struct regulator *reg_vbus;
+ };
+ 
+ static const struct usbmisc_ops *usbmisc_ops;
+@@ -163,20 +162,9 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 		data->phy = phy;
+ 	}
+ 
+-	/* we only support host now, so enable vbus here */
+ 	reg_vbus = devm_regulator_get(&pdev->dev, "vbus");
+-	if (!IS_ERR(reg_vbus)) {
+-		ret = regulator_enable(reg_vbus);
+-		if (ret) {
+-			dev_err(&pdev->dev,
+-				"Failed to enable vbus regulator, err=%d\n",
+-				ret);
+-			goto err_clk;
+-		}
+-		data->reg_vbus = reg_vbus;
+-	} else {
+-		reg_vbus = NULL;
+-	}
++	if (!IS_ERR(reg_vbus))
++		pdata->reg_vbus = reg_vbus;
+ 
+ 	pdata->phy = data->phy;
+ 
+@@ -186,7 +174,7 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 		if (!pdev->dev.dma_mask) {
+ 			ret = -ENOMEM;
+ 			dev_err(&pdev->dev, "Failed to alloc dma_mask!\n");
+-			goto err;
++			goto err_clk;
+ 		}
+ 		*pdev->dev.dma_mask = DMA_BIT_MASK(32);
+ 		dma_set_coherent_mask(&pdev->dev, *pdev->dev.dma_mask);
+@@ -197,7 +185,7 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(&pdev->dev,
+ 				"usbmisc init failed, ret=%d\n", ret);
+-			goto err;
++			goto err_clk;
+ 		}
+ 	}
+ 
+@@ -209,7 +197,7 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev,
+ 			"Can't register ci_hdrc platform device, err=%d\n",
+ 			ret);
+-		goto err;
++		goto err_clk;
+ 	}
+ 
+ 	data->ci_pdev = plat_ci;
+@@ -220,9 +208,6 @@ static int ci13xxx_imx_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
+-err:
+-	if (reg_vbus)
+-		regulator_disable(reg_vbus);
+ err_clk:
+ 	clk_disable_unprepare(data->clk);
+ 	return ret;
+@@ -235,9 +220,6 @@ static int ci13xxx_imx_remove(struct platform_device *pdev)
+ 	pm_runtime_disable(&pdev->dev);
+ 	ci13xxx_remove_device(data->ci_pdev);
+ 
+-	if (data->reg_vbus)
+-		regulator_disable(data->reg_vbus);
+-
+ 	if (data->phy) {
+ 		usb_phy_shutdown(data->phy);
+ 		module_put(data->phy->dev->driver->owner);
+-- 
+1.7.10.4
+

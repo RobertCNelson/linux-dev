@@ -1,0 +1,116 @@
+From 7680db26de8261d17cafed3efbddffa4aa0816ed Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@freescale.com>
+Date: Thu, 10 Jan 2013 16:35:54 +0800
+Subject: [PATCH 25/25] usb: chipidea: imx: Add system suspend/resume API
+
+During the system suspend/resume procedure, the USB also
+needs to go suspend/resume procedure, this patch adds
+related APIs. It is tested at i.mx6q sabrelite. Meanwhile,
+it fixes the bug that the USB will out of work after
+system suspend/resume.
+
+Signed-off-by: Peter Chen <peter.chen@freescale.com>
+---
+ drivers/usb/chipidea/bits.h        |    1 +
+ drivers/usb/chipidea/ci13xxx_imx.c |   59 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 60 insertions(+)
+
+diff --git a/drivers/usb/chipidea/bits.h b/drivers/usb/chipidea/bits.h
+index 58ef56c..4be0e61 100644
+--- a/drivers/usb/chipidea/bits.h
++++ b/drivers/usb/chipidea/bits.h
+@@ -47,6 +47,7 @@
+ #define PORTSC_FPR            BIT(6)
+ #define PORTSC_SUSP           BIT(7)
+ #define PORTSC_HSP            BIT(9)
++#define PORTSC_PHCD           BIT(23) /* phy suspend mode */
+ #define PORTSC_PTC            (0x0FUL << 16)
+ /* PTS and PTW for non lpm version only */
+ #define PORTSC_PTS(d)         ((((d) & 0x3) << 30) | (((d) & 0x4) ? BIT(25) : 0))
+diff --git a/drivers/usb/chipidea/ci13xxx_imx.c b/drivers/usb/chipidea/ci13xxx_imx.c
+index 039b7fb..d46c755 100644
+--- a/drivers/usb/chipidea/ci13xxx_imx.c
++++ b/drivers/usb/chipidea/ci13xxx_imx.c
+@@ -26,6 +26,7 @@
+ #include <linux/mfd/syscon.h>
+ 
+ #include "ci.h"
++#include "bits.h"
+ #include "ci13xxx_imx.h"
+ 
+ #define pdev_to_phy(pdev) \
+@@ -272,6 +273,61 @@ static int ci13xxx_imx_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
++static int ci13xxx_imx_suspend(struct device *dev)
++{
++	struct ci13xxx_imx_data *data = dev_get_drvdata(dev);
++	struct platform_device *plat_ci;
++	struct ci13xxx	*ci;
++
++	plat_ci = data->ci_pdev;
++	ci = platform_get_drvdata(plat_ci);
++
++	hw_write(ci, OP_PORTSC, PORTSC_PHCD, PORTSC_PHCD);
++
++	if (data->phy)
++		usb_phy_set_suspend(data->phy, 1);
++
++	clk_disable_unprepare(data->clk);
++
++	return 0;
++}
++
++static int ci13xxx_imx_resume(struct device *dev)
++{
++	int ret;
++	struct ci13xxx_imx_data *data = dev_get_drvdata(dev);
++	struct platform_device *plat_ci;
++	struct ci13xxx	*ci;
++
++	plat_ci = data->ci_pdev;
++	ci = platform_get_drvdata(plat_ci);
++
++	ret = clk_prepare_enable(data->clk);
++	if (ret) {
++		dev_err(dev,
++			"Failed to prepare or enable clock, err=%d\n", ret);
++		return ret;
++	}
++
++	if (hw_read(ci, OP_PORTSC, PORTSC_PHCD)) {
++		hw_write(ci, OP_PORTSC, PORTSC_PHCD, 0);
++		/* Some clks sync between Controller and USB PHY */
++		mdelay(1);
++	}
++
++	if (data->phy)
++		usb_phy_set_suspend(data->phy, 0);
++
++	return ret;
++}
++
++static const struct dev_pm_ops ci13xxx_imx_pm_ops = {
++	.suspend	= ci13xxx_imx_suspend,
++	.resume		= ci13xxx_imx_resume,
++};
++#endif
++
+ static const struct of_device_id ci13xxx_imx_dt_ids[] = {
+ 	{ .compatible = "fsl,imx27-usb", },
+ 	{ /* sentinel */ }
+@@ -285,6 +341,9 @@ static struct platform_driver ci13xxx_imx_driver = {
+ 		.name = "imx_usb",
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = ci13xxx_imx_dt_ids,
++#ifdef CONFIG_PM
++		.pm	= &ci13xxx_imx_pm_ops,
++#endif
+ 	 },
+ };
+ 
+-- 
+1.7.10.4
+
