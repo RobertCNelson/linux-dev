@@ -165,7 +165,7 @@ mmc_detect_n_mount () {
 			mmc_partition_discover
 			mmc_unmount
 		fi
-		i=$(($i+1))
+	i=$(($i+1))
 	done
 
 	echo "-----------------------------"
@@ -188,7 +188,7 @@ unmount_partitions () {
 	i=0 ; while test $i -le ${NUM_MOUNTS} ; do
 		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
 		sudo umount ${DRIVE} >/dev/null 2>&1 || true
-		i=$(($i+1)
+	i=$(($i+1))
 	done
 
 	mkdir -p "${DIR}/deploy/disk/"
