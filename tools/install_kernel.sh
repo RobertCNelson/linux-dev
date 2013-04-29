@@ -47,10 +47,10 @@ mmc_write_rootfs () {
 	fi
 	mkdir -p "${DIR}/deploy/tmp/"
 
-	tar xf "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/tmp/"
+	tar -xf "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/tmp/"
 	sync
 
-	sudo cp -v "${DIR}/deploy/tmp"/*.dtbo "${location}/lib/firmware/" 2>/dev/null
+	sudo cp -v "${DIR}/deploy/tmp"/*.dtbo "${location}/lib/firmware/" 2>/dev/null || true
 	sync
 
 	rm -rf "${DIR}/deploy/tmp/" || true
