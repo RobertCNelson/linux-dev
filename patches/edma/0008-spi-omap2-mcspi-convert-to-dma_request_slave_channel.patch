@@ -14,11 +14,11 @@ filter.
 Signed-off-by: Matt Porter <mporter@ti.com>
 Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 ---
- drivers/spi/spi-omap2-mcspi.c |   27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ drivers/spi/spi-omap2-mcspi.c |   24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
-index 893c3d7..38d0915 100644
+index 86d2158..28a6a7e 100644
 --- a/drivers/spi/spi-omap2-mcspi.c
 +++ b/drivers/spi/spi-omap2-mcspi.c
 @@ -102,6 +102,9 @@ struct omap2_mcspi_dma {
@@ -31,21 +31,17 @@ index 893c3d7..38d0915 100644
  };
  
  /* use PIO for small transfers, avoiding DMA setup/teardown overhead and
-@@ -822,14 +825,23 @@ static int omap2_mcspi_request_dma(struct spi_device *spi)
+@@ -830,12 +833,18 @@ static int omap2_mcspi_request_dma(struct spi_device *spi)
  	dma_cap_zero(mask);
  	dma_cap_set(DMA_SLAVE, mask);
  	sig = mcspi_dma->dma_rx_sync_dev;
 -	mcspi_dma->dma_rx = dma_request_channel(mask, omap_dma_filter_fn, &sig);
-+
 +	mcspi_dma->dma_rx =
 +		dma_request_slave_channel_compat(mask, omap_dma_filter_fn,
 +						 &sig, &master->dev,
 +						 mcspi_dma->dma_rx_ch_name);
-+
- 	if (!mcspi_dma->dma_rx) {
- 		dev_err(&spi->dev, "no RX DMA engine channel for McSPI\n");
- 		return -EAGAIN;
- 	}
+ 	if (!mcspi_dma->dma_rx)
+ 		goto no_dma;
  
  	sig = mcspi_dma->dma_tx_sync_dev;
 -	mcspi_dma->dma_tx = dma_request_channel(mask, omap_dma_filter_fn, &sig);
@@ -53,11 +49,10 @@ index 893c3d7..38d0915 100644
 +		dma_request_slave_channel_compat(mask, omap_dma_filter_fn,
 +						 &sig, &master->dev,
 +						 mcspi_dma->dma_tx_ch_name);
-+
  	if (!mcspi_dma->dma_tx) {
- 		dev_err(&spi->dev, "no TX DMA engine channel for McSPI\n");
  		dma_release_channel(mcspi_dma->dma_rx);
-@@ -1240,12 +1252,13 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
+ 		mcspi_dma->dma_rx = NULL;
+@@ -1256,12 +1265,13 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
  		goto free_master;
  
  	for (i = 0; i < master->num_chipselect; i++) {
@@ -74,7 +69,7 @@ index 893c3d7..38d0915 100644
  		if (!dma_res) {
  			dev_dbg(&pdev->dev, "cannot get DMA RX channel\n");
  			status = -ENODEV;
-@@ -1253,9 +1266,9 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
+@@ -1269,9 +1279,9 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
  		}
  
  		mcspi->dma_channels[i].dma_rx_sync_dev = dma_res->start;
