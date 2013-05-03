@@ -81,6 +81,7 @@ am33x () {
 	${git} "${DIR}/patches/dma/0032-ARM-dts-add-BeagleBone-gpevt-support.patch"
 	${git} "${DIR}/patches/dma/0033-ARM-configs-working-dmaengine-configs-for-da8xx-and-.patch"
 	${git} "${DIR}/patches/dma/0034-ARM-dts-Add-UART4-support-to-BeagleBone.patch"
+	${git} "${DIR}/patches/dma/0035-gpevnt-Remove-__devinit.patch"
 
 	echo "dir: rtc"
 	${git} "${DIR}/patches/rtc/0001-ARM-OMAP2-am33xx-hwmod-Fix-register-offset-NULL-chec.patch"
@@ -493,6 +494,12 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0165-cape-bone-hexy-move-OLED-to-different-reset-gpio.patch"
 	${git} "${DIR}/patches/not-capebus/0166-firmware-capes-added-dts-file-for-every-PWM-pin.patch"
 	${git} "${DIR}/patches/not-capebus/0167-capes-add-LCD7-A3.patch"
+	${git} "${DIR}/patches/not-capebus/0168-capes-add-basic-support-for-LCD4-capes.patch"
+	${git} "${DIR}/patches/not-capebus/0169-OF-overlay-Add-depth-option-for-device-creation.patch"
+	${git} "${DIR}/patches/not-capebus/0170-capes-Add-BB-BONE-GPEVT-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0171-clock-Export-__clock_set_parent.patch"
+	${git} "${DIR}/patches/not-capebus/0172-omap-clk-Add-adjustable-clkout2.patch"
+	${git} "${DIR}/patches/not-capebus/0173-am33xx-Update-DTS-EDMA.patch"
 
 #	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
 
@@ -574,6 +581,8 @@ am33x_after () {
 	${git} "${DIR}/patches/gpmc/0035-gpmc-Add-missing-gpmc-includes.patch"
 	${git} "${DIR}/patches/gpmc/0036-mtd-omap-onenand-pass-device_node-in-platform-data.patch"
 	${git} "${DIR}/patches/gpmc/0037-ARM-OMAP2-Convert-ONENAND-to-use-gpmc_cs_program_set.patch"
+	${git} "${DIR}/patches/gpmc/0038-omap-gpmc-Various-driver-fixes.patch"
+	${git} "${DIR}/patches/gpmc/0039-gpmc-Add-DT-node-for-gpmc-on-am33xx.patch"
 
 	echo "dir: mxt"
 	${git} "${DIR}/patches/mxt/0001-CHROMIUM-Input-atmel_mxt_ts-refactor-i2c-error-handl.patch"
@@ -648,7 +657,9 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0001-video-Add-generic-HDMI-infoframe-helpers.patch"
 	${git} "${DIR}/patches/hdmi/0002-BeagleBone-Black-TDA998x-Initial-HDMI-Audio-support.patch"
 	${git} "${DIR}/patches/hdmi/0003-Clean-up-some-formating-and-debug-in-Davinci-MCASP-d.patch"
+	${git} "${DIR}/patches/hdmi/0004-tilcdc-Prune-modes-that-can-t-support-audio.patch"
 
+	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
 	${git} "${DIR}/patches/resetctrl/0002-capemgr-Implement-cape-priorities.patch"
 	${git} "${DIR}/patches/resetctrl/0003-rstctl-Reset-control-subsystem.patch"
@@ -658,6 +669,15 @@ am33x_after () {
 	${git} "${DIR}/patches/resetctrl/0007-capes-Add-testing-capes-for-rstctl.patch"
 	${git} "${DIR}/patches/resetctrl/0008-omap_hsmmc-Bail-out-when-rstctl-error-is-unrecoverab.patch"
 	${git} "${DIR}/patches/resetctrl/0009-bone-Put-priorities-in-built-in-capes.patch"
+	${git} "${DIR}/patches/resetctrl/0010-bone-common-dtsi-remove-reset-cape.patch"
+
+	echo "dir: camera"
+	${git} "${DIR}/patches/camera/0001-soc_camera-QL-mt9l112-camera-driver-for-the-beaglebo.patch"
+	${git} "${DIR}/patches/camera/0002-capes-Add-BB-BONE-CAM3-cape.patch"
+	${git} "${DIR}/patches/camera/0003-cssp_camera-Correct-license-identifier.patch"
+	${git} "${DIR}/patches/camera/0004-cssp_camera-increase-delays-make-sensor-detection-wo.patch"
+	${git} "${DIR}/patches/camera/0005-mt9t112-forward-port-optimizations-from-Angstrom-3.2.patch"
+	${git} "${DIR}/patches/camera/0006-cssp_camera-Use-flip-if-available.patch"
 
 	echo "dir: firmware"
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git
