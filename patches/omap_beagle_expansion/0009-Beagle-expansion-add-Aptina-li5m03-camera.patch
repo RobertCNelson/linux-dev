@@ -14,11 +14,11 @@ https://github.com/beagleboard/kernel/blob/beagleboard-3.2/patches/camera/0003-b
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c |  152 +++++++++++++++++++++++++++++++
- 1 file changed, 152 insertions(+)
+ arch/arm/mach-omap2/board-omap3beagle.c |  142 +++++++++++++++++++++++++++++++
+ 1 file changed, 142 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 244f1af..4370273 100644
+index 3e0313ee..4fb5eae 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
 @@ -201,6 +201,7 @@ static void __init omap3_beagle_init_rev(void)
@@ -43,8 +43,8 @@ index 244f1af..4370273 100644
 +
  static struct gpio_led gpio_leds[];
  
- static int beagle_twl_gpio_setup(struct device *dev,
-@@ -660,11 +669,43 @@ static struct regulator_init_data beagle_vsim = {
+ /* PHY's VCC regulator might be added later, so flag that we need it */
+@@ -677,11 +686,43 @@ static struct regulator_init_data beagle_vsim = {
  	.consumer_supplies	= beagle_vsim_supply,
  };
  
@@ -88,19 +88,17 @@ index 244f1af..4370273 100644
  };
  
  static struct i2c_board_info __initdata beagle_i2c_eeprom[] = {
-@@ -728,6 +769,71 @@ static void __init omap3beagle_tsc2007_init(void)
+@@ -745,6 +786,61 @@ static void __init omap3beagle_tsc2007_init(void)
  static struct i2c_board_info __initdata beagle_i2c2_bbtoys_ulcd[] = {};
  #endif
  
-+#if defined(CONFIG_VIDEO_MT9P031)
++#if IS_ENABLED(CONFIG_VIDEO_MT9P031)
 +/* needed for: omap3_beagle_late_initcall */
 +#include "devices.h"
 +#include <media/omap3isp.h>
 +#include <media/mt9p031.h>
 +/* needed for: v4l2_dev_to_isp_device */
 +#include "../../../drivers/media/platform/omap3isp/isp.h"
-+
-+#define MT9P031_XCLK		ISP_XCLK_A
 +
 +#define MT9P031_RESET_GPIO	98
 +#define MT9P031_EXT_FREQ	21000000
@@ -111,15 +109,7 @@ index 244f1af..4370273 100644
 +
 +static struct regulator *reg_1v8, *reg_2v8;
 +
-+static int beagle_cam_set_xclk(struct v4l2_subdev *subdev, int hz)
-+{
-+	struct isp_device *isp = v4l2_dev_to_isp_device(subdev->v4l2_dev);
-+
-+	return isp->platform_cb.set_xclk(isp, hz, MT9P031_XCLK);
-+}
-+
 +static struct mt9p031_platform_data beagle_mt9p031_platform_data = {
-+	.set_xclk	= beagle_cam_set_xclk,
 +	.reset		= MT9P031_RESET_GPIO,
 +	.ext_freq	= MT9P031_EXT_FREQ,
 +	.target_freq	= MT9P031_TARGET_FREQ,
@@ -160,7 +150,7 @@ index 244f1af..4370273 100644
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -860,6 +966,18 @@ static int __init expansionboard2_setup(char *str)
+@@ -869,6 +965,18 @@ static int __init expansionboard2_setup(char *str)
  	return 0;
  }
  
@@ -179,7 +169,7 @@ index 244f1af..4370273 100644
  static int __init beagle_opp_init(void)
  {
  	int r = 0;
-@@ -1140,8 +1258,42 @@ static void __init omap3_beagle_init(void)
+@@ -1155,8 +1263,42 @@ static void __init omap3_beagle_init(void)
  	pwm_add_table(pwm_lookup, ARRAY_SIZE(pwm_lookup));
  }
  
@@ -191,7 +181,7 @@ index 244f1af..4370273 100644
 +	if (!cpu_is_omap3630())
 +		return 0;
 +
-+#if defined(CONFIG_VIDEO_MT9P031)
++#if IS_ENABLED(CONFIG_VIDEO_MT9P031)
 +	if ((!strcmp(camera_name, "lbcm5m1")) || (!strcmp(camera_name, "li5m03")))
 +	{
 +		pr_info("Beagle camera: MT9P031 init\n");

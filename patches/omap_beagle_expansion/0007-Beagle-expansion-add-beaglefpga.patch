@@ -8,22 +8,22 @@ Added SPI dev and McBSP 3 mux when FPGA is detected
 Signed-off-by: Bas van der Doorn <bas@doornvd.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap3beagle.c |   74 +++++++++++++++++++++++++++++++
- 1 file changed, 74 insertions(+)
+ arch/arm/mach-omap2/board-omap3beagle.c |   76 +++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index 347705b..29013ac 100644
+index 2322d6c..c257f3c 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -43,6 +43,7 @@
+@@ -44,6 +44,7 @@
  #include <asm/mach/arch.h>
  #include <asm/mach/map.h>
  #include <asm/mach/flash.h>
 +#include <linux/spi/spi.h>
  
  #include <video/omapdss.h>
- #include <video/omap-panel-generic-dpi.h>
-@@ -907,6 +908,68 @@ static int __init beagle_opp_init(void)
+ #include <video/omap-panel-data.h>
+@@ -916,6 +917,68 @@ static int __init beagle_opp_init(void)
  }
  omap_device_initcall(beagle_opp_init);
  
@@ -92,12 +92,13 @@ index 347705b..29013ac 100644
  static void __init omap3_beagle_init(void)
  {
  	omap3_mux_init(board_mux, OMAP_PACKAGE_CBB);
-@@ -1032,6 +1095,17 @@ static void __init omap3_beagle_init(void)
+@@ -1041,6 +1104,19 @@ static void __init omap3_beagle_init(void)
  	#endif
  	}
  
 +	if (!strcmp(expansionboard_name, "beaglefpga"))
 +	{
++	#if IS_ENABLED(CONFIG_SPI_SPIDEV)
 +		pr_info("Beagle expansionboard: enabling SPIdev for McSPI3/4 and pin muxing for McBSP3 slave mode\n");
 +
 +		/* FPGA pin settings configure McSPI 3, McSPI 4 and McBSP 3 */
@@ -105,11 +106,12 @@ index 347705b..29013ac 100644
 +
 +		/* register McSPI 3 and McSPI 4 for FPGA programming and control */
 +		spi_register_board_info(beagle_mcspi_board_info, ARRAY_SIZE(beagle_mcspi_board_info));
++	#endif
 +	}
 +
  	if (!strcmp(expansionboard2_name, "bbtoys-ulcd"))
  	{
- 	#if defined(CONFIG_TOUCHSCREEN_TSC2007) || defined(CONFIG_TOUCHSCREEN_TSC2007_MODULE)
+ 	#if IS_ENABLED(CONFIG_TOUCHSCREEN_TSC2007)
 -- 
 1.7.10.4
 

@@ -10,11 +10,11 @@ https://github.com/RobertCNelson/stable-kernel/issues/22
 Signed-off-by: Adrien Ferre <ferre.adrien@gmail.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap4panda.c |   42 ++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ arch/arm/mach-omap2/board-omap4panda.c |   44 ++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index b02c2f0..6b11231 100644
+index a71ad34..6268258 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
 @@ -22,6 +22,7 @@
@@ -25,7 +25,7 @@ index b02c2f0..6b11231 100644
  #include <linux/gpio.h>
  #include <linux/usb/otg.h>
  #include <linux/i2c/twl.h>
-@@ -34,6 +35,7 @@
+@@ -35,6 +36,7 @@
  #include <linux/wl12xx.h>
  #include <linux/irqchip/arm-gic.h>
  #include <linux/platform_data/omap-abe-twl6040.h>
@@ -33,7 +33,7 @@ index b02c2f0..6b11231 100644
  
  #include <asm/mach-types.h>
  #include <asm/mach/arch.h>
-@@ -53,6 +55,8 @@
+@@ -54,6 +56,8 @@
  #define GPIO_WIFI_PMENA		43
  #define GPIO_WIFI_IRQ		53
  
@@ -42,7 +42,7 @@ index b02c2f0..6b11231 100644
  /* wl127x BT, FM, GPS connectivity chip */
  static struct ti_st_plat_data wilink_platform_data = {
  	.nshutdown_gpio	= 46,
-@@ -98,6 +102,25 @@ static struct platform_device leds_gpio = {
+@@ -99,6 +103,25 @@ static struct platform_device leds_gpio = {
  	},
  };
  
@@ -68,8 +68,8 @@ index b02c2f0..6b11231 100644
  static struct omap_abe_twl6040_data panda_abe_audio_data = {
  	/* Audio out */
  	.has_hs		= ABE_TWL6040_LEFT | ABE_TWL6040_RIGHT,
-@@ -155,6 +178,18 @@ static struct gpio panda_ehci_gpios[] __initdata = {
- 	{ GPIO_HUB_NRESET,	GPIOF_OUT_INIT_LOW,  "hub_nreset" },
+@@ -161,6 +184,18 @@ static struct usbhs_omap_platform_data usbhs_bdata __initdata = {
+ 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
  };
  
 +static int __init expansionboard_setup(char *str)
@@ -87,14 +87,16 @@ index b02c2f0..6b11231 100644
  static void __init omap4_ehci_init(void)
  {
  	int ret;
-@@ -448,11 +483,18 @@ static void __init omap4_panda_init(void)
+@@ -435,11 +470,20 @@ static void __init omap4_panda_init(void)
  	omap_sdrc_init(NULL, NULL);
  	omap4_twl6030_hsmmc_init(mmc);
  	omap4_ehci_init();
 +	if (!strcmp(expboard_name, "spidev"))
 +	{
++	#if IS_ENABLED(CONFIG_SPI_SPIDEV)
 +		pr_info("Panda expansionboard: spidev: enabling spi3/spi4\n");
 +		spi_register_board_info(panda_mcspi_board_info, ARRAY_SIZE(panda_mcspi_board_info));
++	#endif
 +	}
  	usb_bind_phy("musb-hdrc.0.auto", 0, "omap-usb2.1.auto");
  	usb_musb_init(&musb_board_data);

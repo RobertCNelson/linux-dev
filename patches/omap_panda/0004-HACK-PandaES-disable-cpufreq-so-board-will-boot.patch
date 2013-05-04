@@ -9,10 +9,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/cpufreq/omap-cpufreq.c b/drivers/cpufreq/omap-cpufreq.c
-index 9128c07..39a3aef 100644
+index 0279d18..0a8ac09 100644
 --- a/drivers/cpufreq/omap-cpufreq.c
 +++ b/drivers/cpufreq/omap-cpufreq.c
-@@ -30,6 +30,8 @@
+@@ -31,6 +31,8 @@
  #include <asm/smp_plat.h>
  #include <asm/cpu.h>
  
@@ -21,9 +21,9 @@ index 9128c07..39a3aef 100644
  /* OPP tolerance in percentage */
  #define	OPP_TOLERANCE	4
  
-@@ -254,6 +256,11 @@ static struct cpufreq_driver omap_driver = {
+@@ -246,6 +248,11 @@ static struct cpufreq_driver omap_driver = {
  
- static int __init omap_cpufreq_init(void)
+ static int omap_cpufreq_probe(struct platform_device *pdev)
  {
 +	if (cpu_is_omap446x()) {
 +		pr_err("%s: unsupported Silicon?\n", __func__);

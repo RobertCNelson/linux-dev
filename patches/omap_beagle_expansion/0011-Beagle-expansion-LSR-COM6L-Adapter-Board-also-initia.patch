@@ -10,10 +10,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 20 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap3beagle.c b/arch/arm/mach-omap2/board-omap3beagle.c
-index cdc77c5..710f76d 100644
+index 5a7e7b5..6797488 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -35,6 +35,7 @@
+@@ -39,6 +39,7 @@
  #include <linux/regulator/machine.h>
  #include <linux/regulator/fixed.h>
  #include <linux/i2c/twl.h>
@@ -21,7 +21,7 @@ index cdc77c5..710f76d 100644
  
  #include <asm/mach-types.h>
  #include <asm/mach/arch.h>
-@@ -185,6 +186,7 @@ enum {
+@@ -214,6 +215,7 @@ enum {
  	EXPANSION_I2C_NONE = 0,
  	EXPANSION_I2C_ZIPPY,
  	EXPANSION_I2C_7ULCD,
@@ -29,7 +29,7 @@ index cdc77c5..710f76d 100644
  };
  
  static struct {
-@@ -813,6 +815,20 @@ static struct isp_platform_data beagle_isp_platform_data = {
+@@ -856,6 +858,20 @@ static struct isp_platform_data beagle_isp_platform_data = {
  };
  #endif
  
@@ -50,7 +50,7 @@ index cdc77c5..710f76d 100644
  static int __init omap3_beagle_i2c_init(void)
  {
  	omap3_pmic_get_config(&beagle_twldata,
-@@ -832,6 +848,9 @@ static int __init omap3_beagle_i2c_init(void)
+@@ -875,6 +891,9 @@ static int __init omap3_beagle_i2c_init(void)
  	case EXPANSION_I2C_ZIPPY:
  		omap_register_i2c_bus(2, 400, zippy_i2c2_rtc, ARRAY_SIZE(zippy_i2c2_rtc));
  		break;
@@ -60,7 +60,7 @@ index cdc77c5..710f76d 100644
  	default:
  		omap_register_i2c_bus(2, 400, NULL, 0);
  	}
-@@ -1124,6 +1143,7 @@ static void __init omap3_beagle_init(void)
+@@ -1155,6 +1174,7 @@ static void __init omap3_beagle_init(void)
  		omap_mux_init_signal("sdmmc2_dat3.sdmmc2_dat3", OMAP_PIN_INPUT_PULLUP);
  
  		expansion_config.mmc_settings = EXPANSION_MMC_WIFI;

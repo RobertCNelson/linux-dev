@@ -6,14 +6,15 @@ Subject: [PATCH 2/3] Add IMX6Q AHCI support
 Adds device tree node and ahci_platform bits to make AHCI work on sabrelite IMX6Q board.
 
 Signed-off-by: Allen Ibara <allen@zee.aero>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/imx6q-sabrelite.dts |    4 ++++
  arch/arm/boot/dts/imx6q.dtsi          |    8 ++++++++
- drivers/ata/ahci_platform.c           |   28 +++++++++++++++++++++-------
- 3 files changed, 33 insertions(+), 7 deletions(-)
+ drivers/ata/ahci_platform.c           |   27 ++++++++++++++++++++-------
+ 3 files changed, 32 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
-index 83affea..816428b 100644
+index 8ad0fd2..3f7e790 100644
 --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
 +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
 @@ -104,6 +104,10 @@
@@ -28,12 +29,12 @@ index 83affea..816428b 100644
  	vbus-supply = <&reg_usb_otg_vbus>;
  	pinctrl-names = "default";
 diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-index fa954cf..0774f10 100644
+index 4461daa..6cbd2cf 100644
 --- a/arch/arm/boot/dts/imx6q.dtsi
 +++ b/arch/arm/boot/dts/imx6q.dtsi
-@@ -299,5 +299,13 @@
- 			clocks = <&clks 133>, <&clks 134>, <&clks 137>;
+@@ -344,6 +344,14 @@
  			clock-names = "bus", "di0", "di1";
+ 			resets = <&src 4>;
  		};
 +
 +		ahci: ahci@0x02200000 { /* AHCI SATA */
@@ -45,8 +46,9 @@ index fa954cf..0774f10 100644
 +		};
  	};
  };
+ 
 diff --git a/drivers/ata/ahci_platform.c b/drivers/ata/ahci_platform.c
-index 7a8a284..7d22da2 100644
+index 7a8a284..d324cdf 100644
 --- a/drivers/ata/ahci_platform.c
 +++ b/drivers/ata/ahci_platform.c
 @@ -23,6 +23,9 @@
@@ -67,18 +69,17 @@ index 7a8a284..7d22da2 100644
  	STRICT_AHCI,	/* delayed DMA engine start */
  };
  
-@@ -41,6 +45,10 @@ static struct platform_device_id ahci_devtype[] = {
+@@ -41,6 +45,9 @@ static struct platform_device_id ahci_devtype[] = {
  		.name = "imx53-ahci",
  		.driver_data = IMX53_AHCI,
  	}, {
-+	}, {
 +		.name = "imx6q-ahci",
 +		.driver_data = IMX53_AHCI,
 +	}, {
  		.name = "strict-ahci",
  		.driver_data = STRICT_AHCI,
  	}, {
-@@ -86,12 +94,24 @@ static struct scsi_host_template ahci_platform_sht = {
+@@ -86,12 +93,24 @@ static struct scsi_host_template ahci_platform_sht = {
  	AHCI_SHT("ahci_platform"),
  };
  
@@ -104,7 +105,7 @@ index 7a8a284..7d22da2 100644
  	const struct ata_port_info *ppi[] = { &pi, NULL };
  	struct ahci_host_priv *hpriv;
  	struct ata_host *host;
-@@ -325,12 +345,6 @@ disable_unprepare_clk:
+@@ -325,12 +344,6 @@ disable_unprepare_clk:
  
  static SIMPLE_DEV_PM_OPS(ahci_pm_ops, ahci_suspend, ahci_resume);
  

@@ -136,6 +136,7 @@ imx () {
 	${git} "${DIR}/patches/imx/0005-SAUCE-imx6-enable-sata-clk-if-SATA_AHCI_PLATFORM.patch"
 #	${git} "${DIR}/patches/imx/0005-staging-imx-drm-request-irq-only-after-adding-the-cr.patch"
 	${git} "${DIR}/patches/imx/0006-arm-fec-use-random-mac-when-everything-else-fails.patch"
+	${git} "${DIR}/patches/imx/0007-ARM-imx-compile-fix-for-hotplug.c.patch"
 }
 
 chipidea () {
@@ -171,7 +172,7 @@ chipidea () {
 	${git} "${DIR}/patches/chipidea/0029-ARM-dts-imx-imx53-qsb.dts-enable-usbotg-and-usbh1.patch"
 }
 
-edma
+#edma
 arm
 omap
 #Disabled for testing...
