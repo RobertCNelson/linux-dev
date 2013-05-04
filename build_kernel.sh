@@ -177,6 +177,17 @@ unset LOCAL_PATCH_DIR
 echo "debug: CC=${CC}"
 
 . ${DIR}/version.sh
+if [ "${EXPIRED_BRANCH}" ] ; then
+	echo "-----------------------------"
+	echo "Support for this branch has expired."
+	unset response
+	echo -n "Do you wish to bypass this warning and support your self: (y/n)? "
+	read response
+	if [ "x${response}" != "xy" ] ; then
+		exit
+	fi
+	echo "-----------------------------"
+fi
 export LINUX_GIT
 
 unset CONFIG_DEBUG_SECTION
