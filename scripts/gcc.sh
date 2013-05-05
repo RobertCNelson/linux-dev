@@ -32,17 +32,18 @@ ubuntu_arm_gcc_installed () {
 		distro_release=$(lsb_release -cs)
 
 		#Linux Mint:
-		#Ubuntu Quantal = nadia
+		#maya=precise=12.04
+		#nadia=quantal=12.10
 
 		case "${distro_release}" in
-		oneiric|precise|quantal|nadia|raring)
+		oneiric|precise|maya|quantal|nadia|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
 			armel_pkg="gcc-arm-linux-gnueabi"
 			;;
 		esac
 
 		case "${distro_release}" in
-		oneiric|precise|quantal|nadia|raring)
+		oneiric|precise|maya|quantal|nadia|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
 			armhf_pkg="gcc-arm-linux-gnueabihf"
 			;;
