@@ -32,17 +32,18 @@ ubuntu_arm_gcc_installed () {
 		distro_release=$(lsb_release -cs)
 
 		#Linux Mint:
-		#Ubuntu Quantal = nadia
+		#maya=precise=12.04
+		#nadia=quantal=12.10
 
 		case "${distro_release}" in
-		oneiric|precise|quantal|nadia|raring)
+		oneiric|precise|maya|quantal|nadia|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
 			armel_pkg="gcc-arm-linux-gnueabi"
 			;;
 		esac
 
 		case "${distro_release}" in
-		oneiric|precise|quantal|nadia|raring)
+		oneiric|precise|maya|quantal|nadia|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
 			armhf_pkg="gcc-arm-linux-gnueabihf"
 			;;
@@ -129,14 +130,14 @@ armv7_toolchain () {
 
 	binary="bin/arm-linux-gnueabihf-"
 
-	#Used for Cortex-A: gcc-4.8 testing, as "every" branch is broken...
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.04/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux.tar.bz2
+	#Used for Cortex-A
+	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.04/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux.tar.xz
 
 #	toolchain_name="gcc-linaro-arm-linux-gnueabihf"
 #	site="https://launchpad.net/linaro-toolchain-binaries"
 #	version="trunk/2013.04"
 #	directory="${toolchain_name}-4.8-2013.04-20130417_linux"
-#	filename="${directory}.tar.bz2"
+#	filename="${directory}.tar.xz"
 #	datestamp="20130313-${toolchain_name}"
 #	untar="tar -xJf"
 
