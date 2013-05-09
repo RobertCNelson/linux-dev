@@ -113,6 +113,8 @@ am33x () {
 	${git} "${DIR}/patches/adc/0012-am335x-adc-Do-not-use-find_node_by_name-use-get_chil.patch"
 	${git} "${DIR}/patches/adc/0013-am335x-tsc-Do-not-use-find_node_by_name-use-get_chil.patch"
 	${git} "${DIR}/patches/adc/0014-am335x-tscadc-Do-not-use-find_node_by_name-use-get_c.patch"
+	${git} "${DIR}/patches/adc/0015-iio-adc-ti_am335x_adc-revert-info_mask-removal.patch"
+	${git} "${DIR}/patches/adc/0016-iio-adc-ti_am335x_adc-make-tiadc_read_raw-more-robus.patch"
 
 	echo "dir: i2c"
 	${git} "${DIR}/patches/i2c/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
@@ -179,6 +181,8 @@ am33x () {
 	${git} "${DIR}/patches/pwm/0006-pwm-pwm-tiehrpwm-Update-the-clock-handling-of-pwm-ti.patch"
 	${git} "${DIR}/patches/pwm/0007-ARM-AM33XX-clk-Add-clock-node-for-EHRPWM-TBCLK.patch"
 	${git} "${DIR}/patches/pwm/0008-HACK-am33xx.dtsi-turn-on-all-PWMs.patch"
+	${git} "${DIR}/patches/pwm/0009-pwm-add-sysfs-interface.patch"
+
 #	${git} "${DIR}/patches/pwm/0009-pwm-fix-the-pwm_test-driver-to-work-with-device-tree.patch"
 
 	echo "dir: mmc"
@@ -658,6 +662,7 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0002-BeagleBone-Black-TDA998x-Initial-HDMI-Audio-support.patch"
 	${git} "${DIR}/patches/hdmi/0003-Clean-up-some-formating-and-debug-in-Davinci-MCASP-d.patch"
 	${git} "${DIR}/patches/hdmi/0004-tilcdc-Prune-modes-that-can-t-support-audio.patch"
+	${git} "${DIR}/patches/hdmi/0005-Enable-output-of-correct-AVI-Infoframe-type-hdmi.patch"
 
 	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
