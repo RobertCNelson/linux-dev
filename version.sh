@@ -18,12 +18,12 @@ fi
 config="omap2plus_defconfig"
 
 #Kernel/Build
-KERNEL_REL=3.9
-KERNEL_TAG=${KERNEL_REL}
-BUILD=armv7-d0.8
+KERNEL_REL=3.10
+KERNEL_TAG=${KERNEL_REL}-rc1
+BUILD=armv7-d0.9
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="d7ab7302f970a254997687a1cdede421a5635c68"
+#KERNEL_SHA="d7ab7302f970a254997687a1cdede421a5635c68"
 
 #git branch
 #BRANCH="v3.10.x"

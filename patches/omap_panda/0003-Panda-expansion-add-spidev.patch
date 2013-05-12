@@ -10,11 +10,11 @@ https://github.com/RobertCNelson/stable-kernel/issues/22
 Signed-off-by: Adrien Ferre <ferre.adrien@gmail.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/mach-omap2/board-omap4panda.c |   44 ++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ arch/arm/mach-omap2/board-omap4panda.c |   43 ++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
-index a71ad34..6268258 100644
+index 1e2c75e..3563f86 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
 +++ b/arch/arm/mach-omap2/board-omap4panda.c
 @@ -22,6 +22,7 @@
@@ -87,18 +87,17 @@ index a71ad34..6268258 100644
  static void __init omap4_ehci_init(void)
  {
  	int ret;
-@@ -435,11 +470,20 @@ static void __init omap4_panda_init(void)
+@@ -435,11 +470,19 @@ static void __init omap4_panda_init(void)
  	omap_sdrc_init(NULL, NULL);
  	omap4_twl6030_hsmmc_init(mmc);
  	omap4_ehci_init();
-+	if (!strcmp(expboard_name, "spidev"))
-+	{
++	if (!strcmp(expboard_name, "spidev")) {
 +	#if IS_ENABLED(CONFIG_SPI_SPIDEV)
 +		pr_info("Panda expansionboard: spidev: enabling spi3/spi4\n");
 +		spi_register_board_info(panda_mcspi_board_info, ARRAY_SIZE(panda_mcspi_board_info));
 +	#endif
 +	}
- 	usb_bind_phy("musb-hdrc.0.auto", 0, "omap-usb2.1.auto");
+ 	usb_bind_phy("musb-hdrc.2.auto", 0, "omap-usb2.3.auto");
  	usb_musb_init(&musb_board_data);
  	omap4_panda_display_init();
  }
