@@ -73,19 +73,31 @@ make_kernel () {
 	if [ "x${DTBS}" != "x" ] ; then
 		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" ${CONFIG_DEBUG_SECTION} dtbs"
 		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${CONFIG_DEBUG_SECTION} dtbs
-		ls arch/arm/boot/* | grep dtb || unset DTBS
+		ls arch/arm/boot/* | grep dtb >/dev/null 2>&1 || unset DTBS
 	fi
 
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
-	if [ -f ./arch/arm/boot/zImage ] ; then
-		cp arch/arm/boot/zImage ${DIR}/deploy/${KERNEL_UTS}.zImage
-		cp .config ${DIR}/deploy/${KERNEL_UTS}.config
-	else
-		echo "-----------------------------"
-		echo "Error: make zImage modules failed"
-		exit
+
+	deployfile=".zImage"
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
+		rm -rf "${DIR}/deploy/${KERNEL_UTS}.config" || true
 	fi
+
+	if [ -f ./arch/arm/boot/zImage ] ; then
+		echo "-----------------------------"
+		cp -v arch/arm/boot/zImage "${DIR}/deploy/${KERNEL_UTS}.zImage"
+		cp -v .config "${DIR}/deploy/${KERNEL_UTS}.config"
+	fi
+
 	cd ${DIR}/
+
+	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}${deployfile}]"
+		/bin/sh -e "${DIR}/scripts/error.sh" && { exit 1 ; }
+	else
+		ls -lh "${DIR}/deploy/${KERNEL_UTS}${deployfile}"
+	fi
 }
 
 make_modules_pkg () {
@@ -94,6 +106,11 @@ make_modules_pkg () {
 	echo "-----------------------------"
 	echo "Building Module Archive"
 	echo "-----------------------------"
+
+	deployfile="-modules.tar.gz"
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
+	fi
 
 	if [ -d ${DIR}/deploy/tmp ] ; then
 		rm -rf ${DIR}/deploy/tmp || true
@@ -104,12 +121,19 @@ make_modules_pkg () {
 
 	cd ${DIR}/deploy/tmp
 	echo "-----------------------------"
-	echo "Building ${KERNEL_UTS}-modules.tar.gz"
-	tar czf ../${KERNEL_UTS}-modules.tar.gz *
+	echo "Building ${KERNEL_UTS}${deployfile}"
+	tar czf ../${KERNEL_UTS}${deployfile} *
 	echo "-----------------------------"
 
 	cd ${DIR}/
 	rm -rf ${DIR}/deploy/tmp || true
+
+	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}${deployfile}]"
+		/bin/sh -e "${DIR}/scripts/error.sh" && { exit 1 ; }
+	else
+		ls -lh "${DIR}/deploy/${KERNEL_UTS}${deployfile}"
+	fi
 }
 
 make_firmware_pkg () {
@@ -118,6 +142,11 @@ make_firmware_pkg () {
 	echo "-----------------------------"
 	echo "Building Firmware Archive"
 	echo "-----------------------------"
+
+	deployfile="-firmware.tar.gz"
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
+	fi
 
 	if [ -d ${DIR}/deploy/tmp ] ; then
 		rm -rf ${DIR}/deploy/tmp || true
@@ -128,12 +157,19 @@ make_firmware_pkg () {
 
 	cd ${DIR}/deploy/tmp
 	echo "-----------------------------"
-	echo "Building ${KERNEL_UTS}-firmware.tar.gz"
-	tar czf ../${KERNEL_UTS}-firmware.tar.gz *
+	echo "Building ${KERNEL_UTS}${deployfile}"
+	tar czf ../${KERNEL_UTS}${deployfile} *
 	echo "-----------------------------"
 
 	cd ${DIR}/
 	rm -rf ${DIR}/deploy/tmp || true
+
+	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}${deployfile}]"
+		/bin/sh -e "${DIR}/scripts/error.sh" && { exit 1 ; }
+	else
+		ls -lh "${DIR}/deploy/${KERNEL_UTS}${deployfile}"
+	fi
 }
 
 make_dtbs_pkg () {
@@ -142,6 +178,11 @@ make_dtbs_pkg () {
 	echo "-----------------------------"
 	echo "Building DTBS Archive"
 	echo "-----------------------------"
+
+	deployfile="-dtbs.tar.gz"
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
+	fi
 
 	if [ -d ${DIR}/deploy/tmp ] ; then
 		rm -rf ${DIR}/deploy/tmp || true
@@ -152,12 +193,19 @@ make_dtbs_pkg () {
 
 	cd ${DIR}/deploy/tmp
 	echo "-----------------------------"
-	echo "Building ${KERNEL_UTS}-dtbs.tar.gz"
-	tar czf ../${KERNEL_UTS}-dtbs.tar.gz *
+	echo "Building ${KERNEL_UTS}${deployfile}"
+	tar czf ../${KERNEL_UTS}${deployfile} *
 	echo "-----------------------------"
 
 	cd ${DIR}/
 	rm -rf ${DIR}/deploy/tmp || true
+
+	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
+		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}${deployfile}]"
+		/bin/sh -e "${DIR}/scripts/error.sh" && { exit 1 ; }
+	else
+		ls -lh "${DIR}/deploy/${KERNEL_UTS}${deployfile}"
+	fi
 }
 
 /bin/sh -e ${DIR}/tools/host_det.sh || { exit 1 ; }
@@ -176,6 +224,17 @@ unset LOCAL_PATCH_DIR
 echo "debug: CC=${CC}"
 
 . ${DIR}/version.sh
+if [ "${EXPIRED_BRANCH}" ] ; then
+	echo "-----------------------------"
+	echo "Support for this branch has expired."
+	unset response
+	echo -n "Do you wish to bypass this warning and support your self: (y/n)? "
+	read response
+	if [ "x${response}" != "xy" ] ; then
+		exit
+	fi
+	echo "-----------------------------"
+fi
 export LINUX_GIT
 
 unset CONFIG_DEBUG_SECTION
