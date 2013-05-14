@@ -159,6 +159,10 @@ make_dtbs_pkg () {
 
 if [ ! -f ${DIR}/system.sh ] ; then
 	cp ${DIR}/system.sh.sample ${DIR}/system.sh
+else
+	#fixes for bash -> sh conversion...
+	sed -i 's/bash/sh/g' ${DIR}/system.sh
+	sed -i 's/==/=/g' ${DIR}/system.sh
 fi
 
 unset CC
