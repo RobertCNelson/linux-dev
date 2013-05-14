@@ -183,8 +183,6 @@ am33x () {
 	${git} "${DIR}/patches/pwm/0008-HACK-am33xx.dtsi-turn-on-all-PWMs.patch"
 	${git} "${DIR}/patches/pwm/0009-pwm-add-sysfs-interface.patch"
 
-#	${git} "${DIR}/patches/pwm/0009-pwm-fix-the-pwm_test-driver-to-work-with-device-tree.patch"
-
 	echo "dir: mmc"
 	${git} "${DIR}/patches/mmc/0001-am33xx.dtsi-enable-MMC-HSPE-bit-for-all-3-controller.patch"
 	${git} "${DIR}/patches/mmc/0002-omap-hsmmc-Correct-usage-of-of_find_node_by_name.patch"
@@ -314,8 +312,6 @@ am33x_after () {
 	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 	${git} "${DIR}/patches/net/0002-Attempted-SMC911x-BQL-patch.patch"
 	${git} "${DIR}/patches/net/0003-cpsw-Fix-interrupt-storm-among-other-things.patch"
-	#3.8.6
-	#${git} "${DIR}/patches/net/0004-drivers-net-ethernet-davinci_emac-use-netif_wake_que.patch"
 
 	echo "dir: drm"
 	${git} "${DIR}/patches/drm/0001-am33xx-Add-clock-for-the-lcdc-DRM-driver.patch"
@@ -504,14 +500,12 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0171-clock-Export-__clock_set_parent.patch"
 	${git} "${DIR}/patches/not-capebus/0172-omap-clk-Add-adjustable-clkout2.patch"
 	${git} "${DIR}/patches/not-capebus/0173-am33xx-Update-DTS-EDMA.patch"
-
-#	${git} "${DIR}/patches/not-capebus/0157-cape-add-support-for-replicape-00A1-and-fix-the-ADC.patch"
+	${git} "${DIR}/patches/not-capebus/0174-bone-Added-RS232-prototype-cape-DT-object.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
 	${git} "${DIR}/patches/pru/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 	${git} "${DIR}/patches/pru/0003-ARM-dts-AM33xx-PRUSS-support.patch"
-	${git} "${DIR}/patches/pru/0004-uio_pruss-add-dt-support-replicape-00A1.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
@@ -663,6 +657,8 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0003-Clean-up-some-formating-and-debug-in-Davinci-MCASP-d.patch"
 	${git} "${DIR}/patches/hdmi/0004-tilcdc-Prune-modes-that-can-t-support-audio.patch"
 	${git} "${DIR}/patches/hdmi/0005-Enable-output-of-correct-AVI-Infoframe-type-hdmi.patch"
+	${git} "${DIR}/patches/hdmi/0006-drm-am335x-add-support-for-2048-lines-vertical.patch"
+	${git} "${DIR}/patches/hdmi/0007-drm-tda998x-Adding-extra-CEA-mode-for-1920x1080-24.patch"
 
 	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
@@ -683,6 +679,10 @@ am33x_after () {
 	${git} "${DIR}/patches/camera/0004-cssp_camera-increase-delays-make-sensor-detection-wo.patch"
 	${git} "${DIR}/patches/camera/0005-mt9t112-forward-port-optimizations-from-Angstrom-3.2.patch"
 	${git} "${DIR}/patches/camera/0006-cssp_camera-Use-flip-if-available.patch"
+	${git} "${DIR}/patches/camera/0007-cssp_camera-Fix-it-for-small-resolutions.patch"
+	${git} "${DIR}/patches/camera/0008-cssp_camera-Increase-delay-after-enabling-clocks-to-.patch"
+	${git} "${DIR}/patches/camera/0009-Debugging-camera-stuff.patch"
+	${git} "${DIR}/patches/camera/0010-cssp_camera-Make-it-work-with-Beaglebone-black.patch"
 
 	echo "dir: firmware"
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git

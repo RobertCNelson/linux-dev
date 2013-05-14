@@ -1,15 +1,15 @@
 From 7dd9bf26a078f2a1b36ceaab6463b28057a8a969 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
 Date: Thu, 25 Apr 2013 09:28:32 +0200
-Subject: [PATCH 168/173] capes: add basic support for LCD4 capes
+Subject: [PATCH 168/174] capes: add basic support for LCD4 capes
 
 Picture only, TS is broken
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
 ---
- firmware/Makefile                       |   2 +
- firmware/capes/BB-BONE-LCD4-01-00A0.dts | 161 +++++++++++++++++++++
- firmware/capes/BB-BONE-LCD4-01-00A1.dts | 239 ++++++++++++++++++++++++++++++++
+ firmware/Makefile                       |    2 +
+ firmware/capes/BB-BONE-LCD4-01-00A0.dts |  161 +++++++++++++++++++++
+ firmware/capes/BB-BONE-LCD4-01-00A1.dts |  239 +++++++++++++++++++++++++++++++
  3 files changed, 402 insertions(+)
  create mode 100644 firmware/capes/BB-BONE-LCD4-01-00A0.dts
  create mode 100644 firmware/capes/BB-BONE-LCD4-01-00A1.dts
@@ -29,7 +29,7 @@ index 0ba37c6..1c8c844 100644
  	BB-BONE-LCD7-01-00A4.dtbo \
 diff --git a/firmware/capes/BB-BONE-LCD4-01-00A0.dts b/firmware/capes/BB-BONE-LCD4-01-00A0.dts
 new file mode 100644
-index 0000000..6f2e78f
+index 0000000..5f03e1d
 --- /dev/null
 +++ b/firmware/capes/BB-BONE-LCD4-01-00A0.dts
 @@ -0,0 +1,161 @@
@@ -82,7 +82,7 @@ index 0000000..6f2e78f
 +					0xe4 0x00	/* lcd_hsync.lcd_hsync, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
 +					0xe8 0x00	/* lcd_pclk.lcd_pclk, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
 +					0xec 0x00	/* lcd_ac_bias_en.lcd_ac_bias_en, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
-+				 	0x4c 0x27       /* TSC_INT gpmc_a3.gpio1_19, INPUT | MODE7 */
++					0x4c 0x27       /* TSC_INT gpmc_a3.gpio1_19, INPUT | MODE7 */
 +				>;
 +			};
 +
@@ -196,7 +196,7 @@ index 0000000..6f2e78f
 +};
 diff --git a/firmware/capes/BB-BONE-LCD4-01-00A1.dts b/firmware/capes/BB-BONE-LCD4-01-00A1.dts
 new file mode 100644
-index 0000000..9e65a22
+index 0000000..0934426
 --- /dev/null
 +++ b/firmware/capes/BB-BONE-LCD4-01-00A1.dts
 @@ -0,0 +1,239 @@
@@ -296,7 +296,7 @@ index 0000000..9e65a22
 +
 +			backlight {
 +				compatible      = "pwm-backlight";
-+ 				pinctrl-names   = "default";
++				pinctrl-names   = "default";
 +				pinctrl-0       = <&pwm_bl_pins>;
 +
 +				pwms = <&ehrpwm1 0 500000 0>;
@@ -304,7 +304,7 @@ index 0000000..9e65a22
 +				brightness-levels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100>;
 +				default-brightness-level = <50>; /* index to the array above */
 +				status = "okay";
-+ 			};
++			};
 +
 +			tscadc {
 +				compatible = "ti,ti-tscadc";
@@ -440,5 +440,5 @@ index 0000000..9e65a22
 +	};
 +};
 -- 
-1.8.1.4
+1.7.10.4
 
