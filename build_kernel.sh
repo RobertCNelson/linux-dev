@@ -219,17 +219,16 @@ else
 	sed -i 's/==/=/g' ${DIR}/system.sh
 fi
 
-unset CC
-unset DEBUG_SECTION
-unset LINUX_GIT
-unset LOCAL_PATCH_DIR
-. ${DIR}/system.sh
-/bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
-. ${DIR}/.CC
-echo "debug: CC=${CC}"
+if [ -f "${DIR}/branches.list" ] ; then
+	echo "-----------------------------"
+	echo "Please checkout one of the active branches:"
+	echo "-----------------------------"
+	cat ${DIR}/branches.list | grep -v INACTIVE
+	echo "-----------------------------"
+	exit
+fi
 
-. ${DIR}/version.sh
-if [ "${EXPIRED_BRANCH}" ] ; then
+if [ -f "${DIR}/branch.expired" ] ; then
 	echo "-----------------------------"
 	echo "Support for this branch has expired."
 	unset response
@@ -240,6 +239,17 @@ if [ "${EXPIRED_BRANCH}" ] ; then
 	fi
 	echo "-----------------------------"
 fi
+
+unset CC
+unset DEBUG_SECTION
+unset LINUX_GIT
+unset LOCAL_PATCH_DIR
+. ${DIR}/system.sh
+/bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
+. ${DIR}/.CC
+echo "debug: CC=${CC}"
+
+. ${DIR}/version.sh
 export LINUX_GIT
 
 unset CONFIG_DEBUG_SECTION

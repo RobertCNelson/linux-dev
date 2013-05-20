@@ -31,19 +31,25 @@ ubuntu_arm_gcc_installed () {
 	if [ $(which lsb_release) ] ; then
 		distro_release=$(lsb_release -cs)
 
-		#Linux Mint:
-		#maya=precise=12.04
-		#nadia=quantal=12.10
+		#Linux Mint: Compatibility Matrix
+		case "${distro_release}" in
+		maya)
+			distro_release="precise"
+			;;
+		nadia)
+			distro_release="quantal"
+			;;
+		esac
 
 		case "${distro_release}" in
-		oneiric|precise|maya|quantal|nadia|raring)
+		oneiric|precise|quantal|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
 			armel_pkg="gcc-arm-linux-gnueabi"
 			;;
 		esac
 
 		case "${distro_release}" in
-		oneiric|precise|maya|quantal|nadia|raring)
+		oneiric|precise|quantal|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
 			armhf_pkg="gcc-arm-linux-gnueabihf"
 			;;

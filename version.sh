@@ -1,8 +1,6 @@
 #!/bin/sh
 #
 ARCH=$(uname -m)
-DISABLE_MASTER_BRANCH=1
-#EXPIRED_BRANCH=1
 
 #Dual/Quad Core arms are now more prevalent, so don't just limit to x86:
 CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
