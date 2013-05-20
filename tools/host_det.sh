@@ -102,15 +102,33 @@ debian_regs () {
 		fi
 	fi
 
-	#Linux Mint:
-	#maya=precise=12.04
-	#nadia=quantal=12.10
-
 	unset warn_dpkg_ia32
 	unset warn_eol_distro
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
 		deb_distro=$(lsb_release -cs)
+
+		#Linux Mint: Compatibility Matrix
+		case "${deb_distro}" in
+		maya)
+			deb_distro="precise"
+			;;
+		nadia)
+			deb_distro="quantal"
+			;;
+		debian)
+			#http://www.linuxmint.com/download_lmde.php
+			#lsb_release -a
+			#No LSB modules are available.
+			#Distributor ID:    LinuxMint
+			#Description:    Linux Mint Debian Edition
+			#Release:    1
+			#Codename:    debian
+			#
+			#why? 'debian' for Codename?
+			deb_distro="jessie"
+			;;
+		esac
 
 		unset error_unknown_deb_distro
 		#mkimage
@@ -118,7 +136,7 @@ debian_regs () {
 		squeeze|lucid)
 			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs="${deb_pkgs}uboot-mkimage"
 			;;
-		wheezy|jessie|natty|oneiric|maya|precise|nadia|quantal|raring|saucy)
+		wheezy|jessie|natty|oneiric|precise|quantal|raring|saucy)
 			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs="${deb_pkgs}u-boot-tools"
 			;;
 		maverick)
@@ -133,10 +151,10 @@ debian_regs () {
 		if [ "x${cpu_arch}" = "xx86_64" ] ; then
 			unset dpkg_multiarch
 			case "${deb_distro}" in
-			squeeze|lucid|natty|oneiric|maya|precise)
+			squeeze|lucid|natty|oneiric|precise)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs="${deb_pkgs}ia32-libs "
 				;;
-			wheezy|jessie|nadia|quantal|raring|saucy)
+			wheezy|jessie|quantal|raring|saucy)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs="${deb_pkgs}ia32-libs "
 				dpkg -l | grep ia32-libs >/dev/null || dpkg_multiarch=1
 				;;

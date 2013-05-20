@@ -159,6 +159,31 @@ make_dtbs_pkg () {
 
 if [ ! -f ${DIR}/system.sh ] ; then
 	cp ${DIR}/system.sh.sample ${DIR}/system.sh
+else
+	#fixes for bash -> sh conversion...
+	sed -i 's/bash/sh/g' ${DIR}/system.sh
+	sed -i 's/==/=/g' ${DIR}/system.sh
+fi
+
+if [ -f "${DIR}/branches.list" ] ; then
+	echo "-----------------------------"
+	echo "Please checkout one of the active branches:"
+	echo "-----------------------------"
+	cat ${DIR}/branches.list | grep -v INACTIVE
+	echo "-----------------------------"
+	exit
+fi
+
+if [ -f "${DIR}/branch.expired" ] ; then
+	echo "-----------------------------"
+	echo "Support for this branch has expired."
+	unset response
+	echo -n "Do you wish to bypass this warning and support your self: (y/n)? "
+	read response
+	if [ "x${response}" != "xy" ] ; then
+		exit
+	fi
+	echo "-----------------------------"
 fi
 
 unset CC
@@ -171,17 +196,6 @@ unset LOCAL_PATCH_DIR
 echo "debug: CC=${CC}"
 
 . ${DIR}/version.sh
-if [ "${EXPIRED_BRANCH}" ] ; then
-	echo "-----------------------------"
-	echo "Support for this branch has expired."
-	unset response
-	echo -n "Do you wish to bypass this warning and support your self: (y/n)? "
-	read response
-	if [ "x${response}" != "xy" ] ; then
-		exit
-	fi
-	echo "-----------------------------"
-fi
 export LINUX_GIT
 
 unset CONFIG_DEBUG_SECTION

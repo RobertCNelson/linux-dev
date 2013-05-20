@@ -47,12 +47,12 @@ check_and_or_clone () {
 	if [ ! "${LINUX_GIT}" ]; then
 		if [ -f "${DIR}/ignore/linux-src/.git/config" ] ; then
 			echo "-----------------------------"
-			echo "scripts/git: Warning: LINUX_GIT not defined in system.sh"
+			echo "scripts/git: LINUX_GIT not defined in system.sh"
 			echo "using default location: ${DIR}/ignore/linux-src/"
 		else
 			echo "-----------------------------"
-			echo "scripts/git: Warning: LINUX_GIT not defined in system.sh"
-			echo "cloning ${torvalds_linux} to default location: ${DIR}/ignore/linux-src"
+			echo "scripts/git: LINUX_GIT not defined in system.sh"
+			echo "cloning ${torvalds_linux} into default location: ${DIR}/ignore/linux-src"
 			git clone ${torvalds_linux} ${DIR}/ignore/linux-src
 		fi
 		LINUX_GIT="${DIR}/ignore/linux-src"
@@ -153,6 +153,25 @@ git_kernel () {
 . ${DIR}/version.sh
 . ${DIR}/system.sh
 
+unset git_config_user_email
+git_config_user_email=$(git config -l | grep user.email || true)
+
+unset git_config_user_name
+git_config_user_name=$(git config -l | grep user.name || true)
+
+if [ ! "${git_config_user_email}" ] || [ ! "${git_config_user_name}" ] ; then
+	echo "-----------------------------"
+	echo "This script relies heavily on git, and will fail if user.email/user.name are not defined."
+	echo "-----------------------------"
+	echo "See: https://help.github.com/articles/setting-your-email-in-git"
+	echo "git config --global user.email \"me@here.com\""
+	echo "-----------------------------"
+	echo "See: https://help.github.com/articles/setting-your-username-in-git"
+	echo "git config --global user.name \"Billy Everyteen\""
+	echo "-----------------------------"
+	exit 1
+fi
+
 if [ "${GIT_OVER_HTTP}" ] ; then
 	torvalds_linux="http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
 	linux_stable="http://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
@@ -161,18 +180,4 @@ else
 	linux_stable="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 fi
 
-unset ON_MASTER
-if [ "${DISABLE_MASTER_BRANCH}" ] ; then
-	git branch | grep "*" | grep master >/dev/null 2>&1 && ON_MASTER=1
-fi
-
-if [ ! "${ON_MASTER}" ] ; then
-	git_kernel
-else
-	echo "-----------------------------"
-	echo "Please checkout one of the active branches, building from the master branch has been disabled..."
-	echo "-----------------------------"
-	cat ${DIR}/branches.list | grep -v INACTIVE
-	echo "-----------------------------"
-	exit 1
-fi
+git_kernel
