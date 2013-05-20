@@ -501,11 +501,16 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0172-omap-clk-Add-adjustable-clkout2.patch"
 	${git} "${DIR}/patches/not-capebus/0173-am33xx-Update-DTS-EDMA.patch"
 	${git} "${DIR}/patches/not-capebus/0174-bone-Added-RS232-prototype-cape-DT-object.patch"
+	${git} "${DIR}/patches/not-capebus/0175-Add-support-for-BB-BONE_SERL-01-00A1-CanBus-cape.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
 	${git} "${DIR}/patches/pru/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 	${git} "${DIR}/patches/pru/0003-ARM-dts-AM33xx-PRUSS-support.patch"
+	${git} "${DIR}/patches/pru/0004-uio_pruss-add-dt-support-replicape-00A1.patch"
+	${git} "${DIR}/patches/pru/0005-pruss-Make-sure-it-works-when-no-child-nodes-are-pre.patch"
+	${git} "${DIR}/patches/pru/0006-am33xx-pru-Very-simple-led-cape-via-GPO-of-the-PRU.patch"
+	${git} "${DIR}/patches/pru/0007-PRU-remote-proc-wip.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
@@ -646,6 +651,7 @@ am33x_after () {
 	${git} "${DIR}/patches/ssd130x/0002-ssd1307fb-Rework-the-communication-functions.patch"
 	${git} "${DIR}/patches/ssd130x/0003-ssd1307fb-Speed-up-the-communication-with-the-contro.patch"
 	${git} "${DIR}/patches/ssd130x/0004-ssd1307fb-Make-use-of-horizontal-addressing-mode.patch"
+	${git} "${DIR}/patches/ssd130x/0005-SSD1307fb-1Hz-8Hz-defio-updates.patch"
 
 	#echo "dir: build"
 	#${git} "${DIR}/patches/build/0001-ARM-force-march-armv7a-for-thumb2-builds-http-lists..patch"
@@ -659,6 +665,9 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0005-Enable-output-of-correct-AVI-Infoframe-type-hdmi.patch"
 	${git} "${DIR}/patches/hdmi/0006-drm-am335x-add-support-for-2048-lines-vertical.patch"
 	${git} "${DIR}/patches/hdmi/0007-drm-tda998x-Adding-extra-CEA-mode-for-1920x1080-24.patch"
+	${git} "${DIR}/patches/hdmi/0008-tilcdc-Remove-superfluous-newlines-from-DBG-messages.patch"
+	${git} "${DIR}/patches/hdmi/0009-tilcdc-1280x1024x60-bw-1920x1080x24-bw.patch"
+	${git} "${DIR}/patches/hdmi/0010-tilcdc-Only-support-Audio-on-50-60-Hz-modes.patch"
 
 	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
@@ -683,6 +692,11 @@ am33x_after () {
 	${git} "${DIR}/patches/camera/0008-cssp_camera-Increase-delay-after-enabling-clocks-to-.patch"
 	${git} "${DIR}/patches/camera/0009-Debugging-camera-stuff.patch"
 	${git} "${DIR}/patches/camera/0010-cssp_camera-Make-it-work-with-Beaglebone-black.patch"
+
+	echo "dir: resources"
+	${git} "${DIR}/patches/resources/0001-bone-capemgr-Introduce-simple-resource-tracking.patch"
+	${git} "${DIR}/patches/resources/0002-capes-Add-resources-to-capes.patch"
+	${git} "${DIR}/patches/resources/0003-capes-Update-most-of-the-capes-with-resource-definit.patch"
 
 	echo "dir: firmware"
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git
