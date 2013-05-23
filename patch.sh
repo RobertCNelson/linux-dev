@@ -511,6 +511,7 @@ am33x_after () {
 	${git} "${DIR}/patches/pru/0005-pruss-Make-sure-it-works-when-no-child-nodes-are-pre.patch"
 	${git} "${DIR}/patches/pru/0006-am33xx-pru-Very-simple-led-cape-via-GPO-of-the-PRU.patch"
 	${git} "${DIR}/patches/pru/0007-PRU-remote-proc-wip.patch"
+	${git} "${DIR}/patches/pru/0008-Add-sysfs-entry-for-DDR-sync.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
