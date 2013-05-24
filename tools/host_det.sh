@@ -94,13 +94,10 @@ debian_regs () {
 	dpkg -l | grep lzop >/dev/null || deb_pkgs="${deb_pkgs}lzop "
 	dpkg -l | grep fakeroot >/dev/null || deb_pkgs="${deb_pkgs}fakeroot "
 
-	#Lucid -> Oneiric
-	if [ ! -f "/usr/lib/libncurses.so" ] ; then
-		#Precise ->
-		if [ ! -f "/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so" ] ; then
-			deb_pkgs="${deb_pkgs}libncurses5-dev "
-		fi
-	fi
+	#Libraires: (make sure we atleast get the native arch one)
+	#ii  libncurses5-dev:amd64                 5.9+20130504-1                     amd64        developer's libraries for ncurses
+	deb_arch=$(dpkg --print-architecture)
+	dpkg -l | grep libncurses5-dev | grep ${deb_arch} >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
 
 	unset warn_dpkg_ia32
 	unset warn_eol_distro
@@ -109,24 +106,19 @@ debian_regs () {
 		deb_distro=$(lsb_release -cs)
 
 		#Linux Mint: Compatibility Matrix
+		#http://www.linuxmint.com/oldreleases.php
 		case "${deb_distro}" in
+		debian)
+			deb_distro="jessie"
+			;;
 		maya)
 			deb_distro="precise"
 			;;
 		nadia)
 			deb_distro="quantal"
 			;;
-		debian)
-			#http://www.linuxmint.com/download_lmde.php
-			#lsb_release -a
-			#No LSB modules are available.
-			#Distributor ID:    LinuxMint
-			#Description:    Linux Mint Debian Edition
-			#Release:    1
-			#Codename:    debian
-			#
-			#why? 'debian' for Codename?
-			deb_distro="jessie"
+		olivia)
+			deb_distro="raring"
 			;;
 		esac
 
@@ -136,10 +128,12 @@ debian_regs () {
 		squeeze|lucid)
 			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs="${deb_pkgs}uboot-mkimage"
 			;;
-		wheezy|jessie|natty|oneiric|precise|quantal|raring|saucy)
+		wheezy|jessie|precise|quantal|raring|saucy)
 			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs="${deb_pkgs}u-boot-tools"
 			;;
-		maverick)
+		natty|oneiric)
+			#Remove when no longer listed here:
+			#http://us.archive.ubuntu.com/ubuntu/dists/
 			warn_eol_distro=1
 			;;
 		*)

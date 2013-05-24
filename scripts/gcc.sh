@@ -32,24 +32,28 @@ ubuntu_arm_gcc_installed () {
 		distro_release=$(lsb_release -cs)
 
 		#Linux Mint: Compatibility Matrix
+		#http://www.linuxmint.com/oldreleases.php
 		case "${distro_release}" in
 		maya)
-			distro_release="precise"
+			deb_distro="precise"
 			;;
 		nadia)
-			distro_release="quantal"
+			deb_distro="quantal"
+			;;
+		olivia)
+			deb_distro="raring"
 			;;
 		esac
 
 		case "${distro_release}" in
-		oneiric|precise|quantal|raring)
+		precise|quantal|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
 			armel_pkg="gcc-arm-linux-gnueabi"
 			;;
 		esac
 
 		case "${distro_release}" in
-		oneiric|precise|quantal|raring)
+		precise|quantal|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
 			armhf_pkg="gcc-arm-linux-gnueabihf"
 			;;
