@@ -29,34 +29,38 @@ ubuntu_arm_gcc_installed () {
 	unset armel_pkg
 	unset armhf_pkg
 	if [ $(which lsb_release) ] ; then
-		distro_release=$(lsb_release -cs)
+		deb_distro=$(lsb_release -cs)
 
 		#Linux Mint: Compatibility Matrix
-		case "${distro_release}" in
+		#http://www.linuxmint.com/oldreleases.php
+		case "${deb_distro}" in
 		maya)
-			distro_release="precise"
+			deb_distro="precise"
 			;;
 		nadia)
-			distro_release="quantal"
+			deb_distro="quantal"
+			;;
+		olivia)
+			deb_distro="raring"
 			;;
 		esac
 
-		case "${distro_release}" in
-		oneiric|precise|quantal|raring)
+		case "${deb_distro}" in
+		precise|quantal|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
 			armel_pkg="gcc-arm-linux-gnueabi"
 			;;
 		esac
 
-		case "${distro_release}" in
-		oneiric|precise|quantal|raring)
+		case "${deb_distro}" in
+		precise|quantal|raring)
 			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
 			armhf_pkg="gcc-arm-linux-gnueabihf"
 			;;
 		esac
 
 		if [ "${armel_pkg}" ] || [ "${armhf_pkg}" ] ; then
-			echo "fyi: ${distro} ${distro_release} has these ARM gcc cross compilers available in their repo:"
+			echo "fyi: ${distro} ${deb_distro} has these ARM gcc cross compilers available in their repo:"
 			if [ "${armel_pkg}" ] ; then
 				echo "sudo apt-get install ${armel_pkg}"
 			fi
