@@ -312,6 +312,8 @@ am33x_after () {
 	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 	${git} "${DIR}/patches/net/0002-Attempted-SMC911x-BQL-patch.patch"
 	${git} "${DIR}/patches/net/0003-cpsw-Fix-interrupt-storm-among-other-things.patch"
+	${git} "${DIR}/patches/net/0004-beaglebone-TT3201-MCP2515-fixes.patch"
+	${git} "${DIR}/patches/net/0005-add-proper-db.txt-for-CRDA.patch"
 
 	echo "dir: drm"
 	${git} "${DIR}/patches/drm/0001-am33xx-Add-clock-for-the-lcdc-DRM-driver.patch"
@@ -526,6 +528,7 @@ am33x_after () {
 	${git} "${DIR}/patches/usb/0010-make-sure-we-register-unregister-the-NOP-xceiver-onl.patch"
 	${git} "${DIR}/patches/usb/0011-ARM-OMAP-am335x-musb-use-250-for-power.patch"
 	${git} "${DIR}/patches/usb/0012-ARM-OMAP2-MUSB-Specify-omap4-has-mailbox.patch"
+	${git} "${DIR}/patches/usb/0013-usb-musb-avoid-stopping-the-session-in-host-mode.patch"
 
 	echo "dir: PG2"
 	${git} "${DIR}/patches/PG2/0001-beaglebone-black-1ghz-hack.patch"
@@ -681,6 +684,7 @@ am33x_after () {
 	${git} "${DIR}/patches/resetctrl/0008-omap_hsmmc-Bail-out-when-rstctl-error-is-unrecoverab.patch"
 	${git} "${DIR}/patches/resetctrl/0009-bone-Put-priorities-in-built-in-capes.patch"
 	${git} "${DIR}/patches/resetctrl/0010-bone-common-dtsi-remove-reset-cape.patch"
+	${git} "${DIR}/patches/resetctrl/0011-mmc-add-missing-select-RSTCTL-in-MMC_OMAP.patch"
 
 	echo "dir: camera"
 	${git} "${DIR}/patches/camera/0001-soc_camera-QL-mt9l112-camera-driver-for-the-beaglebo.patch"
@@ -698,6 +702,11 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0001-bone-capemgr-Introduce-simple-resource-tracking.patch"
 	${git} "${DIR}/patches/resources/0002-capes-Add-resources-to-capes.patch"
 	${git} "${DIR}/patches/resources/0003-capes-Update-most-of-the-capes-with-resource-definit.patch"
+	${git} "${DIR}/patches/resources/0004-capes-Update-RS232-CAN-capes-with-resources.patch"
+
+	echo "dir: pmic"
+	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
+	${git} "${DIR}/patches/pmic/0002-dt-bone-common-Add-interrupt-for-PMIC.patch"
 
 	echo "dir: firmware"
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git
