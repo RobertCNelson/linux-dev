@@ -15,6 +15,10 @@ fi
 
 config="omap2plus_defconfig"
 
+#linaro_toolchain="arm9_gcc_4_7"
+#linaro_toolchain="cortex_gcc_4_7"
+linaro_toolchain="cortex_gcc_4_8"
+
 #Kernel/Build
 KERNEL_REL=3.10
 KERNEL_TAG=${KERNEL_REL}-rc3
