@@ -25,6 +25,10 @@ DIR=$PWD
 
 . ${DIR}/system.sh
 
+#For:
+#linaro_toolchain
+. ${DIR}/version.sh
+
 ubuntu_arm_gcc_installed () {
 	unset armel_pkg
 	unset armhf_pkg
@@ -111,47 +115,76 @@ dl_gcc_generic () {
 	fi
 }
 
-armv7_toolchain () {
+gcc_linaro_toolchain () {
+	#https://launchpad.net/gcc-arm-embedded/+download
 	#https://launchpad.net/linaro-toolchain-binaries/+download
+	case "${linaro_toolchain}" in
+	arm9_gcc_4_7)
+		#https://launchpad.net/gcc-arm-embedded/4.7/4.7-2013-q1-update/+download/gcc-arm-none-eabi-4_7-2013q1-20130313-linux.tar.bz2
 
-	#Used for ARM9
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.04/+download/gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2
+		toolchain_name="gcc-arm-none-eabi"
+		site="https://launchpad.net/gcc-arm-embedded"
+		version="4.7/4.7-2013-q1-update"
+		version_date="20130313"
+		directory="${toolchain_name}-4_7-2013q1"
+		filename="${directory}-${version_date}-linux.tar.bz2"
+		datestamp="${version_date}-${toolchain_name}"
+		untar="tar -xjf"
 
-#	toolchain_name="gcc-linaro-arm-linux-gnueabi"
-#	site="https://launchpad.net/linaro-toolchain-binaries"
-#	version="trunk/2012.04"
-#	filename="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux.tar.bz2"
-#	directory="gcc-linaro-arm-linux-gnueabi-2012.04-20120426_linux"
-#	datestamp="20120426-gcc-linaro-arm-linux-gnueabi"
-#	untar="tar -xjf"
+		binary="bin/arm-none-eabi-"
+		;;
+	cortex_gcc_4_6)
+		#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.03/+download/gcc-linaro-arm-linux-gnueabi-2012.03-20120326_linux.tar.bz2
 
-#	binary="bin/arm-linux-gnueabi-"
+		release="2012.03"
+		toolchain_name="gcc-linaro-arm-linux-gnueabi"
+		site="https://launchpad.net/linaro-toolchain-binaries"
+		version="trunk/${release}"
+		version_date="20120326"
+		directory="${toolchain_name}-${release}-${version_date}_linux"
+		filename="${directory}.tar.bz2"
+		datestamp="${version_date}-${toolchain_name}"
+		untar="tar -xjf"
 
-	#Used for Cortex-A
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.03/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2
+		binary="bin/arm-linux-gnueabi-"
+		;;
+	cortex_gcc_4_7)
+		#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.04/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux.tar.xz
 
-	toolchain_name="gcc-linaro-arm-linux-gnueabihf"
-	site="https://launchpad.net/linaro-toolchain-binaries"
-	version="trunk/2013.03"
-	filename="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux.tar.bz2"
-	directory="gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux"
-	datestamp="20130313-gcc-linaro-arm-linux-gnueabihf"
-	untar="tar -xjf"
+		gcc_version="4.7"
+		release="2013.04"
+		toolchain_name="gcc-linaro-arm-linux-gnueabihf"
+		site="https://launchpad.net/linaro-toolchain-binaries"
+		version="trunk/${release}"
+		version_date="20130415"
+		directory="${toolchain_name}-${gcc_version}-${release}-${version_date}_linux"
+		filename="${directory}.tar.xz"
+		datestamp="${version_date}-${toolchain_name}"
+		untar="tar -xJf"
 
-	binary="bin/arm-linux-gnueabihf-"
+		binary="bin/arm-linux-gnueabihf-"
+		;;
+	cortex_gcc_4_8)
+		#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.05/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.05_linux.tar.xz
 
-	#Used for Cortex-A
-	#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.04/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux.tar.xz
+		gcc_version="4.8"
+		release="2013.05"
+		toolchain_name="gcc-linaro-arm-linux-gnueabihf"
+		site="https://launchpad.net/linaro-toolchain-binaries"
+		version="trunk/${release}"
+		directory="${toolchain_name}-${gcc_version}-${release}_linux"
+		filename="${directory}.tar.xz"
+		datestamp="${release}-${toolchain_name}"
+		untar="tar -xJf"
 
-#	toolchain_name="gcc-linaro-arm-linux-gnueabihf"
-#	site="https://launchpad.net/linaro-toolchain-binaries"
-#	version="trunk/2013.04"
-#	directory="${toolchain_name}-4.8-2013.04-20130417_linux"
-#	filename="${directory}.tar.xz"
-#	datestamp="20130313-${toolchain_name}"
-#	untar="tar -xJf"
-
-#	binary="bin/arm-linux-gnueabihf-"
+		binary="bin/arm-linux-gnueabihf-"
+		;;
+	*)
+		echo "bug: maintainer forgot to set:"
+		echo "linaro_toolchain=\"xzy\" in version.sh"
+		exit 1
+		;;
+	esac
 
 	dl_gcc_generic
 }
@@ -159,7 +192,7 @@ armv7_toolchain () {
 if [ "x${CC}" = "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	ubuntu_arm_gcc_installed
 	if [ "x${CC}" = "x" ] ; then
-		armv7_toolchain
+		gcc_linaro_toolchain
 	fi
 fi
 
@@ -169,7 +202,7 @@ if [ "x${GCC_TEST}" = "x" ] ; then
 	echo "-----------------------------"
 	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable) is invalid."
 	echo "-----------------------------"
-	armv7_toolchain
+	gcc_linaro_toolchain
 fi
 
 echo "-----------------------------"

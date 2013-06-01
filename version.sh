@@ -15,13 +15,18 @@ fi
 
 config="omap2plus_defconfig"
 
+#linaro_toolchain="arm9_gcc_4_7"
+#linaro_toolchain="cortex_gcc_4_6"
+linaro_toolchain="cortex_gcc_4_7"
+#linaro_toolchain="cortex_gcc_4_8"
+
 #Kernel/Build
 KERNEL_REL=3.8
 KERNEL_TAG=${KERNEL_REL}.13
 BUILD=bone20
 
 #v3.X-rcX + upto SHA
-#KERNEL_SHA="1589a3e7777631ff56dd58cd7dcdf275185e62b5"
+#KERNEL_SHA=""
 
 #git branch
 BRANCH="am33x-v3.8"
