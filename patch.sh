@@ -116,6 +116,19 @@ omap () {
 #	${git} "${DIR}/patches/omap_panda/0005-HACK-panda-enable-OMAP4_ERRATA_I688.patch"
 	${git} "${DIR}/patches/omap_panda/0006-ARM-hw_breakpoint-Enable-debug-powerdown-only-if-sys.patch"
 
+	#Fix wlan0 on original Panda (strangly the ES was fine...)
+	#v3.10.x
+	#git revert --no-edit d1924519fe1dada0cfd9a228bf2ff1ea15840c84 -s
+	${git} "${DIR}/patches/omap_panda/0007-Revert-regulator-twl-Remove-TWL6030_FIXED_RESOURCE.patch"
+	#v3.7.x
+	#git revert --no-edit 029dd3cefa46ecdd879f9b4e2df3bdf4371cc22c -s
+	${git} "${DIR}/patches/omap_panda/0008-Revert-regulator-twl-Remove-another-unused-variable-.patch"
+	#v3.6.x
+	#git revert --no-edit e76ab829cc2d8b6350a3f01fffb208df4d7d8c1b -s
+	#git revert --no-edit 0e8e5c34cf1a8beaaf0a6a05c053592693bf8cb4 -s
+	${git} "${DIR}/patches/omap_panda/0009-Revert-regulator-twl-Remove-references-to-the-twl403.patch"
+	${git} "${DIR}/patches/omap_panda/0010-Revert-regulator-twl-Remove-references-to-32kHz-cloc.patch"
+
 	#Status: not for upstream: http://www.spinics.net/lists/arm-kernel/msg214633.html
 	#Fixes:
 	#WARNING: "v7_dma_flush_range" *pvrsrvkm.ko] undefined!
