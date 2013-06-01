@@ -133,6 +133,21 @@ gcc_linaro_toolchain () {
 
 		binary="bin/arm-none-eabi-"
 		;;
+	cortex_gcc_4_6)
+		#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.03/+download/gcc-linaro-arm-linux-gnueabi-2012.03-20120326_linux.tar.bz2
+
+		release="2012.03"
+		toolchain_name="gcc-linaro-arm-linux-gnueabi"
+		site="https://launchpad.net/linaro-toolchain-binaries"
+		version="trunk/${release}"
+		version_date="20120326"
+		directory="${toolchain_name}-${release}-${version_date}_linux"
+		filename="${directory}.tar.bz2"
+		datestamp="${version_date}-${toolchain_name}"
+		untar="tar -xjf"
+
+		binary="bin/arm-linux-gnueabi-"
+		;;
 	cortex_gcc_4_7)
 		#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.04/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux.tar.xz
 
