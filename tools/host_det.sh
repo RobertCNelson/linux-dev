@@ -94,11 +94,6 @@ debian_regs () {
 	dpkg -l | grep lzop >/dev/null || deb_pkgs="${deb_pkgs}lzop "
 	dpkg -l | grep fakeroot >/dev/null || deb_pkgs="${deb_pkgs}fakeroot "
 
-	#Libraires: (make sure we atleast get the native arch one)
-	#ii  libncurses5-dev:amd64                 5.9+20130504-1                     amd64        developer's libraries for ncurses
-	deb_arch=$(dpkg --print-architecture)
-	dpkg -l | grep libncurses5-dev | grep ${deb_arch} >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
-
 	unset warn_dpkg_ia32
 	unset warn_eol_distro
 	#lsb_release might not be installed...
@@ -138,6 +133,18 @@ debian_regs () {
 			;;
 		*)
 			error_unknown_deb_distro=1
+			;;
+		esac
+
+		case "${deb_distro}" in
+		precise)
+			#ii  libncurses5-dev          5.9-4                                                        developer's libraries for ncurses
+			dpkg -l | grep libncurses5-dev >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
+			;;
+		*)
+			#ii  libncurses5-dev:amd64                 5.9+20130504-1                     amd64        developer's libraries for ncurses
+			deb_arch=$(dpkg --print-architecture)
+			dpkg -l | grep libncurses5-dev | grep ${deb_arch} >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
 			;;
 		esac
 
