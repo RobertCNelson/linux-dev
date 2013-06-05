@@ -1,7 +1,7 @@
-From fa081841dfdbe899ad679bbd3e9a7cef0a954980 Mon Sep 17 00:00:00 2001
+From f662b9999cd556c29fb3c0845ef7276bc2c5ed89 Mon Sep 17 00:00:00 2001
 From: Darren Etheridge <detheridge@ti.com>
 Date: Thu, 21 Mar 2013 16:23:03 -0500
-Subject: [PATCH 136/136] Enhancing to support extra device tree options for
+Subject: [PATCH 136/183] Enhancing to support extra device tree options for
  tilcdc: ti,max_width (maximum width in pixels)
  ti,max_pixelclock (maximum allowable pixel clock
  for the device) also added some extra debugging
@@ -15,10 +15,10 @@ Subject: [PATCH 136/136] Enhancing to support extra device tree options for
  3 files changed, 61 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 4d94daa..0878646 100644
+index fe47255..9265893 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-@@ -423,10 +423,13 @@ int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode,
+@@ -427,10 +427,13 @@ int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode,
  {
  	struct tilcdc_drm_private *priv = crtc->dev->dev_private;
  	unsigned int bandwidth;
@@ -33,7 +33,7 @@ index 4d94daa..0878646 100644
  
  	/* width must be multiple of 16 */
  	if (mode->hdisplay & 0xf)
-@@ -435,10 +438,31 @@ int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode,
+@@ -439,10 +442,31 @@ int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode,
  	if (mode->vdisplay > 2048)
  		return MODE_VIRTUAL_Y;
  
@@ -67,7 +67,7 @@ index 4d94daa..0878646 100644
  
  	if (rb_check) {
  		/* we only support reduced blanking modes */
-@@ -446,8 +470,10 @@ int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode,
+@@ -450,8 +474,10 @@ int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode,
  		       (mode->hsync_end - mode->hdisplay == 80) &&
  		       (mode->hsync_end - mode->hsync_start == 32) &&
  		       (mode->vsync_start - mode->vdisplay == 3);

@@ -23,7 +23,6 @@
 # Split out, so build_kernel.sh and build_deb.sh can share..
 
 git="git am"
-#git="git am --whitespace=fix"
 
 if [ -f ${DIR}/system.sh ] ; then
 	. ${DIR}/system.sh
@@ -38,6 +37,10 @@ echo "Starting patch.sh"
 git_add () {
 	git add .
 	git commit -a -m 'testing patchset'
+}
+
+start_cleanup () {
+	git="git am --whitespace=fix"
 }
 
 cleanup () {
@@ -314,6 +317,7 @@ am33x_after () {
 	${git} "${DIR}/patches/net/0003-cpsw-Fix-interrupt-storm-among-other-things.patch"
 	${git} "${DIR}/patches/net/0004-beaglebone-TT3201-MCP2515-fixes.patch"
 	${git} "${DIR}/patches/net/0005-add-proper-db.txt-for-CRDA.patch"
+	${git} "${DIR}/patches/net/0006-mcp251x-add-device-tree-support.patch"
 
 	echo "dir: drm"
 	${git} "${DIR}/patches/drm/0001-am33xx-Add-clock-for-the-lcdc-DRM-driver.patch"
@@ -327,6 +331,7 @@ am33x_after () {
 	${git} "${DIR}/patches/drm/0009-drm-tilcdc-add-encoder-slave.patch"
 	${git} "${DIR}/patches/drm/0010-drm-tilcdc-add-support-for-LCD-panels-v5.patch"
 	${git} "${DIR}/patches/drm/0011-drm-lcdc-Power-control-GPIO-support.patch"
+	${git} "${DIR}/patches/drm/0012-drm-tilcdc-Fix-scheduling-while-atomic-from-irq-hand.patch"
 
 	echo "dir: not-capebus"
 	${git} "${DIR}/patches/not-capebus/0001-add-dvi-pinmuxes-to-am33xx.dtsi.patch"
@@ -504,6 +509,14 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0173-am33xx-Update-DTS-EDMA.patch"
 	${git} "${DIR}/patches/not-capebus/0174-bone-Added-RS232-prototype-cape-DT-object.patch"
 	${git} "${DIR}/patches/not-capebus/0175-Add-support-for-BB-BONE_SERL-01-00A1-CanBus-cape.patch"
+	${git} "${DIR}/patches/not-capebus/0176-capes-Add-virtual-capes-serving-as-examples.patch"
+	${git} "${DIR}/patches/not-capebus/0177-capes-Add-TowerTech-TT3201-CAN-Bus-Cape-TT3201-001-3.patch"
+	${git} "${DIR}/patches/not-capebus/0178-capes-Add-commented-out-example-of-use-of-spi1_cs1.patch"
+	${git} "${DIR}/patches/not-capebus/0179-cape-LCD4-Correct-key-active-polarity.patch"
+	${git} "${DIR}/patches/not-capebus/0180-capes-lcd3-Correct-button-polarity.patch"
+	${git} "${DIR}/patches/not-capebus/0181-cape-Fix-LCD7-keys-polarity.patch"
+	${git} "${DIR}/patches/not-capebus/0182-gpio-Introduce-GPIO-OF-helper.patch"
+	${git} "${DIR}/patches/not-capebus/0183-capes-ADC-GPIO-helper-capes.patch"
 
 	echo "dir: pru"
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
@@ -543,6 +556,9 @@ am33x_after () {
 	${git} "${DIR}/patches/iio/0004-iio-magnetometer-Add-STMicroelectronics-magnetometer.patch"
 	${git} "${DIR}/patches/iio/0005-iio-magn-Add-sensors_supported-in-st_magn_sensors.patch"
 	${git} "${DIR}/patches/iio/0006-pwm-pca9685-skeleton-i2c-client-driver-for-PCA9685-1.patch"
+	${git} "${DIR}/patches/iio/0007-Invensense-MPU6050-Device-Driver.patch"
+	${git} "${DIR}/patches/iio/0008-iio-imu-inv_mpu6050-depends-on-IIO_BUFFER.patch"
+	${git} "${DIR}/patches/iio/0009-using-kfifo_in_spinlocked-instead-of-separate-code.patch"
 
 	echo "dir: w1"
 	${git} "${DIR}/patches/w1/0001-W1-w1-gpio-switch-to-using-dev_pm_ops.patch"
@@ -672,6 +688,7 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0008-tilcdc-Remove-superfluous-newlines-from-DBG-messages.patch"
 	${git} "${DIR}/patches/hdmi/0009-tilcdc-1280x1024x60-bw-1920x1080x24-bw.patch"
 	${git} "${DIR}/patches/hdmi/0010-tilcdc-Only-support-Audio-on-50-60-Hz-modes.patch"
+	${git} "${DIR}/patches/hdmi/0011-tilcdc-Allow-non-audio-modes-when-we-don-t-support-t.patch"
 
 	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
@@ -703,6 +720,8 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0002-capes-Add-resources-to-capes.patch"
 	${git} "${DIR}/patches/resources/0003-capes-Update-most-of-the-capes-with-resource-definit.patch"
 	${git} "${DIR}/patches/resources/0004-capes-Update-RS232-CAN-capes-with-resources.patch"
+	${git} "${DIR}/patches/resources/0005-bbb-Add-a-fall-back-non-audio-HDMI-cape.patch"
+	${git} "${DIR}/patches/resources/0006-capemgr-Add-enable_partno-parameter.patch"
 
 	echo "dir: pmic"
 	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"

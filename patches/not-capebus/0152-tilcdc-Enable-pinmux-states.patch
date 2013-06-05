@@ -1,15 +1,15 @@
-From 03f83d5adc51987bd85502dc500adf93da083bba Mon Sep 17 00:00:00 2001
+From b650c1551c6084929fa15ead912c4d11fb917fc1 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Fri, 29 Mar 2013 19:32:29 +0200
-Subject: [PATCH 152/153] tilcdc: Enable pinmux states
+Subject: [PATCH 152/183] tilcdc: Enable pinmux states
 
 Things like the boot switch are on the LCD data pins.
 Allows us to change pinmuxing on runtime.
 ---
- drivers/gpu/drm/tilcdc/tilcdc_panel.c       | 113 ++++++++++++++++++++++++++-
- drivers/gpu/drm/tilcdc/tilcdc_slave.c       | 114 ++++++++++++++++++++++++++-
- drivers/gpu/drm/tilcdc/tilcdc_tfp410.c      | 115 +++++++++++++++++++++++++++-
- firmware/capes/cape-boneblack-hdmi-00A0.dts |   8 +-
+ drivers/gpu/drm/tilcdc/tilcdc_panel.c       |  113 +++++++++++++++++++++++++-
+ drivers/gpu/drm/tilcdc/tilcdc_slave.c       |  114 +++++++++++++++++++++++++-
+ drivers/gpu/drm/tilcdc/tilcdc_tfp410.c      |  115 ++++++++++++++++++++++++++-
+ firmware/capes/cape-boneblack-hdmi-00A0.dts |    8 +-
  4 files changed, 337 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
@@ -465,7 +465,7 @@ index 6f9d727..9d9796f 100644
  	if (of_property_read_u32(node, "i2c", &i2c_phandle)) {
  		dev_err(&pdev->dev, "could not get i2c bus phandle\n");
 diff --git a/firmware/capes/cape-boneblack-hdmi-00A0.dts b/firmware/capes/cape-boneblack-hdmi-00A0.dts
-index 02bcb93..ee36d0e 100644
+index c2a5748..cb45533 100644
 --- a/firmware/capes/cape-boneblack-hdmi-00A0.dts
 +++ b/firmware/capes/cape-boneblack-hdmi-00A0.dts
 @@ -41,6 +41,11 @@
@@ -492,5 +492,5 @@ index 02bcb93..ee36d0e 100644
  
  			fb {
 -- 
-1.8.1.4
+1.7.10.4
 
