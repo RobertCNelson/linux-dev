@@ -132,6 +132,9 @@ omap () {
 	${git} "${DIR}/patches/omap_panda/0009-Revert-regulator-twl-Remove-references-to-the-twl403.patch"
 	${git} "${DIR}/patches/omap_panda/0010-Revert-regulator-twl-Remove-references-to-32kHz-cloc.patch"
 
+	#spidev: make sure to set the pins up...
+	${git} "${DIR}/patches/omap_panda/0011-panda-spidev-setup-pinmux.patch"
+
 	#Status: not for upstream: http://www.spinics.net/lists/arm-kernel/msg214633.html
 	#Fixes:
 	#WARNING: "v7_dma_flush_range" *pvrsrvkm.ko] undefined!
@@ -151,7 +154,8 @@ imx () {
 	${git} "${DIR}/patches/imx/0003-imx-Add-IMX53-AHCI-support.patch"
 	${git} "${DIR}/patches/imx/0005-SAUCE-imx6-enable-sata-clk-if-SATA_AHCI_PLATFORM.patch"
 #	${git} "${DIR}/patches/imx/0005-staging-imx-drm-request-irq-only-after-adding-the-cr.patch"
-	${git} "${DIR}/patches/imx/0006-arm-fec-use-random-mac-when-everything-else-fails.patch"
+#v3.10-rc5
+#	${git} "${DIR}/patches/imx/0006-arm-fec-use-random-mac-when-everything-else-fails.patch"
 #	${git} "${DIR}/patches/imx/0007-ARM-imx-compile-fix-for-hotplug.c.patch"
 }
 
