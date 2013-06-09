@@ -161,13 +161,17 @@ git_config_user_name=$(git config -l | grep user.name || true)
 
 if [ ! "${git_config_user_email}" ] || [ ! "${git_config_user_name}" ] ; then
 	echo "-----------------------------"
-	echo "This script relies heavily on git, and will fail if user.email/user.name are not defined."
+	echo "Error: git user.name/user.email not set:"
+	echo ""
+	echo "For help please read:"
+	echo "https://help.github.com/articles/setting-your-username-in-git"
+	echo "https://help.github.com/articles/setting-your-email-in-git"
+	echo ""
+	echo "For example, if you name/email was: Billy Everteen/me@here.com"
+	echo "you would type in the terminal window:"
 	echo "-----------------------------"
-	echo "See: https://help.github.com/articles/setting-your-email-in-git"
-	echo "git config --global user.email \"me@here.com\""
-	echo "-----------------------------"
-	echo "See: https://help.github.com/articles/setting-your-username-in-git"
 	echo "git config --global user.name \"Billy Everyteen\""
+	echo "git config --global user.email \"me@here.com\""
 	echo "-----------------------------"
 	exit 1
 fi

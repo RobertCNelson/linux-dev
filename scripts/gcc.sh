@@ -29,69 +29,6 @@ DIR=$PWD
 #linaro_toolchain
 . ${DIR}/version.sh
 
-ubuntu_arm_gcc_installed () {
-	unset armel_pkg
-	unset armhf_pkg
-	if [ $(which lsb_release) ] ; then
-		deb_distro=$(lsb_release -cs)
-
-		#Linux Mint: Compatibility Matrix
-		#http://www.linuxmint.com/oldreleases.php
-		case "${deb_distro}" in
-		maya)
-			deb_distro="precise"
-			;;
-		nadia)
-			deb_distro="quantal"
-			;;
-		olivia)
-			deb_distro="raring"
-			;;
-		esac
-
-		case "${deb_distro}" in
-		precise|quantal|raring)
-			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabi
-			armel_pkg="gcc-arm-linux-gnueabi"
-			;;
-		esac
-
-		case "${deb_distro}" in
-		precise|quantal|raring)
-			#http://packages.ubuntu.com/raring/gcc-arm-linux-gnueabihf
-			armhf_pkg="gcc-arm-linux-gnueabihf"
-			;;
-		esac
-
-		if [ "${armel_pkg}" ] || [ "${armhf_pkg}" ] ; then
-			echo "fyi: ${distro} ${deb_distro} has these ARM gcc cross compilers available in their repo:"
-			if [ "${armel_pkg}" ] ; then
-				echo "sudo apt-get install ${armel_pkg}"
-			fi
-			if [ "${armhf_pkg}" ] ; then
-				echo "sudo apt-get install ${armhf_pkg}"
-			fi
-			echo "-----------------------------"
-		fi
-	fi
-
-	if [ "${armel_pkg}" ] || [ "${armhf_pkg}" ] ; then
-		if [ $(which arm-linux-gnueabi-gcc) ] ; then
-			armel_gcc_test=$(LC_ALL=C arm-linux-gnueabi-gcc -v 2>&1 | grep "Target:" | grep arm || true)
-		fi
-		if [ $(which arm-linux-gnueabihf-gcc) ] ; then
-			armhf_gcc_test=$(LC_ALL=C arm-linux-gnueabihf-gcc -v 2>&1 | grep "Target:" | grep arm || true)
-		fi
-
-		if [ "x${armel_gcc_test}" != "x" ] ; then
-			CC="arm-linux-gnueabi-"
-		fi
-		if [ "x${armhf_gcc_test}" != "x" ] ; then
-			CC="arm-linux-gnueabihf-"
-		fi
-	fi
-}
-
 dl_gcc_generic () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
 	if [ ! -f ${DIR}/dl/${directory}/${datestamp} ] ; then
@@ -190,10 +127,7 @@ gcc_linaro_toolchain () {
 }
 
 if [ "x${CC}" = "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
-	ubuntu_arm_gcc_installed
-	if [ "x${CC}" = "x" ] ; then
-		gcc_linaro_toolchain
-	fi
+	gcc_linaro_toolchain
 fi
 
 GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
