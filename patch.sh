@@ -701,6 +701,7 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0019-tilcdc-Slave-panel-settings-read-from-DT-now.patch"
 	${git} "${DIR}/patches/hdmi/0020-drm-tda998x-Revert-WIP-to-previous-state.patch"
 	${git} "${DIR}/patches/hdmi/0021-tilcdc-More-refined-audio-mode-compatibility-check.patch"
+	${git} "${DIR}/patches/hdmi/0022-drm-tilcdc-Implement-whitelist-blacklist-mode-suppor.patch"
 
 	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
@@ -736,6 +737,11 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0006-cape-GPIOHELP-use-correct-part-number.patch"
 	${git} "${DIR}/patches/resources/0007-bbb-Add-a-fall-back-non-audio-HDMI-cape.patch"
 	${git} "${DIR}/patches/resources/0008-capes-HDMI-slaves-need-panel-settings.patch"
+	${git} "${DIR}/patches/resources/0009-capes-boneblack-HDMI-capes-have-blacklisted-modes.patch"
+	${git} "${DIR}/patches/resources/0010-capes-LCD7-Fix-definitions.patch"
+	${git} "${DIR}/patches/resources/0011-capes-LCD7-Fix-enter-key-pinmux.patch"
+	${git} "${DIR}/patches/resources/0012-Fix-timings-for-LCD3-cape.patch"
+	${git} "${DIR}/patches/resources/0013-capes-LCD-capes-updated-with-timing-fixes.patch"
 
 	echo "dir: pmic"
 	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
