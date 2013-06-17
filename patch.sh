@@ -124,6 +124,7 @@ am33x () {
 	${git} "${DIR}/patches/i2c/0002-Bone-DTS-working-i2c2-i2c3-in-the-tree.patch"
 	${git} "${DIR}/patches/i2c/0003-am33xx-Convert-I2C-from-omap-to-am33xx-names.patch"
 	${git} "${DIR}/patches/i2c/0004-am335x-evm-hack-around-i2c-node-names.patch"
+	${git} "${DIR}/patches/i2c/0005-tsl2550-fix-lux1_input-error-in-low-light.patch"
 
 	echo "dir: da8xx-fb"
 	${git} "${DIR}/patches/da8xx-fb/0001-viafb-rename-display_timing-to-via_display_timing.patch"
@@ -742,6 +743,8 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0011-capes-LCD7-Fix-enter-key-pinmux.patch"
 	${git} "${DIR}/patches/resources/0012-Fix-timings-for-LCD3-cape.patch"
 	${git} "${DIR}/patches/resources/0013-capes-LCD-capes-updated-with-timing-fixes.patch"
+	${git} "${DIR}/patches/resources/0014-Fix-mmc2-being-enabled-when-eMMC-is-disabled.patch"
+	${git} "${DIR}/patches/resources/0015-capes-LCD7-fix-vsync-len-off-by-one.patch"
 
 	echo "dir: pmic"
 	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
