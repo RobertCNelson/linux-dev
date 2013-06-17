@@ -95,7 +95,6 @@ debian_regs () {
 	dpkg -l | grep fakeroot >/dev/null || deb_pkgs="${deb_pkgs}fakeroot "
 
 	unset warn_dpkg_ia32
-	unset warn_eol_distro
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
 		deb_distro=$(lsb_release -cs)
@@ -117,37 +116,51 @@ debian_regs () {
 			;;
 		esac
 
-		unset error_unknown_deb_distro
-		#mkimage
 		case "${deb_distro}" in
-		squeeze|lucid)
-			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs="${deb_pkgs}uboot-mkimage"
+		squeeze|wheezy|jessie|sid)
+			unset error_unknown_deb_distro
+			unset warn_eol_distro
 			;;
-		wheezy|jessie|precise|quantal|raring|saucy)
-			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs="${deb_pkgs}u-boot-tools"
+		lucid|precise|quantal|raring|saucy)
+			unset error_unknown_deb_distro
+			unset warn_eol_distro
 			;;
 		natty|oneiric)
-			#Remove when no longer listed here:
 			#http://us.archive.ubuntu.com/ubuntu/dists/
+			#Still list the "prior" one as some people dont upgrade very fast...
+			unset error_unknown_deb_distro
 			warn_eol_distro=1
 			;;
 		*)
 			error_unknown_deb_distro=1
+			unset warn_eol_distro
 			;;
 		esac
 
+		#pkg: mkimage
+		case "${deb_distro}" in
+		squeeze|lucid)
+			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs="${deb_pkgs}uboot-mkimage"
+			;;
+		wheezy|jessie|sid|precise|quantal|raring|saucy)
+			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs="${deb_pkgs}u-boot-tools"
+			;;
+		esac
+
+		#pkg: libncurses5-dev
 		case "${deb_distro}" in
 		precise)
-			#ii  libncurses5-dev          5.9-4                                                        developer's libraries for ncurses
+			#ii  libncurses5-dev  5.9-4  developer's libraries for ncurses
 			dpkg -l | grep libncurses5-dev >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
 			;;
 		*)
-			#ii  libncurses5-dev:amd64                 5.9+20130504-1                     amd64        developer's libraries for ncurses
+			#ii  libncurses5-dev:amd64  5.9+20130504-1  amd64  developer's libraries for ncurses
 			deb_arch=$(dpkg --print-architecture)
 			dpkg -l | grep libncurses5-dev | grep ${deb_arch} >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
 			;;
 		esac
 
+		#pkg: ia32-libs
 		cpu_arch=$(uname -m)
 		if [ "x${cpu_arch}" = "xx86_64" ] ; then
 			unset dpkg_multiarch
@@ -155,7 +168,7 @@ debian_regs () {
 			squeeze|lucid|natty|oneiric|precise)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs="${deb_pkgs}ia32-libs "
 				;;
-			wheezy|jessie|quantal|raring|saucy)
+			wheezy|jessie|sid|quantal|raring|saucy)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs="${deb_pkgs}ia32-libs "
 				dpkg -l | grep ia32-libs >/dev/null || dpkg_multiarch=1
 				;;
