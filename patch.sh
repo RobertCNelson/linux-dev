@@ -266,6 +266,8 @@ arm () {
 	echo "dir: arm"
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 	${git} "${DIR}/patches/arm/0002-Without-MACH_-option-Early-printk-DEBUG_LL.patch"
+	${git} "${DIR}/patches/arm/0003-ARM-7668-1-fix-memset-related-crashes-caused-by-rece.patch"
+	${git} "${DIR}/patches/arm/0004-ARM-7670-1-fix-the-memset-fix.patch"
 }
 
 omap () {
@@ -518,8 +520,12 @@ am33x_after () {
 	${git} "${DIR}/patches/not-capebus/0181-cape-Fix-LCD7-keys-polarity.patch"
 	${git} "${DIR}/patches/not-capebus/0182-gpio-Introduce-GPIO-OF-helper.patch"
 	${git} "${DIR}/patches/not-capebus/0183-capes-ADC-GPIO-helper-capes.patch"
+	${git} "${DIR}/patches/not-capebus/0184-capes-RS232-Cape-support-added.patch"
 
 	echo "dir: pru"
+	#Note verify: firmware/Makefile
+	#	BB-BONE-PRU-01-00A0.dtbo \
+	#	BB-BONE-PRU-02-00A0.dtbo \
 	${git} "${DIR}/patches/pru/0001-uio-uio_pruss-port-to-AM33xx.patch"
 	${git} "${DIR}/patches/pru/0002-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 	${git} "${DIR}/patches/pru/0003-ARM-dts-AM33xx-PRUSS-support.patch"
