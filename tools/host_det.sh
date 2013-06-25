@@ -140,10 +140,10 @@ debian_regs () {
 		#pkg: mkimage
 		case "${deb_distro}" in
 		squeeze|lucid)
-			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs="${deb_pkgs}uboot-mkimage"
+			dpkg -l | grep uboot-mkimage >/dev/null || deb_pkgs="${deb_pkgs}uboot-mkimage "
 			;;
 		wheezy|jessie|sid|precise|quantal|raring|saucy)
-			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs="${deb_pkgs}u-boot-tools"
+			dpkg -l | grep u-boot-tools >/dev/null || deb_pkgs="${deb_pkgs}u-boot-tools "
 			;;
 		esac
 
