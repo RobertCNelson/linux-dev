@@ -763,9 +763,15 @@ am33x_after () {
 	${git} "${DIR}/patches/firmware/0001-firmware-add-for-beaglebone.patch"
 }
 
+saucy () {
+	echo "dir: saucy"
+	${git} "${DIR}/patches/saucy/0001-saucy-disable-Werror-pointer-sign.patch"
+}
+
 am33x
 arm
 omap
 am33x_after
+saucy
 
 echo "patch.sh ran successful"
