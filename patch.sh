@@ -766,6 +766,7 @@ am33x_after () {
 saucy () {
 	echo "dir: saucy"
 	${git} "${DIR}/patches/saucy/0001-saucy-disable-Werror-pointer-sign.patch"
+	${git} "${DIR}/patches/saucy/0002-saucy-disable-stack-protector.patch"
 }
 
 am33x
