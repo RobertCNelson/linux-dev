@@ -29,7 +29,7 @@ BUILD=bone0
 #KERNEL_SHA=""
 
 #git branch
-#BRANCH="v3.11.x"
+BRANCH="am33x-v3.8"
 
 BUILDREV=1.0
 DISTRO=cross
