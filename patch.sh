@@ -48,9 +48,87 @@ cleanup () {
 	exit
 }
 
-example () {
-	echo "dir: example"
-	${git} "${DIR}/patches/xyz"
+mainline_fixes () {
+	echo "dir: mainline-fixes"
+	${git} "${DIR}/patches/mainline-fixes/0001-add-PM-firmware.patch"
+	${git} "${DIR}/patches/mainline-fixes/0002-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
+	${git} "${DIR}/patches/mainline-fixes/0003-Thumb-2-Add-local-symbols-to-work-around-gas-behavio.patch"
 }
+
+mainline_dtc_fixes () {
+	echo "dir: mainline-dtc-fixes"
+	${git} "${DIR}/patches/mainline-dtc-fixes/0001-Fix-util_is_printable_string.patch"
+	${git} "${DIR}/patches/mainline-dtc-fixes/0002-fdtdump-properly-handle-multi-string-properties.patch"
+}
+
+mainline_dtc_overlays () {
+	echo "dir: mainline-dtc-overlays"
+	${git} "${DIR}/patches/mainline-dtc-overlays/0001-dtc-Dynamic-symbols-fixup-support.patch"
+	${git} "${DIR}/patches/mainline-dtc-overlays/0002-dtc-Dynamic-symbols-fixup-support-shipped.patch"
+}
+
+mainline_of_fixes () {
+	echo "dir: mainline-of-fixes"
+	${git} "${DIR}/patches/mainline-of-fixes/0001-of-i2c-Export-single-device-registration-method.patch"
+	${git} "${DIR}/patches/mainline-of-fixes/0002-OF-Clear-detach-flag-on-attach.patch"
+	${git} "${DIR}/patches/mainline-of-fixes/0003-OF-Introduce-device-tree-node-flag-helpers.patch"
+	${git} "${DIR}/patches/mainline-of-fixes/0004-OF-export-of_property_notify.patch"
+	${git} "${DIR}/patches/mainline-of-fixes/0005-OF-Export-all-DT-proc-update-functions.patch"
+	${git} "${DIR}/patches/mainline-of-fixes/0006-OF-Introduce-utility-helper-functions.patch"
+	${git} "${DIR}/patches/mainline-of-fixes/0007-OF-Introduce-Device-Tree-resolve-support.patch"
+	${git} "${DIR}/patches/mainline-of-fixes/0008-OF-Introduce-DT-overlay-support.patch"
+}
+
+mainline_pdev_fixes () {
+	echo "dir: mainline-pdev-fixes"
+	${git} "${DIR}/patches/mainline-pdev-fixes/0001-pdev-Fix-platform-device-resource-linking.patch"
+	${git} "${DIR}/patches/mainline-pdev-fixes/0002-of-Link-platform-device-resources-properly.patch"
+	${git} "${DIR}/patches/mainline-pdev-fixes/0003-omap-Properly-handle-resources-for-omap_devices.patch"
+	${git} "${DIR}/patches/mainline-pdev-fixes/0004-omap-Avoid-crashes-in-the-case-of-hwmod-misconfigura.patch"
+}
+
+mainline_dma_devel () {
+	echo "dir: mainline-dma-devel"
+	${git} "${DIR}/patches/mainline-dma-devel/0001-ARM-davinci-move-private-EDMA-API-to-arm-common.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0002-ARM-edma-remove-unused-transfer-controller-handlers.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0003-ARM-edma-Convert-to-devm_-api.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0004-ARM-davinci-uart-move-to-devid-based-clk_get.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0005-dmaengine-edma-Add-TI-EDMA-device-tree-binding.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0006-ARM-edma-Add-DT-and-runtime-PM-support-to-the-privat.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0007-ARM-edma-Add-EDMA-crossbar-event-mux-support.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0008-dma-edma-add-device_slave_sg_limits-support.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0009-dmaengine-add-dma_get_slave_sg_limits.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0010-mmc-omap_hsmmc-set-max_segs-based-on-dma-engine-limi.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0011-dmaengine-edma-enable-build-for-AM33XX.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0012-da8xx-config-Enable-MMC-and-FS-options.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0013-spi-omap2-mcspi-add-generic-DMA-request-support-to-t.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0014-spi-omap2-mcspi-convert-to-dma_request_slave_channel.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0015-ARM-dts-add-AM33XX-EDMA-support.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0016-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0017-ARM-dts-add-AM33XX-MMC-support.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0018-ARM-configs-Enable-TI_EDMA-in-omap2plus_defconfig.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0019-DMA-EDMA-Add-comments-for-A-sync-case-calculations.patch"
+	${git} "${DIR}/patches/mainline-dma-devel/0020-am33xx-edma-Always-update-unused-channel-list.patch"
+}
+
+mainline_mmc_fixes () {
+	echo "dir: mainline-mmc-fixes"
+	${git} "${DIR}/patches/mainline-mmc-fixes/0001-omap-hsmmc-Correct-usage-of-of_find_node_by_name.patch"
+	${git} "${DIR}/patches/mainline-mmc-fixes/0002-omap_hsmmc-Add-reset-gpio.patch"
+}
+
+mainline_dts_fixes () {
+	echo "dir: mainline-dts-fixes"
+	${git} "${DIR}/patches/mainline-dts-fixes/0001-am335x-dts-Add-beaglebone-black-DTS.patch"
+}
+
+mainline_fixes
+mainline_dtc_fixes
+mainline_dtc_overlays
+mainline_of_fixes
+mainline_pdev_fixes
+mainline_dma_devel
+mainline_mmc_fixes
+mainline_dts_fixes
 
 echo "patch.sh ran successful"
