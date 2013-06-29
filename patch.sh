@@ -120,6 +120,34 @@ mainline_mmc_fixes () {
 mainline_dts_fixes () {
 	echo "dir: mainline-dts-fixes"
 	${git} "${DIR}/patches/mainline-dts-fixes/0001-am335x-dts-Add-beaglebone-black-DTS.patch"
+	${git} "${DIR}/patches/mainline-dts-fixes/0002-dts-beaglebone-Add-I2C-definitions-for-EEPROMs-capes.patch"
+	${git} "${DIR}/patches/mainline-dts-fixes/0003-arm-beaglebone-dts-Add-capemanager-to-the-DTS.patch"
+}
+
+mainline_i2c_fixes () {
+	echo "dir: mainline-i2c-fixes"
+	${git} "${DIR}/patches/mainline-i2c-fixes/0001-i2c-EEPROM-In-kernel-memory-accessor-interface.patch"
+	${git} "${DIR}/patches/mainline-i2c-fixes/0002-grove-i2c-Add-rudimentary-grove-i2c-motor-control-dr.patch"
+}
+
+mainline_pinctrl_fixes () {
+	echo "dir: mainline-pinctrl-fixes"
+	${git} "${DIR}/patches/mainline-pinctrl-fixes/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
+}
+
+mainline_capemgr () {
+	echo "dir: mainline-capemgr"
+	${git} "${DIR}/patches/mainline-capemgr/0001-capemgr-Capemgr-makefiles-and-Kconfig-fragments.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0002-capemgr-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0003-capemgr-Remove-__devinit-__devexit.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0004-bone-capemgr-Make-sure-cape-removal-works.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0005-bone-capemgr-Fix-crash-when-trying-to-remove-non-exi.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0006-bone-capemgr-Force-a-slot-to-load-unconditionally.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0007-capemgr-Added-module-param-descriptions.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0008-capemgr-Implement-disable-overrides-on-the-cmd-line.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0009-capemgr-Implement-cape-priorities.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0010-bone-capemgr-Introduce-simple-resource-tracking.patch"
+	${git} "${DIR}/patches/mainline-capemgr/0011-capemgr-Add-enable_partno-parameter.patch"
 }
 
 mainline_fixes
@@ -130,5 +158,8 @@ mainline_pdev_fixes
 mainline_dma_devel
 mainline_mmc_fixes
 mainline_dts_fixes
+mainline_i2c_fixes
+mainline_pinctrl_fixes
+mainline_capemgr
 
 echo "patch.sh ran successful"
