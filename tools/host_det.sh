@@ -95,6 +95,7 @@ debian_regs () {
 	dpkg -l | grep fakeroot >/dev/null || deb_pkgs="${deb_pkgs}fakeroot "
 
 	unset warn_dpkg_ia32
+	unset stop_pkg_search
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
 		deb_distro=$(lsb_release -cs)
@@ -104,6 +105,18 @@ debian_regs () {
 		case "${deb_distro}" in
 		debian)
 			deb_distro="jessie"
+			;;
+		isadora)
+			deb_distro="lucid"
+			;;
+		julia)
+			deb_distro="maverick"
+			;;
+		katya)
+			deb_distro="natty"
+			;;
+		lisa)
+			deb_distro="oneiric"
 			;;
 		maya)
 			deb_distro="precise"
@@ -125,17 +138,23 @@ debian_regs () {
 			unset error_unknown_deb_distro
 			unset warn_eol_distro
 			;;
-		natty|oneiric)
+		maverick|natty|oneiric)
 			#http://us.archive.ubuntu.com/ubuntu/dists/
-			#Still list the "prior" one as some people dont upgrade very fast...
+			#list: dists between LTS's...
 			unset error_unknown_deb_distro
 			warn_eol_distro=1
+			stop_pkg_search=1
 			;;
 		*)
 			error_unknown_deb_distro=1
 			unset warn_eol_distro
+			stop_pkg_search=1
 			;;
 		esac
+	fi
+
+	if [ $(which lsb_release) ] && [ ! "${stop_pkg_search}" ] ; then
+		deb_distro=$(lsb_release -cs)
 
 		#pkg: mkimage
 		case "${deb_distro}" in
@@ -149,23 +168,23 @@ debian_regs () {
 
 		#pkg: libncurses5-dev
 		case "${deb_distro}" in
-		precise)
+		squeeze|lucid|precise)
 			#ii  libncurses5-dev  5.9-4  developer's libraries for ncurses
 			dpkg -l | grep libncurses5-dev >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
 			;;
 		*)
 			#ii  libncurses5-dev:amd64  5.9+20130504-1  amd64  developer's libraries for ncurses
-			deb_arch=$(dpkg --print-architecture)
+			deb_arch=$(LC_ALL=C dpkg --print-architecture)
 			dpkg -l | grep libncurses5-dev | grep ${deb_arch} >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
 			;;
 		esac
 
 		#pkg: ia32-libs
-		cpu_arch=$(uname -m)
-		if [ "x${cpu_arch}" = "xx86_64" ] ; then
+		deb_arch=$(LC_ALL=C dpkg --print-architecture)
+		if [ "x${deb_arch}" = "xamd64" ] ; then
 			unset dpkg_multiarch
 			case "${deb_distro}" in
-			squeeze|lucid|natty|oneiric|precise)
+			squeeze|lucid|precise)
 				dpkg -l | grep ia32-libs >/dev/null || deb_pkgs="${deb_pkgs}ia32-libs "
 				;;
 			wheezy|jessie|sid|quantal|raring|saucy)
@@ -177,7 +196,7 @@ debian_regs () {
 			if [ "${dpkg_multiarch}" ] ; then
 				unset check_foreign
 				check_foreign=$(LC_ALL=C dpkg --print-foreign-architectures)
-				if [ "x" = "x${check_foreign}" ] ; then
+				if [ "x${check_foreign}" = "x" ] ; then
 					warn_dpkg_ia32=1
 				fi
 			fi
