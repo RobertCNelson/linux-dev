@@ -174,14 +174,14 @@ debian_regs () {
 			;;
 		*)
 			#ii  libncurses5-dev:amd64  5.9+20130504-1  amd64  developer's libraries for ncurses
-			deb_arch=$(dpkg --print-architecture)
+			deb_arch=$(LC_ALL=C dpkg --print-architecture)
 			dpkg -l | grep libncurses5-dev | grep ${deb_arch} >/dev/null || deb_pkgs="${deb_pkgs}libncurses5-dev "
 			;;
 		esac
 
 		#pkg: ia32-libs
-		cpu_arch=$(uname -m)
-		if [ "x${cpu_arch}" = "xx86_64" ] ; then
+		deb_arch=$(LC_ALL=C dpkg --print-architecture)
+		if [ "x${deb_arch}" = "xamd64" ] ; then
 			unset dpkg_multiarch
 			case "${deb_distro}" in
 			squeeze|lucid|precise)
@@ -196,7 +196,7 @@ debian_regs () {
 			if [ "${dpkg_multiarch}" ] ; then
 				unset check_foreign
 				check_foreign=$(LC_ALL=C dpkg --print-foreign-architectures)
-				if [ "x" = "x${check_foreign}" ] ; then
+				if [ "x${check_foreign}" = "x" ] ; then
 					warn_dpkg_ia32=1
 				fi
 			fi
