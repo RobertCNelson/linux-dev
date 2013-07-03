@@ -1,0 +1,77 @@
+From c96f3dec5943ec51434736b905d919dd63fdc016 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 3 Jul 2013 11:42:43 -0500
+Subject: [PATCH] imx6q-wandboard: add as a copy of imx6dl-wandboard plus 2GB
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/Makefile            |    1 +
+ arch/arm/boot/dts/imx6q-wandboard.dts |   44 +++++++++++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+)
+ create mode 100644 arch/arm/boot/dts/imx6q-wandboard.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 641b3c9..fb3d863 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -131,6 +131,7 @@ dtb-$(CONFIG_ARCH_MXC) += \
+ 	imx6q-sabrelite.dtb \
+ 	imx6q-sabresd.dtb \
+ 	imx6q-sbc6x.dtb \
++	imx6q-wandboard.dtb \
+ 	imx6sl-evk.dtb \
+ 	vf610-twr.dtb
+ dtb-$(CONFIG_ARCH_MXS) += imx23-evk.dtb \
+diff --git a/arch/arm/boot/dts/imx6q-wandboard.dts b/arch/arm/boot/dts/imx6q-wandboard.dts
+new file mode 100644
+index 0000000..46edb817
+--- /dev/null
++++ b/arch/arm/boot/dts/imx6q-wandboard.dts
+@@ -0,0 +1,44 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ *
++ * Author: Fabio Estevam <fabio.estevam@freescale.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++/dts-v1/;
++#include "imx6q.dtsi"
++
++/ {
++	model = "Wandboard i.MX6 Quad Lite Board";
++	compatible = "wand,imx6q-wandboard", "fsl,imx6q";
++
++	memory {
++		reg = <0x10000000 0x80000000>; /* 2GB */
++	};
++};
++
++&fec {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_enet_1>;
++	phy-mode = "rgmii";
++	status = "okay";
++};
++
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1_1>;
++	status = "okay";
++};
++
++&usbh1 {
++	status = "okay";
++};
++
++&usdhc3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usdhc3_2>;
++	status = "okay";
++};
+-- 
+1.7.10.4
+

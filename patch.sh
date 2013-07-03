@@ -53,6 +53,12 @@ arm () {
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 }
 
+dts () {
+	echo "dir: dts"
+	${git} "${DIR}/patches/dts/0001-imx6q-wandboard-add-as-a-copy-of-imx6dl-wandboard-pl.patch"
+}
+
 arm
+dts
 
 echo "patch.sh ran successful"
