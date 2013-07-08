@@ -680,11 +680,11 @@ am33x_after () {
 	${git} "${DIR}/patches/ssd130x/0004-ssd1307fb-Make-use-of-horizontal-addressing-mode.patch"
 	${git} "${DIR}/patches/ssd130x/0005-SSD1307fb-1Hz-8Hz-defio-updates.patch"
 
-	#echo "dir: build"
+	echo "dir: build"
 	#${git} "${DIR}/patches/build/0001-ARM-force-march-armv7a-for-thumb2-builds-http-lists..patch"
 	#${git} "${DIR}/patches/build/0002-headers_install-Fix-build-failures-on-deep-directory.patch"
 	#${git} "${DIR}/patches/build/0003-libtraceevent-Remove-hard-coded-include-to-usr-local.patch"
-	#${git} "${DIR}/patches/build/0004-Make-single-.dtb-targets-also-with-DTC_FLAGS.patch"
+	${git} "${DIR}/patches/build/0004-Make-single-.dtb-targets-also-with-DTC_FLAGS.patch"
 
 	echo "dir: hdmi"
 	${git} "${DIR}/patches/hdmi/0001-video-Add-generic-HDMI-infoframe-helpers.patch"
