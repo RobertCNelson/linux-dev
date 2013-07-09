@@ -150,6 +150,16 @@ mainline_capemgr () {
 	${git} "${DIR}/patches/mainline-capemgr/0011-capemgr-Add-enable_partno-parameter.patch"
 }
 
+mainline_reset () {
+	echo "dir: mainline-reset"
+	${git} "${DIR}/patches/mainline-reset/0001-reset-Add-driver-for-gpio-controlled-reset-pins.patch"
+}
+
+mainline_capes () {
+	echo "dir: mainline-capes"
+	${git} "${DIR}/patches/mainline-capes/0001-capemgr-firmware-makefiles-for-DT-objects.patch"
+}
+
 mainline_fixes
 mainline_dtc_fixes
 mainline_dtc_overlays
@@ -161,5 +171,7 @@ mainline_dts_fixes
 mainline_i2c_fixes
 mainline_pinctrl_fixes
 mainline_capemgr
+mainline_reset
+mainline_capes
 
 echo "patch.sh ran successful"
