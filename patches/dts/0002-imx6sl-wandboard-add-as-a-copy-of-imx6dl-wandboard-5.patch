@@ -1,0 +1,105 @@
+From 9379cf61dc4aa234d82419970548041c2340f4b9 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 11 Jul 2013 15:54:21 -0500
+Subject: [PATCH 2/2] imx6sl-wandboard: add as a copy of imx6dl-wandboard;
+ 512MB, fec/usb disabled
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/Makefile             |    1 +
+ arch/arm/boot/dts/imx6sl-wandboard.dts |   48 ++++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/imx6sl.dtsi          |   11 ++++++++
+ 3 files changed, 60 insertions(+)
+ create mode 100644 arch/arm/boot/dts/imx6sl-wandboard.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index fb3d863..111833a 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -133,6 +133,7 @@ dtb-$(CONFIG_ARCH_MXC) += \
+ 	imx6q-sbc6x.dtb \
+ 	imx6q-wandboard.dtb \
+ 	imx6sl-evk.dtb \
++	imx6sl-wandboard.dtb \
+ 	vf610-twr.dtb
+ dtb-$(CONFIG_ARCH_MXS) += imx23-evk.dtb \
+ 	imx23-olinuxino.dtb \
+diff --git a/arch/arm/boot/dts/imx6sl-wandboard.dts b/arch/arm/boot/dts/imx6sl-wandboard.dts
+new file mode 100644
+index 0000000..96beac0
+--- /dev/null
++++ b/arch/arm/boot/dts/imx6sl-wandboard.dts
+@@ -0,0 +1,48 @@
++/*
++ * Copyright 2013 Freescale Semiconductor, Inc.
++ *
++ * Author: Fabio Estevam <fabio.estevam@freescale.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++/dts-v1/;
++#include "imx6sl.dtsi"
++
++/ {
++	model = "Wandboard i.MX6 Solo Lite Board";
++	compatible = "wand,imx6sl-wandboard", "fsl,imx6sl";
++
++	memory {
++		reg = <0x10000000 0x20000000>; /* 512Mb */
++	};
++};
++
++/*
++ *&fec {
++ *	pinctrl-names = "default";
++ *	pinctrl-0 = <&pinctrl_enet_1>;
++ *	phy-mode = "rgmii";
++ *	status = "okay";
++ *};
++ */
++
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1_1>;
++	status = "okay";
++};
++
++/*
++ *&usbh1 {
++ *	status = "okay";
++ *};
++ */
++
++&usdhc3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usdhc3_2>;
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index c5e5da0..889d22f 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -574,6 +574,17 @@
+ 							MX6SL_PAD_SD3_DAT3__SD3_DATA3 0x17059
+ 						>;
+ 					};
++
++					pinctrl_usdhc3_2: usdhc3grp_2 {
++						fsl,pins = <
++							MX6SL_PAD_SD3_CMD__SD3_CMD    0x17059
++							MX6SL_PAD_SD3_CLK__SD3_CLK    0x10059
++							MX6SL_PAD_SD3_DAT0__SD3_DATA0 0x17059
++							MX6SL_PAD_SD3_DAT1__SD3_DATA1 0x17059
++							MX6SL_PAD_SD3_DAT2__SD3_DATA2 0x17059
++							MX6SL_PAD_SD3_DAT3__SD3_DATA3 0x17059
++						>;
++					};
+ 				};
+ 			};
+ 
+-- 
+1.7.10.4
+

@@ -56,6 +56,7 @@ arm () {
 dts () {
 	echo "dir: dts"
 	${git} "${DIR}/patches/dts/0001-imx6q-wandboard-add-as-a-copy-of-imx6dl-wandboard-pl.patch"
+	${git} "${DIR}/patches/dts/0002-imx6sl-wandboard-add-as-a-copy-of-imx6dl-wandboard-5.patch"
 }
 
 arm
