@@ -757,6 +757,9 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0015-capes-LCD7-fix-vsync-len-off-by-one.patch"
 	${git} "${DIR}/patches/resources/0016-LCD-capes-set-default-brightness-to-100.patch"
 	${git} "${DIR}/patches/resources/0017-lcd-capes-update-adc-channels.patch"
+	${git} "${DIR}/patches/resources/0018-bone-renamed-adafruit-RTC-cape.patch"
+	${git} "${DIR}/patches/resources/0019-bone-add-PPS-to-BB-BONE-RTC-cape.patch"
+	${git} "${DIR}/patches/resources/0020-firmware-remove-rule-for-cape-bone-adafruit-lcd-00A0.patch"
 
 	echo "dir: pmic"
 	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
@@ -766,6 +769,19 @@ am33x_after () {
 	${git} "${DIR}/patches/pps/0001-drivers-pps-clients-pps-gpio.c-convert-to-module_pla.patch"
 	${git} "${DIR}/patches/pps/0002-drivers-pps-clients-pps-gpio.c-convert-to-devm_-help.patch"
 	${git} "${DIR}/patches/pps/0003-pps-gpio-add-device-tree-binding-and-support.patch"
+
+	echo "dir: leds"
+	${git} "${DIR}/patches/leds/0001-leds-leds-pwm-Convert-to-use-devm_get_pwm.patch"
+	${git} "${DIR}/patches/leds/0002-leds-leds-pwm-Preparing-the-driver-for-device-tree-s.patch"
+	${git} "${DIR}/patches/leds/0003-leds-leds-pwm-Simplify-cleanup-code.patch"
+	${git} "${DIR}/patches/leds/0004-leds-leds-pwm-Add-device-tree-bindings.patch"
+	${git} "${DIR}/patches/leds/0005-leds-leds-pwm-Defer-led_pwm_set-if-PWM-can-sleep.patch"
+	${git} "${DIR}/patches/leds/0006-leds-pwm-Enable-compilation-on-this-version-of-the-k.patch"
+
+	echo "dir: capes"
+	${git} "${DIR}/patches/capes/0001-capes-Add-bacon-cape.patch"
+	${git} "${DIR}/patches/capes/0002-cape-bacon-Cosmetic-change-of-the-adc-helper-name.patch"
+	${git} "${DIR}/patches/capes/0003-cape-bacon-educational-edition.patch"
 
 	echo "dir: firmware"
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git
