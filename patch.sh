@@ -784,9 +784,13 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0003-cape-bacon-educational-edition.patch"
 
 	echo "dir: firmware"
+	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
+	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=commit;h=750362868d914702086187096ec2c67b68eac101
+	#
 	#git clone git://arago-project.org/git/projects/am33x-cm3.git
+	#2258d3e13beafb33b119e7ee2b819810  am33x-cm3/bin/am335x-pm-firmware.bin
 	#cp -v ../am33x-cm3/bin/am335x-pm-firmware.bin ./firmware/
-	#git add ./firmware/am335x-pm-firmware.bin
+	#git add -f ./firmware/am335x-pm-firmware.bin
 	${git} "${DIR}/patches/firmware/0001-firmware-add-for-beaglebone.patch"
 }
 
