@@ -122,6 +122,7 @@ am33x () {
 	${git} "${DIR}/patches/adc/0018-input-ti_tsc-Enable-shared-IRQ-TSC.patch"
 	${git} "${DIR}/patches/adc/0019-Revert.-Backport-IIO.patch"
 	${git} "${DIR}/patches/adc/0020-iio-ti_am335x_adc-Added-iio_voltageX_scale.patch"
+	${git} "${DIR}/patches/adc/0021-iio-ti_am335x_adc-Add-the-in-kernel-IIO-map-interfac.patch"
 
 	echo "dir: i2c"
 	${git} "${DIR}/patches/i2c/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
@@ -538,6 +539,14 @@ am33x_after () {
 	${git} "${DIR}/patches/pru/0006-am33xx-pru-Very-simple-led-cape-via-GPO-of-the-PRU.patch"
 	${git} "${DIR}/patches/pru/0007-PRU-remote-proc-wip.patch"
 	${git} "${DIR}/patches/pru/0008-Add-sysfs-entry-for-DDR-sync.patch"
+	${git} "${DIR}/patches/pru/0009-virtio-ring-Introduce-dma-mapping-for-real-devices.patch"
+	${git} "${DIR}/patches/pru/0010-virtio_console-Simplify-virtio_console-for-h-w-devic.patch"
+	${git} "${DIR}/patches/pru/0011-rpmsg-Make-the-buffers-number-and-size-configurable.patch"
+	${git} "${DIR}/patches/pru/0012-remoteproc-Use-driver-ops-for-allocation-of-virtqueu.patch"
+	${git} "${DIR}/patches/pru/0013-rproc-core-Allow-bootup-without-resources.patch"
+	${git} "${DIR}/patches/pru/0014-tools-virtio-fix-build-for-3.8.patch"
+	${git} "${DIR}/patches/pru/0015-rproc-pru-PRU-remoteproc-updated-to-work-with-virtio.patch"
+	${git} "${DIR}/patches/pru/0016-capes-pru-Update-with-PRU-03-PRU-04.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
@@ -782,6 +791,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0001-capes-Add-bacon-cape.patch"
 	${git} "${DIR}/patches/capes/0002-cape-bacon-Cosmetic-change-of-the-adc-helper-name.patch"
 	${git} "${DIR}/patches/capes/0003-cape-bacon-educational-edition.patch"
+	${git} "${DIR}/patches/capes/0004-capes-bacon-Update-with-new-ADC-driver-method.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
