@@ -87,19 +87,19 @@ Missing mkimage command.
 debian_regs () {
 	unset deb_pkgs
 	pkg="bc"
-	dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="build-essential"
-	dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="device-tree-compiler"
-	dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="fakeroot"
-	dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="lsb-release"
-	dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="lzma"
-	dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="lzop"
-	dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 
 	unset warn_dpkg_ia32
 	unset stop_pkg_search
@@ -167,26 +167,32 @@ debian_regs () {
 		case "${deb_distro}" in
 		squeeze|lucid)
 			pkg="uboot-mkimage"
-			dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 			;;
-		wheezy|jessie|sid|precise|quantal|raring|saucy)
+		*)
 			pkg="u-boot-tools"
-			dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 			;;
 		esac
 
 		#pkg: libncurses5-dev
 		case "${deb_distro}" in
-		squeeze|lucid|precise)
-			#ii  libncurses5-dev  5.9-4  developer's libraries for ncurses
+		squeeze|lucid)
 			pkg="libncurses5-dev"
-			dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+			;;
+		precise)
+			#precise, for some weird reason for some users, dpkg --list never seems to find the lib..
+			if [ ! -f "/usr/lib/libcurses.so" ] ; then
+				if [ ! -f "/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so" ] ; then
+					deb_pkgs="${deb_pkgs}libncurses5-dev "
+				fi
+			fi
 			;;
 		*)
-			#ii  libncurses5-dev:amd64  5.9+20130504-1  amd64  developer's libraries for ncurses
 			deb_arch=$(LC_ALL=C dpkg --print-architecture)
 			pkg="libncurses5-dev"
-			dpkg -l | awk '{print $2}' | grep "^${pkg}:${deb_arch}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}:${deb_arch}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 			;;
 		esac
 
@@ -197,12 +203,12 @@ debian_regs () {
 			case "${deb_distro}" in
 			squeeze|lucid|precise)
 				pkg="ia32-libs"
-				dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+				LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 				;;
-			wheezy|jessie|sid|quantal|raring|saucy)
+			*)
 				pkg="ia32-libs"
-				dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
-				dpkg -l | awk '{print $2}' | grep "^${pkg}" >/dev/null || dpkg_multiarch=1
+				LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+				LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || dpkg_multiarch=1
 				;;
 			esac
 
@@ -252,8 +258,10 @@ debian_regs () {
 BUILD_HOST=${BUILD_HOST:="$( detect_host )"}
 if [ $(which lsb_release) ] ; then
 	info "Detected build host [`lsb_release -sd`]"
+	info "[debug: `git rev-parse HEAD`]"
 else
 	info "Detected build host [$BUILD_HOST]"
+	info "[debug: `git rev-parse HEAD`]"
 fi
 case "$BUILD_HOST" in
     redhat*)

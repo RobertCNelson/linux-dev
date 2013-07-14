@@ -53,17 +53,16 @@ dl_gcc_generic () {
 }
 
 gcc_linaro_toolchain () {
-	#https://launchpad.net/gcc-arm-embedded/+download
-	#https://launchpad.net/linaro-toolchain-binaries/+download
 	case "${linaro_toolchain}" in
 	arm9_gcc_4_7)
-		#https://launchpad.net/gcc-arm-embedded/4.7/4.7-2013-q1-update/+download/gcc-arm-none-eabi-4_7-2013q1-20130313-linux.tar.bz2
+		#https://launchpad.net/gcc-arm-embedded/+download
+		#https://launchpad.net/gcc-arm-embedded/4.7/4.7-2013-q2-update/+download/gcc-arm-none-eabi-4_7-2013q2-20130614-linux.tar.bz2
 
 		toolchain_name="gcc-arm-none-eabi"
 		site="https://launchpad.net/gcc-arm-embedded"
-		version="4.7/4.7-2013-q1-update"
-		version_date="20130313"
-		directory="${toolchain_name}-4_7-2013q1"
+		version="4.7/4.7-2013-q2-update"
+		version_date="20130614"
+		directory="${toolchain_name}-4_7-2013q2"
 		filename="${directory}-${version_date}-linux.tar.bz2"
 		datestamp="${version_date}-${toolchain_name}"
 		untar="tar -xjf"
@@ -71,6 +70,7 @@ gcc_linaro_toolchain () {
 		binary="bin/arm-none-eabi-"
 		;;
 	cortex_gcc_4_6)
+		#https://launchpad.net/linaro-toolchain-binaries/+download
 		#https://launchpad.net/linaro-toolchain-binaries/trunk/2012.03/+download/gcc-linaro-arm-linux-gnueabi-2012.03-20120326_linux.tar.bz2
 
 		release="2012.03"
@@ -86,6 +86,7 @@ gcc_linaro_toolchain () {
 		binary="bin/arm-linux-gnueabi-"
 		;;
 	cortex_gcc_4_7)
+		#https://launchpad.net/linaro-toolchain-binaries/+download
 		#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.04/+download/gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux.tar.xz
 
 		gcc_version="4.7"
@@ -102,6 +103,7 @@ gcc_linaro_toolchain () {
 		binary="bin/arm-linux-gnueabihf-"
 		;;
 	cortex_gcc_4_8)
+		#https://launchpad.net/linaro-toolchain-binaries/+download
 		#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.06/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.06_linux.tar.xz
 
 		gcc_version="4.8"
