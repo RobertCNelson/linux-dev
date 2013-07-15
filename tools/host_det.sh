@@ -175,24 +175,24 @@ debian_regs () {
 			;;
 		esac
 
+		#lsb_release -cs ; dpkg --list | grep libncurses5-dev
+		#squeeze : [ii  libncurses5-dev                 5.7+20100313-5               developer's libraries and docs for ncurses]
+		#wheezy :  [ii  libncurses5-dev                  5.9-10                    armhf        developer's libraries for ncurses]
+		#jessie :  [ii  libncurses5-dev:armhf            5.9+20130608-1            armhf        developer's libraries for ncurses]
+		#sid :     [ii  libncurses5-dev:armhf            5.9+20130608-1        armhf        developer's libraries for ncurses]
+		#lucid :   [ii  libncurses5-dev                 5.7+20090803-2ubuntu3        developer's libraries and docs for ncurses]
+		#oneiric : [ii  libncurses5-dev                  5.9-1ubuntu5.1               developer's libraries for ncurses]
+		#precise : [ii  libncurses5-dev                  5.9-4                        developer's libraries for ncurses]
+		#quantal : [ii  libncurses5-dev                  5.9-10ubuntu1                armhf        developer's libraries for ncurses]
+		#raring :  [ii  libncurses5-dev                  5.9-10ubuntu4                armhf        developer's libraries for ncurses]
+		#saucy :   [ii  libncurses5-dev                  5.9-10ubuntu4                armhf        developer's libraries for ncurses]
+
 		#pkg: libncurses5-dev
+		echo "host debug: dpkg --list libncurses5-dev: [`LC_ALL=C dpkg --list | awk '{print $2}' | grep "^libncurses5-dev"`]"
 		case "${deb_distro}" in
-		squeeze|lucid)
+		*)
 			pkg="libncurses5-dev"
 			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
-			;;
-		precise)
-			#precise, for some weird reason for some users, dpkg --list never seems to find the lib..
-			if [ ! -f "/usr/lib/libcurses.so" ] ; then
-				if [ ! -f "/usr/lib/`dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null`/libncurses.so" ] ; then
-					deb_pkgs="${deb_pkgs}libncurses5-dev "
-				fi
-			fi
-			;;
-		*)
-			deb_arch=$(LC_ALL=C dpkg --print-architecture)
-			pkg="libncurses5-dev"
-			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}:${deb_arch}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 			;;
 		esac
 
