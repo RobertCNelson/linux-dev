@@ -549,6 +549,9 @@ am33x_after () {
 	${git} "${DIR}/patches/pru/0014-tools-virtio-fix-build-for-3.8.patch"
 	${git} "${DIR}/patches/pru/0015-rproc-pru-PRU-remoteproc-updated-to-work-with-virtio.patch"
 	${git} "${DIR}/patches/pru/0016-capes-pru-Update-with-PRU-03-PRU-04.patch"
+	${git} "${DIR}/patches/pru/0017-rproc-PRU-Add-downcall-RPC-capability.patch"
+	${git} "${DIR}/patches/pru/0018-rproc-pru-Implement-a-software-defined-PWM-channel-s.patch"
+	${git} "${DIR}/patches/pru/0019-capes-PRU-PWM-channels-information.patch"
 
 	echo "dir: usb"
 	${git} "${DIR}/patches/usb/0001-drivers-usb-phy-add-a-new-driver-for-usb-part-of-con.patch"
@@ -577,10 +580,12 @@ am33x_after () {
 	${git} "${DIR}/patches/iio/0003-iio-gyro-Add-STMicroelectronics-gyroscopes-driver.patch"
 	${git} "${DIR}/patches/iio/0004-iio-magnetometer-Add-STMicroelectronics-magnetometer.patch"
 	${git} "${DIR}/patches/iio/0005-iio-magn-Add-sensors_supported-in-st_magn_sensors.patch"
-	${git} "${DIR}/patches/iio/0006-pwm-pca9685-skeleton-i2c-client-driver-for-PCA9685-1.patch"
-	${git} "${DIR}/patches/iio/0007-Invensense-MPU6050-Device-Driver.patch"
-	${git} "${DIR}/patches/iio/0008-iio-imu-inv_mpu6050-depends-on-IIO_BUFFER.patch"
-	${git} "${DIR}/patches/iio/0009-using-kfifo_in_spinlocked-instead-of-separate-code.patch"
+	${git} "${DIR}/patches/iio/0006-Invensense-MPU6050-Device-Driver.patch"
+	${git} "${DIR}/patches/iio/0007-iio-imu-inv_mpu6050-depends-on-IIO_BUFFER.patch"
+	${git} "${DIR}/patches/iio/0008-using-kfifo_in_spinlocked-instead-of-separate-code.patch"
+	${git} "${DIR}/patches/iio/0009-pwm-add-pca9685-driver.patch"
+	${git} "${DIR}/patches/iio/0010-pwm-Fill-in-missing-.owner-fields.patch"
+	${git} "${DIR}/patches/iio/0011-pwm-pca9685-Fix-wrong-argument-to-set-MODE1_SLEEP-bi.patch"
 
 	echo "dir: w1"
 	${git} "${DIR}/patches/w1/0001-W1-w1-gpio-switch-to-using-dev_pm_ops.patch"
@@ -771,6 +776,7 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0018-bone-renamed-adafruit-RTC-cape.patch"
 	${git} "${DIR}/patches/resources/0019-bone-add-PPS-to-BB-BONE-RTC-cape.patch"
 	${git} "${DIR}/patches/resources/0020-firmware-remove-rule-for-cape-bone-adafruit-lcd-00A0.patch"
+	${git} "${DIR}/patches/resources/0021-hwmon-add-driver-for-the-AM335x-bandgap-temperature-.patch"
 
 	echo "dir: pmic"
 	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
@@ -794,6 +800,9 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0002-cape-bacon-Cosmetic-change-of-the-adc-helper-name.patch"
 	${git} "${DIR}/patches/capes/0003-cape-bacon-educational-edition.patch"
 	${git} "${DIR}/patches/capes/0004-capes-bacon-Update-with-new-ADC-driver-method.patch"
+	${git} "${DIR}/patches/capes/0005-capes-BACON-Educational-cape-with-free-form-muxing.patch"
+	${git} "${DIR}/patches/capes/0006-firmware-add-BeBoPr-cape.patch"
+	${git} "${DIR}/patches/capes/0007-Add-support-for-Beaglebone-Audio-Amplifier-Cape.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
