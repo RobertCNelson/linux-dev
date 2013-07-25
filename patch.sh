@@ -803,6 +803,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0005-capes-BACON-Educational-cape-with-free-form-muxing.patch"
 	${git} "${DIR}/patches/capes/0006-firmware-add-BeBoPr-cape.patch"
 	${git} "${DIR}/patches/capes/0007-Add-support-for-Beaglebone-Audio-Amplifier-Cape.patch"
+	${git} "${DIR}/patches/capes/0008-capemgr-Priority-on-capemgr.enable_partno-option.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
