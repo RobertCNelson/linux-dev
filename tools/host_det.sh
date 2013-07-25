@@ -94,6 +94,8 @@ debian_regs () {
 	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="fakeroot"
 	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	pkg="man-db"
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="lsb-release"
 	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 	pkg="lzma"
@@ -146,8 +148,16 @@ debian_regs () {
 			unset warn_eol_distro
 			;;
 		maverick|natty|oneiric)
+			#lucid -> precise
 			#http://us.archive.ubuntu.com/ubuntu/dists/
 			#list: dists between LTS's...
+			unset error_unknown_deb_distro
+			warn_eol_distro=1
+			stop_pkg_search=1
+			;;
+		hardy)
+			#Just old, but still on:
+			#http://us.archive.ubuntu.com/ubuntu/dists/
 			unset error_unknown_deb_distro
 			warn_eol_distro=1
 			stop_pkg_search=1
