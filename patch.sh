@@ -119,12 +119,11 @@ am33x () {
 	${git} "${DIR}/patches/adc/0013-input-ti_am335x_tsc-return-IRQ_NONE-if-there-was-no-.patch"
 	${git} "${DIR}/patches/adc/0014-iio-ti_am335x_adc-Allow-to-specify-input-line.patch"
 	${git} "${DIR}/patches/adc/0015-iio-ti_am335x_adc-check-if-we-found-the-value.patch"
-	${git} "${DIR}/patches/adc/0016-MFD-ti_tscadc-disable-TSC-control.patch"
+	${git} "${DIR}/patches/adc/0016-MFD-ti_tscadc-disable-TSC-control-register-bits-when.patch"
 	${git} "${DIR}/patches/adc/0017-IIO-ADC-ti_adc-Fix-1st-sample-read.patch"
 	${git} "${DIR}/patches/adc/0018-input-ti_tsc-Enable-shared-IRQ-TSC.patch"
-	${git} "${DIR}/patches/adc/0019-Revert.-Backport-IIO.patch"
-	${git} "${DIR}/patches/adc/0020-iio-ti_am335x_adc-Added-iio_voltageX_scale.patch"
-	${git} "${DIR}/patches/adc/0021-iio-ti_am335x_adc-Add-the-in-kernel-IIO-map-interfac.patch"
+	${git} "${DIR}/patches/adc/0019-iio-ti_am335x_adc-Add-continuous-sampling-and-trigge.patch"
+	${git} "${DIR}/patches/adc/0020-iio-ti_am335x_adc-Add-IIO-map-interface.patch"
 
 	echo "dir: i2c"
 	${git} "${DIR}/patches/i2c/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
@@ -279,6 +278,7 @@ arm () {
 
 omap () {
 	echo "dir: omap"
+
 	#Fixes 800Mhz boot lockup: http://www.spinics.net/lists/linux-omap/msg83737.html
 	${git} "${DIR}/patches/omap/0001-regulator-core-if-voltage-scaling-fails-restore-orig.patch"
 	${git} "${DIR}/patches/omap/0002-omap2-twl-common-Add-default-power-configuration.patch"
@@ -571,7 +571,7 @@ am33x_after () {
 	echo "dir: PG2"
 	${git} "${DIR}/patches/PG2/0001-beaglebone-black-1ghz-hack.patch"
 
-	echo "dir: hacks"
+	echo "dir: reboot"
 	${git} "${DIR}/patches/reboot/0001-ARM-AM33xx-Add-SoC-specific-restart-hook.patch"
 
 	echo "dir: iio"
@@ -777,6 +777,8 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0019-bone-add-PPS-to-BB-BONE-RTC-cape.patch"
 	${git} "${DIR}/patches/resources/0020-firmware-remove-rule-for-cape-bone-adafruit-lcd-00A0.patch"
 	${git} "${DIR}/patches/resources/0021-hwmon-add-driver-for-the-AM335x-bandgap-temperature-.patch"
+	${git} "${DIR}/patches/resources/0022-fw-Make-firmware-timeout-loading-value-configurable.patch"
+	${git} "${DIR}/patches/resources/0023-capemgr-Retry-loading-when-failure-to-find-firmware.patch"
 
 	echo "dir: pmic"
 	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
