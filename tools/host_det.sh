@@ -84,24 +84,30 @@ Missing mkimage command.
     
 }
 
+check_dpkg () {
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+}
+
 debian_regs () {
 	unset deb_pkgs
 	pkg="bc"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
 	pkg="build-essential"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
 	pkg="device-tree-compiler"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
 	pkg="fakeroot"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
 	pkg="man-db"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
+	pkg="libncurses5-dev"
+	check_dpkg
 	pkg="lsb-release"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
 	pkg="lzma"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
 	pkg="lzop"
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	check_dpkg
 
 	unset warn_dpkg_ia32
 	unset stop_pkg_search
@@ -177,32 +183,11 @@ debian_regs () {
 		case "${deb_distro}" in
 		squeeze|lucid)
 			pkg="uboot-mkimage"
-			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+			check_dpkg
 			;;
 		*)
 			pkg="u-boot-tools"
-			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
-			;;
-		esac
-
-		#lsb_release -cs ; dpkg --list | grep libncurses5-dev
-		#squeeze : [ii  libncurses5-dev                 5.7+20100313-5               developer's libraries and docs for ncurses]
-		#wheezy :  [ii  libncurses5-dev                  5.9-10                    armhf        developer's libraries for ncurses]
-		#jessie :  [ii  libncurses5-dev:armhf            5.9+20130608-1            armhf        developer's libraries for ncurses]
-		#sid :     [ii  libncurses5-dev:armhf            5.9+20130608-1        armhf        developer's libraries for ncurses]
-		#lucid :   [ii  libncurses5-dev                 5.7+20090803-2ubuntu3        developer's libraries and docs for ncurses]
-		#oneiric : [ii  libncurses5-dev                  5.9-1ubuntu5.1               developer's libraries for ncurses]
-		#precise : [ii  libncurses5-dev                  5.9-4                        developer's libraries for ncurses]
-		#quantal : [ii  libncurses5-dev                  5.9-10ubuntu1                armhf        developer's libraries for ncurses]
-		#raring :  [ii  libncurses5-dev                  5.9-10ubuntu4                armhf        developer's libraries for ncurses]
-		#saucy :   [ii  libncurses5-dev                  5.9-10ubuntu4                armhf        developer's libraries for ncurses]
-
-		#pkg: libncurses5-dev
-		echo "host debug: dpkg --list libncurses5-dev: [`LC_ALL=C dpkg --list | awk '{print $2}' | grep "^libncurses5-dev"`]"
-		case "${deb_distro}" in
-		*)
-			pkg="libncurses5-dev"
-			LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+			check_dpkg
 			;;
 		esac
 
@@ -213,11 +198,11 @@ debian_regs () {
 			case "${deb_distro}" in
 			squeeze|lucid|precise)
 				pkg="ia32-libs"
-				LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+				check_dpkg
 				;;
 			*)
 				pkg="ia32-libs"
-				LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+				check_dpkg
 				LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || dpkg_multiarch=1
 				;;
 			esac
@@ -269,10 +254,12 @@ debian_regs () {
 BUILD_HOST=${BUILD_HOST:="$( detect_host )"}
 if [ $(which lsb_release) ] ; then
 	info "Detected build host [`lsb_release -sd`]"
-	info "[debug: `git rev-parse HEAD`]"
+	info "host: [`dpkg --print-architecture`]"
+	info "git HEAD commit: [`git rev-parse HEAD`]"
 else
 	info "Detected build host [$BUILD_HOST]"
-	info "[debug: `git rev-parse HEAD`]"
+	info "host: [`dpkg --print-architecture`]"
+	info "git HEAD commit: [`git rev-parse HEAD`]"
 fi
 case "$BUILD_HOST" in
     redhat*)
