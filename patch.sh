@@ -156,6 +156,12 @@ capes () {
 	${git} "${DIR}/patches/capes/0001-capemgr-firmware-makefiles-for-DT-objects.patch"
 }
 
+saucy () {
+	echo "dir: saucy"
+	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
+	${git} "${DIR}/patches/saucy/0001-saucy-disable-Werror-pointer-sign.patch"
+}
+
 general_fixes
 dtc_fixes
 dtc_overlays
@@ -169,5 +175,6 @@ pinctrl_fixes
 capemgr
 reset
 capes
+saucy
 
 echo "patch.sh ran successful"
