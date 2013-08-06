@@ -98,8 +98,6 @@ debian_regs () {
 	check_dpkg
 	pkg="fakeroot"
 	check_dpkg
-	pkg="man-db"
-	check_dpkg
 	pkg="libncurses5-dev"
 	check_dpkg
 	pkg="lsb-release"
@@ -107,6 +105,8 @@ debian_regs () {
 	pkg="lzma"
 	check_dpkg
 	pkg="lzop"
+	check_dpkg
+	pkg="man-db"
 	check_dpkg
 
 	unset warn_dpkg_ia32
@@ -200,23 +200,16 @@ debian_regs () {
 				pkg="ia32-libs"
 				check_dpkg
 				;;
-			wheezy|quantal|raring)
-				pkg="ia32-libs"
-				check_dpkg
-				LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || dpkg_multiarch=1
-				pkg="libncurses5:i386"
-				check_dpkg
-				;;
-			jessie|sid|saucy)
-				#Fixme: this probally also covers quantal|raring too...
+			wheezy|jessie|sid|quantal|raring|saucy)
 				pkg="libc6:i386"
+				check_dpkg
+				pkg="libncurses5:i386"
 				check_dpkg
 				pkg="libstdc++6:i386"
 				check_dpkg
-				pkg="libncurses5:i386"
-				check_dpkg
 				pkg="zlib1g:i386"
 				check_dpkg
+				dpkg_multiarch=1
 				;;
 			esac
 
