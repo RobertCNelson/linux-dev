@@ -777,8 +777,10 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0019-bone-add-PPS-to-BB-BONE-RTC-cape.patch"
 	${git} "${DIR}/patches/resources/0020-firmware-remove-rule-for-cape-bone-adafruit-lcd-00A0.patch"
 	${git} "${DIR}/patches/resources/0021-hwmon-add-driver-for-the-AM335x-bandgap-temperature-.patch"
-	${git} "${DIR}/patches/resources/0022-fw-Make-firmware-timeout-loading-value-configurable.patch"
-	${git} "${DIR}/patches/resources/0023-capemgr-Retry-loading-when-failure-to-find-firmware.patch"
+#disabled, as 'cape' failes verification and does not load...
+#	${git} "${DIR}/patches/resources/0022-fw-Make-firmware-timeout-loading-value-configurable.patch"
+#	${git} "${DIR}/patches/resources/0023-capemgr-Retry-loading-when-failure-to-find-firmware.patch"
+	${git} "${DIR}/patches/resources/0024-arm-bone-dts-add-CD-for-mmc1.patch"
 
 	echo "dir: pmic"
 	${git} "${DIR}/patches/pmic/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
@@ -806,6 +808,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0006-firmware-add-BeBoPr-cape.patch"
 	${git} "${DIR}/patches/capes/0007-Add-support-for-Beaglebone-Audio-Amplifier-Cape.patch"
 	${git} "${DIR}/patches/capes/0008-capemgr-Priority-on-capemgr.enable_partno-option.patch"
+	${git} "${DIR}/patches/capes/0009-bone-add-protocape-GPS.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
