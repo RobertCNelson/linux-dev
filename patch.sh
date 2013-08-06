@@ -154,6 +154,7 @@ reset () {
 capes () {
 	echo "dir: capes"
 	${git} "${DIR}/patches/capes/0001-capemgr-firmware-makefiles-for-DT-objects.patch"
+	${git} "${DIR}/patches/capes/0002-firmare-add-cape-definitions-from-3.8-based-tree.patch"
 }
 
 saucy () {
