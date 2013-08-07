@@ -1,13 +1,15 @@
-From 5c5f102a5c620e2c358554a13cb44fa189710a23 Mon Sep 17 00:00:00 2001
+From 67aed2831c3074b4543fdc15d13cee8e43429fa5 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 6 Aug 2013 21:24:34 -0500
+Date: Wed, 7 Aug 2013 12:01:09 -0500
 Subject: [PATCH] wip
+
+v2: add leds...
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile       |    1 +
- arch/arm/boot/dts/am335x-som.dts |  267 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 268 insertions(+)
+ arch/arm/boot/dts/am335x-som.dts |  294 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 295 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-som.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
@@ -24,10 +26,10 @@ index 1b60731..2670810 100644
  	am3517_mt_ventoux.dtb \
 diff --git a/arch/arm/boot/dts/am335x-som.dts b/arch/arm/boot/dts/am335x-som.dts
 new file mode 100644
-index 0000000..a829af4
+index 0000000..ad3fdee
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-som.dts
-@@ -0,0 +1,267 @@
+@@ -0,0 +1,294 @@
 +/*
 + * Copyright (C) 2013 <filler>
 + *
@@ -59,6 +61,13 @@ index 0000000..a829af4
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&clkout2_pin>;
 +
++		user_leds_s0: user_leds_s0 {
++			pinctrl-single,pins = <
++				0x198 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* mcasp0_axr0.gpio3_20 */
++				0x1a8 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* mcasp0_axr1.gpio3_21 */
++			>;
++		};
++
 +		i2c0_pins: pinmux_i2c0_pins {
 +			pinctrl-single,pins = <
 +				0x188 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
@@ -82,18 +91,18 @@ index 0000000..a829af4
 +		cpsw_default: cpsw_default {
 +			pinctrl-single,pins = <
 +				/* Slave 1 */
-+				0x114 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	 /* mii1_txen.rgmii1_tctl */
-+				0x118 (PIN_INPUT_PULLDOWN | MUX_MODE2)	 /* mii1_rxdv.rgmii1_rctl */
-+				0x11c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	 /* mii1_txd3.rgmii1_td3 */
-+				0x120 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	 /* mii1_txd2.rgmii1_td2 */
-+				0x124 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	 /* mii1_txd1.rgmii1_td1 */
-+				0x128 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	 /* mii1_txd0.rgmii1_td0 */
-+				0x12c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	 /* mii1_txclk.rgmii1_tclk */
-+				0x130 (PIN_INPUT_PULLDOWN | MUX_MODE2)	 /* mii1_rxclk.rgmii1_rclk */
-+				0x134 (PIN_INPUT_PULLDOWN | MUX_MODE2)	 /* mii1_rxd3.rgmii1_rd3 */
-+				0x138 (PIN_INPUT_PULLDOWN | MUX_MODE2)	 /* mii1_rxd2.rgmii1_rd2 */
-+				0x13c (PIN_INPUT_PULLDOWN | MUX_MODE2)	 /* mii1_rxd1.rgmii1_rd1 */
-+				0x140 (PIN_INPUT_PULLDOWN | MUX_MODE2)	 /* mii1_rxd0.rgmii1_rd0 */
++				0x114 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txen.rgmii1_tctl */
++				0x118 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxdv.rgmii1_rctl */
++				0x11c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txd3.rgmii1_td3 */
++				0x120 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txd2.rgmii1_td2 */
++				0x124 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txd1.rgmii1_td1 */
++				0x128 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txd0.rgmii1_td0 */
++				0x12c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txclk.rgmii1_tclk */
++				0x130 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxclk.rgmii1_rclk */
++				0x134 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd3.rgmii1_rd3 */
++				0x138 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd2.rgmii1_rd2 */
++				0x13c (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd1.rgmii1_rd1 */
++				0x140 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd0.rgmii1_rd0 */
 +
 +				/* Slave 2 */
 +				0x40 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a0.rgmii2_tctl */
@@ -188,6 +197,26 @@ index 0000000..a829af4
 +		regulator-max-microvolt = <5000000>;
 +		regulator-boot-on;
 +	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&user_leds_s0>;
++
++		compatible = "gpio-leds";
++
++		led@1 {
++			label = "led2:red:heartbeat";
++			gpios = <&gpio3 20 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++		};
++
++		led@2 {
++			label = "led3:yello:heartbeat";
++			gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++			linux,default-trigger = "heartbeat";
++		};
++	};
 +};
 +
 +#include "tps65910.dtsi"
@@ -278,7 +307,7 @@ index 0000000..a829af4
 +&davinci_mdio {
 +	pinctrl-names = "default", "sleep";
 +	pinctrl-0 = <&davinci_mdio_default>;
-+	pinctrl-1 = <&davinci_mdio_sleep>>;
++	pinctrl-1 = <&davinci_mdio_sleep>;
 +};
 +
 +&cpsw_emac0 {
