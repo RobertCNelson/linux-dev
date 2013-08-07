@@ -157,6 +157,24 @@ capes () {
 	${git} "${DIR}/patches/capes/0002-firmare-add-cape-definitions-from-3.8-based-tree.patch"
 }
 
+lcdc_fixes () {
+	echo "dir lcdc-fixes"
+	${git} "${DIR}/patches/lcdc-fixes/0001-gpu-drm-tilcdc-get-preferred_bpp-value-from-DT.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0002-drm-tilcdc-fixing-i2c-slave-initialization-race.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0003-drm-i2c-nxp-tda998x-fix-EDID-reading-on-TDA19988-dev.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0004-drm-i2c-nxp-tda998x-ensure-VIP-output-mux-is-properl.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0005-drm-i2c-nxp-tda998x-fix-npix-nline-programming.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0006-drm-i2c-nxp-tda998x-prepare-for-video-input-configur.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0007-drm-i2c-nxp-tda998x-add-video-and-audio-input-config.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0008-DRM-tda998x-add-missing-include.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0009-drm-i2c-tda998x-fix-sync-generation-and-calculation.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0010-drm-tilcdc-increase-allowable-supported-resolution.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0011-drm-i2c-tda998x-prepare-for-tilcdc-sync-workaround.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0012-drm-tilcdc-fixup-mode-to-workaound-sync-for-tda998x.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0013-drm-tilcdc-Fix-scheduling-while-atomic-from-irq-hand.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0014-tilcdc-Slave-panel-settings-read-from-DT-now.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -176,6 +194,7 @@ pinctrl_fixes
 capemgr
 reset
 capes
+lcdc_fixes
 saucy
 
 echo "patch.sh ran successful"
