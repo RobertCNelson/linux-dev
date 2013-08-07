@@ -80,7 +80,6 @@ make_kernel () {
 	fi
 
 	if [ -f ./arch/arm/boot/zImage ] ; then
-		echo "-----------------------------"
 		cp -v arch/arm/boot/zImage "${DIR}/deploy/${KERNEL_UTS}.zImage"
 		cp -v .config "${DIR}/deploy/${KERNEL_UTS}.config"
 	fi
@@ -119,7 +118,6 @@ make_pkg () {
 		make -s ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
 		;;
 	dtbs)
-		echo "-----------------------------"
 		find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
 		;;
 	esac
@@ -136,7 +134,6 @@ make_pkg () {
 		/bin/sh -e "${DIR}/scripts/error.sh" && { exit 1 ; }
 	else
 		ls -lh "${DIR}/deploy/${KERNEL_UTS}${deployfile}"
-		echo "-----------------------------"
 	fi
 }
 
