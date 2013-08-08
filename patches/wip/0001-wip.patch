@@ -1,15 +1,16 @@
-From 5df2eaa8962a0c33b25830c8546b473c9a0c11f0 Mon Sep 17 00:00:00 2001
+From 29f8b2fb94d360d5d20e39ca78ab99cc0582b890 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 7 Aug 2013 12:16:36 -0500
+Date: Wed, 7 Aug 2013 21:23:33 -0500
 Subject: [PATCH] wip
 
 v2: add leds, led1/2/3, just heartbeat for right now...
+v3: when forced, lan1 has given up... 
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile       |    1 +
- arch/arm/boot/dts/am335x-som.dts |  300 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 301 insertions(+)
+ arch/arm/boot/dts/am335x-som.dts |  339 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 340 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-som.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
@@ -26,10 +27,10 @@ index 1b60731..2670810 100644
  	am3517_mt_ventoux.dtb \
 diff --git a/arch/arm/boot/dts/am335x-som.dts b/arch/arm/boot/dts/am335x-som.dts
 new file mode 100644
-index 0000000..1a6963b
+index 0000000..9f511dc
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-som.dts
-@@ -0,0 +1,300 @@
+@@ -0,0 +1,339 @@
 +/*
 + * Copyright (C) 2013 <filler>
 + *
@@ -91,7 +92,7 @@ index 0000000..1a6963b
 +
 +		cpsw_default: cpsw_default {
 +			pinctrl-single,pins = <
-+				/* Slave 1 */
++				/* Slave 1  LAN2 (works) */
 +				0x114 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txen.rgmii1_tctl */
 +				0x118 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxdv.rgmii1_rctl */
 +				0x11c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* mii1_txd3.rgmii1_td3 */
@@ -105,19 +106,58 @@ index 0000000..1a6963b
 +				0x13c (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd1.rgmii1_rd1 */
 +				0x140 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* mii1_rxd0.rgmii1_rd0 */
 +
-+				/* Slave 2 */
-+				0x40 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a0.rgmii2_tctl */
-+				0x44 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a1.rgmii2_rctl */
-+				0x48 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a2.rgmii2_td3 */
-+				0x4c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a3.rgmii2_td2 */
-+				0x50 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a4.rgmii2_td1 */
-+				0x54 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a5.rgmii2_td0 */
-+				0x58 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a6.rgmii2_tclk */
-+				0x5c (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a7.rgmii2_rclk */
-+				0x60 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a8.rgmii2_rd3 */
-+				0x64 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a9.rgmii2_rd2 */
-+				0x68 (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a10.rgmii2_rd1 */
-+				0x6c (PIN_INPUT_PULLDOWN | MUX_MODE2)	/* gpmc_a11.rgmii2_rd0 */
++				/* Slave 2 LAN1 (doesnt work, wrong pinmux for board) */
++				/* gpmc_a0.rgmii2_tctl */
++				0x40 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a1.rgmii2_rctl */
++				0x44 (PIN_INPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a2.rgmii2_td3 */
++				0x48 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a3.rgmii2_td2 */
++				0x4c (PIN_OUTPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a4.rgmii2_td1 */
++				0x50 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a5.rgmii2_td0 */
++				0x54 (PIN_OUTPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a6.rgmii2_tclk */
++				0x58 (PIN_OUTPUT_PULLDOWN | MUX_MODE2
++				/* gpmc_a7.rgmii2_rclk */)
++				0x5c (PIN_INPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a8.rgmii2_rd3 */
++				0x60 (PIN_INPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a9.rgmii2_rd2 */
++				0x64 (PIN_INPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a10.rgmii2_rd1 */
++				0x68 (PIN_INPUT_PULLDOWN | MUX_MODE2)
++				/* gpmc_a11.rgmii2_rd0 */
++				0x6c (PIN_INPUT_PULLDOWN | MUX_MODE2)
++
++				/* Slave 2 LAN1 (rewrite) */
++				/* P1.16 gpmc_a0.pr1_mii1_mt1_clk */
++/*				0x40 (PIN_OUTPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.25 gpmc_a9.pr1_mii1_mr1_clk */
++/*				0x64 (PIN_INPUT_PULLDOWN | MUX_MODE5) */
++
++				/* P1.17 gpmc_a1.pr1_mii1_txd3 */
++/*				0x44 (PIN_OUTPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.18 gpmc_a2.pr1_mii1_txd2 */
++/*				0x48 (PIN_OUTPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.19 gpmc_a3.pr1_mii1_txd1 */
++/*				0x4c (PIN_OUTPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.20 gpmc_a4.pr1_mii1_txd0 */
++/*				0x50 (PIN_OUTPUT_PULLDOWN | MUX_MODE5) */
++
++				/* P1.26 gpmc_a10.pr1_mii1_rxdr */
++/*				0x68 (PIN_INPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.21 gpmc_a5.pr1_mii1_rxd3 */
++/*				0x54 (PIN_INPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.22 gpmc_a6.pr1_mii1_rxd2 */
++/*				0x58 (PIN_INPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.23 gpmc_a7.pr1_mii1_rxd1 */
++/*				0x5c (PIN_INPUT_PULLDOWN | MUX_MODE5) */
++				/* P1.24 gpmc_a8.pr1_mii1_rxd0 */
++/*				0x60 (PIN_INPUT_PULLDOWN | MUX_MODE5) */
++				
 +			>;
 +		};
 +
