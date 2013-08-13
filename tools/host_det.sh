@@ -147,6 +147,18 @@ debian_regs () {
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
 		deb_distro=$(lsb_release -cs)
+		deb_lsb_rs=$(lsb_release -rs | awk '{print $1}')
+
+		#lsb_release -a
+		#No LSB modules are available.
+		#Distributor ID:    Debian
+		#Description:    Debian GNU/Linux Kali Linux 1.0
+		#Release:    Kali Linux 1.0
+		#Codename:    n/a
+		#http://docs.kali.org/kali-policy/kali-linux-relationship-with-debian
+		if [ "x${deb_lsb_rs}" = "xKali" ] ; then
+			deb_distro="wheezy"
+		fi
 
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/oldreleases.php
