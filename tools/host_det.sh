@@ -29,8 +29,41 @@ detect_host () {
 	fi
 }
 
+check_rpm () {
+	pkg_test=$(LC_ALL=C rpm -q ${pkg})
+	if [ "x${pkg_test}" = "xpackage ${pkg} is not installed" ] ; then
+		rpm_pkgs="${rpm_pkgs}${pkg} "
+	fi
+}
+
 redhat_reqs () {
-	echo "RH Not implemented yet"
+	unset rpm_pkgs
+	pkg="redhat-lsb-core"
+	check_rpm
+	pkg="gcc"
+	check_rpm
+	pkg="ncurses-devel"
+	check_rpm
+	pkg="wget"
+	check_rpm
+
+	arch=$(uname -m)
+	if [ "x${arch}" = "xx86_64" ] ; then
+		pkg="ncurses-devel.i686"
+		check_rpm
+		pkg="libstdc++.i686"
+		check_rpm
+		pkg="zlib.i686"
+		check_rpm
+	fi
+
+	if [ "${rpm_pkgs}" ] ; then
+		echo "Fedora: missing dependicies, please install:"
+		echo "-----------------------------"
+		echo "yum install ${rpm_pkgs}"
+		echo "-----------------------------"
+		return 1
+	fi
 }
 
 suse_regs () {
@@ -114,6 +147,18 @@ debian_regs () {
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
 		deb_distro=$(lsb_release -cs)
+		deb_lsb_rs=$(lsb_release -rs | awk '{print $1}')
+
+		#lsb_release -a
+		#No LSB modules are available.
+		#Distributor ID:    Debian
+		#Description:    Debian GNU/Linux Kali Linux 1.0
+		#Release:    Kali Linux 1.0
+		#Codename:    n/a
+		#http://docs.kali.org/kali-policy/kali-linux-relationship-with-debian
+		if [ "x${deb_lsb_rs}" = "xKali" ] ; then
+			deb_distro="wheezy"
+		fi
 
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/oldreleases.php
@@ -269,7 +314,7 @@ else
 fi
 case "$BUILD_HOST" in
     redhat*)
-	    redhat_reqs
+	    redhat_reqs || error "Failed dependency check"
         ;;
     debian*)
 	    debian_regs || error "Failed dependency check"
