@@ -728,7 +728,12 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0019-tilcdc-Slave-panel-settings-read-from-DT-now.patch"
 	${git} "${DIR}/patches/hdmi/0020-drm-tda998x-Revert-WIP-to-previous-state.patch"
 	${git} "${DIR}/patches/hdmi/0021-tilcdc-More-refined-audio-mode-compatibility-check.patch"
-	${git} "${DIR}/patches/hdmi/0022-drm-tilcdc-Implement-whitelist-blacklist-mode-suppor.patch"
+	${git} "${DIR}/patches/hdmi/0022-drm-tilcdc-fixing-i2c-slave-initialization-race.patch"
+	${git} "${DIR}/patches/hdmi/0023-drm-tilcdc-increase-allowable-supported-resolution.patch"
+	${git} "${DIR}/patches/hdmi/0024-drm-i2c-tda998x-fix-sync-generation-and-calculation.patch"
+	${git} "${DIR}/patches/hdmi/0025-drm-tilcdc-fixup-mode-to-workaound-sync-for-tda998x.patch"
+	${git} "${DIR}/patches/hdmi/0026-Documentation-for-tilcdc-Devicetree-Bindings.patch"
+	${git} "${DIR}/patches/hdmi/0027-drm-tilcdc-adding-more-guards-to-prevent-selecting-i.patch"
 
 	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"
@@ -777,7 +782,7 @@ am33x_after () {
 	${git} "${DIR}/patches/resources/0019-bone-add-PPS-to-BB-BONE-RTC-cape.patch"
 	${git} "${DIR}/patches/resources/0020-firmware-remove-rule-for-cape-bone-adafruit-lcd-00A0.patch"
 	${git} "${DIR}/patches/resources/0021-hwmon-add-driver-for-the-AM335x-bandgap-temperature-.patch"
-#disabled, as 'cape' failes verification and does not load...
+#disabled, as 'cape' fails verification and does not load...
 #	${git} "${DIR}/patches/resources/0022-fw-Make-firmware-timeout-loading-value-configurable.patch"
 #	${git} "${DIR}/patches/resources/0023-capemgr-Retry-loading-when-failure-to-find-firmware.patch"
 	${git} "${DIR}/patches/resources/0024-arm-bone-dts-add-CD-for-mmc1.patch"
@@ -790,6 +795,7 @@ am33x_after () {
 	${git} "${DIR}/patches/pps/0001-drivers-pps-clients-pps-gpio.c-convert-to-module_pla.patch"
 	${git} "${DIR}/patches/pps/0002-drivers-pps-clients-pps-gpio.c-convert-to-devm_-help.patch"
 	${git} "${DIR}/patches/pps/0003-pps-gpio-add-device-tree-binding-and-support.patch"
+	${git} "${DIR}/patches/pps/0004-pps-gpio-add-pinctrl-suppport.patch"
 
 	echo "dir: leds"
 	${git} "${DIR}/patches/leds/0001-leds-leds-pwm-Convert-to-use-devm_get_pwm.patch"
@@ -809,6 +815,14 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0007-Add-support-for-Beaglebone-Audio-Amplifier-Cape.patch"
 	${git} "${DIR}/patches/capes/0008-capemgr-Priority-on-capemgr.enable_partno-option.patch"
 	${git} "${DIR}/patches/capes/0009-bone-add-protocape-GPS.patch"
+	${git} "${DIR}/patches/capes/0010-capes-make-SPI-overlays-SPIDEV-by-default.patch"
+	${git} "${DIR}/patches/capes/0011-Removed-old-wrong-BeBoPr-2191-R2-overlay.patch"
+	${git} "${DIR}/patches/capes/0012-Workaround-for-bug-in-tscadc-code-that-oopses-with-B.patch"
+	${git} "${DIR}/patches/capes/0013-DT-overlay-for-BeBoPr-and-BeagleBone-white-.-Loaded-.patch"
+	${git} "${DIR}/patches/capes/0014-Added-alias-for-BeBoPrs-with-old-EEPROM-device-id-21.patch"
+	${git} "${DIR}/patches/capes/0015-DT-overlay-for-BeBoPr-with-enable-patch-and-BeagleBo.patch"
+	${git} "${DIR}/patches/capes/0016-DT-overlay-for-BeBoPr-Bridge-and-BeagleBone-any-colo.patch"
+	${git} "${DIR}/patches/capes/0017-Removed-Whitelist-and-Blacklist-Modes-From-HDMI-Devi.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
