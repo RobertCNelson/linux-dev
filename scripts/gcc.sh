@@ -104,14 +104,14 @@ gcc_linaro_toolchain () {
 		;;
 	cortex_gcc_4_8)
 		#https://launchpad.net/linaro-toolchain-binaries/+download
-		#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.07/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.07-1_linux.tar.xz
+		#https://launchpad.net/linaro-toolchain-binaries/trunk/2013.08/+download/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux.tar.xz
 
 		gcc_version="4.8"
-		release="2013.07"
+		release="2013.08"
 		toolchain_name="gcc-linaro-arm-linux-gnueabihf"
 		site="https://launchpad.net/linaro-toolchain-binaries"
 		version="trunk/${release}"
-		directory="${toolchain_name}-${gcc_version}-${release}-1_linux"
+		directory="${toolchain_name}-${gcc_version}-${release}_linux"
 		filename="${directory}.tar.xz"
 		datestamp="${release}-${toolchain_name}"
 		untar="tar -xJf"
