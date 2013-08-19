@@ -197,23 +197,22 @@ unmount_partitions () {
 	mmc_detect_n_mount
 }
 
+list_mmc () {
+	echo "fdisk -l:"
+	LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
+	echo ""
+	echo "lsblk:"
+	lsblk | grep -v sr0
+	echo "-----------------------------"
+}
+
 check_mmc () {
 	FDISK=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk ${MMC}" | awk '{print $2}')
 
 	if [ "x${FDISK}" = "x${MMC}:" ] ; then
 		echo ""
 		echo "I see..."
-		echo "fdisk -l:"
-		LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
-		echo ""
-		if which lsblk > /dev/null ; then
-			echo "lsblk:"
-			lsblk | grep -v sr0
-		else
-			echo "mount:"
-			mount | grep -v none | grep "/dev/" --color=never
-		fi
-		echo ""
+		list_mmc
 		echo -n "Are you 100% sure, on selecting [${MMC}] (y/n)? "
 		read response
 		if [ "x${response}" = "xy" ] ; then
@@ -224,11 +223,7 @@ check_mmc () {
 		echo ""
 		echo "Are you sure? I Don't see [${MMC}], here is what I do see..."
 		echo ""
-		echo "fdisk -l:"
-		LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
-		echo ""
-		echo "mount:"
-		mount | grep -v none | grep "/dev/" --color=never
+		list_mmc
 		echo "Please update MMC variable in system.sh"
 	fi
 }
@@ -239,13 +234,11 @@ if [ -f "${DIR}/system.sh" ] ; then
 	if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
 		KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
 		if [ "x${MMC}" = "x" ] ; then
+			echo "-----------------------------"
+			echo "lsblk:"
+			lsblk | grep -v sr0
+			echo "-----------------------------"
 			echo "ERROR: MMC is not defined in system.sh"
-			if which lsblk > /dev/null ; then
-				echo "-----------------------------"
-				echo "lsblk:"
-				lsblk | grep -v sr0
-				echo "-----------------------------"
-			fi
 		else
 			unset PARTITION_PREFIX
 			echo ${MMC} | grep mmcblk >/dev/null && PARTITION_PREFIX="p"
