@@ -1,0 +1,42 @@
+From e3bc42d0e2ce22410f424350afbcc756f91ee679 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@linaro.org>
+Date: Tue, 16 Jul 2013 01:17:27 +0000
+Subject: [PATCH 4/4] ASoC: sgtl5000: defer the probe if clock is not found
+
+It's not always the case that clock is already available when sgtl5000
+get probed at the first time, e.g. the clock is provided by CPU DAI
+which may be probed after sgtl5000.  So let's defer the probe when
+devm_clk_get() call fails and give it chance to try later.
+
+It fixes the regression on imx28 since commit 9e13f34 (ASoC: sgtl5000:
+Let the codec acquire its clock).
+
+[    1.927637] sgtl5000 0-000a: Failed to get mclock: -2
+[    1.934280] sgtl5000: probe of 0-000a failed with error -2
+[    1.945906] mxs-sgtl5000 sound.13: ASoC: CODEC (null) not registered
+[    1.953787] mxs-sgtl5000 sound.13: snd_soc_register_card failed (-517)
+[    1.960865] platform sound.13: Driver mxs-sgtl5000 requests probe deferral
+
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Mark Brown <broonie@linaro.org>
+---
+ sound/soc/codecs/sgtl5000.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 7c99f3c..cc2fcdd 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1528,6 +1528,9 @@ static int sgtl5000_i2c_probe(struct i2c_client *client,
+ 	if (IS_ERR(sgtl5000->mclk)) {
+ 		ret = PTR_ERR(sgtl5000->mclk);
+ 		dev_err(&client->dev, "Failed to get mclock: %d\n", ret);
++		/* Defer the probe to see if the clk will be provided later */
++		if (ret == -ENOENT)
++			return -EPROBE_DEFER;
+ 		return ret;
+ 	}
+ 
+-- 
+1.7.10.4
+

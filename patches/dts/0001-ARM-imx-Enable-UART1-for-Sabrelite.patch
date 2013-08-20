@@ -1,0 +1,52 @@
+From 16335335a9999965f7a1f1cc8ffce128e31f91c9 Mon Sep 17 00:00:00 2001
+From: Brian Viele <viele@zee.aero>
+Date: Fri, 16 Nov 2012 21:40:46 -0800
+Subject: [PATCH] ARM: imx: Enable UART1 for Sabrelite
+
+This updates the device tree for the sabrelite to enable UART1 pads in the USDHC3 configuration
+
+Signed-off-by: Brian Viele <viele@zee.aero>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/imx6q-sabrelite.dts |    6 ++++++
+ arch/arm/boot/dts/imx6qdl.dtsi        |    7 +++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+index e0f4cd0..9f0b9b1 100644
+--- a/arch/arm/boot/dts/imx6q-sabrelite.dts
++++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+@@ -152,6 +152,12 @@
+ 	pinctrl-0 = <&pinctrl_audmux_1>;
+ };
+ 
++&uart1 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1_2>;
++};
++
+ &uart2 {
+ 	status = "okay";
+ 	pinctrl-names = "default";
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index bc4ca03..44cc01c 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -1025,6 +1025,13 @@
+ 							MX6QDL_PAD_CSI0_DAT11__UART1_RX_DATA 0x1b0b1
+ 						>;
+ 					};
++
++					pinctrl_uart1_2: uart1grp-2 {
++						fsl,pins = <
++							MX6QDL_PAD_SD3_DAT7__UART1_TX_DATA 0x1b0b1
++							MX6QDL_PAD_SD3_DAT7__UART1_RX_DATA 0x1b0b1
++						>;
++					};
+ 				};
+ 
+ 				uart2 {
+-- 
+1.7.10.4
+

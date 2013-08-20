@@ -1,0 +1,35 @@
+From 53829f19f1b36c72d9465fc7595ae8b7aeff12f8 Mon Sep 17 00:00:00 2001
+From: Mike Panetta <panetta.mike@gmail.com>
+Date: Tue, 30 Jul 2013 20:41:50 -0400
+Subject: [PATCH 3/3] ARM: dts: imx6qdl-wandboard: add debug led for headless
+ bringup to wandboard shared dtsi.
+
+Signed-off-by: Mike Panetta <panetta.mike@gmail.com>
+---
+ arch/arm/boot/dts/imx6qdl-wandboard.dtsi |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index b40bbe1..124bbb6 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -10,6 +10,16 @@
+  */
+ 
+ / {
++	leds {
++		compatible = "gpio-leds";
++
++		debug-led {
++			label = "GPIO3_12"; /* Expansion pin header pin name */
++			gpios = <&gpio3 11 0>;
++			linux,default-trigger = "heartbeat";
++		};
++	};
++
+ 	regulators {
+ 		compatible = "simple-bus";
+ 
+-- 
+1.7.10.4
+

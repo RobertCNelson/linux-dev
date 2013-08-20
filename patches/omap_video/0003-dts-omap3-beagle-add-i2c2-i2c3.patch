@@ -1,0 +1,41 @@
+From a508734e779fa7c5b960543800579ff300f05097 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 24 Jul 2013 09:44:24 -0500
+Subject: [PATCH 3/4] dts: omap3-beagle add i2c2 & i2c3
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/omap3-beagle.dts |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-beagle.dts b/arch/arm/boot/dts/omap3-beagle.dts
+index 27aed65..e1950a0 100644
+--- a/arch/arm/boot/dts/omap3-beagle.dts
++++ b/arch/arm/boot/dts/omap3-beagle.dts
+@@ -136,6 +136,23 @@
+ #include "twl4030.dtsi"
+ #include "twl4030_omap3.dtsi"
+ 
++&i2c2 {
++	clock-frequency = <400000>;
++};
++
++&i2c3 {
++	clock-frequency = <100000>;
++
++	/*
++	 * Display monitor features are burnt in the EEPROM
++	 * as EDID data.
++	 */
++	eeprom@50 {
++		compatible = "ti,eeprom";
++		reg = <0x50>;
++	};
++};
++
+ &mmc1 {
+ 	vmmc-supply = <&vmmc1>;
+ 	vmmc_aux-supply = <&vsim>;
+-- 
+1.7.10.4
+

@@ -1,0 +1,57 @@
+From 954df8e50438b805aed48c03d936f224110a65d5 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sun, 4 Aug 2013 16:22:50 -0500
+Subject: [PATCH 2/2] imx: enable hdmi video for imx6q-sabrelite &
+ imx6q-sabresd
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/imx6q-sabrelite.dts |   13 +++++++++++++
+ arch/arm/boot/dts/imx6q-sabresd.dts   |   13 +++++++++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+index b55ee35..77b99a6 100644
+--- a/arch/arm/boot/dts/imx6q-sabrelite.dts
++++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+@@ -178,3 +178,16 @@
+ 		VDDIO-supply = <&reg_3p3v>;
+ 	};
+ };
++
++&i2c2 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2_1>;
++	status = "okay";
++};
++
++&hdmi {
++	crtcs = <&ipu1 0 &ipu1 1 &ipu2 0 &ipu2 1>;
++	ddc = <&i2c2>;
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/imx6q-sabresd.dts b/arch/arm/boot/dts/imx6q-sabresd.dts
+index 9cbdfe7..a078514 100644
+--- a/arch/arm/boot/dts/imx6q-sabresd.dts
++++ b/arch/arm/boot/dts/imx6q-sabresd.dts
+@@ -23,3 +23,16 @@
+ &sata {
+ 	status = "okay";
+ };
++
++&i2c2 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2_1>;
++	status = "okay";
++};
++
++&hdmi {
++	crtcs = <&ipu1 0 &ipu1 1 &ipu2 0 &ipu2 1>;
++	ddc = <&i2c2>;
++	status = "okay";
++};
+-- 
+1.7.10.4
+

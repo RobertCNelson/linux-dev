@@ -1,0 +1,33 @@
+From 02168639c1981416bf07e30eaa569dc49f2bf4a6 Mon Sep 17 00:00:00 2001
+From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Date: Tue, 16 Jul 2013 20:05:07 +0800
+Subject: [PATCH 3/3] ASoC: imx-sgtl5000: fix error return code in
+ imx_sgtl5000_probe()
+
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
+
+Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+---
+ sound/soc/fsl/imx-sgtl5000.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
+index 3f726e4..389cbfa 100644
+--- a/sound/soc/fsl/imx-sgtl5000.c
++++ b/sound/soc/fsl/imx-sgtl5000.c
+@@ -129,8 +129,10 @@ static int imx_sgtl5000_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	data->codec_clk = devm_clk_get(&codec_dev->dev, NULL);
+-	if (IS_ERR(data->codec_clk))
++	if (IS_ERR(data->codec_clk)) {
++		ret = PTR_ERR(data->codec_clk);
+ 		goto fail;
++	}
+ 
+ 	data->clk_frequency = clk_get_rate(data->codec_clk);
+ 
+-- 
+1.7.10.4
+
