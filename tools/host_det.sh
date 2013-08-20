@@ -118,7 +118,7 @@ Missing mkimage command.
 }
 
 check_dpkg () {
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}$" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 }
 
 debian_regs () {
@@ -130,8 +130,6 @@ debian_regs () {
 	pkg="device-tree-compiler"
 	check_dpkg
 	pkg="fakeroot"
-	check_dpkg
-	pkg="libncurses5-dev"
 	check_dpkg
 	pkg="lsb-release"
 	check_dpkg
@@ -223,7 +221,8 @@ debian_regs () {
 
 	if [ $(which lsb_release) ] && [ ! "${stop_pkg_search}" ] ; then
 		deb_distro=$(lsb_release -cs)
-
+		deb_arch=$(LC_ALL=C dpkg --print-architecture)
+		
 		#pkg: mkimage
 		case "${deb_distro}" in
 		squeeze|lucid)
@@ -236,8 +235,19 @@ debian_regs () {
 			;;
 		esac
 
+		#Libs; starting with jessie/sid/saucy, lib<pkg_name>-dev:<arch>
+		case "${deb_distro}" in
+		jessie|sid|saucy)
+			pkg="libncurses5-dev:${deb_arch}"
+			check_dpkg
+			;;
+		*)
+			pkg="libncurses5-dev"
+			check_dpkg
+			;;
+		esac
+		
 		#pkg: ia32-libs
-		deb_arch=$(LC_ALL=C dpkg --print-architecture)
 		if [ "x${deb_arch}" = "xamd64" ] ; then
 			unset dpkg_multiarch
 			case "${deb_distro}" in
