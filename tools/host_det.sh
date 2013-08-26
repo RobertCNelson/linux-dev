@@ -58,7 +58,7 @@ redhat_reqs () {
 	fi
 
 	if [ "${rpm_pkgs}" ] ; then
-		echo "Fedora: missing dependicies, please install:"
+		echo "Red Hat, or derivatives: missing dependicies, please install:"
 		echo "-----------------------------"
 		echo "yum install ${rpm_pkgs}"
 		echo "-----------------------------"

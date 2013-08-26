@@ -10,6 +10,7 @@ else
 	CORES=1
 fi
 
+#Debian 7 (Wheezy): git version 1.7.10.4 and later needs "--no-edit"
 unset GIT_OPTS
 unset GIT_NOEDIT
 LC_ALL=C git help pull | grep -m 1 -e "--no-edit" >/dev/null 2>&1 && GIT_NOEDIT=1
