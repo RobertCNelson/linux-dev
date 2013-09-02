@@ -337,6 +337,9 @@ dts () {
 	${git} "${DIR}/patches/dts/0004-ARM-dts-imx6qdl-wandboard-Add-support-for-i2c3.patch"
 	${git} "${DIR}/patches/dts/0005-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
 	${git} "${DIR}/patches/dts/0006-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
+#	${git} "${DIR}/patches/dts/0007-ARM-dts-imx6qdl-wandboard-Add-usbotg-support.patch"
+#	${git} "${DIR}/patches/dts/0008-ARM-dts-imx28-evk-Allow-usb-peripheral-mode-to-work.patch"
+#	${git} "${DIR}/patches/dts/0009-ARM-dts-imx53-qsb-Allow-usb-peripheral-mode-to-work.patch"
 
 #	${git} "${DIR}/patches/dts/0003-ARM-dts-imx6qdl-wandboard-add-debug-led-for-headless.patch"
 }
@@ -346,6 +349,12 @@ imx_video () {
 	#total wip...
 	${git} "${DIR}/patches/imx_video/0001-imx-video-staging-Add-HDMI-support-to-imx-drm-driver.patch"
 	${git} "${DIR}/patches/imx_video/0002-imx-enable-hdmi-video-for-imx6q-sabrelite-imx6q-sabr.patch"
+}
+
+imx_audio () {
+	echo "dir: imx_audio"
+	${git} "${DIR}/patches/imx_audio/0001-ASoC-fsl-Add-S-PDIF-machine-driver.patch"
+	${git} "${DIR}/patches/imx_audio/0002-ARM-imx6qdl-wandboard-Add-spdif-support.patch"
 }
 
 omap3_beagle_xm_rework () {
@@ -367,10 +376,15 @@ saucy () {
 	${git} "${DIR}/patches/saucy/0003-saucy-disable-stack-protector.patch"
 }
 
-omap_sprz319_erratum() {
+omap_sprz319_erratum () {
 	echo "dir: omap_sprz319_erratum"
 	# Apply the modified sprz319 erratum for the v3.11-rc2 kernel
 	${git} "${DIR}/patches/omap_sprz319_erratum_v2.1/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
+}
+
+omap_sgx () {
+	echo "dir omap_sgx"
+	${git} "${DIR}/patches/omap_sgx/0001-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 }
 
 arm
@@ -386,11 +400,13 @@ omap_board
 
 dts
 imx_video
+imx_audio
 omap3_beagle_xm_rework
 saucy
 
 #Fixes the dpll5 instability which usually results in the hard crash of the USB ports on Beagleboard xM.
 #Uncomment to enable
-#omap_sprz319_erratum
+omap_sprz319_erratum
+#omap_sgx
 
 echo "patch.sh ran successful"
