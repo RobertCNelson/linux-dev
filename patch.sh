@@ -267,7 +267,8 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0025-ARM-dts-AM4372-add-few-nodes.patch"
 	${git} "${DIR}/patches/omap_next/0026-ARM-dts-Add-devicetree-for-gta04-board.patch"
 	${git} "${DIR}/patches/omap_next/0027-ARM-dts-AM33XX-use-pinmux-node-defined-in-included-f.patch"
-	${git} "${DIR}/patches/omap_next/0028-ARM-dts-AM33XX-don-t-redefine-OCP-bus-and-device-nod.patch"
+#needs rebase after musb changes
+#	${git} "${DIR}/patches/omap_next/0028-ARM-dts-AM33XX-don-t-redefine-OCP-bus-and-device-nod.patch"
 }
 
 imx () {
@@ -284,15 +285,16 @@ imx () {
 
 	#usb for the imx53-qsb
 #	${git} "${DIR}/patches/imx/0004-ARM-dts-imx53-qsb-Make-USBH1-functional.patch"
-	${git} "${DIR}/patches/imx/0005-chipidea-core-Move-hw_phymode_configure-into-probe.patch"
+#	${git} "${DIR}/patches/imx/0005-chipidea-core-Move-hw_phymode_configure-into-probe.patch"
 }
 
 omap_usb_phy_reset () {
 	echo "dir: omap_usb_phy_reset"
-	${git} "${DIR}/patches/omap_usb_phy_reset/0001-usb-phy-nop-Add-gpio_reset-to-platform-data.patch"
-	${git} "${DIR}/patches/omap_usb_phy_reset/0002-usb-phy-nop-Don-t-use-regulator-framework-for-RESET-.patch"
-	${git} "${DIR}/patches/omap_usb_phy_reset/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
-	${git} "${DIR}/patches/omap_usb_phy_reset/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
+#needs rework...
+#	${git} "${DIR}/patches/omap_usb_phy_reset/0001-usb-phy-nop-Add-gpio_reset-to-platform-data.patch"
+#	${git} "${DIR}/patches/omap_usb_phy_reset/0002-usb-phy-nop-Don-t-use-regulator-framework-for-RESET-.patch"
+#	${git} "${DIR}/patches/omap_usb_phy_reset/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
+#	${git} "${DIR}/patches/omap_usb_phy_reset/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
 }
 
 omap_video () {

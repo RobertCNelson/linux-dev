@@ -8,14 +8,14 @@ driver using the gpio_reset member.
 
 Signed-off-by: Roger Quadros <rogerq@ti.com>
 ---
- include/linux/usb/nop-usb-xceiv.h |    4 +++-
+ include/linux/usb/usb_phy_gen_xceiv.h | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/usb/nop-usb-xceiv.h b/include/linux/usb/nop-usb-xceiv.h
-index 148d351..1e57acb 100644
---- a/include/linux/usb/nop-usb-xceiv.h
-+++ b/include/linux/usb/nop-usb-xceiv.h
-@@ -9,7 +9,9 @@ struct nop_usb_xceiv_platform_data {
+diff --git a/include/linux/usb/usb_phy_gen_xceiv.h b/include/linux/usb/usb_phy_gen_xceiv.h
+index f9a7e7b..dba3e01 100644
+--- a/include/linux/usb/usb_phy_gen_xceiv.h
++++ b/include/linux/usb/usb_phy_gen_xceiv.h
+@@ -9,7 +9,9 @@ struct usb_phy_gen_xceiv_platform_data {
  
  	/* if set fails with -EPROBE_DEFER if can't get regulator */
  	unsigned int needs_vcc:1;
@@ -25,7 +25,7 @@ index 148d351..1e57acb 100644
 +	int gpio_reset;
  };
  
- #if defined(CONFIG_NOP_USB_XCEIV) || (defined(CONFIG_NOP_USB_XCEIV_MODULE) && defined(MODULE))
+ #if IS_ENABLED(CONFIG_NOP_USB_XCEIV)
 -- 
-1.7.10.4
+1.8.4.rc3
 
