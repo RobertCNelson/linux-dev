@@ -389,6 +389,11 @@ omap_sgx () {
 	${git} "${DIR}/patches/omap_sgx/0001-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 }
 
+testing () {
+	echo "dir: testing"
+	${git} "${DIR}/patches/testing/0001-testing-add-basic-am335x-boneblack.dts-to-test-mainl.patch"
+}
+
 arm
 drivers
 imx_dts
@@ -410,5 +415,6 @@ saucy
 #Uncomment to enable
 omap_sprz319_erratum
 #omap_sgx
+testing
 
 echo "patch.sh ran successful"
