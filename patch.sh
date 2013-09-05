@@ -306,7 +306,7 @@ omap_video () {
 	echo "dir: omap_video"
 #v3.11-rc5
 #	${git} "${DIR}/patches/omap_video/0001-ARM-OMAP-dss-common-fix-Panda-s-DVI-DDC-channel.patch"
-	${git} "${DIR}/patches/omap_video/0002-ARM-OMAP2-Remove-legacy-DSS-initialization-for-omap4.patch"
+#	${git} "${DIR}/patches/omap_video/0002-ARM-OMAP2-Remove-legacy-DSS-initialization-for-omap4.patch"
 	${git} "${DIR}/patches/omap_video/0003-dts-omap3-beagle-add-i2c2-i2c3.patch"
 	${git} "${DIR}/patches/omap_video/0004-hack-beagle_xm-like-omap4-use-the-dss-common-transit.patch"
 }
