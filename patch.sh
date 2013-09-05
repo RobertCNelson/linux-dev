@@ -258,11 +258,11 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0016-ARM-dts-twl6030-Move-common-configuration-for-OMAP4-.patch"
 	${git} "${DIR}/patches/omap_next/0017-ARM-dts-omap4-var-som-configure-connection-to-PMIC-o.patch"
 	${git} "${DIR}/patches/omap_next/0018-ARM-dts-DRA7-Add-the-dts-files-for-dra7-SoC-and-dra7.patch"
-	${git} "${DIR}/patches/omap_next/0019-ARM-dts-omap3-beagle-Use-reset-gpios-for-hsusb2_rese.patch"
-	${git} "${DIR}/patches/omap_next/0020-ARM-dts-omap4-panda-Use-reset-gpios-for-hsusb1_reset.patch"
-	${git} "${DIR}/patches/omap_next/0021-ARM-dts-omap5-uevm-Use-reset-gpios-for-hsusb2_reset.patch"
-	${git} "${DIR}/patches/omap_next/0022-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
-	${git} "${DIR}/patches/omap_next/0023-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
+#	${git} "${DIR}/patches/omap_next/0019-ARM-dts-omap3-beagle-Use-reset-gpios-for-hsusb2_rese.patch"
+#	${git} "${DIR}/patches/omap_next/0020-ARM-dts-omap4-panda-Use-reset-gpios-for-hsusb1_reset.patch"
+#	${git} "${DIR}/patches/omap_next/0021-ARM-dts-omap5-uevm-Use-reset-gpios-for-hsusb2_reset.patch"
+#	${git} "${DIR}/patches/omap_next/0022-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
+#	${git} "${DIR}/patches/omap_next/0023-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
 	${git} "${DIR}/patches/omap_next/0024-ARM-dts-AM4372-cpu-s-node-per-latest-binding.patch"
 	${git} "${DIR}/patches/omap_next/0025-ARM-dts-AM4372-add-few-nodes.patch"
 	${git} "${DIR}/patches/omap_next/0026-ARM-dts-Add-devicetree-for-gta04-board.patch"
@@ -288,13 +288,18 @@ imx () {
 #	${git} "${DIR}/patches/imx/0005-chipidea-core-Move-hw_phymode_configure-into-probe.patch"
 }
 
-omap_usb_phy_reset () {
-	echo "dir: omap_usb_phy_reset"
-#needs rework...
-#	${git} "${DIR}/patches/omap_usb_phy_reset/0001-usb-phy-nop-Add-gpio_reset-to-platform-data.patch"
-#	${git} "${DIR}/patches/omap_usb_phy_reset/0002-usb-phy-nop-Don-t-use-regulator-framework-for-RESET-.patch"
-#	${git} "${DIR}/patches/omap_usb_phy_reset/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
-#	${git} "${DIR}/patches/omap_usb_phy_reset/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
+omap_usb () {
+	echo "dir: omap_usb"
+	${git} "${DIR}/patches/omap_usb/0001-usb-phy-generic-Add-gpio_reset-to-platform-data.patch"
+	${git} "${DIR}/patches/omap_usb/0002-usb-phy-generic-Don-t-use-regulator-framework-for-RE.patch"
+	${git} "${DIR}/patches/omap_usb/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
+	${git} "${DIR}/patches/omap_usb/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
+	${git} "${DIR}/patches/omap_usb/0005-ARM-dts-omap3-beagle-Use-reset-gpios-for-hsusb2_rese.patch"
+	${git} "${DIR}/patches/omap_usb/0006-ARM-dts-omap4-panda-Use-reset-gpios-for-hsusb1_reset.patch"
+	${git} "${DIR}/patches/omap_usb/0007-ARM-dts-omap5-uevm-Use-reset-gpios-for-hsusb2_reset.patch"
+	${git} "${DIR}/patches/omap_usb/0008-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
+	${git} "${DIR}/patches/omap_usb/0009-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
+	${git} "${DIR}/patches/omap_usb/0010-ARM-dts-omap3-beagle-Add-USB-OTG-PHY-details.patch"
 }
 
 omap_video () {
@@ -399,7 +404,7 @@ drivers
 imx_dts
 omap_next
 imx
-omap_usb_phy_reset
+omap_usb
 omap_video
 omap_clock
 omap_board
