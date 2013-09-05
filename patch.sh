@@ -58,8 +58,8 @@ arm () {
 drivers () {
 	echo "dir: drivers"
 	${git} "${DIR}/patches/drivers/0001-thermal-add-imx-thermal-driver-support.patch"
-	${git} "${DIR}/patches/drivers/0002-ASoC-sglt5000-Provide-the-reg_stride-field.patch"
-	${git} "${DIR}/patches/drivers/0003-ASoC-imx-sgtl5000-fix-error-return-code-in-imx_sgtl5.patch"
+#	${git} "${DIR}/patches/drivers/0002-ASoC-sglt5000-Provide-the-reg_stride-field.patch"
+#	${git} "${DIR}/patches/drivers/0003-ASoC-imx-sgtl5000-fix-error-return-code-in-imx_sgtl5.patch"
 #v3.11-rc3:
 #	${git} "${DIR}/patches/drivers/0004-ASoC-sgtl5000-defer-the-probe-if-clock-is-not-found.patch"
 	${git} "${DIR}/patches/drivers/0005-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
@@ -360,7 +360,7 @@ imx_video () {
 
 imx_audio () {
 	echo "dir: imx_audio"
-	${git} "${DIR}/patches/imx_audio/0001-ASoC-fsl-Add-S-PDIF-machine-driver.patch"
+#	${git} "${DIR}/patches/imx_audio/0001-ASoC-fsl-Add-S-PDIF-machine-driver.patch"
 	${git} "${DIR}/patches/imx_audio/0002-ARM-imx6qdl-wandboard-Add-spdif-support.patch"
 }
 
