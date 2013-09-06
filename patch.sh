@@ -266,7 +266,7 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0024-ARM-dts-AM4372-cpu-s-node-per-latest-binding.patch"
 	${git} "${DIR}/patches/omap_next/0025-ARM-dts-AM4372-add-few-nodes.patch"
 	${git} "${DIR}/patches/omap_next/0026-ARM-dts-Add-devicetree-for-gta04-board.patch"
-	${git} "${DIR}/patches/omap_next/0027-ARM-dts-AM33XX-use-pinmux-node-defined-in-included-f.patch"
+#	${git} "${DIR}/patches/omap_next/0027-ARM-dts-AM33XX-use-pinmux-node-defined-in-included-f.patch"
 #needs rebase after musb changes
 #	${git} "${DIR}/patches/omap_next/0028-ARM-dts-AM33XX-don-t-redefine-OCP-bus-and-device-nod.patch"
 }
@@ -394,9 +394,9 @@ omap_sgx () {
 	${git} "${DIR}/patches/omap_sgx/0001-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 }
 
-testing () {
-	echo "dir: testing"
-	${git} "${DIR}/patches/testing/0001-testing-add-basic-am335x-boneblack.dts-to-test-mainl.patch"
+bbb () {
+	echo "dir: bbb"
+	${git} "${DIR}/patches/bbb/0001-ARM-OMAP2-am335x-bone-add-DT-for-BeagleBone-Black.patch"
 }
 
 arm
@@ -420,6 +420,6 @@ saucy
 #Uncomment to enable
 omap_sprz319_erratum
 #omap_sgx
-testing
+bbb
 
 echo "patch.sh ran successful"
