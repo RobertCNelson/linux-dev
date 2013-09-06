@@ -186,7 +186,7 @@ imx_dts () {
 	${git} "${DIR}/patches/imx_dts/0110-ARM-dts-imx23-evk-enable-USB-PHY-and-controller.patch"
 	${git} "${DIR}/patches/imx_dts/0111-ARM-dts-imx23-evk-enable-Low-Resolution-ADC.patch"
 	${git} "${DIR}/patches/imx_dts/0112-ARM-dts-imx23-olinuxino-enable-Low-Resolution-ADC.patch"
-	${git} "${DIR}/patches/imx_dts/0113-ARM-imx-add-low-level-debug-for-vybrid.patch"
+#	${git} "${DIR}/patches/imx_dts/0113-ARM-imx-add-low-level-debug-for-vybrid.patch"
 	${git} "${DIR}/patches/imx_dts/0114-ARM-dts-imx6-Add-support-for-imx6q-wandboard.patch"
 	${git} "${DIR}/patches/imx_dts/0115-ARM-dts-imx6q-wandboard-Add-sata-support.patch"
 	${git} "${DIR}/patches/imx_dts/0116-ARM-dts-imx-add-LVDS-panel-for-imx6qdl-sabresd.patch"
