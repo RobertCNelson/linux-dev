@@ -1,13 +1,22 @@
-From b3e8be58fff8a659d80944085456c15640d5ddac Mon Sep 17 00:00:00 2001
+From b14ca4a094897195da097f29b2ab39a69b08dd14 Mon Sep 17 00:00:00 2001
 From: Koen Kooi <koen@dominion.thruhere.net>
-Date: Fri, 6 Sep 2013 09:12:40 +0200
+Date: Mon, 9 Sep 2013 16:29:21 +0200
 Subject: [PATCH] ARM: OMAP2+: am335x-bone*: add DT for BeagleBone Black
 
 The BeagleBone Black is basically a regular BeagleBone with eMMC and HDMI added,
-so create a common dtsi both can use. MMC support for AM335x still isn't in, so
-only the LDO change has been added.
+so create a common dtsi both can use.
+
+IMPORTANT: booting the existing am335x-bone.dts will blow up the HDMI transceiver
+after a dozen boots with an uSD card inserted because LDO will be at 3.3V instead
+of 1.8.
+
+MMC support for AM335x still isn't in, so only the LDO change has been added.
+
+Cc: stable@vger.kernel.org
 
 Signed-off-by: Koen Kooi <koen@dominion.thruhere.net>
+Tested-by: Tom Rini <trini@ti.com>
+Tested-by: Matt Porter <matt.porter@linaro.org>
 ---
  arch/arm/boot/dts/Makefile                |   1 +
  arch/arm/boot/dts/am335x-bone-common.dtsi | 262 ++++++++++++++++++++++++++++++
