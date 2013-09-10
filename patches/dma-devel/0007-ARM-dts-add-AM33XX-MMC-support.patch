@@ -1,7 +1,7 @@
-From cb49fab999a79f85815af25dd088120094dc9fe9 Mon Sep 17 00:00:00 2001
+From 772c01f6f86ca05f6b74dcfcb267e7694d051932 Mon Sep 17 00:00:00 2001
 From: Matt Porter <mporter@ti.com>
 Date: Thu, 7 Mar 2013 04:16:39 +0000
-Subject: [PATCH 08/13] ARM: dts: add AM33XX MMC support
+Subject: [PATCH 07/12] ARM: dts: add AM33XX MMC support
 
 Adds AM33XX MMC support for am335x-bone, am335x-evm, and
 am335x-evmsk.
@@ -21,11 +21,11 @@ Signed-off-by: Joel Fernandes <joelf@ti.com>
 Conflicts:
 	arch/arm/boot/dts/am335x-evmsk.dts
 ---
- .../devicetree/bindings/mmc/ti-omap-hsmmc.txt      |   26 +++++++++++++-
- arch/arm/boot/dts/am335x-bone.dts                  |    7 ++++
- arch/arm/boot/dts/am335x-evm.dts                   |    7 ++++
- arch/arm/boot/dts/am335x-evmsk.dts                 |    7 ++++
- arch/arm/boot/dts/am33xx.dtsi                      |   38 ++++++++++++++++++++
+ .../devicetree/bindings/mmc/ti-omap-hsmmc.txt      | 26 ++++++++++++++-
+ arch/arm/boot/dts/am335x-bone-common.dtsi          |  7 ++++
+ arch/arm/boot/dts/am335x-evm.dts                   |  7 ++++
+ arch/arm/boot/dts/am335x-evmsk.dts                 |  7 ++++
+ arch/arm/boot/dts/am33xx.dtsi                      | 38 ++++++++++++++++++++++
  5 files changed, 84 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/mmc/ti-omap-hsmmc.txt b/Documentation/devicetree/bindings/mmc/ti-omap-hsmmc.txt
@@ -71,11 +71,11 @@ index ed271fc..8c8908a 100644
 +			&edma 25>;
 +		dma-names = "tx", "rx";
  	};
-diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 444b4ed..b8debea 100644
---- a/arch/arm/boot/dts/am335x-bone.dts
-+++ b/arch/arm/boot/dts/am335x-bone.dts
-@@ -203,6 +203,8 @@
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 2f66ded..ca2f580 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -229,6 +229,8 @@
  		};
  
  		ldo3_reg: regulator@5 {
@@ -84,7 +84,7 @@ index 444b4ed..b8debea 100644
  			regulator-always-on;
  		};
  
-@@ -234,3 +236,8 @@
+@@ -260,3 +262,8 @@
  	pinctrl-0 = <&davinci_mdio_default>;
  	pinctrl-1 = <&davinci_mdio_sleep>;
  };
@@ -94,10 +94,10 @@ index 444b4ed..b8debea 100644
 +	vmmc-supply = <&ldo3_reg>;
 +};
 diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
-index 3aee1a4..44e69d9 100644
+index e8ec875..bc4a69d 100644
 --- a/arch/arm/boot/dts/am335x-evm.dts
 +++ b/arch/arm/boot/dts/am335x-evm.dts
-@@ -448,6 +448,8 @@
+@@ -477,6 +477,8 @@
  		};
  
  		vmmc_reg: regulator@12 {
@@ -106,7 +106,7 @@ index 3aee1a4..44e69d9 100644
  			regulator-always-on;
  		};
  	};
-@@ -488,3 +490,8 @@
+@@ -517,3 +519,8 @@
  		ti,adc-channels = <4 5 6 7>;
  	};
  };
@@ -116,10 +116,10 @@ index 3aee1a4..44e69d9 100644
 +	vmmc-supply = <&vmmc_reg>;
 +};
 diff --git a/arch/arm/boot/dts/am335x-evmsk.dts b/arch/arm/boot/dts/am335x-evmsk.dts
-index 0c8ad17..4e355d6 100644
+index 4f339fa..55fd194 100644
 --- a/arch/arm/boot/dts/am335x-evmsk.dts
 +++ b/arch/arm/boot/dts/am335x-evmsk.dts
-@@ -376,6 +376,8 @@
+@@ -393,6 +393,8 @@
  		};
  
  		vmmc_reg: regulator@12 {
@@ -128,7 +128,7 @@ index 0c8ad17..4e355d6 100644
  			regulator-always-on;
  		};
  	};
-@@ -402,3 +404,8 @@
+@@ -419,3 +421,8 @@
  	phy_id = <&davinci_mdio>, <1>;
  	phy-mode = "rgmii-txid";
  };
@@ -138,10 +138,10 @@ index 0c8ad17..4e355d6 100644
 +	vmmc-supply = <&vmmc_reg>;
 +};
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 0fdb949..969c81b 100644
+index 9ce85e5..0a82fca 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -236,6 +236,44 @@
+@@ -240,6 +240,44 @@
  			status = "disabled";
  		};
  
@@ -187,5 +187,5 @@ index 0fdb949..969c81b 100644
  			compatible = "ti,omap3-wdt";
  			ti,hwmods = "wd_timer2";
 -- 
-1.7.10.4
+1.8.4.rc3
 

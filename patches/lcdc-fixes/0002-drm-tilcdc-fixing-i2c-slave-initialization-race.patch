@@ -1,7 +1,7 @@
-From 74b4020b9c8c6875613d4f1e063c8f84e6649cf7 Mon Sep 17 00:00:00 2001
+From 020a9131f60e2d797d8c10e6c5cbbaee6f7ac4ea Mon Sep 17 00:00:00 2001
 From: Darren Etheridge <detheridge@ti.com>
 Date: Fri, 21 Jun 2013 13:52:27 -0500
-Subject: [PATCH 02/14] drm/tilcdc fixing i2c/slave initialization race
+Subject: [PATCH 2/4] drm/tilcdc fixing i2c/slave initialization race
 
 In certain senarios drm will initialize before i2c this means that i2c
 slave devices like the nxp tda998x will fail to be probed.  This patch
@@ -12,14 +12,14 @@ Signed-off-by: Darren Etheridge <detheridge@ti.com>
 Acked-by: Rob Clark <robdclark@gmail.com>
 Signed-off-by: Dave Airlie <airlied@redhat.com>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_slave.c |    2 --
+ drivers/gpu/drm/tilcdc/tilcdc_slave.c | 2 --
  1 file changed, 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_slave.c b/drivers/gpu/drm/tilcdc/tilcdc_slave.c
-index 0bf5999..dfffaf0 100644
+index 923c279..595068b 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_slave.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_slave.c
-@@ -313,8 +313,6 @@ static int slave_probe(struct platform_device *pdev)
+@@ -337,8 +337,6 @@ static int slave_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -29,5 +29,5 @@ index 0bf5999..dfffaf0 100644
  	if (!i2c_node) {
  		dev_err(&pdev->dev, "could not get i2c bus node\n");
 -- 
-1.7.10.4
+1.8.4.rc3
 

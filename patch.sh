@@ -50,10 +50,16 @@ cleanup () {
 	exit
 }
 
+bone_support () {
+	echo "dir: bone-support"
+	${git} "${DIR}/patches/bone-support/0001-ARM-OMAP2-am335x-bone-add-DT-for-BeagleBone-Black.patch"
+}
+
 general_fixes () {
 	echo "dir: general-fixes"
 	${git} "${DIR}/patches/general-fixes/0001-add-PM-firmware.patch"
-	${git} "${DIR}/patches/general-fixes/0002-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
+	#Nak! use zImage + dtb file...
+	#${git} "${DIR}/patches/general-fixes/0002-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
 	${git} "${DIR}/patches/general-fixes/0003-defconfig-add-for-mainline-on-the-beaglebone.patch"
 }
 
@@ -91,19 +97,18 @@ pdev_fixes () {
 
 dma_devel () {
 	echo "dir: dma-devel"
-	${git} "${DIR}/patches/dma-devel/0001-ARM-davinci-uart-move-to-devid-based-clk_get.patch"
-	${git} "${DIR}/patches/dma-devel/0002-dma-edma-add-device_slave_sg_limits-support.patch"
-	${git} "${DIR}/patches/dma-devel/0003-dmaengine-add-dma_get_slave_sg_limits.patch"
-	${git} "${DIR}/patches/dma-devel/0004-mmc-omap_hsmmc-set-max_segs-based-on-dma-engine-limi.patch"
-	${git} "${DIR}/patches/dma-devel/0005-da8xx-config-Enable-MMC-and-FS-options.patch"
-	${git} "${DIR}/patches/dma-devel/0006-ARM-dts-add-AM33XX-EDMA-support.patch"
-	${git} "${DIR}/patches/dma-devel/0007-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
-	${git} "${DIR}/patches/dma-devel/0008-ARM-dts-add-AM33XX-MMC-support.patch"
-	${git} "${DIR}/patches/dma-devel/0009-DMA-EDMA-Split-out-PaRAM-set-calculations-into-its-o.patch"
-	${git} "${DIR}/patches/dma-devel/0010-DMA-EDMA-Add-support-for-Cyclic-DMA.patch"
-	${git} "${DIR}/patches/dma-devel/0011-sound-soc-soc-dmaengine-pcm-Add-support-for-new-DMAE.patch"
-	${git} "${DIR}/patches/dma-devel/0012-mmc-omap_hsmmc-Fix-the-crashes-due-to-the-interrupts.patch"
-	${git} "${DIR}/patches/dma-devel/0013-ARM-EDMA-Fix-clearing-of-unused-list-for-DT-DMA-reso.patch"
+	${git} "${DIR}/patches/dma-devel/0001-dma-edma-add-device_slave_sg_limits-support.patch"
+	${git} "${DIR}/patches/dma-devel/0002-dmaengine-add-dma_get_slave_sg_limits.patch"
+	${git} "${DIR}/patches/dma-devel/0003-mmc-omap_hsmmc-set-max_segs-based-on-dma-engine-limi.patch"
+	${git} "${DIR}/patches/dma-devel/0004-da8xx-config-Enable-MMC-and-FS-options.patch"
+	${git} "${DIR}/patches/dma-devel/0005-ARM-dts-add-AM33XX-EDMA-support.patch"
+	${git} "${DIR}/patches/dma-devel/0006-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
+	${git} "${DIR}/patches/dma-devel/0007-ARM-dts-add-AM33XX-MMC-support.patch"
+	${git} "${DIR}/patches/dma-devel/0008-DMA-EDMA-Split-out-PaRAM-set-calculations-into-its-o.patch"
+	${git} "${DIR}/patches/dma-devel/0009-DMA-EDMA-Add-support-for-Cyclic-DMA.patch"
+	${git} "${DIR}/patches/dma-devel/0010-sound-soc-soc-dmaengine-pcm-Add-support-for-new-DMAE.patch"
+	${git} "${DIR}/patches/dma-devel/0011-mmc-omap_hsmmc-Fix-the-crashes-due-to-the-interrupts.patch"
+	${git} "${DIR}/patches/dma-devel/0012-ARM-EDMA-Fix-clearing-of-unused-list-for-DT-DMA-reso.patch"
 }
 
 mmc_fixes () {
@@ -114,10 +119,13 @@ mmc_fixes () {
 
 dts_fixes () {
 	echo "dir: dts-fixes"
-	${git} "${DIR}/patches/dts-fixes/0001-am335x-dts-Add-beaglebone-black-DTS.patch"
-	${git} "${DIR}/patches/dts-fixes/0002-dts-beaglebone-Add-I2C-definitions-for-EEPROMs-capes.patch"
-	${git} "${DIR}/patches/dts-fixes/0003-arm-beaglebone-dts-Add-capemanager-to-the-DTS.patch"
-	${git} "${DIR}/patches/dts-fixes/0004-OF-Compile-Device-Tree-sources-with-resolve-option.patch"
+	${git} "${DIR}/patches/dts-fixes/0001-dts-beaglebone-Add-I2C-definitions-for-EEPROMs-capes.patch"
+	${git} "${DIR}/patches/dts-fixes/0002-arm-beaglebone-dts-Add-capemanager-to-the-DTS.patch"
+	${git} "${DIR}/patches/dts-fixes/0003-OF-Compile-Device-Tree-sources-with-resolve-option.patch"
+	${git} "${DIR}/patches/dts-fixes/0004-arm-bone-dts-add-CD-for-mmc1.patch"
+	${git} "${DIR}/patches/dts-fixes/0005-am335x-boneblack-add-eMMC-DT-entry.patch"
+	${git} "${DIR}/patches/dts-fixes/0006-am335x-bone-fix-MMC-regulators-on-boneblack.patch"
+	${git} "${DIR}/patches/dts-fixes/0007-am335x-bone-enable-HDMI-on-black.patch"
 }
 
 i2c_fixes () {
@@ -154,34 +162,28 @@ reset () {
 capes () {
 	echo "dir: capes"
 	${git} "${DIR}/patches/capes/0001-capemgr-firmware-makefiles-for-DT-objects.patch"
-	${git} "${DIR}/patches/capes/0002-firmare-add-cape-definitions-from-3.8-based-tree.patch"
 }
 
 lcdc_fixes () {
-	echo "dir lcdc-fixes"
+	echo "dir: lcdc-fixes"
 	${git} "${DIR}/patches/lcdc-fixes/0001-gpu-drm-tilcdc-get-preferred_bpp-value-from-DT.patch"
 	${git} "${DIR}/patches/lcdc-fixes/0002-drm-tilcdc-fixing-i2c-slave-initialization-race.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0003-drm-i2c-nxp-tda998x-fix-EDID-reading-on-TDA19988-dev.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0004-drm-i2c-nxp-tda998x-ensure-VIP-output-mux-is-properl.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0005-drm-i2c-nxp-tda998x-fix-npix-nline-programming.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0006-drm-i2c-nxp-tda998x-prepare-for-video-input-configur.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0007-drm-i2c-nxp-tda998x-add-video-and-audio-input-config.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0008-DRM-tda998x-add-missing-include.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0009-drm-i2c-tda998x-fix-sync-generation-and-calculation.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0010-drm-tilcdc-increase-allowable-supported-resolution.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0011-drm-i2c-tda998x-prepare-for-tilcdc-sync-workaround.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0012-drm-tilcdc-fixup-mode-to-workaound-sync-for-tda998x.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0013-drm-tilcdc-Fix-scheduling-while-atomic-from-irq-hand.patch"
-	${git} "${DIR}/patches/lcdc-fixes/0014-tilcdc-Slave-panel-settings-read-from-DT-now.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0003-drm-tilcdc-Fix-scheduling-while-atomic-from-irq-hand.patch"
+	${git} "${DIR}/patches/lcdc-fixes/0004-tilcdc-Slave-panel-settings-read-from-DT-now.patch"
+}
+
+net () {
+	echo "dir: net"
+	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 }
 
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
-	${git} "${DIR}/patches/saucy/0001-saucy-disable-Werror-pointer-sign.patch"
-	${git} "${DIR}/patches/saucy/0002-saucy-disable-stack-protector.patch"
 }
 
+###
+bone_support
 general_fixes
 dtc_fixes
 dtc_overlays
@@ -196,6 +198,7 @@ capemgr
 reset
 capes
 lcdc_fixes
+net
 saucy
 
 echo "patch.sh ran successful"

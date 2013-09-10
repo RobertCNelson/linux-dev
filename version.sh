@@ -29,13 +29,13 @@ linaro_toolchain="cortex_gcc_4_8"
 #Kernel/Build
 KERNEL_REL=3.11
 KERNEL_TAG=${KERNEL_REL}
-BUILD=bone5
+BUILD=bone0
 
 #v3.X-rcX + upto SHA
-#KERNEL_SHA="b3a3a9c441e2c8f6b6760de9331023a7906a4ac6"
+KERNEL_SHA="26b0332e30c7f93e780aaa054bd84e3437f84354"
 
 #git branch
-BRANCH="am33x-v3.11"
+BRANCH="am33x-v3.12"
 
 BUILDREV=1.0
 DISTRO=cross

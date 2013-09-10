@@ -1,4 +1,4 @@
-From d0e60e8a0d6419de20f0678737eecf882e78d675 Mon Sep 17 00:00:00 2001
+From 44ffb677803ba8ea45a97e8ca5db314c5b25e0f6 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Thu, 3 Jan 2013 12:18:25 +0200
 Subject: [PATCH 7/8] OF: Introduce Device Tree resolve support.
@@ -10,11 +10,11 @@ live tree.
 
 Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
 ---
- .../devicetree/dynamic-resolution-notes.txt        |   25 ++
- drivers/of/Kconfig                                 |    9 +
- drivers/of/Makefile                                |    1 +
- drivers/of/resolver.c                              |  395 ++++++++++++++++++++
- include/linux/of.h                                 |   17 +
+ .../devicetree/dynamic-resolution-notes.txt        |  25 ++
+ drivers/of/Kconfig                                 |   9 +
+ drivers/of/Makefile                                |   1 +
+ drivers/of/resolver.c                              | 395 +++++++++++++++++++++
+ include/linux/of.h                                 |  17 +
  5 files changed, 447 insertions(+)
  create mode 100644 Documentation/devicetree/dynamic-resolution-notes.txt
  create mode 100644 drivers/of/resolver.c
@@ -51,12 +51,12 @@ index 0000000..0b396c4
 +5. For each fixup in the property locate the node:property:offset location
 +   and replace it with the phandle value.
 diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
-index 80e5c13..44cb484 100644
+index 9d2009a..6f9cdc3 100644
 --- a/drivers/of/Kconfig
 +++ b/drivers/of/Kconfig
-@@ -80,4 +80,13 @@ config OF_MTD
- 	depends on MTD
- 	def_bool y
+@@ -80,4 +80,13 @@ config OF_RESERVED_MEM
+ 	help
+ 	  Initialization code for DMA reserved memory
  
 +config OF_RESOLVE
 +	bool "OF Dynamic resolution support"
@@ -69,13 +69,13 @@ index 80e5c13..44cb484 100644
 +
  endmenu # OF
 diff --git a/drivers/of/Makefile b/drivers/of/Makefile
-index f10a2a1..cb5e26d 100644
+index 26de2ed..c241e79 100644
 --- a/drivers/of/Makefile
 +++ b/drivers/of/Makefile
-@@ -10,3 +10,4 @@ obj-$(CONFIG_OF_MDIO)	+= of_mdio.o
- obj-$(CONFIG_OF_PCI)	+= of_pci.o
+@@ -10,3 +10,4 @@ obj-$(CONFIG_OF_PCI)	+= of_pci.o
  obj-$(CONFIG_OF_PCI_IRQ)  += of_pci_irq.o
  obj-$(CONFIG_OF_MTD)	+= of_mtd.o
+ obj-$(CONFIG_OF_RESERVED_MEM) += of_reserved_mem.o
 +obj-$(CONFIG_OF_RESOLVE)  += resolver.o
 diff --git a/drivers/of/resolver.c b/drivers/of/resolver.c
 new file mode 100644
@@ -479,10 +479,10 @@ index 0000000..da8cd34
 +	return err;
 +}
 diff --git a/include/linux/of.h b/include/linux/of.h
-index 8c2ee71..6ed844d 100644
+index a412a4c..04fab46 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
-@@ -688,4 +688,21 @@ static inline int of_multi_prop_cmp(const struct property *prop, const char *val
+@@ -702,4 +702,21 @@ static inline int of_multi_prop_cmp(const struct property *prop, const char *val
  
  #endif	/* !CONFIG_OF */
  
@@ -505,5 +505,5 @@ index 8c2ee71..6ed844d 100644
 +
  #endif /* _LINUX_OF_H */
 -- 
-1.7.10.4
+1.8.4.rc3
 

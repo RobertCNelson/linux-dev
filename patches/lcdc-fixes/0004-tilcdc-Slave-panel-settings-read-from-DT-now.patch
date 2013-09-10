@@ -1,23 +1,23 @@
-From 8f7334e4067431fd2b0470eed57cf502ac764d03 Mon Sep 17 00:00:00 2001
+From 9b0057e0350c45aeb07d32c91adf226f5e819ed9 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Thu, 6 Jun 2013 11:45:28 +0300
-Subject: [PATCH 14/14] tilcdc: Slave panel settings read from DT now
+Subject: [PATCH 4/4] tilcdc: Slave panel settings read from DT now
 
 Turns out that we really need those panel settings.
 
 Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_crtc.c  |   55 +++++++++++++++++++++++++++++++++
- drivers/gpu/drm/tilcdc/tilcdc_drv.h   |    3 ++
- drivers/gpu/drm/tilcdc/tilcdc_panel.c |   49 +----------------------------
- drivers/gpu/drm/tilcdc/tilcdc_slave.c |   44 +++++++++++++++-----------
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c  | 55 +++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/tilcdc/tilcdc_drv.h   |  3 ++
+ drivers/gpu/drm/tilcdc/tilcdc_panel.c | 49 +------------------------------
+ drivers/gpu/drm/tilcdc/tilcdc_slave.c | 44 ++++++++++++++++------------
  4 files changed, 85 insertions(+), 66 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index bec2f47..2104926 100644
+index fec32a6..2153292 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-@@ -695,3 +695,58 @@ fail:
+@@ -687,3 +687,58 @@ fail:
  	tilcdc_crtc_destroy(crtc);
  	return NULL;
  }
@@ -77,7 +77,7 @@ index bec2f47..2104926 100644
 +	return NULL;
 +}
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.h b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
-index ebb1214..f5f00f1 100644
+index 0938036..479c0aa 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.h
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
 @@ -170,4 +170,7 @@ void tilcdc_crtc_set_panel_info(struct drm_crtc *crtc,
@@ -156,10 +156,10 @@ index 86c6732..284c9ee 100644
  		dev_err(&pdev->dev, "could not get panel info\n");
  		goto fail;
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_slave.c b/drivers/gpu/drm/tilcdc/tilcdc_slave.c
-index c7c9157..4bdc9ba 100644
+index 595068b..6259c56 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_slave.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_slave.c
-@@ -25,23 +25,11 @@
+@@ -24,23 +24,11 @@
  
  struct slave_module {
  	struct tilcdc_module base;
@@ -184,7 +184,7 @@ index c7c9157..4bdc9ba 100644
  /*
   * Encoder:
   */
-@@ -69,8 +57,10 @@ static void slave_encoder_destroy(struct drm_encoder *encoder)
+@@ -68,8 +56,10 @@ static void slave_encoder_destroy(struct drm_encoder *encoder)
  
  static void slave_encoder_prepare(struct drm_encoder *encoder)
  {
@@ -196,7 +196,7 @@ index c7c9157..4bdc9ba 100644
  }
  
  static bool slave_encoder_fixup(struct drm_encoder *encoder,
-@@ -295,6 +285,7 @@ static void slave_destroy(struct tilcdc_module *mod)
+@@ -300,6 +290,7 @@ static void slave_destroy(struct tilcdc_module *mod)
  	struct slave_module *slave_mod = to_slave_module(mod);
  
  	tilcdc_module_cleanup(mod);
@@ -204,7 +204,7 @@ index c7c9157..4bdc9ba 100644
  	kfree(slave_mod);
  }
  
-@@ -349,13 +340,25 @@ static int slave_probe(struct platform_device *pdev)
+@@ -354,13 +345,25 @@ static int slave_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -234,7 +234,7 @@ index c7c9157..4bdc9ba 100644
  
  	slave_mod->i2c = slavei2c;
  
-@@ -372,6 +375,11 @@ static int slave_probe(struct platform_device *pdev)
+@@ -377,6 +380,11 @@ static int slave_probe(struct platform_device *pdev)
  
  static int slave_remove(struct platform_device *pdev)
  {
@@ -247,5 +247,5 @@ index c7c9157..4bdc9ba 100644
  }
  
 -- 
-1.7.10.4
+1.8.4.rc3
 
