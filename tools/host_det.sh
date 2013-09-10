@@ -58,7 +58,7 @@ redhat_reqs () {
 	fi
 
 	if [ "${rpm_pkgs}" ] ; then
-		echo "Red Hat, or derivatives: missing dependicies, please install:"
+		echo "Red Hat, or derivatives: missing dependencies, please install:"
 		echo "-----------------------------"
 		echo "yum install ${rpm_pkgs}"
 		echo "-----------------------------"
@@ -144,18 +144,33 @@ debian_regs () {
 	unset stop_pkg_search
 	#lsb_release might not be installed...
 	if [ $(which lsb_release) ] ; then
-		deb_distro=$(lsb_release -cs)
-		deb_lsb_rs=$(lsb_release -rs | awk '{print $1}')
+		deb_distro=$(lsb_release -cs | sed 's/\//_/g')
 
-		#lsb_release -a
-		#No LSB modules are available.
-		#Distributor ID:    Debian
-		#Description:    Debian GNU/Linux Kali Linux 1.0
-		#Release:    Kali Linux 1.0
-		#Codename:    n/a
-		#http://docs.kali.org/kali-policy/kali-linux-relationship-with-debian
-		if [ "x${deb_lsb_rs}" = "xKali" ] ; then
-			deb_distro="wheezy"
+		if [ "x${deb_distro}" = "xn_a" ] ; then
+			echo "+ Warning: [lsb_release -cs] just returned [n/a], so now testing [lsb_release -rs] instead..."
+			deb_lsb_rs=$(lsb_release -rs | awk '{print $1}' | sed 's/\//_/g')
+
+			#http://docs.kali.org/kali-policy/kali-linux-relationship-with-debian
+			#lsb_release -a
+			#No LSB modules are available.
+			#Distributor ID:    Debian
+			#Description:    Debian GNU/Linux Kali Linux 1.0
+			#Release:    Kali Linux 1.0
+			#Codename:    n/a
+			if [ "x${deb_lsb_rs}" = "xKali" ] ; then
+				deb_distro="wheezy"
+			fi
+
+			#Debian "testing"
+			#lsb_release -a
+			#No LSB modules are available.
+			#Distributor ID: Debian
+			#Description:    Debian GNU/Linux testing/unstable
+			#Release:        testing/unstable
+			#Codename:       n/a
+			if [ "x${deb_lsb_rs}" = "xtesting_unstable" ] ; then
+				deb_distro="jessie"
+			fi
 		fi
 
 		#Linux Mint: Compatibility Matrix
@@ -220,7 +235,6 @@ debian_regs () {
 	fi
 
 	if [ $(which lsb_release) ] && [ ! "${stop_pkg_search}" ] ; then
-		deb_distro=$(lsb_release -cs)
 		deb_arch=$(LC_ALL=C dpkg --print-architecture)
 		
 		#pkg: mkimage
@@ -300,7 +314,7 @@ debian_regs () {
 	fi
 
 	if [ "${deb_pkgs}" ] ; then
-		echo "Debian/Ubuntu/Mint: missing dependicies, please install:"
+		echo "Debian/Ubuntu/Mint: missing dependencies, please install:"
 		echo "-----------------------------"
 		if [ "${warn_dpkg_ia32}" ] ; then
 			echo "sudo dpkg --add-architecture i386"
