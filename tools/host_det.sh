@@ -204,24 +204,32 @@ debian_regs () {
 
 		case "${deb_distro}" in
 		squeeze|wheezy|jessie|sid)
+			#Supported Debian:
 			unset error_unknown_deb_distro
 			unset warn_eol_distro
 			;;
 		lucid|precise|quantal|raring|saucy)
+			#Supported Ubuntu:
 			unset error_unknown_deb_distro
 			unset warn_eol_distro
 			;;
-		maverick|natty|oneiric)
-			#lucid -> precise
-			#http://us.archive.ubuntu.com/ubuntu/dists/
-			#list: dists between LTS's...
+		oneiric)
+			#Old Ubuntu: between lts: lucid -> precise
+			#But still on: http://us.archive.ubuntu.com/ubuntu/dists/ (supported except for oneiric)
+			#in 'theory' could bring oneiric back, but no reason too at this point...
+			unset error_unknown_deb_distro
+			warn_eol_distro=1
+			stop_pkg_search=1
+			;;
+		maverick|natty)
+			#Old Ubuntu: between lts: lucid -> precise
+			#removed from http://us.archive.ubuntu.com/ubuntu/dists/ thus unsupported...
 			unset error_unknown_deb_distro
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
 		hardy)
-			#Just old, but still on:
-			#http://us.archive.ubuntu.com/ubuntu/dists/
+			#Old Ubuntu LTS: unsupported...
 			unset error_unknown_deb_distro
 			warn_eol_distro=1
 			stop_pkg_search=1
