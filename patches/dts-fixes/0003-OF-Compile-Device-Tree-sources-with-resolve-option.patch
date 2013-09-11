@@ -1,4 +1,4 @@
-From 49a5e060d3ee007e2b4bd1df622d1665b72d78d4 Mon Sep 17 00:00:00 2001
+From 28b3bdda0bd4890bb030982da638f1f1d626220e Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Fri, 14 Dec 2012 13:05:34 +0200
 Subject: [PATCH 3/7] OF: Compile Device Tree sources with resolve option
@@ -18,7 +18,7 @@ Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
  2 files changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/Makefile b/arch/arm/Makefile
-index 9b25d8b..f17629b 100644
+index a37a50f..b8daea4 100644
 --- a/arch/arm/Makefile
 +++ b/arch/arm/Makefile
 @@ -286,6 +286,10 @@ ifeq ($(CONFIG_USE_OF),y)
@@ -32,7 +32,7 @@ index 9b25d8b..f17629b 100644
  all:	$(KBUILD_IMAGE) $(KBUILD_DTBS)
  
  boot := arch/arm/boot
-@@ -310,7 +314,7 @@ uImage-dtb.%:
+@@ -307,7 +311,7 @@ zinstall uinstall install: vmlinux
  
  PHONY += dtbs
  dtbs: scripts
@@ -42,10 +42,10 @@ index 9b25d8b..f17629b 100644
  # We use MRPROPER_FILES and CLEAN_FILES now
  archclean:
 diff --git a/arch/arm/boot/Makefile b/arch/arm/boot/Makefile
-index 7b03519..60dd06e 100644
+index 84aa2ca..9187073 100644
 --- a/arch/arm/boot/Makefile
 +++ b/arch/arm/boot/Makefile
-@@ -60,6 +60,10 @@ $(obj)/zImage-dtb.%:	$(obj)/dts/%.dtb $(obj)/zImage
+@@ -57,6 +57,10 @@ $(obj)/zImage:	$(obj)/compressed/vmlinux FORCE
  
  endif
  

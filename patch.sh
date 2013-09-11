@@ -55,6 +55,16 @@ bone_support () {
 	${git} "${DIR}/patches/bone-support/0001-ARM-OMAP2-am335x-bone-add-DT-for-BeagleBone-Black.patch"
 }
 
+dma_devel () {
+	echo "dir: dma-devel"
+	${git} "${DIR}/patches/dma-devel/0001-ARM-EDMA-Fix-clearing-of-unused-list-for-DT-DMA-reso.patch"
+	${git} "${DIR}/patches/dma-devel/0002-da8xx-config-Enable-MMC-and-FS-options.patch"
+	${git} "${DIR}/patches/dma-devel/0003-ARM-dts-add-AM33XX-EDMA-support.patch"
+	${git} "${DIR}/patches/dma-devel/0004-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
+	${git} "${DIR}/patches/dma-devel/0005-ARM-dts-add-AM33XX-MMC-support-and-documentation.patch"
+	${git} "${DIR}/patches/dma-devel/0006-sound-soc-soc-dmaengine-pcm-Add-support-for-new-DMAE.patch"
+}
+
 general_fixes () {
 	echo "dir: general-fixes"
 	${git} "${DIR}/patches/general-fixes/0001-add-PM-firmware.patch"
@@ -93,22 +103,6 @@ pdev_fixes () {
 	${git} "${DIR}/patches/pdev-fixes/0002-of-Link-platform-device-resources-properly.patch"
 	${git} "${DIR}/patches/pdev-fixes/0003-omap-Properly-handle-resources-for-omap_devices.patch"
 	${git} "${DIR}/patches/pdev-fixes/0004-omap-Avoid-crashes-in-the-case-of-hwmod-misconfigura.patch"
-}
-
-dma_devel () {
-	echo "dir: dma-devel"
-	${git} "${DIR}/patches/dma-devel/0001-dma-edma-add-device_slave_sg_limits-support.patch"
-	${git} "${DIR}/patches/dma-devel/0002-dmaengine-add-dma_get_slave_sg_limits.patch"
-	${git} "${DIR}/patches/dma-devel/0003-mmc-omap_hsmmc-set-max_segs-based-on-dma-engine-limi.patch"
-	${git} "${DIR}/patches/dma-devel/0004-da8xx-config-Enable-MMC-and-FS-options.patch"
-	${git} "${DIR}/patches/dma-devel/0005-ARM-dts-add-AM33XX-EDMA-support.patch"
-	${git} "${DIR}/patches/dma-devel/0006-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
-	${git} "${DIR}/patches/dma-devel/0007-ARM-dts-add-AM33XX-MMC-support.patch"
-	${git} "${DIR}/patches/dma-devel/0008-DMA-EDMA-Split-out-PaRAM-set-calculations-into-its-o.patch"
-	${git} "${DIR}/patches/dma-devel/0009-DMA-EDMA-Add-support-for-Cyclic-DMA.patch"
-	${git} "${DIR}/patches/dma-devel/0010-sound-soc-soc-dmaengine-pcm-Add-support-for-new-DMAE.patch"
-	${git} "${DIR}/patches/dma-devel/0011-mmc-omap_hsmmc-Fix-the-crashes-due-to-the-interrupts.patch"
-	${git} "${DIR}/patches/dma-devel/0012-ARM-EDMA-Fix-clearing-of-unused-list-for-DT-DMA-reso.patch"
 }
 
 mmc_fixes () {
@@ -184,12 +178,12 @@ saucy () {
 
 ###
 bone_support
+dma_devel
 general_fixes
 dtc_fixes
 dtc_overlays
 of_fixes
 pdev_fixes
-dma_devel
 mmc_fixes
 dts_fixes
 i2c_fixes
