@@ -31,7 +31,7 @@ patch_kernel () {
 	/bin/sh -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
 	if [ ! "${RUN_BISECT}" ] ; then
-		git add .
+		git add --all
 		git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
 	fi
 
