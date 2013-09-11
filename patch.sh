@@ -171,6 +171,11 @@ net () {
 	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 }
 
+hacks () {
+	echo "dir: hacks"
+	${git} "${DIR}/patches/hacks/0001-bone-force-4-bit-mode-on-mmc1.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -193,6 +198,7 @@ reset
 capes
 lcdc_fixes
 net
+hacks
 saucy
 
 echo "patch.sh ran successful"
