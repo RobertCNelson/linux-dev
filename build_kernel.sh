@@ -31,7 +31,7 @@ patch_kernel () {
 	/bin/sh -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
 	if [ ! "${RUN_BISECT}" ] ; then
-		git add .
+		git add --all
 		git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
 	fi
 
@@ -62,42 +62,48 @@ make_menuconfig () {
 }
 
 make_kernel () {
+	image="zImage"
+	unset address
+
+	#uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
+	#image="uImage"
+	#address="LOADADDR=${ZRELADDR}"
+
 	cd ${DIR}/KERNEL/
 	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" zImage modules"
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} ${address} ${image} modules"
 	echo "-----------------------------"
-	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" zImage modules
+	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} ${address} ${image} modules
 
 	unset DTBS
 	cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:" >/dev/null 2>&1 && DTBS=1
 	if [ "x${DTBS}" != "x" ] ; then
 		echo "-----------------------------"
-		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" dtbs"
+		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs"
 		echo "-----------------------------"
-		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
+		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs
 		ls arch/arm/boot/* | grep dtb >/dev/null 2>&1 || unset DTBS
 	fi
 
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
 
-	deployfile=".zImage"
-	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
-		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}.${image}" ] ; then
+		rm -rf "${DIR}/deploy/${KERNEL_UTS}.${image}" || true
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}.config" || true
 	fi
 
-	if [ -f ./arch/arm/boot/zImage ] ; then
-		cp -v arch/arm/boot/zImage "${DIR}/deploy/${KERNEL_UTS}.zImage"
+	if [ -f ./arch/arm/boot/${image} ] ; then
+		cp -v arch/arm/boot/${image} "${DIR}/deploy/${KERNEL_UTS}.${image}"
 		cp -v .config "${DIR}/deploy/${KERNEL_UTS}.config"
 	fi
 
 	cd ${DIR}/
 
-	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
-		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}${deployfile}]"
+	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}.${image}" ] ; then
+		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}.${image}]"
 		/bin/sh -e "${DIR}/scripts/error.sh" && { exit 1 ; }
 	else
-		ls -lh "${DIR}/deploy/${KERNEL_UTS}${deployfile}"
+		ls -lh "${DIR}/deploy/${KERNEL_UTS}.${image}"
 	fi
 }
 
