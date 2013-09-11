@@ -301,6 +301,7 @@ omap_usb () {
 	${git} "${DIR}/patches/omap_usb/0008-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
 	${git} "${DIR}/patches/omap_usb/0009-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
 	${git} "${DIR}/patches/omap_usb/0010-ARM-dts-omap3-beagle-Add-USB-OTG-PHY-details.patch"
+	${git} "${DIR}/patches/omap_usb/0011-hack-beagle-xm-NOP_USB_XCEIV-still-has-to-be-a-modul.patch"
 }
 
 omap_video () {
