@@ -2,13 +2,13 @@
 #
 ARCH=$(uname -m)
 
-#Dual/Quad Core arms are now more prevalent, so just don't limit it x86:
-check_cpuinfo=$(cat /proc/cpuinfo | grep "^processor" | awk '{print $1}' | head -n 1)
-if [ "x${check_cpuinfo}" = "xprocessor" ] ; then
-	CORES=$(cat /proc/cpuinfo | grep "^processor" | wc -l)
+if [ $(which nproc) ] ; then
+	CORES=$(nproc)
 else
 	CORES=1
 fi
+#FIXME: drop this echo in a few revisions...
+echo "Debug: CORES=${CORES}"
 
 #Debian 7 (Wheezy): git version 1.7.10.4 and later needs "--no-edit"
 unset GIT_OPTS

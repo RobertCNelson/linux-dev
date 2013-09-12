@@ -6,7 +6,11 @@ if [ -e ${DIR}/version.sh ]; then
 	unset BRANCH
 	. ${DIR}/version.sh
 
-	git commit -a -m "scripts: sync with master" -s
+	if [ ! "${BRANCH}" ] ; then
+		BRANCH="master"
+	fi
+
+	git commit -a -m "scripts: sync with master of: git://github.com/RobertCNelson/stable-kernel.git" -s
 
 	git push origin ${BRANCH}
 fi
