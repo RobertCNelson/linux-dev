@@ -120,6 +120,8 @@ dts_fixes () {
 	${git} "${DIR}/patches/dts-fixes/0005-am335x-boneblack-add-eMMC-DT-entry.patch"
 	${git} "${DIR}/patches/dts-fixes/0006-am335x-bone-fix-MMC-regulators-on-boneblack.patch"
 	${git} "${DIR}/patches/dts-fixes/0007-am335x-bone-enable-HDMI-on-black.patch"
+	${git} "${DIR}/patches/dts-fixes/0008-ARM-am335x-bone-common-switch-mmc1-to-4-bit-mode.patch"
+	${git} "${DIR}/patches/dts-fixes/0009-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
 }
 
 i2c_fixes () {
@@ -171,11 +173,6 @@ net () {
 	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 }
 
-hacks () {
-	echo "dir: hacks"
-	${git} "${DIR}/patches/hacks/0001-bone-force-4-bit-mode-on-mmc1.patch"
-}
-
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -198,7 +195,6 @@ reset
 capes
 lcdc_fixes
 net
-hacks
 saucy
 
 echo "patch.sh ran successful"
