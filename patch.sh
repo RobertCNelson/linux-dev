@@ -58,7 +58,7 @@ arm () {
 
 drivers () {
 	echo "dir: drivers"
-	${git} "${DIR}/patches/drivers/0001-thermal-add-imx-thermal-driver-support.patch"
+#	${git} "${DIR}/patches/drivers/0001-thermal-add-imx-thermal-driver-support.patch"
 #	${git} "${DIR}/patches/drivers/0002-ASoC-sglt5000-Provide-the-reg_stride-field.patch"
 #	${git} "${DIR}/patches/drivers/0003-ASoC-imx-sgtl5000-fix-error-return-code-in-imx_sgtl5.patch"
 #v3.11-rc3:
