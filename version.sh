@@ -7,8 +7,6 @@ if [ $(which nproc) ] ; then
 else
 	CORES=1
 fi
-#FIXME: drop this echo in a few revisions...
-echo "Debug: CORES=${CORES}"
 
 #Debian 7 (Wheezy): git version 1.7.10.4 and later needs "--no-edit"
 unset GIT_OPTS
