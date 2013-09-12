@@ -274,6 +274,7 @@ arm () {
 	${git} "${DIR}/patches/arm/0002-Without-MACH_-option-Early-printk-DEBUG_LL.patch"
 	${git} "${DIR}/patches/arm/0003-ARM-7668-1-fix-memset-related-crashes-caused-by-rece.patch"
 	${git} "${DIR}/patches/arm/0004-ARM-7670-1-fix-the-memset-fix.patch"
+	${git} "${DIR}/patches/arm/0005-ARM-DTS-AM33XX-Add-PMU-support.patch"
 }
 
 omap () {
@@ -823,6 +824,12 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0015-DT-overlay-for-BeBoPr-with-enable-patch-and-BeagleBo.patch"
 	${git} "${DIR}/patches/capes/0016-DT-overlay-for-BeBoPr-Bridge-and-BeagleBone-any-colo.patch"
 	${git} "${DIR}/patches/capes/0017-Removed-Whitelist-and-Blacklist-Modes-From-HDMI-Devi.patch"
+	${git} "${DIR}/patches/capes/0018-beaglebone-capes-add-replicape-A2-and-A3-support.patch"
+
+	echo "dir: fixes"
+	${git} "${DIR}/patches/fixes/0001-sync-don-t-block-the-flusher-thread-waiting-on-IO.patch"
+	${git} "${DIR}/patches/fixes/0002-USB-Fix-USB-device-disconnects-on-resume.patch"
+	${git} "${DIR}/patches/fixes/0003-beaglebone-switch-uSD-to-4-bit-mode.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
