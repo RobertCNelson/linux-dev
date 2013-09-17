@@ -173,6 +173,11 @@ net () {
 	${git} "${DIR}/patches/net/0001-am33xx-cpsw-default-to-ethernet-hwaddr-from-efuse-if.patch"
 }
 
+deassert_hard_reset () {
+	echo "dir: deassert-hard-reset"
+	${git} "${DIR}/patches/deassert-hard-reset/0001-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -195,6 +200,7 @@ reset
 capes
 lcdc_fixes
 net
+deassert_hard_reset
 saucy
 
 echo "patch.sh ran successful"

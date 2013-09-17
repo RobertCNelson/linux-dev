@@ -25,12 +25,12 @@ config="omap2plus_defconfig"
 linaro_toolchain="cortex_gcc_4_8"
 
 #Kernel/Build
-KERNEL_REL=3.11
-KERNEL_TAG=${KERNEL_REL}
-BUILD=bone0.12
+KERNEL_REL=3.12
+KERNEL_TAG=${KERNEL_REL}-rc1
+BUILD=bone0.13
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="5a7d8a28080caed7fd4cb1b81d092adac4445e8e"
+#KERNEL_SHA=""
 
 #git branch
 BRANCH="am33x-v3.12"
