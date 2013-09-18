@@ -62,13 +62,42 @@ drivers () {
 
 imx_next () {
 	echo "dir: imx_next"
-	#With all the imx6*.dtsi changes, its eaiser to just pull the for-next then try to manually rebase
-	#https://git.linaro.org/gitweb?p=people/shawnguo/linux-2.6.git;a=shortlog;h=refs/heads/for-next
+	#From: https://git.linaro.org/gitweb?p=people/shawnguo/linux-2.6.git;a=shortlog;h=refs/heads/for-next
+	#git pull --no-edit git://git.linaro.org/people/shawnguo/linux-2.6.git for-next
+
+	${git} "${DIR}/patches/imx_next/0001-ARM-dts-imx6sl-reuses-imx6q-sdma-firmware.patch"
+	${git} "${DIR}/patches/imx_next/0002-ARM-dts-i.MX51-Separate-TXD-RXD-and-RTS-CTS-pinmux-e.patch"
+	${git} "${DIR}/patches/imx_next/0003-ARM-dts-i.MX51-Add-IRAM-devicetree-node.patch"
+	${git} "${DIR}/patches/imx_next/0004-ARM-dts-i.MX51-Add-W1-devicetree-node.patch"
+	${git} "${DIR}/patches/imx_next/0005-ARM-dts-imx6qdl-wandboard-Add-usbotg-support.patch"
+	${git} "${DIR}/patches/imx_next/0006-ARM-dts-imx28-evk-Allow-usb-peripheral-mode-to-work.patch"
+	${git} "${DIR}/patches/imx_next/0007-ARM-dts-imx53-qsb-Allow-usb-peripheral-mode-to-work.patch"
+	${git} "${DIR}/patches/imx_next/0008-ARM-dts-imx6q-sabrelite-Put-the-nodes-in-alphabetica.patch"
+	${git} "${DIR}/patches/imx_next/0009-ARM-dts-imx6q-sabrelite-Add-LVDS-support.patch"
+	${git} "${DIR}/patches/imx_next/0010-ARM-dts-vf610-Add-DSPI-nodes.patch"
+	${git} "${DIR}/patches/imx_next/0011-ARM-dts-vf610-twr-Enable-DSPI0-devices-and-Flash-at2.patch"
+	${git} "${DIR}/patches/imx_next/0012-ARM-imx6qdl-wandboard-Add-spdif-support.patch"
+	${git} "${DIR}/patches/imx_next/0013-ARM-dts-add-iomuxc-gpr-device-node-for-imx6sl.patch"
+	${git} "${DIR}/patches/imx_next/0014-ARM-imx-mx6sl-evk-Enable-USB-function.patch"
+	${git} "${DIR}/patches/imx_next/0015-ARM-dts-imx6sl-Add-spi-aliases.patch"
+	${git} "${DIR}/patches/imx_next/0016-ARM-dts-imx6qdl-add-uhs-pinctrl-state-for-usdhc3.patch"
+	${git} "${DIR}/patches/imx_next/0017-ARM-imx27.dtsi-fix-CSPI-PER-clock-id.patch"
+	${git} "${DIR}/patches/imx_next/0018-ARM-imx-initialize-clk_init_data.flags-for-clk-fixup.patch"
+	${git} "${DIR}/patches/imx_next/0019-ARM-mach-imx-clk-imx51-imx53-Fix-spdif1_pred-clock-r.patch"
+	${git} "${DIR}/patches/imx_next/0020-ARM-imx51.dtsi-fix-PATA-device-clock.patch"
+	${git} "${DIR}/patches/imx_next/0021-ARM-imx-i.mx6d-q-disable-the-double-linefill-feature.patch"
+	${git} "${DIR}/patches/imx_next/0022-ARM-dts-imx6q-fix-the-wrong-offset-of-the-Pad-Mux-re.patch"
+	${git} "${DIR}/patches/imx_next/0023-ARM-imx6q-Add-pll4_audio_div-to-clock-tree.patch"
+	${git} "${DIR}/patches/imx_next/0024-ARM-imx6sl-add-imx6sl-iomux-gpr-field-define.patch"
+	${git} "${DIR}/patches/imx_next/0025-ARM-imx6sl-config-iomux-gpr1-to-select-clock-for-fec.patch"
+	${git} "${DIR}/patches/imx_next/0026-ARM-imx-remove-IRQF_DISABLED.patch"
 }
 
 omap_next () {
 	echo "dir: omap_next"
-	#from: https://git.kernel.org/cgit/linux/kernel/git/bcousson/linux-omap-dt.git/log/?h=for_3.12/dts
+	#from: https://git.kernel.org/cgit/linux/kernel/git/bcousson/linux-omap-dt.git/log/?h=for_3.13/dts
+	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
+
 	${git} "${DIR}/patches/omap_next/0001-ARM-dts-omap3-beagle-xm-fix-string-error-in-compatib.patch"
 	${git} "${DIR}/patches/omap_next/0002-ARM-dts-N900-Add-device-tree.patch"
 	${git} "${DIR}/patches/omap_next/0003-ARM-dts-omap3-igep-add-pinmux-node-for-GPIO-LED-conf.patch"
@@ -85,7 +114,17 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0014-ARM-dts-Remove-0x-s-from-OMAP4-DTS-file.patch"
 	${git} "${DIR}/patches/omap_next/0015-ARM-dts-Remove-0x-s-from-OMAP5-DTS-file.patch"
 	${git} "${DIR}/patches/omap_next/0016-ARM-dts-twl6030-Move-common-configuration-for-OMAP4-.patch"
-	${git} "${DIR}/patches/omap_next/0017-ARM-dts-omap4-var-som-configure-connection-to-PMIC-o.patch"
+	${git} "${DIR}/patches/omap_next/0017-ARM-dts-DRA7-Add-the-dts-files-for-dra7-SoC-and-dra7.patch"
+	${git} "${DIR}/patches/omap_next/0018-ARM-dts-AM4372-cpu-s-node-per-latest-binding.patch"
+	${git} "${DIR}/patches/omap_next/0019-ARM-dts-AM4372-add-few-nodes.patch"
+	${git} "${DIR}/patches/omap_next/0020-ARM-dts-Add-devicetree-for-gta04-board.patch"
+	${git} "${DIR}/patches/omap_next/0021-ARM-dts-AM33XX-use-pinmux-node-defined-in-included-f.patch"
+	${git} "${DIR}/patches/omap_next/0022-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
+	${git} "${DIR}/patches/omap_next/0023-ARM-OMAP5-dts-fix-reg-property-size.patch"
+	${git} "${DIR}/patches/omap_next/0024-ARM-OMAP5-dts-fix-ocp2scp-DTS-data.patch"
+	${git} "${DIR}/patches/omap_next/0025-ARM-OMAP5-dts-add-palmas-usb-node.patch"
+	${git} "${DIR}/patches/omap_next/0026-ARM-OMAP5-hwmod-add-missing-ocp2scp-hwmod-data.patch"
+	${git} "${DIR}/patches/omap_next/0027-ARM-configs-omap2plus_defconfig-enable-dwc3-and-depe.patch"
 }
 
 imx () {
@@ -101,10 +140,9 @@ omap_usb () {
 	${git} "${DIR}/patches/omap_usb/0005-ARM-dts-omap3-beagle-Use-reset-gpios-for-hsusb2_rese.patch"
 	${git} "${DIR}/patches/omap_usb/0006-ARM-dts-omap4-panda-Use-reset-gpios-for-hsusb1_reset.patch"
 	${git} "${DIR}/patches/omap_usb/0007-ARM-dts-omap5-uevm-Use-reset-gpios-for-hsusb2_reset.patch"
-	${git} "${DIR}/patches/omap_usb/0008-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
-	${git} "${DIR}/patches/omap_usb/0009-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
-	${git} "${DIR}/patches/omap_usb/0010-ARM-dts-omap3-beagle-Add-USB-OTG-PHY-details.patch"
-	${git} "${DIR}/patches/omap_usb/0011-hack-beagle-xm-NOP_USB_XCEIV-still-has-to-be-a-modul.patch"
+	${git} "${DIR}/patches/omap_usb/0008-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
+	${git} "${DIR}/patches/omap_usb/0009-ARM-dts-omap3-beagle-Add-USB-OTG-PHY-details.patch"
+	${git} "${DIR}/patches/omap_usb/0010-hack-beagle-xm-NOP_USB_XCEIV-still-has-to-be-a-modul.patch"
 }
 
 omap_video () {
@@ -153,11 +191,6 @@ imx_video () {
 	${git} "${DIR}/patches/imx_video/0002-imx-enable-hdmi-video-for-imx6q-sabrelite-imx6q-sabr.patch"
 }
 
-imx_audio () {
-	echo "dir: imx_audio"
-	${git} "${DIR}/patches/imx_audio/0001-ARM-imx6qdl-wandboard-Add-spdif-support.patch"
-}
-
 omap3_beagle_xm_rework () {
 	echo "dir: omap3_beagle_xm_rework"
 	#Still needs: CONFIG_NOP_USB_XCEIV=m but ehci works
@@ -192,7 +225,6 @@ omap_board
 
 dts
 imx_video
-imx_audio
 omap3_beagle_xm_rework
 omap_sprz319_erratum
 

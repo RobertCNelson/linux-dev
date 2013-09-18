@@ -1,0 +1,35 @@
+From 0acd2faf0b71e7f222511b0fceac630091a614e6 Mon Sep 17 00:00:00 2001
+From: Felipe Balbi <balbi@ti.com>
+Date: Wed, 21 Aug 2013 20:01:31 +0530
+Subject: [PATCH 24/27] ARM: OMAP5: dts: fix ocp2scp DTS data
+
+Fix the DTS data for ocp2scp node by adding the
+missing reg property.
+
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap5.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 869a584..ecc06a9 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -652,10 +652,11 @@
+ 			};
+ 		};
+ 
+-		ocp2scp {
++		ocp2scp@4a080000 {
+ 			compatible = "ti,omap-ocp2scp";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
++			reg = <0x4a080000 0x20>;
+ 			ranges;
+ 			ti,hwmods = "ocp2scp1";
+ 			usb2_phy: usb2phy@4a084000 {
+-- 
+1.8.4.rc3
+

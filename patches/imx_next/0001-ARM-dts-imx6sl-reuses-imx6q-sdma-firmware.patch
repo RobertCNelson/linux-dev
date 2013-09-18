@@ -1,0 +1,30 @@
+From 24b00bdef590f6cc815ffdac713d818d90914343 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@linaro.org>
+Date: Tue, 13 Aug 2013 08:55:02 +0800
+Subject: [PATCH 01/26] ARM: dts: imx6sl reuses imx6q sdma firmware
+
+There is no imx6sl specific sdma firmware.  Instead, imx6sl reuses
+imx6q sdma firmware.
+
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6sl.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index c46651e..9fec772 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -619,7 +619,8 @@
+ 					 <&clks IMX6SL_CLK_SDMA>;
+ 				clock-names = "ipg", "ahb";
+ 				#dma-cells = <3>;
+-				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx6sl.bin";
++				/* imx6sl reuses imx6q sdma firmware */
++				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx6q.bin";
+ 			};
+ 
+ 			pxp: pxp@020f0000 {
+-- 
+1.8.4.rc3
+

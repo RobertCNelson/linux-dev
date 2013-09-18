@@ -1,0 +1,169 @@
+From d2ed98b4567f6fb039aea981cb51ccad9c79309a Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@freescale.com>
+Date: Tue, 10 Sep 2013 10:23:16 +0800
+Subject: [PATCH 14/26] ARM: imx: mx6sl-evk: Enable USB function
+
+Enable USB function for OTG 1 and OTG 2 at mx6sololite evk.
+Besides, fix the wrong interrupt number for OTG2 and host 1.
+
+Signed-off-by: Peter Chen <peter.chen@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6sl-evk.dts | 39 +++++++++++++++++++++++++
+ arch/arm/boot/dts/imx6sl.dtsi    | 62 ++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 99 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6sl-evk.dts b/arch/arm/boot/dts/imx6sl-evk.dts
+index 2886a59..36ea01e 100644
+--- a/arch/arm/boot/dts/imx6sl-evk.dts
++++ b/arch/arm/boot/dts/imx6sl-evk.dts
+@@ -17,6 +17,28 @@
+ 	memory {
+ 		reg = <0x80000000 0x40000000>;
+ 	};
++
++	regulators {
++		compatible = "simple-bus";
++
++		reg_usb_otg1_vbus: usb_otg1_vbus {
++			compatible = "regulator-fixed";
++			regulator-name = "usb_otg1_vbus";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			gpio = <&gpio4 0 0>;
++			enable-active-high;
++		};
++
++		reg_usb_otg2_vbus: usb_otg2_vbus {
++			compatible = "regulator-fixed";
++			regulator-name = "usb_otg2_vbus";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			gpio = <&gpio4 2 0>;
++			enable-active-high;
++		};
++	};
+ };
+ 
+ &fec {
+@@ -38,6 +60,8 @@
+ 				MX6SL_PAD_SD2_DAT7__GPIO5_IO00    0x17059
+ 				MX6SL_PAD_SD2_DAT6__GPIO4_IO29    0x17059
+ 				MX6SL_PAD_REF_CLK_32K__GPIO3_IO22 0x17059
++				MX6SL_PAD_KEY_COL4__GPIO4_IO00	0x80000000
++				MX6SL_PAD_KEY_COL5__GPIO4_IO02	0x80000000
+ 			>;
+ 		};
+ 	};
+@@ -49,6 +73,21 @@
+ 	status = "okay";
+ };
+ 
++&usbotg1 {
++	vbus-supply = <&reg_usb_otg1_vbus>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usbotg1_1>;
++	disable-over-current;
++	status = "okay";
++};
++
++&usbotg2 {
++	vbus-supply = <&reg_usb_otg2_vbus>;
++	dr_mode = "host";
++	disable-over-current;
++	status = "okay";
++};
++
+ &usdhc1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_usdhc1_1>;
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index eda00e8..bcdbc6c 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -562,6 +562,64 @@
+ 					};
+ 				};
+ 
++				usbotg1 {
++					pinctrl_usbotg1_1: usbotg1grp-1 {
++						fsl,pins = <
++							MX6SL_PAD_EPDC_PWRCOM__USB_OTG1_ID 0x17059
++						>;
++					};
++
++					pinctrl_usbotg1_2: usbotg1grp-2 {
++						fsl,pins = <
++							MX6SL_PAD_FEC_RXD0__USB_OTG1_ID 0x17059
++						>;
++					};
++
++					pinctrl_usbotg1_3: usbotg1grp-3 {
++						fsl,pins = <
++							MX6SL_PAD_LCD_DAT1__USB_OTG1_ID 0x17059
++						>;
++					};
++
++					pinctrl_usbotg1_4: usbotg1grp-4 {
++						fsl,pins = <
++							MX6SL_PAD_REF_CLK_32K__USB_OTG1_ID 0x17059
++						>;
++					};
++
++					pinctrl_usbotg1_5: usbotg1grp-5 {
++						fsl,pins = <
++							MX6SL_PAD_SD3_DAT0__USB_OTG1_ID 0x17059
++						>;
++					};
++				};
++
++				usbotg2 {
++					pinctrl_usbotg2_1: usbotg2grp-1 {
++						fsl,pins = <
++							MX6SL_PAD_ECSPI1_SCLK__USB_OTG2_OC 0x17059
++						>;
++					};
++
++					pinctrl_usbotg2_2: usbotg2grp-2 {
++						fsl,pins = <
++							MX6SL_PAD_ECSPI2_SCLK__USB_OTG2_OC 0x17059
++						>;
++					};
++
++					pinctrl_usbotg2_3: usbotg2grp-3 {
++						fsl,pins = <
++							MX6SL_PAD_KEY_ROW5__USB_OTG2_OC 0x17059
++						>;
++					};
++
++					pinctrl_usbotg2_4: usbotg2grp-4 {
++						fsl,pins = <
++							MX6SL_PAD_SD3_DAT2__USB_OTG2_OC 0x17059
++						>;
++					};
++				};
++
+ 				usdhc1 {
+ 					pinctrl_usdhc1_1: usdhc1grp-1 {
+ 						fsl,pins = <
+@@ -669,7 +727,7 @@
+ 			usbotg2: usb@02184200 {
+ 				compatible = "fsl,imx6sl-usb", "fsl,imx27-usb";
+ 				reg = <0x02184200 0x200>;
+-				interrupts = <0 40 0x04>;
++				interrupts = <0 42 0x04>;
+ 				clocks = <&clks IMX6SL_CLK_USBOH3>;
+ 				fsl,usbphy = <&usbphy2>;
+ 				fsl,usbmisc = <&usbmisc 1>;
+@@ -679,7 +737,7 @@
+ 			usbh: usb@02184400 {
+ 				compatible = "fsl,imx6sl-usb", "fsl,imx27-usb";
+ 				reg = <0x02184400 0x200>;
+-				interrupts = <0 42 0x04>;
++				interrupts = <0 40 0x04>;
+ 				clocks = <&clks IMX6SL_CLK_USBOH3>;
+ 				fsl,usbmisc = <&usbmisc 2>;
+ 				status = "disabled";
+-- 
+1.8.4.rc3
+

@@ -1,0 +1,44 @@
+From d4b391ee2e30740f1b62c5fc3e981d665664643d Mon Sep 17 00:00:00 2001
+From: Felipe Balbi <balbi@ti.com>
+Date: Wed, 21 Aug 2013 20:01:30 +0530
+Subject: [PATCH 23/27] ARM: OMAP5: dts: fix reg property size
+
+USB3 block has a 64KiB space, another 64KiB is
+used for the wrapper.
+
+Without this change, resource_size() will get
+confused and driver won't probe because size
+will be negative.
+
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap5.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 2e8367e..869a584 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -637,7 +637,7 @@
+ 		omap_dwc3@4a020000 {
+ 			compatible = "ti,dwc3";
+ 			ti,hwmods = "usb_otg_ss";
+-			reg = <0x4a020000 0x1000>;
++			reg = <0x4a020000 0x10000>;
+ 			interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+@@ -645,7 +645,7 @@
+ 			ranges;
+ 			dwc3@4a030000 {
+ 				compatible = "snps,dwc3";
+-				reg = <0x4a030000 0x1000>;
++				reg = <0x4a030000 0x10000>;
+ 				interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
+ 				usb-phy = <&usb2_phy>, <&usb3_phy>;
+ 				tx-fifo-resize;
+-- 
+1.8.4.rc3
+
