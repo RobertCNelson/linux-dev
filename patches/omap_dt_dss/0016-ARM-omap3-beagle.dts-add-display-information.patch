@@ -1,0 +1,50 @@
+From 6df39ca3fab5c628250d6a58639ca5168c97fc12 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Fri, 22 Mar 2013 10:48:36 +0200
+Subject: [PATCH 16/23] ARM: omap3-beagle.dts: add display information
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/boot/dts/omap3-beagle.dts | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-beagle.dts b/arch/arm/boot/dts/omap3-beagle.dts
+index dfd8310..17cb9b0 100644
+--- a/arch/arm/boot/dts/omap3-beagle.dts
++++ b/arch/arm/boot/dts/omap3-beagle.dts
+@@ -180,3 +180,32 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&gpio1_pins>;
+ };
++
++&dpi {
++	vdds_dsi-supply = <&vpll2>;
++};
++
++/ {
++	aliases {
++		display0 = &dvi0;
++		display1 = &tv0;
++	};
++
++	tfp410: encoder@0 {
++		compatible = "ti,tfp410";
++		video-source = <&dpi>;
++		data-lines = <24>;
++		gpios = <&gpio5 10 0>;	/* 170, power-down */
++	};
++
++	dvi0: connector@0 {
++		compatible = "ti,dvi_connector";
++		video-source = <&tfp410>;
++		i2c-bus = <&i2c3>;
++	};
++
++	tv0: connector@1 {
++		compatible = "ti,svideo_connector";
++		video-source = <&venc>;
++	};
++};
+-- 
+1.8.4.rc3
+

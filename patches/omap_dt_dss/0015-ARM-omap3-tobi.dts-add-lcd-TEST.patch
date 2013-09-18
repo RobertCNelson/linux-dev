@@ -1,0 +1,60 @@
+From 9dd473945de218a832f4c2f4f9e20ad177b54d84 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 19 Mar 2013 11:33:13 +0200
+Subject: [PATCH 15/23] ARM: omap3-tobi.dts: add lcd (TEST)
+
+This is a test for Overo with Palo43 expansion, _not_ Tobi. Palo43
+doesn't have a dts, but seems to work ok with omap3-tobi.dts, so I used
+it as a test.
+
+Not to be merged.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/boot/dts/omap3-tobi.dts | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-tobi.dts b/arch/arm/boot/dts/omap3-tobi.dts
+index 7e4ad2a..0d136d8 100644
+--- a/arch/arm/boot/dts/omap3-tobi.dts
++++ b/arch/arm/boot/dts/omap3-tobi.dts
+@@ -81,3 +81,36 @@
+ &mmc3 {
+ 	status = "disabled";
+ };
++
++&dpi {
++	vdds_dsi-supply = <&vpll2>;
++};
++
++/ {
++	aliases {
++		display0 = &lcd0;
++	};
++
++	lcd0: display@0 {
++		compatible = "samsung,lte430wq-f0c", "panel-dpi";
++		video-source = <&dpi>;
++		data-lines = <24>;
++
++		panel-timing {
++			clock-frequency = <9200000>;
++			hactive = <480>;
++			vactive = <272>;
++			hfront-porch = <8>;
++			hback-porch = <4>;
++			hsync-len = <41>;
++			vback-porch = <2>;
++			vfront-porch = <4>;
++			vsync-len = <10>;
++
++			hsync-active = <0>;
++			vsync-active = <0>;
++			de-active = <1>;
++			pixelclk-active = <1>;
++		};
++	};
++};
+-- 
+1.8.4.rc3
+

@@ -127,6 +127,37 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0027-ARM-configs-omap2plus_defconfig-enable-dwc3-and-depe.patch"
 }
 
+omap_dt_dss () {
+	echo "dir: omap_dt_dss"
+	#From: https://git.kernel.org/cgit/linux/kernel/git/tomba/linux.git/log/?h=work/dss-dt
+
+	${git} "${DIR}/patches/omap_dt_dss/0001-fix-overo-usb.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0002-ARM-OMAP-remove-DSS-DT-hack.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0003-OMAPDSS-remove-DT-hacks-for-regulators.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0004-ARM-OMAP2-add-omapdss_init_of.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0005-OMAPDSS-if-dssdev-name-NULL-use-alias.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0006-OMAPDSS-get-dssdev-alias-from-DT-alias.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0007-OMAPFB-clean-up-default-display-search.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0008-OMAPFB-search-for-default-display-with-DT-alias.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0009-OMAPDSS-Add-DT-support-to-DSS-DISPC-DPI-HDMI-VENC.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0010-OMAPDSS-Add-DT-support-to-DSI.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0011-ARM-omap3.dtsi-add-omapdss-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0012-ARM-omap4.dtsi-add-omapdss-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0013-ARM-omap4-panda.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0014-ARM-omap4-sdp.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0015-ARM-omap3-tobi.dts-add-lcd-TEST.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0016-ARM-omap3-beagle.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0017-OMAPDSS-panel-dsi-cm-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0018-OMAPDSS-encoder-tfp410-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0019-OMAPDSS-connector-dvi-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0020-OMAPDSS-encoder-tpd12s015-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0021-OMAPDSS-hdmi-connector-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0022-OMAPDSS-panel-dpi-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0023-OMAPDSS-connector-analog-tv-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0024-test-ARM-omap3-beagle-xm.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss/0025-arm-omap-build-fix-no-dss-common.c.patch"
+}
+
 imx () {
 	echo "dir: imx"
 }
@@ -148,7 +179,6 @@ omap_usb () {
 omap_video () {
 	echo "dir: omap_video"
 	${git} "${DIR}/patches/omap_video/0001-dts-omap3-beagle-add-i2c2-i2c3.patch"
-	${git} "${DIR}/patches/omap_video/0002-hack-beagle_xm-like-omap4-use-the-dss-common-transit.patch"
 }
 
 omap_clock () {
@@ -217,6 +247,7 @@ arm
 drivers
 imx_next
 omap_next
+omap_dt_dss
 imx
 omap_usb
 omap_video

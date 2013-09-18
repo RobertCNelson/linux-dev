@@ -1,0 +1,66 @@
+From 4d738f668ac40b93a83bca4a1d0f0abf7ed2b903 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 19 Mar 2013 11:38:13 +0200
+Subject: [PATCH 11/23] ARM: omap3.dtsi: add omapdss information
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/boot/dts/omap3.dtsi | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+index 7d95cda..3308b3f 100644
+--- a/arch/arm/boot/dts/omap3.dtsi
++++ b/arch/arm/boot/dts/omap3.dtsi
+@@ -532,5 +532,48 @@
+ 			num-eps = <16>;
+ 			ram-bits = <12>;
+ 		};
++
++		dss@48050000 {
++			compatible = "ti,omap3-dss", "simple-bus";
++			reg = <0x48050000 0x200>;
++			ti,hwmods = "dss_core";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges;
++
++			dispc@48050400 {
++				compatible = "ti,omap3-dispc";
++				reg = <0x48050400 0x400>;
++				interrupts = <25>;
++				ti,hwmods = "dss_dispc";
++			};
++
++			dpi: encoder@0 {
++				compatible = "ti,omap3-dpi";
++			};
++
++			sdi: encoder@1 {
++				compatible = "ti,omap3-sdi";
++			};
++
++			dsi: encoder@4804fc00 {
++				compatible = "ti,omap3-dsi";
++				reg = <0x4804fc00 0x400>;
++				interrupts = <25>;
++				ti,hwmods = "dss_dsi1";
++			};
++
++			rfbi: encoder@48050800 {
++				compatible = "ti,omap3-rfbi";
++				reg = <0x48050800 0x100>;
++				ti,hwmods = "dss_rfbi";
++			};
++
++			venc: encoder@48050c00 {
++				compatible = "ti,omap3-venc";
++				reg = <0x48050c00 0x100>;
++				ti,hwmods = "dss_venc";
++			};
++		};
+ 	};
+ };
+-- 
+1.8.4.rc3
+
