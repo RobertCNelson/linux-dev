@@ -246,6 +246,14 @@ omap_sprz319_erratum () {
 	${git} "${DIR}/patches/omap_sprz319_erratum_v2.1/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
 }
 
+fixes () {
+	echo "dir: fixes"
+	${git} "${DIR}/patches/fixes/0001-cpufreq-cpufreq-cpu0-assign-cpu_dev-correctly-to-cpu.patch"
+	${git} "${DIR}/patches/fixes/0002-cpufreq-imx6q-cpufreq-assign-cpu_dev-correctly-to-cp.patch"
+	${git} "${DIR}/patches/fixes/0003-ARM-i.MX-change-dev_id-to-cpu0-while-registering-cpu.patch"
+	${git} "${DIR}/patches/fixes/0004-ARM-shmobile-change-dev_id-to-cpu0-while-registering.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -267,6 +275,7 @@ dts
 imx_video
 omap3_beagle_xm_rework
 omap_sprz319_erratum
+fixes
 
 saucy
 
