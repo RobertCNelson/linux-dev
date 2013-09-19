@@ -1,4 +1,4 @@
-From 85554bb65358d7d0a46870f3cdbcd0144c25a66e Mon Sep 17 00:00:00 2001
+From ec27c6f204b02fd16199aee3473cb66e02263e22 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Wed, 18 Sep 2013 10:58:12 -0500
 Subject: [PATCH 1/2] ARM: dts: split omap3-beagle-xm to ab and c variant
@@ -6,9 +6,9 @@ Subject: [PATCH 1/2] ARM: dts: split omap3-beagle-xm to ab and c variant
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile               |   2 +
- arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 270 +++++++++++++++++++++++++++++++
- arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 270 +++++++++++++++++++++++++++++++
- 3 files changed, 542 insertions(+)
+ arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 273 +++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 273 +++++++++++++++++++++++++++++++
+ 3 files changed, 548 insertions(+)
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-ab.dts
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-c.dts
 
@@ -27,10 +27,10 @@ index 3b51b63..6b10963 100644
  	omap3-tobi.dtb \
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 new file mode 100644
-index 0000000..d506a9a
+index 0000000..cf1df02
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-@@ -0,0 +1,270 @@
+@@ -0,0 +1,273 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -239,14 +239,14 @@ index 0000000..d506a9a
 +
 +&twl_gpio {
 +	ti,use-leds;
-+	/* pullups: BIT(1) */
-+	ti,pullups = <0x000002>;
++	/* pullups: BIT(1), BIT(2)  */
++	ti,pullups = <0x000006>;
 +	/*
 +	 * pulldowns:
-+	 * BIT(2), BIT(6), BIT(7), BIT(8), BIT(13)
++	 * BIT(6), BIT(7), BIT(8), BIT(13)
 +	 * BIT(15), BIT(16), BIT(17)
 +	 */
-+	ti,pulldowns = <0x03a1c4>;
++	ti,pulldowns = <0x03a1c0>;
 +};
 +
 +&usb_otg_hs {
@@ -280,6 +280,9 @@ index 0000000..d506a9a
 +		compatible = "ti,tfp410";
 +		video-source = <&dpi>;
 +		data-lines = <24>;
++		/* At some point we will need this, but at the momment we just get a blank screen */
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>; */
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>; */
 +	};
 +
 +	dvi0: connector@0 {
@@ -303,10 +306,10 @@ index 0000000..d506a9a
 +};
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-c.dts b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
 new file mode 100644
-index 0000000..d506a9a
+index 0000000..cf1df02
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
-@@ -0,0 +1,270 @@
+@@ -0,0 +1,273 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -515,14 +518,14 @@ index 0000000..d506a9a
 +
 +&twl_gpio {
 +	ti,use-leds;
-+	/* pullups: BIT(1) */
-+	ti,pullups = <0x000002>;
++	/* pullups: BIT(1), BIT(2)  */
++	ti,pullups = <0x000006>;
 +	/*
 +	 * pulldowns:
-+	 * BIT(2), BIT(6), BIT(7), BIT(8), BIT(13)
++	 * BIT(6), BIT(7), BIT(8), BIT(13)
 +	 * BIT(15), BIT(16), BIT(17)
 +	 */
-+	ti,pulldowns = <0x03a1c4>;
++	ti,pulldowns = <0x03a1c0>;
 +};
 +
 +&usb_otg_hs {
@@ -556,6 +559,9 @@ index 0000000..d506a9a
 +		compatible = "ti,tfp410";
 +		video-source = <&dpi>;
 +		data-lines = <24>;
++		/* At some point we will need this, but at the momment we just get a blank screen */
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>; */
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>; */
 +	};
 +
 +	dvi0: connector@0 {
