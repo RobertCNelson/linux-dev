@@ -50,6 +50,11 @@ cleanup () {
 	exit
 }
 
+arm () {
+	echo "dir: arm"
+	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
+}
+
 bone_support () {
 	echo "dir: bone-support"
 	${git} "${DIR}/patches/bone-support/0001-ARM-OMAP2-am335x-bone-add-DT-for-BeagleBone-Black.patch"
@@ -184,6 +189,7 @@ saucy () {
 }
 
 ###
+arm
 bone_support
 dma_devel
 general_fixes
