@@ -162,10 +162,10 @@ git_kernel () {
 . ${DIR}/system.sh
 
 unset git_config_user_email
-git_config_user_email=$(git config -l | grep user.email || true)
+git_config_user_email=$(git config --get user.email || true)
 
 unset git_config_user_name
-git_config_user_name=$(git config -l | grep user.name || true)
+git_config_user_name=$(git config --get user.name || true)
 
 if [ ! "${git_config_user_email}" ] || [ ! "${git_config_user_name}" ] ; then
 	echo "-----------------------------"
@@ -175,8 +175,8 @@ if [ ! "${git_config_user_email}" ] || [ ! "${git_config_user_name}" ] ; then
 	echo "https://help.github.com/articles/setting-your-username-in-git"
 	echo "https://help.github.com/articles/setting-your-email-in-git"
 	echo ""
-	echo "For example, if you name/email was: Billy Everteen/me@here.com"
-	echo "you would type in the terminal window:"
+	echo "For example, if your real name and email was: Billy Everteen & me@here.com"
+	echo "you would type the following into the terminal window to set it up:"
 	echo "-----------------------------"
 	echo "git config --global user.name \"Billy Everyteen\""
 	echo "git config --global user.email \"me@here.com\""
