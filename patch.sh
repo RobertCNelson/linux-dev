@@ -81,12 +81,14 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0014-ARM-imx-mx6sl-evk-Enable-USB-function.patch"
 	${git} "${DIR}/patches/imx_next/0015-ARM-dts-imx6sl-Add-spi-aliases.patch"
 	${git} "${DIR}/patches/imx_next/0016-ARM-dts-imx6qdl-add-uhs-pinctrl-state-for-usdhc3.patch"
-	${git} "${DIR}/patches/imx_next/0017-ARM-imx27.dtsi-fix-CSPI-PER-clock-id.patch"
-	${git} "${DIR}/patches/imx_next/0018-ARM-imx-initialize-clk_init_data.flags-for-clk-fixup.patch"
-	${git} "${DIR}/patches/imx_next/0019-ARM-mach-imx-clk-imx51-imx53-Fix-spdif1_pred-clock-r.patch"
-	${git} "${DIR}/patches/imx_next/0020-ARM-imx51.dtsi-fix-PATA-device-clock.patch"
-	${git} "${DIR}/patches/imx_next/0021-ARM-imx-i.mx6d-q-disable-the-double-linefill-feature.patch"
-	${git} "${DIR}/patches/imx_next/0022-ARM-dts-imx6q-fix-the-wrong-offset-of-the-Pad-Mux-re.patch"
+
+#v3.12-rc2
+#	${git} "${DIR}/patches/imx_next/0017-ARM-imx27.dtsi-fix-CSPI-PER-clock-id.patch"
+#	${git} "${DIR}/patches/imx_next/0018-ARM-imx-initialize-clk_init_data.flags-for-clk-fixup.patch"
+#	${git} "${DIR}/patches/imx_next/0019-ARM-mach-imx-clk-imx51-imx53-Fix-spdif1_pred-clock-r.patch"
+#	${git} "${DIR}/patches/imx_next/0020-ARM-imx51.dtsi-fix-PATA-device-clock.patch"
+#	${git} "${DIR}/patches/imx_next/0021-ARM-imx-i.mx6d-q-disable-the-double-linefill-feature.patch"
+#	${git} "${DIR}/patches/imx_next/0022-ARM-dts-imx6q-fix-the-wrong-offset-of-the-Pad-Mux-re.patch"
 	${git} "${DIR}/patches/imx_next/0023-ARM-imx6q-Add-pll4_audio_div-to-clock-tree.patch"
 	${git} "${DIR}/patches/imx_next/0024-ARM-imx6sl-add-imx6sl-iomux-gpr-field-define.patch"
 	${git} "${DIR}/patches/imx_next/0025-ARM-imx6sl-config-iomux-gpr1-to-select-clock-for-fec.patch"
@@ -98,13 +100,14 @@ omap_next () {
 	#from: https://git.kernel.org/cgit/linux/kernel/git/bcousson/linux-omap-dt.git/log/?h=for_3.13/dts
 	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
 
-	${git} "${DIR}/patches/omap_next/0001-ARM-dts-omap3-beagle-xm-fix-string-error-in-compatib.patch"
-	${git} "${DIR}/patches/omap_next/0002-ARM-dts-am335x-bone-add-DT-for-BeagleBone-Black.patch"
-	${git} "${DIR}/patches/omap_next/0003-ARM-dts-OMAP5-fix-reg-property-size.patch"
-	${git} "${DIR}/patches/omap_next/0004-ARM-dts-OMAP5-fix-ocp2scp-DTS-data.patch"
-	${git} "${DIR}/patches/omap_next/0005-ARM-dts-Fix-muxing-and-regulator-for-wl12xx-on-the-S.patch"
-	${git} "${DIR}/patches/omap_next/0006-ARM-dts-Fix-muxing-and-regulator-for-wl12xx-on-the-S.patch"
-	${git} "${DIR}/patches/omap_next/0007-ARM-dts-igep00x0-Add-pinmux-configuration-for-MCBSP2.patch"
+#v3.12-rc2
+#	${git} "${DIR}/patches/omap_next/0001-ARM-dts-omap3-beagle-xm-fix-string-error-in-compatib.patch"
+#	${git} "${DIR}/patches/omap_next/0002-ARM-dts-am335x-bone-add-DT-for-BeagleBone-Black.patch"
+#	${git} "${DIR}/patches/omap_next/0003-ARM-dts-OMAP5-fix-reg-property-size.patch"
+#	${git} "${DIR}/patches/omap_next/0004-ARM-dts-OMAP5-fix-ocp2scp-DTS-data.patch"
+#	${git} "${DIR}/patches/omap_next/0005-ARM-dts-Fix-muxing-and-regulator-for-wl12xx-on-the-S.patch"
+#	${git} "${DIR}/patches/omap_next/0006-ARM-dts-Fix-muxing-and-regulator-for-wl12xx-on-the-S.patch"
+#	${git} "${DIR}/patches/omap_next/0007-ARM-dts-igep00x0-Add-pinmux-configuration-for-MCBSP2.patch"
 	${git} "${DIR}/patches/omap_next/0008-ARM-dts-N900-Add-device-tree.patch"
 	${git} "${DIR}/patches/omap_next/0009-ARM-dts-omap3-igep-add-pinmux-node-for-GPIO-LED-conf.patch"
 	${git} "${DIR}/patches/omap_next/0010-ARM-dts-omap3-igep0020-add-mux-conf-for-GPIO-LEDs.patch"
