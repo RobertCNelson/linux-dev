@@ -1,0 +1,40 @@
+From e65a49e2f66cc6bff22ca8c0dd278219940a1dfd Mon Sep 17 00:00:00 2001
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Date: Thu, 20 Jun 2013 16:42:30 +0200
+Subject: [PATCH 02/32] ARM: dts: omap3-igep: add pinmux node for GPIO LED
+ configuration
+
+IGEP boards have a number of LED connected to OMAP or TWL GPIO
+lines. The actual wiring is different on each board so each board
+DT has need to configure the mux correctly.
+
+Even though it works with the current DT, the kernel complains with:
+
+[2.305023] leds-gpio leds.18: pins are not configured from the driver
+
+Add an empty pinmux_leds_pins pinctrl child node so boards can
+override with the correct mux configuration and not depend on
+default values for the GPIO LEDs to work.
+
+Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap3-igep.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-igep.dtsi b/arch/arm/boot/dts/omap3-igep.dtsi
+index 2326d11..0f92224 100644
+--- a/arch/arm/boot/dts/omap3-igep.dtsi
++++ b/arch/arm/boot/dts/omap3-igep.dtsi
+@@ -77,6 +77,8 @@
+ 			0x1a2 (PIN_INPUT | MUX_MODE4)		/* mcspi1_cs2.gpio_176 */
+ 		>;
+ 	};
++
++	leds_pins: pinmux_leds_pins { };
+ };
+ 
+ &i2c1 {
+-- 
+1.8.4.rc3
+

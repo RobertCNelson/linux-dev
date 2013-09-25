@@ -1,0 +1,50 @@
+From 8aafab8d335dc24ce24903d04c800bb69274ef1c Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@linaro.org>
+Date: Thu, 1 Aug 2013 12:22:04 +0800
+Subject: [PATCH 33/36] ARM: dts: imx6q: add quirky select input for USB_OTG_ID
+
+For some reason, the select input of pin function USB_OTG_ID is not
+implemented via a regular select input register but using the bit
+USB_OTG_ID_ SEL (shift 13) of IOMUXC_GPR1 register (offset 0x4).
+
+As per the workaround for such quirk implemented in pinctrl driver,
+we need to compose the input_val cell as below.
+
+	31     23      15      7        0
+	| 0xff | shift | width | select |
+
+Thus, we have 0xff0d0100 for MX6QDL_PAD_ENET_RX_ER__USB_OTG_ID and
+0xff0d0101 for MX6QDL_PAD_GPIO_1__USB_OTG_ID in input_val cell.
+
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Tested-by: Peter Chen <peter.chen@freescale.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ arch/arm/boot/dts/imx6q-pinfunc.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6q-pinfunc.h b/arch/arm/boot/dts/imx6q-pinfunc.h
+index 9bbe82b..97ed081 100644
+--- a/arch/arm/boot/dts/imx6q-pinfunc.h
++++ b/arch/arm/boot/dts/imx6q-pinfunc.h
+@@ -536,7 +536,7 @@
+ #define MX6QDL_PAD_ENET_REF_CLK__ESAI_RX_FS         0x1d4 0x4e8 0x85c 0x2 0x0
+ #define MX6QDL_PAD_ENET_REF_CLK__GPIO1_IO23         0x1d4 0x4e8 0x000 0x5 0x0
+ #define MX6QDL_PAD_ENET_REF_CLK__SPDIF_SR_CLK       0x1d4 0x4e8 0x000 0x6 0x0
+-#define MX6QDL_PAD_ENET_RX_ER__USB_OTG_ID           0x1d8 0x4ec 0x000 0x0 0x0
++#define MX6QDL_PAD_ENET_RX_ER__USB_OTG_ID           0x1d8 0x4ec 0x004 0x0 0xff0d0100
+ #define MX6QDL_PAD_ENET_RX_ER__ENET_RX_ER           0x1d8 0x4ec 0x000 0x1 0x0
+ #define MX6QDL_PAD_ENET_RX_ER__ESAI_RX_HF_CLK       0x1d8 0x4ec 0x864 0x2 0x0
+ #define MX6QDL_PAD_ENET_RX_ER__SPDIF_IN             0x1d8 0x4ec 0x914 0x3 0x1
+@@ -654,7 +654,7 @@
+ #define MX6QDL_PAD_GPIO_1__ESAI_RX_CLK              0x224 0x5f4 0x86c 0x0 0x1
+ #define MX6QDL_PAD_GPIO_1__WDOG2_B                  0x224 0x5f4 0x000 0x1 0x0
+ #define MX6QDL_PAD_GPIO_1__KEY_ROW5                 0x224 0x5f4 0x8f4 0x2 0x0
+-#define MX6QDL_PAD_GPIO_1__USB_OTG_ID               0x224 0x5f4 0x000 0x3 0x0
++#define MX6QDL_PAD_GPIO_1__USB_OTG_ID               0x224 0x5f4 0x004 0x3 0xff0d0101
+ #define MX6QDL_PAD_GPIO_1__PWM2_OUT                 0x224 0x5f4 0x000 0x4 0x0
+ #define MX6QDL_PAD_GPIO_1__GPIO1_IO01               0x224 0x5f4 0x000 0x5 0x0
+ #define MX6QDL_PAD_GPIO_1__SD1_CD_B                 0x224 0x5f4 0x000 0x6 0x0
+-- 
+1.8.4.rc3
+

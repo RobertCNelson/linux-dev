@@ -1,0 +1,168 @@
+From 961d613d8b09dd4631e66fcfac4bf85e2dea28ff Mon Sep 17 00:00:00 2001
+From: Ruslan Bilovol <ruslan.bilovol@ti.com>
+Date: Wed, 14 Aug 2013 11:35:47 +0300
+Subject: [PATCH 15/32] ARM: dts: twl6030: Move common configuration for OMAP4
+ boards in a separate dtsi file
+
+The OMAP4 SoC family uses specially-designed PMIC (power management IC)
+companion chip for power management needs: TWL6030/TWL6032.
+Therefore there is a typical connection of PMIC to OMAP4 so we can
+move it into separate .dtsi file and do not duplicate over
+board-specific files.
+
+Tested on OMAP4 SDP board and Pandaboard ES2.
+
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap4-panda-common.dtsi | 21 +----------------
+ arch/arm/boot/dts/omap4-sdp.dts           | 21 +----------------
+ arch/arm/boot/dts/twl6030_omap4.dtsi      | 38 +++++++++++++++++++++++++++++++
+ 3 files changed, 40 insertions(+), 40 deletions(-)
+ create mode 100644 arch/arm/boot/dts/twl6030_omap4.dtsi
+
+diff --git a/arch/arm/boot/dts/omap4-panda-common.dtsi b/arch/arm/boot/dts/omap4-panda-common.dtsi
+index 814ab67..43b7661 100644
+--- a/arch/arm/boot/dts/omap4-panda-common.dtsi
++++ b/arch/arm/boot/dts/omap4-panda-common.dtsi
+@@ -122,23 +122,9 @@
+ 	};
+ };
+ 
+-&omap4_pmx_wkup {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <
+-			&twl6030_wkup_pins
+-	>;
+-
+-	twl6030_wkup_pins: pinmux_twl6030_wkup_pins {
+-		pinctrl-single,pins = <
+-			0x14 (PIN_OUTPUT | MUX_MODE2)		/* fref_clk0_out.sys_drm_msecure */
+-		>;
+-	};
+-};
+-
+ &omap4_pmx_core {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <
+-			&twl6030_pins
+ 			&twl6040_pins
+ 			&mcpdm_pins
+ 			&mcbsp1_pins
+@@ -147,12 +133,6 @@
+ 			&hsusbb1_pins
+ 	>;
+ 
+-	twl6030_pins: pinmux_twl6030_pins {
+-		pinctrl-single,pins = <
+-			0x15e (WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE0)	/* sys_nirq1.sys_nirq1 */
+-		>;
+-	};
+-
+ 	twl6040_pins: pinmux_twl6040_pins {
+ 		pinctrl-single,pins = <
+ 			0xe0 (PIN_OUTPUT | MUX_MODE3)	/* hdq_sio.gpio_127 */
+@@ -305,6 +285,7 @@
+ };
+ 
+ #include "twl6030.dtsi"
++#include "twl6030_omap4.dtsi"
+ 
+ &i2c2 {
+ 	pinctrl-names = "default";
+diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
+index 4f78380..5fc3f43 100644
+--- a/arch/arm/boot/dts/omap4-sdp.dts
++++ b/arch/arm/boot/dts/omap4-sdp.dts
+@@ -155,23 +155,9 @@
+ 	};
+ };
+ 
+-&omap4_pmx_wkup {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <
+-			&twl6030_wkup_pins
+-	>;
+-
+-	twl6030_wkup_pins: pinmux_twl6030_wkup_pins {
+-		pinctrl-single,pins = <
+-			0x14 (PIN_OUTPUT | MUX_MODE2)		/* fref_clk0_out.sys_drm_msecure */
+-		>;
+-	};
+-};
+-
+ &omap4_pmx_core {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <
+-			&twl6030_pins
+ 			&twl6040_pins
+ 			&mcpdm_pins
+ 			&dmic_pins
+@@ -206,12 +192,6 @@
+ 		>;
+ 	};
+ 
+-	twl6030_pins: pinmux_twl6030_pins {
+-		pinctrl-single,pins = <
+-			0x15e (WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE0)	/* sys_nirq1.sys_nirq1 */
+-		>;
+-	};
+-
+ 	twl6040_pins: pinmux_twl6040_pins {
+ 		pinctrl-single,pins = <
+ 			0xe0 (PIN_OUTPUT | MUX_MODE3)		/* hdq_sio.gpio_127 */
+@@ -370,6 +350,7 @@
+ };
+ 
+ #include "twl6030.dtsi"
++#include "twl6030_omap4.dtsi"
+ 
+ &i2c2 {
+ 	pinctrl-names = "default";
+diff --git a/arch/arm/boot/dts/twl6030_omap4.dtsi b/arch/arm/boot/dts/twl6030_omap4.dtsi
+new file mode 100644
+index 0000000..a4fa570
+--- /dev/null
++++ b/arch/arm/boot/dts/twl6030_omap4.dtsi
+@@ -0,0 +1,38 @@
++/*
++ * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&twl {
++	/*
++	 * On most OMAP4 platforms, the twl6030 IRQ line is connected
++	 * to the SYS_NIRQ1 line on OMAP and the twl6030 MSECURE line is
++	 * connected to the fref_clk0_out.sys_drm_msecure line.
++	 * Therefore, configure the defaults for the SYS_NIRQ1 and
++	 * fref_clk0_out.sys_drm_msecure pins here.
++	 */
++	pinctrl-names = "default";
++	pinctrl-0 = <
++		&twl6030_pins
++		&twl6030_wkup_pins
++	>;
++};
++
++&omap4_pmx_wkup {
++	twl6030_wkup_pins: pinmux_twl6030_wkup_pins {
++		pinctrl-single,pins = <
++			0x14 (PIN_OUTPUT | MUX_MODE2)		/* fref_clk0_out.sys_drm_msecure */
++		>;
++	};
++};
++
++&omap4_pmx_core {
++	twl6030_pins: pinmux_twl6030_pins {
++		pinctrl-single,pins = <
++			0x15e (WAKEUP_EN | PIN_INPUT_PULLUP | MUX_MODE0)	/* sys_nirq1.sys_nirq1 */
++		>;
++	};
++};
+-- 
+1.8.4.rc3
+

@@ -1,0 +1,42 @@
+From eacba3f1b693f7a6d8e6f4d28eac6c15d06d579c Mon Sep 17 00:00:00 2001
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Date: Mon, 12 Aug 2013 15:07:01 +0530
+Subject: [PATCH 07/32] ARM: dts: omap5-uevm: Split SMPS10 in two nodes
+
+SMPS10 has two outputs OUT1 and OUT2. Hence SMPS10 is modeled as
+two regulators. The DT node is split to reflect it.
+
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap5-uevm.dts | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap5-uevm.dts b/arch/arm/boot/dts/omap5-uevm.dts
+index 65d7b60..05b9b12 100644
+--- a/arch/arm/boot/dts/omap5-uevm.dts
++++ b/arch/arm/boot/dts/omap5-uevm.dts
+@@ -334,9 +334,18 @@
+ 					ti,smps-range = <0x80>;
+ 				};
+ 
+-				smps10_reg: smps10 {
++				smps10_out2_reg: smps10_out2 {
+ 					/* VBUS_5V_OTG */
+-					regulator-name = "smps10";
++					regulator-name = "smps10_out2";
++					regulator-min-microvolt = <5000000>;
++					regulator-max-microvolt = <5000000>;
++					regulator-always-on;
++					regulator-boot-on;
++				};
++
++				smps10_out1_reg: smps10_out1 {
++					/* VBUS_5V_OTG */
++					regulator-name = "smps10_out1";
+ 					regulator-min-microvolt = <5000000>;
+ 					regulator-max-microvolt = <5000000>;
+ 					regulator-always-on;
+-- 
+1.8.4.rc3
+

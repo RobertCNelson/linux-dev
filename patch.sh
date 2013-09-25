@@ -93,6 +93,16 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0024-ARM-imx6sl-add-imx6sl-iomux-gpr-field-define.patch"
 	${git} "${DIR}/patches/imx_next/0025-ARM-imx6sl-config-iomux-gpr1-to-select-clock-for-fec.patch"
 	${git} "${DIR}/patches/imx_next/0026-ARM-imx-remove-IRQF_DISABLED.patch"
+	${git} "${DIR}/patches/imx_next/0027-ARM-dts-imx6qdl-sabresd-SDHC-ports-are-8-bit-wide.patch"
+	${git} "${DIR}/patches/imx_next/0028-ARM-dts-imx28-evk-Enable-touchscreen-support.patch"
+	${git} "${DIR}/patches/imx_next/0029-ARM-imx-add-low-level-debug-for-vybrid.patch"
+	${git} "${DIR}/patches/imx_next/0030-ARM-dts-mxs-add-pinctrl-header-files.patch"
+	${git} "${DIR}/patches/imx_next/0031-ARM-dts-mxs-modify-mx23-mx28-dts-files-to-use-pinctr.patch"
+	${git} "${DIR}/patches/imx_next/0032-ARM-dts-mxs-modify-mx23-mx28-dts-files-to-use-padcon.patch"
+	${git} "${DIR}/patches/imx_next/0033-ARM-dts-imx6q-add-quirky-select-input-for-USB_OTG_ID.patch"
+	${git} "${DIR}/patches/imx_next/0034-ARM-dts-tx28-restructure-and-update-DTS-file.patch"
+	${git} "${DIR}/patches/imx_next/0035-ARM-dts-mxs-convert-usb0_id_pins_a-to-use-symbolic-p.patch"
+	${git} "${DIR}/patches/imx_next/0036-ARM-dts-add-initial-VF610-Cosmic-Cosmic-board-suppor.patch"
 }
 
 omap_next () {
@@ -100,44 +110,38 @@ omap_next () {
 	#from: https://git.kernel.org/cgit/linux/kernel/git/bcousson/linux-omap-dt.git/log/?h=for_3.13/dts
 	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
 
-#v3.12-rc2
-#	${git} "${DIR}/patches/omap_next/0001-ARM-dts-omap3-beagle-xm-fix-string-error-in-compatib.patch"
-#	${git} "${DIR}/patches/omap_next/0002-ARM-dts-am335x-bone-add-DT-for-BeagleBone-Black.patch"
-#	${git} "${DIR}/patches/omap_next/0003-ARM-dts-OMAP5-fix-reg-property-size.patch"
-#	${git} "${DIR}/patches/omap_next/0004-ARM-dts-OMAP5-fix-ocp2scp-DTS-data.patch"
-#	${git} "${DIR}/patches/omap_next/0005-ARM-dts-Fix-muxing-and-regulator-for-wl12xx-on-the-S.patch"
-#	${git} "${DIR}/patches/omap_next/0006-ARM-dts-Fix-muxing-and-regulator-for-wl12xx-on-the-S.patch"
-#	${git} "${DIR}/patches/omap_next/0007-ARM-dts-igep00x0-Add-pinmux-configuration-for-MCBSP2.patch"
-	${git} "${DIR}/patches/omap_next/0008-ARM-dts-N900-Add-device-tree.patch"
-	${git} "${DIR}/patches/omap_next/0009-ARM-dts-omap3-igep-add-pinmux-node-for-GPIO-LED-conf.patch"
-	${git} "${DIR}/patches/omap_next/0010-ARM-dts-omap3-igep0020-add-mux-conf-for-GPIO-LEDs.patch"
-	${git} "${DIR}/patches/omap_next/0011-ARM-dts-omap3-igep0030-add-mux-conf-for-GPIO-LED.patch"
-	${git} "${DIR}/patches/omap_next/0012-ARM-dts-AM33XX-Add-PMU-support.patch"
-	${git} "${DIR}/patches/omap_next/0013-ARM-dts-AM33xx-Correct-gpio-interrupt-cells-property.patch"
-	${git} "${DIR}/patches/omap_next/0014-ARM-dts-omap5-uevm-Split-SMPS10-in-two-nodes.patch"
-	${git} "${DIR}/patches/omap_next/0015-ARM-dts-Remove-0x-s-from-OMAP2420-H4-DTS-file.patch"
-	${git} "${DIR}/patches/omap_next/0016-ARM-dts-Remove-0x-s-from-OMAP3-IGEP0020-DTS-file.patch"
-	${git} "${DIR}/patches/omap_next/0017-ARM-dts-Remove-0x-s-from-OMAP3-IGEP0030-DTS-file.patch"
-	${git} "${DIR}/patches/omap_next/0018-ARM-dts-Remove-0x-s-from-OMAP3-DTS-file.patch"
-	${git} "${DIR}/patches/omap_next/0019-ARM-dts-Remove-0x-s-from-OMAP3430-SDP-DTS-file.patch"
-	${git} "${DIR}/patches/omap_next/0020-ARM-dts-Remove-0x-s-from-OMAP4-DTS-file.patch"
-	${git} "${DIR}/patches/omap_next/0021-ARM-dts-Remove-0x-s-from-OMAP5-DTS-file.patch"
-	${git} "${DIR}/patches/omap_next/0022-ARM-dts-twl6030-Move-common-configuration-for-OMAP4-.patch"
-	${git} "${DIR}/patches/omap_next/0023-ARM-dts-DRA7-Add-the-dts-files-for-dra7-SoC-and-dra7.patch"
-	${git} "${DIR}/patches/omap_next/0024-ARM-dts-AM4372-cpu-s-node-per-latest-binding.patch"
-	${git} "${DIR}/patches/omap_next/0025-ARM-dts-AM4372-add-few-nodes.patch"
-	${git} "${DIR}/patches/omap_next/0026-ARM-dts-Add-devicetree-for-gta04-board.patch"
-	${git} "${DIR}/patches/omap_next/0027-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
-	${git} "${DIR}/patches/omap_next/0028-ARM-OMAP5-dts-add-palmas-usb-node.patch"
-	${git} "${DIR}/patches/omap_next/0029-ARM-OMAP5-hwmod-add-missing-ocp2scp-hwmod-data.patch"
-	${git} "${DIR}/patches/omap_next/0030-ARM-configs-omap2plus_defconfig-enable-dwc3-and-depe.patch"
-	${git} "${DIR}/patches/omap_next/0031-ARM-dts-AM33XX-Add-EDMA-support.patch"
-	${git} "${DIR}/patches/omap_next/0032-ARM-dts-AM33XX-Add-SPI-DMA-support.patch"
-	${git} "${DIR}/patches/omap_next/0033-ARM-dts-AM33XX-Add-MMC-support-and-documentation.patch"
-	${git} "${DIR}/patches/omap_next/0034-ARM-dts-am335x-bone-add-CD-for-mmc1.patch"
-	${git} "${DIR}/patches/omap_next/0035-ARM-dts-am335x-boneblack-add-eMMC-DT-entry.patch"
-	${git} "${DIR}/patches/omap_next/0036-ARM-dts-am335x-bone-common-switch-mmc1-to-4-bit-mode.patch"
-	${git} "${DIR}/patches/omap_next/0037-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
+	${git} "${DIR}/patches/omap_next/0001-ARM-dts-N900-Add-device-tree.patch"
+	${git} "${DIR}/patches/omap_next/0002-ARM-dts-omap3-igep-add-pinmux-node-for-GPIO-LED-conf.patch"
+	${git} "${DIR}/patches/omap_next/0003-ARM-dts-omap3-igep0020-add-mux-conf-for-GPIO-LEDs.patch"
+	${git} "${DIR}/patches/omap_next/0004-ARM-dts-omap3-igep0030-add-mux-conf-for-GPIO-LED.patch"
+	${git} "${DIR}/patches/omap_next/0005-ARM-dts-AM33XX-Add-PMU-support.patch"
+	${git} "${DIR}/patches/omap_next/0006-ARM-dts-AM33xx-Correct-gpio-interrupt-cells-property.patch"
+	${git} "${DIR}/patches/omap_next/0007-ARM-dts-omap5-uevm-Split-SMPS10-in-two-nodes.patch"
+	${git} "${DIR}/patches/omap_next/0008-ARM-dts-Remove-0x-s-from-OMAP2420-H4-DTS-file.patch"
+	${git} "${DIR}/patches/omap_next/0009-ARM-dts-Remove-0x-s-from-OMAP3-IGEP0020-DTS-file.patch"
+	${git} "${DIR}/patches/omap_next/0010-ARM-dts-Remove-0x-s-from-OMAP3-IGEP0030-DTS-file.patch"
+	${git} "${DIR}/patches/omap_next/0011-ARM-dts-Remove-0x-s-from-OMAP3-DTS-file.patch"
+	${git} "${DIR}/patches/omap_next/0012-ARM-dts-Remove-0x-s-from-OMAP3430-SDP-DTS-file.patch"
+	${git} "${DIR}/patches/omap_next/0013-ARM-dts-Remove-0x-s-from-OMAP4-DTS-file.patch"
+	${git} "${DIR}/patches/omap_next/0014-ARM-dts-Remove-0x-s-from-OMAP5-DTS-file.patch"
+	${git} "${DIR}/patches/omap_next/0015-ARM-dts-twl6030-Move-common-configuration-for-OMAP4-.patch"
+	${git} "${DIR}/patches/omap_next/0016-ARM-dts-DRA7-Add-the-dts-files-for-dra7-SoC-and-dra7.patch"
+	${git} "${DIR}/patches/omap_next/0017-ARM-dts-AM4372-cpu-s-node-per-latest-binding.patch"
+	${git} "${DIR}/patches/omap_next/0018-ARM-dts-AM4372-add-few-nodes.patch"
+	${git} "${DIR}/patches/omap_next/0019-ARM-dts-Add-devicetree-for-gta04-board.patch"
+	${git} "${DIR}/patches/omap_next/0020-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
+	${git} "${DIR}/patches/omap_next/0021-ARM-OMAP5-dts-add-palmas-usb-node.patch"
+	${git} "${DIR}/patches/omap_next/0022-ARM-OMAP5-hwmod-add-missing-ocp2scp-hwmod-data.patch"
+	${git} "${DIR}/patches/omap_next/0023-ARM-configs-omap2plus_defconfig-enable-dwc3-and-depe.patch"
+	${git} "${DIR}/patches/omap_next/0024-ARM-dts-AM33XX-Add-EDMA-support.patch"
+	${git} "${DIR}/patches/omap_next/0025-ARM-dts-AM33XX-Add-SPI-DMA-support.patch"
+	${git} "${DIR}/patches/omap_next/0026-ARM-dts-AM33XX-Add-MMC-support-and-documentation.patch"
+	${git} "${DIR}/patches/omap_next/0027-ARM-dts-am335x-bone-add-CD-for-mmc1.patch"
+	${git} "${DIR}/patches/omap_next/0028-ARM-dts-am335x-boneblack-add-eMMC-DT-entry.patch"
+	${git} "${DIR}/patches/omap_next/0029-ARM-dts-am335x-bone-common-switch-mmc1-to-4-bit-mode.patch"
+	${git} "${DIR}/patches/omap_next/0030-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
+	${git} "${DIR}/patches/omap_next/0031-ARM-dts-AM33XX-use-pinmux-node-defined-in-included-f.patch"
+	${git} "${DIR}/patches/omap_next/0032-ARM-dts-AM33XX-don-t-redefine-OCP-bus-and-device-nod.patch"
 }
 
 omap_dt_dss () {
@@ -251,17 +255,13 @@ omap_sprz319_erratum () {
 
 fixes () {
 	echo "dir: fixes"
-#v3.12-rc2
-#	${git} "${DIR}/patches/fixes/0001-cpufreq-cpufreq-cpu0-assign-cpu_dev-correctly-to-cpu.patch"
-#	${git} "${DIR}/patches/fixes/0002-cpufreq-imx6q-cpufreq-assign-cpu_dev-correctly-to-cp.patch"
-#	${git} "${DIR}/patches/fixes/0003-ARM-i.MX-change-dev_id-to-cpu0-while-registering-cpu.patch"
-#	${git} "${DIR}/patches/fixes/0004-ARM-shmobile-change-dev_id-to-cpu0-while-registering.patch"
 }
 
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
 	${git} "${DIR}/patches/saucy/0001-saucy-error-variable-ilace-set-but-not-used-Werror-u.patch"
+	${git} "${DIR}/patches/saucy/0002-saucy-disable-Werror-pointer-sign.patch"
 }
 
 arm
@@ -279,7 +279,7 @@ dts
 imx_video
 omap3_beagle_xm_rework
 omap_sprz319_erratum
-fixes
+#fixes
 
 saucy
 

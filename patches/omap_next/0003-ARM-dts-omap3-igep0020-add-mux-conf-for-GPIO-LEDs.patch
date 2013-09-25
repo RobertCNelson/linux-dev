@@ -1,0 +1,48 @@
+From b872a76b92ad78f6284c66cdb3e90614079bab36 Mon Sep 17 00:00:00 2001
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Date: Thu, 20 Jun 2013 16:42:31 +0200
+Subject: [PATCH 03/32] ARM: dts: omap3-igep0020: add mux conf for GPIO LEDs
+
+The IGEPv2 has a number of GPIO LED connected to OMAP
+pins. Configure these pins as output GPIO.
+
+Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Tested-by: Enric Balletbo i Serra <eballetbo@iseebcn.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap3-igep0020.dts | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-igep0020.dts b/arch/arm/boot/dts/omap3-igep0020.dts
+index e8c4828..51c084e 100644
+--- a/arch/arm/boot/dts/omap3-igep0020.dts
++++ b/arch/arm/boot/dts/omap3-igep0020.dts
+@@ -16,7 +16,10 @@
+ 	compatible = "isee,omap3-igep0020", "ti,omap3";
+ 
+ 	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&leds_pins>;
+ 		compatible = "gpio-leds";
++
+ 		boot {
+ 			 label = "omap3:green:boot";
+ 			 gpios = <&gpio1 26 GPIO_ACTIVE_HIGH>;
+@@ -54,6 +57,14 @@
+ 	};
+ };
+ 
++&leds_pins {
++	pinctrl-single,pins = <
++		0x5c4 (PIN_OUTPUT | MUX_MODE4) /* etk_d12.gpio_26 */
++		0x5c6 (PIN_OUTPUT | MUX_MODE4) /* etk_d13.gpio_27 */
++		0x5c8 (PIN_OUTPUT | MUX_MODE4) /* etk_d14.gpio_28 */
++	>;
++};
++
+ &i2c3 {
+ 	clock-frequency = <100000>;
+ 
+-- 
+1.8.4.rc3
+
