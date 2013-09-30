@@ -1,0 +1,58 @@
+From c98c6e042fe3e880448efc79a9097777018e3c22 Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marex@denx.de>
+Date: Thu, 26 Sep 2013 13:16:16 +0200
+Subject: [PATCH 37/46] ARM: dts: mxs: Add muxing options for the SSP2 MMC
+
+Add pinmux for 4-bit SD card connected to SSP2.
+
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx28.dtsi | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx28.dtsi b/arch/arm/boot/dts/imx28.dtsi
+index 918d419..1c5ed9d 100644
+--- a/arch/arm/boot/dts/imx28.dtsi
++++ b/arch/arm/boot/dts/imx28.dtsi
+@@ -473,6 +473,37 @@
+ 					fsl,pull-up = <MXS_PULL_DISABLE>;
+ 				};
+ 
++				mmc2_4bit_pins_a: mmc2-4bit@0 {
++					reg = <0>;
++					fsl,pinmux-ids = <
++						MX28_PAD_SSP0_DATA4__SSP2_D0
++						MX28_PAD_SSP1_SCK__SSP2_D1
++						MX28_PAD_SSP1_CMD__SSP2_D2
++						MX28_PAD_SSP0_DATA5__SSP2_D3
++						MX28_PAD_SSP0_DATA6__SSP2_CMD
++						MX28_PAD_AUART1_RX__SSP2_CARD_DETECT
++						MX28_PAD_SSP0_DATA7__SSP2_SCK
++					>;
++					fsl,drive-strength = <MXS_DRIVE_8mA>;
++					fsl,voltage = <MXS_VOLTAGE_HIGH>;
++					fsl,pull-up = <MXS_PULL_ENABLE>;
++				};
++
++				mmc2_cd_cfg: mmc2-cd-cfg {
++					fsl,pinmux-ids = <
++						MX28_PAD_AUART1_RX__SSP2_CARD_DETECT
++					>;
++					fsl,pull-up = <MXS_PULL_DISABLE>;
++				};
++
++				mmc2_sck_cfg: mmc2-sck-cfg {
++					fsl,pinmux-ids = <
++						MX28_PAD_SSP0_DATA7__SSP2_SCK
++					>;
++					fsl,drive-strength = <MXS_DRIVE_12mA>;
++					fsl,pull-up = <MXS_PULL_DISABLE>;
++				};
++
+ 				i2c0_pins_a: i2c0@0 {
+ 					reg = <0>;
+ 					fsl,pinmux-ids = <
+-- 
+1.8.4.rc3
+

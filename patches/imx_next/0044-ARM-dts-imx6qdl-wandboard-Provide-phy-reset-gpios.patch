@@ -1,0 +1,38 @@
+From d6b9f269e6ebc665fd57543b3c8cb738336267b8 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Fri, 27 Sep 2013 11:12:42 -0300
+Subject: [PATCH 44/46] ARM: dts: imx6qdl-wandboard: Provide phy-reset-gpios
+
+GPIO3_29 is used to reset the ethernet phy.
+
+Add support for it.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-wandboard.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index df42d3c..35f5479 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -88,6 +88,7 @@
+ 				MX6QDL_PAD_ENET_RXD1__GPIO1_IO26 0x80000000 /* WL_REG_ON */
+ 				MX6QDL_PAD_ENET_TXD1__GPIO1_IO29 0x80000000 /* WL_HOST_WAKE */
+ 				MX6QDL_PAD_ENET_TXD0__GPIO1_IO30 0x80000000 /* WL_WAKE */
++				MX6QDL_PAD_EIM_D29__GPIO3_IO29   0x80000000
+ 			>;
+ 		};
+ 	};
+@@ -97,6 +98,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet_1>;
+ 	phy-mode = "rgmii";
++	phy-reset-gpios = <&gpio3 29 0>;
+ 	status = "okay";
+ };
+ 
+-- 
+1.8.4.rc3
+
