@@ -233,9 +233,8 @@ dts () {
 	${git} "${DIR}/patches/dts/0001-ARM-imx-Enable-UART1-for-Sabrelite.patch"
 	${git} "${DIR}/patches/dts/0002-ARM-dts-imx6qdl-wandboard-add-gpio-lines-to-wandboar.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-dts-imx6qdl-wandboard-Add-support-for-i2c1.patch"
-	${git} "${DIR}/patches/dts/0004-ARM-dts-imx6qdl-wandboard-Add-support-for-i2c3.patch"
-	${git} "${DIR}/patches/dts/0005-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
-	${git} "${DIR}/patches/dts/0006-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
+	${git} "${DIR}/patches/dts/0004-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
+	${git} "${DIR}/patches/dts/0005-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
 }
 
 imx_video () {
