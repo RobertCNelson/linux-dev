@@ -1,0 +1,44 @@
+From 6bf6032821914ce689f576014a2eb0e7f8b4bdec Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 3 Oct 2013 10:27:47 -0500
+Subject: [PATCH 4/4] arm: dts: imx: hdmi video imx6q-sabrelite.dts
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/imx6q-sabrelite.dts | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+index e437606..b0d4bc4 100644
+--- a/arch/arm/boot/dts/imx6q-sabrelite.dts
++++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+@@ -93,6 +93,12 @@
+ 	status = "okay";
+ };
+ 
++&hdmi {
++	crtcs = <&ipu1 0 &ipu1 1 &ipu2 0 &ipu2 1>;
++	ddc = <&i2c2>;
++	status = "okay";
++};
++
+ &i2c1 {
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+@@ -108,6 +114,13 @@
+ 	};
+ };
+ 
++&i2c2 {
++	status = "okay";
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2_1>;
++};
++
+ &iomuxc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_hog>;
+-- 
+1.8.4.rc3
+

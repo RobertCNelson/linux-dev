@@ -1,0 +1,168 @@
+From e78491e123fba2f022d6329c8d36f326c40bd8bc Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 3 Oct 2013 11:26:00 -0500
+Subject: [PATCH] imx: hdmi: staging wip
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/imx6dl-wandboard.dts   | 13 +++++++++++++
+ arch/arm/boot/dts/imx6dl.dtsi            |  4 ----
+ arch/arm/boot/dts/imx6q-sabresd.dts      | 13 +++++++++++++
+ arch/arm/boot/dts/imx6q-wandboard.dts    | 13 +++++++++++++
+ arch/arm/boot/dts/imx6q.dtsi             |  4 ----
+ arch/arm/boot/dts/imx6qdl-sabresd.dtsi   | 13 -------------
+ arch/arm/boot/dts/imx6qdl-wandboard.dtsi | 13 -------------
+ drivers/staging/imx-drm/imx-hdmi.c       |  3 ++-
+ 8 files changed, 41 insertions(+), 35 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6dl-wandboard.dts b/arch/arm/boot/dts/imx6dl-wandboard.dts
+index e672891..dea3a1c 100644
+--- a/arch/arm/boot/dts/imx6dl-wandboard.dts
++++ b/arch/arm/boot/dts/imx6dl-wandboard.dts
+@@ -20,3 +20,16 @@
+ 		reg = <0x10000000 0x40000000>;
+ 	};
+ };
++
++&i2c1 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c1_1>;
++	status = "okay";
++};
++
++&hdmi {
++	crtcs = <&ipu1 0 &ipu1 1>;
++	ddc = <&i2c1>;
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/imx6dl.dtsi b/arch/arm/boot/dts/imx6dl.dtsi
+index 65e54b4..9e8ae11 100644
+--- a/arch/arm/boot/dts/imx6dl.dtsi
++++ b/arch/arm/boot/dts/imx6dl.dtsi
+@@ -88,7 +88,3 @@
+ 		crtcs = <&ipu1 0>, <&ipu1 1>;
+ 	};
+ };
+-
+-&hdmi {
+-	crtcs = <&ipu1 0>, <&ipu1 1>;
+-}
+diff --git a/arch/arm/boot/dts/imx6q-sabresd.dts b/arch/arm/boot/dts/imx6q-sabresd.dts
+index 9cbdfe7..75f5d73 100644
+--- a/arch/arm/boot/dts/imx6q-sabresd.dts
++++ b/arch/arm/boot/dts/imx6q-sabresd.dts
+@@ -23,3 +23,16 @@
+ &sata {
+ 	status = "okay";
+ };
++
++&i2c2 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2_1>;
++	status = "okay";
++};
++
++&hdmi {
++	crtcs = <&ipu1 0 &ipu1 1 &ipu2 0 &ipu2 1>;
++	ddc = <&i2c2>;
++	status = "okay";
++};
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/imx6q-wandboard.dts b/arch/arm/boot/dts/imx6q-wandboard.dts
+index 36be17f..144d0ad 100644
+--- a/arch/arm/boot/dts/imx6q-wandboard.dts
++++ b/arch/arm/boot/dts/imx6q-wandboard.dts
+@@ -24,3 +24,16 @@
+ &sata {
+ 	status = "okay";
+ };
++
++&i2c1 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c1_1>;
++	status = "okay";
++};
++
++&hdmi {
++	crtcs = <&ipu1 0 &ipu1 1 &ipu2 0 &ipu2 1>;
++	ddc = <&i2c1>;
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index d2467f5..f024ef2 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -159,7 +159,3 @@
+ 		crtcs = <&ipu1 0>, <&ipu1 1>, <&ipu2 0>, <&ipu2 1>;
+ 	};
+ };
+-
+-&hdmi {
+-	crtcs = <&ipu1 0>, <&ipu1 1>, <&ipu2 0>, <&ipu2 1>;
+-};
+diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+index 254a3d5..2035d66 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+@@ -245,16 +245,3 @@
+ 	wp-gpios = <&gpio2 1 0>;
+ 	status = "okay";
+ };
+-
+-
+-&i2c2 {
+-	clock-frequency = <100000>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_i2c2_2>;
+-	status = "okay";
+-};
+-
+-&hdmi {
+-	ddc = <&i2c2>;
+-	status = "okay";
+-};
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index 6a0e948..c1ef3bd 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -81,19 +81,6 @@
+ 	status = "okay";
+ };
+ 
+-
+-&hdmi {
+-	ddc = <&i2c1>;
+-	status = "okay";
+-};
+-
+-&i2c1 {
+-	clock-frequency = <100000>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_i2c1_1>;
+-	status = "okay";
+-};
+-
+ &i2c2 {
+ 	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+diff --git a/drivers/staging/imx-drm/imx-hdmi.c b/drivers/staging/imx-drm/imx-hdmi.c
+index 4b486eb..216413f 100644
+--- a/drivers/staging/imx-drm/imx-hdmi.c
++++ b/drivers/staging/imx-drm/imx-hdmi.c
+@@ -24,8 +24,9 @@
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_edid.h>
+ #include <drm/drm_encoder_slave.h>
+-#include <drm/imx-ipu-v3.h>
++//#include <drm/imx-ipu-v3.h>
+ 
++#include "ipu-v3/imx-ipu-v3.h"
+ #include "imx-hdmi.h"
+ #include "imx-drm.h"
+ 
+-- 
+1.8.4.rc3
+
