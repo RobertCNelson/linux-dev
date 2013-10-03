@@ -1,18 +1,20 @@
-From d337d517c66eb5dd8f90bdca0ad32626de9e7f6f Mon Sep 17 00:00:00 2001
+From d12ff655c8e6f0b686b2c9a57b09564d6404ff02 Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
-Date: Wed, 14 Aug 2013 15:17:22 +0300
-Subject: [PATCH 07/10] ARM: dts: omap5-uevm: Use reset-gpios for hsusb2_reset
+Date: Tue, 24 Sep 2013 11:53:53 +0300
+Subject: [PATCH 38/40] ARM: dts: omap5-uevm: Use reset-gpios for
+ hsusb2/3_reset
 
 We no longer need to model the RESET line as a regulator since
 the USB phy-nop driver accepts "reset-gpios" property.
 
 Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
 ---
- arch/arm/boot/dts/omap5-uevm.dts | 13 +------------
- 1 file changed, 1 insertion(+), 12 deletions(-)
+ arch/arm/boot/dts/omap5-uevm.dts | 26 ++------------------------
+ 1 file changed, 2 insertions(+), 24 deletions(-)
 
 diff --git a/arch/arm/boot/dts/omap5-uevm.dts b/arch/arm/boot/dts/omap5-uevm.dts
-index da25a14..411d18f 100644
+index da25a14..748f6bf 100644
 --- a/arch/arm/boot/dts/omap5-uevm.dts
 +++ b/arch/arm/boot/dts/omap5-uevm.dts
 @@ -27,21 +27,10 @@
@@ -38,6 +40,29 @@ index da25a14..411d18f 100644
  	/**
  	  * FIXME
  	  * Put the right clock phandle here when available
+@@ -51,21 +40,10 @@
+ 		clock-frequency = <19200000>;
+ 	};
+ 
+-	/* HS USB Port 3 RESET */
+-	hsusb3_reset: hsusb3_reset_reg {
+-		compatible = "regulator-fixed";
+-		regulator-name = "hsusb3_reset";
+-		regulator-min-microvolt = <3300000>;
+-		regulator-max-microvolt = <3300000>;
+-		gpio = <&gpio3 15 GPIO_ACTIVE_HIGH>; /* gpio3_79 ETH_NRESET */
+-		startup-delay-us = <70000>;
+-		enable-active-high;
+-	};
+-
+ 	/* HS USB Host PHY on PORT 3 */
+ 	hsusb3_phy: hsusb3_phy {
+ 		compatible = "usb-nop-xceiv";
+-		reset-supply = <&hsusb3_reset>;
++		reset-gpios = <&gpio3 15 GPIO_ACTIVE_LOW>; /* gpio3_79 ETH_NRESET */
+ 	};
+ 
+ 	leds {
 -- 
 1.8.4.rc3
 

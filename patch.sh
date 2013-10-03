@@ -139,7 +139,7 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0018-ARM-dts-AM4372-add-few-nodes.patch"
 	${git} "${DIR}/patches/omap_next/0019-ARM-dts-Add-devicetree-for-gta04-board.patch"
 	${git} "${DIR}/patches/omap_next/0020-ARM-dts-omap3-beagle-Make-USB-host-pin-naming-consis.patch"
-	${git} "${DIR}/patches/omap_next/0021-ARM-OMAP5-dts-add-palmas-usb-node.patch"
+	${git} "${DIR}/patches/omap_next/0021-ARM-dts-OMAP5-add-palmas-usb-node.patch"
 	${git} "${DIR}/patches/omap_next/0022-ARM-OMAP5-hwmod-add-missing-ocp2scp-hwmod-data.patch"
 	${git} "${DIR}/patches/omap_next/0023-ARM-configs-omap2plus_defconfig-enable-dwc3-and-depe.patch"
 	${git} "${DIR}/patches/omap_next/0024-ARM-dts-AM33XX-Add-EDMA-support.patch"
@@ -151,6 +151,14 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0030-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
 	${git} "${DIR}/patches/omap_next/0031-ARM-dts-AM33XX-use-pinmux-node-defined-in-included-f.patch"
 	${git} "${DIR}/patches/omap_next/0032-ARM-dts-AM33XX-don-t-redefine-OCP-bus-and-device-nod.patch"
+	${git} "${DIR}/patches/omap_next/0033-ARM-dts-omap3-devkit8000-fix-a-typo-in-GMPC-node.patch"
+	${git} "${DIR}/patches/omap_next/0034-ARM-dts-DRA7-Add-TPS659038-PMIC-nodes.patch"
+	${git} "${DIR}/patches/omap_next/0035-ARM-dts-AM33XX-add-ethernet-alias-s-for-am33xx.patch"
+	${git} "${DIR}/patches/omap_next/0036-ARM-dts-omap3-beagle-Use-reset-gpios-for-hsusb2_rese.patch"
+	${git} "${DIR}/patches/omap_next/0037-ARM-dts-omap4-panda-Use-reset-gpios-for-hsusb1_reset.patch"
+	${git} "${DIR}/patches/omap_next/0038-ARM-dts-omap5-uevm-Use-reset-gpios-for-hsusb2-3_rese.patch"
+	${git} "${DIR}/patches/omap_next/0039-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
+	${git} "${DIR}/patches/omap_next/0040-ARM-dts-omap3-beagle-Add-USB-OTG-PHY-details.patch"
 }
 
 omap_dt_dss () {
@@ -192,12 +200,7 @@ omap_usb () {
 	${git} "${DIR}/patches/omap_usb/0002-usb-phy-generic-Don-t-use-regulator-framework-for-RE.patch"
 	${git} "${DIR}/patches/omap_usb/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
 	${git} "${DIR}/patches/omap_usb/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
-	${git} "${DIR}/patches/omap_usb/0005-ARM-dts-omap3-beagle-Use-reset-gpios-for-hsusb2_rese.patch"
-	${git} "${DIR}/patches/omap_usb/0006-ARM-dts-omap4-panda-Use-reset-gpios-for-hsusb1_reset.patch"
-	${git} "${DIR}/patches/omap_usb/0007-ARM-dts-omap5-uevm-Use-reset-gpios-for-hsusb2_reset.patch"
-	${git} "${DIR}/patches/omap_usb/0008-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
-	${git} "${DIR}/patches/omap_usb/0009-ARM-dts-omap3-beagle-Add-USB-OTG-PHY-details.patch"
-	${git} "${DIR}/patches/omap_usb/0010-hack-beagle-xm-NOP_USB_XCEIV-still-has-to-be-a-modul.patch"
+	${git} "${DIR}/patches/omap_usb/0005-hack-beagle-xm-NOP_USB_XCEIV-still-has-to-be-a-modul.patch"
 }
 
 omap_video () {

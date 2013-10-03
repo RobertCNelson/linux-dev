@@ -1,7 +1,7 @@
-From 00b3ae339a2524750c29dba79b886ddd06733564 Mon Sep 17 00:00:00 2001
+From dd2bf8f36d49794a3ecf8bc44c878086d76736ef Mon Sep 17 00:00:00 2001
 From: Roger Quadros <rogerq@ti.com>
-Date: Fri, 19 Apr 2013 12:57:36 +0300
-Subject: [PATCH 08/10] ARM: dts: omap3-beagle-xm: Add USB Host support
+Date: Tue, 24 Sep 2013 11:53:55 +0300
+Subject: [PATCH 39/40] ARM: dts: omap3-beagle-xm: Add USB Host support
 
 Provide RESET GPIO and Power regulator for the USB PHY,
 the USB Host port mode and the PHY device for the controller.
@@ -11,12 +11,13 @@ We also relocate omap3_pmx_core pin definations so that they
 are close to omap3_pmx_wkup pin definations.
 
 Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
 ---
  arch/arm/boot/dts/omap3-beagle-xm.dts | 65 ++++++++++++++++++++++++++++++-----
  1 file changed, 56 insertions(+), 9 deletions(-)
 
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
-index 384b203..8304883 100644
+index 0c514dc..0f7cfc5 100644
 --- a/arch/arm/boot/dts/omap3-beagle-xm.dts
 +++ b/arch/arm/boot/dts/omap3-beagle-xm.dts
 @@ -69,6 +69,23 @@
@@ -97,9 +98,9 @@ index 384b203..8304883 100644
  &uart3 {
  	pinctrl-names = "default";
  	pinctrl-0 = <&uart3_pins>;
-@@ -194,3 +233,11 @@
- 		video-source = <&venc>;
- 	};
+@@ -166,3 +205,11 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&gpio1_pins>;
  };
 +
 +&usbhshost {
