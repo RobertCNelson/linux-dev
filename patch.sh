@@ -57,7 +57,8 @@ arm () {
 
 dma_devel () {
 	echo "dir: dma-devel"
-	${git} "${DIR}/patches/dma-devel/0001-ARM-EDMA-Fix-clearing-of-unused-list-for-DT-DMA-reso.patch"
+#v3.13-rc4
+#	${git} "${DIR}/patches/dma-devel/0001-ARM-EDMA-Fix-clearing-of-unused-list-for-DT-DMA-reso.patch"
 	${git} "${DIR}/patches/dma-devel/0002-da8xx-config-Enable-MMC-and-FS-options.patch"
 	${git} "${DIR}/patches/dma-devel/0003-ARM-dts-add-AM33XX-EDMA-support.patch"
 	${git} "${DIR}/patches/dma-devel/0004-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
