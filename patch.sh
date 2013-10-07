@@ -159,6 +159,11 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0038-ARM-dts-omap5-uevm-Use-reset-gpios-for-hsusb2-3_rese.patch"
 	${git} "${DIR}/patches/omap_next/0039-ARM-dts-omap3-beagle-xm-Add-USB-Host-support.patch"
 	${git} "${DIR}/patches/omap_next/0040-ARM-dts-omap3-beagle-Add-USB-OTG-PHY-details.patch"
+	${git} "${DIR}/patches/omap_next/0041-ARM-dts-am335x-boneblack-move-fixed-regulator-to-boa.patch"
+	${git} "${DIR}/patches/omap_next/0042-ARM-dts-AM33XX-Add-support-for-IGEP-COM-AQUILA.patch"
+	${git} "${DIR}/patches/omap_next/0043-ARM-dts-AM33XX-Add-support-for-IGEP-AQUILA-EXPANSION.patch"
+	${git} "${DIR}/patches/omap_next/0044-ARM-dts-am335x-bone-common-correct-mux-mode-for-cmd-.patch"
+	${git} "${DIR}/patches/omap_next/0045-ARM-dts-am335x-evm-sdk-switch-mmc1-to-4-bit-mode.patch"
 }
 
 omap_dt_dss () {
