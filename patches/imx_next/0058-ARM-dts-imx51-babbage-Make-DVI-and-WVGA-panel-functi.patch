@@ -1,0 +1,80 @@
+From 5d529c7e90a675be13af95508efb6eb93da9345c Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Tue, 8 Oct 2013 15:52:12 -0300
+Subject: [PATCH 58/59] ARM: dts: imx51-babbage: Make DVI and WVGA panel
+ functional
+
+Currently we get the following errors on imx51-babbage:
+
+/display@di0: could not find display-timings node
+/display@di0: no timings specified
+/display@di1: could not find display-timings node
+/display@di1: no timings specified
+imx-drm imx-drm: failed to allocate buffer with size 0
+
+Provide timing values for IPU1, which is connected to a DVI bridge and
+to IPU2, which can be connected to the WVGA panel, so that both of them can
+be functional.
+
+While at it, disable the WVGA panel, so that DVI output becomes the default one.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx51-babbage.dts | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx51-babbage.dts b/arch/arm/boot/dts/imx51-babbage.dts
+index f13f339..be1407c 100644
+--- a/arch/arm/boot/dts/imx51-babbage.dts
++++ b/arch/arm/boot/dts/imx51-babbage.dts
+@@ -27,6 +27,20 @@
+ 		interface-pix-fmt = "rgb24";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_ipu_disp1_1>;
++		display-timings {
++			native-mode = <&timing0>;
++			timing0: dvi {
++				clock-frequency = <65000000>;
++				hactive = <1024>;
++				vactive = <768>;
++				hback-porch = <220>;
++				hfront-porch = <40>;
++				vback-porch = <21>;
++				vfront-porch = <7>;
++				hsync-len = <60>;
++				vsync-len = <10>;
++			};
++		};
+ 	};
+ 
+ 	display@di1 {
+@@ -35,6 +49,25 @@
+ 		interface-pix-fmt = "rgb565";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_ipu_disp2_1>;
++		status = "disabled";
++		display-timings {
++			native-mode = <&timing1>;
++			timing1: claawvga {
++				clock-frequency = <27000000>;
++				hactive = <800>;
++				vactive = <480>;
++				hback-porch = <40>;
++				hfront-porch = <60>;
++				vback-porch = <10>;
++				vfront-porch = <10>;
++				hsync-len = <20>;
++				vsync-len = <10>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				de-active = <1>;
++				pixelclk-active = <0>;
++			};
++		};
+ 	};
+ 
+ 	gpio-keys {
+-- 
+1.8.4.rc3
+

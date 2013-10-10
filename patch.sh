@@ -111,7 +111,19 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0044-ARM-dts-imx6qdl-wandboard-Provide-phy-reset-gpios.patch"
 	${git} "${DIR}/patches/imx_next/0045-ARM-imx_v6_v7_defconfig-Add-SPDIF-support.patch"
 	${git} "${DIR}/patches/imx_next/0046-ARM-imx_v6_v7_defconfig-Add-CHIPIDEA_UDC-support.patch"
-
+	${git} "${DIR}/patches/imx_next/0047-ARM-dts-mxs-Add-MSR-M28CU3-board.patch"
+	${git} "${DIR}/patches/imx_next/0048-ARM-imx-Include-linux-err.h.patch"
+	${git} "${DIR}/patches/imx_next/0049-ARM-mxs_defconfig-Add-CHIPIDEA_UDC-support.patch"
+	${git} "${DIR}/patches/imx_next/0050-ARM-mach-imx-clk-imx51-imx53-Retrieve-base-address-a.patch"
+	${git} "${DIR}/patches/imx_next/0051-ARM-mach-imx-mm-imx5-Retrieve-tzic-base-address-from.patch"
+	${git} "${DIR}/patches/imx_next/0052-ARM-mach-imx-mm-imx5-Retrieve-iomuxc-base-address-fr.patch"
+	${git} "${DIR}/patches/imx_next/0053-ARM-dts-imx53-qsb-SDHC3-is-connected-in-8-bit-mode.patch"
+	${git} "${DIR}/patches/imx_next/0054-ARM-dts-imx53-qsb-SDHC1-does-not-have-cd-gpios.patch"
+	${git} "${DIR}/patches/imx_next/0055-ARM-dts-imx53-qsb-Do-not-use-GPIO1_8-as-wakeup-sourc.patch"
+	${git} "${DIR}/patches/imx_next/0056-ARM-imx51-apf51dev-Add-parallel-display-support.patch"
+	${git} "${DIR}/patches/imx_next/0057-ARM-imx27-apf27dev-Add-framebuffer-support.patch"
+	${git} "${DIR}/patches/imx_next/0058-ARM-dts-imx51-babbage-Make-DVI-and-WVGA-panel-functi.patch"
+	${git} "${DIR}/patches/imx_next/0059-ARM-imx-replace-imx6q_restart-with-mxc_restart.patch"
 }
 
 omap_next () {
