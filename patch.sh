@@ -176,6 +176,19 @@ omap_next () {
 	${git} "${DIR}/patches/omap_next/0043-ARM-dts-AM33XX-Add-support-for-IGEP-AQUILA-EXPANSION.patch"
 	${git} "${DIR}/patches/omap_next/0044-ARM-dts-am335x-bone-common-correct-mux-mode-for-cmd-.patch"
 	${git} "${DIR}/patches/omap_next/0045-ARM-dts-am335x-evm-sdk-switch-mmc1-to-4-bit-mode.patch"
+	${git} "${DIR}/patches/omap_next/0046-ARM-dts-OMAP4-Add-AES-node.patch"
+	${git} "${DIR}/patches/omap_next/0047-ARM-dts-OMAP4-Add-DES3DES-node.patch"
+	${git} "${DIR}/patches/omap_next/0048-ARM-dts-AM33XX-Add-SHAM-data-and-documentation.patch"
+	${git} "${DIR}/patches/omap_next/0049-ARM-dts-AM33XX-Add-AES-data-and-documentation.patch"
+	${git} "${DIR}/patches/omap_next/0050-ARM-dts-AM33XX-Fix-AES-interrupt-number.patch"
+	${git} "${DIR}/patches/omap_next/0051-ARM-dts-AM437X-Add-AES-node.patch"
+	${git} "${DIR}/patches/omap_next/0052-ARM-dts-AM437X-Add-DES-node.patch"
+	${git} "${DIR}/patches/omap_next/0053-ARM-dts-AM33XX-Add-LCDC-info-into-am335x-evm.patch"
+	${git} "${DIR}/patches/omap_next/0054-ARM-dts-AM33XX-beagle-black-add-pinmux-and-hdmi-node.patch"
+	${git} "${DIR}/patches/omap_next/0055-ARM-dts-omap3-igep-Add-USB-OTG-support.patch"
+	${git} "${DIR}/patches/omap_next/0056-ARM-dts-omap3-igep0020-Add-HS-USB-Host-support.patch"
+	${git} "${DIR}/patches/omap_next/0057-ARM-dts-omap3-igep0020-use-standard-constant-for-IRQ.patch"
+	${git} "${DIR}/patches/omap_next/0058-ARM-dts-omap5-uevm-mark-TWL6037-as-system-power-cont.patch"
 }
 
 omap_dt_dss () {

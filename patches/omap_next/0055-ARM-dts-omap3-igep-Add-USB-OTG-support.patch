@@ -1,0 +1,37 @@
+From 44850a139a9a1a42b5141ee00117460b2013b131 Mon Sep 17 00:00:00 2001
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Date: Mon, 7 Oct 2013 17:12:23 +0200
+Subject: [PATCH 55/58] ARM: dts: omap3-igep: Add USB OTG support
+
+Commit ad871c10b ("ARM: dts: OMAP: Add usb_otg and glue data to O
+added USB OTG support for most OMAP boards but some OMAP3 boards
+such as IGEP boards were not updated. This patch adds an USB OTG
+device node to these board.
+
+Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Tested-by: Enric Balletbo i Serra <eballetbo@gmail.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap3-igep.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-igep.dtsi b/arch/arm/boot/dts/omap3-igep.dtsi
+index 0f92224..ba1e58b 100644
+--- a/arch/arm/boot/dts/omap3-igep.dtsi
++++ b/arch/arm/boot/dts/omap3-igep.dtsi
+@@ -143,3 +143,12 @@
+ &twl_gpio {
+ 	ti,use-leds;
+ };
++
++&usb_otg_hs {
++	interface-type = <0>;
++	usb-phy = <&usb2_phy>;
++	phys = <&usb2_phy>;
++	phy-names = "usb2-phy";
++	mode = <3>;
++	power = <50>;
++};
+-- 
+1.8.4.rc3
+
