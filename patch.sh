@@ -55,14 +55,34 @@ arm () {
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 }
 
+omap_next_dt () {
+	echo "dir: omap-next-dt"
+	${git} "${DIR}/patches/omap-next-dt/0001-ARM-dts-AM33XX-Add-PMU-support.patch"
+	${git} "${DIR}/patches/omap-next-dt/0002-ARM-dts-AM33xx-Correct-gpio-interrupt-cells-property.patch"
+	${git} "${DIR}/patches/omap-next-dt/0003-ARM-dts-AM33XX-Add-EDMA-support.patch"
+	${git} "${DIR}/patches/omap-next-dt/0004-ARM-dts-AM33XX-Add-SPI-DMA-support.patch"
+	${git} "${DIR}/patches/omap-next-dt/0005-ARM-dts-AM33XX-Add-MMC-support-and-documentation.patch"
+	${git} "${DIR}/patches/omap-next-dt/0006-ARM-dts-am335x-bone-add-CD-for-mmc1.patch"
+	${git} "${DIR}/patches/omap-next-dt/0007-ARM-dts-am335x-boneblack-add-eMMC-DT-entry.patch"
+	${git} "${DIR}/patches/omap-next-dt/0008-ARM-dts-am335x-bone-common-switch-mmc1-to-4-bit-mode.patch"
+	${git} "${DIR}/patches/omap-next-dt/0009-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
+	${git} "${DIR}/patches/omap-next-dt/0010-ARM-dts-AM33XX-use-pinmux-node-defined-in-included-f.patch"
+	${git} "${DIR}/patches/omap-next-dt/0011-ARM-dts-AM33XX-don-t-redefine-OCP-bus-and-device-nod.patch"
+	${git} "${DIR}/patches/omap-next-dt/0012-ARM-dts-AM33XX-add-ethernet-alias-s-for-am33xx.patch"
+	${git} "${DIR}/patches/omap-next-dt/0013-ARM-dts-am335x-boneblack-move-fixed-regulator-to-boa.patch"
+	${git} "${DIR}/patches/omap-next-dt/0014-ARM-dts-am335x-bone-common-correct-mux-mode-for-cmd-.patch"
+#	${git} "${DIR}/patches/omap-next-dt/0015-ARM-dts-AM33XX-Add-LCDC-info-into-am335x-evm.patch"
+#	${git} "${DIR}/patches/omap-next-dt/0016-ARM-dts-AM33XX-beagle-black-add-pinmux-and-hdmi-node.patch"
+}
+
 dma_devel () {
 	echo "dir: dma-devel"
 #v3.13-rc4
 #	${git} "${DIR}/patches/dma-devel/0001-ARM-EDMA-Fix-clearing-of-unused-list-for-DT-DMA-reso.patch"
 	${git} "${DIR}/patches/dma-devel/0002-da8xx-config-Enable-MMC-and-FS-options.patch"
-	${git} "${DIR}/patches/dma-devel/0003-ARM-dts-add-AM33XX-EDMA-support.patch"
-	${git} "${DIR}/patches/dma-devel/0004-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
-	${git} "${DIR}/patches/dma-devel/0005-ARM-dts-add-AM33XX-MMC-support-and-documentation.patch"
+#	${git} "${DIR}/patches/dma-devel/0003-ARM-dts-add-AM33XX-EDMA-support.patch"
+#	${git} "${DIR}/patches/dma-devel/0004-ARM-dts-add-AM33XX-SPI-DMA-support.patch"
+#	${git} "${DIR}/patches/dma-devel/0005-ARM-dts-add-AM33XX-MMC-support-and-documentation.patch"
 	${git} "${DIR}/patches/dma-devel/0006-sound-soc-soc-dmaengine-pcm-Add-support-for-new-DMAE.patch"
 }
 
@@ -114,15 +134,15 @@ mmc_fixes () {
 
 dts_fixes () {
 	echo "dir: dts-fixes"
-	${git} "${DIR}/patches/dts-fixes/0001-dts-beaglebone-Add-I2C-definitions-for-EEPROMs-capes.patch"
-	${git} "${DIR}/patches/dts-fixes/0002-arm-beaglebone-dts-Add-capemanager-to-the-DTS.patch"
-	${git} "${DIR}/patches/dts-fixes/0003-OF-Compile-Device-Tree-sources-with-resolve-option.patch"
-	${git} "${DIR}/patches/dts-fixes/0004-arm-bone-dts-add-CD-for-mmc1.patch"
-	${git} "${DIR}/patches/dts-fixes/0005-am335x-boneblack-add-eMMC-DT-entry.patch"
-	${git} "${DIR}/patches/dts-fixes/0006-am335x-bone-fix-MMC-regulators-on-boneblack.patch"
-	${git} "${DIR}/patches/dts-fixes/0007-am335x-bone-enable-HDMI-on-black.patch"
-	${git} "${DIR}/patches/dts-fixes/0008-ARM-am335x-bone-common-switch-mmc1-to-4-bit-mode.patch"
-	${git} "${DIR}/patches/dts-fixes/0009-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
+#	${git} "${DIR}/patches/dts-fixes/0001-dts-beaglebone-Add-I2C-definitions-for-EEPROMs-capes.patch"
+#	${git} "${DIR}/patches/dts-fixes/0002-arm-beaglebone-dts-Add-capemanager-to-the-DTS.patch"
+#	${git} "${DIR}/patches/dts-fixes/0003-OF-Compile-Device-Tree-sources-with-resolve-option.patch"
+#	${git} "${DIR}/patches/dts-fixes/0004-arm-bone-dts-add-CD-for-mmc1.patch"
+#	${git} "${DIR}/patches/dts-fixes/0005-am335x-boneblack-add-eMMC-DT-entry.patch"
+#	${git} "${DIR}/patches/dts-fixes/0006-am335x-bone-fix-MMC-regulators-on-boneblack.patch"
+#	${git} "${DIR}/patches/dts-fixes/0007-am335x-bone-enable-HDMI-on-black.patch"
+#	${git} "${DIR}/patches/dts-fixes/0008-ARM-am335x-bone-common-switch-mmc1-to-4-bit-mode.patch"
+#	${git} "${DIR}/patches/dts-fixes/0009-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
 }
 
 i2c_fixes () {
@@ -189,6 +209,7 @@ saucy () {
 
 ###
 arm
+omap_next_dt
 dma_devel
 general_fixes
 dtc_fixes
