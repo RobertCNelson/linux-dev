@@ -134,9 +134,9 @@ mmc_fixes () {
 
 dts_fixes () {
 	echo "dir: dts-fixes"
-#	${git} "${DIR}/patches/dts-fixes/0001-dts-beaglebone-Add-I2C-definitions-for-EEPROMs-capes.patch"
-#	${git} "${DIR}/patches/dts-fixes/0002-arm-beaglebone-dts-Add-capemanager-to-the-DTS.patch"
-#	${git} "${DIR}/patches/dts-fixes/0003-OF-Compile-Device-Tree-sources-with-resolve-option.patch"
+	${git} "${DIR}/patches/dts-fixes/0001-dts-beaglebone-Add-I2C-definitions-for-EEPROMs-capes.patch"
+	${git} "${DIR}/patches/dts-fixes/0002-arm-beaglebone-dts-Add-capemanager-to-the-DTS.patch"
+	${git} "${DIR}/patches/dts-fixes/0003-OF-Compile-Device-Tree-sources-with-resolve-option.patch"
 #	${git} "${DIR}/patches/dts-fixes/0004-arm-bone-dts-add-CD-for-mmc1.patch"
 #	${git} "${DIR}/patches/dts-fixes/0005-am335x-boneblack-add-eMMC-DT-entry.patch"
 #	${git} "${DIR}/patches/dts-fixes/0006-am335x-bone-fix-MMC-regulators-on-boneblack.patch"
