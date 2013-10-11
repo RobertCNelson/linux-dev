@@ -140,7 +140,7 @@ dts_fixes () {
 #	${git} "${DIR}/patches/dts-fixes/0004-arm-bone-dts-add-CD-for-mmc1.patch"
 #	${git} "${DIR}/patches/dts-fixes/0005-am335x-boneblack-add-eMMC-DT-entry.patch"
 #	${git} "${DIR}/patches/dts-fixes/0006-am335x-bone-fix-MMC-regulators-on-boneblack.patch"
-#	${git} "${DIR}/patches/dts-fixes/0007-am335x-bone-enable-HDMI-on-black.patch"
+	${git} "${DIR}/patches/dts-fixes/0007-am335x-bone-enable-HDMI-on-black.patch"
 #	${git} "${DIR}/patches/dts-fixes/0008-ARM-am335x-bone-common-switch-mmc1-to-4-bit-mode.patch"
 #	${git} "${DIR}/patches/dts-fixes/0009-ARM-dts-am335x-bone-common-add-cpu0-and-mmc1-trigger.patch"
 }
