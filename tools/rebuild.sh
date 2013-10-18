@@ -104,6 +104,15 @@ make_pkg () {
 	cd ${DIR}/KERNEL/
 
 	deployfile="-${pkg}.tar.gz"
+	tar_options="--create --gzip --file"
+
+	if [ "${AUTO_BUILD}" ] ; then
+		#FIXME: xz might not be available everywhere...
+		#FIXME: ./tools/install_kernel.sh needs update...
+		deployfile="-${pkg}.tar.xz"
+		tar_options="--create --xz --file"
+	fi
+
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
 	fi
@@ -130,7 +139,7 @@ make_pkg () {
 
 	echo "Compressing ${KERNEL_UTS}${deployfile}..."
 	cd ${DIR}/deploy/tmp
-	tar czf ../${KERNEL_UTS}${deployfile} *
+	tar ${tar_options} ../${KERNEL_UTS}${deployfile} *
 
 	cd ${DIR}/
 	rm -rf ${DIR}/deploy/tmp || true
