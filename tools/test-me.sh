@@ -22,6 +22,11 @@
 
 fileserver="http://rcn-ee.homeip.net:81/dl/jenkins/beagleboard.org"
 
+if ! id | grep -q root; then
+	echo "must be run as root"
+	exit
+fi
+
 network_failure () {
 	echo "Error: is network setup?"
 	exit
@@ -49,7 +54,9 @@ dl_latest () {
 }
 
 validate_abi () {
-	if [ ! "x${abi}" = "xaaa" ] ; then
+	#aab: add ubuntu/debian support...
+	#aac: check that its run as root...
+	if [ ! "x${abi}" = "xaac" ] ; then
 		echo "abi mismatch, please redownload test-me.sh from:"
 		echo "http://rcn-ee.homeip.net:81/dl/jenkins/beagleboard.org/"
 		echo "-----------------------------"
@@ -62,14 +69,14 @@ validate_abi () {
 }
 
 file_download () {
-	if [ -f /boot/zImage ] ; then
+	if [ -f /boot/zImage ] || [ -f /boot/uboot/zImage ]; then
 		echo "Downloading: zImage"
 		wget --directory-prefix="${tempdir}/dl/" ${fileserver}/${kernel}/${kernel}.zImage.xz
 		if [ ! -f "${tempdir}/dl/${kernel}.zImage.xz" ] ; then
 			network_failure
 		fi
 	fi
-	if [ -f /boot/uImage ] ; then
+	if [ -f /boot/uImage ] || [ -f /boot/uboot/uImage ]; then
 		echo "Downloading: uImage"
 		wget --directory-prefix="${tempdir}/dl/" ${fileserver}/${kernel}/${kernel}.uImage.xz
 		if [ ! -f "${tempdir}/dl/${kernel}.uImage.xz" ] ; then
@@ -100,16 +107,32 @@ file_backup () {
 	fi
 	mkdir -p /boot/`uname -r`.bak/firmware || true
 	mkdir -p /boot/`uname -r`.bak/modules || true
+
 	if [ -f /boot/zImage ] ; then
 		echo "[Backing up: zImage]"
 		cp -v /boot/zImage /boot/`uname -r`.bak/zImage
 	fi
+	if [ -f /boot/uboot/zImage ] ; then
+		echo "[Backing up: zImage]"
+		cp -v /boot/uboot/zImage /boot/`uname -r`.bak/zImage
+	fi
+
 	if [ -f /boot/uImage ] ; then
 		echo "[Backing up: uImage]"
 		cp -v /boot/uImage /boot/`uname -r`.bak/uImage
 	fi
-	echo "[Backing up: *.dtb]"
-	cp /boot/*.dtb /boot/`uname -r`.bak/  || true
+	if [ -f /boot/uboot/uImage ] ; then
+		echo "[Backing up: uImage]"
+		cp -v /boot/uboot/uImage /boot/`uname -r`.bak/uImage
+	fi
+
+	if [ -d /boot/uboot/dtbs/ ] ; then
+		echo "[Backing up: *.dtb]"
+		cp /boot/uboot/dtbs/*.dtb /boot/`uname -r`.bak/  || true
+	else
+		echo "[Backing up: *.dtb]"
+		cp /boot/*.dtb /boot/`uname -r`.bak/  || true
+	fi
 
 	echo "[Backing up: firmware: *.dtbo]"
 	cp -u /lib/firmware/*dtbo /boot/`uname -r`.bak/firmware || true
@@ -128,16 +151,38 @@ install_files () {
 		rm -rf /boot/zImage || true
 		mv ${tempdir}/dl/${kernel}.zImage /boot/zImage
 	fi
+	if [ -f /boot/uboot/zImage ] ; then
+		echo "[Installing: zImage]"
+		unxz ${tempdir}/dl/${kernel}.zImage.xz
+		rm -rf /boot/uboot/zImage || true
+		mv ${tempdir}/dl/${kernel}.zImage /boot/uboot/zImage
+	fi
+	sync
+
 	if [ -f /boot/uImage ] ; then
 		echo "[Installing: uImage]"
 		unxz ${tempdir}/dl/${kernel}.uImage.xz
 		rm -rf /boot/uImage || true
 		mv ${tempdir}/dl/${kernel}.uImage /boot/uImage
 	fi
-
-	echo "[Installing: dtbs]"
-	tar xfm ${tempdir}/dl/${kernel}-dtbs.tar.xz -C /boot/
+	if [ -f /boot/uboot/uImage ] ; then
+		echo "[Installing: uImage]"
+		unxz ${tempdir}/dl/${kernel}.uImage.xz
+		rm -rf /boot/uImage || true
+		mv ${tempdir}/dl/${kernel}.uImage /boot/uboot/uImage
+	fi
 	sync
+
+	if [ -d /boot/uboot/dtbs/ ] ; then
+		echo "[Installing: dtbs]"
+		#This can be fat16 so add '-o' for no-same-owner
+		tar xfmo ${tempdir}/dl/${kernel}-dtbs.tar.xz -C /boot/uboot/dtbs/
+	else
+		echo "[Installing: dtbs]"
+		tar xfm ${tempdir}/dl/${kernel}-dtbs.tar.xz -C /boot/
+	fi
+	sync
+
 	echo "[Installing: modules]"
 	tar xfm ${tempdir}/dl/${kernel}-modules.tar.xz -C /
 	sync
