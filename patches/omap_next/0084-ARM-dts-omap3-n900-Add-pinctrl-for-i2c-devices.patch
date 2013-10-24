@@ -1,0 +1,81 @@
+From e92f9ea0447f8d7440e14c7460d1de7b4b2dff09 Mon Sep 17 00:00:00 2001
+From: Sebastian Reichel <sre@debian.org>
+Date: Wed, 23 Oct 2013 00:49:30 +0200
+Subject: [PATCH 84/99] ARM: dts: omap3-n900: Add pinctrl for i2c devices
+
+Add pin muxing support for the Nokia N900 i2c controllers.
+
+Signed-off-by: Sebastian Reichel <sre@debian.org>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap3-n900.dts | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
+index e13b697..ad4edd9 100644
+--- a/arch/arm/boot/dts/omap3-n900.dts
++++ b/arch/arm/boot/dts/omap3-n900.dts
+@@ -28,7 +28,35 @@
+ 
+ };
+ 
++&omap3_pmx_core {
++	pinctrl-names = "default";
++
++	i2c1_pins: pinmux_i2c1_pins {
++		pinctrl-single,pins = <
++			0x18a (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c1_scl */
++			0x18c (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c1_sda */
++		>;
++	};
++
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			0x18e (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c2_scl */
++			0x190 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c2_sda */
++		>;
++	};
++
++	i2c3_pins: pinmux_i2c3_pins {
++		pinctrl-single,pins = <
++			0x192 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c3_scl */
++			0x194 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c3_sda */
++		>;
++	};
++};
++
+ &i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c1_pins>;
++
+ 	clock-frequency = <2200000>;
+ 
+ 	twl: twl@48 {
+@@ -39,6 +67,7 @@
+ };
+ 
+ #include "twl4030.dtsi"
++#include "twl4030_omap3.dtsi"
+ 
+ &twl_gpio {
+ 	ti,pullups	= <0x0>;
+@@ -46,10 +75,16 @@
+ };
+ 
+ &i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
++
+ 	clock-frequency = <400000>;
+ };
+ 
+ &i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c3_pins>;
++
+ 	clock-frequency = <100000>;
+ };
+ 
+-- 
+1.8.4.rc3
+

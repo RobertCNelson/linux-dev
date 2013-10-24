@@ -1,0 +1,47 @@
+From 29d38558947faf1a2766c9ce5065c919a82d69bc Mon Sep 17 00:00:00 2001
+From: Enric Balletbo i Serra <eballetbo@gmail.com>
+Date: Sat, 19 Oct 2013 22:55:19 +0200
+Subject: [PATCH 74/99] ARM: dts: igep0033: Add mmc1 node for SDCARD support.
+
+Add mmc1 dt node to IGEP COM AQUILA board.
+
+Signed-off-by: Enric Balletbo i Serra <eballetbo@gmail.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/am335x-igep0033.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-igep0033.dtsi b/arch/arm/boot/dts/am335x-igep0033.dtsi
+index 7061e1c..53021c7 100644
+--- a/arch/arm/boot/dts/am335x-igep0033.dtsi
++++ b/arch/arm/boot/dts/am335x-igep0033.dtsi
+@@ -44,6 +44,13 @@
+ 		regulator-max-microvolt = <5000000>;
+ 		regulator-boot-on;
+ 	};
++
++	vmmc: fixedregulator@0 {
++		compatible = "regulator-fixed";
++		regulator-name = "vmmc";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++	};
+ };
+ 
+ &am33xx_pinmux {
+@@ -180,6 +187,12 @@
+ 	};
+ };
+ 
++&mmc1 {
++	status = "okay";
++	vmmc-supply = <&vmmc>;
++	bus-width = <4>;
++};
++
+ &uart0 {
+ 	status = "okay";
+ 	pinctrl-names = "default";
+-- 
+1.8.4.rc3
+

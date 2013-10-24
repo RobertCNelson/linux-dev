@@ -1,0 +1,101 @@
+From 0a39f41a6e6c9b7139350f09caad29d1f604dda8 Mon Sep 17 00:00:00 2001
+From: Darren Etheridge <detheridge@ti.com>
+Date: Sun, 20 Oct 2013 20:04:10 +0300
+Subject: [PATCH 70/99] ARM: dts: am335x-evm: Add audio support for
+ am335x-evm.dts
+
+Adds sound, tlv320aic3106, mcasp1, and am335x_evm_audio_pin nodes.
+
+Signed-off-by: Darren Etheridge <detheridge@ti.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/am335x-evm.dts | 50 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
+index eabacf9..9874294 100644
+--- a/arch/arm/boot/dts/am335x-evm.dts
++++ b/arch/arm/boot/dts/am335x-evm.dts
+@@ -119,6 +119,19 @@
+ 			};
+ 		};
+ 	};
++
++	sound {
++		compatible = "ti,da830-evm-audio";
++		ti,model = "AM335x-EVM";
++		ti,audio-codec = <&tlv320aic3106>;
++		ti,mcasp-controller = <&mcasp1>;
++		ti,codec-clock-rate = <12000000>;
++		ti,audio-routing =
++			"Headphone Jack",       "HPLOUT",
++			"Headphone Jack",       "HPROUT",
++			"LINE1L",               "Line In",
++			"LINE1R",               "Line In";
++	};
+ };
+ 
+ &am33xx_pinmux {
+@@ -279,6 +292,15 @@
+ 			0xec 0x00	/* lcd_ac_bias_en.lcd_ac_bias_en, OUTPUT | MODE0 */
+ 		>;
+ 	};
++
++	am335x_evm_audio_pins: am335x_evm_audio_pins {
++		pinctrl-single,pins = <
++			0x10c (PIN_INPUT_PULLDOWN | MUX_MODE4) /* mii1_rx_dv.mcasp1_aclkx */
++			0x110 (PIN_INPUT_PULLDOWN | MUX_MODE4) /* mii1_txd3.mcasp1_fsx */
++			0x108 (PIN_OUTPUT_PULLDOWN | MUX_MODE4) /* mii1_col.mcasp1_axr2 */
++			0x144 (PIN_INPUT_PULLDOWN | MUX_MODE4) /* rmii1_ref_clk.mcasp1_axr3 */
++		>;
++	};
+ };
+ 
+ &uart0 {
+@@ -373,6 +395,18 @@
+ 		compatible = "ti,tmp275";
+ 		reg = <0x48>;
+ 	};
++
++	tlv320aic3106: tlv320aic3106@1b {
++		compatible = "ti,tlv320aic3106";
++		reg = <0x1b>;
++		status = "okay";
++
++		/* Regulators */
++		AVDD-supply = <&vaux2_reg>;
++		IOVDD-supply = <&vaux2_reg>;
++		DRVDD-supply = <&vaux2_reg>;
++		DVDD-supply = <&vbat>;
++	};
+ };
+ 
+ &lcdc {
+@@ -476,6 +510,22 @@
+ 
+ #include "tps65910.dtsi"
+ 
++&mcasp1 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&am335x_evm_audio_pins>;
++
++		status = "okay";
++
++		op-mode = <0>;          /* MCASP_IIS_MODE */
++		tdm-slots = <2>;
++		/* 4 serializers */
++		serial-dir = <  /* 0: INACTIVE, 1: TX, 2: RX */
++			0 0 1 2
++		>;
++		tx-num-evt = <1>;
++		rx-num-evt = <1>;
++};
++
+ &tps {
+ 	vcc1-supply = <&vbat>;
+ 	vcc2-supply = <&vbat>;
+-- 
+1.8.4.rc3
+

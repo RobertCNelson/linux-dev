@@ -1,0 +1,47 @@
+From 27c640b883c532a1c14584bd27af17ea4fafda9b Mon Sep 17 00:00:00 2001
+From: J Keerthy <j-keerthy@ti.com>
+Date: Wed, 16 Oct 2013 10:39:06 -0500
+Subject: [PATCH 82/99] ARM: dts: OMAP5: Add CPU OPP table
+
+Add DT OPP table for OMAP54xx family of devices. This data is
+decoded by OF with of_init_opp_table() helper function.
+
+The data is based on OMAP543x ES2.0 DM Operating Condition Addendum
+Version 0.6(April 2013)
+
+NOTE: The voltage and frequency values work well only on NOM samples
+and are supposed to work properly only with ABB/AVS for ALL OPPs.
+
+TODO: Add SPEED BIN OPP after ABB and AVS support so the cpufreq works
+on all samples seamlessly. Clock node is pending alignment for clock
+dts conversion
+
+[nm@ti.com: sync to latest and fixes]
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: J Keerthy <j-keerthy@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap5.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index b315873..154d92f 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -42,6 +42,13 @@
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a15";
+ 			reg = <0x0>;
++
++			operating-points = <
++				/* kHz    uV */
++				500000  880000
++				1000000 1060000
++				1500000 1250000
++			>;
+ 		};
+ 		cpu@1 {
+ 			device_type = "cpu";
+-- 
+1.8.4.rc3
+

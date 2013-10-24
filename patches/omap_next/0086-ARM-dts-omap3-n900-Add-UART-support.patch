@@ -1,0 +1,59 @@
+From 29fe1537764227224ed04f4c8cff44ea9b544c47 Mon Sep 17 00:00:00 2001
+From: Sebastian Reichel <sre@debian.org>
+Date: Wed, 23 Oct 2013 00:49:32 +0200
+Subject: [PATCH 86/99] ARM: dts: omap3-n900: Add UART support
+
+Add UART support to Nokia N900.
+
+Signed-off-by: Sebastian Reichel <sre@debian.org>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap3-n900.dts | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
+index 7dd6fb6..9226268 100644
+--- a/arch/arm/boot/dts/omap3-n900.dts
++++ b/arch/arm/boot/dts/omap3-n900.dts
+@@ -31,6 +31,20 @@
+ &omap3_pmx_core {
+ 	pinctrl-names = "default";
+ 
++	uart2_pins: pinmux_uart2_pins {
++		pinctrl-single,pins = <
++			0x14a (PIN_INPUT | MUX_MODE0)		/* uart2_rx */
++			0x148 (PIN_OUTPUT | MUX_MODE0)		/* uart2_tx */
++		>;
++	};
++
++	uart3_pins: pinmux_uart3_pins {
++		pinctrl-single,pins = <
++			0x16e (PIN_INPUT | MUX_MODE0)		/* uart3_rx */
++			0x170 (PIN_OUTPUT | MUX_MODE0)		/* uart3_tx */
++		>;
++	};
++
+ 	i2c1_pins: pinmux_i2c1_pins {
+ 		pinctrl-single,pins = <
+ 			0x18a (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c1_scl */
+@@ -127,3 +141,17 @@
+ 	mode = <2>;
+ 	power = <50>;
+ };
++
++&uart1 {
++	status = "disabled";
++};
++
++&uart2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart2_pins>;
++};
++
++&uart3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart3_pins>;
++};
+-- 
+1.8.4.rc3
+

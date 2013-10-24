@@ -1,0 +1,44 @@
+From 85645a4209c246e1c2e4123141f6ec8d2f859c8d Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Wed, 16 Oct 2013 10:39:04 -0500
+Subject: [PATCH 80/99] ARM: dts: omap5-uevm: add smps123 supply for CPU
+
+regulator smps123 supply from Palmas PMIC powers CPU0 on OMAP5uEVM.
+
+Based on a patch by J Keerthy <j-keerthy@ti.com>
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap5-uevm.dts | 4 ++++
+ arch/arm/boot/dts/omap5.dtsi     | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap5-uevm.dts b/arch/arm/boot/dts/omap5-uevm.dts
+index 8d80305..22d9b51 100644
+--- a/arch/arm/boot/dts/omap5-uevm.dts
++++ b/arch/arm/boot/dts/omap5-uevm.dts
+@@ -501,3 +501,7 @@
+         pinctrl-names = "default";
+         pinctrl-0 = <&uart5_pins>;
+ };
++
++&cpu0 {
++	cpu0-supply = <&smps123_reg>;
++};
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 2cb72ba..b315873 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -38,7 +38,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		cpu@0 {
++		cpu0: cpu@0 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a15";
+ 			reg = <0x0>;
+-- 
+1.8.4.rc3
+

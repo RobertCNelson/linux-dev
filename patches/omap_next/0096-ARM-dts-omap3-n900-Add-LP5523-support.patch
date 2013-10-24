@@ -1,0 +1,88 @@
+From f46d4c8c024979ce3ce1247976782dd99e01b054 Mon Sep 17 00:00:00 2001
+From: Sebastian Reichel <sre@debian.org>
+Date: Wed, 23 Oct 2013 00:49:42 +0200
+Subject: [PATCH 96/99] ARM: dts: omap3-n900: Add LP5523 support
+
+Add support for LP5523 device.
+
+Signed-off-by: Sebastian Reichel <sre@debian.org>
+Signed-off-by: Benoit Cousson <bcousson@baylibre.com>
+---
+ arch/arm/boot/dts/omap3-n900.dts | 61 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
+index 98797e5..c4f20bf 100644
+--- a/arch/arm/boot/dts/omap3-n900.dts
++++ b/arch/arm/boot/dts/omap3-n900.dts
+@@ -276,6 +276,67 @@
+ 		DVDD-supply = <&vio>;
+ 	};
+ 
++	lp5523: lp5523@32 {
++		compatible = "national,lp5523";
++		reg = <0x32>;
++		clock-mode = /bits/ 8 <0>; /* LP55XX_CLOCK_AUTO */
++		enable-gpio = <&gpio2 9 GPIO_ACTIVE_HIGH>; /* 41 */
++
++		chan0 {
++			chan-name = "lp5523:kb1";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan1 {
++			chan-name = "lp5523:kb2";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan2 {
++			chan-name = "lp5523:kb3";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan3 {
++			chan-name = "lp5523:kb4";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan4 {
++			chan-name = "lp5523:b";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan5 {
++			chan-name = "lp5523:g";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan6 {
++			chan-name = "lp5523:r";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan7 {
++			chan-name = "lp5523:kb5";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++
++		chan8 {
++			chan-name = "lp5523:kb6";
++			led-cur = /bits/ 8 <50>;
++			max-cur = /bits/ 8 <100>;
++		};
++	};
++
+ 	bq27200: bq27200@55 {
+ 		compatible = "ti,bq27200";
+ 		reg = <0x55>;
+-- 
+1.8.4.rc3
+
