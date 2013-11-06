@@ -303,6 +303,7 @@ fixes () {
 
 saucy () {
 	echo "dir: saucy"
+	#need to be re-tested with v3.13-rcX
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
 	${git} "${DIR}/patches/saucy/0001-saucy-error-variable-ilace-set-but-not-used-Werror-u.patch"
 	${git} "${DIR}/patches/saucy/0002-saucy-disable-Werror-pointer-sign.patch"
@@ -326,6 +327,6 @@ omap3_beagle_xm_rework
 omap_sprz319_erratum
 fixes
 
-saucy
+#saucy
 
 echo "patch.sh ran successful"
