@@ -1,0 +1,72 @@
+From 01ef5004f106d0f4bd1bb524fe2da785ff6fc206 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Thu, 31 Oct 2013 10:57:34 -0200
+Subject: [PATCH 3/5] ARM: dts: mx6qdl: Add HDMI support
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ arch/arm/boot/dts/imx6dl.dtsi | 14 ++++++++++++++
+ arch/arm/boot/dts/imx6q.dtsi  | 14 ++++++++++++++
+ 2 files changed, 28 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6dl.dtsi b/arch/arm/boot/dts/imx6dl.dtsi
+index 9e8ae11..51d5705 100644
+--- a/arch/arm/boot/dts/imx6dl.dtsi
++++ b/arch/arm/boot/dts/imx6dl.dtsi
+@@ -39,6 +39,16 @@
+ 		};
+ 
+ 		aips1: aips-bus@02000000 {
++			hdmi: hdmi@0120000 {
++				compatible = "fsl,imx6dl-hdmi";
++				reg = <0x00120000 0x9000>;
++				interrupts = <0 115 0x04>;
++				gpr = <&gpr>;
++				clocks = <&clks 123>, <&clks 124>;
++				clock-names = "iahb", "isfr";
++				status = "disabled";
++			};
++
+ 			iomuxc: iomuxc@020e0000 {
+ 				compatible = "fsl,imx6dl-iomuxc";
+ 			};
+@@ -88,3 +98,7 @@
+ 		crtcs = <&ipu1 0>, <&ipu1 1>;
+ 	};
+ };
++
++&hdmi {
++	crtcs = <&ipu1 0>, <&ipu1 1>;
++};
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index f024ef2..adea8c1 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -69,6 +69,16 @@
+ 
+ 		aips-bus@02000000 { /* AIPS1 */
+ 			spba-bus@02000000 {
++				hdmi: hdmi@0120000 {
++					compatible = "fsl,imx6q-hdmi";
++					reg = <0x00120000 0x9000>;
++					interrupts = <0 115 0x04>;
++					gpr = <&gpr>;
++					clocks = <&clks 123>, <&clks 124>;
++					clock-names = "iahb", "isfr";
++					status = "disabled";
++				};
++
+ 				ecspi5: ecspi@02018000 {
+ 					#address-cells = <1>;
+ 					#size-cells = <0>;
+@@ -159,3 +169,7 @@
+ 		crtcs = <&ipu1 0>, <&ipu1 1>, <&ipu2 0>, <&ipu2 1>;
+ 	};
+ };
++
++&hdmi {
++	crtcs = <&ipu1 0>, <&ipu1 1>, <&ipu2 0>, <&ipu2 1>;
++};
+-- 
+1.8.4.rc3
+

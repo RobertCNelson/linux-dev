@@ -270,28 +270,21 @@ dts () {
 	${git} "${DIR}/patches/dts/0005-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
 }
 
-imx_video () {
-	echo "dir: imx_video"
-	#total wip...
-	${git} "${DIR}/patches/imx_video/0001-imx-video-staging-Add-HDMI-support-to-imx-drm-driver.patch"
-	${git} "${DIR}/patches/imx_video/0002-imx-enable-hdmi-video-for-imx6q-sabrelite-imx6q-sabr.patch"
-}
-
 imx_video_staging () {
-	#WIP
 	echo "dir: imx_video_staging"
 	${git} "${DIR}/patches/imx_video_staging/0001-imx-drm-Add-mx6-hdmi-transmitter-support.patch"
-	${git} "${DIR}/patches/imx_video_staging/0002-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
-	${git} "${DIR}/patches/imx_video_staging/0003-ARM-dts-imx6qdl-sabresd-Add-HDMI-support.patch"
-	${git} "${DIR}/patches/imx_video_staging/0004-arm-dts-imx-hdmi-video-imx6q-sabrelite.dts.patch"
+	${git} "${DIR}/patches/imx_video_staging/0002-imx-drm-ipuv3-crtc-Invert-IPU-DI0-clock-polarity.patch"
+	${git} "${DIR}/patches/imx_video_staging/0003-ARM-dts-mx6qdl-Add-HDMI-support.patch"
+	${git} "${DIR}/patches/imx_video_staging/0004-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
+	${git} "${DIR}/patches/imx_video_staging/0005-imx-enable-hdmi-video-for-imx6q-sabrelite-imx6q-sabr.patch"
 }
 
 omap3_beagle_xm_rework () {
 	echo "dir: omap3_beagle_xm_rework"
 	#Still needs: CONFIG_NOP_USB_XCEIV=m but ehci works
-	#cp omap3-beagle-xm.dts omap3-beagle-xm-c.dts
-	#cp omap3-beagle-xm.dts omap3-beagle-xm-ab.dts
-	#edit Makefile add ^
+	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-c.dts
+	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-ab.dts
+	#nano arch/arm/boot/dts/Makefile add ^
 	${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-split-omap3-beagle-xm-to-ab-and-c-variant.patch"
 	#xm-ab has active high usb host power on...
 	${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-ARM-dts-omap3-beagle-xm-ab-usb-host-is-active-high-t.patch"
@@ -316,11 +309,6 @@ saucy () {
 	${git} "${DIR}/patches/saucy/0003-saucy-disable-stack-protector.patch"
 }
 
-imx_video_staging_fixes () {
-	echo "dir: imx_video_staging_fixes"
-	${git} "${DIR}/patches/imx_video_staging_fixes/0001-imx-hdmi-staging-wip.patch"
-}
-
 arm
 drivers
 imx_next
@@ -333,13 +321,11 @@ omap_clock
 omap_board
 
 dts
-imx_video
-#imx_video_staging
+imx_video_staging
 omap3_beagle_xm_rework
 omap_sprz319_erratum
 fixes
 
 saucy
-#imx_video_staging_fixes
 
 echo "patch.sh ran successful"
