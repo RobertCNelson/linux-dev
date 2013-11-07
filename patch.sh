@@ -82,7 +82,7 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0015-ARM-dts-imx6sl-Add-spi-aliases.patch"
 	${git} "${DIR}/patches/imx_next/0016-ARM-dts-imx6qdl-add-uhs-pinctrl-state-for-usdhc3.patch"
 	${git} "${DIR}/patches/imx_next/0017-ARM-dts-imx6qdl-sabresd-SDHC-ports-are-8-bit-wide.patch"
-	${git} "${DIR}/patches/imx_next/0018-ARM-dts-imx28-evk-Enable-touchscreen-support.patch"
+#	${git} "${DIR}/patches/imx_next/0018-ARM-dts-imx28-evk-Enable-touchscreen-support.patch"
 	${git} "${DIR}/patches/imx_next/0019-ARM-dts-mxs-add-pinctrl-header-files.patch"
 	${git} "${DIR}/patches/imx_next/0020-ARM-dts-mxs-modify-mx23-mx28-dts-files-to-use-pinctr.patch"
 	${git} "${DIR}/patches/imx_next/0021-ARM-dts-mxs-modify-mx23-mx28-dts-files-to-use-padcon.patch"
@@ -226,10 +226,10 @@ imx () {
 
 omap_usb () {
 	echo "dir: omap_usb"
-	${git} "${DIR}/patches/omap_usb/0001-usb-phy-generic-Add-gpio_reset-to-platform-data.patch"
-	${git} "${DIR}/patches/omap_usb/0002-usb-phy-generic-Don-t-use-regulator-framework-for-RE.patch"
-	${git} "${DIR}/patches/omap_usb/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
-	${git} "${DIR}/patches/omap_usb/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
+#	${git} "${DIR}/patches/omap_usb/0001-usb-phy-generic-Add-gpio_reset-to-platform-data.patch"
+#	${git} "${DIR}/patches/omap_usb/0002-usb-phy-generic-Don-t-use-regulator-framework-for-RE.patch"
+#	${git} "${DIR}/patches/omap_usb/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
+#	${git} "${DIR}/patches/omap_usb/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
 	${git} "${DIR}/patches/omap_usb/0005-hack-beagle-xm-NOP_USB_XCEIV-still-has-to-be-a-modul.patch"
 }
 
@@ -273,7 +273,7 @@ dts () {
 imx_video_staging () {
 	echo "dir: imx_video_staging"
 	${git} "${DIR}/patches/imx_video_staging/0001-imx-drm-Add-mx6-hdmi-transmitter-support.patch"
-	${git} "${DIR}/patches/imx_video_staging/0002-imx-drm-ipuv3-crtc-Invert-IPU-DI0-clock-polarity.patch"
+#	${git} "${DIR}/patches/imx_video_staging/0002-imx-drm-ipuv3-crtc-Invert-IPU-DI0-clock-polarity.patch"
 	${git} "${DIR}/patches/imx_video_staging/0003-ARM-dts-mx6qdl-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/imx_video_staging/0004-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/imx_video_staging/0005-imx-enable-hdmi-video-for-imx6q-sabrelite-imx6q-sabr.patch"
