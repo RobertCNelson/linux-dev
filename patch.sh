@@ -830,6 +830,7 @@ am33x_after () {
 	${git} "${DIR}/patches/fixes/0001-sync-don-t-block-the-flusher-thread-waiting-on-IO.patch"
 	${git} "${DIR}/patches/fixes/0002-USB-Fix-USB-device-disconnects-on-resume.patch"
 	${git} "${DIR}/patches/fixes/0003-beaglebone-switch-uSD-to-4-bit-mode.patch"
+	${git} "${DIR}/patches/fixes/0004-mmc-omap_hsmmc-clear-status-flags-before-starting-a-.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
