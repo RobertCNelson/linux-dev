@@ -299,6 +299,7 @@ omap_sprz319_erratum () {
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
+	${git} "${DIR}/patches/fixes/0002-cpufreq-OMAP-Fix-compilation-error-r-ret-undeclared.patch"
 }
 
 saucy () {
