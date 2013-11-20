@@ -226,11 +226,7 @@ imx () {
 
 omap_usb () {
 	echo "dir: omap_usb"
-#	${git} "${DIR}/patches/omap_usb/0001-usb-phy-generic-Add-gpio_reset-to-platform-data.patch"
-#	${git} "${DIR}/patches/omap_usb/0002-usb-phy-generic-Don-t-use-regulator-framework-for-RE.patch"
-#	${git} "${DIR}/patches/omap_usb/0003-ARM-OMAP2-omap-usb-host-Get-rid-of-platform_data-fro.patch"
-#	${git} "${DIR}/patches/omap_usb/0004-ARM-OMAP2-usb-host-Adapt-to-USB-phy-nop-RESET-line-c.patch"
-	${git} "${DIR}/patches/omap_usb/0005-hack-beagle-xm-NOP_USB_XCEIV-still-has-to-be-a-modul.patch"
+	${git} "${DIR}/patches/omap_usb/0001-omap3-beagle-xm-enable-HubPower.patch"
 }
 
 omap_video () {
@@ -281,10 +277,9 @@ imx_video_staging () {
 
 omap3_beagle_xm_rework () {
 	echo "dir: omap3_beagle_xm_rework"
-	#Still needs: CONFIG_NOP_USB_XCEIV=m but ehci works
 	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-c.dts
 	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-	#nano arch/arm/boot/dts/Makefile add ^
+	#gedit arch/arm/boot/dts/Makefile add ^
 	${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-split-omap3-beagle-xm-to-ab-and-c-variant.patch"
 	#xm-ab has active high usb host power on...
 	${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-ARM-dts-omap3-beagle-xm-ab-usb-host-is-active-high-t.patch"
