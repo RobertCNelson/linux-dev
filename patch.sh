@@ -189,6 +189,11 @@ deassert_hard_reset () {
 	${git} "${DIR}/patches/deassert-hard-reset/0001-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
 }
 
+cape_import () {
+	echo "dir: cape-import"
+	${git} "${DIR}/patches/cape-import/0001-capes-import-from-3.8.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -216,6 +221,7 @@ capes
 lcdc_fixes
 net
 deassert_hard_reset
+cape_import
 saucy
 
 echo "patch.sh ran successful"
