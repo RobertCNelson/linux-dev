@@ -25,12 +25,12 @@ config="multi_v7_defconfig"
 linaro_toolchain="cortex_gcc_4_8"
 
 #Kernel/Build
-KERNEL_REL=3.12
-KERNEL_TAG=${KERNEL_REL}
-BUILD=armv7-devel-r14
+KERNEL_REL=3.13
+KERNEL_TAG=${KERNEL_REL}-rc1
+BUILD=armv7-devel-r15
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="a5d6e63323fe7799eb0e6fd0a41fbfad10fca258"
+#KERNEL_SHA="a5d6e63323fe7799eb0e6fd0a41fbfad10fca258"
 
 #git branch
 #BRANCH="v3.13.x"
