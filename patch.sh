@@ -107,7 +107,7 @@ imx () {
 
 omap_usb () {
 	echo "dir: omap_usb"
-	${git} "${DIR}/patches/omap_usb/0001-omap3-beagle-xm-enable-HubPower.patch"
+	${git} "${DIR}/patches/omap_usb/0001-ARM-dts-omap3-beagle-Fix-USB-host-on-beagle-boards-f.patch"
 }
 
 omap_video () {

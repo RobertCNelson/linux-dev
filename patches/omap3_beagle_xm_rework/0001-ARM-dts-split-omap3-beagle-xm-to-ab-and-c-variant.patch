@@ -1,6 +1,6 @@
-From 1b9e03a96bfb303bf43ef895bc68772fa75e93b4 Mon Sep 17 00:00:00 2001
+From 4f006ed1ff6451792776a36381f3cdc24333c62d Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 20 Nov 2013 11:34:42 -0600
+Date: Tue, 26 Nov 2013 11:07:36 -0600
 Subject: [PATCH 1/2] ARM: dts: split omap3-beagle-xm to ab and c variant
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -27,7 +27,7 @@ index d57c1a6..9982c4a 100644
  	omap3-n900.dtb \
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 new file mode 100644
-index 0000000..0549768
+index 0000000..7bba7ec
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 @@ -0,0 +1,251 @@
@@ -229,13 +229,6 @@ index 0000000..0549768
 +	bus-width = <8>;
 +};
 +
-+&vaux2 {
-+	regulator-name = "HubPower";
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
 +&mmc2 {
 +	status = "disabled";
 +};
@@ -282,9 +275,16 @@ index 0000000..0549768
 +&usbhsehci {
 +	phys = <0 &hsusb2_phy>;
 +};
++
++&vaux2 {
++	regulator-name = "usb_1v8";
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-c.dts b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
 new file mode 100644
-index 0000000..0549768
+index 0000000..7bba7ec
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
 @@ -0,0 +1,251 @@
@@ -486,13 +486,6 @@ index 0000000..0549768
 +	bus-width = <8>;
 +};
 +
-+&vaux2 {
-+	regulator-name = "HubPower";
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
 +&mmc2 {
 +	status = "disabled";
 +};
@@ -539,6 +532,13 @@ index 0000000..0549768
 +&usbhsehci {
 +	phys = <0 &hsusb2_phy>;
 +};
++
++&vaux2 {
++	regulator-name = "usb_1v8";
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
 -- 
-1.8.4.2
+1.8.4.3
 
