@@ -1,0 +1,127 @@
+From a1988fec966018e57bf691be797101462377b0db Mon Sep 17 00:00:00 2001
+From: Markus Pargmann <mpa@pengutronix.de>
+Date: Wed, 20 Nov 2013 09:45:49 +0100
+Subject: [PATCH 90/95] ARM: dts: imx27 phyCARD-S pinctrl
+
+Add pinctrl nodes and properties for phyCARD-S device nodes.
+
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts | 43 ++++++++++++++++++++++++
+ arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts | 16 +++++++++
+ 2 files changed, 59 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
+index 9e2fe99..0a90df1 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
+@@ -57,6 +57,8 @@
+ };
+ 
+ &i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c1>;
+ 	status = "okay";
+ 
+ 	rtc@51 {
+@@ -71,7 +73,42 @@
+ 	};
+ };
+ 
++&iomuxc {
++	imx27-phycard-s-rdk {
++		pinctrl_i2c1: i2c1grp {
++			fsl,pins = <MX27_I2C2_PINGRP1>;
++		};
++
++		pinctrl_owire1: owire1grp {
++			fsl,pins = <MX27_OWIRE1_PINGRP1>;
++		};
++
++		pinctrl_uart1: uart1grp {
++			fsl,pins = <
++				MX27_UART1_PINGRP1
++				MX27_UART1_RTSCTS_PINGRP1
++			>;
++		};
++
++		pinctrl_uart2: uart2grp {
++			fsl,pins = <
++				MX27_UART2_PINGRP1
++				MX27_UART2_RTSCTS_PINGRP1
++			>;
++		};
++
++		pinctrl_uart3: uart3grp {
++			fsl,pins = <
++				MX27_UART3_PINGRP1
++				MX27_UART3_RTSCTS_PINGRP1
++			>;
++		};
++	};
++};
++
+ &owire {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_owire1>;
+ 	status = "okay";
+ };
+ 
+@@ -82,15 +119,21 @@
+ 
+ &uart1 {
+ 	fsl,uart-has-rtscts;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1>;
+ 	status = "okay";
+ };
+ 
+ &uart2 {
+ 	fsl,uart-has-rtscts;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart2>;
+ 	status = "okay";
+ };
+ 
+ &uart3 {
+ 	fsl,uart-has-rtscts;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart3>;
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts b/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts
+index c8d57d1..62e7fcb 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts
+@@ -29,11 +29,27 @@
+ 	status = "okay";
+ };
+ 
++&iomuxc {
++	imx27-phycard-s-som {
++		pinctrl_fec1: fec1grp {
++			fsl,pins = <MX27_FEC1_PINGRP1>;
++		};
++
++		pinctrl_i2c2: i2c2grp {
++			fsl,pins = <MX27_I2C2_PINGRP1>;
++		};
++	};
++};
++
+ &fec {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_fec1>;
+ 	status = "okay";
+ };
+ 
+ &i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2>;
+ 	status = "okay";
+ 
+ 	at24@52 {
+-- 
+1.8.4.3
+

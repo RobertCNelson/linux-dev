@@ -1,0 +1,39 @@
+From 5c14bb304ee2d2733b2e25304d49efbe321f5f65 Mon Sep 17 00:00:00 2001
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Thu, 14 Nov 2013 19:51:18 +0100
+Subject: [PATCH 23/95] pinctrl: nomadik: always display IRQ in debugfs
+
+As we now grab IRQs also without first reserving the GPIO
+line, let's print the mapped IRQ unconditionally in the
+debugfs file as well.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/pinctrl-nomadik.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/pinctrl/pinctrl-nomadik.c b/drivers/pinctrl/pinctrl-nomadik.c
+index 7111c3b..cea951f 100644
+--- a/drivers/pinctrl/pinctrl-nomadik.c
++++ b/drivers/pinctrl/pinctrl-nomadik.c
+@@ -846,14 +846,14 @@ static void nmk_gpio_dbg_show_one(struct seq_file *s,
+ 		   (mode < 0) ? "unknown" : modes[mode],
+ 		   pull ? "pull" : "none");
+ 
+-	if (label && !is_out) {
+-		int		irq = gpio_to_irq(gpio);
++	if (!is_out) {
++		int irq = gpio_to_irq(gpio);
+ 		struct irq_desc	*desc = irq_to_desc(irq);
+ 
+ 		/* This races with request_irq(), set_irq_type(),
+ 		 * and set_irq_wake() ... but those are "rare".
+ 		 */
+-		if (irq >= 0 && desc->action) {
++		if (irq > 0 && desc && desc->action) {
+ 			char *trigger;
+ 			u32 bitmask = nmk_gpio_get_bitmask(gpio);
+ 
+-- 
+1.8.4.3
+

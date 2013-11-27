@@ -9,29 +9,34 @@ Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
  1 file changed, 13 insertions(+)
 
 diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
-index c1ef3bd..6a0e948 100644
+index 2b94c58..087ba20 100644
 --- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
-@@ -81,6 +81,19 @@
- 	status = "okay";
- };
- 
+@@ -81,7 +81,12 @@
+ &i2c1 {
+ 	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_i2c1_1>;
++	pinctrl-0 = <&pinctrl_i2c1>;
++	status = "okay";
++};
 +
 +&hdmi {
 +	ddc = <&i2c1>;
-+	status = "okay";
-+};
+ 	status = "okay";
+ };
+ 
+@@ -130,6 +135,10 @@
+ 			fsl,pins = <MX6QDL_ENET_PINGRP1>;
+ 		};
+ 
++		pinctrl_i2c1: i2c1grp {
++			fsl,pins = <MX6QDL_I2C1_PINGRP1>;
++		};
 +
-+&i2c1 {
-+	clock-frequency = <100000>;
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_i2c1_1>;
-+	status = "okay";
-+};
-+
- &i2c2 {
- 	clock-frequency = <100000>;
- 	pinctrl-names = "default";
+ 		pinctrl_i2c2: i2c2grp {
+ 			fsl,pins = <MX6QDL_I2C2_PINGRP2>;
+ 		};
 -- 
-1.8.4.rc3
+1.8.4.3
 

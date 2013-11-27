@@ -8,45 +8,37 @@ This updates the device tree for the sabrelite to enable UART1 pads in the USDHC
 Signed-off-by: Brian Viele <viele@zee.aero>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/imx6q-sabrelite.dts | 6 ++++++
- arch/arm/boot/dts/imx6qdl.dtsi        | 7 +++++++
- 2 files changed, 13 insertions(+)
+ arch/arm/boot/dts/imx6q-sabrelite.dts | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
-index f004913..e437606 100644
+index 0f003d0..495df44 100644
 --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
 +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
-@@ -163,6 +163,12 @@
+@@ -147,6 +147,10 @@
+ 			fsl,pins = <MX6QDL_I2C1_PINGRP1>;
+ 		};
+ 
++		pinctrl_uart1: uart1grp {
++			fsl,pins = <MX6QDL_UART1_PINGRP2>;
++		};
++
+ 		pinctrl_uart2: uart2grp {
+ 			fsl,pins = <MX6QDL_UART2_PINGRP1>;
+ 		};
+@@ -200,6 +204,12 @@
  	status = "okay";
  };
  
 +&uart1 {
-+	status = "okay";
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_uart1_2>;
++	pinctrl-0 = <&pinctrl_uart1>;
++	status = "okay";
 +};
 +
  &uart2 {
- 	status = "okay";
  	pinctrl-names = "default";
-diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
-index 59154dc..71b18f8 100644
---- a/arch/arm/boot/dts/imx6qdl.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -1056,6 +1056,13 @@
- 							MX6QDL_PAD_CSI0_DAT11__UART1_RX_DATA 0x1b0b1
- 						>;
- 					};
-+
-+					pinctrl_uart1_2: uart1grp-2 {
-+						fsl,pins = <
-+							MX6QDL_PAD_SD3_DAT7__UART1_TX_DATA 0x1b0b1
-+							MX6QDL_PAD_SD3_DAT7__UART1_RX_DATA 0x1b0b1
-+						>;
-+					};
- 				};
- 
- 				uart2 {
+ 	pinctrl-0 = <&pinctrl_uart2>;
 -- 
-1.8.4.rc3
+1.8.4.3
 

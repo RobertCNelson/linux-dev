@@ -1,0 +1,82 @@
+From c0cf0783bd39557d96c8db4f3fd2503775ab08c5 Mon Sep 17 00:00:00 2001
+From: Markus Pargmann <mpa@pengutronix.de>
+Date: Mon, 11 Nov 2013 19:19:47 +0100
+Subject: [PATCH 25/95] pinctrl: imx1-core populate subdevices
+
+Support gpio devicetree subnodes to allow a more detailed DT hardware
+description.
+
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ .../bindings/pinctrl/fsl,imx27-pinctrl.txt         | 22 ++++++++++++++++++++++
+ drivers/pinctrl/pinctrl-imx1-core.c                |  7 +++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/pinctrl/fsl,imx27-pinctrl.txt b/Documentation/devicetree/bindings/pinctrl/fsl,imx27-pinctrl.txt
+index 353eca0..d1706ea 100644
+--- a/Documentation/devicetree/bindings/pinctrl/fsl,imx27-pinctrl.txt
++++ b/Documentation/devicetree/bindings/pinctrl/fsl,imx27-pinctrl.txt
+@@ -52,12 +52,25 @@ Required properties for pin configuration node:
+   CONFIG can be 0 or 1, meaning Pullup disable/enable.
+ 
+ 
++The iomux controller has gpio child nodes which are embedded in the iomux
++control registers. They have to be defined as child nodes of the iomux device
++node. If gpio subnodes are defined "#address-cells", "#size-cells" and "ranges"
++properties for the iomux device node are required.
+ 
+ Example:
+ 
+ iomuxc: iomuxc@10015000 {
+ 	compatible = "fsl,imx27-iomuxc";
+ 	reg = <0x10015000 0x600>;
++	#address-cells = <1>;
++	#size-cells = <1>;
++	ranges;
++
++	gpio1: gpio@10015000 {
++		...
++	};
++
++	...
+ 
+ 	uart {
+ 		pinctrl_uart1: uart-1 {
+@@ -83,6 +96,15 @@ The above example using macros:
+ iomuxc: iomuxc@10015000 {
+ 	compatible = "fsl,imx27-iomuxc";
+ 	reg = <0x10015000 0x600>;
++	#address-cells = <1>;
++	#size-cells = <1>;
++	ranges;
++
++	gpio1: gpio@10015000 {
++		...
++	};
++
++	...
+ 
+ 	uart {
+ 		pinctrl_uart1: uart-1 {
+diff --git a/drivers/pinctrl/pinctrl-imx1-core.c b/drivers/pinctrl/pinctrl-imx1-core.c
+index f77914a..17aecde 100644
+--- a/drivers/pinctrl/pinctrl-imx1-core.c
++++ b/drivers/pinctrl/pinctrl-imx1-core.c
+@@ -638,6 +638,13 @@ int imx1_pinctrl_core_probe(struct platform_device *pdev,
+ 		return -EINVAL;
+ 	}
+ 
++	ret = of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
++	if (ret) {
++		pinctrl_unregister(ipctl->pctl);
++		dev_err(&pdev->dev, "Failed to populate subdevices\n");
++		return ret;
++	}
++
+ 	dev_info(&pdev->dev, "initialized IMX pinctrl driver\n");
+ 
+ 	return 0;
+-- 
+1.8.4.3
+
