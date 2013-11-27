@@ -50,6 +50,11 @@ cleanup () {
 	exit
 }
 
+revert () {
+	echo "dir: revert"
+	${git} "${DIR}/patches/revert/0001-Revert-gpio-twl4030-Fix-regression-for-twl-gpio-outp.patch"
+}
+
 arm () {
 	echo "dir: arm"
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
@@ -123,9 +128,6 @@ omap_clock () {
 	#omap3: add device tree clock binding support
 	${git} "${DIR}/patches/omap_clock/0002-Add-the-clock-bindings-to-omap3.dtsi-that-were-made-.patch"
 
-	#omap: use cpu0-cpufreq SoC generic driver if performing dts boot, use old method if non dts
-#	${git} "${DIR}/patches/omap_clock/0003-Use-cpu0-cpufreq-in-a-device-tree-supported-boot.-Th.patch"
-
 	#beagleboard-xm: add abb bindings and OPP1G operating point for 1 GHz operation
 	${git} "${DIR}/patches/omap_clock/0004-Now-this-one-is-mine-lol.-Reading-through-the-ti-abb.patch"
 }
@@ -150,7 +152,6 @@ dts () {
 imx_video_staging () {
 	echo "dir: imx_video_staging"
 	${git} "${DIR}/patches/imx_video_staging/0001-imx-drm-Add-mx6-hdmi-transmitter-support.patch"
-#	${git} "${DIR}/patches/imx_video_staging/0002-imx-drm-ipuv3-crtc-Invert-IPU-DI0-clock-polarity.patch"
 	${git} "${DIR}/patches/imx_video_staging/0003-ARM-dts-mx6qdl-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/imx_video_staging/0004-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/imx_video_staging/0005-imx-enable-hdmi-video-for-imx6q-sabrelite-imx6q-sabr.patch"
@@ -175,7 +176,6 @@ omap_sprz319_erratum () {
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
-#	${git} "${DIR}/patches/fixes/0002-cpufreq-OMAP-Fix-compilation-error-r-ret-undeclared.patch"
 }
 
 saucy () {
@@ -187,6 +187,7 @@ saucy () {
 	${git} "${DIR}/patches/saucy/0003-saucy-disable-stack-protector.patch"
 }
 
+revert
 arm
 drivers
 imx_next

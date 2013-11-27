@@ -1,0 +1,38 @@
+From fd5e05ae3d99f499fc19375582fdcfe4068517c8 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 27 Nov 2013 09:41:01 -0600
+Subject: [PATCH] Revert "gpio: twl4030: Fix regression for twl gpio output"
+
+This reverts commit 0b2aa8bed3e13892fcac77e4f50ec6e80125469d.
+---
+ drivers/gpio/gpio-twl4030.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpio/gpio-twl4030.c b/drivers/gpio/gpio-twl4030.c
+index b97d6a6..b5ffd03 100644
+--- a/drivers/gpio/gpio-twl4030.c
++++ b/drivers/gpio/gpio-twl4030.c
+@@ -354,18 +354,17 @@ static void twl_set(struct gpio_chip *chip, unsigned offset, int value)
+ static int twl_direction_out(struct gpio_chip *chip, unsigned offset, int value)
+ {
+ 	struct gpio_twl4030_priv *priv = to_gpio_twl4030(chip);
+-	int ret = -EINVAL;
+ 
+ 	mutex_lock(&priv->mutex);
+ 	if (offset < TWL4030_GPIO_MAX)
+-		ret = twl4030_set_gpio_direction(offset, 0);
++		twl4030_set_gpio_dataout(offset, value);
+ 
+ 	priv->direction |= BIT(offset);
+ 	mutex_unlock(&priv->mutex);
+ 
+ 	twl_set(chip, offset, value);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int twl_to_irq(struct gpio_chip *chip, unsigned offset)
+-- 
+1.8.4.3
+
