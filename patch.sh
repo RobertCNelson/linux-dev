@@ -52,7 +52,6 @@ cleanup () {
 
 revert () {
 	echo "dir: revert"
-	${git} "${DIR}/patches/revert/0001-Revert-gpio-twl4030-Fix-regression-for-twl-gpio-outp.patch"
 }
 
 arm () {
@@ -213,6 +212,7 @@ imx () {
 omap_usb () {
 	echo "dir: omap_usb"
 	${git} "${DIR}/patches/omap_usb/0001-ARM-dts-omap3-beagle-Fix-USB-host-on-beagle-boards-f.patch"
+	${git} "${DIR}/patches/omap_usb/0002-gpio-twl4030-Fix-regression-for-twl-gpio-LED-output.patch"
 }
 
 omap_video () {
@@ -288,7 +288,7 @@ saucy () {
 	${git} "${DIR}/patches/saucy/0003-saucy-disable-stack-protector.patch"
 }
 
-revert
+#revert
 arm
 drivers
 imx_next
