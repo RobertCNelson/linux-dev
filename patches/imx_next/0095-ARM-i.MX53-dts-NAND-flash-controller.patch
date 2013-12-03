@@ -1,0 +1,44 @@
+From 74731ad640c9254b09f71072af9995c8c0e37534 Mon Sep 17 00:00:00 2001
+From: Rostislav Lisovy <lisovy@gmail.com>
+Date: Wed, 27 Nov 2013 00:53:15 +0100
+Subject: [PATCH 095/113] ARM: i.MX53: dts: NAND flash controller
+
+Signed-off-by: Rostislav Lisovy <lisovy@gmail.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
+index 9304d0a..fa7309f5 100644
+--- a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
++++ b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
+@@ -72,6 +72,10 @@
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <MX53_UART1_PINGRP2>;
+ 		};
++
++		pinctrl_nand: nandgrp {
++			fsl,pins = <MX53_NAND_PINGRP1>;
++		};
+ 	};
+ };
+ 
+@@ -205,6 +209,14 @@
+ 	};
+ };
+ 
++&nfc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_nand>;
++	nand-bus-width = <8>;
++	nand-ecc-mode = "hw";
++	status = "okay";
++};
++
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart1>;
+-- 
+1.8.4.3
+

@@ -1,0 +1,38 @@
+From 51ed6a2b5341439ffe3adae66bae6752bc751af1 Mon Sep 17 00:00:00 2001
+From: Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
+Date: Tue, 3 Dec 2013 12:10:14 +0100
+Subject: [PATCH 111/113] ARM: dts: apf27dev: Add pwm support
+
+Signed-off-by: Gwenhael Goavec-Merou <gwenhael.goavec-merou@trabucayre.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx27-apf27dev.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx27-apf27dev.dts b/arch/arm/boot/dts/imx27-apf27dev.dts
+index d02c67f..1aa89c0 100644
+--- a/arch/arm/boot/dts/imx27-apf27dev.dts
++++ b/arch/arm/boot/dts/imx27-apf27dev.dts
+@@ -123,6 +123,10 @@
+ 			fsl,pins = <MX27_I2C2_PINGRP1>;
+ 		};
+ 
++		pinctrl_pwm: pwmgrp {
++			fsl,pins = <MX27_PWM_PINGRP1>;
++		};
++
+ 		pinctrl_sdhc2: sdhc2grp {
+ 			fsl,pins = <MX27_SDHC2_PINGRP1>;
+ 		};
+@@ -136,3 +140,8 @@
+ 	pinctrl-0 = <&pinctrl_sdhc2>;
+ 	status = "okay";
+ };
++
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_pwm>;
++};
+-- 
+1.8.4.3
+

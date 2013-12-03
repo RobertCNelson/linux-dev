@@ -1,0 +1,42 @@
+From 92fd1b423fd79f2ec1655485aee5b4aec1544f5e Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Tue, 12 Nov 2013 13:40:23 -0200
+Subject: [PATCH 066/113] ARM: dts: imx6q-udoo: Add Ethernet support
+
+Add Ethernet support for imx6q udoo board.
+
+Tested by booting a kernel via NFS.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6q-udoo.dts | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6q-udoo.dts b/arch/arm/boot/dts/imx6q-udoo.dts
+index 1b5104d..1c7f7a1 100644
+--- a/arch/arm/boot/dts/imx6q-udoo.dts
++++ b/arch/arm/boot/dts/imx6q-udoo.dts
+@@ -21,8 +21,19 @@
+ 	};
+ };
+ 
++&fec {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_enet>;
++	phy-mode = "rgmii";
++	status = "okay";
++};
++
+ &iomuxc {
+ 	imx6q-udoo {
++		pinctrl_enet: enetgrp {
++			fsl,pins = <MX6QDL_ENET_PINGRP1>;
++		};
++
+ 		pinctrl_uart2: uart2grp {
+ 			fsl,pins = <MX6QDL_UART2_PINGRP1>;
+ 		};
+-- 
+1.8.4.3
+

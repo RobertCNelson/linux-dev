@@ -1,0 +1,49 @@
+From 43af79e1dbb905b7af328fc631dc1618a0ef2a6b Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Sat, 30 Nov 2013 10:18:02 +0400
+Subject: [PATCH 104/113] ARM: dts: imx27-phytec-phycore-rdk: Add DT node for
+ camera module
+
+This patch adds first I2C bus and PCA9536 device.
+This device is used on Phytec PCM-970 RDK camera addon module.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts b/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
+index e792469..3145bdb 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
+@@ -19,8 +19,26 @@
+ 	cs-gpios = <&gpio4 28 0>, <&gpio4 27 0>;
+ };
+ 
++&i2c1 {
++	clock-frequency = <400000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c1>;
++	status = "okay";
++
++	camgpio: pca9536@41 {
++		compatible = "nxp,pca9536";
++		reg = <0x41>;
++		gpio-controller;
++		#gpio-cells = <2>;
++	};
++};
++
+ &iomuxc {
+ 	imx27_phycore_rdk {
++		pinctrl_i2c1: i2c1grp {
++			fsl,pins = <MX27_I2C1_PINGRP1>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX27_UART1_PINGRP1
+-- 
+1.8.4.3
+

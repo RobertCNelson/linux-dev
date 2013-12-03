@@ -1,0 +1,159 @@
+From c1505e91b4728c38dedd2d35829d52ffb3799088 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Tue, 19 Nov 2013 15:47:27 +0400
+Subject: [PATCH 084/113] ARM: dts: i.MX51 boards: Switch to use standard GPIO
+ flags definitions
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx51-apf51.dts                      |  2 +-
+ arch/arm/boot/dts/imx51-apf51dev.dts                   | 12 +++++++-----
+ arch/arm/boot/dts/imx51-babbage.dts                    | 11 ++++++-----
+ arch/arm/boot/dts/imx51-eukrea-mbimxsd51-baseboard.dts |  4 ++--
+ arch/arm/boot/dts/imx51.dtsi                           |  1 +
+ 5 files changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx51-apf51.dts b/arch/arm/boot/dts/imx51-apf51.dts
+index 783618d..80840da 100644
+--- a/arch/arm/boot/dts/imx51-apf51.dts
++++ b/arch/arm/boot/dts/imx51-apf51.dts
+@@ -36,7 +36,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_fec>;
+ 	phy-mode = "mii";
+-	phy-reset-gpios = <&gpio3 0 0>;
++	phy-reset-gpios = <&gpio3 0 GPIO_ACTIVE_HIGH>;
+ 	phy-reset-duration = <1>;
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/imx51-apf51dev.dts b/arch/arm/boot/dts/imx51-apf51dev.dts
+index 5342a48..f36a3aa 100644
+--- a/arch/arm/boot/dts/imx51-apf51dev.dts
++++ b/arch/arm/boot/dts/imx51-apf51dev.dts
+@@ -48,7 +48,7 @@
+ 
+ 		user-key {
+ 			label = "user";
+-			gpios = <&gpio1 3 0>;
++			gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+ 			linux,code = <256>; /* BTN_0 */
+ 		};
+ 	};
+@@ -58,7 +58,7 @@
+ 
+ 		user {
+ 			label = "Heartbeat";
+-			gpios = <&gpio1 2 0>;
++			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+ 			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
+@@ -68,7 +68,8 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_ecspi1>;
+ 	fsl,spi-num-chipselects = <2>;
+-	cs-gpios = <&gpio4 24 0>, <&gpio4 25 0>;
++	cs-gpios = <&gpio4 24 GPIO_ACTIVE_HIGH>,
++		   <&gpio4 25 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ };
+ 
+@@ -76,14 +77,15 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_ecspi2>;
+ 	fsl,spi-num-chipselects = <2>;
+-	cs-gpios = <&gpio3 28 1>, <&gpio3 27 1>;
++	cs-gpios = <&gpio3 28 GPIO_ACTIVE_LOW>,
++		   <&gpio3 27 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
+ 
+ &esdhc1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_esdhc1>;
+-	cd-gpios = <&gpio2 29 0>;
++	cd-gpios = <&gpio2 29 GPIO_ACTIVE_HIGH>;
+ 	bus-width = <4>;
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/imx51-babbage.dts b/arch/arm/boot/dts/imx51-babbage.dts
+index 5a77d33..bbe899f 100644
+--- a/arch/arm/boot/dts/imx51-babbage.dts
++++ b/arch/arm/boot/dts/imx51-babbage.dts
+@@ -75,7 +75,7 @@
+ 
+ 		power {
+ 			label = "Power Button";
+-			gpios = <&gpio2 21 0>;
++			gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
+ 			linux,code = <116>; /* KEY_POWER */
+ 			gpio-key,wakeup;
+ 		};
+@@ -105,7 +105,7 @@
+ 			reg=<0>;
+ 			#clock-cells = <0>;
+ 			clock-frequency = <26000000>;
+-			gpios = <&gpio4 26 1>;
++			gpios = <&gpio4 26 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+ };
+@@ -121,8 +121,8 @@
+ &esdhc2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_esdhc2>;
+-	cd-gpios = <&gpio1 6 0>;
+-	wp-gpios = <&gpio1 5 0>;
++	cd-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
++	wp-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ };
+ 
+@@ -137,7 +137,8 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_ecspi1>;
+ 	fsl,spi-num-chipselects = <2>;
+-	cs-gpios = <&gpio4 24 0>, <&gpio4 25 0>;
++	cs-gpios = <&gpio4 24 GPIO_ACTIVE_HIGH>,
++		   <&gpio4 25 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ 
+ 	pmic: mc13892@0 {
+diff --git a/arch/arm/boot/dts/imx51-eukrea-mbimxsd51-baseboard.dts b/arch/arm/boot/dts/imx51-eukrea-mbimxsd51-baseboard.dts
+index d44a85d..cf2e0d8 100644
+--- a/arch/arm/boot/dts/imx51-eukrea-mbimxsd51-baseboard.dts
++++ b/arch/arm/boot/dts/imx51-eukrea-mbimxsd51-baseboard.dts
+@@ -30,7 +30,7 @@
+ 
+ 		button-1 {
+ 			label = "BP1";
+-			gpios = <&gpio3 31 1>;
++			gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
+ 			linux,code = <256>;
+ 			gpio-key,wakeup;
+ 			linux,input-type = <1>;
+@@ -44,7 +44,7 @@
+ 
+ 		led1 {
+ 			label = "led1";
+-			gpios = <&gpio3 30 1>;
++			gpios = <&gpio3 30 GPIO_ACTIVE_LOW>;
+ 			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
+index 29fda13..db828ab 100644
+--- a/arch/arm/boot/dts/imx51.dtsi
++++ b/arch/arm/boot/dts/imx51.dtsi
+@@ -15,6 +15,7 @@
+ #include "imx51-pingrp.h"
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/clock/imx5-clock.h>
++#include <dt-bindings/gpio/gpio.h>
+ 
+ / {
+ 	aliases {
+-- 
+1.8.4.3
+

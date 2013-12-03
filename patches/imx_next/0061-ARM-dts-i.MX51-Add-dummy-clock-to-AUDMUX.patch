@@ -1,0 +1,30 @@
+From 572a1adab85e591f3cdf09bfab28aa287283ebef Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Thu, 7 Nov 2013 12:45:06 +0400
+Subject: [PATCH 061/113] ARM: dts: i.MX51: Add dummy clock to AUDMUX
+
+This patch adds dummy clock for AUDMUX. This change avoids useless
+debug message "cannot get clock" during driver initialization.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx51.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
+index 7cd2e22..ed915d5 100644
+--- a/arch/arm/boot/dts/imx51.dtsi
++++ b/arch/arm/boot/dts/imx51.dtsi
+@@ -456,6 +456,8 @@
+ 			audmux: audmux@83fd0000 {
+ 				compatible = "fsl,imx51-audmux", "fsl,imx31-audmux";
+ 				reg = <0x83fd0000 0x4000>;
++				clocks = <&clks 0>;
++				clock-names = "audmux";
+ 				status = "disabled";
+ 			};
+ 
+-- 
+1.8.4.3
+

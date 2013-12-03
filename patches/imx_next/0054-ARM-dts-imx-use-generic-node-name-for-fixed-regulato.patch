@@ -1,0 +1,1060 @@
+From 2e95ed8ec5911e71f6ccf6f4a1869e2501e5df73 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@linaro.org>
+Date: Wed, 6 Nov 2013 15:55:46 +0800
+Subject: [PATCH 054/113] ARM: dts: imx: use generic node name for fixed
+ regulator
+
+The device tree specification recommends that generic name should be
+used for nodes.  So instead of naming those fixed regulator nodes
+arbitrarily, let's use the generic name 'regulator@num' for those nodes.
+
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx23-evk.dts                  |  8 ++++++--
+ arch/arm/boot/dts/imx23-olinuxino.dts            |  5 ++++-
+ arch/arm/boot/dts/imx23-stmp378x_devb.dts        |  5 ++++-
+ arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts |  5 ++++-
+ arch/arm/boot/dts/imx28-apf28dev.dts             |  5 ++++-
+ arch/arm/boot/dts/imx28-apx4devkit.dts           |  5 ++++-
+ arch/arm/boot/dts/imx28-cfa10037.dts             |  5 ++++-
+ arch/arm/boot/dts/imx28-cfa10049.dts             |  5 ++++-
+ arch/arm/boot/dts/imx28-cfa10057.dts             |  5 ++++-
+ arch/arm/boot/dts/imx28-cfa10058.dts             |  5 ++++-
+ arch/arm/boot/dts/imx28-evk.dts                  | 23 ++++++++++++++++-------
+ arch/arm/boot/dts/imx28-m28cu3.dts               | 14 ++++++++++----
+ arch/arm/boot/dts/imx28-m28evk.dts               | 14 ++++++++++----
+ arch/arm/boot/dts/imx28-sps1.dts                 |  5 ++++-
+ arch/arm/boot/dts/imx28-tx28.dts                 | 23 ++++++++++++++++-------
+ arch/arm/boot/dts/imx53-ard.dts                  |  5 ++++-
+ arch/arm/boot/dts/imx53-m53evk.dts               |  5 ++++-
+ arch/arm/boot/dts/imx53-mba53.dts                |  8 ++++++--
+ arch/arm/boot/dts/imx53-qsb.dts                  |  8 ++++++--
+ arch/arm/boot/dts/imx53-tqma53.dtsi              |  5 ++++-
+ arch/arm/boot/dts/imx53-tx53.dtsi                |  5 ++++-
+ arch/arm/boot/dts/imx6q-arm2.dts                 |  8 ++++++--
+ arch/arm/boot/dts/imx6q-gw5400-a.dts             | 14 ++++++++++----
+ arch/arm/boot/dts/imx6q-sabrelite.dts            | 11 ++++++++---
+ arch/arm/boot/dts/imx6qdl-gw51xx.dtsi            | 11 ++++++++---
+ arch/arm/boot/dts/imx6qdl-gw52xx.dtsi            | 17 ++++++++++++-----
+ arch/arm/boot/dts/imx6qdl-gw53xx.dtsi            | 17 ++++++++++++-----
+ arch/arm/boot/dts/imx6qdl-gw54xx.dtsi            | 14 ++++++++++----
+ arch/arm/boot/dts/imx6qdl-sabresd.dtsi           | 11 ++++++++---
+ arch/arm/boot/dts/imx6qdl-wandboard.dtsi         |  8 ++++++--
+ arch/arm/boot/dts/imx6sl-evk.dts                 |  8 ++++++--
+ 31 files changed, 212 insertions(+), 75 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx23-evk.dts b/arch/arm/boot/dts/imx23-evk.dts
+index 1f026ad..a33f66c 100644
+--- a/arch/arm/boot/dts/imx23-evk.dts
++++ b/arch/arm/boot/dts/imx23-evk.dts
+@@ -127,17 +127,21 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_vddio_sd0: vddio-sd0 {
++		reg_vddio_sd0: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "vddio-sd0";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			gpio = <&gpio1 29 0>;
+ 		};
+ 
+-		reg_lcd_3v3: lcd-3v3 {
++		reg_lcd_3v3: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "lcd-3v3";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx23-olinuxino.dts b/arch/arm/boot/dts/imx23-olinuxino.dts
+index 526bfdb..7e6eef2 100644
+--- a/arch/arm/boot/dts/imx23-olinuxino.dts
++++ b/arch/arm/boot/dts/imx23-olinuxino.dts
+@@ -100,9 +100,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb0_vbus: usb0_vbus {
++		reg_usb0_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb0_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx23-stmp378x_devb.dts b/arch/arm/boot/dts/imx23-stmp378x_devb.dts
+index cb64e2b..455169e 100644
+--- a/arch/arm/boot/dts/imx23-stmp378x_devb.dts
++++ b/arch/arm/boot/dts/imx23-stmp378x_devb.dts
+@@ -66,9 +66,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_vddio_sd0: vddio-sd0 {
++		reg_vddio_sd0: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "vddio-sd0";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
+index 5a31c77..9e2fe99 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
+@@ -37,9 +37,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3v3: 3v3 {
++		reg_3v3: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3V3";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx28-apf28dev.dts b/arch/arm/boot/dts/imx28-apf28dev.dts
+index e2efd8d..741aecb 100644
+--- a/arch/arm/boot/dts/imx28-apf28dev.dts
++++ b/arch/arm/boot/dts/imx28-apf28dev.dts
+@@ -150,9 +150,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb0_vbus: usb0_vbus {
++		reg_usb0_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb0_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx28-apx4devkit.dts b/arch/arm/boot/dts/imx28-apx4devkit.dts
+index 6f254ca..e1ce917 100644
+--- a/arch/arm/boot/dts/imx28-apx4devkit.dts
++++ b/arch/arm/boot/dts/imx28-apx4devkit.dts
+@@ -193,9 +193,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx28-cfa10037.dts b/arch/arm/boot/dts/imx28-cfa10037.dts
+index f93e9a7..6729872 100644
+--- a/arch/arm/boot/dts/imx28-cfa10037.dts
++++ b/arch/arm/boot/dts/imx28-cfa10037.dts
+@@ -72,9 +72,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&usb_pins_cfa10037>;
+ 			regulator-name = "usb1_vbus";
+diff --git a/arch/arm/boot/dts/imx28-cfa10049.dts b/arch/arm/boot/dts/imx28-cfa10049.dts
+index 7087b4b..28ef91a 100644
+--- a/arch/arm/boot/dts/imx28-cfa10049.dts
++++ b/arch/arm/boot/dts/imx28-cfa10049.dts
+@@ -282,9 +282,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&usb_pins_cfa10049>;
+ 			regulator-name = "usb1_vbus";
+diff --git a/arch/arm/boot/dts/imx28-cfa10057.dts b/arch/arm/boot/dts/imx28-cfa10057.dts
+index 3c13128..1ebd44e 100644
+--- a/arch/arm/boot/dts/imx28-cfa10057.dts
++++ b/arch/arm/boot/dts/imx28-cfa10057.dts
+@@ -142,9 +142,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&usb_pins_cfa10057>;
+ 			regulator-name = "usb1_vbus";
+diff --git a/arch/arm/boot/dts/imx28-cfa10058.dts b/arch/arm/boot/dts/imx28-cfa10058.dts
+index 2469d34..a4f0acb 100644
+--- a/arch/arm/boot/dts/imx28-cfa10058.dts
++++ b/arch/arm/boot/dts/imx28-cfa10058.dts
+@@ -109,11 +109,14 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@0 {
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&usb_pins_cfa10058>;
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx28-evk.dts b/arch/arm/boot/dts/imx28-evk.dts
+index 4267c2b..41a9834 100644
+--- a/arch/arm/boot/dts/imx28-evk.dts
++++ b/arch/arm/boot/dts/imx28-evk.dts
+@@ -278,33 +278,39 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_vddio_sd0: vddio-sd0 {
++		reg_vddio_sd0: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "vddio-sd0";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			gpio = <&gpio3 28 0>;
+ 		};
+ 
+-		reg_fec_3v3: fec-3v3 {
++		reg_fec_3v3: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "fec-3v3";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			gpio = <&gpio2 15 0>;
+ 		};
+ 
+-		reg_usb0_vbus: usb0_vbus {
++		reg_usb0_vbus: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "usb0_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -312,8 +318,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@4 {
+ 			compatible = "regulator-fixed";
++			reg = <4>;
+ 			regulator-name = "usb1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -321,8 +328,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_lcd_3v3: lcd-3v3 {
++		reg_lcd_3v3: regulator@5 {
+ 			compatible = "regulator-fixed";
++			reg = <5>;
+ 			regulator-name = "lcd-3v3";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+@@ -330,8 +338,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_can_3v3: can-3v3 {
++		reg_can_3v3: regulator@6 {
+ 			compatible = "regulator-fixed";
++			reg = <6>;
+ 			regulator-name = "can-3v3";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx28-m28cu3.dts b/arch/arm/boot/dts/imx28-m28cu3.dts
+index d3958da..d6e71ed 100644
+--- a/arch/arm/boot/dts/imx28-m28cu3.dts
++++ b/arch/arm/boot/dts/imx28-m28cu3.dts
+@@ -229,33 +229,39 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_vddio_sd0: vddio-sd0 {
++		reg_vddio_sd0: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "vddio-sd0";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			gpio = <&gpio3 29 0>;
+ 		};
+ 
+-		reg_vddio_sd1: vddio-sd1 {
++		reg_vddio_sd1: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "vddio-sd1";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			gpio = <&gpio2 19 0>;
+ 		};
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "usb1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx28-m28evk.dts b/arch/arm/boot/dts/imx28-m28evk.dts
+index 8e2477f..e6d0fa6 100644
+--- a/arch/arm/boot/dts/imx28-m28evk.dts
++++ b/arch/arm/boot/dts/imx28-m28evk.dts
+@@ -285,33 +285,39 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_vddio_sd0: vddio-sd0 {
++		reg_vddio_sd0: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "vddio-sd0";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			gpio = <&gpio3 28 0>;
+ 		};
+ 
+-		reg_usb0_vbus: usb0_vbus {
++		reg_usb0_vbus: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "usb0_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			gpio = <&gpio3 12 0>;
+ 		};
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "usb1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx28-sps1.dts b/arch/arm/boot/dts/imx28-sps1.dts
+index 4870f07..2612a01 100644
+--- a/arch/arm/boot/dts/imx28-sps1.dts
++++ b/arch/arm/boot/dts/imx28-sps1.dts
+@@ -127,9 +127,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb0_vbus: usb0_vbus {
++		reg_usb0_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb0_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx28-tx28.dts b/arch/arm/boot/dts/imx28-tx28.dts
+index be5a055..3c54e8d 100644
+--- a/arch/arm/boot/dts/imx28-tx28.dts
++++ b/arch/arm/boot/dts/imx28-tx28.dts
+@@ -43,9 +43,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb0_vbus: usb0_vbus {
++		reg_usb0_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb0_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -53,8 +56,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_usb1_vbus: usb1_vbus {
++		reg_usb1_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -62,24 +66,27 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_2p5v: 2p5v {
++		reg_2p5v: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "2P5V";
+ 			regulator-min-microvolt = <2500000>;
+ 			regulator-max-microvolt = <2500000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_can_xcvr: can-xcvr {
++		reg_can_xcvr: regulator@4 {
+ 			compatible = "regulator-fixed";
++			reg = <4>;
+ 			regulator-name = "CAN XCVR";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+@@ -89,8 +96,9 @@
+ 			pinctrl-0 = <&tx28_flexcan_xcvr_pins>;
+ 		};
+ 
+-		reg_lcd: lcd-power {
++		reg_lcd: regulator@5 {
+ 			compatible = "regulator-fixed";
++			reg = <5>;
+ 			regulator-name = "LCD POWER";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+@@ -98,8 +106,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_lcd_reset: lcd-reset {
++		reg_lcd_reset: regulator@6 {
+ 			compatible = "regulator-fixed";
++			reg = <6>;
+ 			regulator-name = "LCD RESET";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx53-ard.dts b/arch/arm/boot/dts/imx53-ard.dts
+index 6e2e5b4..2bd97c3 100644
+--- a/arch/arm/boot/dts/imx53-ard.dts
++++ b/arch/arm/boot/dts/imx53-ard.dts
+@@ -49,9 +49,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx53-m53evk.dts b/arch/arm/boot/dts/imx53-m53evk.dts
+index 6df9d4e..7583449 100644
+--- a/arch/arm/boot/dts/imx53-m53evk.dts
++++ b/arch/arm/boot/dts/imx53-m53evk.dts
+@@ -73,9 +73,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p2v: 3p2v {
++		reg_3p2v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P2V";
+ 			regulator-min-microvolt = <3200000>;
+ 			regulator-max-microvolt = <3200000>;
+diff --git a/arch/arm/boot/dts/imx53-mba53.dts b/arch/arm/boot/dts/imx53-mba53.dts
+index c9ff1a5..3897bd8 100644
+--- a/arch/arm/boot/dts/imx53-mba53.dts
++++ b/arch/arm/boot/dts/imx53-mba53.dts
+@@ -37,17 +37,21 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_backlight: fixed@0 {
++		reg_backlight: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "lcd-supply";
+ 			gpio = <&gpio2 5 0>;
+ 			startup-delay-us = <5000>;
+ 			enable-active-low;
+ 		};
+ 
+-		reg_3p2v: 3p2v {
++		reg_3p2v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "3P2V";
+ 			regulator-min-microvolt = <3200000>;
+ 			regulator-max-microvolt = <3200000>;
+diff --git a/arch/arm/boot/dts/imx53-qsb.dts b/arch/arm/boot/dts/imx53-qsb.dts
+index 6bf149c..6d05822 100644
+--- a/arch/arm/boot/dts/imx53-qsb.dts
++++ b/arch/arm/boot/dts/imx53-qsb.dts
+@@ -86,17 +86,21 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p2v: 3p2v {
++		reg_3p2v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P2V";
+ 			regulator-min-microvolt = <3200000>;
+ 			regulator-max-microvolt = <3200000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_vbus: usb_vbus {
++		reg_usb_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx53-tqma53.dtsi b/arch/arm/boot/dts/imx53-tqma53.dtsi
+index 96052c7..b6483c9 100644
+--- a/arch/arm/boot/dts/imx53-tqma53.dtsi
++++ b/arch/arm/boot/dts/imx53-tqma53.dtsi
+@@ -22,9 +22,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx53-tx53.dtsi b/arch/arm/boot/dts/imx53-tx53.dtsi
+index f494766..db4255c 100644
+--- a/arch/arm/boot/dts/imx53-tx53.dtsi
++++ b/arch/arm/boot/dts/imx53-tx53.dtsi
+@@ -21,9 +21,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx6q-arm2.dts b/arch/arm/boot/dts/imx6q-arm2.dts
+index a4333b8..ff922cc 100644
+--- a/arch/arm/boot/dts/imx6q-arm2.dts
++++ b/arch/arm/boot/dts/imx6q-arm2.dts
+@@ -23,17 +23,21 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6q-gw5400-a.dts b/arch/arm/boot/dts/imx6q-gw5400-a.dts
+index 55ae16f..63c641d 100644
+--- a/arch/arm/boot/dts/imx6q-gw5400-a.dts
++++ b/arch/arm/boot/dts/imx6q-gw5400-a.dts
+@@ -73,33 +73,39 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_1p0v: 1p0v {
++		reg_1p0v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "1P0V";
+ 			regulator-min-microvolt = <1000000>;
+ 			regulator-max-microvolt = <1000000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_h1_vbus: usb_h1_vbus {
++		reg_usb_h1_vbus: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "usb_h1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+index c46427f..aa625bd 100644
+--- a/arch/arm/boot/dts/imx6q-sabrelite.dts
++++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+@@ -23,25 +23,30 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_2p5v: 2p5v {
++		reg_2p5v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "2P5V";
+ 			regulator-min-microvolt = <2500000>;
+ 			regulator-max-microvolt = <2500000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
+index 1feaf90..fb29da0 100644
+--- a/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-gw51xx.dtsi
+@@ -54,25 +54,30 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_5p0v: 5p0v {
++		reg_5p0v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "5P0V";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
+index da2708e..ffc1e66 100644
+--- a/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-gw52xx.dtsi
+@@ -62,9 +62,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_1p0v: 1p0v {
++		reg_1p0v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "1P0V";
+ 			regulator-min-microvolt = <1000000>;
+ 			regulator-max-microvolt = <1000000>;
+@@ -72,32 +75,36 @@
+ 		};
+ 
+ 		/* remove this fixed regulator once ltc3676__sw2 driver available */
+-		reg_1p8v: 1p8v {
++		reg_1p8v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "1P8V";
+ 			regulator-min-microvolt = <1800000>;
+ 			regulator-max-microvolt = <1800000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_5p0v: 5p0v {
++		reg_5p0v: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "5P0V";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@4 {
+ 			compatible = "regulator-fixed";
++			reg = <4>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
+index 95eb13f..79c2589 100644
+--- a/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-gw53xx.dtsi
+@@ -65,9 +65,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_1p0v: 1p0v {
++		reg_1p0v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "1P0V";
+ 			regulator-min-microvolt = <1000000>;
+ 			regulator-max-microvolt = <1000000>;
+@@ -75,32 +78,36 @@
+ 		};
+ 
+ 		/* remove when pmic 1p8 regulator available */
+-		reg_1p8v: 1p8v {
++		reg_1p8v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "1P8V";
+ 			regulator-min-microvolt = <1800000>;
+ 			regulator-max-microvolt = <1800000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_h1_vbus: usb_h1_vbus {
++		reg_usb_h1_vbus: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "usb_h1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@4 {
+ 			compatible = "regulator-fixed";
++			reg = <4>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi b/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
+index 4f5cadc..cb112d3 100644
+--- a/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-gw54xx.dtsi
+@@ -65,33 +65,39 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_1p0v: 1p0v {
++		reg_1p0v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "1P0V";
+ 			regulator-min-microvolt = <1000000>;
+ 			regulator-max-microvolt = <1000000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_h1_vbus: usb_h1_vbus {
++		reg_usb_h1_vbus: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "usb_h1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@3 {
+ 			compatible = "regulator-fixed";
++			reg = <3>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+index a8b83d6..4239ef9 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+@@ -17,9 +17,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -27,8 +30,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_usb_h1_vbus: usb_h1_vbus {
++		reg_usb_h1_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb_h1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -36,8 +40,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_audio: wm8962_supply {
++		reg_audio: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "wm8962-supply";
+ 			gpio = <&gpio4 10 0>;
+ 			enable-active-high;
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index 62126b5..10ed94a 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -12,17 +12,21 @@
+ / {
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_2p5v: 2p5v {
++		reg_2p5v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "2P5V";
+ 			regulator-min-microvolt = <2500000>;
+ 			regulator-max-microvolt = <2500000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx6sl-evk.dts b/arch/arm/boot/dts/imx6sl-evk.dts
+index 7d01c8e..e565989 100644
+--- a/arch/arm/boot/dts/imx6sl-evk.dts
++++ b/arch/arm/boot/dts/imx6sl-evk.dts
+@@ -20,9 +20,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb_otg1_vbus: usb_otg1_vbus {
++		reg_usb_otg1_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb_otg1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -30,8 +33,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_usb_otg2_vbus: usb_otg2_vbus {
++		reg_usb_otg2_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb_otg2_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+-- 
+1.8.4.3
+
