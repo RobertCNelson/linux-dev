@@ -1,7 +1,7 @@
-From 1c56744fde76174ce7073698e6bc7375457d1fcc Mon Sep 17 00:00:00 2001
+From 9c96fbed530fc8b029f28225b2eca9ea2b8a23c2 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 10 Jun 2013 14:05:10 +0300
-Subject: [PATCH 02/23] OMAPDSS: remove DT hacks for regulators
+Subject: [PATCH 02/24] OMAPDSS: remove DT hacks for regulators
 
 For booting Panda and 4430SDP with DT, while DSS did not support DT, we
 had to had small hacks in the omapdss driver to get the regulators. With
@@ -9,12 +9,12 @@ DT now supported in DSS, we can remove those hacks.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- drivers/video/omap2/dss/dsi.c  | 5 -----
- drivers/video/omap2/dss/hdmi.c | 5 -----
- 2 files changed, 10 deletions(-)
+ drivers/video/omap2/dss/dsi.c   | 5 -----
+ drivers/video/omap2/dss/hdmi4.c | 4 ----
+ 2 files changed, 9 deletions(-)
 
 diff --git a/drivers/video/omap2/dss/dsi.c b/drivers/video/omap2/dss/dsi.c
-index a598b58..4cc7fcb 100644
+index 6056b27..d74cfcd 100644
 --- a/drivers/video/omap2/dss/dsi.c
 +++ b/drivers/video/omap2/dss/dsi.c
 @@ -1123,11 +1123,6 @@ static int dsi_regulator_init(struct platform_device *dsidev)
@@ -29,15 +29,14 @@ index a598b58..4cc7fcb 100644
  	if (IS_ERR(vdds_dsi)) {
  		DSSERR("can't get VDDS_DSI regulator\n");
  		return PTR_ERR(vdds_dsi);
-diff --git a/drivers/video/omap2/dss/hdmi.c b/drivers/video/omap2/dss/hdmi.c
-index 82a9640..7bb47db 100644
---- a/drivers/video/omap2/dss/hdmi.c
-+++ b/drivers/video/omap2/dss/hdmi.c
-@@ -334,11 +334,6 @@ static int hdmi_init_regulator(void)
- 		return 0;
+diff --git a/drivers/video/omap2/dss/hdmi4.c b/drivers/video/omap2/dss/hdmi4.c
+index e140096..16e5987 100644
+--- a/drivers/video/omap2/dss/hdmi4.c
++++ b/drivers/video/omap2/dss/hdmi4.c
+@@ -90,10 +90,6 @@ static int hdmi_init_regulator(void)
  
  	reg = devm_regulator_get(&hdmi.pdev->dev, "vdda_hdmi_dac");
--
+ 
 -	/* DT HACK: try VDAC to make omapdss work for o4 sdp/panda */
 -	if (IS_ERR(reg))
 -		reg = devm_regulator_get(&hdmi.pdev->dev, "VDAC");
@@ -46,5 +45,5 @@ index 82a9640..7bb47db 100644
  		DSSERR("can't get VDDA_HDMI_DAC regulator\n");
  		return PTR_ERR(reg);
 -- 
-1.8.4.rc3
+1.8.4.3
 

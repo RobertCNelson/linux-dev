@@ -1,7 +1,7 @@
-From f507874d7aa5faa592e740645b452ab865b3deae Mon Sep 17 00:00:00 2001
+From 0f0ea2b18a58cd6814d4c73ae200f5dc514b9868 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 18 Mar 2013 15:50:25 +0200
-Subject: [PATCH 03/23] ARM: OMAP2+: add omapdss_init_of()
+Subject: [PATCH 03/24] ARM: OMAP2+: add omapdss_init_of()
 
 omapdss driver uses a omapdss platform device to pass platform specific
 function pointers and DSS hardware version from the arch code to the
@@ -14,27 +14,27 @@ Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
  arch/arm/mach-omap2/board-generic.c |  2 ++
  arch/arm/mach-omap2/common.h        |  2 ++
- arch/arm/mach-omap2/display.c       | 34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 38 insertions(+)
+ arch/arm/mach-omap2/display.c       | 62 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 66 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-generic.c b/arch/arm/mach-omap2/board-generic.c
-index 14fbd2b..a38dca1 100644
+index 19f1652..0e06771 100644
 --- a/arch/arm/mach-omap2/board-generic.c
 +++ b/arch/arm/mach-omap2/board-generic.c
-@@ -60,6 +60,8 @@ static void __init omap_generic_init(void)
- 		legacy_init_ehci_clk("auxclk3_ck");
- 	else if (of_machine_is_compatible("ti,omap5-uevm"))
- 		legacy_init_ehci_clk("auxclk1_ck");
+@@ -36,6 +36,8 @@ static struct of_device_id omap_dt_match_table[] __initdata = {
+ static void __init omap_generic_init(void)
+ {
+ 	pdata_quirks_init(omap_dt_match_table);
 +
 +	omapdss_init_of();
  }
  
  #ifdef CONFIG_SOC_OMAP2420
 diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
-index 4a5684b..3005873 100644
+index f7644fe..48e9cd3 100644
 --- a/arch/arm/mach-omap2/common.h
 +++ b/arch/arm/mach-omap2/common.h
-@@ -301,5 +301,7 @@ extern int omap_dss_reset(struct omap_hwmod *);
+@@ -308,5 +308,7 @@ extern int omap_dss_reset(struct omap_hwmod *);
  /* SoC specific clock initializer */
  extern int (*omap_clk_init)(void);
  
@@ -43,7 +43,7 @@ index 4a5684b..3005873 100644
  #endif /* __ASSEMBLER__ */
  #endif /* __ARCH_ARM_MACH_OMAP2PLUS_COMMON_H */
 diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-index 03a0516..97e5dfb 100644
+index a4e536b..3279afc 100644
 --- a/arch/arm/mach-omap2/display.c
 +++ b/arch/arm/mach-omap2/display.c
 @@ -23,6 +23,8 @@
@@ -55,7 +55,7 @@ index 03a0516..97e5dfb 100644
  
  #include <video/omapdss.h>
  #include "omap_hwmod.h"
-@@ -564,3 +566,35 @@ int omap_dss_reset(struct omap_hwmod *oh)
+@@ -592,3 +594,63 @@ int omap_dss_reset(struct omap_hwmod *oh)
  
  	return r;
  }
@@ -89,8 +89,36 @@ index 03a0516..97e5dfb 100644
 +		return r;
 +	}
 +
++	/* create DRM device */
++	r = omap_init_drm();
++	if (r < 0) {
++		pr_err("Unable to register omapdrm device\n");
++		return r;
++	}
++
++	/* create vrfb device */
++	r = omap_init_vrfb();
++	if (r < 0) {
++		pr_err("Unable to register omapvrfb device\n");
++		return r;
++	}
++
++	/* create FB device */
++	r = omap_init_fb();
++	if (r < 0) {
++		pr_err("Unable to register omapfb device\n");
++		return r;
++	}
++
++	/* create V4L2 display device */
++	r = omap_init_vout();
++	if (r < 0) {
++		pr_err("Unable to register omap_vout device\n");
++		return r;
++	}
++
 +	return 0;
 +}
 -- 
-1.8.4.rc3
+1.8.4.3
 

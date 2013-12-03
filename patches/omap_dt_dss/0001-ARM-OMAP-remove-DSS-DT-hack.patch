@@ -1,7 +1,7 @@
-From 85d2ad6e3075d3ee5407b8929de38422584af287 Mon Sep 17 00:00:00 2001
+From acc46bff2d786184c9c59a4fa7dfa188a15bbcfe Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 18 Mar 2013 15:49:09 +0200
-Subject: [PATCH 01/23] ARM: OMAP: remove DSS DT hack
+Subject: [PATCH 01/24] ARM: OMAP: remove DSS DT hack
 
 As a temporary solution to enable DSS for selected boards when booting
 with DT, a hack was added to board-generic.c in
@@ -12,61 +12,30 @@ We're now adding proper DT support, so the hack can be removed.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- arch/arm/mach-omap2/Makefile        |   2 +-
- arch/arm/mach-omap2/board-generic.c |  12 +-
- arch/arm/mach-omap2/dss-common.c    | 215 ------------------------------------
- arch/arm/mach-omap2/dss-common.h    |  12 --
- 4 files changed, 2 insertions(+), 239 deletions(-)
+ arch/arm/mach-omap2/Makefile       |   2 +-
+ arch/arm/mach-omap2/dss-common.c   | 259 -------------------------------------
+ arch/arm/mach-omap2/dss-common.h   |  13 --
+ arch/arm/mach-omap2/pdata-quirks.c |   4 -
+ 4 files changed, 1 insertion(+), 277 deletions(-)
  delete mode 100644 arch/arm/mach-omap2/dss-common.c
  delete mode 100644 arch/arm/mach-omap2/dss-common.h
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index afb457c..a9e6835 100644
+index 1f25f3e..5b6456d 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
-@@ -305,4 +305,4 @@ endif
+@@ -296,4 +296,4 @@ endif
  emac-$(CONFIG_TI_DAVINCI_EMAC)		:= am35xx-emac.o
  obj-y					+= $(emac-m) $(emac-y)
  
 -obj-y					+= common-board-devices.o twl-common.o dss-common.o
 +obj-y					+= common-board-devices.o twl-common.o
-diff --git a/arch/arm/mach-omap2/board-generic.c b/arch/arm/mach-omap2/board-generic.c
-index 39c7838..14fbd2b 100644
---- a/arch/arm/mach-omap2/board-generic.c
-+++ b/arch/arm/mach-omap2/board-generic.c
-@@ -21,7 +21,6 @@
- 
- #include "common.h"
- #include "common-board-devices.h"
--#include "dss-common.h"
- 
- #if !(defined(CONFIG_ARCH_OMAP2) || defined(CONFIG_ARCH_OMAP3))
- #define intc_of_init	NULL
-@@ -57,17 +56,8 @@ static void __init omap_generic_init(void)
- 
- 	of_platform_populate(NULL, omap_dt_match_table, NULL, NULL);
- 
--	/*
--	 * HACK: call display setup code for selected boards to enable omapdss.
--	 * This will be removed when omapdss supports DT.
--	 */
--	if (of_machine_is_compatible("ti,omap4-panda")) {
--		omap4_panda_display_init_of();
-+	if (of_machine_is_compatible("ti,omap4-panda"))
- 		legacy_init_ehci_clk("auxclk3_ck");
--
--	}
--	else if (of_machine_is_compatible("ti,omap4-sdp"))
--		omap_4430sdp_display_init_of();
- 	else if (of_machine_is_compatible("ti,omap5-uevm"))
- 		legacy_init_ehci_clk("auxclk1_ck");
- }
 diff --git a/arch/arm/mach-omap2/dss-common.c b/arch/arm/mach-omap2/dss-common.c
 deleted file mode 100644
-index bf89eff..0000000
+index 365bfd3..0000000
 --- a/arch/arm/mach-omap2/dss-common.c
 +++ /dev/null
-@@ -1,215 +0,0 @@
+@@ -1,259 +0,0 @@
 -/*
 - * Copyright (C) 2012 Texas Instruments, Inc..
 - * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
@@ -282,12 +251,56 @@ index bf89eff..0000000
 -	platform_device_register(&sdp4430_tpd_device);
 -	platform_device_register(&sdp4430_hdmi_connector_device);
 -}
+-
+-
+-/* OMAP3 IGEPv2 data */
+-
+-#define IGEP2_DVI_TFP410_POWER_DOWN_GPIO	170
+-
+-/* DVI Connector */
+-static struct connector_dvi_platform_data omap3_igep2_dvi_connector_pdata = {
+-	.name                   = "dvi",
+-	.source                 = "tfp410.0",
+-	.i2c_bus_num            = 3,
+-};
+-
+-static struct platform_device omap3_igep2_dvi_connector_device = {
+-	.name                   = "connector-dvi",
+-	.id                     = 0,
+-	.dev.platform_data      = &omap3_igep2_dvi_connector_pdata,
+-};
+-
+-/* TFP410 DPI-to-DVI chip */
+-static struct encoder_tfp410_platform_data omap3_igep2_tfp410_pdata = {
+-	.name                   = "tfp410.0",
+-	.source                 = "dpi.0",
+-	.data_lines             = 24,
+-	.power_down_gpio        = IGEP2_DVI_TFP410_POWER_DOWN_GPIO,
+-};
+-
+-static struct platform_device omap3_igep2_tfp410_device = {
+-	.name                   = "tfp410",
+-	.id                     = 0,
+-	.dev.platform_data      = &omap3_igep2_tfp410_pdata,
+-};
+-
+-static struct omap_dss_board_info igep2_dss_data = {
+-	.default_display_name = "dvi",
+-};
+-
+-void __init omap3_igep2_display_init_of(void)
+-{
+-	omap_display_init(&igep2_dss_data);
+-
+-	platform_device_register(&omap3_igep2_tfp410_device);
+-	platform_device_register(&omap3_igep2_dvi_connector_device);
+-}
 diff --git a/arch/arm/mach-omap2/dss-common.h b/arch/arm/mach-omap2/dss-common.h
 deleted file mode 100644
-index c28fe3c..0000000
+index a9becf0..0000000
 --- a/arch/arm/mach-omap2/dss-common.h
 +++ /dev/null
-@@ -1,12 +0,0 @@
+@@ -1,13 +0,0 @@
 -#ifndef __OMAP_DSS_COMMON__
 -#define __OMAP_DSS_COMMON__
 -
@@ -298,8 +311,44 @@ index c28fe3c..0000000
 -
 -void __init omap4_panda_display_init_of(void);
 -void __init omap_4430sdp_display_init_of(void);
+-void __init omap3_igep2_display_init_of(void);
 -
 -#endif
+diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
+index 10c7145..ff5b48e 100644
+--- a/arch/arm/mach-omap2/pdata-quirks.c
++++ b/arch/arm/mach-omap2/pdata-quirks.c
+@@ -18,7 +18,6 @@
+ 
+ #include "common.h"
+ #include "common-board-devices.h"
+-#include "dss-common.h"
+ #include "control.h"
+ 
+ struct pdata_init {
+@@ -80,7 +79,6 @@ static void __init hsmmc2_internal_input_clk(void)
+ 
+ static void __init omap3_igep0020_legacy_init(void)
+ {
+-	omap3_igep2_display_init_of();
+ }
+ 
+ static void __init omap3_evm_legacy_init(void)
+@@ -97,14 +95,12 @@ static void __init omap3_zoom_legacy_init(void)
+ #ifdef CONFIG_ARCH_OMAP4
+ static void __init omap4_sdp_legacy_init(void)
+ {
+-	omap_4430sdp_display_init_of();
+ 	legacy_init_wl12xx(WL12XX_REFCLOCK_26,
+ 			   WL12XX_TCXOCLOCK_26, 53);
+ }
+ 
+ static void __init omap4_panda_legacy_init(void)
+ {
+-	omap4_panda_display_init_of();
+ 	legacy_init_ehci_clk("auxclk3_ck");
+ 	legacy_init_wl12xx(WL12XX_REFCLOCK_38, 0, 53);
+ }
 -- 
-1.8.4.rc3
+1.8.4.3
 

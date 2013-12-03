@@ -1,0 +1,114 @@
+From f8e07637ab44666c1841bd7005b5cbaa985f4aa5 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 3 Dec 2013 13:59:52 -0600
+Subject: [PATCH 3/3] ARM: dts: beagle-xm: make sure dvi is enabled
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 11 ++++++-----
+ arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 11 ++++++-----
+ arch/arm/boot/dts/omap3-beagle-xm.dts    | 11 ++++++-----
+ 3 files changed, 18 insertions(+), 15 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
+index 008774c..062e6d7 100644
+--- a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
++++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
+@@ -207,14 +207,14 @@
+ 
+ &twl_gpio {
+ 	ti,use-leds;
+-	/* pullups: BIT(1) */
+-	ti,pullups = <0x000002>;
++	/* pullups: BIT(1), BIT(2)  */
++	ti,pullups = <0x000006>;
+ 	/*
+ 	 * pulldowns:
+-	 * BIT(2), BIT(6), BIT(7), BIT(8), BIT(13)
++	 * BIT(6), BIT(7), BIT(8), BIT(13)
+ 	 * BIT(15), BIT(16), BIT(17)
+ 	 */
+-	ti,pulldowns = <0x03a1c4>;
++	ti,pulldowns = <0x03a1c0>;
+ };
+ 
+ &usb_otg_hs {
+@@ -258,7 +258,8 @@
+ 		compatible = "ti,tfp410";
+ 		video-source = <&dpi>;
+ 		data-lines = <24>;
+-		gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>;
++		/* at somepoint this will work... */
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>; */
+ 	};
+ 
+ 	dvi0: connector@0 {
+diff --git a/arch/arm/boot/dts/omap3-beagle-xm-c.dts b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
+index a7df96f..e3678ae 100644
+--- a/arch/arm/boot/dts/omap3-beagle-xm-c.dts
++++ b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
+@@ -206,14 +206,14 @@
+ 
+ &twl_gpio {
+ 	ti,use-leds;
+-	/* pullups: BIT(1) */
+-	ti,pullups = <0x000002>;
++	/* pullups: BIT(1), BIT(2)  */
++	ti,pullups = <0x000006>;
+ 	/*
+ 	 * pulldowns:
+-	 * BIT(2), BIT(6), BIT(7), BIT(8), BIT(13)
++	 * BIT(6), BIT(7), BIT(8), BIT(13)
+ 	 * BIT(15), BIT(16), BIT(17)
+ 	 */
+-	ti,pulldowns = <0x03a1c4>;
++	ti,pulldowns = <0x03a1c0>;
+ };
+ 
+ &usb_otg_hs {
+@@ -257,7 +257,8 @@
+ 		compatible = "ti,tfp410";
+ 		video-source = <&dpi>;
+ 		data-lines = <24>;
+-		gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>;
++		/* at somepoint this will work... */
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>; */
+ 	};
+ 
+ 	dvi0: connector@0 {
+diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
+index a7df96f..e3678ae 100644
+--- a/arch/arm/boot/dts/omap3-beagle-xm.dts
++++ b/arch/arm/boot/dts/omap3-beagle-xm.dts
+@@ -206,14 +206,14 @@
+ 
+ &twl_gpio {
+ 	ti,use-leds;
+-	/* pullups: BIT(1) */
+-	ti,pullups = <0x000002>;
++	/* pullups: BIT(1), BIT(2)  */
++	ti,pullups = <0x000006>;
+ 	/*
+ 	 * pulldowns:
+-	 * BIT(2), BIT(6), BIT(7), BIT(8), BIT(13)
++	 * BIT(6), BIT(7), BIT(8), BIT(13)
+ 	 * BIT(15), BIT(16), BIT(17)
+ 	 */
+-	ti,pulldowns = <0x03a1c4>;
++	ti,pulldowns = <0x03a1c0>;
+ };
+ 
+ &usb_otg_hs {
+@@ -257,7 +257,8 @@
+ 		compatible = "ti,tfp410";
+ 		video-source = <&dpi>;
+ 		data-lines = <24>;
+-		gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>;
++		/* at somepoint this will work... */
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>; */
+ 	};
+ 
+ 	dvi0: connector@0 {
+-- 
+1.8.4.3
+

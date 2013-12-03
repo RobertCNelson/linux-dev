@@ -1,7 +1,7 @@
-From c50b37eee0209858cfa963919f41dc5dadd65c62 Mon Sep 17 00:00:00 2001
+From 63f3977791e548d72c1a1dc5feb93f6856776d46 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 21 Aug 2012 15:35:42 +0300
-Subject: [PATCH 09/23] OMAPDSS: Add DT support to DSI
+Subject: [PATCH 09/24] OMAPDSS: Add DT support to DSI
 
 Add the code to make the DSI driver work with device tree on OMAP3 and
 OMAP4.
@@ -14,22 +14,23 @@ that is used to deduce the ID from the DSI device's base address.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- drivers/video/omap2/dss/dsi.c | 53 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 52 insertions(+), 1 deletion(-)
+ drivers/video/omap2/dss/dsi.c | 71 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 70 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/video/omap2/dss/dsi.c b/drivers/video/omap2/dss/dsi.c
-index 4cc7fcb..1704c15 100644
+index d74cfcd..d8f739a 100644
 --- a/drivers/video/omap2/dss/dsi.c
 +++ b/drivers/video/omap2/dss/dsi.c
-@@ -38,6 +38,7 @@
+@@ -38,6 +38,8 @@
  #include <linux/slab.h>
  #include <linux/debugfs.h>
  #include <linux/pm_runtime.h>
 +#include <linux/of.h>
++#include <linux/of_platform.h>
  
  #include <video/omapdss.h>
  #include <video/mipi_display.h>
-@@ -373,6 +374,13 @@ struct dsi_packet_sent_handler_data {
+@@ -373,6 +375,13 @@ struct dsi_packet_sent_handler_data {
  	struct completion *completion;
  };
  
@@ -40,10 +41,10 @@ index 4cc7fcb..1704c15 100644
 +
 +static const struct of_device_id dsi_of_match[];
 +
- #ifdef DEBUG
+ #ifdef DSI_PERF_MEASURE
  static bool dsi_perf;
  module_param(dsi_perf, bool, 0644);
-@@ -5347,7 +5355,6 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+@@ -5347,7 +5356,6 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
  	if (!dsi)
  		return -ENOMEM;
  
@@ -51,7 +52,7 @@ index 4cc7fcb..1704c15 100644
  	dsi->pdev = dsidev;
  	dev_set_drvdata(&dsidev->dev, dsi);
  
-@@ -5397,6 +5404,31 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+@@ -5397,6 +5405,31 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
  		return r;
  	}
  
@@ -83,7 +84,22 @@ index 4cc7fcb..1704c15 100644
  	/* DSI VCs initialization */
  	for (i = 0; i < ARRAY_SIZE(dsi->vc); i++) {
  		dsi->vc[i].source = DSI_VC_SOURCE_L4;
-@@ -5445,6 +5477,7 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+@@ -5432,6 +5465,14 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+ 
+ 	dsi_init_output(dsidev);
+ 
++	if (dsidev->dev.of_node)
++	{
++		r = of_platform_populate(dsidev->dev.of_node, NULL, NULL,
++			&dsidev->dev);
++		if (r)
++			DSSERR("Failed to populate DSI child devices: %d\n", r);
++	}
++
+ 	dsi_runtime_put(dsidev);
+ 
+ 	if (dsi->module_id == 0)
+@@ -5445,6 +5486,7 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
  	else if (dsi->module_id == 1)
  		dss_debugfs_create_file("dsi2_irqs", dsi2_dump_irqs);
  #endif
@@ -91,7 +107,27 @@ index 4cc7fcb..1704c15 100644
  	return 0;
  
  err_runtime_get:
-@@ -5493,6 +5526,23 @@ static const struct dev_pm_ops dsi_pm_ops = {
+@@ -5452,10 +5494,19 @@ err_runtime_get:
+ 	return r;
+ }
+ 
++static int dsi_unregister_child(struct device * dev, void *data)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	platform_device_unregister(pdev);
++	return 0;
++}
++
+ static int __exit omap_dsihw_remove(struct platform_device *dsidev)
+ {
+ 	struct dsi_data *dsi = dsi_get_dsidrv_data(dsidev);
+ 
++	device_for_each_child(&dsidev->dev, NULL, dsi_unregister_child);
++
+ 	WARN_ON(dsi->scp_clk_refcount > 0);
+ 
+ 	dsi_uninit_output(dsidev);
+@@ -5493,6 +5544,23 @@ static const struct dev_pm_ops dsi_pm_ops = {
  	.runtime_resume = dsi_runtime_resume,
  };
  
@@ -115,7 +151,7 @@ index 4cc7fcb..1704c15 100644
  static struct platform_driver omap_dsihw_driver = {
  	.probe		= omap_dsihw_probe,
  	.remove         = __exit_p(omap_dsihw_remove),
-@@ -5500,6 +5550,7 @@ static struct platform_driver omap_dsihw_driver = {
+@@ -5500,6 +5568,7 @@ static struct platform_driver omap_dsihw_driver = {
  		.name   = "omapdss_dsi",
  		.owner  = THIS_MODULE,
  		.pm	= &dsi_pm_ops,
@@ -124,5 +160,5 @@ index 4cc7fcb..1704c15 100644
  };
  
 -- 
-1.8.4.rc3
+1.8.4.3
 
