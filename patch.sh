@@ -214,6 +214,9 @@ omap_usb () {
 	echo "dir: omap_usb"
 	${git} "${DIR}/patches/omap_usb/0001-ARM-dts-omap3-beagle-Fix-USB-host-on-beagle-boards-f.patch"
 	${git} "${DIR}/patches/omap_usb/0002-gpio-twl4030-Fix-regression-for-twl-gpio-LED-output.patch"
+	${git} "${DIR}/patches/omap_usb/0003-ARM-OMAP4-hwmod-data-Don-t-prevent-RESET-of-USB-Host.patch"
+	${git} "${DIR}/patches/omap_usb/0004-ARM-OMAP2-hwmod-Fix-RESET-logic.patch"
+	${git} "${DIR}/patches/omap_usb/0005-ARM-OMAP3-hwmod-data-Don-t-prevent-RESET-of-USB-Host.patch"
 }
 
 omap_video () {
