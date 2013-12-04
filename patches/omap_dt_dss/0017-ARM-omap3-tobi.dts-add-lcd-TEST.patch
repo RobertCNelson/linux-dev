@@ -1,7 +1,7 @@
-From b7bb642b4d85d38f926df33191dae6f6a5636a06 Mon Sep 17 00:00:00 2001
+From e0419edfddb08d55fbc7a679cb7ad17a823be173 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 19 Mar 2013 11:33:13 +0200
-Subject: [PATCH 14/24] ARM: omap3-tobi.dts: add lcd (TEST)
+Subject: [PATCH 17/28] ARM: omap3-tobi.dts: add lcd (TEST)
 
 This is a test for Overo with Palo43 expansion, _not_ Tobi. Palo43
 doesn't have a dts, but seems to work ok with omap3-tobi.dts, so I used
@@ -11,20 +11,25 @@ Not to be merged.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- arch/arm/boot/dts/omap3-tobi.dts | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ arch/arm/boot/dts/omap3-tobi.dts | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
 diff --git a/arch/arm/boot/dts/omap3-tobi.dts b/arch/arm/boot/dts/omap3-tobi.dts
-index 7e4ad2a..0d136d8 100644
+index 7e4ad2a..49c6f3f 100644
 --- a/arch/arm/boot/dts/omap3-tobi.dts
 +++ b/arch/arm/boot/dts/omap3-tobi.dts
-@@ -81,3 +81,36 @@
+@@ -81,3 +81,43 @@
  &mmc3 {
  	status = "disabled";
  };
 +
 +&dpi {
 +	vdds_dsi-supply = <&vpll2>;
++
++	dpi_out: endpoint {
++		remote-endpoint = <&lcd_in>;
++		data-lines = <24>;
++	};
 +};
 +
 +/ {
@@ -34,8 +39,10 @@ index 7e4ad2a..0d136d8 100644
 +
 +	lcd0: display@0 {
 +		compatible = "samsung,lte430wq-f0c", "panel-dpi";
-+		video-source = <&dpi>;
-+		data-lines = <24>;
++
++		lcd_in: endpoint {
++			remote-endpoint = <&dpi_out>;
++		};
 +
 +		panel-timing {
 +			clock-frequency = <9200000>;

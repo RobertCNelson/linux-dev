@@ -1,15 +1,15 @@
-From 55b6df7d3d3a6fa05be5025264a2ee52d5af6949 Mon Sep 17 00:00:00 2001
+From f048a4db775b3fe37fd3c08d35b3bd372f7ad5fd Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 30 Jul 2013 10:37:34 +0300
-Subject: [PATCH 21/24] OMAPDSS: hdmi-connector: Add DT support
+Subject: [PATCH 24/28] OMAPDSS: hdmi-connector: Add DT support
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- drivers/video/omap2/displays-new/connector-hdmi.c | 36 +++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ drivers/video/omap2/displays-new/connector-hdmi.c | 30 +++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
 diff --git a/drivers/video/omap2/displays-new/connector-hdmi.c b/drivers/video/omap2/displays-new/connector-hdmi.c
-index 9abe2c0..43cbdf7 100644
+index 9abe2c0..3919acd 100644
 --- a/drivers/video/omap2/displays-new/connector-hdmi.c
 +++ b/drivers/video/omap2/displays-new/connector-hdmi.c
 @@ -12,6 +12,7 @@
@@ -20,7 +20,7 @@ index 9abe2c0..43cbdf7 100644
  
  #include <drm/drm_edid.h>
  
-@@ -301,6 +302,29 @@ static int hdmic_probe_pdata(struct platform_device *pdev)
+@@ -301,6 +302,23 @@ static int hdmic_probe_pdata(struct platform_device *pdev)
  	return 0;
  }
  
@@ -29,19 +29,13 @@ index 9abe2c0..43cbdf7 100644
 +	struct panel_drv_data *ddata = platform_get_drvdata(pdev);
 +	struct device_node *node = pdev->dev.of_node;
 +	struct omap_dss_device *in;
-+	struct device_node *src_node;
 +
-+	src_node = of_parse_phandle(node, "video-source", 0);
-+	if (!src_node) {
-+		dev_err(&pdev->dev, "failed to parse video source\n");
-+		return -ENODEV;
-+	}
-+
-+	in = omap_dss_find_output_by_node(src_node);
-+	if (in == NULL) {
++	in = omapdss_of_find_source_for_first_ep(node);
++	if (IS_ERR(in)) {
 +		dev_err(&pdev->dev, "failed to find video source\n");
-+		return -EPROBE_DEFER;
++		return PTR_ERR(in);
 +	}
++
 +	ddata->in = in;
 +
 +	return 0;
@@ -50,7 +44,7 @@ index 9abe2c0..43cbdf7 100644
  static int hdmic_probe(struct platform_device *pdev)
  {
  	struct panel_drv_data *ddata;
-@@ -318,6 +342,10 @@ static int hdmic_probe(struct platform_device *pdev)
+@@ -318,6 +336,10 @@ static int hdmic_probe(struct platform_device *pdev)
  		r = hdmic_probe_pdata(pdev);
  		if (r)
  			return r;
@@ -61,12 +55,12 @@ index 9abe2c0..43cbdf7 100644
  	} else {
  		return -ENODEV;
  	}
-@@ -359,12 +387,20 @@ static int __exit hdmic_remove(struct platform_device *pdev)
+@@ -359,12 +381,20 @@ static int __exit hdmic_remove(struct platform_device *pdev)
  	return 0;
  }
  
 +static const struct of_device_id hdmic_of_match[] = {
-+	{ .compatible = "ti,hdmi_connector", },
++	{ .compatible = "ti,hdmi-connector", },
 +	{},
 +};
 +

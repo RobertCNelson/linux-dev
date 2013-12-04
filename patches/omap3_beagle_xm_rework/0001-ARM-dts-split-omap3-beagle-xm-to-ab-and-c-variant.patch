@@ -1,14 +1,14 @@
-From 4f006ed1ff6451792776a36381f3cdc24333c62d Mon Sep 17 00:00:00 2001
+From bcf2f3681cf2c293ac278210ac70f7471859bba9 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 26 Nov 2013 11:07:36 -0600
+Date: Wed, 4 Dec 2013 08:41:20 -0600
 Subject: [PATCH 1/2] ARM: dts: split omap3-beagle-xm to ab and c variant
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile               |   2 +
- arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 280 +++++++++++++++++++++++++++++++
- arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 280 +++++++++++++++++++++++++++++++
- 3 files changed, 562 insertions(+)
+ arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 318 +++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 318 +++++++++++++++++++++++++++++++
+ 3 files changed, 638 insertions(+)
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-ab.dts
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-c.dts
 
@@ -27,10 +27,10 @@ index b14bb11..cfe4ec4 100644
  	omap3-n900.dtb \
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 new file mode 100644
-index 0000000..a7df96f
+index 0000000..ab27ea1
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-@@ -0,0 +1,280 @@
+@@ -0,0 +1,318 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -276,8 +276,28 @@ index 0000000..a7df96f
 +	phys = <0 &hsusb2_phy>;
 +};
 +
++&vaux2 {
++	regulator-name = "usb_1v8";
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
 +&dpi {
 +	vdds_dsi-supply = <&vpll2>;
++
++	dpi_out: endpoint {
++		remote-endpoint = <&tfp410_in>;
++		data-lines = <24>;
++	};
++};
++
++&venc {
++	vdda_dac-supply = <&vdac>;
++
++	venc_out: endpoint {
++		remote-endpoint = <&tv_connector_in>;
++	};
 +};
 +
 +/ {
@@ -288,35 +308,53 @@ index 0000000..a7df96f
 +
 +	tfp410: encoder@0 {
 +		compatible = "ti,tfp410";
-+		video-source = <&dpi>;
-+		data-lines = <24>;
 +		gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>;
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++
++				tfp410_in: endpoint@0 {
++					remote-endpoint = <&dpi_out>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				tfp410_out: endpoint@1 {
++					remote-endpoint = <&dvi_connector_in>;
++				};
++			};
++		};
 +	};
 +
 +	dvi0: connector@0 {
-+		compatible = "ti,dvi_connector";
-+		video-source = <&tfp410>;
++		compatible = "ti,dvi-connector";
 +		i2c-bus = <&i2c3>;
++
++		dvi_connector_in: endpoint {
++			remote-endpoint = <&tfp410_out>;
++		};
 +	};
 +
 +	tv0: connector@1 {
-+		compatible = "ti,svideo_connector";
-+		video-source = <&venc>;
-+	};
-+};
++		compatible = "ti,svideo-connector";
 +
-+&vaux2 {
-+	regulator-name = "usb_1v8";
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
++		tv_connector_in: endpoint {
++			remote-endpoint = <&venc_out>;
++		};
++	};
 +};
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-c.dts b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
 new file mode 100644
-index 0000000..a7df96f
+index 0000000..ab27ea1
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
-@@ -0,0 +1,280 @@
+@@ -0,0 +1,318 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -562,8 +600,28 @@ index 0000000..a7df96f
 +	phys = <0 &hsusb2_phy>;
 +};
 +
++&vaux2 {
++	regulator-name = "usb_1v8";
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
 +&dpi {
 +	vdds_dsi-supply = <&vpll2>;
++
++	dpi_out: endpoint {
++		remote-endpoint = <&tfp410_in>;
++		data-lines = <24>;
++	};
++};
++
++&venc {
++	vdda_dac-supply = <&vdac>;
++
++	venc_out: endpoint {
++		remote-endpoint = <&tv_connector_in>;
++	};
 +};
 +
 +/ {
@@ -574,28 +632,46 @@ index 0000000..a7df96f
 +
 +	tfp410: encoder@0 {
 +		compatible = "ti,tfp410";
-+		video-source = <&dpi>;
-+		data-lines = <24>;
 +		gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>;
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++
++				tfp410_in: endpoint@0 {
++					remote-endpoint = <&dpi_out>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				tfp410_out: endpoint@1 {
++					remote-endpoint = <&dvi_connector_in>;
++				};
++			};
++		};
 +	};
 +
 +	dvi0: connector@0 {
-+		compatible = "ti,dvi_connector";
-+		video-source = <&tfp410>;
++		compatible = "ti,dvi-connector";
 +		i2c-bus = <&i2c3>;
++
++		dvi_connector_in: endpoint {
++			remote-endpoint = <&tfp410_out>;
++		};
 +	};
 +
 +	tv0: connector@1 {
-+		compatible = "ti,svideo_connector";
-+		video-source = <&venc>;
-+	};
-+};
++		compatible = "ti,svideo-connector";
 +
-+&vaux2 {
-+	regulator-name = "usb_1v8";
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
++		tv_connector_in: endpoint {
++			remote-endpoint = <&venc_out>;
++		};
++	};
 +};
 -- 
 1.8.4.3

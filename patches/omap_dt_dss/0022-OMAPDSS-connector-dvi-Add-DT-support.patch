@@ -1,18 +1,18 @@
-From 880faed6beafd18f1da385f3025568b89068c898 Mon Sep 17 00:00:00 2001
+From f3558a8f28734d147b4f0ada9faa0823cffd28ce Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 30 Jul 2013 10:36:29 +0300
-Subject: [PATCH 19/24] OMAPDSS: connector-dvi: Add DT support
+Subject: [PATCH 22/28] OMAPDSS: connector-dvi: Add DT support
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- drivers/video/omap2/displays-new/connector-dvi.c | 48 ++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ drivers/video/omap2/displays-new/connector-dvi.c | 43 ++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
 diff --git a/drivers/video/omap2/displays-new/connector-dvi.c b/drivers/video/omap2/displays-new/connector-dvi.c
-index b6c5090..6264527 100644
+index b6c5090..8f7e576 100644
 --- a/drivers/video/omap2/displays-new/connector-dvi.c
 +++ b/drivers/video/omap2/displays-new/connector-dvi.c
-@@ -277,6 +277,42 @@ static int dvic_probe_pdata(struct platform_device *pdev)
+@@ -277,6 +277,37 @@ static int dvic_probe_pdata(struct platform_device *pdev)
  	return 0;
  }
  
@@ -21,21 +21,15 @@ index b6c5090..6264527 100644
 +	struct panel_drv_data *ddata = platform_get_drvdata(pdev);
 +	struct device_node *node = pdev->dev.of_node;
 +	struct omap_dss_device *in;
-+	struct device_node *src_node;
 +	struct device_node *adapter_node;
 +	struct i2c_adapter *adapter;
 +
-+	src_node = of_parse_phandle(node, "video-source", 0);
-+	if (!src_node) {
-+		dev_err(&pdev->dev, "failed to parse video source\n");
-+		return -ENODEV;
++	in = omapdss_of_find_source_for_first_ep(node);
++	if (IS_ERR(in)) {
++		dev_err(&pdev->dev, "failed to find video source\n");
++		return PTR_ERR(in);
 +	}
 +
-+	in = omap_dss_find_output_by_node(src_node);
-+	if (in == NULL) {
-+		dev_err(&pdev->dev, "failed to find video source\n");
-+		return -EPROBE_DEFER;
-+	}
 +	ddata->in = in;
 +
 +	adapter_node = of_parse_phandle(node, "i2c-bus", 0);
@@ -43,6 +37,7 @@ index b6c5090..6264527 100644
 +		adapter = of_find_i2c_adapter_by_node(adapter_node);
 +		if (adapter == NULL) {
 +			dev_err(&pdev->dev, "failed to parse i2c-bus\n");
++			omap_dss_put_device(ddata->in);
 +			return -EINVAL;
 +		}
 +
@@ -55,7 +50,7 @@ index b6c5090..6264527 100644
  static int dvic_probe(struct platform_device *pdev)
  {
  	struct panel_drv_data *ddata;
-@@ -293,6 +329,10 @@ static int dvic_probe(struct platform_device *pdev)
+@@ -293,6 +324,10 @@ static int dvic_probe(struct platform_device *pdev)
  		r = dvic_probe_pdata(pdev);
  		if (r)
  			return r;
@@ -66,12 +61,12 @@ index b6c5090..6264527 100644
  	} else {
  		return -ENODEV;
  	}
-@@ -342,12 +382,20 @@ static int __exit dvic_remove(struct platform_device *pdev)
+@@ -342,12 +377,20 @@ static int __exit dvic_remove(struct platform_device *pdev)
  	return 0;
  }
  
 +static const struct of_device_id dvic_of_match[] = {
-+	{ .compatible = "ti,dvi_connector", },
++	{ .compatible = "ti,dvi-connector", },
 +	{},
 +};
 +

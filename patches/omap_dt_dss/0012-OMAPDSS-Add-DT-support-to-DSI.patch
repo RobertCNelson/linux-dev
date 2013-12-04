@@ -1,7 +1,7 @@
-From 63f3977791e548d72c1a1dc5feb93f6856776d46 Mon Sep 17 00:00:00 2001
+From cc6a2e8ecc84163d797ff3537334568f7f9fa6de Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 21 Aug 2012 15:35:42 +0300
-Subject: [PATCH 09/24] OMAPDSS: Add DT support to DSI
+Subject: [PATCH 12/28] OMAPDSS: Add DT support to DSI
 
 Add the code to make the DSI driver work with device tree on OMAP3 and
 OMAP4.
@@ -14,11 +14,11 @@ that is used to deduce the ID from the DSI device's base address.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- drivers/video/omap2/dss/dsi.c | 71 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 70 insertions(+), 1 deletion(-)
+ drivers/video/omap2/dss/dsi.c | 136 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 135 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/video/omap2/dss/dsi.c b/drivers/video/omap2/dss/dsi.c
-index d74cfcd..d8f739a 100644
+index 18b5e84..46edec8 100644
 --- a/drivers/video/omap2/dss/dsi.c
 +++ b/drivers/video/omap2/dss/dsi.c
 @@ -38,6 +38,8 @@
@@ -30,7 +30,7 @@ index d74cfcd..d8f739a 100644
  
  #include <video/omapdss.h>
  #include <video/mipi_display.h>
-@@ -373,6 +375,13 @@ struct dsi_packet_sent_handler_data {
+@@ -374,6 +376,13 @@ struct dsi_packet_sent_handler_data {
  	struct completion *completion;
  };
  
@@ -44,7 +44,70 @@ index d74cfcd..d8f739a 100644
  #ifdef DSI_PERF_MEASURE
  static bool dsi_perf;
  module_param(dsi_perf, bool, 0644);
-@@ -5347,7 +5356,6 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+@@ -5336,6 +5345,62 @@ static void dsi_uninit_output(struct platform_device *dsidev)
+ 	omapdss_unregister_output(out);
+ }
+ 
++static int dsi_probe_of(struct platform_device *pdev)
++{
++	struct device_node *node = pdev->dev.of_node;
++	struct dsi_data *dsi = dsi_get_dsidrv_data(pdev);
++	struct property *prop;
++	u32 lane_arr[10];
++	int len, num_pins;
++	int r, i;
++	struct device_node *ep;
++	struct omap_dsi_pin_config pin_cfg;
++
++	ep = omapdss_of_get_first_endpoint(node);
++	if (!ep)
++		return 0;
++
++	prop = of_find_property(ep, "lanes", &len);
++	if (prop == NULL) {
++		dev_err(&pdev->dev, "failed to find lane data\n");
++		r = -EINVAL;
++		goto err;
++	}
++
++	num_pins = len / sizeof(u32);
++
++	if (num_pins < 4 || num_pins % 2 != 0
++			|| num_pins > dsi->num_lanes_supported * 2) {
++		dev_err(&pdev->dev, "bad number of lanes\n");
++		r = -EINVAL;
++		goto err;
++	}
++
++	r = of_property_read_u32_array(ep, "lanes", lane_arr, num_pins);
++	if (r) {
++		dev_err(&pdev->dev, "failed to read lane data\n");
++		goto err;
++	}
++
++	pin_cfg.num_pins = num_pins;
++	for (i = 0; i < num_pins; ++i)
++		pin_cfg.pins[i] = (int)lane_arr[i];
++
++	r = dsi_configure_pins(&dsi->output, &pin_cfg);
++	if (r) {
++		dev_err(&pdev->dev, "failed to configure pins");
++		goto err;
++	}
++
++	of_node_put(ep);
++
++	return 0;
++
++err:
++	of_node_put(ep);
++	return r;
++}
++
+ /* DSI1 HW IP initialisation */
+ static int omap_dsihw_probe(struct platform_device *dsidev)
+ {
+@@ -5348,7 +5413,6 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
  	if (!dsi)
  		return -ENOMEM;
  
@@ -52,7 +115,7 @@ index d74cfcd..d8f739a 100644
  	dsi->pdev = dsidev;
  	dev_set_drvdata(&dsidev->dev, dsi);
  
-@@ -5397,6 +5405,31 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+@@ -5398,6 +5462,31 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
  		return r;
  	}
  
@@ -84,12 +147,17 @@ index d74cfcd..d8f739a 100644
  	/* DSI VCs initialization */
  	for (i = 0; i < ARRAY_SIZE(dsi->vc); i++) {
  		dsi->vc[i].source = DSI_VC_SOURCE_L4;
-@@ -5432,6 +5465,14 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+@@ -5433,6 +5522,19 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
  
  	dsi_init_output(dsidev);
  
-+	if (dsidev->dev.of_node)
-+	{
++	if (dsidev->dev.of_node) {
++		r = dsi_probe_of(dsidev);
++		if (r) {
++			DSSERR("Invalid DSI DT data\n");
++			goto err_probe_of;
++		}
++
 +		r = of_platform_populate(dsidev->dev.of_node, NULL, NULL,
 +			&dsidev->dev);
 +		if (r)
@@ -99,19 +167,23 @@ index d74cfcd..d8f739a 100644
  	dsi_runtime_put(dsidev);
  
  	if (dsi->module_id == 0)
-@@ -5445,6 +5486,7 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
+@@ -5446,17 +5548,31 @@ static int omap_dsihw_probe(struct platform_device *dsidev)
  	else if (dsi->module_id == 1)
  		dss_debugfs_create_file("dsi2_irqs", dsi2_dump_irqs);
  #endif
 +
  	return 0;
  
++err_probe_of:
++	dsi_uninit_output(dsidev);
++	dsi_runtime_put(dsidev);
++
  err_runtime_get:
-@@ -5452,10 +5494,19 @@ err_runtime_get:
+ 	pm_runtime_disable(&dsidev->dev);
  	return r;
  }
  
-+static int dsi_unregister_child(struct device * dev, void *data)
++static int dsi_unregister_child(struct device *dev, void *data)
 +{
 +	struct platform_device *pdev = to_platform_device(dev);
 +	platform_device_unregister(pdev);
@@ -127,7 +199,7 @@ index d74cfcd..d8f739a 100644
  	WARN_ON(dsi->scp_clk_refcount > 0);
  
  	dsi_uninit_output(dsidev);
-@@ -5493,6 +5544,23 @@ static const struct dev_pm_ops dsi_pm_ops = {
+@@ -5494,6 +5610,23 @@ static const struct dev_pm_ops dsi_pm_ops = {
  	.runtime_resume = dsi_runtime_resume,
  };
  
@@ -151,7 +223,7 @@ index d74cfcd..d8f739a 100644
  static struct platform_driver omap_dsihw_driver = {
  	.probe		= omap_dsihw_probe,
  	.remove         = __exit_p(omap_dsihw_remove),
-@@ -5500,6 +5568,7 @@ static struct platform_driver omap_dsihw_driver = {
+@@ -5501,6 +5634,7 @@ static struct platform_driver omap_dsihw_driver = {
  		.name   = "omapdss_dsi",
  		.owner  = THIS_MODULE,
  		.pm	= &dsi_pm_ops,

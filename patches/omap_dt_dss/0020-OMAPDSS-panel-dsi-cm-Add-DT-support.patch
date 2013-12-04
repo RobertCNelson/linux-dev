@@ -1,17 +1,17 @@
-From 89652556819c3b68bf4b98e9d6ac188b9b458bf8 Mon Sep 17 00:00:00 2001
+From 39ff5314a81db28dfddb9c78b226de55deab4d51 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 30 Jul 2013 10:34:16 +0300
-Subject: [PATCH 17/24] OMAPDSS: panel-dsi-cm: Add DT support
+Subject: [PATCH 20/28] OMAPDSS: panel-dsi-cm: Add DT support
 
 XXX ULPS and backlight missing.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- drivers/video/omap2/displays-new/panel-dsi-cm.c | 87 +++++++++++++++++++++++++
- 1 file changed, 87 insertions(+)
+ drivers/video/omap2/displays-new/panel-dsi-cm.c | 65 +++++++++++++++++++++++--
+ 1 file changed, 61 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/video/omap2/displays-new/panel-dsi-cm.c b/drivers/video/omap2/displays-new/panel-dsi-cm.c
-index b7baafe..b706f6b 100644
+index b7baafe..fda7728 100644
 --- a/drivers/video/omap2/displays-new/panel-dsi-cm.c
 +++ b/drivers/video/omap2/displays-new/panel-dsi-cm.c
 @@ -22,6 +22,8 @@
@@ -23,7 +23,25 @@ index b7baafe..b706f6b 100644
  
  #include <video/omapdss.h>
  #include <video/omap-panel-data.h>
-@@ -1156,6 +1158,79 @@ static int dsicm_probe_pdata(struct platform_device *pdev)
+@@ -595,10 +597,13 @@ static int dsicm_power_on(struct panel_drv_data *ddata)
+ 		.lp_clk_max = 10000000,
+ 	};
+ 
+-	r = in->ops.dsi->configure_pins(in, &ddata->pin_config);
+-	if (r) {
+-		dev_err(&ddata->pdev->dev, "failed to configure DSI pins\n");
+-		goto err0;
++	if (ddata->pin_config.num_pins > 0) {
++		r = in->ops.dsi->configure_pins(in, &ddata->pin_config);
++		if (r) {
++			dev_err(&ddata->pdev->dev,
++				"failed to configure DSI pins\n");
++			goto err0;
++		}
+ 	}
+ 
+ 	r = in->ops.dsi->set_config(in, &dsi_config);
+@@ -1156,6 +1161,46 @@ static int dsicm_probe_pdata(struct platform_device *pdev)
  	return 0;
  }
  
@@ -32,24 +50,7 @@ index b7baafe..b706f6b 100644
 +	struct device_node *node = pdev->dev.of_node;
 +	struct panel_drv_data *ddata = platform_get_drvdata(pdev);
 +	struct omap_dss_device *in;
-+	struct property *prop;
-+	struct device_node *src_node;
-+	u32 lane_arr[10];
-+	int gpio, len, num_pins;
-+	int r, i;
-+
-+	src_node = of_parse_phandle(node, "video-source", 0);
-+	if (!src_node) {
-+		dev_err(&pdev->dev, "failed to parse video source\n");
-+		return -ENODEV;
-+	}
-+
-+	in = omap_dss_find_output_by_node(src_node);
-+	if (in == NULL) {
-+		dev_err(&pdev->dev, "failed to find video source\n");
-+		return -EPROBE_DEFER;
-+	}
-+	ddata->in = in;
++	int gpio;
 +
 +	gpio = of_get_gpio(node, 0);
 +	if (!gpio_is_valid(gpio)) {
@@ -71,29 +72,13 @@ index b7baafe..b706f6b 100644
 +		ddata->ext_te_gpio = -1;
 +	}
 +
-+	prop = of_find_property(node, "lanes", &len);
-+	if (prop == NULL) {
-+		dev_err(&pdev->dev, "failed to find lane data\n");
-+		return -EINVAL;
++	in = omapdss_of_find_source_for_first_ep(node);
++	if (IS_ERR(in)) {
++		dev_err(&pdev->dev, "failed to find video source\n");
++		return PTR_ERR(in);
 +	}
 +
-+	num_pins = len / sizeof(u32);
-+
-+	if (num_pins < 4 || num_pins % 2 != 0
-+			|| num_pins > ARRAY_SIZE(lane_arr)) {
-+		dev_err(&pdev->dev, "bad number of lanes\n");
-+		return -EINVAL;
-+	}
-+
-+	r = of_property_read_u32_array(node, "lanes", lane_arr, num_pins);
-+	if (r) {
-+		dev_err(&pdev->dev, "failed to read lane data\n");
-+		return r;
-+	}
-+
-+	ddata->pin_config.num_pins = num_pins;
-+	for (i = 0; i < num_pins; ++i)
-+		ddata->pin_config.pins[i] = (int)lane_arr[i];
++	ddata->in = in;
 +
 +	/* TODO: ulps, backlight */
 +
@@ -103,7 +88,7 @@ index b7baafe..b706f6b 100644
  static int dsicm_probe(struct platform_device *pdev)
  {
  	struct backlight_properties props;
-@@ -1178,6 +1253,10 @@ static int dsicm_probe(struct platform_device *pdev)
+@@ -1178,6 +1223,10 @@ static int dsicm_probe(struct platform_device *pdev)
  		r = dsicm_probe_pdata(pdev);
  		if (r)
  			return r;
@@ -114,7 +99,7 @@ index b7baafe..b706f6b 100644
  	} else {
  		return -ENODEV;
  	}
-@@ -1320,12 +1399,20 @@ static int __exit dsicm_remove(struct platform_device *pdev)
+@@ -1320,12 +1369,20 @@ static int __exit dsicm_remove(struct platform_device *pdev)
  	return 0;
  }
  

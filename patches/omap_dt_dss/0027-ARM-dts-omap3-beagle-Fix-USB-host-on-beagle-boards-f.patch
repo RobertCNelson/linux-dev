@@ -1,0 +1,64 @@
+From 6caebf13f62968f9f5241d0cc9a8c0b41fe9e0e1 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Mon, 25 Nov 2013 15:55:45 +0200
+Subject: [PATCH 27/28] ARM: dts: omap3-beagle: Fix USB host on beagle boards
+ (for 3.13)
+
+Beagle (rev. C4) and Beagle-XM (all revs) need VAUX2 1.8V supply
+for the USB PHY.
+
+As the generic PHY driver can't handle more than one supply
+at the moment, we configure this supply to be always on.
+This will cause a very small power impact if the USB host subsystem
+is not in use, about 76.86 micro-W + LDO power.
+
+Older Beagle boards (prior to C4) don't have VAUX2 connected anywhere,
+so there won't be any functional impact on those boards other than
+some additional LDO power consumption.
+
+Reported-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ arch/arm/boot/dts/omap3-beagle-xm.dts | 7 +++++++
+ arch/arm/boot/dts/omap3-beagle.dts    | 7 +++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
+index baec842..7d26c11 100644
+--- a/arch/arm/boot/dts/omap3-beagle-xm.dts
++++ b/arch/arm/boot/dts/omap3-beagle-xm.dts
+@@ -216,6 +216,13 @@
+ 	phys = <0 &hsusb2_phy>;
+ };
+ 
++&vaux2 {
++	regulator-name = "usb_1v8";
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
+ &dpi {
+ 	vdds_dsi-supply = <&vpll2>;
+ 
+diff --git a/arch/arm/boot/dts/omap3-beagle.dts b/arch/arm/boot/dts/omap3-beagle.dts
+index 1ca1932..b9b6dcb 100644
+--- a/arch/arm/boot/dts/omap3-beagle.dts
++++ b/arch/arm/boot/dts/omap3-beagle.dts
+@@ -179,6 +179,13 @@
+ 	power = <50>;
+ };
+ 
++&vaux2 {
++	regulator-name = "vdd_ehci";
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
+ &dpi {
+ 	vdds_dsi-supply = <&vpll2>;
+ 
+-- 
+1.8.4.3
+
