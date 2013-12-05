@@ -68,6 +68,11 @@ mmc_write_rootfs () {
 			fi
 		fi
 	fi
+
+	if [ -f "${location}/boot/config-${KERNEL_UTS}" ] ; then
+		sudo rm -f "${location}/boot/config-${KERNEL_UTS}" || true
+	fi
+	sudo cp -v "${DIR}/deploy/config-${KERNEL_UTS}" "${location}/boot/config-${KERNEL_UTS}"
 }
 
 mmc_write_boot () {

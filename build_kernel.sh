@@ -89,7 +89,7 @@ make_kernel () {
 
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}.${image}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}.${image}" || true
-		rm -rf "${DIR}/deploy/${KERNEL_UTS}.config" || true
+		rm -rf "${DIR}/deploy/config-${KERNEL_UTS}" || true
 	fi
 
 	if [ -f ./arch/arm/boot/${image} ] ; then
@@ -99,10 +99,10 @@ make_kernel () {
 			xz -z "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.${image}"
 			mkimage -A arm -O linux -T kernel -C none -a 0x80008000 -e 0x80008000 -n ${KERNEL_UTS} -d arch/arm/boot/zImage "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.uImage"
 			xz -z "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.uImage"
-			cp -uv .config "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.config"
+			cp -uv .config "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/config-${KERNEL_UTS}"
 		fi
 		cp -v arch/arm/boot/${image} "${DIR}/deploy/${KERNEL_UTS}.${image}"
-		cp -v .config "${DIR}/deploy/${KERNEL_UTS}.config"
+		cp -v .config "${DIR}/deploy/config-${KERNEL_UTS}"
 	fi
 
 	cd ${DIR}/
