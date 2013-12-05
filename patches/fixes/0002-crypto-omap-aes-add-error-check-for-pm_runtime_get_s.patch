@@ -1,0 +1,62 @@
+From 3e0931bc770da44f0d1c18045a1ee42c6f143302 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Tue, 3 Dec 2013 19:43:13 -0600
+Subject: [PATCH 2/2] crypto: omap-aes: add error check for pm_runtime_get_sync
+
+The AES driver currently assumes that pm_runtime_get_sync will always
+succeed, which may not always be true, so add error handling for the
+same.
+
+This scenario was reported in the following bug:
+place.  https://bugzilla.kernel.org/show_bug.cgi?id=66441
+
+Reported-by: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ drivers/crypto/omap-aes.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/crypto/omap-aes.c b/drivers/crypto/omap-aes.c
+index a9ccbf1..dde41f1d 100644
+--- a/drivers/crypto/omap-aes.c
++++ b/drivers/crypto/omap-aes.c
+@@ -784,6 +784,7 @@ static int omap_aes_ctr_decrypt(struct ablkcipher_request *req)
+ static int omap_aes_cra_init(struct crypto_tfm *tfm)
+ {
+ 	struct omap_aes_dev *dd = NULL;
++	int err;
+ 
+ 	/* Find AES device, currently picks the first device */
+ 	spin_lock_bh(&list_lock);
+@@ -792,7 +793,13 @@ static int omap_aes_cra_init(struct crypto_tfm *tfm)
+ 	}
+ 	spin_unlock_bh(&list_lock);
+ 
+-	pm_runtime_get_sync(dd->dev);
++	err = pm_runtime_get_sync(dd->dev);
++	if (err < 0) {
++		dev_err(dd->dev, "%s: failed to get_sync(%d)\n",
++			__func__, err);
++		return err;
++	}
++
+ 	tfm->crt_ablkcipher.reqsize = sizeof(struct omap_aes_reqctx);
+ 
+ 	return 0;
+@@ -1182,7 +1189,12 @@ static int omap_aes_probe(struct platform_device *pdev)
+ 	dd->phys_base = res.start;
+ 
+ 	pm_runtime_enable(dev);
+-	pm_runtime_get_sync(dev);
++	err = pm_runtime_get_sync(dev);
++	if (err < 0) {
++		dev_err(dev, "%s: failed to get_sync(%d)\n",
++			__func__, err);
++		goto err_res;
++	}
+ 
+ 	omap_aes_dma_stop(dd);
+ 
+-- 
+1.8.4.3
+
