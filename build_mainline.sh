@@ -81,12 +81,12 @@ make_kernel () {
 
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}.${image}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}.${image}" || true
-		rm -rf "${DIR}/deploy/${KERNEL_UTS}.config" || true
+		rm -rf "${DIR}/deploy/config-${KERNEL_UTS}" || true
 	fi
 
 	if [ -f ./arch/arm/boot/${image} ] ; then
 		cp -v arch/arm/boot/${image} "${DIR}/deploy/${KERNEL_UTS}.${image}"
-		cp -v .config "${DIR}/deploy/${KERNEL_UTS}.config"
+		cp -v .config "${DIR}/deploy/config-${KERNEL_UTS}"
 	fi
 
 	cd ${DIR}/
@@ -103,6 +103,15 @@ make_pkg () {
 	cd ${DIR}/KERNEL/
 
 	deployfile="-${pkg}.tar.gz"
+	tar_options="--create --gzip --file"
+
+	if [ "${AUTO_TESTER}" ] ; then
+		#FIXME: xz might not be available everywhere...
+		#FIXME: ./tools/install_kernel.sh needs update...
+		deployfile="-${pkg}.tar.xz"
+		tar_options="--create --xz --file"
+	fi
+
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
 	fi
@@ -129,7 +138,7 @@ make_pkg () {
 
 	echo "Compressing ${KERNEL_UTS}${deployfile}..."
 	cd ${DIR}/deploy/tmp
-	tar czf ../${KERNEL_UTS}${deployfile} *
+	tar ${tar_options} ../${KERNEL_UTS}${deployfile} *
 
 	cd ${DIR}/
 	rm -rf ${DIR}/deploy/tmp || true
