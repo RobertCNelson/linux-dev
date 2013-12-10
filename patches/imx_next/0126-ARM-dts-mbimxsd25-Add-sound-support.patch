@@ -1,0 +1,55 @@
+From 0273f0b8a77aa17544850d7548c744dc14274256 Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Wed, 27 Nov 2013 16:54:21 +0100
+Subject: [PATCH 126/130] ARM: dts: mbimxsd25: Add sound support.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Cc: Rob Herring <rob.herring@calxeda.com>
+Cc: Pawel Moll <pawel.moll@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: devicetree@vger.kernel.org
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Cc: Sascha Hauer <kernel@pengutronix.de>
+Cc: Eric Bénard <eric@eukrea.com>
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard.dts b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard.dts
+index 3570f88..30073f8 100644
+--- a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard.dts
++++ b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard.dts
+@@ -45,6 +45,14 @@
+ 			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
++
++	sound {
++		compatible = "eukrea,asoc-tlv320";
++		eukrea,model = "imx25-eukrea-tlv320aic23";
++		ssi-controller = <&ssi1>;
++		fsl,mux-int-port = <1>;
++		fsl,mux-ext-port = <5>;
++	};
+ };
+ 
+ &audmux {
+@@ -100,6 +108,7 @@
+ };
+ 
+ &ssi1 {
++	codec-handle = <&tlv320aic23>;
+ 	fsl,mode = "i2s-slave";
+ 	status = "okay";
+ };
+-- 
+1.8.5.1
+

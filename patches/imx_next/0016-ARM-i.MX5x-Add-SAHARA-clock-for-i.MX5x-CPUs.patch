@@ -1,0 +1,50 @@
+From 6808723e80f3d09c465a193ba02d6d67b47cf2ff Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Fri, 8 Nov 2013 13:00:22 +0400
+Subject: [PATCH 016/130] ARM: i.MX5x: Add SAHARA clock for i.MX5x CPUs
+
+Patch adds missing Security Accelerator (SAHARA) clock for i.MX5x CPUs.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ Documentation/devicetree/bindings/clock/imx5-clock.txt | 1 +
+ arch/arm/mach-imx/clk-imx51-imx53.c                    | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/clock/imx5-clock.txt b/Documentation/devicetree/bindings/clock/imx5-clock.txt
+index 4c029a8..3716b36 100644
+--- a/Documentation/devicetree/bindings/clock/imx5-clock.txt
++++ b/Documentation/devicetree/bindings/clock/imx5-clock.txt
+@@ -198,6 +198,7 @@ clocks and IDs.
+ 	spdif1_gate		184
+ 	spdif_ipg_gate		185
+ 	ocram			186
++	sahara_ipg_gate		187
+ 
+ Examples (for mx53):
+ 
+diff --git a/arch/arm/mach-imx/clk-imx51-imx53.c b/arch/arm/mach-imx/clk-imx51-imx53.c
+index af8fd08..3d91172 100644
+--- a/arch/arm/mach-imx/clk-imx51-imx53.c
++++ b/arch/arm/mach-imx/clk-imx51-imx53.c
+@@ -122,7 +122,7 @@ enum imx5_clks {
+ 	srtc_gate, pata_gate, sata_gate, spdif_xtal_sel, spdif0_sel,
+ 	spdif1_sel, spdif0_pred, spdif0_podf, spdif1_pred, spdif1_podf,
+ 	spdif0_com_s, spdif1_com_sel, spdif0_gate, spdif1_gate, spdif_ipg_gate,
+-	ocram, clk_max
++	ocram, sahara_ipg_gate, clk_max
+ };
+ 
+ static struct clk *clk[clk_max];
+@@ -285,6 +285,7 @@ static void __init mx5_clocks_common_init(unsigned long rate_ckil,
+ 				spdif0_com_sel, ARRAY_SIZE(spdif0_com_sel), CLK_SET_RATE_PARENT);
+ 	clk[spdif0_gate] = imx_clk_gate2("spdif0_gate", "spdif0_com_sel", MXC_CCM_CCGR5, 26);
+ 	clk[spdif_ipg_gate] = imx_clk_gate2("spdif_ipg_gate", "ipg", MXC_CCM_CCGR5, 30);
++	clk[sahara_ipg_gate] = imx_clk_gate2("sahara_ipg_gate", "ipg", MXC_CCM_CCGR4, 14);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(clk); i++)
+ 		if (IS_ERR(clk[i]))
+-- 
+1.8.5.1
+

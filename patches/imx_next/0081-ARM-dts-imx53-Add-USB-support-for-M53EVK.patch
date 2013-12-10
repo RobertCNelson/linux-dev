@@ -1,0 +1,62 @@
+From d82b922b2b7cf33e8ae83de89f2e1893c91203aa Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marex@denx.de>
+Date: Sun, 17 Nov 2013 04:04:50 +0100
+Subject: [PATCH 081/130] ARM: dts: imx53: Add USB support for M53EVK
+
+Add USB support for M53EVK. The configuration is such that USB Host1
+port is used as Host and the USB OTG port is used as Peripheral thus
+far. Once OTG is properly fixed, the OTG will be further adjusted.
+
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx53-m53evk.dts | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx53-m53evk.dts b/arch/arm/boot/dts/imx53-m53evk.dts
+index c5ab801..7a006cb 100644
+--- a/arch/arm/boot/dts/imx53-m53evk.dts
++++ b/arch/arm/boot/dts/imx53-m53evk.dts
+@@ -96,6 +96,15 @@
+ 			regulator-always-on;
+ 		};
+ 
++		reg_usbh1_vbus: regulator@3 {
++			compatible = "regulator-fixed";
++			reg = <3>;
++			regulator-name = "vbus";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			gpio = <&gpio1 2 0>;
++			enable-active-low;
++		};
+ 	};
+ 
+ 	sound {
+@@ -222,6 +231,8 @@
+ 				MX53_PAD_GPIO_0__CCM_SSI_EXT1_CLK	0x80000000
+ 				MX53_PAD_EIM_EB3__GPIO2_31		0x80000000
+ 				MX53_PAD_PATA_DA_0__GPIO7_6		0x80000000
++				MX53_PAD_GPIO_2__GPIO1_2		0x80000000
++				MX53_PAD_GPIO_3__USBOH3_USBH1_OC	0x80000000
+ 			>;
+ 		};
+ 
+@@ -326,3 +337,14 @@
+ 	pinctrl-0 = <&pinctrl_uart3>;
+ 	status = "okay";
+ };
++
++&usbh1 {
++	vbus-supply = <&reg_usbh1_vbus>;
++	phy_type = "utmi";
++	status = "okay";
++};
++
++&usbotg {
++	dr_mode = "peripheral";
++	status = "okay";
++};
+-- 
+1.8.5.1
+
