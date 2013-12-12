@@ -1,0 +1,285 @@
+From 2b07754a0a598228aa618a622256a77addd5b402 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 12 Dec 2013 16:32:28 -0600
+Subject: [PATCH 1/2] prcm: port from ti-linux-3.12.y
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../devicetree/bindings/arm/omap/prcm.txt          |  13 ++
+ arch/arm/boot/dts/am33xx.dtsi                      |   6 +
+ drivers/reset/Kconfig                              |  10 ++
+ drivers/reset/Makefile                             |   1 +
+ drivers/reset/ti_reset.c                           | 184 +++++++++++++++++++++
+ include/linux/reset-controller.h                   |   2 +
+ 6 files changed, 216 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/arm/omap/prcm.txt
+ create mode 100644 drivers/reset/ti_reset.c
+
+diff --git a/Documentation/devicetree/bindings/arm/omap/prcm.txt b/Documentation/devicetree/bindings/arm/omap/prcm.txt
+new file mode 100644
+index 0000000..ad25abc
+--- /dev/null
++++ b/Documentation/devicetree/bindings/arm/omap/prcm.txt
+@@ -0,0 +1,13 @@
++TI Power Reset Clock Manager (PRCM)
++
++Properties:
++- compatible:	"ti,am4372-prcm" for prcm in am43x SoC's
++		"ti,am3352-prcm" for prcm in am335x SoC's
++- #reset-cells: 1 (refer generic reset bindings for details)
++
++example:
++	prcm: prcm@44df0000 {
++		compatible = "ti,am4372-prcm";
++		reg = <0x44df0000 0xa000>;
++		#reset-cells = <1>;
++	};
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index 3dd2af6..1513cfa 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -744,5 +744,11 @@
+ 				&edma 11>;
+ 			dma-names = "tx", "rx";
+ 		};
++
++		prcm: prcm@44e00000 {
++			compatible = "ti,am3352-prcm";
++			reg = <0x44e00000 0x1300>;
++			#reset-cells = <1>;
++		};
+ 	};
+ };
+diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
+index 1a862df..0786768 100644
+--- a/drivers/reset/Kconfig
++++ b/drivers/reset/Kconfig
+@@ -21,4 +21,14 @@ config RESET_GPIO
+ 	  This driver provides support for reset lines that are controlled
+ 	  directly by GPIOs.
+ 
++config	RESET_TI
++	bool "TI reset controller"
++	help
++	  Reset controller support for TI SoC's
++
++	  Reset controller found in TI's AM series of SoC's like
++	  AM335x and AM43x and OMAP SoC's like OMAP5 and DRA7
++
++	  If unsure, say no.
++
+ endif
+diff --git a/drivers/reset/Makefile b/drivers/reset/Makefile
+index b854f20..a1b3185 100644
+--- a/drivers/reset/Makefile
++++ b/drivers/reset/Makefile
+@@ -1,2 +1,3 @@
+ obj-$(CONFIG_RESET_CONTROLLER) += core.o
+ obj-$(CONFIG_RESET_GPIO) += gpio-reset.o
++obj-$(CONFIG_RESET_TI) += ti_reset.o
+diff --git a/drivers/reset/ti_reset.c b/drivers/reset/ti_reset.c
+new file mode 100644
+index 0000000..cfa79e6
+--- /dev/null
++++ b/drivers/reset/ti_reset.c
+@@ -0,0 +1,184 @@
++/*
++ * PRCM reset driver for TI SoC's
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of_device.h>
++#include <linux/reset.h>
++#include <linux/reset-controller.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++
++#define DRIVER_NAME "ti_reset"
++
++struct ti_reset_reg_data {
++	u32	rstctrl_offs;
++	u32	rstst_offs;
++	u8	rstctrl_bit;
++	u8	rstst_bit;
++};
++
++struct ti_reset_data {
++	struct	ti_reset_reg_data *reg_data;
++	u8	nr_resets;
++};
++
++static void __iomem *reg_base;
++static const struct ti_reset_data *reset_data;
++
++static struct ti_reset_reg_data am335x_reset_reg_data[] = {
++	{
++		.rstctrl_offs	= 0x1104,
++		.rstst_offs	= 0x1114,
++		.rstctrl_bit	= 0,
++		.rstst_bit	= 0,
++	},
++	{
++		.rstctrl_offs	= 0x0D00,
++		.rstst_offs	= 0x0D0C,
++		.rstctrl_bit	= 3,
++		.rstst_bit	= 5,
++	},
++};
++
++static struct ti_reset_data am335x_reset_data = {
++	.reg_data	= am335x_reset_reg_data,
++	.nr_resets	= ARRAY_SIZE(am335x_reset_reg_data),
++};
++
++static struct ti_reset_reg_data am43x_reset_reg_data[] = {
++	{
++		.rstctrl_offs	= 0x410,
++		.rstst_offs	= 0x414,
++		.rstctrl_bit	= 0,
++		.rstst_bit	= 0,
++	},
++	{
++		.rstctrl_offs	= 0x2010,
++		.rstst_offs	= 0x2014,
++		.rstctrl_bit	= 3,
++		.rstst_bit	= 5,
++	},
++};
++
++static struct ti_reset_data am43x_reset_data = {
++	.reg_data	= am43x_reset_reg_data,
++	.nr_resets	= ARRAY_SIZE(am43x_reset_reg_data),
++};
++
++static struct ti_reset_reg_data dra7_reset_reg_data[] = {
++	{
++		.rstctrl_offs	= 0x1310,
++		.rstst_offs	= 0x1314,
++		.rstctrl_bit	= 0,
++		.rstst_bit	= 0,
++	},
++};
++
++static struct ti_reset_data dra7_reset_data = {
++	.reg_data	= dra7_reset_reg_data,
++	.nr_resets	= ARRAY_SIZE(dra7_reset_reg_data),
++};
++
++static int ti_reset_clear_reset(struct reset_controller_dev *rcdev,
++				  unsigned long id)
++{
++	void __iomem *reg = reset_data->reg_data[id].rstst_offs + reg_base;
++	u8 bit = reset_data->reg_data[id].rstst_bit;
++	u32 val = readl(reg);
++
++	val &= ~(1 << bit);
++	val |= 1 << bit;
++	writel(val, reg);
++	return 0;
++}
++
++static int ti_reset_is_reset(struct reset_controller_dev *rcdev,
++			       unsigned long id)
++{
++	void __iomem *reg = reset_data->reg_data[id].rstst_offs + reg_base;
++	u8 bit = reset_data->reg_data[id].rstst_bit;
++	u32 val = readl(reg);
++
++	val &= (1 << bit);
++	return !!val;
++}
++
++static int ti_reset_deassert(struct reset_controller_dev *rcdev,
++			       unsigned long id)
++{
++	void __iomem *reg = reset_data->reg_data[id].rstctrl_offs +
++				reg_base;
++	u8 bit = reset_data->reg_data[id].rstctrl_bit;
++	u32 val = readl(reg);
++
++	val &= ~(1 << bit);
++	writel(val, reg);
++	return 0;
++}
++
++static struct reset_control_ops ti_reset_ops = {
++	.deassert = ti_reset_deassert,
++	.is_reset = ti_reset_is_reset,
++	.clear_reset = ti_reset_clear_reset,
++};
++
++static struct reset_controller_dev ti_reset_controller = {
++	.ops = &ti_reset_ops,
++};
++
++static const struct of_device_id ti_reset_of_match[] = {
++	{ .compatible = "ti,am3352-prcm", .data = &am335x_reset_data,},
++	{ .compatible = "ti,am4372-prcm", .data = &am43x_reset_data,},
++	{ .compatible = "ti,dra7-prcm", .data = &dra7_reset_data,},
++	{},
++};
++
++static int ti_reset_probe(struct platform_device *pdev)
++{
++	struct resource *res;
++	const struct of_device_id *id;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	reg_base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(reg_base))
++		return PTR_ERR(reg_base);
++
++	ti_reset_controller.of_node = pdev->dev.of_node;
++	id = of_match_device(ti_reset_of_match, &pdev->dev);
++	reset_data = id->data;
++	ti_reset_controller.nr_resets = reset_data->nr_resets;
++
++	reset_controller_register(&ti_reset_controller);
++
++	return 0;
++}
++
++static int ti_reset_remove(struct platform_device *pdev)
++{
++	reset_controller_unregister(&ti_reset_controller);
++
++	return 0;
++}
++
++static struct platform_driver ti_reset_driver = {
++	.probe	= ti_reset_probe,
++	.remove	= ti_reset_remove,
++	.driver	= {
++		.name		= DRIVER_NAME,
++		.owner		= THIS_MODULE,
++		.of_match_table	= of_match_ptr(ti_reset_of_match),
++	},
++};
++module_platform_driver(ti_reset_driver);
++
++MODULE_DESCRIPTION("PRCM reset driver for TI SoC's");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:" DRIVER_NAME);
+diff --git a/include/linux/reset-controller.h b/include/linux/reset-controller.h
+index 2f61311..c9bbadb 100644
+--- a/include/linux/reset-controller.h
++++ b/include/linux/reset-controller.h
+@@ -17,6 +17,8 @@ struct reset_control_ops {
+ 	int (*reset)(struct reset_controller_dev *rcdev, unsigned long id);
+ 	int (*assert)(struct reset_controller_dev *rcdev, unsigned long id);
+ 	int (*deassert)(struct reset_controller_dev *rcdev, unsigned long id);
++	int (*is_reset)(struct reset_controller_dev *rcdev, unsigned long id);
++	int (*clear_reset)(struct reset_controller_dev *rcdev, unsigned long i);
+ };
+ 
+ struct module;
+-- 
+1.8.5.1
+

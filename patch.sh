@@ -227,6 +227,12 @@ cpufreq () {
 	${git} "${DIR}/patches/cpufreq/0005-hack-boneblack-enable-1Ghz-operation.patch"
 }
 
+sgx () {
+	echo "dir: sgx"
+	${git} "${DIR}/patches/sgx/0001-prcm-port-from-ti-linux-3.12.y.patch"
+	${git} "${DIR}/patches/sgx/0002-ARM-DTS-AM335x-Add-SGX-DT-node.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -258,6 +264,7 @@ cape_import
 audio
 drm
 cpufreq
+sgx
 saucy
 
 echo "patch.sh ran successful"
