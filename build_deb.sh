@@ -83,7 +83,7 @@ make_pkg () {
 	deployfile="-${pkg}.tar.gz"
 	tar_options="--create --gzip --file"
 
-	if [ "${AUTO_BUILD}" ] ; then
+	if [ "${AUTO_TESTER}" ] ; then
 		#FIXME: xz might not be available everywhere...
 		#FIXME: ./tools/install_kernel.sh needs update...
 		deployfile="-${pkg}.tar.xz"
