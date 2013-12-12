@@ -218,6 +218,15 @@ drm () {
 	${git} "${DIR}/patches/drm/0001-drm-tilcdc-Add-I2C-HDMI-audio-config-for-tda998x.patch"
 }
 
+cpufreq () {
+	echo "dir: cpufreq"
+	${git} "${DIR}/patches/cpufreq/0001-ARM-OMAP3-do-not-register-non-dt-OPP-tables-for-devi.patch"
+	${git} "${DIR}/patches/cpufreq/0002-ARM-OMAP2-add-missing-lateinit-hook-for-calling-pm-l.patch"
+	${git} "${DIR}/patches/cpufreq/0003-ARM-OMAP3-use-cpu0-cpufreq-driver-in-device-tree-sup.patch"
+	${git} "${DIR}/patches/cpufreq/0004-ARM-dts-OMAP3-add-clock-nodes-for-CPU.patch"
+	${git} "${DIR}/patches/cpufreq/0005-hack-boneblack-enable-1Ghz-operation.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -248,6 +257,7 @@ deassert_hard_reset
 cape_import
 audio
 drm
+cpufreq
 saucy
 
 echo "patch.sh ran successful"
