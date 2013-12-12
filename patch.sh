@@ -194,6 +194,30 @@ cape_import () {
 	${git} "${DIR}/patches/cape-import/0001-capes-import-from-3.8.patch"
 }
 
+audio () {
+	echo "dir: audio"
+	${git} "${DIR}/patches/audio/0001-ASoC-davinci-evm-Move-sysclk-logic-away-from-evm_hw_.patch"
+	${git} "${DIR}/patches/audio/0002-ASoC-davinci-evm-Add-device-tree-binding.patch"
+	${git} "${DIR}/patches/audio/0003-ASoC-davinci-mcasp-Add-DMA-register-locations-to-DT.patch"
+	${git} "${DIR}/patches/audio/0004-ASoC-davinci-mcasp-Extract-DMA-channels-directly-fro.patch"
+	${git} "${DIR}/patches/audio/0005-ASoC-davinci-mcasp-Interrupts-property-to-optional-a.patch"
+	${git} "${DIR}/patches/audio/0006-ASoC-davinci-Add-support-for-AM33xx-SoC-Audio.patch"
+	${git} "${DIR}/patches/audio/0007-ASoC-davinci-mcasp-Remove-redundant-num-serializer-D.patch"
+	${git} "${DIR}/patches/audio/0008-ASoC-davinci-evm-Add-named-clock-reference-to-DT-bin.patch"
+	${git} "${DIR}/patches/audio/0009-ASoC-davinci-evm-HDMI-audio-support-for-TDA998x-trou.patch"
+	${git} "${DIR}/patches/audio/0010-ASoC-hdmi-codec-Add-devicetree-binding-with-document.patch"
+	${git} "${DIR}/patches/audio/0011-ASoC-hdmi-codec-Add-SNDRV_PCM_FMTBIT_32_LE-playback-.patch"
+	${git} "${DIR}/patches/audio/0012-ASoC-davinci-HDMI-audio-build-for-AM33XX-and-TDA998x.patch"
+	${git} "${DIR}/patches/audio/0013-Audio-McASP-Add-McASP-Device-Tree-Bindings.patch"
+	${git} "${DIR}/patches/audio/0014-ASoc-McASP-Lift-Reset-on-CLK-Dividers-when-RX-TX.patch"
+	${git} "${DIR}/patches/audio/0015-ASoc-Davinci-EVM-Config-12MHz-CLK-for-AIC3x-Codec.patch"
+}
+
+drm () {
+	echo "dir: drm"
+	${git} "${DIR}/patches/drm/0001-drm-tilcdc-Add-I2C-HDMI-audio-config-for-tda998x.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -222,6 +246,8 @@ lcdc_fixes
 net
 deassert_hard_reset
 cape_import
+audio
+drm
 saucy
 
 echo "patch.sh ran successful"
