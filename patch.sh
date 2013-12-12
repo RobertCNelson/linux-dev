@@ -735,7 +735,10 @@ am33x_after () {
 	${git} "${DIR}/patches/hdmi/0025-drm-tilcdc-fixup-mode-to-workaound-sync-for-tda998x.patch"
 	${git} "${DIR}/patches/hdmi/0026-Documentation-for-tilcdc-Devicetree-Bindings.patch"
 	${git} "${DIR}/patches/hdmi/0027-drm-tilcdc-adding-more-guards-to-prevent-selecting-i.patch"
-	${git} "${DIR}/patches/hdmi/0028-Make-the-McASP-code-generic-again-remove-all-hardcod.patch"
+
+	${git} "${DIR}/patches/audio/0001-Make-the-McASP-code-generic-again-remove-all-hardcod.patch"
+	${git} "${DIR}/patches/audio/0002-ASoc-Davinci-EVM-Config-12MHz-CLK-for-AIC3x-Codec.patch"
+	${git} "${DIR}/patches/audio/0003-ASoc-McASP-Lift-Reset-on-CLK-Dividers-when-RX-TX.patch"
 
 	echo "dir: resetctrl"
 	${git} "${DIR}/patches/resetctrl/0001-boneblack-Remove-default-pinmuxing-for-MMC1.patch"

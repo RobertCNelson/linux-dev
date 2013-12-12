@@ -11,12 +11,12 @@ davinci-evm.c where it belongs.
 
 Signed-off-by: Darren Etheridge <detheridge@ti.com>
 ---
- sound/soc/davinci/davinci-evm.c   | 41 ++++++++++++++++++++++++++++++---------
- sound/soc/davinci/davinci-mcasp.c | 12 +++++-------
- 2 files changed, 37 insertions(+), 16 deletions(-)
+ sound/soc/davinci/davinci-evm.c   | 42 +++++++++++++++++++++++++++++----------
+ sound/soc/davinci/davinci-mcasp.c | 12 +++++------
+ 2 files changed, 37 insertions(+), 17 deletions(-)
 
 diff --git a/sound/soc/davinci/davinci-evm.c b/sound/soc/davinci/davinci-evm.c
-index bbae516..f165efb 100644
+index bbae516..421feb0 100644
 --- a/sound/soc/davinci/davinci-evm.c
 +++ b/sound/soc/davinci/davinci-evm.c
 @@ -146,6 +146,32 @@ static const struct snd_soc_dapm_route audio_map[] = {
@@ -60,7 +60,7 @@ index bbae516..f165efb 100644
  
  		/*
  		 * Move GPIO handling out of the probe, if probe gets
-@@ -398,9 +425,7 @@ static int davinci_evm_probe(struct platform_device *pdev)
+@@ -398,12 +425,9 @@ static int davinci_evm_probe(struct platform_device *pdev)
  		  return -EINVAL;
  		}
  		gpio_set_value(clk_gpio, 1);
@@ -69,8 +69,11 @@ index bbae516..f165efb 100644
 -
  	}
  
- 
-@@ -421,9 +446,9 @@ static int davinci_evm_probe(struct platform_device *pdev)
+-
+ 	evm_dai.codec_of_node = of_parse_phandle(np, "ti,audio-codec", 0);
+ 	if (!evm_dai.codec_of_node)
+ 		return -EINVAL;
+@@ -421,9 +445,9 @@ static int davinci_evm_probe(struct platform_device *pdev)
  		return ret;
  
  	ret = snd_soc_register_card(&evm_soc_card);
@@ -82,7 +85,7 @@ index bbae516..f165efb 100644
  	return ret;
  }
  
-@@ -460,9 +485,8 @@ static int __init evm_init(void)
+@@ -460,9 +484,8 @@ static int __init evm_init(void)
  	 * If dtb is there, the devices will be created dynamically.
  	 * Only register platfrom driver structure.
  	 */
@@ -94,7 +97,7 @@ index bbae516..f165efb 100644
  #endif
  
  	if (machine_is_davinci_evm()) {
-@@ -483,9 +507,8 @@ static int __init evm_init(void)
+@@ -483,9 +506,8 @@ static int __init evm_init(void)
  	} else if (machine_is_davinci_da850_evm()) {
  		evm_snd_dev_data = &da850_snd_soc_card;
  		index = 0;
@@ -156,5 +159,5 @@ index a89ece3..83232c6 100644
  		/* bit stream is MSB first with no delay */
  		/* DSP_B mode */
 -- 
-1.8.4.2
+1.8.5.1
 
