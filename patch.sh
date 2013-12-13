@@ -233,6 +233,12 @@ sgx () {
 	${git} "${DIR}/patches/sgx/0002-ARM-DTS-AM335x-Add-SGX-DT-node.patch"
 }
 
+sgx_blob () {
+	echo "dir: sgx-blob"
+	${git} "${DIR}/patches/sgx-blob/0001-NFM-TI-es8-merge-in-5.00.00.01-kernel-modules.patch"
+	${git} "${DIR}/patches/sgx-blob/0002-NFM-SGX-enable-driver-building.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -265,6 +271,7 @@ audio
 drm
 cpufreq
 sgx
+#sgx_blob
 saucy
 
 echo "patch.sh ran successful"
