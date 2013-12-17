@@ -1,0 +1,45 @@
+From 7dfa3f909ccbb2e3bd9791071141f412298e48e3 Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Thu, 12 Dec 2013 18:49:06 -0700
+Subject: [PATCH 136/140] ARM: dts: imx6qdl-sabrelite: Add uart1 support
+
+Uart1 is available on Sabre Lite.
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-sabrelite.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
+index d7522c9..903da14 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
+@@ -141,6 +141,10 @@
+ 			fsl,pins = <MX6QDL_I2C1_PINGRP1>;
+ 		};
+ 
++		pinctrl_uart1: uart1grp {
++			fsl,pins = <MX6QDL_UART1_PINGRP2>;
++		};
++
+ 		pinctrl_uart2: uart2grp {
+ 			fsl,pins = <MX6QDL_UART2_PINGRP1>;
+ 		};
+@@ -189,6 +193,12 @@
+ 	status = "okay";
+ };
+ 
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1>;
++	status = "okay";
++};
++
+ &uart2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart2>;
+-- 
+1.8.5.1
+

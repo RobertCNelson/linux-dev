@@ -199,6 +199,16 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0128-ARM-i.MX5-fix-obvious-typo-in-ldb_di0_gate-clk-defin.patch"
 	${git} "${DIR}/patches/imx_next/0129-ARM-imx-use-__initconst-for-const-init-definition.patch"
 	${git} "${DIR}/patches/imx_next/0130-ARM-dts-vf610-make-pinctrl-nodes-board-specific.patch"
+	${git} "${DIR}/patches/imx_next/0131-ARM-dts-imx6q-sabrelite-Enable-PCI-express.patch"
+	${git} "${DIR}/patches/imx_next/0132-ARM-dts-imx6qdl-add-aliases-for-can-interfaces.patch"
+	${git} "${DIR}/patches/imx_next/0133-ARM-dts-imx6qdl-add-pingroup-for-enet-interface-in-R.patch"
+	${git} "${DIR}/patches/imx_next/0134-ARM-dts-imx6qdl-add-new-pingroup-for-audmux.patch"
+	${git} "${DIR}/patches/imx_next/0135-ARM-dts-imx-sabrelite-add-Dual-Lite-Solo-support.patch"
+	${git} "${DIR}/patches/imx_next/0136-ARM-dts-imx6qdl-sabrelite-Add-uart1-support.patch"
+	${git} "${DIR}/patches/imx_next/0137-ARM-dts-imx6qdl-sabrelite-remove-usdhc4-wp-gpio.patch"
+	${git} "${DIR}/patches/imx_next/0138-ARM-imx6-Derive-spdif-clock-from-pll3_pfd3_454m.patch"
+	${git} "${DIR}/patches/imx_next/0139-ARM-imx6sl-Add-missing-pll4_audio_div-to-the-clock-t.patch"
+	${git} "${DIR}/patches/imx_next/0140-ARM-imx6sl-Add-missing-spba-clock-to-clock-tree.patch"
 }
 
 omap_next () {
@@ -276,7 +286,7 @@ omap_clock () {
 
 dts () {
 	echo "dir: dts"
-	${git} "${DIR}/patches/dts/0001-ARM-imx-Enable-UART1-for-Sabrelite.patch"
+#	${git} "${DIR}/patches/dts/0001-ARM-imx-Enable-UART1-for-Sabrelite.patch"
 	${git} "${DIR}/patches/dts/0002-ARM-dts-imx6qdl-wandboard-add-gpio-lines-to-wandboar.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-dts-imx6qdl-wandboard-Add-support-for-i2c1.patch"
 	${git} "${DIR}/patches/dts/0004-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
