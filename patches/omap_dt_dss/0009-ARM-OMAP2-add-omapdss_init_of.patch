@@ -1,7 +1,7 @@
-From 3425925d6cfe3c29049c1b2754baa4603beeabdb Mon Sep 17 00:00:00 2001
+From eed0fb52073ae45aac60df944d6158d402116277 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 18 Mar 2013 15:50:25 +0200
-Subject: [PATCH 05/28] ARM: OMAP2+: add omapdss_init_of()
+Subject: [PATCH 09/31] ARM: OMAP2+: add omapdss_init_of()
 
 omapdss driver uses a omapdss platform device to pass platform specific
 function pointers and DSS hardware version from the arch code to the
@@ -18,7 +18,7 @@ Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  3 files changed, 66 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/board-generic.c b/arch/arm/mach-omap2/board-generic.c
-index 19f1652..0e06771 100644
+index 8d972ff1..842e4f2 100644
 --- a/arch/arm/mach-omap2/board-generic.c
 +++ b/arch/arm/mach-omap2/board-generic.c
 @@ -36,6 +36,8 @@ static struct of_device_id omap_dt_match_table[] __initdata = {
@@ -31,10 +31,10 @@ index 19f1652..0e06771 100644
  
  #ifdef CONFIG_SOC_OMAP2420
 diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
-index f7644fe..48e9cd3 100644
+index e30ef67..04a4d360 100644
 --- a/arch/arm/mach-omap2/common.h
 +++ b/arch/arm/mach-omap2/common.h
-@@ -308,5 +308,7 @@ extern int omap_dss_reset(struct omap_hwmod *);
+@@ -307,5 +307,7 @@ extern int omap_dss_reset(struct omap_hwmod *);
  /* SoC specific clock initializer */
  extern int (*omap_clk_init)(void);
  
@@ -43,7 +43,7 @@ index f7644fe..48e9cd3 100644
  #endif /* __ASSEMBLER__ */
  #endif /* __ARCH_ARM_MACH_OMAP2PLUS_COMMON_H */
 diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-index a4e536b..3279afc 100644
+index 58347bb..197f431 100644
 --- a/arch/arm/mach-omap2/display.c
 +++ b/arch/arm/mach-omap2/display.c
 @@ -23,6 +23,8 @@
@@ -55,7 +55,7 @@ index a4e536b..3279afc 100644
  
  #include <video/omapdss.h>
  #include "omap_hwmod.h"
-@@ -592,3 +594,63 @@ int omap_dss_reset(struct omap_hwmod *oh)
+@@ -514,3 +516,63 @@ int omap_dss_reset(struct omap_hwmod *oh)
  
  	return r;
  }
@@ -120,5 +120,5 @@ index a4e536b..3279afc 100644
 +	return 0;
 +}
 -- 
-1.8.4.3
+1.8.5.1
 

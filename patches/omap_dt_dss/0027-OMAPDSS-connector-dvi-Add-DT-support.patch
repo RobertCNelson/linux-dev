@@ -1,7 +1,7 @@
-From f3558a8f28734d147b4f0ada9faa0823cffd28ce Mon Sep 17 00:00:00 2001
+From c0c2fb3b330ede0390567b42095cbe5842b1499b Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 30 Jul 2013 10:36:29 +0300
-Subject: [PATCH 22/28] OMAPDSS: connector-dvi: Add DT support
+Subject: [PATCH 27/31] OMAPDSS: connector-dvi: Add DT support
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  1 file changed, 43 insertions(+)
 
 diff --git a/drivers/video/omap2/displays-new/connector-dvi.c b/drivers/video/omap2/displays-new/connector-dvi.c
-index b6c5090..8f7e576 100644
+index b6c5090..f94344a 100644
 --- a/drivers/video/omap2/displays-new/connector-dvi.c
 +++ b/drivers/video/omap2/displays-new/connector-dvi.c
 @@ -277,6 +277,37 @@ static int dvic_probe_pdata(struct platform_device *pdev)
@@ -38,7 +38,7 @@ index b6c5090..8f7e576 100644
 +		if (adapter == NULL) {
 +			dev_err(&pdev->dev, "failed to parse i2c-bus\n");
 +			omap_dss_put_device(ddata->in);
-+			return -EINVAL;
++			return -EPROBE_DEFER;
 +		}
 +
 +		ddata->i2c_adapter = adapter;
@@ -83,5 +83,5 @@ index b6c5090..8f7e576 100644
  };
  
 -- 
-1.8.4.3
+1.8.5.1
 

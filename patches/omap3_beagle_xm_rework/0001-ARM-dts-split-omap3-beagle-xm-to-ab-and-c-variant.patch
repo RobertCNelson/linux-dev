@@ -1,22 +1,22 @@
-From bcf2f3681cf2c293ac278210ac70f7471859bba9 Mon Sep 17 00:00:00 2001
+From b4d868023dc66b571ae5a79781d32e46126c0bd3 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 4 Dec 2013 08:41:20 -0600
+Date: Tue, 17 Dec 2013 09:19:55 -0600
 Subject: [PATCH 1/2] ARM: dts: split omap3-beagle-xm to ab and c variant
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile               |   2 +
- arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 318 +++++++++++++++++++++++++++++++
- arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 318 +++++++++++++++++++++++++++++++
- 3 files changed, 638 insertions(+)
+ arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 366 +++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 366 +++++++++++++++++++++++++++++++
+ 3 files changed, 734 insertions(+)
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-ab.dts
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-c.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index b14bb11..cfe4ec4 100644
+index 062cfde..4b9fda8 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -192,6 +192,8 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
+@@ -195,6 +195,8 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
  	omap3-beagle.dtb \
  	omap3-devkit8000.dtb \
  	omap3-beagle-xm.dtb \
@@ -27,10 +27,10 @@ index b14bb11..cfe4ec4 100644
  	omap3-n900.dtb \
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 new file mode 100644
-index 0000000..ab27ea1
+index 0000000..6c8e033
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-@@ -0,0 +1,318 @@
+@@ -0,0 +1,366 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -154,6 +154,17 @@ index 0000000..ab27ea1
 +			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
 +		>;
 +	};
++
++	dss_dpi_pins2: pinmux_dss_dpi_pins {
++		pinctrl-single,pins = <
++			0x0a (PIN_OUTPUT | MUX_MODE3)   /* sys_boot0.dss_data18 */
++			0x0c (PIN_OUTPUT | MUX_MODE3)   /* sys_boot1.dss_data19 */
++			0x10 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot3.dss_data20 */
++			0x12 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot4.dss_data21 */
++			0x14 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot5.dss_data22 */
++			0x16 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot6.dss_data23 */
++		>;
++	};
 +};
 +
 +&omap3_pmx_core {
@@ -183,6 +194,35 @@ index 0000000..ab27ea1
 +			0x1aa (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_somi.hsusb2_data5 */
 +			0x1ac (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs0.hsusb2_data6 */
 +			0x1ae (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs1.hsusb2_data3 */
++		>;
++	};
++
++	dss_dpi_pins1: pinmux_dss_dpi_pins {
++		pinctrl-single,pins = <
++			0x0a4 (PIN_OUTPUT | MUX_MODE0)   /* dss_pclk.dss_pclk */
++			0x0a6 (PIN_OUTPUT | MUX_MODE0)   /* dss_hsync.dss_hsync */
++			0x0a8 (PIN_OUTPUT | MUX_MODE0)   /* dss_vsync.dss_vsync */
++			0x0aa (PIN_OUTPUT | MUX_MODE0)   /* dss_acbias.dss_acbias */
++
++			0x0b8 (PIN_OUTPUT | MUX_MODE0)   /* dss_data6.dss_data6 */
++			0x0ba (PIN_OUTPUT | MUX_MODE0)   /* dss_data7.dss_data7 */
++			0x0bc (PIN_OUTPUT | MUX_MODE0)   /* dss_data8.dss_data8 */
++			0x0be (PIN_OUTPUT | MUX_MODE0)   /* dss_data9.dss_data9 */
++			0x0c0 (PIN_OUTPUT | MUX_MODE0)   /* dss_data10.dss_data10 */
++			0x0c2 (PIN_OUTPUT | MUX_MODE0)   /* dss_data11.dss_data11 */
++			0x0c4 (PIN_OUTPUT | MUX_MODE0)   /* dss_data12.dss_data12 */
++			0x0c6 (PIN_OUTPUT | MUX_MODE0)   /* dss_data13.dss_data13 */
++			0x0c8 (PIN_OUTPUT | MUX_MODE0)   /* dss_data14.dss_data14 */
++			0x0ca (PIN_OUTPUT | MUX_MODE0)   /* dss_data15.dss_data15 */
++			0x0cc (PIN_OUTPUT | MUX_MODE0)   /* dss_data16.dss_data16 */
++			0x0ce (PIN_OUTPUT | MUX_MODE0)   /* dss_data17.dss_data17 */
++
++			0x0d0 (PIN_OUTPUT | MUX_MODE3)   /* dss_data18.dss_data0 */
++			0x0d2 (PIN_OUTPUT | MUX_MODE3)   /* dss_data19.dss_data1 */
++			0x0d4 (PIN_OUTPUT | MUX_MODE3)   /* dss_data20.dss_data2 */
++			0x0d6 (PIN_OUTPUT | MUX_MODE3)   /* dss_data21.dss_data3 */
++			0x0d8 (PIN_OUTPUT | MUX_MODE3)   /* dss_data22.dss_data4 */
++			0x0da (PIN_OUTPUT | MUX_MODE3)   /* dss_data23.dss_data5 */
 +		>;
 +	};
 +};
@@ -284,6 +324,12 @@ index 0000000..ab27ea1
 +};
 +
 +&dpi {
++	pinctrl-names = "default";
++	pinctrl-0 = <
++		&dss_dpi_pins1
++		&dss_dpi_pins2
++	>;
++
 +	vdds_dsi-supply = <&vpll2>;
 +
 +	dpi_out: endpoint {
@@ -308,7 +354,9 @@ index 0000000..ab27ea1
 +
 +	tfp410: encoder@0 {
 +		compatible = "ti,tfp410";
-+		gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>;
++		gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
++
++		/* XXX pinctrl from twl */
 +
 +		ports {
 +			#address-cells = <1>;
@@ -351,10 +399,10 @@ index 0000000..ab27ea1
 +};
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-c.dts b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
 new file mode 100644
-index 0000000..ab27ea1
+index 0000000..6c8e033
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
-@@ -0,0 +1,318 @@
+@@ -0,0 +1,366 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -478,6 +526,17 @@ index 0000000..ab27ea1
 +			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
 +		>;
 +	};
++
++	dss_dpi_pins2: pinmux_dss_dpi_pins {
++		pinctrl-single,pins = <
++			0x0a (PIN_OUTPUT | MUX_MODE3)   /* sys_boot0.dss_data18 */
++			0x0c (PIN_OUTPUT | MUX_MODE3)   /* sys_boot1.dss_data19 */
++			0x10 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot3.dss_data20 */
++			0x12 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot4.dss_data21 */
++			0x14 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot5.dss_data22 */
++			0x16 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot6.dss_data23 */
++		>;
++	};
 +};
 +
 +&omap3_pmx_core {
@@ -507,6 +566,35 @@ index 0000000..ab27ea1
 +			0x1aa (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_somi.hsusb2_data5 */
 +			0x1ac (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs0.hsusb2_data6 */
 +			0x1ae (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs1.hsusb2_data3 */
++		>;
++	};
++
++	dss_dpi_pins1: pinmux_dss_dpi_pins {
++		pinctrl-single,pins = <
++			0x0a4 (PIN_OUTPUT | MUX_MODE0)   /* dss_pclk.dss_pclk */
++			0x0a6 (PIN_OUTPUT | MUX_MODE0)   /* dss_hsync.dss_hsync */
++			0x0a8 (PIN_OUTPUT | MUX_MODE0)   /* dss_vsync.dss_vsync */
++			0x0aa (PIN_OUTPUT | MUX_MODE0)   /* dss_acbias.dss_acbias */
++
++			0x0b8 (PIN_OUTPUT | MUX_MODE0)   /* dss_data6.dss_data6 */
++			0x0ba (PIN_OUTPUT | MUX_MODE0)   /* dss_data7.dss_data7 */
++			0x0bc (PIN_OUTPUT | MUX_MODE0)   /* dss_data8.dss_data8 */
++			0x0be (PIN_OUTPUT | MUX_MODE0)   /* dss_data9.dss_data9 */
++			0x0c0 (PIN_OUTPUT | MUX_MODE0)   /* dss_data10.dss_data10 */
++			0x0c2 (PIN_OUTPUT | MUX_MODE0)   /* dss_data11.dss_data11 */
++			0x0c4 (PIN_OUTPUT | MUX_MODE0)   /* dss_data12.dss_data12 */
++			0x0c6 (PIN_OUTPUT | MUX_MODE0)   /* dss_data13.dss_data13 */
++			0x0c8 (PIN_OUTPUT | MUX_MODE0)   /* dss_data14.dss_data14 */
++			0x0ca (PIN_OUTPUT | MUX_MODE0)   /* dss_data15.dss_data15 */
++			0x0cc (PIN_OUTPUT | MUX_MODE0)   /* dss_data16.dss_data16 */
++			0x0ce (PIN_OUTPUT | MUX_MODE0)   /* dss_data17.dss_data17 */
++
++			0x0d0 (PIN_OUTPUT | MUX_MODE3)   /* dss_data18.dss_data0 */
++			0x0d2 (PIN_OUTPUT | MUX_MODE3)   /* dss_data19.dss_data1 */
++			0x0d4 (PIN_OUTPUT | MUX_MODE3)   /* dss_data20.dss_data2 */
++			0x0d6 (PIN_OUTPUT | MUX_MODE3)   /* dss_data21.dss_data3 */
++			0x0d8 (PIN_OUTPUT | MUX_MODE3)   /* dss_data22.dss_data4 */
++			0x0da (PIN_OUTPUT | MUX_MODE3)   /* dss_data23.dss_data5 */
 +		>;
 +	};
 +};
@@ -608,6 +696,12 @@ index 0000000..ab27ea1
 +};
 +
 +&dpi {
++	pinctrl-names = "default";
++	pinctrl-0 = <
++		&dss_dpi_pins1
++		&dss_dpi_pins2
++	>;
++
 +	vdds_dsi-supply = <&vpll2>;
 +
 +	dpi_out: endpoint {
@@ -632,7 +726,9 @@ index 0000000..ab27ea1
 +
 +	tfp410: encoder@0 {
 +		compatible = "ti,tfp410";
-+		gpios = <&twl_gpio 2 GPIO_ACTIVE_HIGH>;
++		gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
++
++		/* XXX pinctrl from twl */
 +
 +		ports {
 +			#address-cells = <1>;
@@ -674,5 +770,5 @@ index 0000000..ab27ea1
 +	};
 +};
 -- 
-1.8.4.3
+1.8.5.1
 

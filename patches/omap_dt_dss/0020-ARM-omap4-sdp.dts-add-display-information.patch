@@ -1,18 +1,41 @@
-From 295d242cb5bb05a82cf12f21b6304af3772e9681 Mon Sep 17 00:00:00 2001
+From 4ba7ee7bec780a21a2e2a4f5be3a3c7ff556bf5e Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 20 Aug 2012 17:07:31 +0300
-Subject: [PATCH 16/28] ARM: omap4-sdp.dts: add display information
+Subject: [PATCH 20/31] ARM: omap4-sdp.dts: add display information
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- arch/arm/boot/dts/omap4-sdp.dts | 91 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 91 insertions(+)
+ arch/arm/boot/dts/omap4-sdp.dts | 113 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 113 insertions(+)
 
 diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
-index 5fc3f43..e3048f8 100644
+index c13ada9..799b5c4 100644
 --- a/arch/arm/boot/dts/omap4-sdp.dts
 +++ b/arch/arm/boot/dts/omap4-sdp.dts
-@@ -550,3 +550,94 @@
+@@ -309,6 +309,22 @@
+ 			0x112 (PIN_INPUT_PULLUP | MUX_MODE0)	/* sdmmc5_dat3.sdmmc5_dat3 */
+ 		>;
+ 	};
++
++	dss_hdmi_pins: pinmux_dss_hdmi_pins {
++		pinctrl-single,pins = <
++			0x5a (PIN_INPUT_PULLUP | MUX_MODE0)	/* hdmi_cec.hdmi_cec */
++			0x5c (PIN_INPUT_PULLUP | MUX_MODE0)	/* hdmi_scl.hdmi_scl */
++			0x5e (PIN_INPUT_PULLUP | MUX_MODE0)	/* hdmi_sda.hdmi_sda */
++		>;
++	};
++
++	tpd12s015_pins: pinmux_tpd12s015_pins {
++		pinctrl-single,pins = <
++			0x22 (PIN_OUTPUT | MUX_MODE3)		/* gpmc_a17.gpio_41 */
++			0x48 (PIN_OUTPUT | MUX_MODE3)		/* gpmc_nbe1.gpio_60 */
++			0x58 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* hdmi_hpd.gpio_63 */
++		>;
++	};
+ };
+ 
+ &i2c1 {
+@@ -551,3 +567,100 @@
  	mode = <3>;
  	power = <50>;
  };
@@ -25,10 +48,10 @@ index 5fc3f43..e3048f8 100644
 +		lanes = <0 1 2 3 4 5>;
 +	};
 +
-+	lcd0: display@0 {
++	lcd0: display {
 +		compatible = "tpo,taal", "panel-dsi-cm";
 +
-+		gpios = <&gpio4 6 0>;	/* 102, reset */
++		gpios = <&gpio4 6 GPIO_ACTIVE_HIGH>;	/* 102, reset */
 +
 +		lcd0_in: endpoint {
 +			remote-endpoint = <&dsi1_out_ep>;
@@ -44,10 +67,10 @@ index 5fc3f43..e3048f8 100644
 +		lanes = <0 1 2 3 4 5>;
 +	};
 +
-+	lcd1: display@1 {
++	lcd1: display {
 +		compatible = "tpo,taal", "panel-dsi-cm";
 +
-+		gpios = <&gpio4 8 0>;	/* 104, reset */
++		gpios = <&gpio4 8 GPIO_ACTIVE_HIGH>;	/* 104, reset */
 +
 +		lcd1_in: endpoint {
 +			remote-endpoint = <&dsi2_out_ep>;
@@ -57,6 +80,9 @@ index 5fc3f43..e3048f8 100644
 +
 +&hdmi {
 +	vdda_hdmi_dac-supply = <&vdac>;
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&dss_hdmi_pins>;
 +
 +	hdmi_out: endpoint {
 +		remote-endpoint = <&tpd12s015_in>;
@@ -73,9 +99,12 @@ index 5fc3f43..e3048f8 100644
 +	tpd12s015: encoder@0 {
 +		compatible = "ti,tpd12s015";
 +
-+		gpios = <&gpio2 28 0>,	/* 60, CT CP HPD */
-+			<&gpio2 9 0>,	/* 41, LS OE */
-+			<&gpio2 31 0>;	/* 63, HPD */
++		pinctrl-names = "default";
++		pinctrl-0 = <&tpd12s015_pins>;
++
++		gpios = <&gpio2 28 GPIO_ACTIVE_HIGH>,	/* 60, CT CP HPD */
++			<&gpio2 9 GPIO_ACTIVE_HIGH>,	/* 41, LS OE */
++			<&gpio2 31 GPIO_ACTIVE_HIGH>;	/* 63, HPD */
 +
 +		ports {
 +			#address-cells = <1>;
@@ -108,5 +137,5 @@ index 5fc3f43..e3048f8 100644
 +	};
 +};
 -- 
-1.8.4.3
+1.8.5.1
 
