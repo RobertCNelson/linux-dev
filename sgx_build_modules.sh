@@ -204,8 +204,6 @@ file_pvr_startup () {
 	# Description:       Enable service provided by daemon.
 	### END INIT INFO
 
-	DPKG_ARCH=\$(dpkg --print-architecture | grep arm)
-
 	touch /etc/powervr-esrev
 	SAVED_ESREVISION="\$(cat /etc/powervr-esrev)"
 
@@ -346,10 +344,6 @@ file_install_sgx () {
 
 	echo "[default]" > /etc/powervr.ini
 	echo "WindowSystem=libpvrPVR2D_FRONTWSEGL.so" >> /etc/powervr.ini
-
-	#if [ ! \$(which devmem2) ] ; then
-	#        dpkg -i ./tools/devmem2*_armhf.deb
-	#fi
 
 	touch /etc/powervr-esrev
 
@@ -497,19 +491,6 @@ pkg_modules () {
 	rm -rf *.pdf || true
 }
 
-pkg_helpers () {
-	mkdir "${DIR}/ignore/ti-sdk-pvr/pkg/tools/"
-	cd "${DIR}/ignore/ti-sdk-pvr/pkg/tools"
-
-	#download devmem2
-	#rm -f /tmp/index.html || true
-	#wget --no-verbose --directory-prefix=/tmp http://ports.ubuntu.com/pool/universe/d/devmem2/
-
-	#DEVMEM_ARMHF=$(cat /tmp/index.html | grep _armhf.deb | head -1 | awk -F"\"" '{print $8}')
-
-	#wget -c --no-verbose http://ports.ubuntu.com/pool/universe/d/devmem2/${DEVMEM_ARMHF}
-}
-
 pkg_install_script () {
 	cd "${DIR}/ignore/ti-sdk-pvr/pkg"
 	file_pvr_startup
@@ -623,7 +604,6 @@ if [ -e ${DIR}/system.sh ] ; then
 
 	pkg_modules
 
-	pkg_helpers
 	pkg_install_script
 
 	pkg_up
