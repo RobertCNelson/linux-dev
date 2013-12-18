@@ -1,6 +1,6 @@
-From 2b07754a0a598228aa618a622256a77addd5b402 Mon Sep 17 00:00:00 2001
+From 3c82f151f70d0d9a090b63981e3ed777440a8371 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 12 Dec 2013 16:32:28 -0600
+Date: Wed, 18 Dec 2013 11:23:54 -0600
 Subject: [PATCH 1/2] prcm: port from ti-linux-3.12.y
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -9,9 +9,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am33xx.dtsi                      |   6 +
  drivers/reset/Kconfig                              |  10 ++
  drivers/reset/Makefile                             |   1 +
+ drivers/reset/core.c                               |  32 ++++
  drivers/reset/ti_reset.c                           | 184 +++++++++++++++++++++
  include/linux/reset-controller.h                   |   2 +
- 6 files changed, 216 insertions(+)
+ include/linux/reset.h                              |   2 +
+ 8 files changed, 250 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/arm/omap/prcm.txt
  create mode 100644 drivers/reset/ti_reset.c
 
@@ -77,6 +79,49 @@ index b854f20..a1b3185 100644
  obj-$(CONFIG_RESET_CONTROLLER) += core.o
  obj-$(CONFIG_RESET_GPIO) += gpio-reset.o
 +obj-$(CONFIG_RESET_TI) += ti_reset.o
+diff --git a/drivers/reset/core.c b/drivers/reset/core.c
+index d1b6089..ba12171 100644
+--- a/drivers/reset/core.c
++++ b/drivers/reset/core.c
+@@ -127,6 +127,38 @@ int reset_control_deassert(struct reset_control *rstc)
+ EXPORT_SYMBOL_GPL(reset_control_deassert);
+ 
+ /**
++ * reset_control_is_reset - check reset status
++ * @rstc: reset controller
++ *
++ * Returns a boolean or negative error code
++ *
++ */
++int reset_control_is_reset(struct reset_control *rstc)
++{
++	if (rstc->rcdev->ops->is_reset)
++		return rstc->rcdev->ops->is_reset(rstc->rcdev, rstc->id);
++
++	return -ENOSYS;
++}
++EXPORT_SYMBOL_GPL(reset_control_is_reset);
++
++/**
++ * reset_control_clear_reset - clear the reset
++ * @rstc: reset controller
++ *
++ * Returns zero on success or negative error code
++ *
++ */
++int reset_control_clear_reset(struct reset_control *rstc)
++{
++	if (rstc->rcdev->ops->clear_reset)
++		return rstc->rcdev->ops->clear_reset(rstc->rcdev, rstc->id);
++
++	return -ENOSYS;
++}
++EXPORT_SYMBOL_GPL(reset_control_clear_reset);
++
++/**
+  * reset_control_get - Lookup and obtain a reference to a reset controller.
+  * @dev: device to be reset by the controller
+  * @id: reset line name
 diff --git a/drivers/reset/ti_reset.c b/drivers/reset/ti_reset.c
 new file mode 100644
 index 0000000..cfa79e6
@@ -280,6 +325,19 @@ index 2f61311..c9bbadb 100644
  };
  
  struct module;
+diff --git a/include/linux/reset.h b/include/linux/reset.h
+index 6082247..da59f9f 100644
+--- a/include/linux/reset.h
++++ b/include/linux/reset.h
+@@ -7,6 +7,8 @@ struct reset_control;
+ int reset_control_reset(struct reset_control *rstc);
+ int reset_control_assert(struct reset_control *rstc);
+ int reset_control_deassert(struct reset_control *rstc);
++int reset_control_is_reset(struct reset_control *rstc);
++int reset_control_clear_reset(struct reset_control *rstc);
+ 
+ struct reset_control *reset_control_get(struct device *dev, const char *id);
+ void reset_control_put(struct reset_control *rstc);
 -- 
 1.8.5.1
 

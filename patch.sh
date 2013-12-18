@@ -231,6 +231,7 @@ sgx () {
 	echo "dir: sgx"
 	${git} "${DIR}/patches/sgx/0001-prcm-port-from-ti-linux-3.12.y.patch"
 	${git} "${DIR}/patches/sgx/0002-ARM-DTS-AM335x-Add-SGX-DT-node.patch"
+	${git} "${DIR}/patches/sgx/0003-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 }
 
 sgx_blob () {
