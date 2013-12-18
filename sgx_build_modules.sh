@@ -212,7 +212,7 @@ file_pvr_startup () {
 	case "\$1" in
 	start)
 	        echo "sgx: Starting PVR"
-	        modprobe omaplfb
+	        modprobe drm
 	        modprobe bufferclass_ti
 
 	        pvr_maj=\$(grep "pvrsrvkm$" /proc/devices | cut -b1,2,3)
@@ -235,8 +235,8 @@ file_pvr_startup () {
 	        if [ "x\${ES_REVISION}" != "x\${SAVED_ESREVISION}" ] ; then
 	                echo -n "sgx: Starting SGX fixup for"
 	                echo " ES\${ES_REVISION}.x"
-	                cp -a /usr/lib/\${DPKG_ARCH}/es\${ES_REVISION}.0/* /usr/lib
-	                cp -a /usr/bin/\${DPKG_ARCH}/es\${ES_REVISION}.0/* /usr/bin
+	                cp -a /usr/lib/es\${ES_REVISION}.0/* /usr/lib
+	                cp -a /usr/bin/es\${ES_REVISION}.0/* /usr/bin
 	                echo "\${ES_REVISION}" > /etc/powervr-esrev
 	        fi
 
@@ -245,11 +245,11 @@ file_pvr_startup () {
 	reload|force-reload|restart)
 	        echo "sgx: Restarting PVR"
 	        rmmod bufferclass_ti 2>/dev/null || true
-	        rmmod omaplfb 2>/dev/null || true
+	        rmmod drm 2>/dev/null || true
 	        rmmod pvrsrvkm 2>/dev/null || true
 
 	        echo "sgx: Starting PVR"
-	        modprobe omaplfb
+	        modprobe drm
 	        modprobe bufferclass_ti
 
 	        pvr_maj=\$(grep "pvrsrvkm$" /proc/devices | cut -b1,2,3)
@@ -272,8 +272,8 @@ file_pvr_startup () {
 	        if [ "x\${ES_REVISION}" != "x\${SAVED_ESREVISION}" ] ; then
 	                echo -n "sgx: Starting SGX fixup for"
 	                echo " ES\${ES_REVISION}.x"
-	                cp -a /usr/lib/\${DPKG_ARCH}/es\${ES_REVISION}.0/* /usr/lib
-	                cp -a /usr/bin/\${DPKG_ARCH}/es\${ES_REVISION}.0/* /usr/bin
+	                cp -a /usr/lib/es\${ES_REVISION}.0/* /usr/lib
+	                cp -a /usr/bin/es\${ES_REVISION}.0/* /usr/bin
 	                echo "\${ES_REVISION}" > /etc/powervr-esrev
 	        fi
 
@@ -282,7 +282,7 @@ file_pvr_startup () {
 	stop)
 	        echo "sgx: Stopping PVR"
 	        rmmod bufferclass_ti 2>/dev/null || true
-	        rmmod omaplfb 2>/dev/null || true
+	        rmmod drm 2>/dev/null || true
 	        rmmod pvrsrvkm 2>/dev/null || true
 	        ;;
 	*)
@@ -306,39 +306,38 @@ file_install_sgx () {
 	fi
 
 	DIR=\$PWD
-	DPKG_ARCH=\$(dpkg --print-architecture | grep arm)
 
-	ln -sf /usr/lib/libXdmcp.so.6.0.0 /usr/lib/libXdmcp.so.0
-	ln -sf /usr/lib/libXau.so.6.0.0 /usr/lib/libXau.so.0
+	#ln -sf /usr/lib/libXdmcp.so.6.0.0 /usr/lib/libXdmcp.so.0
+	#ln -sf /usr/lib/libXau.so.6.0.0 /usr/lib/libXau.so.0
 
-	sudo rm -rf /opt/sgx_ews/ || true
 	sudo rm -rf /opt/sgx_modules/ || true
 	sudo rm -rf /opt/sgx_other/ || true
 	sudo rm -rf /opt/sgx_xorg/ || true
 
-	if [ -f ./gfx_rel_es3_\${DPKG_ARCH}.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es3_\${DPKG_ARCH}.tar.gz"
-	        tar xf ./gfx_rel_es3_\${DPKG_ARCH}.tar.gz -C /
+	if [ -f ./gfx_rel_es3_armhf.tar.gz ] ; then
+	        echo "Extracting gfx_rel_es3_armhf.tar.gz"
+	        tar xf ./gfx_rel_es3_armhf.tar.gz -C /
 	fi
 
-	if [ -f ./gfx_rel_es5_\${DPKG_ARCH}.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es5_\${DPKG_ARCH}.tar.gz"
-	        tar xf ./gfx_rel_es5_\${DPKG_ARCH}.tar.gz -C /
+	if [ -f ./gfx_rel_es5_armhf.tar.gz ] ; then
+	        echo "Extracting gfx_rel_es5_armhf.tar.gz"
+	        tar xf ./gfx_rel_es5_armhf.tar.gz -C /
 	fi
 
-	if [ -f ./gfx_rel_es6_\${DPKG_ARCH}.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es6_\${DPKG_ARCH}.tar.gz"
-	        tar xf ./gfx_rel_es6_\${DPKG_ARCH}.tar.gz -C /
+	if [ -f ./gfx_rel_es6_armhf.tar.gz ] ; then
+	        echo "Extracting gfx_rel_es6_armhf.tar.gz"
+	        tar xf ./gfx_rel_es6_armhf.tar.gz -C /
 	fi
 
-	if [ -f ./gfx_rel_es8_\${DPKG_ARCH}.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es8_\${DPKG_ARCH}.tar.gz"
-	        tar xf ./gfx_rel_es8_\${DPKG_ARCH}.tar.gz -C /
+	if [ -f ./gfx_rel_es8_armhf.tar.gz ] ; then
+	        echo "Extracting gfx_rel_es8_armhf.tar.gz"
+	        tar xf ./gfx_rel_es8_armhf.tar.gz -C /
+	        cp -v /opt/sgx_xorg/es8.0/pvr_drv.so /usr/lib/xorg/modules/drivers/
 	fi
 
-	if [ -f ./gfx_rel_es9_\${DPKG_ARCH}.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es9_\${DPKG_ARCH}.tar.gz"
-	        tar xf ./gfx_rel_es9_\${DPKG_ARCH}.tar.gz -C /
+	if [ -f ./gfx_rel_es9_armhf.tar.gz ] ; then
+	        echo "Extracting gfx_rel_es9_armhf.tar.gz"
+	        tar xf ./gfx_rel_es9_armhf.tar.gz -C /
 	fi
 
 	if [ -f /etc/powervr-esrev ] ; then
@@ -349,7 +348,7 @@ file_install_sgx () {
 	echo "WindowSystem=libpvrPVR2D_FRONTWSEGL.so" >> /etc/powervr.ini
 
 	#if [ ! \$(which devmem2) ] ; then
-	#        dpkg -i ./tools/devmem2*_\${DPKG_ARCH}.deb
+	#        dpkg -i ./tools/devmem2*_armhf.deb
 	#fi
 
 	touch /etc/powervr-esrev
@@ -366,8 +365,8 @@ file_install_sgx () {
 	if [ "x\${ES_REVISION}" != "x\${SAVED_ESREVISION}" ] ; then
 	        echo -n "sgx: Starting SGX fixup for"
 	        echo " ES\${ES_REVISION}.x"
-	        cp -a /usr/lib/\${DPKG_ARCH}/es\${ES_REVISION}.0/* /usr/lib
-	        cp -a /usr/bin/\${DPKG_ARCH}/es\${ES_REVISION}.0/* /usr/bin
+	        cp -a /usr/lib/es\${ES_REVISION}.0/* /usr/lib
+	        cp -a /usr/bin/es\${ES_REVISION}.0/* /usr/bin
 	        echo "\${ES_REVISION}" > /etc/powervr-esrev
 	fi
 
@@ -383,13 +382,13 @@ file_install_sgx () {
 	echo "/lib/modules/\$(uname -r)/extra/pvrsrvkm.ko:" >>/tmp/modules.tmp
 	cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
 
-	grep -v -e "extra/omaplfb.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
-	echo "/lib/modules/\$(uname -r)/extra/omaplfb.ko: /lib/modules/\$(uname -r)/extra/pvrsrvkm.ko" >>/tmp/modules.tmp
+	grep -v -e "extra/drm.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
+	echo "/lib/modules/\$(uname -r)/extra/drm.ko: /lib/modules/\$(uname -r)/extra/drm.ko" >>/tmp/modules.tmp
 	cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
 
-	grep -v -e "extra/bufferclass_ti.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
-	echo "/lib/modules/\$(uname -r)/extra/bufferclass_ti.ko: /lib/modules/\$(uname -r)/extra/pvrsrvkm.ko" >>/tmp/modules.tmp
-	cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
+	#grep -v -e "extra/bufferclass_ti.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
+	#echo "/lib/modules/\$(uname -r)/extra/bufferclass_ti.ko: /lib/modules/\$(uname -r)/extra/pvrsrvkm.ko" >>/tmp/modules.tmp
+	#cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
 
 	depmod -a
 
@@ -442,26 +441,23 @@ mv_modules_libs_bins () {
 	#armhf has extra pre-built kernel modules, remove...(built against v3.4.4-x1 so not usable..)
 	rm -rf *.ko || true 
 
-	mkdir -p ./opt/sgx_xorg/${ARCH}/${CORE}.0/
-	mv ./pvr_drv* ./opt/sgx_xorg/${ARCH}/${CORE}.0/ || true
-	mv ./xorg.conf ./opt/sgx_xorg/${ARCH}/${CORE}.0/ || true
+	mkdir -p ./opt/sgx_xorg/${CORE}.0/
+	mv ./pvr_drv* ./opt/sgx_xorg/${CORE}.0/ || true
+	mv ./xorg.conf ./opt/sgx_xorg/${CORE}.0/ || true
 
-	mkdir -p ./opt/sgx_ews/${ARCH}/${CORE}.0/
-	mv ./ews* ./opt/sgx_ews/${ARCH}/${CORE}.0/ || true
+	mkdir -p ./opt/sgx_other/${CORE}.0/
+	mv ./*.sh ./opt/sgx_other/${CORE}.0/ || true
+	mv ./*.pvr ./opt/sgx_other/${CORE}.0/ || true
 
-	mkdir -p ./opt/sgx_other/${ARCH}/${CORE}.0/
-	mv ./*.sh ./opt/sgx_other/${ARCH}/${CORE}.0/ || true
-	mv ./*.pvr ./opt/sgx_other/${ARCH}/${CORE}.0/ || true
+	mkdir -p ./usr/lib/${CORE}.0/
+	mv ./*.so* ./usr/lib/${CORE}.0/ || true
+	mv ./*.a ./usr/lib/${CORE}.0/ || true
+	mv ./*.dbg ./usr/lib/${CORE}.0/ || true
 
-	mkdir -p ./usr/lib/${ARCH}/${CORE}.0/
-	mv ./*.so* ./usr/lib/${ARCH}/${CORE}.0/ || true
-	mv ./*.a ./usr/lib/${ARCH}/${CORE}.0/ || true
-	mv ./*.dbg ./usr/lib/${ARCH}/${CORE}.0/ || true
-
-	mkdir -p ./usr/bin/${ARCH}/${CORE}.0/
-	mv ./*_test ./usr/bin/${ARCH}/${CORE}.0/ || true
-	mv ./*gl* ./usr/bin/${ARCH}/${CORE}.0/ || true
-	mv ./p[dv]* ./usr/bin/${ARCH}/${CORE}.0/ || true
+	mkdir -p ./usr/bin/${CORE}.0/
+	mv ./*_test ./usr/bin/${CORE}.0/ || true
+	mv ./*gl* ./usr/bin/${CORE}.0/ || true
+	mv ./p[dv]* ./usr/bin/${CORE}.0/ || true
 }
 
 gfx_rel_x () {

@@ -75,6 +75,17 @@ mmc_write_rootfs () {
 		fi
 		sudo cp -v "${DIR}/deploy/config-${KERNEL_UTS}" "${location}/boot/config-${KERNEL_UTS}"
 	fi
+
+	if [ -f "${DIR}/deploy/GFX_5.00.00.01_libs.tar.gz" ] ; then
+		if [ ! -d "${location}/opt/sgx" ] ; then
+			sudo mkdir -p "${location}/opt/sgx"
+		fi
+		sudo cp -v "${DIR}/deploy/GFX_5.00.00.01_libs.tar.gz" "${location}/opt/sgx"
+	fi
+
+	if [ -f "${DIR}/deploy/GFX_Linux_5.00.00.01_examples.tar.gz" ] ; then
+		sudo cp -v "${DIR}/deploy/GFX_Linux_5.00.00.01_examples.tar.gz" "${location}/opt/sgx"
+	fi
 }
 
 mmc_write_boot () {

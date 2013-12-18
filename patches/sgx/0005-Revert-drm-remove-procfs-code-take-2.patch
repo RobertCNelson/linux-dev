@@ -1,16 +1,16 @@
-From 62bc1683bc54e0f9d328542e5f9632f5d3dfa5d4 Mon Sep 17 00:00:00 2001
+From 639120f9a987082bd4684172639982d9de726184 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Wed, 18 Dec 2013 14:26:44 -0600
-Subject: [PATCH 5/5] Revert "drm: remove procfs code, take 2"
+Subject: [PATCH 5/6] Revert "drm: remove procfs code, take 2"
 
 This reverts commit cb6458f97b53d7f73043206c18014b3ca63ac345.
 ---
  drivers/gpu/drm/Makefile   |   2 +-
  drivers/gpu/drm/drm_drv.c  |   8 ++
- drivers/gpu/drm/drm_proc.c | 209 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/drm_proc.c | 208 +++++++++++++++++++++++++++++++++++++++++++++
  drivers/gpu/drm/drm_stub.c |  32 +++++--
  include/drm/drmP.h         |   8 ++
- 5 files changed, 250 insertions(+), 9 deletions(-)
+ 5 files changed, 249 insertions(+), 9 deletions(-)
  create mode 100644 drivers/gpu/drm/drm_proc.c
 
 diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
@@ -54,10 +54,10 @@ index fe58d08..fa523d2 100644
  
 diff --git a/drivers/gpu/drm/drm_proc.c b/drivers/gpu/drm/drm_proc.c
 new file mode 100644
-index 0000000..d7f2324
+index 0000000..12afa8e
 --- /dev/null
 +++ b/drivers/gpu/drm/drm_proc.c
-@@ -0,0 +1,209 @@
+@@ -0,0 +1,208 @@
 +/**
 + * \file drm_proc.c
 + * /proc support for DRM
@@ -266,7 +266,6 @@ index 0000000..d7f2324
 +	remove_proc_subtree(name, root);
 +	return 0;
 +}
-+
 diff --git a/drivers/gpu/drm/drm_stub.c b/drivers/gpu/drm/drm_stub.c
 index 39d8645..d2e0740 100644
 --- a/drivers/gpu/drm/drm_stub.c
