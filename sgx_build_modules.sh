@@ -29,8 +29,8 @@ DIR=$PWD
 SDK="5.00.00.01"
 sdk_version="5_00_00_01"
 SDK_DIR="5_00_00_01"
-#SGX_SHA="origin/${SDK}"
-SGX_SHA="origin/master"
+SGX_SHA="origin/${SDK}"
+#SGX_SHA="origin/master"
 
 http_ti="http://software-dl.ti.com/dsps/dsps_public_sw/sdo_sb/targetcontent/gfxsdk/"
 sgx_file="Graphics_SDK_setuplinux_${sdk_version}_alpha_hardfp_minimal_demos.bin"
@@ -620,7 +620,7 @@ if [ -e ${DIR}/system.sh ] ; then
 #	build_sgx_modules release 6.x yes 0 all
 
 	clean_sgx_modules
-	build_sgx_modules release 8.x yes 0 all
+	build_sgx_modules release 8.x yes 1 all
 
 #	clean_sgx_modules
 #	build_sgx_modules release 9.x yes 0 all

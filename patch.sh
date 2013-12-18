@@ -233,6 +233,7 @@ sgx () {
 	${git} "${DIR}/patches/sgx/0002-ARM-DTS-AM335x-Add-SGX-DT-node.patch"
 	${git} "${DIR}/patches/sgx/0003-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 	${git} "${DIR}/patches/sgx/0004-hack-port-da8xx-changes-from-ti-3.12-repo.patch"
+	${git} "${DIR}/patches/sgx/0005-Revert-drm-remove-procfs-code-take-2.patch"
 }
 
 sgx_blob () {
