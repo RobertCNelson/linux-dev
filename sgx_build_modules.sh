@@ -377,7 +377,7 @@ file_install_sgx () {
 	cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
 
 	grep -v -e "extra/drm.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
-	echo "/lib/modules/\$(uname -r)/extra/drm.ko: /lib/modules/\$(uname -r)/extra/drm.ko" >>/tmp/modules.tmp
+	echo "/lib/modules/\$(uname -r)/extra/drm.ko: /lib/modules/\$(uname -r)/extra/pvrsrvkm.ko" >>/tmp/modules.tmp
 	cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
 
 	#grep -v -e "extra/bufferclass_ti.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
