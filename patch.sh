@@ -222,7 +222,7 @@ omap_dt_dss () {
 	#From: https://git.kernel.org/cgit/linux/kernel/git/tomba/linux.git/log/?h=work/dss-dt
 
 	${git} "${DIR}/patches/omap_dt_dss/0001-Revert-ARM-OMAP4-hwmod-data-add-DSS-data-back.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0002-gpio-twl4030-Fix-regression-for-twl-gpio-LED-output.patch"
+	#${git} "${DIR}/patches/omap_dt_dss/0002-gpio-twl4030-Fix-regression-for-twl-gpio-LED-output.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0003-omap4-sdp.dts-add-power-supply-for-backlight.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0004-OMAPDSS-rename-display-sysfs-name-entry.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0005-OMAPDSS-DSI-fix-fifosize.patch"
