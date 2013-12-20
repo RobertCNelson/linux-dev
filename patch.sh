@@ -240,7 +240,9 @@ sgx () {
 sgx_blob () {
 	echo "dir: sgx-blob"
 	${git} "${DIR}/patches/sgx-blob/0001-NFM-TI-es8-merge-in-5.00.00.01-kernel-modules.patch"
-	${git} "${DIR}/patches/sgx-blob/0002-NFM-SGX-enable-driver-building.patch"
+	${git} "${DIR}/patches/sgx-blob/0002-NFM-use-drm-for-3.4-3.8.patch"
+	${git} "${DIR}/patches/sgx-blob/0003-NFW-sgx-drm_fasync-has-been-removed.patch"
+	${git} "${DIR}/patches/sgx-blob/0004-NFM-SGX-enable-driver-building.patch"
 }
 
 saucy () {

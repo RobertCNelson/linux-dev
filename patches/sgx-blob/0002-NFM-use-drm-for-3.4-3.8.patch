@@ -1,0 +1,76 @@
+From c541d2ca61f629d9c0bbf74db0dc252feeb24cf8 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 20 Dec 2013 14:56:47 -0600
+Subject: [PATCH 2/2] NFM: use drm for 3.4-3.8
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild | 40 +++++++++++-----------
+ 1 file changed, 20 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild b/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild
+index d01ef39..ccca3cd 100644
+--- a/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild
++++ b/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild
+@@ -26,38 +26,38 @@ endif
+ endif
+ 
+ obj-m := drm.o
+-ifeq ($(TI_PLATFORM),omap4)
+-drm-y := pvr_drm_stubs.o drm_auth.o drm_bufs.o drm_cache.o drm_context.o drm_dma.o drm_drawable.o drm_drv.o drm_fops.o drm_gem.o drm_ioctl.o drm_irq.o \
+-	drm_lock.o drm_memory.o drm_proc.o drm_stub.o drm_vm.o \
+-	drm_agpsupport.o drm_scatter.o ati_pcigart.o drm_pci.o \
+-	drm_sysfs.o drm_hashtab.o drm_sman.o drm_mm.o \
+-	drm_crtc.o drm_modes.o drm_edid.o \
+-	drm_info.o drm_debugfs.o drm_encoder_slave.o
+-else
++#ifeq ($(TI_PLATFORM),omap4)
++#drm-y := pvr_drm_stubs.o drm_auth.o drm_bufs.o drm_cache.o drm_context.o drm_dma.o drm_drawable.o drm_drv.o drm_fops.o drm_gem.o drm_ioctl.o drm_irq.o \
++#	drm_lock.o drm_memory.o drm_proc.o drm_stub.o drm_vm.o \
++#	drm_agpsupport.o drm_scatter.o ati_pcigart.o drm_pci.o \
++#	drm_sysfs.o drm_hashtab.o drm_sman.o drm_mm.o \
++#	drm_crtc.o drm_modes.o drm_edid.o \
++#	drm_info.o drm_debugfs.o drm_encoder_slave.o
++#else
+ # Works for 2.6.37 till 3.2 kernel
+-drm-y := pvr_drm_stubs.o drm_auth.o drm_bufs.o drm_cache.o drm_context.o drm_dma.o drm_drv.o drm_fops.o drm_gem.o drm_ioctl.o drm_irq.o \
+-	drm_lock.o drm_memory.o drm_proc.o drm_stub.o drm_vm.o \
+-	drm_agpsupport.o drm_scatter.o ati_pcigart.o drm_pci.o \
+-	drm_sysfs.o drm_hashtab.o drm_sman.o drm_mm.o \
+-	drm_crtc.o drm_modes.o drm_edid.o \
+-	drm_info.o drm_debugfs.o drm_encoder_slave.o drm_global.o drm_platform.o drm_trace_points.o
+-endif
+-
+-# For 3.3 kernel only
+ #drm-y := pvr_drm_stubs.o drm_auth.o drm_bufs.o drm_cache.o drm_context.o drm_dma.o drm_drv.o drm_fops.o drm_gem.o drm_ioctl.o drm_irq.o \
+ #	drm_lock.o drm_memory.o drm_proc.o drm_stub.o drm_vm.o \
+ #	drm_agpsupport.o drm_scatter.o ati_pcigart.o drm_pci.o \
+-#	drm_sysfs.o drm_hashtab.o drm_mm.o \
++#	drm_sysfs.o drm_hashtab.o drm_sman.o drm_mm.o \
+ #	drm_crtc.o drm_modes.o drm_edid.o \
+ #	drm_info.o drm_debugfs.o drm_encoder_slave.o drm_global.o drm_platform.o drm_trace_points.o
++#endif
+ 
+-# For greater than/equal to 3.4 till 3.8 kernel
++# For 3.3 kernel only
+ #drm-y := pvr_drm_stubs.o drm_auth.o drm_bufs.o drm_cache.o drm_context.o drm_dma.o drm_drv.o drm_fops.o drm_gem.o drm_ioctl.o drm_irq.o \
+ #	drm_lock.o drm_memory.o drm_proc.o drm_stub.o drm_vm.o \
+ #	drm_agpsupport.o drm_scatter.o ati_pcigart.o drm_pci.o \
+ #	drm_sysfs.o drm_hashtab.o drm_mm.o \
+ #	drm_crtc.o drm_modes.o drm_edid.o \
+-#	drm_info.o drm_debugfs.o drm_encoder_slave.o drm_global.o drm_platform.o drm_trace_points.o drm_prime.o
++#	drm_info.o drm_debugfs.o drm_encoder_slave.o drm_global.o drm_platform.o drm_trace_points.o
++
++# For greater than/equal to 3.4 till 3.8 kernel
++drm-y := pvr_drm_stubs.o drm_auth.o drm_bufs.o drm_cache.o drm_context.o drm_dma.o drm_drv.o drm_fops.o drm_gem.o drm_ioctl.o drm_irq.o \
++	drm_lock.o drm_memory.o drm_proc.o drm_stub.o drm_vm.o \
++	drm_agpsupport.o drm_scatter.o ati_pcigart.o drm_pci.o \
++	drm_sysfs.o drm_hashtab.o drm_mm.o \
++	drm_crtc.o drm_modes.o drm_edid.o \
++	drm_info.o drm_debugfs.o drm_encoder_slave.o drm_global.o drm_platform.o drm_trace_points.o drm_prime.o
+ 
+ # less than 2.6.32 kernel
+ 
+-- 
+1.8.5.1
+

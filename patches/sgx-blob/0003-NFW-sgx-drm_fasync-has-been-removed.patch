@@ -1,0 +1,33 @@
+From b93b8381e4e66e393785b03948e30714292a9470 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 20 Dec 2013 14:58:31 -0600
+Subject: [PATCH 3/3] NFW: sgx: drm_fasync has been removed
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/staging/ti-es8-sgx/services4/srvkm/env/linux/pvr_drm.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/staging/ti-es8-sgx/services4/srvkm/env/linux/pvr_drm.c b/drivers/staging/ti-es8-sgx/services4/srvkm/env/linux/pvr_drm.c
+index f59e544..6d6b3b5 100644
+--- a/drivers/staging/ti-es8-sgx/services4/srvkm/env/linux/pvr_drm.c
++++ b/drivers/staging/ti-es8-sgx/services4/srvkm/env/linux/pvr_drm.c
+@@ -485,7 +485,6 @@ static const struct file_operations sPVRFileOps =
+ 	PVR_DRM_FOPS_IOCTL = drm_ioctl,
+ 	.mmap = PVRMMap,
+ 	.poll = drm_poll,
+-	.fasync = drm_fasync,
+ };
+ #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3,3,0)) */
+ 
+@@ -527,7 +526,6 @@ static struct drm_driver sPVRDrmDriver =
+ 		PVR_DRM_FOPS_IOCTL = drm_ioctl,
+ 		.mmap = PVRMMap,
+ 		.poll = drm_poll,
+-		.fasync = drm_fasync,
+ 	},
+ #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3,3,0)) */
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39))
+-- 
+1.8.5.1
+

@@ -1,0 +1,229 @@
+From 3fabd18010daf6c90c18de07b53f05474c77b81f Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 13 Dec 2013 10:10:59 -0600
+Subject: [PATCH 2/2] NFM: SGX enable driver building
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/staging/Kconfig                            |  2 +
+ drivers/staging/Makefile                           |  1 +
+ drivers/staging/ti-es8-sgx/Kbuild                  | 53 +++++++++++++---------
+ drivers/staging/ti-es8-sgx/Kconfig                 |  9 ++++
+ .../services4/3rdparty/bufferclass_ti/Kbuild       |  6 +--
+ .../services4/3rdparty/dc_ti335x_linux/Kbuild      | 22 ++++-----
+ .../ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild | 17 ++++---
+ 7 files changed, 66 insertions(+), 44 deletions(-)
+ create mode 100644 drivers/staging/ti-es8-sgx/Kconfig
+
+diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
+index 3626dbc8..73faa87 100644
+--- a/drivers/staging/Kconfig
++++ b/drivers/staging/Kconfig
+@@ -148,4 +148,6 @@ source "drivers/staging/dgnc/Kconfig"
+ 
+ source "drivers/staging/dgap/Kconfig"
+ 
++source "drivers/staging/ti-es8-sgx/Kconfig"
++
+ endif # STAGING
+diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
+index d1b4b80..10683e1 100644
+--- a/drivers/staging/Makefile
++++ b/drivers/staging/Makefile
+@@ -66,3 +66,4 @@ obj-$(CONFIG_USB_BTMTK)		+= btmtk_usb/
+ obj-$(CONFIG_XILLYBUS)		+= xillybus/
+ obj-$(CONFIG_DGNC)			+= dgnc/
+ obj-$(CONFIG_DGAP)			+= dgap/
++obj-$(CONFIG_TI_ES8_SGX)		+= ti-es8-sgx/
+diff --git a/drivers/staging/ti-es8-sgx/Kbuild b/drivers/staging/ti-es8-sgx/Kbuild
+index 3098a8d..9d75770 100755
+--- a/drivers/staging/ti-es8-sgx/Kbuild
++++ b/drivers/staging/ti-es8-sgx/Kbuild
+@@ -1,3 +1,13 @@
++#
++
++BUILD=release
++OMAPES=8.x
++FBDEV=no
++
++TI_PLATFORM=ti335x
++#SUPPORT_XORG=no
++#FBDEV=no
++
+ obj-m	:= pvrsrvkm.o
+ 
+ FILES := \
+@@ -42,19 +52,19 @@ services4/system/$(TI_PLATFORM)/sysutils.c \
+ services4/system/$(TI_PLATFORM)/sysconfig.c \
+ 
+ ifneq ($(FBDEV),no)
+-EXTRA_CFLAGS += -DFBDEV_PRESENT
++ccflags-y += -DFBDEV_PRESENT
+ endif
+ 
+ ifeq ($(TI_PLATFORM),ti43xx)
+ ifneq ($(PM_RUNTIME),no)
+-EXTRA_CFLAGS += -DPM_RUNTIME_SUPPORT
++ccflags-y += -DPM_RUNTIME_SUPPORT
+ endif
+ endif
+ 
+ ifeq ($(TI_PLATFORM),ti335x)
+ ifneq ($(SUPPORT_XORG),1)
+ ifneq ($(PM_RUNTIME),no)
+-EXTRA_CFLAGS += -DPM_RUNTIME_SUPPORT
++ccflags-y += -DPM_RUNTIME_SUPPORT
+ endif
+ endif
+ endif
+@@ -73,30 +83,31 @@ endif
+ endif
+ endif
+ 
+-EXTRA_CFLAGS += -I$(src)/include4
+-EXTRA_CFLAGS += -I$(src)/services4/include
+-EXTRA_CFLAGS += -I$(src)/services4/srvkm/include
+-EXTRA_CFLAGS += -I$(src)/services4/srvkm/hwdefs
+-EXTRA_CFLAGS += -I$(src)/services4/srvkm/bridged
+-EXTRA_CFLAGS += -I$(src)/services4/srvkm/devices/sgx
+-EXTRA_CFLAGS += -I$(src)/services4/srvkm/env/linux
+-EXTRA_CFLAGS += -I$(src)/services4/system/include
+-EXTRA_CFLAGS += -I$(src)/services4/system/$(TI_PLATFORM)
+-EXTRA_CFLAGS += -I$(src)/services4/srvkm/bridged/sgx
+-EXTRA_CFLAGS += -I$(KERNELDIR)/arch/arm/mach-omap2
++ccflags-y += -DLINUX
++ccflags-y += -Idrivers/staging/ti-es8-sgx/include4
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/include
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/srvkm/include
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/srvkm/hwdefs
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/srvkm/bridged
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/srvkm/devices/sgx
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/srvkm/env/linux
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/system/include
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/system/$(TI_PLATFORM)
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/srvkm/bridged/sgx
++ccflags-y += -Iarch/arm/mach-omap2
+ 
+ ifeq ($(SUPPORT_XORG),1)
+-EXTRA_CFLAGS += -I$(KERNELDIR)/include/drm
+-EXTRA_CFLAGS += -I$(src)/services4/3rdparty/linux_drm
+-EXTRA_CFLAGS += -I$(src)/services4/include/env/linux
+-EXTRA_CFLAGS += -I$(KERNELDIR)/drivers/video/omap2
+-EXTRA_CFLAGS += -I$(KERNELDIR)/arch/arm/plat-omap/include
++ccflags-y += -Iinclude/drm
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/include/env/linux
++ccflags-y += -Idrivers/video/omap2
++ccflags-y += -Iarch/arm/plat-omap/include
+ ifeq ($(TI_PLATFORM),omap4)
+-EXTRA_CFLAGS += -DCONFIG_SLOW_WORK
++ccflags-y += -DCONFIG_SLOW_WORK
+ endif
+ endif
+ 
+-EXTRA_CFLAGS += $(ALL_CFLAGS)
++ccflags-y +=  $(ALL_CFLAGS)
+ 
+ pvrsrvkm-y	:= $(FILES:.c=.o)
+ 
+diff --git a/drivers/staging/ti-es8-sgx/Kconfig b/drivers/staging/ti-es8-sgx/Kconfig
+new file mode 100644
+index 0000000..41c7937
+--- /dev/null
++++ b/drivers/staging/ti-es8-sgx/Kconfig
+@@ -0,0 +1,9 @@
++#
++# TI SGX Driver Support
++#
++
++config TI_ES8_SGX
++	bool "TI ES8 SGX support (TI: 5.00.00.01)"
++	depends on RESET_TI && m
++	help
++	  This is TI's ES8 SGX Kernel Modules 5.00.00.01
+diff --git a/drivers/staging/ti-es8-sgx/services4/3rdparty/bufferclass_ti/Kbuild b/drivers/staging/ti-es8-sgx/services4/3rdparty/bufferclass_ti/Kbuild
+index c6f3b93..87c5364 100755
+--- a/drivers/staging/ti-es8-sgx/services4/3rdparty/bufferclass_ti/Kbuild
++++ b/drivers/staging/ti-es8-sgx/services4/3rdparty/bufferclass_ti/Kbuild
+@@ -1,6 +1,6 @@
+-EXTRA_CFLAGS =	-DLINUX \
+-               -I$(PVR_BUILD_DIR)/include4 \
+-               -I$(PVR_BUILD_DIR)/services4/include
++ccflags-y += -DLINUX
++ccflags-y += -Idrivers/staging/ti-es8-sgx/include4
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/include
+ 
+ ifeq ($(TI_PLATFORM),ti81xx)
+ EXTRA_CFLAGS += -DPLAT_TI81xx
+diff --git a/drivers/staging/ti-es8-sgx/services4/3rdparty/dc_ti335x_linux/Kbuild b/drivers/staging/ti-es8-sgx/services4/3rdparty/dc_ti335x_linux/Kbuild
+index 1ae23593..6e98a6d 100644
+--- a/drivers/staging/ti-es8-sgx/services4/3rdparty/dc_ti335x_linux/Kbuild
++++ b/drivers/staging/ti-es8-sgx/services4/3rdparty/dc_ti335x_linux/Kbuild
+@@ -9,22 +9,22 @@ SYS_CFLAGS.$(SUPPORT_TI_DSS_FW)                         += -DSUPPORT_TI_DSS_FW
+ SYS_CFLAGS.$(PVR_LINUX_USING_WORKQUEUES)             += -DPVR_LINUX_USING_WORKQUEUES
+ SYS_CFLAGS += -DDISPLAY_CONTROLLER=omaplfb
+ 
+-EXTRA_CFLAGS =	-DLINUX \
+-		-DCONFIG_OMAP2_DSS \
+-		-I$(PVR_BUILD_DIR)/include4 \
+-		-I$(PVR_BUILD_DIR)/services4/include \
+-		-I$(PVR_BUILD_DIR)/services4/system/$(PVR_SYSTEM) \
+-		-I$(KERNELDIR)/drivers/video/omap2 \
+-		-I$(PVR_BUILD_DIR)/services4/system/include \
+-		$(SYS_CFLAGS.1) \
++ccflags-y += -DLINUX
++ccflags-y += -DCONFIG_OMAP2_DSS
++ccflags-y += -Idrivers/staging/ti-es8-sgx/include4
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/include
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/system/$(PVR_SYSTEM)
++ccflags-y += -Idrivers/video/omap2
++ccflags-y += -Idrivers/staging/ti-es8-sgx/services4/system/include
++ccflags-y += $(SYS_CFLAGS.1)
+ 
+ ifneq ($(FBDEV),no)
+-EXTRA_CFLAGS += -DFBDEV_PRESENT
++ccflags-y += -DFBDEV_PRESENT
+ endif
+ 
+ ifeq ($(SUPPORT_XORG),1)
+-EXTRA_CFLAGS += -DSUPPORT_DRI_DRM
+-EXTRA_CFLAGS += -DPVR_DISPLAY_CONTROLLER_DRM_IOCTL
++ccflags-y += -DSUPPORT_DRI_DRM
++ccflags-y += -DPVR_DISPLAY_CONTROLLER_DRM_IOCTL
+ endif
+ 
+ 
+diff --git a/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild b/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild
+index d01ef39..23f8990 100755
+--- a/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild
++++ b/drivers/staging/ti-es8-sgx/services4/3rdparty/linux_drm/Kbuild
+@@ -10,18 +10,17 @@ SYS_CFLAGS.$(PVR_LINUX_USING_WORKQUEUES)             += -DPVR_LINUX_USING_WORKQU
+ 
+ EXT_SOURCE_DIR := $(KERNELDIR)/drivers/gpu/drm
+ 
+-EXTRA_CFLAGS =	-DLINUX \
+-		-DCONFIG_PCI \
+-		-Wno-error \
+-		-I$(KERNELDIR)/include/drm \
+-		-I$(KERNELDIR)/include/linux \
+-		-I$(EXT_SOURCE_DIR) \
+-		$(SYS_CFLAGS.1) \
++ccflags-y += -DLINUX
++ccflags-y += -DCONFIG_PCI
++ccflags-y += -Wno-error
++ccflags-y += -Iinclude/drm
++ccflags-y += -Iinclude/linux
++ccflags-y += $(SYS_CFLAGS.1)
+ 
+ ifeq ($(SUPPORT_DRI_DRM),1)
+-EXTRA_CFLAGS += -DPVR_DISPLAY_CONTROLLER_DRM_IOCTL
++ccflags-y += -DPVR_DISPLAY_CONTROLLER_DRM_IOCTL
+ ifeq ($(TI_PLATFORM),omap4)
+-EXTRA_CFLAGS += -DCONFIG_SLOW_WORK
++ccflags-y += -DCONFIG_SLOW_WORK
+ endif
+ endif
+ 
+-- 
+1.8.5.1
+
