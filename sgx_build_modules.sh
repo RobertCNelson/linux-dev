@@ -182,8 +182,8 @@ build_sgx_modules () {
 	mkdir -p "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/gfx_rel_es$2/" || true
 
 	pwd
-	echo "make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" "$5""
-	make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" "$5"
+	echo "make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" PM_RUNTIME="$5" "$6"
+	make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" PM_RUNTIME="$5" "$6"
 	cd ${DIR}/
 	echo "-----------------------------"
 	echo "modinfo sanity check: vermagic:"
@@ -587,20 +587,22 @@ if [ -e ${DIR}/system.sh ] ; then
 		exit
 	fi
 
-#	clean_sgx_modules
-#	build_sgx_modules release 3.x yes 0 all
+	#make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} FBDEV={yes | no} SUPPORT_XORG= {1 | 0 } PM_RUNTIME={1 | 0) all"
 
 #	clean_sgx_modules
-#	build_sgx_modules release 5.x yes 0 all
+#	build_sgx_modules release 3.x yes 0 0 all
 
 #	clean_sgx_modules
-#	build_sgx_modules release 6.x yes 0 all
+#	build_sgx_modules release 5.x yes 0 0 all
+
+#	clean_sgx_modules
+#	build_sgx_modules release 6.x yes 0 0 all
 
 	clean_sgx_modules
-	build_sgx_modules release 8.x yes 1 all
+	build_sgx_modules release 8.x yes 1 0 all
 
 #	clean_sgx_modules
-#	build_sgx_modules release 9.x yes 0 all
+#	build_sgx_modules release 9.x yes 0 0 all
 
 	pkg_modules
 
