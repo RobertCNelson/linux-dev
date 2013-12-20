@@ -615,7 +615,7 @@ if [ -e ${DIR}/system.sh ] ; then
 #	build_sgx_modules release 6.x yes 0 0 all
 
 	clean_sgx_modules
-	build_sgx_modules release 8.x yes 1 0 all
+	build_sgx_modules release 8.x no 0 1 all
 #	installing_sgx_modules release 8.x 0 install
 
 #	clean_sgx_modules
