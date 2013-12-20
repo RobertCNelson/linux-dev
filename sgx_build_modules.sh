@@ -182,6 +182,7 @@ build_sgx_modules () {
 	mkdir -p "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/gfx_rel_es$2/" || true
 
 	pwd
+	echo "make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} FBDEV={yes | no} SUPPORT_XORG= {1 | 0 } PM_RUNTIME={1 | 0) all"
 	echo "make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" PM_RUNTIME="$5" "$6""
 	make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" PM_RUNTIME="$5" "$6"
 	cd ${DIR}/
@@ -189,6 +190,18 @@ build_sgx_modules () {
 	echo "modinfo sanity check: vermagic:"
 	/sbin/modinfo "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/gfx_rel_es$2/"pvr* | grep vermagic || true
 	echo "-----------------------------"
+}
+
+installing_sgx_modules () {
+	echo "-----------------------------"
+	echo "Installing es$2 modules"
+	echo "-----------------------------"
+	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
+
+	pwd
+	echo "make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} EGLIMAGE={1 | 0} install"
+	echo "make BUILD="$1" OMAPES="$2" EGLIMAGE="$3" "$4""
+	make BUILD="$1" OMAPES="$2" EGLIMAGE="$3" "$4"
 }
 
 file_pvr_startup () {
@@ -587,7 +600,10 @@ if [ -e ${DIR}/system.sh ] ; then
 		exit
 	fi
 
+	#Build:
 	#make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} FBDEV={yes | no} SUPPORT_XORG= {1 | 0 } PM_RUNTIME={1 | 0) all
+	#Install:
+	#make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} EGLIMAGE={1 | 0} install
 
 #	clean_sgx_modules
 #	build_sgx_modules release 3.x yes 0 0 all
@@ -600,6 +616,7 @@ if [ -e ${DIR}/system.sh ] ; then
 
 	clean_sgx_modules
 	build_sgx_modules release 8.x yes 1 0 all
+#	installing_sgx_modules release 8.x 0 install
 
 #	clean_sgx_modules
 #	build_sgx_modules release 9.x yes 0 0 all
