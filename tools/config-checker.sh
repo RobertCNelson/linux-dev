@@ -54,8 +54,8 @@ check_config_builtin
 config="CONFIG_SYSFS_DEPRECATED"
 check_config_disabled
 #CONFIG_UEVENT_HELPER_PATH=""
-config="CONFIG_FW_LOADER_USER_HELPER"
-check_config_disabled
+#config="CONFIG_FW_LOADER_USER_HELPER"
+#check_config_disabled
 #CONFIG_DMIID
 config="CONFIG_FHANDLE"
 check_config_builtin
