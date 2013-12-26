@@ -6,9 +6,9 @@ check_config_builtin () {
 	unset test_config
 	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
+		echo "------------------------------------"
 		echo "Config: [${config}=y] not enabled"
 		echo "echo ${config}=y >> ./KERNEL/.config"
-		exit
 	fi
 }
 
@@ -16,8 +16,15 @@ check_config_disabled () {
 	unset test_config
 	test_config=$(grep "${config} is not set" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
+		echo "------------------------------------"
 		echo "Disable config: [${config}]"
-		exit
+		unset test_config
+		test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
+		if [ "x${test_config}" = "x${config}=y" ] ; then
+			echo "sed -i -e 's:${config}=y:# ${config} is not set:g' ./KERNEL/.config"
+		else
+			echo "sed -i -e 's:${config}=m:# ${config} is not set:g' ./KERNEL/.config"
+		fi
 	fi
 }
 
@@ -25,10 +32,10 @@ check_config () {
 	unset test_config
 	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
+		echo "------------------------------------"
 		echo "Config: [${config}] not enabled"
 		echo "echo ${config}=y >> ./KERNEL/.config"
 		echo "echo ${config}=m >> ./KERNEL/.config"
-		exit
 	fi
 }
 
@@ -54,8 +61,8 @@ check_config_builtin
 config="CONFIG_SYSFS_DEPRECATED"
 check_config_disabled
 #CONFIG_UEVENT_HELPER_PATH=""
-#config="CONFIG_FW_LOADER_USER_HELPER"
-#check_config_disabled
+config="CONFIG_FW_LOADER_USER_HELPER"
+check_config_disabled
 #CONFIG_DMIID
 config="CONFIG_FHANDLE"
 check_config_builtin
