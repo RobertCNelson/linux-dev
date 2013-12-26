@@ -256,7 +256,7 @@ omap_dt_dss () {
 
 imx () {
 	echo "dir: imx"
-	${git} "${DIR}/patches/imx/0001-ahci-imx-Explicitly-clear-IMX6Q_GPR13_SATA_MPLL_CLK_.patch"
+	#${git} "${DIR}/patches/imx/0001-ahci-imx-Explicitly-clear-IMX6Q_GPR13_SATA_MPLL_CLK_.patch"
 	${git} "${DIR}/patches/imx/0002-ahci-imx-Pull-out-the-clock-enable-disable-calls.patch"
 	${git} "${DIR}/patches/imx/0003-ahci-imx-Add-i.MX53-support.patch"
 }
