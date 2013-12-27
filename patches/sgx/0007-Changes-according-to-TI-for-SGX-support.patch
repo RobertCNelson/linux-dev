@@ -1,8 +1,9 @@
-From 5488220506bedb4b76b1029d21faff0f65de406a Mon Sep 17 00:00:00 2001
+From 166f002d6222d901fae6da339fdd4aa81813e519 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Alexander=20R=C3=B6ssler?= <mail.aroessler@gmail.com>
 Date: Fri, 1 Nov 2013 15:35:26 +0100
-Subject: [PATCH 6/6] Changes according to TI for SGX support
+Subject: [PATCH 7/7] Changes according to TI for SGX support
 
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/mach-omap2/Makefile        |  2 +-
  arch/arm/mach-omap2/board-generic.c |  4 ++++
@@ -12,34 +13,34 @@ Subject: [PATCH 6/6] Changes according to TI for SGX support
  create mode 100644 arch/arm/mach-omap2/gpu.c
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index 0afee42..42c1192 100644
+index adcef40..ac1631c 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
 @@ -8,7 +8,7 @@ ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include \
  # Common support
  obj-y := id.o io.o control.o mux.o devices.o fb.o serial.o gpmc.o timer.o pm.o \
  	 common.o gpio.o dma.o wd_timer.o display.o i2c.o hdq1w.o omap_hwmod.o \
--	 omap_device.o sram.o
-+	 omap_device.o sram.o gpu.o
+-	 omap_device.o sram.o drm.o
++	 omap_device.o sram.o drm.o gpu.o
  
  omap-2-3-common				= irq.o
  hwmod-common				= omap_hwmod.o omap_hwmod_reset.o \
 diff --git a/arch/arm/mach-omap2/board-generic.c b/arch/arm/mach-omap2/board-generic.c
-index c0b0848..33d0136 100644
+index 8d972ff1..d17fece 100644
 --- a/arch/arm/mach-omap2/board-generic.c
 +++ b/arch/arm/mach-omap2/board-generic.c
-@@ -22,6 +22,7 @@
+@@ -19,6 +19,7 @@
+ #include <asm/mach/arch.h>
+ 
  #include "common.h"
- #include "common-board-devices.h"
- #include "dss-common.h"
 +#include "soc.h"
  
  #if !(defined(CONFIG_ARCH_OMAP2) || defined(CONFIG_ARCH_OMAP3))
  #define intc_of_init	NULL
-@@ -70,6 +71,9 @@ static void __init omap_generic_init(void)
- 		omap_4430sdp_display_init_of();
- 	else if (of_machine_is_compatible("ti,omap5-uevm"))
- 		legacy_init_ehci_clk("auxclk1_ck");
+@@ -36,6 +37,9 @@ static struct of_device_id omap_dt_match_table[] __initdata = {
+ static void __init omap_generic_init(void)
+ {
+ 	pdata_quirks_init(omap_dt_match_table);
 +
 +	if (omap3_has_sgx())
 +		omap_sgx_init_of();
@@ -47,10 +48,10 @@ index c0b0848..33d0136 100644
  
  #ifdef CONFIG_SOC_OMAP2420
 diff --git a/arch/arm/mach-omap2/common.h b/arch/arm/mach-omap2/common.h
-index 352fa9d..a41653f 100644
+index e30ef67..672edc7 100644
 --- a/arch/arm/mach-omap2/common.h
 +++ b/arch/arm/mach-omap2/common.h
-@@ -301,6 +301,7 @@ extern void omap_reserve(void);
+@@ -303,6 +303,7 @@ extern void omap_reserve(void);
  
  struct omap_hwmod;
  extern int omap_dss_reset(struct omap_hwmod *);

@@ -61,6 +61,17 @@ dts () {
 	${git} "${DIR}/patches/dts/0002-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
 }
 
+sgx () {
+	echo "dir: sgx"
+	${git} "${DIR}/patches/sgx/0001-reset-Add-driver-for-gpio-controlled-reset-pins.patch"
+	${git} "${DIR}/patches/sgx/0002-prcm-port-from-ti-linux-3.12.y.patch"
+	${git} "${DIR}/patches/sgx/0003-ARM-DTS-AM335x-Add-SGX-DT-node.patch"
+	${git} "${DIR}/patches/sgx/0004-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
+	${git} "${DIR}/patches/sgx/0005-hack-port-da8xx-changes-from-ti-3.12-repo.patch"
+	${git} "${DIR}/patches/sgx/0006-Revert-drm-remove-procfs-code-take-2.patch"
+	${git} "${DIR}/patches/sgx/0007-Changes-according-to-TI-for-SGX-support.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -72,6 +83,7 @@ saucy () {
 ###
 arm
 dts
+sgx
 saucy
 
 echo "patch.sh ran successful"

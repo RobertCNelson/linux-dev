@@ -1,20 +1,20 @@
-From 639120f9a987082bd4684172639982d9de726184 Mon Sep 17 00:00:00 2001
+From 0e14d0ce0cec3b6b317d4fe9044a72084bde016b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Wed, 18 Dec 2013 14:26:44 -0600
-Subject: [PATCH 5/6] Revert "drm: remove procfs code, take 2"
+Subject: [PATCH 6/7] Revert "drm: remove procfs code, take 2"
 
 This reverts commit cb6458f97b53d7f73043206c18014b3ca63ac345.
 ---
  drivers/gpu/drm/Makefile   |   2 +-
  drivers/gpu/drm/drm_drv.c  |   8 ++
  drivers/gpu/drm/drm_proc.c | 208 +++++++++++++++++++++++++++++++++++++++++++++
- drivers/gpu/drm/drm_stub.c |  32 +++++--
+ drivers/gpu/drm/drm_stub.c |  23 +++--
  include/drm/drmP.h         |   8 ++
- 5 files changed, 249 insertions(+), 9 deletions(-)
+ 5 files changed, 242 insertions(+), 7 deletions(-)
  create mode 100644 drivers/gpu/drm/drm_proc.c
 
 diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
-index f089adf..6df0a7a 100644
+index cc08b84..b13710b 100644
 --- a/drivers/gpu/drm/Makefile
 +++ b/drivers/gpu/drm/Makefile
 @@ -7,7 +7,7 @@ ccflags-y := -Iinclude/drm
@@ -27,10 +27,10 @@ index f089adf..6df0a7a 100644
  		drm_platform.o drm_sysfs.o drm_hashtab.o drm_mm.o \
  		drm_crtc.o drm_modes.o drm_edid.o \
 diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
-index fe58d08..fa523d2 100644
+index d9137e4..91de79d 100644
 --- a/drivers/gpu/drm/drm_drv.c
 +++ b/drivers/gpu/drm/drm_drv.c
-@@ -265,6 +265,13 @@ static int __init drm_core_init(void)
+@@ -196,6 +196,13 @@ static int __init drm_core_init(void)
  		goto err_p2;
  	}
  
@@ -44,7 +44,7 @@ index fe58d08..fa523d2 100644
  	drm_debugfs_root = debugfs_create_dir("dri", NULL);
  	if (!drm_debugfs_root) {
  		DRM_ERROR("Cannot create /sys/kernel/debug/dri\n");
-@@ -287,6 +294,7 @@ err_p1:
+@@ -218,6 +225,7 @@ err_p1:
  
  static void __exit drm_core_exit(void)
  {
@@ -267,7 +267,7 @@ index 0000000..12afa8e
 +	return 0;
 +}
 diff --git a/drivers/gpu/drm/drm_stub.c b/drivers/gpu/drm/drm_stub.c
-index 39d8645..d2e0740 100644
+index 66dd3a0..071acaf 100644
 --- a/drivers/gpu/drm/drm_stub.c
 +++ b/drivers/gpu/drm/drm_stub.c
 @@ -73,6 +73,7 @@ module_param_named(timestamp_monotonic, drm_timestamp_monotonic, int, 0600);
@@ -278,19 +278,7 @@ index 39d8645..d2e0740 100644
  struct dentry *drm_debugfs_root;
  
  int drm_err(const char *func, const char *format, ...)
-@@ -325,8 +326,9 @@ EXPORT_SYMBOL(drm_fill_in_dev);
-  * \param sec-minor structure to hold the assigned minor
-  * \return negative number on failure.
-  *
-- * Search an empty entry and initialize it to the given parameters. This
-- * routines assigns minor numbers to secondary heads of multi-headed cards
-+ * Search an empty entry and initialize it to the given parameters, and
-+ * create the proc init entry via proc_init(). This routines assigns
-+ * minor numbers to secondary heads of multi-headed cards
-  */
- int drm_get_minor(struct drm_device *dev, struct drm_minor **minor, int type)
- {
-@@ -354,11 +356,20 @@ int drm_get_minor(struct drm_device *dev, struct drm_minor **minor, int type)
+@@ -294,11 +295,20 @@ static int drm_get_minor(struct drm_device *dev, struct drm_minor **minor,
  
  	idr_replace(&drm_minors_idr, new_minor, minor_id);
  
@@ -312,7 +300,7 @@ index 39d8645..d2e0740 100644
  	}
  #endif
  
-@@ -366,7 +377,7 @@ int drm_get_minor(struct drm_device *dev, struct drm_minor **minor, int type)
+@@ -306,7 +316,7 @@ static int drm_get_minor(struct drm_device *dev, struct drm_minor **minor,
  	if (ret) {
  		printk(KERN_ERR
  		       "DRM: Error sysfs_device_add.\n");
@@ -321,7 +309,7 @@ index 39d8645..d2e0740 100644
  	}
  	*minor = new_minor;
  
-@@ -374,11 +385,10 @@ int drm_get_minor(struct drm_device *dev, struct drm_minor **minor, int type)
+@@ -314,11 +324,10 @@ static int drm_get_minor(struct drm_device *dev, struct drm_minor **minor,
  	return 0;
  
  
@@ -336,20 +324,9 @@ index 39d8645..d2e0740 100644
  	kfree(new_minor);
  err_idr:
  	idr_remove(&drm_minors_idr, minor_id);
-@@ -392,6 +402,10 @@ EXPORT_SYMBOL(drm_get_minor);
-  *
-  * \param sec_minor - structure to be released
-  * \return always zero
-+ *
-+ * Cleans up the proc resources. Not legal for this to be the
-+ * last minor released.
-+ *
-  */
- int drm_put_minor(struct drm_minor **minor_p)
- {
-@@ -399,6 +413,8 @@ int drm_put_minor(struct drm_minor **minor_p)
- 
- 	DRM_DEBUG("release secondary minor %d\n", minor->index);
+@@ -341,6 +350,8 @@ static void drm_unplug_minor(struct drm_minor *minor)
+ 	if (!minor || !minor->kdev)
+ 		return;
  
 +	if (minor->type == DRM_MINOR_LEGACY)
 +		drm_proc_cleanup(minor, drm_proc_root);
@@ -357,7 +334,7 @@ index 39d8645..d2e0740 100644
  	drm_debugfs_cleanup(minor);
  #endif
 diff --git a/include/drm/drmP.h b/include/drm/drmP.h
-index b46fb45..9508f32 100644
+index 1d4a920..80cd08f 100644
 --- a/include/drm/drmP.h
 +++ b/include/drm/drmP.h
 @@ -45,6 +45,7 @@
@@ -368,8 +345,8 @@ index b46fb45..9508f32 100644
  #include <linux/init.h>
  #include <linux/file.h>
  #include <linux/platform_device.h>
-@@ -1049,6 +1050,8 @@ struct drm_minor {
- 	struct device kdev;		/**< Linux device */
+@@ -1035,6 +1036,8 @@ struct drm_minor {
+ 	struct device *kdev;		/**< Linux device */
  	struct drm_device *dev;
  
 +	struct proc_dir_entry *proc_root;  /**< proc directory entry */
@@ -377,7 +354,7 @@ index b46fb45..9508f32 100644
  	struct dentry *debugfs_root;
  
  	struct list_head debugfs_list;
-@@ -1464,12 +1467,17 @@ extern unsigned int drm_timestamp_precision;
+@@ -1445,12 +1448,17 @@ extern unsigned int drm_timestamp_precision;
  extern unsigned int drm_timestamp_monotonic;
  
  extern struct class *drm_class;
