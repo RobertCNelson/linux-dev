@@ -195,4 +195,10 @@ check_config_builtin
 config="CONFIG_ZRAM"
 check_config_module
 
+config="CONFIG_LOCALVERSION_AUTO"
+check_config_disabled
+
+config="CONFIG_AM335X_PHY_USB"
+check_config_builtin
+
 #
