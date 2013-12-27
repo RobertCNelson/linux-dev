@@ -1,0 +1,317 @@
+From a8c8a1163848b303e592176b6c8210401cce8586 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <panto@antoniou-consulting.com>
+Date: Tue, 13 Aug 2013 12:10:10 +0300
+Subject: [PATCH 10/26] staging: Platform device tester - Allow removal
+
+This is a very simple device that allows testing of the removal path
+for platform devices.
+
+The only interface is a single writeable sysfs attribute (action).
+
+Writting a phandle value of an OF node toggles the state to
+registered/unregistered.
+
+So for instance on a beaglebone to remove the platform device
+corresponding to the I2C2 bus (with all the patches that fix
+platform device removal and with omap device debugging on)
+
+Find the phandle of the device
+	$ xxd -ps /proc/device-tree/ocp/i2c\@4819c000/linux\,phandle
+	00000028
+
+Destroy the device
+	$ echo 28 >/sys/devices/ocp*/pdevtest*/action
+	pdevtest pdevtest.5: Destroying device for target node /ocp/i2c@4819c000
+	omap_hwmod: i2c3: enabling
+	omap_hwmod: i2c3: enabling clocks
+	omap_hwmod: i2c3: clk_enable(dpll_per_m2_div4_ck)
+	omap_hwmod: i2c3: _am33xx_enable_module: 2
+	omap_hwmod: i2c3: idling
+	omap_hwmod: i2c3: _am33xx_disable_module
+	omap_hwmod: i2c3: disabling clocks
+	omap_hwmod: i2c3: enabling
+	omap_hwmod: i2c3: enabling clocks
+	omap_hwmod: i2c3: clk_enable(dpll_per_m2_div4_ck)
+	omap_hwmod: i2c3: _am33xx_enable_module: 2
+	omap_hwmod: i2c3: disabling
+	omap_hwmod: i2c3: _am33xx_disable_module
+	omap_hwmod: i2c3: disabling clocks
+
+Register the device again:
+	$ echo 28 >/sys/devices/ocp*/pdevtest*/action
+	pdevtest pdevtest.5: Creating device for target node /ocp/i2c@4819c000
+	omap_device: 4819c000.i2c: counted 0 total resources across 1 hwmods
+	platform 4819c000.i2c: Creating fck -> dpll_per_m2_div4_ck
+	platform 4819c000.i2c: alias fck already exists
+	omap_hwmod: i2c3: enabling
+	omap_hwmod: i2c3: enabling clocks
+	omap_hwmod: i2c3: clk_enable(dpll_per_m2_div4_ck)
+	omap_hwmod: i2c3: _am33xx_enable_module: 2
+	omap_i2c 4819c000.i2c: bus 1 rev0.11 at 100 kHz
+	at24 1-0054: 32768 byte 24c256 EEPROM, writable, 1 bytes/write
+	at24 1-0055: 32768 byte 24c256 EEPROM, writable, 1 bytes/write
+	at24 1-0056: 32768 byte 24c256 EEPROM, writable, 1 bytes/write
+	at24 1-0057: 32768 byte 24c256 EEPROM, writable, 1 bytes/write
+	omap_hwmod: i2c3: idling
+	omap_hwmod: i2c3: _am33xx_disable_module
+	omap_hwmod: i2c3: disabling clocks
+
+Note that the operation of this test device is exactly the same as when
+using capemanager + device tree overlays for the beaglebone, but it is provided
+so that people can test platform device removal without any out-of-tree patches.
+
+Without the platform device removal fixup patches you get a nice crash:
+
+	$ echo 28 >/sys/devices/ocp*/pdevtest*/action
+	pdevtest pdevtest.5: Destroying device for target node /ocp/i2c@4819c000
+	Unable to handle kernel NULL pointer dereference at virtual address 0000000d
+	pgd = cb00c000
+	[0000000d] *pgd=8b1bd831, *pte=00000000, *ppte=00000000
+	Internal error: Oops: 17 [#1] SMP ARM
+	Modules linked in: ipv6 autofs4
+	CPU: 0 PID: 300 Comm: sh Not tainted 3.11.0-rc4-00116-gdfb323f #144
+	task: cf6e2040 ti: cf750000 task.ti: cf750000
+	PC is at omap_device_enable+0x10/0x6c
+	LR is at _od_runtime_resume+0x10/0x1c
+	pc : [<c0027a50>]    lr : [<c0027abc>]    psr: a0070013
+	sp : cf751e20  ip : cf751e98  fp : cf0ad480
+	r10: cf0bd280  r9 : c0052248  r8 : 00000004
+	r7 : cf751e68  r6 : 00000000  r5 : cf0bd210  r4 : 00000000
+	r3 : 00000000  r2 : 002e002d  r1 : cf0bd280  r0 : cf0bd200
+	Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+	Control: 10c5387d  Table: 8b00c019  DAC: 00000015
+	Process sh (pid: 300, stack limit = 0xcf750240)
+	Stack: (0xcf751e20 to 0xcf752000)
+	1e20: 00000000 cf0bd210 cf0bd210 c0027abc c0027aac c02cbd48 00000000 cf0bd210
+	1e40: cf0bd210 c02cbddc cf0bd210 cf0ad410 00000000 c02ccb68 22222222 00000000
+	1e60: 00000000 dead4ead cf0bd2f4 60070013 cf0bd280 cf0bd210 cf0bd280 60070013
+	1e80: 00000004 cf0bd200 c04c3e70 cf0ad400 00000000 c02cced4 cf6e2040 cf0bd210
+	1ea0: c0714004 c0704d08 00000003 c02c6ef4 cf0bd244 cf0bd210 c0704d08 c02c6fb8
+	1ec0: cf0bd210 cf05183c c0704d08 c02c6a18 cf0bd210 cf0ad410 c09804c8 c02c46e0
+	1ee0: cf0bd200 00000000 c09804c8 c02c8540 cf0bd200 00000000 c09804c8 c02c8858
+	1f00: cf39de10 c03b8c1c cf39de10 00000028 cf5fe000 cf7343c8 cf751f80 00000003
+	1f20: cf4b1cc0 cf4b1cd8 cf39de18 c02c37c4 00000003 c012eebc cb11fec0 00000003
+	1f40: 000d6408 cf751f80 000d6408 cf750000 00000003 c00d98b0 cb11fec0 000d6408
+	1f60: 00000003 cb11fec0 00000000 00000000 00000000 000d6408 00000003 c00d9d04
+	1f80: 00000000 00000000 00000003 00000003 000d6408 b6eefa80 00000004 c000dc08
+	1fa0: 00000000 c000da60 00000003 000d6408 00000001 000d6408 00000003 00000000
+	1fc0: 00000003 000d6408 b6eefa80 00000004 00000003 00000003 000d6408 00000000
+	1fe0: 00000000 beda5984 b6e2bb2c b6e7e30c 600f0010 00000001 00000000 00000000
+	[<c0027a50>] (omap_device_enable+0x10/0x6c) from [<c0027abc>] (_od_runtime_resume+0x10/0x1c)
+	[<c0027abc>] (_od_runtime_resume+0x10/0x1c) from [<c02cbd48>] (__rpm_callback+0x38/0x68)
+	[<c02cbd48>] (__rpm_callback+0x38/0x68) from [<c02cbddc>] (rpm_callback+0x64/0x7c)
+	[<c02cbddc>] (rpm_callback+0x64/0x7c) from [<c02ccb68>] (rpm_resume+0x368/0x470)
+	[<c02ccb68>] (rpm_resume+0x368/0x470) from [<c02cced4>] (__pm_runtime_resume+0x68/0x80)
+	[<c02cced4>] (__pm_runtime_resume+0x68/0x80) from [<c02c6ef4>] (__device_release_driver+0x1c/0xc4)
+	[<c02c6ef4>] (__device_release_driver+0x1c/0xc4) from [<c02c6fb8>] (device_release_driver+0x1c/0x28)
+	[<c02c6fb8>] (device_release_driver+0x1c/0x28) from [<c02c6a18>] (bus_remove_device+0xcc/0xdc)
+	[<c02c6a18>] (bus_remove_device+0xcc/0xdc) from [<c02c46e0>] (device_del+0x108/0x16c)
+	[<c02c46e0>] (device_del+0x108/0x16c) from [<c02c8540>] (platform_device_del+0x14/0x7c)
+	[<c02c8540>] (platform_device_del+0x14/0x7c) from [<c02c8858>] (platform_device_unregister+0xc/0x18)
+	[<c02c8858>] (platform_device_unregister+0xc/0x18) from [<c03b8c1c>] (action_store+0xe4/0x108)
+	[<c03b8c1c>] (action_store+0xe4/0x108) from [<c02c37c4>] (dev_attr_store+0x18/0x24)
+	[<c02c37c4>] (dev_attr_store+0x18/0x24) from [<c012eebc>] (sysfs_write_file+0x108/0x13c)
+	[<c012eebc>] (sysfs_write_file+0x108/0x13c) from [<c00d98b0>] (vfs_write+0xd4/0x1cc)
+	[<c00d98b0>] (vfs_write+0xd4/0x1cc) from [<c00d9d04>] (SyS_write+0x3c/0x60)
+	[<c00d9d04>] (SyS_write+0x3c/0x60) from [<c000da60>] (ret_fast_syscall+0x0/0x30)
+	Code: e3500000 e92d4038 01a04000 159041b0 (e5d4300d)
+	---[ end trace 053fbd312bc75c63 ]---
+
+Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+---
+ drivers/staging/Kconfig             |   2 +
+ drivers/staging/Makefile            |   1 +
+ drivers/staging/pdevtest/Kconfig    |  13 ++++
+ drivers/staging/pdevtest/Makefile   |   1 +
+ drivers/staging/pdevtest/pdevtest.c | 131 ++++++++++++++++++++++++++++++++++++
+ 5 files changed, 148 insertions(+)
+ create mode 100644 drivers/staging/pdevtest/Kconfig
+ create mode 100644 drivers/staging/pdevtest/Makefile
+ create mode 100644 drivers/staging/pdevtest/pdevtest.c
+
+diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
+index 3bfdaa8..6a94d18 100644
+--- a/drivers/staging/Kconfig
++++ b/drivers/staging/Kconfig
+@@ -150,4 +150,6 @@ source "drivers/staging/dgnc/Kconfig"
+ 
+ source "drivers/staging/dgap/Kconfig"
+ 
++source "drivers/staging/pdevtest/Kconfig"
++
+ endif # STAGING
+diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
+index b0d3303..2c913b9 100644
+--- a/drivers/staging/Makefile
++++ b/drivers/staging/Makefile
+@@ -67,3 +67,4 @@ obj-$(CONFIG_XILLYBUS)		+= xillybus/
+ obj-$(CONFIG_DGNC)			+= dgnc/
+ obj-$(CONFIG_DGAP)			+= dgap/
+ obj-$(CONFIG_MTD_SPINAND_MT29F)	+= mt29f_spinand/
++obj-$(CONFIG_PDEV_TEST)		+= pdevtest/
+diff --git a/drivers/staging/pdevtest/Kconfig b/drivers/staging/pdevtest/Kconfig
+new file mode 100644
+index 0000000..7d325fa
+--- /dev/null
++++ b/drivers/staging/pdevtest/Kconfig
+@@ -0,0 +1,13 @@
++config PDEV_TEST
++	tristate "Platform device tester"
++	depends on OF
++	default n
++	---help---
++	  This driver tests correct operation of platform device 
++	  creation and removal.
++	  Upon loading you can use the sysfs interface to register/unregister
++	  the platform device nodes that are located underneath this device's
++	  node.
++
++	  To compile this driver as a module, choose M here. The module
++	  will be called echo.
+diff --git a/drivers/staging/pdevtest/Makefile b/drivers/staging/pdevtest/Makefile
+new file mode 100644
+index 0000000..d13b754
+--- /dev/null
++++ b/drivers/staging/pdevtest/Makefile
+@@ -0,0 +1 @@
++obj-$(CONFIG_PDEV_TEST) += pdevtest.o
+diff --git a/drivers/staging/pdevtest/pdevtest.c b/drivers/staging/pdevtest/pdevtest.c
+new file mode 100644
+index 0000000..6ccc2d9
+--- /dev/null
++++ b/drivers/staging/pdevtest/pdevtest.c
+@@ -0,0 +1,131 @@
++/*
++ * pdevtest.c
++ *
++ * Tester of platform device's operation.
++ *
++ * Copyright (C) 2013, Pantelis Antoniou <panto@antoniou-consulting.com>
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/device.h>
++#include <linux/of.h>
++#include <linux/i2c.h>
++#include <linux/of_device.h>
++#include <linux/sysfs.h>
++
++static ssize_t
++action_store(struct device *dev, struct device_attribute *attr,
++		const char *buf, size_t size)
++{
++	struct platform_device *target, *parent;
++	struct device_node *dn, *dnp;
++	unsigned long phandle;
++	int ret;
++
++	ret = kstrtoul(buf, 16, &phandle);
++	if (ret != 0)
++		return ret;
++
++	dn = of_find_node_by_phandle(phandle);
++	if (dn == NULL) {
++		dev_err(dev, "No node with phandle 0x%lx\n", phandle);
++		return -EINVAL;
++	}
++
++	dnp = dn->parent;
++	if (dnp == NULL) {
++		dev_err(dev, "Can't work with root node\n");
++		return -EINVAL;
++	}
++
++	parent = of_find_device_by_node(dnp);
++	if (parent == NULL) {
++		dev_err(dev, "No parent device\n");
++		return -EINVAL;
++	}
++
++	target = of_find_device_by_node(dn);
++	if (target == NULL) {
++		dev_info(dev, "Creating device for target node %s\n",
++				dn->full_name);
++		target = of_platform_device_create(dn, NULL, &parent->dev);
++		if (target == NULL) {
++			dev_err(dev, "Failed to create platform device "
++					"for '%s'\n", 
++					dn->full_name);
++			return -ENODEV;
++		}
++	} else {
++		dev_info(dev, "Destroying device for target node %s\n",
++				dn->full_name);
++
++		platform_device_unregister(target);
++	}
++
++	return size;
++}
++
++DEVICE_ATTR(action, S_IWUSR, NULL, action_store);
++
++static int pdevtest_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	int ret;
++
++	/* OF only */
++	if (dev->of_node == NULL) {
++		dev_err(dev, "Unsupported platform (not OF)!\n");
++		return -ENODEV;
++	}
++
++	ret = device_create_file(dev, &dev_attr_action);
++	if (ret != 0) {
++		dev_err(dev, "Failed to create device attribute file\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static int pdevtest_remove(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++
++	device_remove_file(dev, &dev_attr_action);
++	return 0;
++}
++
++static const struct of_device_id pdevtest_of_match[] = {
++	{
++		.compatible = "pdevtest",
++	},
++	{ },
++};
++MODULE_DEVICE_TABLE(of, pdevtest_of_match);
++
++static struct platform_driver pdevtest_driver = {
++	.probe		= pdevtest_probe,
++	.remove		= pdevtest_remove,
++	.driver		= {
++		.name	= "pdevtest",
++		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(pdevtest_of_match),
++	},
++};
++
++module_platform_driver(pdevtest_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Pantelis Antoniou <panto@antoniou-consulting.com>");
++MODULE_DESCRIPTION("Platform device tester");
+-- 
+1.8.5.1
+
