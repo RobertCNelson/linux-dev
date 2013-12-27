@@ -213,4 +213,14 @@ config="CONFIG_USB_TI_CPPI41_DMA"
 check_config_builtin
 config="CONFIG_TI_CPPI41"
 check_config_builtin
+
+#AM335 hdmi (video)
+config="CONFIG_DRM"
+check_config_builtin
+config="CONFIG_DRM_I2C_NXP_TDA998X"
+check_config_builtin
+config="CONFIG_DRM_TILCDC"
+check_config_builtin
+config="CONFIG_HDMI"
+check_config_builtin
 #

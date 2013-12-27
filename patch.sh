@@ -55,6 +55,11 @@ arm () {
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 }
 
+dts () {
+	echo "dir: dts"
+	${git} "${DIR}/patches/dts/0001-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -65,6 +70,7 @@ saucy () {
 
 ###
 arm
+dts
 saucy
 
 echo "patch.sh ran successful"
