@@ -98,6 +98,11 @@ overlay () {
 	${git} "${DIR}/patches/merge-of-kobj-min-new-20131227/0026-OF-DT-Overlay-configfs-interface.patch"
 }
 
+capemgr () {
+	echo "dir: capemgr"
+	${git} "${DIR}/patches/capemgr/0001-wip-add-capemgr-from-3.8.patch"
+}
+
 sgx () {
 	echo "dir: sgx"
 	${git} "${DIR}/patches/sgx/0001-reset-Add-driver-for-gpio-controlled-reset-pins.patch"
@@ -120,7 +125,8 @@ saucy () {
 ###
 arm
 dts
-overlay
+#overlay
+#capemgr
 sgx
 saucy
 
