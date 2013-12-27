@@ -58,6 +58,7 @@ arm () {
 dts () {
 	echo "dir: dts"
 	${git} "${DIR}/patches/dts/0001-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
+	${git} "${DIR}/patches/dts/0002-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
 }
 
 saucy () {
