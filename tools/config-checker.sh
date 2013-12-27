@@ -198,7 +198,19 @@ check_config_module
 config="CONFIG_LOCALVERSION_AUTO"
 check_config_disabled
 
+#AM335 usb
 config="CONFIG_AM335X_PHY_USB"
 check_config_builtin
-
+config="CONFIG_USB_MUSB_HDRC"
+check_config_builtin
+config="CONFIG_USB_MUSB_DUAL_ROLE"
+check_config_builtin
+config="CONFIG_USB_MUSB_DSPS"
+check_config_builtin
+config="CONFIG_USB_MUSB_AM335X_CHILD"
+check_config_builtin
+config="CONFIG_USB_TI_CPPI41_DMA"
+check_config_builtin
+config="CONFIG_TI_CPPI41"
+check_config_builtin
 #
