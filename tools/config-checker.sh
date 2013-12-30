@@ -195,4 +195,7 @@ check_config_builtin
 config="CONFIG_ZRAM"
 check_config_module
 
+#ancient...
+config="CONFIG_OABI_COMPAT"
+check_config_disabled
 #
