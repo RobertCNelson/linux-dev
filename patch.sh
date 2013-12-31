@@ -62,6 +62,16 @@ dts () {
 	${git} "${DIR}/patches/dts/0003-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
 }
 
+audio () {
+	echo "dir: audio"
+	${git} "${DIR}/patches/audio/0001-clk-add-gpio-controlled-clock.patch"
+	${git} "${DIR}/patches/audio/0002-ASoC-davinci-evm-Add-named-clock-reference-to-DT-bin.patch"
+	${git} "${DIR}/patches/audio/0003-ASoC-davinci-evm-HDMI-audio-support-for-TDA998x-trou.patch"
+	${git} "${DIR}/patches/audio/0004-ASoC-hdmi-codec-Add-devicetree-binding-with-document.patch"
+	${git} "${DIR}/patches/audio/0005-ASoC-davinci-HDMI-audio-build-for-AM33XX-and-TDA998x.patch"
+	${git} "${DIR}/patches/audio/0006-drm-tilcdc-Add-I2C-HDMI-audio-config-for-tda998x.patch"
+}
+
 overlay () {
 	echo "dir: merge-of-kobj-min-new-20131227"
 	#git checkout f41bfc9423aac4e589d2b3bedf26b3c249c61146 -b tmp
@@ -126,6 +136,7 @@ saucy () {
 ###
 arm
 dts
+#audio
 #overlay
 #capemgr
 sgx

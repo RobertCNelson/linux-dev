@@ -224,6 +224,12 @@ check_config_builtin
 config="CONFIG_HDMI"
 check_config_builtin
 
+#AM335 hdmi (audio)
+config="CONFIG_SND_DAVINCI_SOC"
+check_config_builtin
+config="CONFIG_SND_AM335X_SOC_NXPTDA_EVM"
+check_config_builtin
+
 #Generic cpufreq
 config="CONFIG_CPU_FREQ"
 check_config_builtin
