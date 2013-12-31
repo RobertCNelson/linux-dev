@@ -1,0 +1,46 @@
+From a3099dc53a47d1694a5b575580ec3406dc429bf8 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 31 Dec 2013 14:18:00 -0600
+Subject: [PATCH 4/4] arm: dts: am335x-bone-common: setup default pinmux
+ http://elinux.org/Basic_Proto_Cape
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 54366b6..f219485 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -98,6 +98,13 @@
+ 		>;
+ 	};
+ 
++	uart1_pins: pinmux_uart1_pins {
++		pinctrl-single,pins = <
++			0x184 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart1_txd.uart1_txd */
++			0x180 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* uart1_rxd.uart1_rxd */
++		>;
++	};
++
+ 	clkout2_pin: pinmux_clkout2_pin {
+ 		pinctrl-single,pins = <
+ 			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+@@ -187,6 +194,13 @@
+ 	status = "okay";
+ };
+ 
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_pins>;
++
++	status = "okay";
++};
++
+ &usb {
+ 	status = "okay";
+ 
+-- 
+1.8.5.2
+
