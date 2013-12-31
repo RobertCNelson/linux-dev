@@ -6,11 +6,11 @@ Subject: [PATCH 4/4] arm: dts: am335x-bone-common: setup default pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 42 +++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 54366b6..f219485 100644
+index e4571af..b9d6839 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -98,6 +98,13 @@
@@ -27,7 +27,23 @@ index 54366b6..f219485 100644
  	clkout2_pin: pinmux_clkout2_pin {
  		pinctrl-single,pins = <
  			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
-@@ -187,6 +194,13 @@
+@@ -178,6 +185,15 @@
+ 			0x1c (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad7.mmc1_dat7 */
+ 		>;
+ 	};
++
++	spi0_pins: pinmux_spi0_pins {
++		pinctrl-single,pins = <
++			0x150 (PIN_INPUT_PULLUP | MUX_MODE0)	/* spi0_sclk.spi0_sclk */
++			0x154 (PIN_INPUT_PULLUP | MUX_MODE0)	/* spi0_d0.spi0_d0 */
++			0x158 (PIN_OUTPUT_PULLUP | MUX_MODE0)	/* spi0_d1.spi0_d1 */
++			0x15c (PIN_OUTPUT_PULLUP | MUX_MODE0)	/* spi0_cs0.spi0_cs0 */
++		>;
++	};
+ };
+ 
+ &uart0 {
+@@ -187,6 +203,13 @@
  	status = "okay";
  };
  
@@ -41,6 +57,32 @@ index 54366b6..f219485 100644
  &usb {
  	status = "okay";
  
+@@ -261,6 +284,25 @@
+ 	};
+ };
+ 
++&spi0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi0_pins>;
++	status = "okay";
++
++	spidev0: spi@0 {
++		compatible = "spidev";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++		spi-cpha;
++	};
++
++	spidev1: spi@1 {
++		compatible = "spidev";
++		reg = <1>;
++		spi-max-frequency = <16000000>;
++	};
++};
++
+ /include/ "tps65217.dtsi"
+ 
+ &tps {
 -- 
 1.8.5.2
 
