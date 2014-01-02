@@ -831,6 +831,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0018-beaglebone-capes-add-replicape-A2-and-A3-support.patch"
 	${git} "${DIR}/patches/capes/0019-Added-camera-cape-support-for-Beaglebone-Black.patch"
 	${git} "${DIR}/patches/capes/0020-add-argus-ups-cape-support.patch"
+	${git} "${DIR}/patches/capes/0021-Fix-aspect-ratio-issue-of-720p-in-MT9M114-camera-cap.patch"
 
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-sync-don-t-block-the-flusher-thread-waiting-on-IO.patch"
