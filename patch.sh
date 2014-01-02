@@ -295,6 +295,14 @@ dts () {
 	${git} "${DIR}/patches/dts/0004-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
 }
 
+bone () {
+	echo "dir: bone"
+	${git} "${DIR}/patches/bone/0001-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
+	${git} "${DIR}/patches/bone/0002-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
+	${git} "${DIR}/patches/bone/0003-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
+	${git} "${DIR}/patches/bone/0004-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
+}
+
 imx_video_staging () {
 	echo "dir: imx_video_staging"
 	${git} "${DIR}/patches/imx_video_staging/0001-imx-drm-Add-mx6-hdmi-transmitter-support.patch"
@@ -346,6 +354,7 @@ omap_video
 omap_clock
 
 dts
+bone
 imx_video_staging
 omap3_beagle_xm_rework
 omap_sprz319_erratum
