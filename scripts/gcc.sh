@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2013 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -63,6 +63,21 @@ gcc_linaro_toolchain () {
 		version="4.7/4.7-2013-q3-update"
 		version_date="20130916"
 		directory="${toolchain_name}-4_7-2013q3"
+		filename="${directory}-${version_date}-linux.tar.bz2"
+		datestamp="${version_date}-${toolchain_name}"
+		untar="tar -xjf"
+
+		binary="bin/arm-none-eabi-"
+		;;
+	gcc_arm_embedded_4_8)
+		#https://launchpad.net/gcc-arm-embedded/+download
+		#https://launchpad.net/gcc-arm-embedded/4.8/4.8-2013-q4-major/+download/gcc-arm-none-eabi-4_8-2013q4-20131204-linux.tar.bz2
+
+		toolchain_name="gcc-arm-none-eabi"
+		site="https://launchpad.net/gcc-arm-embedded"
+		version="4.8/4.8-2013-q4-major"
+		version_date="20131204"
+		directory="${toolchain_name}-4_8-2013q4"
 		filename="${directory}-${version_date}-linux.tar.bz2"
 		datestamp="${version_date}-${toolchain_name}"
 		untar="tar -xjf"
