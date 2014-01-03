@@ -14,11 +14,18 @@ check_config_builtin () {
 
 check_config_module () {
 	unset test_config
-	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x" ] ; then
+	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
+	if [ "x${test_config}" = "x${config}=y" ] ; then
 		echo "------------------------------------"
-		echo "Config: [${config}] not enabled"
-		echo "echo ${config}=m >> ./KERNEL/.config"
+		echo "sed -i -e 's:${config}=y:${config}=m:g' ./KERNEL/.config"
+	else
+		unset test_config
+		test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
+		if [ "x${test_config}" = "x" ] ; then
+			echo "------------------------------------"
+			echo "Config: [${config}] not enabled"
+			echo "echo ${config}=m >> ./KERNEL/.config"
+		fi
 	fi
 }
 
