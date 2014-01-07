@@ -839,6 +839,7 @@ am33x_after () {
 	${git} "${DIR}/patches/fixes/0002-USB-Fix-USB-device-disconnects-on-resume.patch"
 	${git} "${DIR}/patches/fixes/0003-beaglebone-switch-uSD-to-4-bit-mode.patch"
 	${git} "${DIR}/patches/fixes/0004-mmc-omap_hsmmc-clear-status-flags-before-starting-a-.patch"
+	${git} "${DIR}/patches/fixes/0005-uvcvideo-Fix-data-type-for-pan-tilt-control.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
