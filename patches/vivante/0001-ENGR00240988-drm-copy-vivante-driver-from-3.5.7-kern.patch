@@ -1,0 +1,305 @@
+From 7cce62e5d6bf47719bf2e8ac04d73a33be16dbd4 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Thu, 24 May 2012 10:28:24 +0800
+Subject: [PATCH 1/2] ENGR00240988: drm: copy vivante driver from 3.5.7 kernel
+
+This is a direct copy of folder drivers/gpu/drm/vivante/ from 3.5.7
+kernel.
+
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ drivers/gpu/drm/Kconfig               |   7 +++
+ drivers/gpu/drm/Makefile              |  23 ++++++-
+ drivers/gpu/drm/vivante/Makefile      |  29 +++++++++
+ drivers/gpu/drm/vivante/vivante_drv.c | 112 ++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/vivante/vivante_drv.h |  66 ++++++++++++++++++++
+ 5 files changed, 236 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/gpu/drm/vivante/Makefile
+ create mode 100644 drivers/gpu/drm/vivante/vivante_drv.c
+ create mode 100644 drivers/gpu/drm/vivante/vivante_drv.h
+
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index f864275..d546241 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -162,6 +162,13 @@ config DRM_SAVAGE
+ 	  Choose this option if you have a Savage3D/4/SuperSavage/Pro/Twister
+ 	  chipset. If M is selected the module will be called savage.
+ 
++config DRM_VIVANTE
++	tristate "Vivante GCCore"
++	depends on DRM
++	help
++	  Choose this option if you have a Vivante graphics card.
++	  If M is selected, the module will be called vivante.
++
+ source "drivers/gpu/drm/exynos/Kconfig"
+ 
+ source "drivers/gpu/drm/vmwgfx/Kconfig"
+diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
+index cc08b84..28363a7 100644
+--- a/drivers/gpu/drm/Makefile
++++ b/drivers/gpu/drm/Makefile
+@@ -1,3 +1,24 @@
++##############################################################################
++#
++#    Copyright (C) 2005 - 2013 by Vivante Corp.
++#
++#    This program is free software; you can redistribute it and/or modify
++#    it under the terms of the GNU General Public License as published by
++#    the Free Software Foundation; either version 2 of the license, or
++#    (at your option) any later version.
++#
++#    This program is distributed in the hope that it will be useful,
++#    but WITHOUT ANY WARRANTY; without even the implied warranty of
++#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++#    GNU General Public License for more details.
++#
++#    You should have received a copy of the GNU General Public License
++#    along with this program; if not write to the Free Software
++#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++#
++##############################################################################
++
++
+ #
+ # Makefile for the drm device driver.  This driver provides support for the
+ # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
+@@ -31,8 +52,8 @@ obj-$(CONFIG_DRM_KMS_HELPER) += drm_kms_helper.o
+ CFLAGS_drm_trace_points.o := -I$(src)
+ 
+ obj-$(CONFIG_DRM)	+= drm.o
+-obj-$(CONFIG_DRM_USB)   += drm_usb.o
+ obj-$(CONFIG_DRM_TTM)	+= ttm/
++obj-$(CONFIG_DRM_VIVANTE)	+= vivante/
+ obj-$(CONFIG_DRM_TDFX)	+= tdfx/
+ obj-$(CONFIG_DRM_R128)	+= r128/
+ obj-$(CONFIG_DRM_RADEON)+= radeon/
+diff --git a/drivers/gpu/drm/vivante/Makefile b/drivers/gpu/drm/vivante/Makefile
+new file mode 100644
+index 0000000..d87c8e8
+--- /dev/null
++++ b/drivers/gpu/drm/vivante/Makefile
+@@ -0,0 +1,29 @@
++##############################################################################
++#
++#    Copyright (C) 2005 - 2013 by Vivante Corp.
++#
++#    This program is free software; you can redistribute it and/or modify
++#    it under the terms of the GNU General Public License as published by
++#    the Free Software Foundation; either version 2 of the license, or
++#    (at your option) any later version.
++#
++#    This program is distributed in the hope that it will be useful,
++#    but WITHOUT ANY WARRANTY; without even the implied warranty of
++#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++#    GNU General Public License for more details.
++#
++#    You should have received a copy of the GNU General Public License
++#    along with this program; if not write to the Free Software
++#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++#
++##############################################################################
++
++
++#
++# Makefile for the drm device driver.  This driver provides support for the
++# Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
++
++ccflags-y := -Iinclude/drm
++vivante-y := vivante_drv.o
++
++obj-$(CONFIG_DRM_VIVANTE)	+= vivante.o
+diff --git a/drivers/gpu/drm/vivante/vivante_drv.c b/drivers/gpu/drm/vivante/vivante_drv.c
+new file mode 100644
+index 0000000..aa652a3
+--- /dev/null
++++ b/drivers/gpu/drm/vivante/vivante_drv.c
+@@ -0,0 +1,112 @@
++/****************************************************************************
++*
++*    Copyright (C) 2005 - 2013 by Vivante Corp.
++*
++*    This program is free software; you can redistribute it and/or modify
++*    it under the terms of the GNU General Public License as published by
++*    the Free Software Foundation; either version 2 of the license, or
++*    (at your option) any later version.
++*
++*    This program is distributed in the hope that it will be useful,
++*    but WITHOUT ANY WARRANTY; without even the implied warranty of
++*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++*    GNU General Public License for more details.
++*
++*    You should have received a copy of the GNU General Public License
++*    along with this program; if not write to the Free Software
++*    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*
++*****************************************************************************/
++
++
++/* vivante_drv.c -- vivante driver -*- linux-c -*-
++ *
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the next
++ * paragraph) shall be included in all copies or substantial portions of the
++ * Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * PRECISION INSIGHT AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
++ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
++ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Rickard E. (Rik) Faith <faith@valinux.com>
++ *    Daryll Strauss <daryll@valinux.com>
++ *    Gareth Hughes <gareth@valinux.com>
++ */
++
++#include <linux/version.h>
++#include <linux/module.h>
++
++#include "drmP.h"
++#include "vivante_drv.h"
++
++#include "drm_pciids.h"
++
++static char platformdevicename[] = "Vivante GCCore";
++static struct platform_device *pplatformdev;
++
++static const struct file_operations viv_driver_fops = {
++	.owner = THIS_MODULE,
++	.open = drm_open,
++	.release = drm_release,
++	.unlocked_ioctl = drm_ioctl,
++	.mmap = drm_mmap,
++	.poll = drm_poll,
++	.fasync = drm_fasync,
++	.llseek = noop_llseek,
++};
++
++static struct drm_driver driver = {
++	.driver_features = DRIVER_USE_MTRR,
++	.reclaim_buffers = drm_core_reclaim_buffers,
++	.fops = &viv_driver_fops,
++	.name = DRIVER_NAME,
++	.desc = DRIVER_DESC,
++	.date = DRIVER_DATE,
++	.major = DRIVER_MAJOR,
++	.minor = DRIVER_MINOR,
++	.patchlevel = DRIVER_PATCHLEVEL,
++};
++
++static int __init vivante_init(void)
++{
++	int retcode;
++
++	pplatformdev = platform_device_register_simple(platformdevicename,
++			-1, NULL, 0);
++	if (pplatformdev == NULL)
++		printk(KERN_ERR"Platform device is null\n");
++
++	retcode = drm_platform_init(&driver, pplatformdev);
++
++	return retcode;
++}
++
++static void __exit vivante_exit(void)
++{
++	if (pplatformdev) {
++		drm_platform_exit(&driver, pplatformdev);
++		platform_device_unregister(pplatformdev);
++		pplatformdev = NULL;
++	}
++}
++
++module_init(vivante_init);
++module_exit(vivante_exit);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL and additional rights");
+diff --git a/drivers/gpu/drm/vivante/vivante_drv.h b/drivers/gpu/drm/vivante/vivante_drv.h
+new file mode 100644
+index 0000000..03f5884
+--- /dev/null
++++ b/drivers/gpu/drm/vivante/vivante_drv.h
+@@ -0,0 +1,66 @@
++/****************************************************************************
++*
++*    Copyright (C) 2005 - 2013 by Vivante Corp.
++*
++*    This program is free software; you can redistribute it and/or modify
++*    it under the terms of the GNU General Public License as published by
++*    the Free Software Foundation; either version 2 of the license, or
++*    (at your option) any later version.
++*
++*    This program is distributed in the hope that it will be useful,
++*    but WITHOUT ANY WARRANTY; without even the implied warranty of
++*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++*    GNU General Public License for more details.
++*
++*    You should have received a copy of the GNU General Public License
++*    along with this program; if not write to the Free Software
++*    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*
++*****************************************************************************/
++
++
++/* vivante_drv.h -- Vivante DRM template customization -*- linux-c -*-
++ * Created: Wed Feb 14 12:32:32 2012 by John Zhao
++ */
++/*
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the next
++ * paragraph) shall be included in all copies or substantial portions of the
++ * Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * VA LINUX SYSTEMS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
++ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
++ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ * OTHER DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Gareth Hughes <gareth@valinux.com>
++ */
++
++#ifndef __VIVANTE_DRV_H__
++#define __VIVANTE_DRV_H__
++
++/* General customization:
++ */
++
++#define DRIVER_AUTHOR		"Vivante Inc."
++
++#define DRIVER_NAME		"vivante"
++#define DRIVER_DESC		"Vivante GCCore"
++#define DRIVER_DATE		"20120216"
++
++#define DRIVER_MAJOR		1
++#define DRIVER_MINOR		0
++#define DRIVER_PATCHLEVEL	0
++
++#endif
+-- 
+1.8.5.2
+
