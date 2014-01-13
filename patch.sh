@@ -142,6 +142,7 @@ saucy () {
 ###
 arm
 dts
+fixes
 #audio
 #overlay
 #capemgr
