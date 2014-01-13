@@ -63,6 +63,11 @@ dts () {
 	${git} "${DIR}/patches/dts/0004-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
 }
 
+fixes () {
+	echo "dir: fixes"
+	${git} "${DIR}/patches/fixes/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
+}
+
 audio () {
 	echo "dir: audio"
 	${git} "${DIR}/patches/audio/0001-clk-add-gpio-controlled-clock.patch"
