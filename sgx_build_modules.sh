@@ -218,7 +218,18 @@ installing_sgx_modules () {
 
 	#remove devmem2:
 	find "${DESTDIR}/" -name "devmem2" -exec rm -rf {} \;
+	rm -rf ${DESTDIR}/etc/init.d/335x-demo || true
+	rm -rf ${DESTDIR}/etc/init.d/rc.pvr || true
 
+	mkdir -p ${DESTDIR}/opt/gfxinstall/scripts/ || true
+	cp -v "${DIR}"/3rdparty/sgx-startup-debian.sh ${DESTDIR}/opt/gfxinstall/scripts/
+	cp -v "${DIR}"/3rdparty/sgx-startup-ubuntu.conf ${DESTDIR}/opt/gfxinstall/scripts/
+	cp -v "${DIR}"/3rdparty/sgx-install.sh ${DESTDIR}/opt/gfxinstall/
+	chmod +x ${DESTDIR}/opt/gfxinstall/sgx-install.sh
+
+	cd ${DESTDIR}/
+	tar czf ${DIR}/deploy/GFX_${SDK}.tar.gz *
+	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 }
 
 file_pvr_startup () {
