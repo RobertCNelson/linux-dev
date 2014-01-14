@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2012-2013 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2012-2014 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-VERSION="v2013.04-1"
+VERSION="v2014.01-1"
 
 unset DIR
 
 DIR=$PWD
 
-SDK="5.00.00.01"
-sdk_version="5_00_00_01"
-SDK_DIR="5_00_00_01"
+SDK="5.01.00.01"
+sdk_version="5_01_00_01"
+SDK_DIR="5_01_00_01"
 SGX_SHA="origin/${SDK}"
 #SGX_SHA="origin/master"
 
-http_ti="http://software-dl.ti.com/dsps/dsps_public_sw/sdo_sb/targetcontent/gfxsdk/"
-sgx_file="Graphics_SDK_setuplinux_${sdk_version}_alpha_hardfp_minimal_demos.bin"
-
+http_ti="http://software-dl.ti.com/dsps/dsps_public_sw/gfxsdk/"
+sgx_file="Graphics_SDK_setuplinux_hardfp_${sdk_version}.bin"
+sgx_md5sum="0ee7d59808330d442a51c0990c2cb30e"
 
 dl_sdk () {
 	echo "md5sum mis-match: ${md5sum} (re-downloading)"
@@ -46,8 +46,6 @@ dl_sdk () {
 }
 
 dl_n_verify_sdk () {
-	sgx_md5sum="ae6125d7f8a313ea5c02afded893052d"
-
 	if [ -f "${DIR}/dl/${sgx_file}" ] ; then
 		echo "Verifying: ${sgx_file}"
 		md5sum=$(md5sum "${DIR}/dl/${sgx_file}" | awk '{print $1}')
@@ -182,9 +180,9 @@ build_sgx_modules () {
 	mkdir -p "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/gfx_rel_es$2/" || true
 
 	pwd
-	echo "make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} FBDEV={yes | no} SUPPORT_XORG= {1 | 0 } PM_RUNTIME={1 | 0) all"
-	echo "make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" PM_RUNTIME="$5" "$6""
-	make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" SUPPORT_XORG="$4" PM_RUNTIME="$5" "$6"
+	echo "make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} FBDEV={yes | no} all"
+	echo "make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" "$4""
+	make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" "$4"
 	cd ${DIR}/
 	echo "-----------------------------"
 	echo "modinfo sanity check: vermagic:"
@@ -601,25 +599,25 @@ if [ -e ${DIR}/system.sh ] ; then
 	fi
 
 	#Build:
-	#make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} FBDEV={yes | no} SUPPORT_XORG= {1 | 0 } PM_RUNTIME={1 | 0) all
+	#make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} FBDEV={yes | no} all
 	#Install:
 	#make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} EGLIMAGE={1 | 0} install
 
 #	clean_sgx_modules
-#	build_sgx_modules release 3.x yes 0 0 all
+#	build_sgx_modules release 3.x yes all
 
 #	clean_sgx_modules
-#	build_sgx_modules release 5.x yes 0 0 all
+#	build_sgx_modules release 5.x yes all
 
 #	clean_sgx_modules
-#	build_sgx_modules release 6.x yes 0 0 all
+#	build_sgx_modules release 6.x yes all
 
 	clean_sgx_modules
-	build_sgx_modules release 8.x no 0 1 all
+	build_sgx_modules release 8.x no all
 #	installing_sgx_modules release 8.x 0 install
 
 #	clean_sgx_modules
-#	build_sgx_modules release 9.x yes 0 0 all
+#	build_sgx_modules release 9.x yes all
 
 	pkg_modules
 
