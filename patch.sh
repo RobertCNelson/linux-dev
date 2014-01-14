@@ -227,6 +227,11 @@ cpufreq () {
 	${git} "${DIR}/patches/cpufreq/0005-hack-boneblack-enable-1Ghz-operation.patch"
 }
 
+pru () {
+	echo "dir: pru"
+	${git} "${DIR}/patches/pru/0001-These-are-the-patches-necessary-for-enabling-the-PRU.patch"
+}
+
 sgx () {
 	echo "dir: sgx"
 	${git} "${DIR}/patches/sgx/0001-prcm-port-from-ti-linux-3.12.y.patch"
@@ -276,6 +281,7 @@ cape_import
 audio
 drm
 cpufreq
+pru
 sgx
 #sgx_blob
 saucy
