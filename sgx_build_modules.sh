@@ -197,9 +197,9 @@ installing_sgx_modules () {
 	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 
 	pwd
-	echo "make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} EGLIMAGE={1 | 0} install"
-	echo "make BUILD="$1" OMAPES="$2" EGLIMAGE="$3" "$4""
-	make BUILD="$1" OMAPES="$2" EGLIMAGE="$3" "$4"
+	echo "make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} install"
+	echo "make BUILD="$1" OMAPES="$2" "$3""
+	make BUILD="$1" OMAPES="$2" "$3"
 }
 
 file_pvr_startup () {
@@ -601,7 +601,7 @@ if [ -e ${DIR}/system.sh ] ; then
 	#Build:
 	#make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} FBDEV={yes | no} all
 	#Install:
-	#make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x} EGLIMAGE={1 | 0} install
+	#make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} install
 
 #	clean_sgx_modules
 #	build_sgx_modules release 3.x yes all
@@ -614,7 +614,7 @@ if [ -e ${DIR}/system.sh ] ; then
 
 	clean_sgx_modules
 	build_sgx_modules release 8.x no all
-#	installing_sgx_modules release 8.x 0 install
+#	installing_sgx_modules release 8.x install
 
 #	clean_sgx_modules
 #	build_sgx_modules release 9.x yes all
