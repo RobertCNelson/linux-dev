@@ -196,10 +196,29 @@ installing_sgx_modules () {
 	echo "-----------------------------"
 	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 
+	DESTDIR="${DIR}/deploy/$2"
+	if [ -d ${DESTDIR} ] ; then
+		rm -rf ${DESTDIR} || true
+	fi
+	mkdir -p ${DESTDIR} || true
+	mkdir -p ${DESTDIR}/etc/init.d/ || true
+	mkdir -p ${DESTDIR}/opt/ || true
+
+	INSTALL_HOME="${DIR}/ignore/SDK_BIN/"
+	GRAPHICS_INSTALL_DIR="${INSTALL_HOME}Graphics_SDK_setuplinux_${sdk_version}"
+
 	pwd
 	echo "make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} install"
-	echo "make BUILD="$1" OMAPES="$2" "$3""
-	make BUILD="$1" OMAPES="$2" "$3"
+	echo "make DESTDIR=${DESTDIR} HOME=${INSTALL_HOME} GRAPHICS_INSTALL_DIR=${GRAPHICS_INSTALL_DIR} BUILD="$1" OMAPES="$2" "$3""
+	make DESTDIR=${DESTDIR} HOME=${INSTALL_HOME} GRAPHICS_INSTALL_DIR=${GRAPHICS_INSTALL_DIR} BUILD="$1" OMAPES="$2" "$3"
+
+	OMAPES="$2"
+	mkdir -p ${DESTDIR}/opt/gfxmodules/gfx_rel_es${OMAPES} || true
+	cp -v "${DIR}"/ignore/ti-sdk-pvr/Graphics_SDK/gfx_rel_es${OMAPES}/*.ko ${DESTDIR}/opt/gfxmodules/gfx_rel_es${OMAPES} || true
+
+	#remove devmem2:
+	find "${DESTDIR}/" -name "devmem2" -exec rm -rf {} \;
+
 }
 
 file_pvr_startup () {
@@ -614,17 +633,17 @@ if [ -e ${DIR}/system.sh ] ; then
 
 	clean_sgx_modules
 	build_sgx_modules release 8.x no all
-#	installing_sgx_modules release 8.x install
+	installing_sgx_modules release 8.x install
 
 #	clean_sgx_modules
 #	build_sgx_modules release 9.x yes all
 
-	pkg_modules
+	#pkg_modules
 
-	pkg_install_script
+	#pkg_install_script
 
-	pkg_up
-	pkg_up_examples
+	#pkg_up
+	#pkg_up_examples
 
 	#Disable when debugging...
 	if [ -d "${DIR}/ignore/ti-sdk-pvr/pkg/" ] ; then
