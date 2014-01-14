@@ -29,10 +29,10 @@ toolchain="cortex_gcc_4_8"
 #Kernel/Build
 KERNEL_REL=3.13
 KERNEL_TAG=${KERNEL_REL}-rc8
-BUILD=armv7-devel-r60
+BUILD=armv7-devel-r61
 
 #v3.X-rcX + upto SHA
-#KERNEL_SHA="21e20e22d4e9d6ae8504c7275049a57ad4d1b71f"
+KERNEL_SHA="a6da83f98267bc8ee4e34aa899169991eb0ceb93"
 
 #git branch
 #BRANCH="v3.13.x"
