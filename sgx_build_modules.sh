@@ -232,28 +232,6 @@ installing_sgx_modules () {
 	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 }
 
-pkg_modules () {
-	if [ -d "${DIR}/ignore/ti-sdk-pvr/pkg/" ] ; then
-		rm -rf "${DIR}/ignore/ti-sdk-pvr/pkg" || true
-	fi
-	mkdir "${DIR}/ignore/ti-sdk-pvr/pkg"
-
-	ARCH="armhf"
-	CORE="es3"
-
-	CORE="es5"
-
-	CORE="es6"
-
-	CORE="es8"
-
-	CORE="es9"
-
-	rm -rf gfx_* || true
-	rm -rf README || true
-	rm -rf *.pdf || true
-}
-
 if [ -e ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
 	source ${DIR}/version.sh
@@ -304,8 +282,6 @@ if [ -e ${DIR}/system.sh ] ; then
 
 #	clean_sgx_modules
 #	build_sgx_modules release 9.x yes all
-
-	#pkg_modules
 
 	#Disable when debugging...
 	if [ -d "${DIR}/ignore/ti-sdk-pvr/pkg/" ] ; then
