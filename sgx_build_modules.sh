@@ -232,38 +232,9 @@ installing_sgx_modules () {
 	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 }
 
-mv_modules_libs_bins () {
-	echo "packaging: ${CORE}.x: ${ARCH} Kernel Modules:"
-	mkdir -p ./opt/sgx_modules/${CORE}.0/
-	cp -v "${DIR}"/ignore/ti-sdk-pvr/Graphics_SDK/gfx_rel_${CORE}.x/*.ko ./opt/sgx_modules/${CORE}.0/ || true
-	echo "-----------------------------"
-
-	#armhf has extra pre-built kernel modules, remove...(built against v3.4.4-x1 so not usable..)
-	rm -rf *.ko || true 
-
-	mkdir -p ./opt/sgx_xorg/${CORE}.0/
-	mv ./pvr_drv* ./opt/sgx_xorg/${CORE}.0/ || true
-	mv ./xorg.conf ./opt/sgx_xorg/${CORE}.0/ || true
-
-	mkdir -p ./opt/sgx_other/${CORE}.0/
-	mv ./*.sh ./opt/sgx_other/${CORE}.0/ || true
-	mv ./*.pvr ./opt/sgx_other/${CORE}.0/ || true
-
-	mkdir -p ./usr/lib/${CORE}.0/
-	mv ./*.so* ./usr/lib/${CORE}.0/ || true
-	mv ./*.a ./usr/lib/${CORE}.0/ || true
-	mv ./*.dbg ./usr/lib/${CORE}.0/ || true
-
-	mkdir -p ./usr/bin/${CORE}.0/
-	mv ./*_test ./usr/bin/${CORE}.0/ || true
-	mv ./*gl* ./usr/bin/${CORE}.0/ || true
-	mv ./p[dv]* ./usr/bin/${CORE}.0/ || true
-}
-
 gfx_rel_x () {
 	if [ -d "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/${ARCH}/gfx_rel_${CORE}.x" ] ; then
 		cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/${ARCH}/gfx_rel_${CORE}.x"
-		mv_modules_libs_bins
 		tar czf "${DIR}/ignore/ti-sdk-pvr/pkg"/gfx_rel_${CORE}_${ARCH}.tar.gz *
 	else
 		echo "SGX: missing gfx_rel_${CORE}.x dir, did you get the FULL release"
