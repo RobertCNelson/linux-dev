@@ -232,114 +232,6 @@ installing_sgx_modules () {
 	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 }
 
-file_install_sgx () {
-	cat > "${DIR}/ignore/ti-sdk-pvr/pkg/install-sgx.sh" <<-__EOF__
-	#!/bin/sh
-
-	if ! id | grep -q root; then
-	        echo "must be run as root"
-	        exit
-	fi
-
-	DIR=\$PWD
-
-	#ln -sf /usr/lib/libXdmcp.so.6.0.0 /usr/lib/libXdmcp.so.0
-	#ln -sf /usr/lib/libXau.so.6.0.0 /usr/lib/libXau.so.0
-
-	sudo rm -rf /opt/sgx_modules/ || true
-	sudo rm -rf /opt/sgx_other/ || true
-	sudo rm -rf /opt/sgx_xorg/ || true
-
-	if [ -f ./gfx_rel_es3_armhf.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es3_armhf.tar.gz"
-	        tar xf ./gfx_rel_es3_armhf.tar.gz -C /
-	fi
-
-	if [ -f ./gfx_rel_es5_armhf.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es5_armhf.tar.gz"
-	        tar xf ./gfx_rel_es5_armhf.tar.gz -C /
-	fi
-
-	if [ -f ./gfx_rel_es6_armhf.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es6_armhf.tar.gz"
-	        tar xf ./gfx_rel_es6_armhf.tar.gz -C /
-	fi
-
-	if [ -f ./gfx_rel_es8_armhf.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es8_armhf.tar.gz"
-	        tar xf ./gfx_rel_es8_armhf.tar.gz -C /
-	        cp -v /opt/sgx_xorg/es8.0/pvr_drv.so /usr/lib/xorg/modules/drivers/
-	fi
-
-	if [ -f ./gfx_rel_es9_armhf.tar.gz ] ; then
-	        echo "Extracting gfx_rel_es9_armhf.tar.gz"
-	        tar xf ./gfx_rel_es9_armhf.tar.gz -C /
-	fi
-
-	if [ -f /etc/powervr-esrev ] ; then
-	        rm -f /etc/powervr-esrev || true
-	fi
-
-	echo "[default]" > /etc/powervr.ini
-	echo "WindowSystem=libpvrPVR2D_FRONTWSEGL.so" >> /etc/powervr.ini
-
-	touch /etc/powervr-esrev
-
-	SAVED_ESREVISION="\$(cat /etc/powervr-esrev)"
-
-	#devmem2 0x48004B48 w 0x2 > /dev/null
-	#devmem2 0x48004B10 w 0x1 > /dev/null
-	#devmem2 0x48004B00 w 0x2 > /dev/null
-
-	#ES_REVISION="\$(devmem2 0x50000014 | sed -e s:0x10205:5: -e s:0x10201:3: | tail -n1 | awk -F': ' '{print \$2}')"
-	ES_REVISION="8"
-
-	if [ "x\${ES_REVISION}" != "x\${SAVED_ESREVISION}" ] ; then
-	        echo -n "sgx: Starting SGX fixup for"
-	        echo " ES\${ES_REVISION}.x"
-	        cp -a /usr/lib/es\${ES_REVISION}.0/* /usr/lib
-	        cp -a /usr/bin/es\${ES_REVISION}.0/* /usr/bin
-	        echo "\${ES_REVISION}" > /etc/powervr-esrev
-	fi
-
-	if [ -d /lib/modules/\$(uname -r)/extra/ ] ; then
-	        rm -rf /lib/modules/\$(uname -r)/extra/ || true
-	fi
-
-	#FIXME: is there a better way? A way that doesn't look like a hack...
-	mkdir -p /lib/modules/\$(uname -r)/extra/
-	cp -v /opt/sgx_modules/es\${ES_REVISION}.0/*.ko /lib/modules/\$(uname -r)/extra/
-
-	grep -v -e "extra/pvrsrvkm.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
-	echo "/lib/modules/\$(uname -r)/extra/pvrsrvkm.ko:" >>/tmp/modules.tmp
-	cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
-
-	grep -v -e "extra/drm.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
-	echo "/lib/modules/\$(uname -r)/extra/drm.ko: /lib/modules/\$(uname -r)/extra/pvrsrvkm.ko" >>/tmp/modules.tmp
-	cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
-
-	#grep -v -e "extra/bufferclass_ti.ko" /lib/modules/\$(uname -r)/modules.dep >/tmp/modules.tmp
-	#echo "/lib/modules/\$(uname -r)/extra/bufferclass_ti.ko: /lib/modules/\$(uname -r)/extra/pvrsrvkm.ko" >>/tmp/modules.tmp
-	#cp /tmp/modules.tmp /lib/modules/\$(uname -r)/modules.dep
-
-	depmod -a
-
-	update-rc.d -f pvr_init remove
-	if [ -f /etc/init.d/pvr_init ] ; then
-	        rm -f /etc/init.d/pvr_init || true
-	fi
-
-	cp ./pvr_startup /etc/init.d/pvr_init
-	chmod +x /etc/init.d/pvr_init
-	update-rc.d pvr_init defaults
-
-	echo "Done: Please reboot system"
-
-	__EOF__
-
-	chmod +x "${DIR}/ignore/ti-sdk-pvr/pkg/install-sgx.sh"
-}
-
 mv_modules_libs_bins () {
 	echo "packaging: ${CORE}.x: ${ARCH} Kernel Modules:"
 	mkdir -p ./opt/sgx_modules/${CORE}.0/
@@ -407,7 +299,6 @@ pkg_modules () {
 
 pkg_install_script () {
 	cd "${DIR}/ignore/ti-sdk-pvr/pkg"
-	file_install_sgx
 	cd ${DIR}/
 }
 
