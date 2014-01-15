@@ -232,15 +232,6 @@ installing_sgx_modules () {
 	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 }
 
-gfx_rel_x () {
-	if [ -d "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/${ARCH}/gfx_rel_${CORE}.x" ] ; then
-		cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/${ARCH}/gfx_rel_${CORE}.x"
-		tar czf "${DIR}/ignore/ti-sdk-pvr/pkg"/gfx_rel_${CORE}_${ARCH}.tar.gz *
-	else
-		echo "SGX: missing gfx_rel_${CORE}.x dir, did you get the FULL release"
-	fi
-}
-
 pkg_modules () {
 	if [ -d "${DIR}/ignore/ti-sdk-pvr/pkg/" ] ; then
 		rm -rf "${DIR}/ignore/ti-sdk-pvr/pkg" || true
@@ -249,19 +240,14 @@ pkg_modules () {
 
 	ARCH="armhf"
 	CORE="es3"
-	gfx_rel_x
 
 	CORE="es5"
-	gfx_rel_x
 
 	CORE="es6"
-	gfx_rel_x
 
 	CORE="es8"
-	gfx_rel_x
 
 	CORE="es9"
-	gfx_rel_x
 
 	rm -rf gfx_* || true
 	rm -rf README || true
