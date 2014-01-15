@@ -340,30 +340,6 @@ file_install_sgx () {
 	chmod +x "${DIR}/ignore/ti-sdk-pvr/pkg/install-sgx.sh"
 }
 
-file_run_sgx () {
-	cat > "${DIR}/ignore/ti-sdk-pvr/pkg/run-sgx.sh" <<-__EOF__
-	#!/bin/sh
-
-	if ! id | grep -q root; then
-	        echo "must be run as root"
-	        exit
-	fi
-
-	DIR=\$PWD
-
-	if [ -f /etc/powervr-esrev ] ; then
-	        rm /etc/powervr-esrev || true
-	fi
-
-	depmod -a omaplfb
-
-	/etc/init.d/pvr_init restart
-
-	__EOF__
-
-	chmod +x "${DIR}/ignore/ti-sdk-pvr/pkg/run-sgx.sh"
-}
-
 mv_modules_libs_bins () {
 	echo "packaging: ${CORE}.x: ${ARCH} Kernel Modules:"
 	mkdir -p ./opt/sgx_modules/${CORE}.0/
@@ -432,7 +408,6 @@ pkg_modules () {
 pkg_install_script () {
 	cd "${DIR}/ignore/ti-sdk-pvr/pkg"
 	file_install_sgx
-	file_run_sgx
 	cd ${DIR}/
 }
 
