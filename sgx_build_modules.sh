@@ -540,12 +540,6 @@ pkg_install_script () {
 	cd ${DIR}/
 }
 
-pkg_up () {
-	cd "${DIR}/ignore/ti-sdk-pvr/pkg"
-	tar czf ${DIR}/deploy/GFX_${SDK}_libs.tar.gz *
-	cd ${DIR}/
-}
-
 if [ -e ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
 	source ${DIR}/version.sh
@@ -600,8 +594,6 @@ if [ -e ${DIR}/system.sh ] ; then
 	#pkg_modules
 
 	#pkg_install_script
-
-	#pkg_up
 
 	#Disable when debugging...
 	if [ -d "${DIR}/ignore/ti-sdk-pvr/pkg/" ] ; then
