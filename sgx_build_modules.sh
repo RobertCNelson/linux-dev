@@ -546,58 +546,6 @@ pkg_up () {
 	cd ${DIR}/
 }
 
-
-pkg_up_examples () {
-	BASE_DIR=""${DIR}"/ignore/SDK_BIN/Graphics_SDK_setuplinux_${sdk_version}"
-	OGLES="GFX_Linux_SDK/OGLES/SDKPackage"
-	OGLES2="GFX_Linux_SDK/OGLES2/SDKPackage"
-
-	if [ -d "${DIR}/ignore/ti-sdk-pvr/examples/" ] ; then
-		rm -rf "${DIR}/ignore/ti-sdk-pvr/examples" || true
-	fi
-	mkdir "${DIR}/ignore/ti-sdk-pvr/examples"
-
-
-	if [ -d "${BASE_DIR}"/GFX_Linux_SDK ] ; then
-		echo "Copying SDK example appications..."
-
-		if [ -d "${BASE_DIR}"/${OGLES}/Binaries/ ] ; then
-			mkdir -p "${DIR}/ignore/ti-sdk-pvr/examples/${OGLES}/Binaries/"
-			cp -r "${BASE_DIR}"/${OGLES}/Binaries/ "${DIR}/ignore/ti-sdk-pvr/examples/${OGLES}/"
-		fi
-
-		if [ -d "${BASE_DIR}"/${OGLES2}/Binaries/ ] ; then
-			mkdir -p "${DIR}/ignore/ti-sdk-pvr/examples/${OGLES2}/Binaries/"
-			cp -r "${BASE_DIR}"/${OGLES2}/Binaries/ "${DIR}/ignore/ti-sdk-pvr/examples/${OGLES2}/"
-		fi
-
-		if [ -d "${BASE_DIR}"/GFX_Linux_SDK/ti-components/ ] ; then
-			mkdir -p "${DIR}/ignore/ti-sdk-pvr/examples/GFX_Linux_SDK/ti-components/"
-			cp -r "${BASE_DIR}"/GFX_Linux_SDK/ti-components/ "${DIR}/ignore/ti-sdk-pvr/examples/GFX_Linux_SDK/"
-		fi
-
-		echo "taring SDK example files for use on the OMAP board"
-
-		echo "removing windows binaries"
-		find "${DIR}/ignore/ti-sdk-pvr/examples" -name "*.exe" -exec rm -rf {} \;
-		find "${DIR}/ignore/ti-sdk-pvr/examples" -name "*.dll" -exec rm -rf {} \;
-
-		cd "${DIR}/ignore/ti-sdk-pvr/examples/GFX_Linux_SDK"
-		tar czf "${DIR}/ignore/ti-sdk-pvr/examples/GFX_Linux_SDK"/OGLES.tar.gz ./OGLES
-		rm -rf "${DIR}/ignore/ti-sdk-pvr/examples/GFX_Linux_SDK/OGLES" || true
-		tar czf "${DIR}/ignore/ti-sdk-pvr/examples/GFX_Linux_SDK"/OGLES2.tar.gz ./OGLES2
-		rm -rf "${DIR}/ignore/ti-sdk-pvr/examples/GFX_Linux_SDK/OGLES2" || true
-
-		cd "${DIR}/ignore/ti-sdk-pvr/examples/"
-		tar czfv ${DIR}/deploy/GFX_Linux_${SDK}_examples.tar.gz ./GFX_Linux_SDK
-		echo "SGX examples are in: deploy/GFX_Linux_${SDK}_examples.tar.gz"
-		cd ${DIR}
-
-	else
-		echo "SGX: missing GFX_Linux_SDK dir, did you get the FULL release"
-	fi
-}
-
 if [ -e ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
 	source ${DIR}/version.sh
@@ -654,7 +602,6 @@ if [ -e ${DIR}/system.sh ] ; then
 	#pkg_install_script
 
 	#pkg_up
-	#pkg_up_examples
 
 	#Disable when debugging...
 	if [ -d "${DIR}/ignore/ti-sdk-pvr/pkg/" ] ; then
