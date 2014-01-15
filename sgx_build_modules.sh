@@ -232,109 +232,6 @@ installing_sgx_modules () {
 	cd "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 }
 
-file_pvr_startup () {
-	cat > "${DIR}/ignore/ti-sdk-pvr/pkg/pvr_startup" <<-__EOF__
-	#!/bin/sh -e
-	### BEGIN INIT INFO
-	# Provides:          pvr_startup
-	# Required-Start:    \$local_fs
-	# Required-Stop:     \$local_fs
-	# Default-Start:     2 3 4 5
-	# Default-Stop:      0 1 6
-	# Short-Description: Start daemon at boot time
-	# Description:       Enable service provided by daemon.
-	### END INIT INFO
-
-	touch /etc/powervr-esrev
-	SAVED_ESREVISION="\$(cat /etc/powervr-esrev)"
-
-	case "\$1" in
-	start)
-	        echo "sgx: Starting PVR"
-	        modprobe drm
-	        modprobe bufferclass_ti
-
-	        pvr_maj=\$(grep "pvrsrvkm$" /proc/devices | cut -b1,2,3)
-	        bc_maj=\$(grep "bc" /proc/devices | cut -b1,2,3)
-
-	        if [ -e /dev/pvrsrvkm ] ; then
-	                rm -f /dev/pvrsrvkm
-	        fi
-
-	        mknod /dev/pvrsrvkm c \$pvr_maj 0
-	        chmod 666 /dev/pvrsrvkm
-
-	        #devmem2 0x48004B48 w 0x2 > /dev/null
-	        #devmem2 0x48004B10 w 0x1 > /dev/null
-	        #devmem2 0x48004B00 w 0x2 > /dev/null
-
-	        #ES_REVISION="\$(devmem2 0x50000014 | sed -e s:0x10205:5: -e s:0x10201:3: | tail -n1 | awk -F': ' '{print \$2}')"
-	        ES_REVISION="8"
-
-	        if [ "x\${ES_REVISION}" != "x\${SAVED_ESREVISION}" ] ; then
-	                echo -n "sgx: Starting SGX fixup for"
-	                echo " ES\${ES_REVISION}.x"
-	                cp -a /usr/lib/es\${ES_REVISION}.0/* /usr/lib
-	                cp -a /usr/bin/es\${ES_REVISION}.0/* /usr/bin
-	                echo "\${ES_REVISION}" > /etc/powervr-esrev
-	        fi
-
-	        /usr/bin/pvrsrvctl --start --no-module
-	        ;;
-	reload|force-reload|restart)
-	        echo "sgx: Restarting PVR"
-	        rmmod bufferclass_ti 2>/dev/null || true
-	        rmmod drm 2>/dev/null || true
-	        rmmod pvrsrvkm 2>/dev/null || true
-
-	        echo "sgx: Starting PVR"
-	        modprobe drm
-	        modprobe bufferclass_ti
-
-	        pvr_maj=\$(grep "pvrsrvkm$" /proc/devices | cut -b1,2,3)
-	        bc_maj=\$(grep "bc" /proc/devices | cut -b1,2,3)
-
-	        if [ -e /dev/pvrsrvkm ] ; then
-	                rm -f /dev/pvrsrvkm
-	        fi
-
-	        mknod /dev/pvrsrvkm c \$pvr_maj 0
-	        chmod 666 /dev/pvrsrvkm
-
-	        #devmem2 0x48004B48 w 0x2 > /dev/null
-	        #devmem2 0x48004B10 w 0x1 > /dev/null
-	        #devmem2 0x48004B00 w 0x2 > /dev/null
-
-	        #ES_REVISION="\$(devmem2 0x50000014 | sed -e s:0x10205:5: -e s:0x10201:3: | tail -n1 | awk -F': ' '{print \$2}')"
-	        ES_REVISION="8"
-
-	        if [ "x\${ES_REVISION}" != "x\${SAVED_ESREVISION}" ] ; then
-	                echo -n "sgx: Starting SGX fixup for"
-	                echo " ES\${ES_REVISION}.x"
-	                cp -a /usr/lib/es\${ES_REVISION}.0/* /usr/lib
-	                cp -a /usr/bin/es\${ES_REVISION}.0/* /usr/bin
-	                echo "\${ES_REVISION}" > /etc/powervr-esrev
-	        fi
-
-	        /usr/bin/pvrsrvctl --start --no-module
-	        ;;
-	stop)
-	        echo "sgx: Stopping PVR"
-	        rmmod bufferclass_ti 2>/dev/null || true
-	        rmmod drm 2>/dev/null || true
-	        rmmod pvrsrvkm 2>/dev/null || true
-	        ;;
-	*)
-	        echo "Usage: /etc/init.d/pvr_startup {start|stop|reload|restart|force-reload}"
-	        exit 1
-	        ;;
-	esac
-
-	exit 0
-
-	__EOF__
-}
-
 file_install_sgx () {
 	cat > "${DIR}/ignore/ti-sdk-pvr/pkg/install-sgx.sh" <<-__EOF__
 	#!/bin/sh
@@ -534,7 +431,6 @@ pkg_modules () {
 
 pkg_install_script () {
 	cd "${DIR}/ignore/ti-sdk-pvr/pkg"
-	file_pvr_startup
 	file_install_sgx
 	file_run_sgx
 	cd ${DIR}/
