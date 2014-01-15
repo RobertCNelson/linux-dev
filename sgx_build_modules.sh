@@ -297,11 +297,6 @@ pkg_modules () {
 	rm -rf *.pdf || true
 }
 
-pkg_install_script () {
-	cd "${DIR}/ignore/ti-sdk-pvr/pkg"
-	cd ${DIR}/
-}
-
 if [ -e ${DIR}/system.sh ] ; then
 	source ${DIR}/system.sh
 	source ${DIR}/version.sh
@@ -354,8 +349,6 @@ if [ -e ${DIR}/system.sh ] ; then
 #	build_sgx_modules release 9.x yes all
 
 	#pkg_modules
-
-	#pkg_install_script
 
 	#Disable when debugging...
 	if [ -d "${DIR}/ignore/ti-sdk-pvr/pkg/" ] ; then
