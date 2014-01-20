@@ -343,6 +343,14 @@ check_config_builtin
 config="CONFIG_VFAT_FS"
 check_config_builtin
 
+#CONFIG_CC_STACKPROTECTOR
+config="CONFIG_CC_STACKPROTECTOR"
+check_config_builtin
+config="CONFIG_CC_STACKPROTECTOR_NONE"
+check_config_disabled
+config="CONFIG_CC_STACKPROTECTOR_REGULAR"
+check_config_builtin
+
 #useful
 config="CONFIG_I2C_CHARDEV"
 check_config_builtin
