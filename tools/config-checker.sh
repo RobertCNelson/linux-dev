@@ -47,6 +47,14 @@ check_config_disabled () {
 	fi
 }
 
+check_if_set_then_set_module () {
+	unset test_config
+	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
+	if [ "x${test_config}" = "x${if_config}=y" ] ; then
+		check_config_module
+	fi
+}
+
 check_if_set_then_set () {
 	unset test_config
 	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
@@ -140,6 +148,12 @@ config="CONFIG_OMAP_WATCHDOG"
 check_if_set_then_set
 config="CONFIG_TWL4030_WATCHDOG"
 check_if_set_then_set
+config="CONFIG_USB_MUSB_OMAP2PLUS"
+check_if_set_then_set_module
+config="CONFIG_TWL4030_USB"
+check_if_set_then_set
+config="CONFIG_TWL6030_USB"
+check_if_set_then_set
 config="CONFIG_MFD_PALMAS"
 check_if_set_then_set
 config="CONFIG_MFD_TPS65217"
@@ -213,6 +227,31 @@ check_if_set_then_set
 config="CONFIG_LOGO_LINUX_VGA16"
 check_if_set_then_set
 config="CONFIG_LOGO_LINUX_CLUT224"
+check_if_set_then_set
+
+#BeagleBoneBlack:
+if_config="CONFIG_SOC_AM33XX"
+config="CONFIG_DRM_TILCDC"
+check_if_set_then_set
+config="CONFIG_DRM_I2C_NXP_TDA998X"
+check_if_set_then_set
+config="CONFIG_AM335X_PHY_USB"
+check_if_set_then_set
+config="CONFIG_TI_CPPI41"
+check_if_set_then_set
+config="CONFIG_USB_OTG"
+check_if_set_then_set
+config="CONFIG_USB_OTG_WHITELIST"
+check_config_disabled
+config="CONFIG_USB_MUSB_HDRC"
+check_if_set_then_set
+config="CONFIG_USB_MUSB_DSPS"
+check_if_set_then_set_module
+config="CONFIG_USB_GADGET"
+check_if_set_then_set
+config="CONFIG_USB_ETH"
+check_if_set_then_set_module
+config="CONFIG_RTC_DRV_OMAP"
 check_if_set_then_set
 
 if_config="CONFIG_ARCH_MULTI_V7"
