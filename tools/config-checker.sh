@@ -6,8 +6,6 @@ check_config_builtin () {
 	unset test_config
 	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
-		echo "------------------------------------"
-		echo "Config: [${config}=y] not enabled"
 		echo "echo ${config}=y >> ./KERNEL/.config"
 	fi
 }
@@ -16,14 +14,11 @@ check_config_module () {
 	unset test_config
 	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x${config}=y" ] ; then
-		echo "------------------------------------"
 		echo "sed -i -e 's:${config}=y:${config}=m:g' ./KERNEL/.config"
 	else
 		unset test_config
 		test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
 		if [ "x${test_config}" = "x" ] ; then
-			echo "------------------------------------"
-			echo "Config: [${config}] not enabled"
 			echo "echo ${config}=m >> ./KERNEL/.config"
 		fi
 	fi
@@ -33,8 +28,6 @@ check_config () {
 	unset test_config
 	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
-		echo "------------------------------------"
-		echo "Config: [${config}] not enabled"
 		echo "echo ${config}=y >> ./KERNEL/.config"
 		echo "echo ${config}=m >> ./KERNEL/.config"
 	fi
@@ -44,8 +37,6 @@ check_config_disabled () {
 	unset test_config
 	test_config=$(grep "${config} is not set" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
-		echo "------------------------------------"
-		echo "Disable config: [${config}]"
 		unset test_config
 		test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
 		if [ "x${test_config}" = "x${config}=y" ] ; then
@@ -72,6 +63,22 @@ check_if_set_then_disable () {
 	fi
 }
 
+#Basic:
+config="CONFIG_LOCALVERSION_AUTO"
+check_config_disabled
+
+#Modules
+config="CONFIG_MODULES"
+check_config_builtin
+config="CONFIG_MODULE_FORCE_LOAD"
+check_config_builtin
+config="CONFIG_MODULE_UNLOAD"
+check_config_builtin
+config="CONFIG_MODULE_FORCE_UNLOAD"
+check_config_builtin
+config="CONFIG_MODVERSIONS"
+check_config_builtin
+
 ###CONFIG_ARCH_MULTIPLATFORM
 if_config="CONFIG_ARCH_MULTIPLATFORM"
 
@@ -82,6 +89,8 @@ check_if_set_then_disable
 config="CONFIG_ARCH_BERLIN"
 check_if_set_then_disable
 config="CONFIG_ARCH_BCM"
+check_if_set_then_disable
+config="CONFIG_ARCH_HI3xxx"
 check_if_set_then_disable
 config="CONFIG_ARCH_KEYSTONE"
 check_if_set_then_disable
@@ -129,6 +138,8 @@ check_if_set_then_set
 config="CONFIG_SMP_ON_UP"
 check_if_set_then_set
 config="CONFIG_SWP_EMULATE"
+check_if_set_then_set
+config="CONFIG_THUMB2_KERNEL"
 check_if_set_then_set
 
 if_config="CONFIG_ARCH_MULTI_V7"
@@ -197,12 +208,11 @@ check_config_builtin
 #check_config_disabled
 
 #zram
+config="CONFIG_STAGING"
+check_config_builtin
 config="CONFIG_ZSMALLOC"
 check_config_builtin
 config="CONFIG_ZRAM"
 check_config_module
 
-#ancient...
-config="CONFIG_OABI_COMPAT"
-check_config_disabled
 #

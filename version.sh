@@ -23,13 +23,13 @@ config="multi_v7_defconfig"
 #toolchain="gcc_arm_embedded_4_8"
 #toolchain="cortex_gcc_4_6"
 #toolchain="cortex_gcc_4_7"
-toolchain="cortex_gcc_4_8"
-#toolchain="gcc_linaro_gnueabihf_4_8"
+#toolchain="cortex_gcc_4_8"
+toolchain="gcc_linaro_gnueabihf_4_8"
 
 #Kernel/Build
 KERNEL_REL=3.13
 KERNEL_TAG=${KERNEL_REL}
-BUILD=armv7-devel-r63
+BUILD=armv7-devel-r0
 
 #v3.X-rcX + upto SHA
 #KERNEL_SHA="2e67c56248b776c0a546925c796cdb167ee4d7a0"
