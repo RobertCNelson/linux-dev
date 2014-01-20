@@ -137,11 +137,11 @@ check_if_set_then_disable
 if_config="CONFIG_ARCH_OMAP3"
 config="CONFIG_ARM_ERRATA_430973"
 check_if_set_then_set
-config="CONFIG_PINCTRL_SINGLE"
-check_if_set_then_set
 
 #omap3/4/5
 if_config="CONFIG_ARCH_OMAP3"
+config="CONFIG_PINCTRL_SINGLE"
+check_if_set_then_set
 config="CONFIG_WATCHDOG"
 check_if_set_then_set
 config="CONFIG_OMAP_WATCHDOG"
