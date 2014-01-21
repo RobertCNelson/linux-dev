@@ -305,7 +305,7 @@ bone () {
 
 imx_video_staging () {
 	echo "dir: imx_video_staging"
-	${git} "${DIR}/patches/imx_video_staging/0001-imx-drm-Add-mx6-hdmi-transmitter-support.patch"
+#	${git} "${DIR}/patches/imx_video_staging/0001-imx-drm-Add-mx6-hdmi-transmitter-support.patch"
 	${git} "${DIR}/patches/imx_video_staging/0002-ARM-dts-mx6qdl-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/imx_video_staging/0003-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
 }
