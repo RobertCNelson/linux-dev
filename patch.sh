@@ -69,10 +69,10 @@ imx_next () {
 	#From: https://git.linaro.org/people/shawn.guo/linux-2.6.git
 	#git pull --no-edit git://git.linaro.org/people/shawn.guo/linux-2.6.git for-next
 
-	${git} "${DIR}/patches/imx_next/0001-sh-pfc-r8a7791-Fix-DU-pin-groups-organisation.patch"
-	${git} "${DIR}/patches/imx_next/0002-pinctrl-nomadik-always-display-IRQ-in-debugfs.patch"
-	${git} "${DIR}/patches/imx_next/0003-pinctrl-imx-drop-redundant-OF-dependency.patch"
-	${git} "${DIR}/patches/imx_next/0004-pinctrl-imx1-core-populate-subdevices.patch"
+#	${git} "${DIR}/patches/imx_next/0001-sh-pfc-r8a7791-Fix-DU-pin-groups-organisation.patch"
+#	${git} "${DIR}/patches/imx_next/0002-pinctrl-nomadik-always-display-IRQ-in-debugfs.patch"
+#	${git} "${DIR}/patches/imx_next/0003-pinctrl-imx-drop-redundant-OF-dependency.patch"
+#	${git} "${DIR}/patches/imx_next/0004-pinctrl-imx1-core-populate-subdevices.patch"
 	${git} "${DIR}/patches/imx_next/0005-ARM-imx-add-PCI-fixup-for-PEX860X-on-Gateworks-board.patch"
 	${git} "${DIR}/patches/imx_next/0006-ARM-imx_v4_v5_defconfig-Enable-gpio-regulator-and-gp.patch"
 	${git} "${DIR}/patches/imx_next/0007-ARM-imx-add-debug-uart-support-for-IMX50-SoC.patch"
