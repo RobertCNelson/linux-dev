@@ -145,6 +145,30 @@ config="CONFIG_REGULATOR_ANATOP"
 check_if_set_then_set
 config="CONFIG_ARM_IMX6Q_CPUFREQ"
 check_if_set_then_set
+config="CONFIG_RTC_DRV_SNVS"
+check_if_set_then_set
+config="CONFIG_CFG80211"
+check_if_set_then_set
+config="CONFIG_BRCMFMAC"
+check_if_set_then_set
+config="CONFIG_BRCMFMAC_SDIO"
+check_if_set_then_set
+config="CONFIG_DRM_IMX"
+check_if_set_then_set
+config="CONFIG_DRM_IMX_FB_HELPER"
+check_if_set_then_set
+config="CONFIG_DRM_IMX_PARALLEL_DISPLAY"
+check_if_set_then_set
+config="CONFIG_DRM_IMX_TVE"
+check_if_set_then_set
+config="CONFIG_DRM_IMX_LDB"
+check_if_set_then_set
+config="CONFIG_DRM_IMX_IPUV3_CORE"
+check_if_set_then_set
+config="CONFIG_DRM_IMX_IPUV3"
+check_if_set_then_set
+config="CONFIG_DRM_IMX_HDMI"
+check_if_set_then_set
 
 #All enabled by CONFIG_PCI CONFIG_SOC_IMX6Q
 if_config="CONFIG_SOC_IMX6Q"
