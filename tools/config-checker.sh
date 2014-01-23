@@ -169,6 +169,8 @@ config="CONFIG_DRM_IMX_IPUV3"
 check_if_set_then_set
 config="CONFIG_DRM_IMX_HDMI"
 check_if_set_then_set
+config="CONFIG_IMX2_WDT"
+check_if_set_then_set
 
 #All enabled by CONFIG_PCI CONFIG_SOC_IMX6Q
 if_config="CONFIG_SOC_IMX6Q"
