@@ -141,6 +141,10 @@ config="CONFIG_PCI"
 check_if_set_then_set
 config="CONFIG_PCI_IMX6"
 check_if_set_then_set
+config="CONFIG_REGULATOR_ANATOP"
+check_if_set_then_set
+config="CONFIG_ARM_IMX6Q_CPUFREQ"
+check_if_set_then_set
 
 #All enabled by CONFIG_PCI CONFIG_SOC_IMX6Q
 if_config="CONFIG_SOC_IMX6Q"
@@ -327,6 +331,8 @@ config="CONFIG_OMAP4_THERMAL"
 check_if_set_then_set
 config="CONFIG_OMAP5_THERMAL"
 check_if_set_then_set
+config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
+check_if_set_then_disable
 
 #BeagleBoneBlack:
 if_config="CONFIG_SOC_AM33XX"
