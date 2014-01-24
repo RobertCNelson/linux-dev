@@ -384,6 +384,16 @@ config="CONFIG_USB_ETH"
 check_if_set_then_set_module
 config="CONFIG_RTC_DRV_OMAP"
 check_if_set_then_set
+config="CONFIG_SOUND"
+check_if_set_then_set_module
+config="CONFIG_SND"
+check_if_set_then_set_module
+config="CONFIG_SND_SOC"
+check_if_set_then_set_module
+config="CONFIG_SND_DAVINCI_SOC"
+check_if_set_then_set_module
+config="CONFIG_SND_AM33XX_SOC_EVM"
+check_if_set_then_set_module
 
 if_config="CONFIG_ARCH_MULTI_V7"
 config="CONFIG_SMP"
