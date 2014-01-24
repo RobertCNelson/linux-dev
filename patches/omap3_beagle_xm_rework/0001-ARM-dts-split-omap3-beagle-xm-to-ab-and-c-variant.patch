@@ -1,36 +1,36 @@
-From b4d868023dc66b571ae5a79781d32e46126c0bd3 Mon Sep 17 00:00:00 2001
+From 229da38581b9780bb903227e15cbea9695e498b3 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 17 Dec 2013 09:19:55 -0600
+Date: Fri, 24 Jan 2014 10:36:59 -0600
 Subject: [PATCH 1/2] ARM: dts: split omap3-beagle-xm to ab and c variant
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile               |   2 +
- arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 366 +++++++++++++++++++++++++++++++
- arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 366 +++++++++++++++++++++++++++++++
- 3 files changed, 734 insertions(+)
+ arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 378 +++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 378 +++++++++++++++++++++++++++++++
+ 3 files changed, 758 insertions(+)
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-ab.dts
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-c.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 062cfde..4b9fda8 100644
+index c8639fc..b914744 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -195,6 +195,8 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
- 	omap3-beagle.dtb \
+@@ -217,6 +217,8 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
+ 	omap3-sbc-t3730.dtb \
  	omap3-devkit8000.dtb \
  	omap3-beagle-xm.dtb \
 +	omap3-beagle-xm-ab.dtb \
 +	omap3-beagle-xm-c.dtb \
  	omap3-evm.dtb \
  	omap3-evm-37xx.dtb \
- 	omap3-n900.dtb \
+ 	omap3-ldp.dtb \
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 new file mode 100644
-index 0000000..6c8e033
+index 0000000..845be64
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-@@ -0,0 +1,366 @@
+@@ -0,0 +1,378 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -146,14 +146,6 @@ index 0000000..6c8e033
 +		reset-gpios = <&gpio5 19 GPIO_ACTIVE_LOW>; /* gpio_147 */
 +		vcc-supply = <&hsusb2_power>;
 +	};
-+};
-+
-+&omap3_pmx_wkup {
-+	gpio1_pins: pinmux_gpio1_pins {
-+		pinctrl-single,pins = <
-+			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
-+		>;
-+	};
 +
 +	dss_dpi_pins2: pinmux_dss_dpi_pins {
 +		pinctrl-single,pins = <
@@ -167,10 +159,18 @@ index 0000000..6c8e033
 +	};
 +};
 +
++&omap3_pmx_wkup {
++	gpio1_pins: pinmux_gpio1_pins {
++		pinctrl-single,pins = <
++			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
++		>;
++	};
++};
++
 +&omap3_pmx_core {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <
-+			&hsusbb2_pins
++			&hsusb2_pins
 +	>;
 +
 +	uart3_pins: pinmux_uart3_pins {
@@ -180,20 +180,14 @@ index 0000000..6c8e033
 +		>;
 +	};
 +
-+	hsusbb2_pins: pinmux_hsusbb2_pins {
++	hsusb2_pins: pinmux_hsusb2_pins {
 +		pinctrl-single,pins = <
-+			0x5c0 (PIN_OUTPUT | MUX_MODE3)		/* etk_d10.hsusb2_clk */
-+			0x5c2 (PIN_OUTPUT | MUX_MODE3)		/* etk_d11.hsusb2_stp */
-+			0x5c4 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d12.hsusb2_dir */
-+			0x5c6 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d13.hsusb2_nxt */
-+			0x5c8 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d14.hsusb2_data0 */
-+			0x5cA (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d15.hsusb2_data1 */
-+			0x1a4 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi1_cs3.hsusb2_data2 */
-+			0x1a6 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_clk.hsusb2_data7 */
-+			0x1a8 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_simo.hsusb2_data4 */
-+			0x1aa (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_somi.hsusb2_data5 */
-+			0x1ac (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs0.hsusb2_data6 */
-+			0x1ae (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs1.hsusb2_data3 */
++			OMAP3_CORE1_IOPAD(0x21d4, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi1_cs3.hsusb2_data2 */
++			OMAP3_CORE1_IOPAD(0x21d6, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_clk.hsusb2_data7 */
++			OMAP3_CORE1_IOPAD(0x21d8, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_simo.hsusb2_data4 */
++			OMAP3_CORE1_IOPAD(0x21da, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_somi.hsusb2_data5 */
++			OMAP3_CORE1_IOPAD(0x21dc, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs0.hsusb2_data6 */
++			OMAP3_CORE1_IOPAD(0x21de, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs1.hsusb2_data3 */
 +		>;
 +	};
 +
@@ -223,6 +217,24 @@ index 0000000..6c8e033
 +			0x0d6 (PIN_OUTPUT | MUX_MODE3)   /* dss_data21.dss_data3 */
 +			0x0d8 (PIN_OUTPUT | MUX_MODE3)   /* dss_data22.dss_data4 */
 +			0x0da (PIN_OUTPUT | MUX_MODE3)   /* dss_data23.dss_data5 */
++		>;
++	};
++};
++
++&omap3_pmx_core2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <
++			&hsusb2_2_pins
++	>;
++
++	hsusb2_2_pins: pinmux_hsusb2_2_pins {
++		pinctrl-single,pins = <
++			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)		/* etk_d10.hsusb2_clk */
++			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)		/* etk_d11.hsusb2_stp */
++			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d12.hsusb2_dir */
++			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d13.hsusb2_nxt */
++			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d14.hsusb2_data0 */
++			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d15.hsusb2_data1 */
 +		>;
 +	};
 +};
@@ -399,10 +411,10 @@ index 0000000..6c8e033
 +};
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-c.dts b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
 new file mode 100644
-index 0000000..6c8e033
+index 0000000..845be64
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
-@@ -0,0 +1,366 @@
+@@ -0,0 +1,378 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -518,14 +530,6 @@ index 0000000..6c8e033
 +		reset-gpios = <&gpio5 19 GPIO_ACTIVE_LOW>; /* gpio_147 */
 +		vcc-supply = <&hsusb2_power>;
 +	};
-+};
-+
-+&omap3_pmx_wkup {
-+	gpio1_pins: pinmux_gpio1_pins {
-+		pinctrl-single,pins = <
-+			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
-+		>;
-+	};
 +
 +	dss_dpi_pins2: pinmux_dss_dpi_pins {
 +		pinctrl-single,pins = <
@@ -539,10 +543,18 @@ index 0000000..6c8e033
 +	};
 +};
 +
++&omap3_pmx_wkup {
++	gpio1_pins: pinmux_gpio1_pins {
++		pinctrl-single,pins = <
++			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
++		>;
++	};
++};
++
 +&omap3_pmx_core {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <
-+			&hsusbb2_pins
++			&hsusb2_pins
 +	>;
 +
 +	uart3_pins: pinmux_uart3_pins {
@@ -552,20 +564,14 @@ index 0000000..6c8e033
 +		>;
 +	};
 +
-+	hsusbb2_pins: pinmux_hsusbb2_pins {
++	hsusb2_pins: pinmux_hsusb2_pins {
 +		pinctrl-single,pins = <
-+			0x5c0 (PIN_OUTPUT | MUX_MODE3)		/* etk_d10.hsusb2_clk */
-+			0x5c2 (PIN_OUTPUT | MUX_MODE3)		/* etk_d11.hsusb2_stp */
-+			0x5c4 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d12.hsusb2_dir */
-+			0x5c6 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d13.hsusb2_nxt */
-+			0x5c8 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d14.hsusb2_data0 */
-+			0x5cA (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d15.hsusb2_data1 */
-+			0x1a4 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi1_cs3.hsusb2_data2 */
-+			0x1a6 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_clk.hsusb2_data7 */
-+			0x1a8 (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_simo.hsusb2_data4 */
-+			0x1aa (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_somi.hsusb2_data5 */
-+			0x1ac (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs0.hsusb2_data6 */
-+			0x1ae (PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs1.hsusb2_data3 */
++			OMAP3_CORE1_IOPAD(0x21d4, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi1_cs3.hsusb2_data2 */
++			OMAP3_CORE1_IOPAD(0x21d6, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_clk.hsusb2_data7 */
++			OMAP3_CORE1_IOPAD(0x21d8, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_simo.hsusb2_data4 */
++			OMAP3_CORE1_IOPAD(0x21da, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_somi.hsusb2_data5 */
++			OMAP3_CORE1_IOPAD(0x21dc, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs0.hsusb2_data6 */
++			OMAP3_CORE1_IOPAD(0x21de, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi2_cs1.hsusb2_data3 */
 +		>;
 +	};
 +
@@ -595,6 +601,24 @@ index 0000000..6c8e033
 +			0x0d6 (PIN_OUTPUT | MUX_MODE3)   /* dss_data21.dss_data3 */
 +			0x0d8 (PIN_OUTPUT | MUX_MODE3)   /* dss_data22.dss_data4 */
 +			0x0da (PIN_OUTPUT | MUX_MODE3)   /* dss_data23.dss_data5 */
++		>;
++	};
++};
++
++&omap3_pmx_core2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <
++			&hsusb2_2_pins
++	>;
++
++	hsusb2_2_pins: pinmux_hsusb2_2_pins {
++		pinctrl-single,pins = <
++			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)		/* etk_d10.hsusb2_clk */
++			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)		/* etk_d11.hsusb2_stp */
++			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d12.hsusb2_dir */
++			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d13.hsusb2_nxt */
++			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d14.hsusb2_data0 */
++			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* etk_d15.hsusb2_data1 */
 +		>;
 +	};
 +};
@@ -770,5 +794,5 @@ index 0000000..6c8e033
 +	};
 +};
 -- 
-1.8.5.1
+1.8.5.2
 

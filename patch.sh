@@ -244,7 +244,7 @@ omap_dt_dss () {
 	${git} "${DIR}/patches/omap_dt_dss/0021-ARM-omap3-tobi.dts-add-lcd-TEST.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0022-ARM-omap3-beagle.dts-add-display-information.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0023-ARM-omap3-beagle-xm.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0024-ARM-omap3-igep0020.dts-add-display-information.patch"
+#	${git} "${DIR}/patches/omap_dt_dss/0024-ARM-omap3-igep0020.dts-add-display-information.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0025-OMAPDSS-panel-dsi-cm-Add-DT-support.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0026-OMAPDSS-encoder-tfp410-Add-DT-support.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0027-OMAPDSS-connector-dvi-Add-DT-support.patch"
