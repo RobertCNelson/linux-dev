@@ -68,6 +68,13 @@ fixes () {
 	${git} "${DIR}/patches/fixes/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
 }
 
+usb  () {
+	echo "dir: usb"
+	${git} "${DIR}/patches/usb/0001-usb-musb-musb_host-Enable-ISOCH-IN-handling-for-AM33.patch"
+	${git} "${DIR}/patches/usb/0002-usb-musb-musb_cppi41-Make-CPPI-aware-of-high-bandwid.patch"
+	${git} "${DIR}/patches/usb/0003-usb-musb-musb_cppi41-Handle-ISOCH-differently-and-no.patch"
+}
+
 audio () {
 	echo "dir: audio"
 	${git} "${DIR}/patches/audio/0001-clk-add-gpio-controlled-clock.patch"
@@ -143,6 +150,7 @@ saucy () {
 arm
 dts
 fixes
+usb
 #audio
 #overlay
 #capemgr
