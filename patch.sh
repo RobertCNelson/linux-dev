@@ -330,7 +330,7 @@ omap_sprz319_erratum () {
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
-	${git} "${DIR}/patches/fixes/0002-crypto-omap-aes-add-error-check-for-pm_runtime_get_s.patch"
+#	${git} "${DIR}/patches/fixes/0002-crypto-omap-aes-add-error-check-for-pm_runtime_get_s.patch"
 }
 
 vivante () {
