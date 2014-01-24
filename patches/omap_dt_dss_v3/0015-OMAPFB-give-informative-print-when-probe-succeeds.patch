@@ -1,0 +1,42 @@
+From ab7bf423af05542db94021cf9dbf1b0bf86226b1 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 19 Dec 2013 16:10:13 +0200
+Subject: [PATCH 15/61] OMAPFB: give informative print when probe succeeds
+
+It is quite common to have omapfb probe deferred because of a missing
+resource, and to get omapfb probed succesfully a bit later. This works
+fine. However, omapfb does not give any print on a successful probe, so
+if the omapfb is actually never probed again after deferral, this is not
+shown in the log.
+
+To help debugging, add a simple print from omapfb at the end of its
+probe, saying which display it is using and in which resolution.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/omapfb/omapfb-main.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/video/omap2/omapfb/omapfb-main.c b/drivers/video/omap2/omapfb/omapfb-main.c
+index 27d6905..2ff9f03 100644
+--- a/drivers/video/omap2/omapfb/omapfb-main.c
++++ b/drivers/video/omap2/omapfb/omapfb-main.c
+@@ -2557,6 +2557,15 @@ static int omapfb_probe(struct platform_device *pdev)
+ 		goto cleanup;
+ 	}
+ 
++	if (def_display) {
++		u16 w, h;
++
++		def_display->driver->get_resolution(def_display, &w, &h);
++
++		dev_info(fbdev->dev, "using display '%s' mode %dx%d\n",
++			def_display->name, w, h);
++	}
++
+ 	return 0;
+ 
+ cleanup:
+-- 
+1.8.5.2
+

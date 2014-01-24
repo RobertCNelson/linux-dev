@@ -1,0 +1,44 @@
+From edbb8c5b1362e1383cfdb5f3e957339040eb0874 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 6 Aug 2013 09:41:32 +0300
+Subject: [PATCH 23/61] OMAPDSS: add 'label' support for DT
+
+Add support to get the label (i.e. a "nickname") for a display from the
+DT data. If there is no label defined, use the display's alias (e.g.
+'display0') as a name.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/display.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/video/omap2/dss/display.c b/drivers/video/omap2/dss/display.c
+index 669a81f..012ada3 100644
+--- a/drivers/video/omap2/dss/display.c
++++ b/drivers/video/omap2/dss/display.c
+@@ -26,6 +26,7 @@
+ #include <linux/module.h>
+ #include <linux/jiffies.h>
+ #include <linux/platform_device.h>
++#include <linux/of.h>
+ 
+ #include <video/omapdss.h>
+ #include "dss.h"
+@@ -137,6 +138,14 @@ int omapdss_register_display(struct omap_dss_device *dssdev)
+ 	snprintf(dssdev->alias, sizeof(dssdev->alias),
+ 			"display%d", disp_num_counter++);
+ 
++	/* Use 'label' property for name, if it exists */
++	if (dssdev->dev->of_node)
++		of_property_read_string(dssdev->dev->of_node, "label",
++			&dssdev->name);
++
++	if (dssdev->name == NULL)
++		dssdev->name = dssdev->alias;
++
+ 	if (drv && drv->get_resolution == NULL)
+ 		drv->get_resolution = omapdss_default_get_resolution;
+ 	if (drv && drv->get_recommended_bpp == NULL)
+-- 
+1.8.5.2
+

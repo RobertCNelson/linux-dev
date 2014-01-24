@@ -254,6 +254,73 @@ omap_dt_dss () {
 	${git} "${DIR}/patches/omap_dt_dss/0031-OMAPDSS-connector-analog-tv-Add-DT-support.patch"
 }
 
+omap_dt_dss_v3 () {
+	echo "dir: omap_dt_dss_v3"
+	#From: https://git.kernel.org/cgit/linux/kernel/git/tomba/linux.git/log/?h=work/dss-dt-review-3
+
+	${git} "${DIR}/patches/omap_dt_dss_v3/0001-OMAPDSS-fix-missing-EXPORT_SYMBOL-s.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0002-OMAPDSS-fix-debug-prints.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0003-OMAPDSS-apply-fixes.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0004-OMAPDSS-DISPC-Add-MFLAG-defines.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0005-OMAPDSS-rename-display-sysfs-name-entry.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0006-OMAPDSS-DSI-fix-fifosize.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0007-OMAPDSS-HDMI4-Accept-non-standard-timings.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0008-OMAPDSS-HDMI4-remove-useless-func-calls.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0009-OMAPDSS-DISPC-fix-context-restore.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0010-OMAPDSS-HDMI-fix-hdmi_wait_for_bit_change.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0011-OMAPDSS-HDMI-fix-HDMI_WP_CLK-name.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0012-OMAPDSS-HDMI-add-missing-core-irq.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0013-OMAPDSS-DSI-split-DSI-memory-map-to-smaller-blocks.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0014-OMAPDSS-HDMI-rename-resource-names.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0015-OMAPFB-give-informative-print-when-probe-succeeds.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0016-OMAPDSS-don-t-print-errors-on-EPROBE_DEFER.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0017-OMAPFB-disable-overlays-on-driver-removal.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0018-OMAPDSS-DISPC-Preload-more-data-in-pipeline-DMAs-for.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0019-OMAPDSS-panel-acx565akm-clean-up-locking.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0020-OMAPDSS-DISPC-Fix-34xx-overlay-scaling-calculation.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0021-ARM-OMAP2-add-omapdss_init_of.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0022-ARM-OMAP2-DT-compatible-tweak-for-displays.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0023-OMAPDSS-add-label-support-for-DT.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0024-OMAPDSS-get-dssdev-alias-from-DT-alias.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0025-OMAPFB-clean-up-default-display-search.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0026-OMAPFB-search-for-default-display-with-DT-alias.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0027-OMAPDSS-add-of-helpers.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0028-OMAPDSS-Improve-regulator-names-for-DT.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0029-OMAPDSS-Add-DT-support-to-DSS.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0030-OMAPDSS-Add-DT-support-to-DISPC.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0031-OMAPDSS-Add-DT-support-to-HDMI.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0032-OMAPDSS-Add-DT-support-to-VENC.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0033-OMAPDSS-Add-DT-support-to-DSI.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0034-OMAPDSS-panel-dsi-cm-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0035-OMAPDSS-encoder-tfp410-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0036-OMAPDSS-connector-dvi-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0037-OMAPDSS-encoder-tpd12s015-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0038-OMAPDSS-hdmi-connector-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0039-OMAPDSS-panel-dpi-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0040-OMAPDSS-connector-analog-tv-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0041-OMAPDSS-acx565akm-Add-DT-support.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0042-ARM-omap2.dtsi-add-omapdss-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0043-ARM-omap3.dtsi-add-omapdss-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0044-ARM-omap4.dtsi-add-omapdss-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0045-ARM-omap4-panda.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0046-ARM-omap4-sdp.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0047-ARM-omap3-beagle.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0048-ARM-omap3-beagle-xm.dts-add-display-information.patch"
+#	${git} "${DIR}/patches/omap_dt_dss_v3/0049-ARM-omap3-igep0020.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0050-ARM-omap3-n900.dts-add-display-information.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0051-OMAPDSS-remove-DT-hacks-for-regulators.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0052-ARM-OMAP2-remove-pdata-quirks-for-displays.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0053-Doc-DT-Add-OMAP-DSS-DT-Bindings.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0054-Doc-DT-Add-DT-binding-documentation-for-Analog-TV-Co.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0055-Doc-DT-Add-DT-binding-documentation-for-DVI-Connecto.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0056-Doc-DT-Add-DT-binding-documentation-for-HDMI-Connect.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0057-Doc-DT-Add-DT-binding-documentation-for-MIPI-DPI-Pan.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0058-Doc-DT-Add-DT-binding-documentation-for-MIPI-DSI-CM-.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0059-Doc-DT-Add-DT-binding-documentation-for-Sony-acx565a.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0060-Doc-DT-Add-DT-binding-documentation-for-TFP410-encod.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0061-Doc-DT-Add-DT-binding-documentation-for-tpd12s015-en.patch"
+}
+
 imx () {
 	echo "dir: imx"
 	#${git} "${DIR}/patches/imx/0001-ahci-imx-Explicitly-clear-IMX6Q_GPR13_SATA_MPLL_CLK_.patch"
@@ -363,7 +430,10 @@ arm
 drivers
 imx_next
 omap_next
-omap_dt_dss
+
+#omap_dt_dss
+omap_dt_dss_v3
+
 imx
 omap_usb
 omap_video

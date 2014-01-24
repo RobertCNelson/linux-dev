@@ -1,0 +1,68 @@
+From 7a53df2c08119c1a7008d8480205fb3e6859c721 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 12 Nov 2013 12:21:46 +0200
+Subject: [PATCH 03/61] OMAPDSS: apply fixes
+
+When omapfb does ovl->get_overlay_info, ovl->set_overlay_info, the set
+function may fail even if the info has not been changed. This is because
+omapdss doesn't initialize the info, but expect the caller to set valid
+values.
+
+Normally that is the case, but there is at least one corner case: if
+omapfb has not allocated memory for the overlay yet, and the user uses
+ioctl to disable the overlay to make sure it's disabled. In this case
+get_overlay_info returns invalid data, but the user is only interested
+in setting the overlay to disabled, not configuring it, and
+set_overlay_info fails.
+
+The issue is made possible by the omapfb's setup_plane ioctl, which
+groups overlay configuration and overlay enable/disable bit into the
+same struct. Thus, when you are disabling an overlay, you are also
+configuring it.
+
+This is a bit counter intuitive, so I think it's better to initialize
+the info to some valid values.
+
+The fields requiring initialization are color_mode and rotation_type,
+and also we need to remove the check for (paddr == 0), as paddr is 0 for
+unallocated overlay (but it's still fine to disable the overlay).
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/dss/apply.c   | 3 +++
+ drivers/video/omap2/dss/overlay.c | 5 -----
+ 2 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/video/omap2/dss/apply.c b/drivers/video/omap2/dss/apply.c
+index 24cd7c2..0a0b084 100644
+--- a/drivers/video/omap2/dss/apply.c
++++ b/drivers/video/omap2/dss/apply.c
+@@ -149,6 +149,9 @@ static void apply_init_priv(void)
+ 
+ 		op = &dss_data.ovl_priv_data_array[i];
+ 
++		op->info.color_mode = OMAP_DSS_COLOR_RGB16;
++		op->info.rotation_type = OMAP_DSS_ROT_DMA;
++
+ 		op->info.global_alpha = 255;
+ 
+ 		switch (i) {
+diff --git a/drivers/video/omap2/dss/overlay.c b/drivers/video/omap2/dss/overlay.c
+index eccde32..2f7cee9 100644
+--- a/drivers/video/omap2/dss/overlay.c
++++ b/drivers/video/omap2/dss/overlay.c
+@@ -113,11 +113,6 @@ void dss_uninit_overlays(struct platform_device *pdev)
+ int dss_ovl_simple_check(struct omap_overlay *ovl,
+ 		const struct omap_overlay_info *info)
+ {
+-	if (info->paddr == 0) {
+-		DSSERR("check_overlay: paddr cannot be 0\n");
+-		return -EINVAL;
+-	}
+-
+ 	if ((ovl->caps & OMAP_DSS_OVL_CAP_SCALE) == 0) {
+ 		if (info->out_width != 0 && info->width != info->out_width) {
+ 			DSSERR("check_overlay: overlay %d doesn't support "
+-- 
+1.8.5.2
+

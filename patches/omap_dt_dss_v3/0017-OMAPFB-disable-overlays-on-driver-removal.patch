@@ -1,0 +1,43 @@
+From b52a6e7fb61682db1ae309c5fa51b5c04168838d Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 9 Jan 2014 13:46:20 +0200
+Subject: [PATCH 17/61] OMAPFB: disable overlays on driver removal
+
+When omapfb module is removed, the driver will turn off all the displays
+it manages. However, it leaves the overlays enabled. While the overlays
+are obviously disabled as the displays are disabled, it causes issues
+when the driver module is loaded again, as at that point the overlays
+are still enabled on the hardware level. The result is that even if the
+SW thinks overlays are disabled, they are actually enabled.
+
+Fix this by making sure the overlays are disabled at module removal.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/video/omap2/omapfb/omapfb-main.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/video/omap2/omapfb/omapfb-main.c b/drivers/video/omap2/omapfb/omapfb-main.c
+index 2ff9f03..fcb9e93 100644
+--- a/drivers/video/omap2/omapfb/omapfb-main.c
++++ b/drivers/video/omap2/omapfb/omapfb-main.c
+@@ -1833,6 +1833,16 @@ static void omapfb_free_resources(struct omapfb2_device *fbdev)
+ 	if (fbdev == NULL)
+ 		return;
+ 
++	for (i = 0; i < fbdev->num_fbs; i++) {
++		struct omapfb_info *ofbi = FB2OFB(fbdev->fbs[i]);
++		int j;
++
++		for (j = 0; j < ofbi->num_overlays; j++) {
++			struct omap_overlay *ovl = ofbi->overlays[j];
++			ovl->disable(ovl);
++		}
++	}
++
+ 	for (i = 0; i < fbdev->num_fbs; i++)
+ 		unregister_framebuffer(fbdev->fbs[i]);
+ 
+-- 
+1.8.5.2
+

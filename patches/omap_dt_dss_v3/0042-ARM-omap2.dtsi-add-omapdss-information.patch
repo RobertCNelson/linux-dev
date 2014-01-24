@@ -1,0 +1,62 @@
+From 677ae630fb498f5000286f4760b84ce56585767f Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Wed, 18 Dec 2013 10:22:07 +0200
+Subject: [PATCH 42/61] ARM: omap2.dtsi: add omapdss information
+
+Add DT data for OMAP2 display subsystem, which contains the following
+blocks:
+
+dss - the wrapper/glue for the display modules
+dispc - display controller
+rfbi - MIPI DBI encoder
+venc - analog TV encoder
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/boot/dts/omap2.dtsi | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap2.dtsi b/arch/arm/boot/dts/omap2.dtsi
+index d0c5b37..af3531c 100644
+--- a/arch/arm/boot/dts/omap2.dtsi
++++ b/arch/arm/boot/dts/omap2.dtsi
+@@ -271,5 +271,36 @@
+ 			ti,hwmods = "timer12";
+ 			ti,timer-pwm;
+ 		};
++
++		dss: dss@48050000 {
++			compatible = "ti,omap2-dss", "simple-bus";
++			reg = <0x48050000 0x400>;
++			status = "disabled";
++			ti,hwmods = "dss_core";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges;
++
++			dispc@48050400 {
++				compatible = "ti,omap2-dispc";
++				reg = <0x48050400 0x400>;
++				interrupts = <25>;
++				ti,hwmods = "dss_dispc";
++			};
++
++			rfbi: encoder@48050800 {
++				compatible = "ti,omap2-rfbi";
++				reg = <0x48050800 0x400>;
++				status = "disabled";
++				ti,hwmods = "dss_rfbi";
++			};
++
++			venc: encoder@48050c00 {
++				compatible = "ti,omap2-venc";
++				reg = <0x48050c00 0x400>;
++				status = "disabled";
++				ti,hwmods = "dss_venc";
++			};
++		};
+ 	};
+ };
+-- 
+1.8.5.2
+

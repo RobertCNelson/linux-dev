@@ -1,0 +1,63 @@
+From 6dea754b0333fbaba4c2f195a4959dda784f6a2a Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 21 Jan 2014 11:17:09 +0200
+Subject: [PATCH 60/61] Doc/DT: Add DT binding documentation for TFP410 encoder
+
+Add DT binding documentation for TFP410 encoder
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ .../devicetree/bindings/video/ti,tfp410.txt        | 41 ++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/video/ti,tfp410.txt
+
+diff --git a/Documentation/devicetree/bindings/video/ti,tfp410.txt b/Documentation/devicetree/bindings/video/ti,tfp410.txt
+new file mode 100644
+index 0000000..6a5a046
+--- /dev/null
++++ b/Documentation/devicetree/bindings/video/ti,tfp410.txt
+@@ -0,0 +1,41 @@
++TFP410 DPI to DVI encoder
++=========================
++
++Required properties:
++- compatible: "ti,tfp410"
++
++Optional properties:
++- gpios: power-down gpio
++
++Required nodes:
++- Video port 0 for DPI input
++- Video port 1 for DVI output
++
++Example
++-------
++
++tfp410: encoder@0 {
++	compatible = "ti,tfp410";
++	gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			reg = <0>;
++
++			tfp410_in: endpoint@0 {
++				remote-endpoint = <&dpi_out>;
++			};
++		};
++
++		port@1 {
++			reg = <1>;
++
++			tfp410_out: endpoint@0 {
++				remote-endpoint = <&dvi_connector_in>;
++			};
++		};
++	};
++};
+-- 
+1.8.5.2
+

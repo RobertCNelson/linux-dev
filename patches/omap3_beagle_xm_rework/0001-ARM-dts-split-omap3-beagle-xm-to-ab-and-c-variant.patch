@@ -6,9 +6,9 @@ Subject: [PATCH 1/2] ARM: dts: split omap3-beagle-xm to ab and c variant
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile               |   2 +
- arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 378 +++++++++++++++++++++++++++++++
- arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 378 +++++++++++++++++++++++++++++++
- 3 files changed, 758 insertions(+)
+ arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 382 +++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap3-beagle-xm-c.dts  | 382 +++++++++++++++++++++++++++++++
+ 3 files changed, 766 insertions(+)
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-ab.dts
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-c.dts
 
@@ -27,10 +27,10 @@ index c8639fc..b914744 100644
  	omap3-ldp.dtb \
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 new file mode 100644
-index 0000000..845be64
+index 0000000..4b7f032
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-@@ -0,0 +1,378 @@
+@@ -0,0 +1,382 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -82,6 +82,11 @@ index 0000000..845be64
 +	memory {
 +		device_type = "memory";
 +		reg = <0x80000000 0x20000000>; /* 512 MB */
++	};
++
++	aliases {
++		display0 = &dvi0;
++		display1 = &tv0;
 +	};
 +
 +	leds {
@@ -147,6 +152,62 @@ index 0000000..845be64
 +		vcc-supply = <&hsusb2_power>;
 +	};
 +
++	tfp410: encoder@0 {
++		compatible = "ti,tfp410";
++		gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
++
++		/* XXX pinctrl from twl */
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++
++				tfp410_in: endpoint@0 {
++					remote-endpoint = <&dpi_out>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				tfp410_out: endpoint@0 {
++					remote-endpoint = <&dvi_connector_in>;
++				};
++			};
++		};
++	};
++
++	dvi0: connector@0 {
++		compatible = "dvi-connector";
++		label = "dvi";
++
++		i2c-bus = <&i2c3>;
++
++		dvi_connector_in: endpoint {
++			remote-endpoint = <&tfp410_out>;
++		};
++	};
++
++	tv0: connector@1 {
++		compatible = "svideo-connector";
++		label = "tv";
++
++		tv_connector_in: endpoint {
++			remote-endpoint = <&venc_out>;
++		};
++	};
++};
++
++&omap3_pmx_wkup {
++	gpio1_pins: pinmux_gpio1_pins {
++		pinctrl-single,pins = <
++			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
++		>;
++	};
++
 +	dss_dpi_pins2: pinmux_dss_dpi_pins {
 +		pinctrl-single,pins = <
 +			0x0a (PIN_OUTPUT | MUX_MODE3)   /* sys_boot0.dss_data18 */
@@ -155,14 +216,6 @@ index 0000000..845be64
 +			0x12 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot4.dss_data21 */
 +			0x14 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot5.dss_data22 */
 +			0x16 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot6.dss_data23 */
-+		>;
-+	};
-+};
-+
-+&omap3_pmx_wkup {
-+	gpio1_pins: pinmux_gpio1_pins {
-+		pinctrl-single,pins = <
-+			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
 +		>;
 +	};
 +};
@@ -335,14 +388,14 @@ index 0000000..845be64
 +	regulator-always-on;
 +};
 +
-+&dpi {
++&dss {
++	status = "ok";
++
 +	pinctrl-names = "default";
 +	pinctrl-0 = <
 +		&dss_dpi_pins1
 +		&dss_dpi_pins2
 +	>;
-+
-+	vdds_dsi-supply = <&vpll2>;
 +
 +	dpi_out: endpoint {
 +		remote-endpoint = <&tfp410_in>;
@@ -351,70 +404,21 @@ index 0000000..845be64
 +};
 +
 +&venc {
-+	vdda_dac-supply = <&vdac>;
++	status = "ok";
++
++	vdda-supply = <&vdac>;
 +
 +	venc_out: endpoint {
 +		remote-endpoint = <&tv_connector_in>;
-+	};
-+};
-+
-+/ {
-+	aliases {
-+		display0 = &dvi0;
-+		display1 = &tv0;
-+	};
-+
-+	tfp410: encoder@0 {
-+		compatible = "ti,tfp410";
-+		gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
-+
-+		/* XXX pinctrl from twl */
-+
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			port@0 {
-+				reg = <0>;
-+
-+				tfp410_in: endpoint@0 {
-+					remote-endpoint = <&dpi_out>;
-+				};
-+			};
-+
-+			port@1 {
-+				reg = <1>;
-+
-+				tfp410_out: endpoint@1 {
-+					remote-endpoint = <&dvi_connector_in>;
-+				};
-+			};
-+		};
-+	};
-+
-+	dvi0: connector@0 {
-+		compatible = "ti,dvi-connector";
-+		i2c-bus = <&i2c3>;
-+
-+		dvi_connector_in: endpoint {
-+			remote-endpoint = <&tfp410_out>;
-+		};
-+	};
-+
-+	tv0: connector@1 {
-+		compatible = "ti,svideo-connector";
-+
-+		tv_connector_in: endpoint {
-+			remote-endpoint = <&venc_out>;
-+		};
++		ti,channels = <2>;
 +	};
 +};
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-c.dts b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
 new file mode 100644
-index 0000000..845be64
+index 0000000..4b7f032
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-c.dts
-@@ -0,0 +1,378 @@
+@@ -0,0 +1,382 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -466,6 +470,11 @@ index 0000000..845be64
 +	memory {
 +		device_type = "memory";
 +		reg = <0x80000000 0x20000000>; /* 512 MB */
++	};
++
++	aliases {
++		display0 = &dvi0;
++		display1 = &tv0;
 +	};
 +
 +	leds {
@@ -531,6 +540,62 @@ index 0000000..845be64
 +		vcc-supply = <&hsusb2_power>;
 +	};
 +
++	tfp410: encoder@0 {
++		compatible = "ti,tfp410";
++		gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
++
++		/* XXX pinctrl from twl */
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++
++				tfp410_in: endpoint@0 {
++					remote-endpoint = <&dpi_out>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				tfp410_out: endpoint@0 {
++					remote-endpoint = <&dvi_connector_in>;
++				};
++			};
++		};
++	};
++
++	dvi0: connector@0 {
++		compatible = "dvi-connector";
++		label = "dvi";
++
++		i2c-bus = <&i2c3>;
++
++		dvi_connector_in: endpoint {
++			remote-endpoint = <&tfp410_out>;
++		};
++	};
++
++	tv0: connector@1 {
++		compatible = "svideo-connector";
++		label = "tv";
++
++		tv_connector_in: endpoint {
++			remote-endpoint = <&venc_out>;
++		};
++	};
++};
++
++&omap3_pmx_wkup {
++	gpio1_pins: pinmux_gpio1_pins {
++		pinctrl-single,pins = <
++			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
++		>;
++	};
++
 +	dss_dpi_pins2: pinmux_dss_dpi_pins {
 +		pinctrl-single,pins = <
 +			0x0a (PIN_OUTPUT | MUX_MODE3)   /* sys_boot0.dss_data18 */
@@ -539,14 +604,6 @@ index 0000000..845be64
 +			0x12 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot4.dss_data21 */
 +			0x14 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot5.dss_data22 */
 +			0x16 (PIN_OUTPUT | MUX_MODE3)   /* sys_boot6.dss_data23 */
-+		>;
-+	};
-+};
-+
-+&omap3_pmx_wkup {
-+	gpio1_pins: pinmux_gpio1_pins {
-+		pinctrl-single,pins = <
-+			0x0e (PIN_INPUT | PIN_OFF_WAKEUPENABLE | MUX_MODE4) /* sys_boot2.gpio_4 */
 +		>;
 +	};
 +};
@@ -719,14 +776,14 @@ index 0000000..845be64
 +	regulator-always-on;
 +};
 +
-+&dpi {
++&dss {
++	status = "ok";
++
 +	pinctrl-names = "default";
 +	pinctrl-0 = <
 +		&dss_dpi_pins1
 +		&dss_dpi_pins2
 +	>;
-+
-+	vdds_dsi-supply = <&vpll2>;
 +
 +	dpi_out: endpoint {
 +		remote-endpoint = <&tfp410_in>;
@@ -735,62 +792,13 @@ index 0000000..845be64
 +};
 +
 +&venc {
-+	vdda_dac-supply = <&vdac>;
++	status = "ok";
++
++	vdda-supply = <&vdac>;
 +
 +	venc_out: endpoint {
 +		remote-endpoint = <&tv_connector_in>;
-+	};
-+};
-+
-+/ {
-+	aliases {
-+		display0 = &dvi0;
-+		display1 = &tv0;
-+	};
-+
-+	tfp410: encoder@0 {
-+		compatible = "ti,tfp410";
-+		gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
-+
-+		/* XXX pinctrl from twl */
-+
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			port@0 {
-+				reg = <0>;
-+
-+				tfp410_in: endpoint@0 {
-+					remote-endpoint = <&dpi_out>;
-+				};
-+			};
-+
-+			port@1 {
-+				reg = <1>;
-+
-+				tfp410_out: endpoint@1 {
-+					remote-endpoint = <&dvi_connector_in>;
-+				};
-+			};
-+		};
-+	};
-+
-+	dvi0: connector@0 {
-+		compatible = "ti,dvi-connector";
-+		i2c-bus = <&i2c3>;
-+
-+		dvi_connector_in: endpoint {
-+			remote-endpoint = <&tfp410_out>;
-+		};
-+	};
-+
-+	tv0: connector@1 {
-+		compatible = "ti,svideo-connector";
-+
-+		tv_connector_in: endpoint {
-+			remote-endpoint = <&venc_out>;
-+		};
++		ti,channels = <2>;
 +	};
 +};
 -- 

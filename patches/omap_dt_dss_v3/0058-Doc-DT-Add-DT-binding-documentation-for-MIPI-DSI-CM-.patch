@@ -1,0 +1,49 @@
+From eed9eae3b9fc4a8277a93bc56473bfd8c913dd1d Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 21 Jan 2014 11:17:08 +0200
+Subject: [PATCH 58/61] Doc/DT: Add DT binding documentation for MIPI DSI CM
+ Panel
+
+Add DT binding documentation for MIPI DSI Command Mode Panel.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ .../devicetree/bindings/video/panel-dsi-cm.txt     | 26 ++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/video/panel-dsi-cm.txt
+
+diff --git a/Documentation/devicetree/bindings/video/panel-dsi-cm.txt b/Documentation/devicetree/bindings/video/panel-dsi-cm.txt
+new file mode 100644
+index 0000000..73f4225
+--- /dev/null
++++ b/Documentation/devicetree/bindings/video/panel-dsi-cm.txt
+@@ -0,0 +1,26 @@
++Generic MIPI DSI Command Mode Panel
++===================================
++
++Required properties:
++- compatible: "panel-dsi-cm"
++
++Optional properties:
++- label: a symbolic name for the panel
++- gpios: panel reset gpio and TE gpio
++
++Required nodes:
++- Video port for DSI input
++
++Example
++-------
++
++lcd0: display {
++	compatible = "tpo,taal", "panel-dsi-cm";
++	label = "lcd0";
++
++	gpios = <&gpio4 6 GPIO_ACTIVE_HIGH>;	/* 102, reset */
++
++	lcd0_in: endpoint {
++		remote-endpoint = <&dsi1_out_ep>;
++	};
++};
+-- 
+1.8.5.2
+
