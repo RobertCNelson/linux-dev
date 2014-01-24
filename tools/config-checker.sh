@@ -524,4 +524,8 @@ check_config_builtin
 config="CONFIG_SPI_SPIDEV"
 check_config_builtin
 
+#broken:
+config="CONFIG_DRM_TEGRA"
+check_config_disabled
+
 #
