@@ -143,6 +143,10 @@ config="CONFIG_PCI_IMX6"
 check_if_set_then_set
 config="CONFIG_REGULATOR_ANATOP"
 check_if_set_then_set
+config="CONFIG_CPU_THERMAL"
+check_if_set_then_set
+config="CONFIG_IMX_THERMAL"
+check_if_set_then_set
 config="CONFIG_ARM_IMX6Q_CPUFREQ"
 check_if_set_then_set
 config="CONFIG_RTC_DRV_SNVS"
@@ -297,6 +301,8 @@ config="CONFIG_CPU_FREQ_GOV_ONDEMAND"
 check_if_set_then_set
 config="CONFIG_CPU_FREQ_GOV_CONSERVATIVE"
 check_if_set_then_set
+config="CONFIG_CPU_THERMAL"
+check_if_set_then_set
 config="CONFIG_GENERIC_CPUFREQ_CPU0"
 check_if_set_then_set
 config="CONFIG_DRM"
@@ -356,6 +362,8 @@ check_if_set_then_set
 config="CONFIG_THERMAL_GOV_USER_SPACE"
 check_if_set_then_set
 config="CONFIG_TI_SOC_THERMAL"
+check_if_set_then_set
+config="CONFIG_TI_THERMAL"
 check_if_set_then_set
 config="CONFIG_OMAP4_THERMAL"
 check_if_set_then_set
