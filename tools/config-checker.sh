@@ -47,6 +47,14 @@ check_config_disabled () {
 	fi
 }
 
+check_if_set_then_set_module () {
+	unset test_config
+	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
+	if [ "x${test_config}" = "x${if_config}=y" ] ; then
+		check_config_module
+	fi
+}
+
 check_if_set_then_set () {
 	unset test_config
 	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
@@ -62,6 +70,22 @@ check_if_set_then_disable () {
 		check_config_disabled
 	fi
 }
+
+#Basic:
+config="CONFIG_LOCALVERSION_AUTO"
+check_config_disabled
+
+#Modules
+config="CONFIG_MODULES"
+check_config_builtin
+config="CONFIG_MODULE_FORCE_LOAD"
+check_config_builtin
+config="CONFIG_MODULE_UNLOAD"
+check_config_builtin
+config="CONFIG_MODULE_FORCE_UNLOAD"
+check_config_builtin
+config="CONFIG_MODVERSIONS"
+check_config_builtin
 
 ###CONFIG_ARCH_MULTIPLATFORM
 if_config="CONFIG_ARCH_MULTIPLATFORM"
@@ -188,6 +212,8 @@ check_config_builtin
 #check_config_disabled
 
 #zram
+config="CONFIG_STAGING"
+check_config_builtin
 config="CONFIG_ZSMALLOC"
 check_config_builtin
 config="CONFIG_ZRAM"
