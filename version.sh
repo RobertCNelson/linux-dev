@@ -32,7 +32,7 @@ KERNEL_TAG=${KERNEL_REL}.8
 BUILD=bone12
 
 #v3.X-rcX + upto SHA
-#KERNEL_SHA="e6036c0b88962df82a8853971b86a55f09faef40"
+#KERNEL_SHA=""
 
 #git branch
 BRANCH="am33x-v3.12"
