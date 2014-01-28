@@ -834,6 +834,9 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0020-add-argus-ups-cape-support.patch"
 	${git} "${DIR}/patches/capes/0021-Fix-aspect-ratio-issue-of-720p-in-MT9M114-camera-cap.patch"
 
+	echo "dir: proto"
+	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
+
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-sync-don-t-block-the-flusher-thread-waiting-on-IO.patch"
 	${git} "${DIR}/patches/fixes/0002-USB-Fix-USB-device-disconnects-on-resume.patch"
