@@ -5,38 +5,15 @@ Subject: [PATCH] add new default pinmux based on Proto Cape
 
 http://elinux.org/CircuitCo:Basic_Proto_Cape
 
-Disable via: capemgr.disable_partno=cape-bone-proto
+load: echo "cape-bone-proto" > /sys/devices/bone_capemgr.*/slots
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi |  11 ++
- firmware/Makefile                         |   1 +
- firmware/capes/cape-bone-proto-00A0.dts   | 310 ++++++++++++++++++++++++++++++
- 3 files changed, 322 insertions(+)
+ firmware/Makefile                       |   1 +
+ firmware/capes/cape-bone-proto-00A0.dts | 310 ++++++++++++++++++++++++++++++++
+ 2 files changed, 311 insertions(+)
  create mode 100644 firmware/capes/cape-bone-proto-00A0.dts
 
-diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index c401870..bf419b4 100644
---- a/arch/arm/boot/dts/am335x-bone-common.dtsi
-+++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -244,6 +244,17 @@
- 				part-number = "BB-BONELT-HDMIN";
- 			};
- 
-+			/* New Default PinMux: http://elinux.org/CircuitCo:Basic_Proto_Cape */
-+			slot@103 {
-+				ti,cape-override;
-+				priority = <1>;
-+				compatible = "ti,beaglebone", "ti,beaglebone-black";
-+				board-name = "BB-BASIC-PROTO";
-+				version = "00A0";
-+				manufacturer = "CircuitCo";
-+				part-number = "cape-bone-proto";
-+			};
-+
- 		};
- 
- 		/* mapping between board names and dtb objects */
 diff --git a/firmware/Makefile b/firmware/Makefile
 index e45d10b..ecc54d9 100644
 --- a/firmware/Makefile
