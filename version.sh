@@ -29,7 +29,7 @@ toolchain="cortex_gcc_4_7"
 #Kernel/Build
 KERNEL_REL=3.8
 KERNEL_TAG=${KERNEL_REL}.13
-BUILD=bone38.1
+BUILD=bone39
 
 #v3.X-rcX + upto SHA
 #KERNEL_SHA=""
