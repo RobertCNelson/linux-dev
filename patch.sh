@@ -844,6 +844,7 @@ am33x_after () {
 	${git} "${DIR}/patches/fixes/0004-mmc-omap_hsmmc-clear-status-flags-before-starting-a-.patch"
 	${git} "${DIR}/patches/fixes/0005-uvcvideo-Fix-data-type-for-pan-tilt-control.patch"
 	${git} "${DIR}/patches/fixes/0006-ti_am335x_tsc-touchscreen-jitter-fix.patch"
+	${git} "${DIR}/patches/fixes/0007-omap-RS485-support-by-Michael-Musset.patch"
 
 	echo "dir: firmware"
 	#http://arago-project.org/git/projects/?p=am33x-cm3.git;a=summary
