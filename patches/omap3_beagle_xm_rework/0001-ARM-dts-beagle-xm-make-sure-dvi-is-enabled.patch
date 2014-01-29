@@ -1,0 +1,45 @@
+From bf8efc929816a005dea0b4fe0c674f20c1cad76b Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 29 Jan 2014 08:45:18 -0600
+Subject: [PATCH] ARM: dts: beagle-xm: make sure dvi is enabled
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/omap3-beagle-xm.dts | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
+index 4b7f032..426f443 100644
+--- a/arch/arm/boot/dts/omap3-beagle-xm.dts
++++ b/arch/arm/boot/dts/omap3-beagle-xm.dts
+@@ -121,7 +121,7 @@
+ 
+ 	tfp410: encoder@0 {
+ 		compatible = "ti,tfp410";
+-		gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>;
++		/* gpios = <&twl_gpio 2 GPIO_ACTIVE_LOW>; */
+ 
+ 		/* XXX pinctrl from twl */
+ 
+@@ -311,14 +311,14 @@
+ 
+ &twl_gpio {
+ 	ti,use-leds;
+-	/* pullups: BIT(1) */
+-	ti,pullups = <0x000002>;
++	/* pullups: BIT(1), BIT(2)  */
++	ti,pullups = <0x000006>;
+ 	/*
+ 	 * pulldowns:
+-	 * BIT(2), BIT(6), BIT(7), BIT(8), BIT(13)
++	 * BIT(6), BIT(7), BIT(8), BIT(13)
+ 	 * BIT(15), BIT(16), BIT(17)
+ 	 */
+-	ti,pulldowns = <0x03a1c4>;
++	ti,pulldowns = <0x03a1c0>;
+ };
+ 
+ &usb_otg_hs {
+-- 
+1.8.5.3
+
