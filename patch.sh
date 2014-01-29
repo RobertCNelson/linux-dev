@@ -358,6 +358,8 @@ omap_clock () {
 
 	#beagleboard-xm: add abb bindings and OPP1G operating point for 1 GHz operation
 	#${git} "${DIR}/patches/omap_clock/0003-Now-this-one-is-mine-lol.-Reading-through-the-ti-abb.patch"
+
+	${git} "${DIR}/patches/omap_clock/0001-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
 }
 
 dts () {
