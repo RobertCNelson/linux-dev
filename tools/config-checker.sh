@@ -233,13 +233,24 @@ check_if_set_then_disable
 config="CONFIG_NET_VENDOR_TEHUTI"
 check_if_set_then_disable
 
+if_config="CONFIG_ARCH_MULTI_V7"
+config="CONFIG_ARCH_OMAP3"
+check_if_set_then_set
+config="CONFIG_ARCH_OMAP4"
+check_if_set_then_set
+config="CONFIG_SOC_AM33XX"
+check_if_set_then_set
+config="CONFIG_SOC_OMAP5"
+check_if_set_then_set
 
 #omap3 beagles need this... (thumb2 bugs)
 if_config="CONFIG_ARCH_OMAP3"
 config="CONFIG_ARM_ERRATA_430973"
 check_if_set_then_set
+config="CONFIG_THUMB2_KERNEL"
+check_if_set_then_disable
 
-#omap3/4/5
+#omap3:
 if_config="CONFIG_ARCH_OMAP3"
 config="CONFIG_PINCTRL_SINGLE"
 check_if_set_then_set
@@ -253,23 +264,13 @@ config="CONFIG_USB_MUSB_OMAP2PLUS"
 check_if_set_then_set_module
 config="CONFIG_TWL4030_USB"
 check_if_set_then_set_module
-config="CONFIG_TWL6030_USB"
-check_if_set_then_set_module
 config="CONFIG_MFD_PALMAS"
 check_if_set_then_set
 config="CONFIG_MFD_TPS65217"
 check_if_set_then_set
 config="CONFIG_MFD_TPS65910"
 check_if_set_then_set
-config="CONFIG_TWL6040_CORE"
-check_if_set_then_set
 config="CONFIG_REGULATOR_FIXED_VOLTAGE"
-check_if_set_then_set
-config="CONFIG_REGULATOR_PALMAS"
-check_if_set_then_set
-config="CONFIG_PINCTRL_PALMAS"
-check_if_set_then_set
-config="CONFIG_GPIO_PALMAS"
 check_if_set_then_set
 config="CONFIG_GPIO_TPS65910"
 check_if_set_then_set
@@ -365,12 +366,28 @@ config="CONFIG_TI_SOC_THERMAL"
 check_if_set_then_set
 config="CONFIG_TI_THERMAL"
 check_if_set_then_set
+config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
+check_if_set_then_disable
+
+#omap4:
+if_config="CONFIG_ARCH_OMAP4"
+config="CONFIG_TWL6030_USB"
+check_if_set_then_set_module
+config="CONFIG_TWL6040_CORE"
+check_if_set_then_set
 config="CONFIG_OMAP4_THERMAL"
+check_if_set_then_set
+
+#omap5:
+if_config="CONFIG_SOC_OMAP5"
+config="CONFIG_REGULATOR_PALMAS"
+check_if_set_then_set
+config="CONFIG_PINCTRL_PALMAS"
+check_if_set_then_set
+config="CONFIG_GPIO_PALMAS"
 check_if_set_then_set
 config="CONFIG_OMAP5_THERMAL"
 check_if_set_then_set
-config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
-check_if_set_then_disable
 
 #BeagleBoneBlack:
 if_config="CONFIG_SOC_AM33XX"
@@ -414,8 +431,6 @@ config="CONFIG_SMP_ON_UP"
 check_if_set_then_set
 config="CONFIG_SWP_EMULATE"
 check_if_set_then_set
-#config="CONFIG_THUMB2_KERNEL"
-#check_if_set_then_set
 
 if_config="CONFIG_ARCH_MULTI_V7"
 config="CONFIG_KERNEL_MODE_NEON"
@@ -526,7 +541,7 @@ check_config_builtin
 config="CONFIG_ION"
 check_config_builtin
 
-#useful
+#Useful
 config="CONFIG_I2C_CHARDEV"
 check_config_builtin
 config="CONFIG_DEBUG_GPIO"
@@ -539,5 +554,4 @@ check_config_builtin
 #broken:
 config="CONFIG_DRM_TEGRA"
 check_config_disabled
-
 #
