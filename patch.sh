@@ -345,13 +345,13 @@ omap_video () {
 omap_clock () {
 	echo "dir: omap_clock"
 	#TI omap dts clock bindings driver
-	${git} "${DIR}/patches/omap_clock/0001-Added-the-Texas-Instruments-OMAP-Clock-driver-origin.patch"
+	#${git} "${DIR}/patches/omap_clock/0001-Added-the-Texas-Instruments-OMAP-Clock-driver-origin.patch"
 
 	#omap3: add device tree clock binding support
-	${git} "${DIR}/patches/omap_clock/0002-Add-the-clock-bindings-to-omap3.dtsi-that-were-made-.patch"
+	#${git} "${DIR}/patches/omap_clock/0002-Add-the-clock-bindings-to-omap3.dtsi-that-were-made-.patch"
 
 	#beagleboard-xm: add abb bindings and OPP1G operating point for 1 GHz operation
-	${git} "${DIR}/patches/omap_clock/0003-Now-this-one-is-mine-lol.-Reading-through-the-ti-abb.patch"
+	#${git} "${DIR}/patches/omap_clock/0003-Now-this-one-is-mine-lol.-Reading-through-the-ti-abb.patch"
 }
 
 dts () {
@@ -394,7 +394,7 @@ omap3_beagle_xm_rework () {
 omap_sprz319_erratum () {
 	echo "dir: omap_sprz319_erratum"
 	# Apply the modified sprz319 erratum for the v3.11-rc2 kernel
-	${git} "${DIR}/patches/omap_sprz319_erratum_v2.1/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
+	#${git} "${DIR}/patches/omap_sprz319_erratum_v2.1/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
 }
 
 fixes () {
