@@ -342,6 +342,12 @@ omap_video () {
 	${git} "${DIR}/patches/omap_video/0001-dts-omap3-beagle-add-i2c2-i2c3.patch"
 }
 
+clock () {
+	echo "dir: clock"
+	${git} "${DIR}/patches/clock/0001-clk-ti-am335x-remove-unecessary-cpu0-clk-node.patch"
+	${git} "${DIR}/patches/clock/0002-ARM-dts-OMAP3-add-clock-nodes-for-CPU.patch"
+}
+
 omap_clock () {
 	echo "dir: omap_clock"
 	#TI omap dts clock bindings driver
@@ -440,6 +446,7 @@ omap_dt_dss_v3
 imx
 omap_usb
 omap_video
+clock
 omap_clock
 
 dts
