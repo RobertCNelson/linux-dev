@@ -319,6 +319,7 @@ omap_dt_dss_v3 () {
 	${git} "${DIR}/patches/omap_dt_dss_v3/0059-Doc-DT-Add-DT-binding-documentation-for-Sony-acx565a.patch"
 	${git} "${DIR}/patches/omap_dt_dss_v3/0060-Doc-DT-Add-DT-binding-documentation-for-TFP410-encod.patch"
 	${git} "${DIR}/patches/omap_dt_dss_v3/0061-Doc-DT-Add-DT-binding-documentation-for-tpd12s015-en.patch"
+	${git} "${DIR}/patches/omap_dt_dss_v3/0062-ARM-OMAP2-clock-fix-clkoutx2-with-CLK_SET_RATE_PAREN.patch"
 }
 
 imx () {
@@ -346,6 +347,11 @@ clock () {
 	echo "dir: clock"
 	${git} "${DIR}/patches/clock/0001-clk-ti-am335x-remove-unecessary-cpu0-clk-node.patch"
 	${git} "${DIR}/patches/clock/0002-ARM-dts-OMAP3-add-clock-nodes-for-CPU.patch"
+
+	${git} "${DIR}/patches/clock/0003-ARM-dts-OMAP36xx-Add-device-node-for-ABB.patch"
+	${git} "${DIR}/patches/clock/0004-ARM-dts-OMAP4-Add-device-nodes-for-ABB.patch"
+	${git} "${DIR}/patches/clock/0005-ARM-dts-OMAP5-Add-device-nodes-for-ABB.patch"
+	${git} "${DIR}/patches/clock/0006-ARM-dts-DRA7-Add-device-nodes-for-ABB.patch"
 }
 
 omap_clock () {
