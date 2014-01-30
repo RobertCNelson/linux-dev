@@ -868,7 +868,7 @@ machinekit () {
 	#${git} "${DIR}/patches/machinekit/0001-ADS1115.patch"
 	# Fix now applied by upstream (see dir: fixes, above)
 	#${git} "${DIR}/patches/machinekit/0002-omap_hsmmc-clear-status-flags-before-starting-a-new-command.patch"
-	${git} "${DIR}/patches/machinekit/0003-Add-dir-changeable-property-to-gpio-of-helper.patch"
+	${git} "${DIR}/patches/machinekit/0001-Add-dir-changeable-property-to-gpio-of-helper.patch"
 }
 
 am33x
