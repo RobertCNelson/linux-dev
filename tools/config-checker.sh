@@ -222,4 +222,8 @@ check_config_module
 #ancient...
 config="CONFIG_OABI_COMPAT"
 check_config_disabled
+
+#Bugs:
+config="CONFIG_USB_GADGET_DEBUG"
+check_config_disabled
 #
