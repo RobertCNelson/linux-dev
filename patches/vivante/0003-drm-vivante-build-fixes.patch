@@ -1,6 +1,6 @@
-From 836d94187fb7ea9abc51ebd0b099f467140836c0 Mon Sep 17 00:00:00 2001
+From 2304ca9732fb2f713224c00a4dccb61908d71326 Mon Sep 17 00:00:00 2001
 From: Michele Adduci <info@micheleadduci.net>
-Date: Tue, 7 Jan 2014 11:09:57 -0800
+Date: Thu, 30 Jan 2014 10:46:06 -0600
 Subject: [PATCH 3/3] drm: vivante: build fixes
 
 Signed-off-by: Michele Adduci <info@micheleadduci.net>
@@ -12,13 +12,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  3 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
-index 28363a7..4a33bbd 100644
+index ccc0b82..0e3fdb1 100644
 --- a/drivers/gpu/drm/Makefile
 +++ b/drivers/gpu/drm/Makefile
-@@ -52,6 +52,7 @@ obj-$(CONFIG_DRM_KMS_HELPER) += drm_kms_helper.o
- CFLAGS_drm_trace_points.o := -I$(src)
+@@ -54,6 +54,7 @@ CFLAGS_drm_trace_points.o := -I$(src)
  
  obj-$(CONFIG_DRM)	+= drm.o
+ obj-$(CONFIG_DRM_MIPI_DSI) += drm_mipi_dsi.o
 +obj-$(CONFIG_DRM_USB)   += drm_usb.o
  obj-$(CONFIG_DRM_TTM)	+= ttm/
  obj-$(CONFIG_DRM_VIVANTE)	+= vivante/
@@ -45,17 +45,17 @@ index 4caf46f..7679d9b 100644
  };
  
 diff --git a/include/drm/drmP.h b/include/drm/drmP.h
-index 1d4a920..f586342 100644
+index 04086c5..a32d5af 100644
 --- a/include/drm/drmP.h
 +++ b/include/drm/drmP.h
 @@ -137,6 +137,7 @@ int drm_err(const char *func, const char *format, ...);
+ 
  /* driver capabilities and requirements mask */
  #define DRIVER_USE_AGP     0x1
- #define DRIVER_REQUIRE_AGP 0x2
 +#define DRIVER_USE_MTRR    0x4
  #define DRIVER_PCI_DMA     0x8
  #define DRIVER_SG          0x10
  #define DRIVER_HAVE_DMA    0x20
 -- 
-1.8.5.2
+1.8.5.3
 
