@@ -833,6 +833,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0019-Added-camera-cape-support-for-Beaglebone-Black.patch"
 	${git} "${DIR}/patches/capes/0020-add-argus-ups-cape-support.patch"
 	${git} "${DIR}/patches/capes/0021-Fix-aspect-ratio-issue-of-720p-in-MT9M114-camera-cap.patch"
+	${git} "${DIR}/patches/capes/0022-beaglebone-capes-Added-overlays-for-CBB-Serial-cape.patch"
 
 	echo "dir: proto"
 	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
