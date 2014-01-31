@@ -292,15 +292,6 @@ imx () {
 #	${git} "${DIR}/patches/imx/0003-ahci-imx-Add-i.MX53-support.patch"
 }
 
-omap_usb () {
-	echo "dir: omap_usb"
-	#${git} "${DIR}/patches/omap_usb/0001-ARM-dts-omap3-beagle-Fix-USB-host-on-beagle-boards-f.patch"
-#	${git} "${DIR}/patches/omap_usb/0002-gpio-twl4030-Fix-regression-for-twl-gpio-LED-output.patch"
-#	${git} "${DIR}/patches/omap_usb/0003-ARM-OMAP4-hwmod-data-Don-t-prevent-RESET-of-USB-Host.patch"
-#	${git} "${DIR}/patches/omap_usb/0004-ARM-OMAP2-hwmod-Fix-RESET-logic.patch"
-#	${git} "${DIR}/patches/omap_usb/0005-ARM-OMAP3-hwmod-data-Don-t-prevent-RESET-of-USB-Host.patch"
-}
-
 omap_video () {
 	echo "dir: omap_video"
 	${git} "${DIR}/patches/omap_video/0001-dts-omap3-beagle-add-i2c2-i2c3.patch"
@@ -411,7 +402,6 @@ omap_next
 omap_dt_dss_v3
 
 imx
-omap_usb
 omap_video
 clock
 omap_clock
