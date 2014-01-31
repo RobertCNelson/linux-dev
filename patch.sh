@@ -299,20 +299,9 @@ clock () {
 	${git} "${DIR}/patches/clock/0004-ARM-dts-OMAP4-Add-device-nodes-for-ABB.patch"
 	${git} "${DIR}/patches/clock/0005-ARM-dts-OMAP5-Add-device-nodes-for-ABB.patch"
 	${git} "${DIR}/patches/clock/0006-ARM-dts-DRA7-Add-device-nodes-for-ABB.patch"
-}
 
-omap_clock () {
-	echo "dir: omap_clock"
-	#TI omap dts clock bindings driver
-	#${git} "${DIR}/patches/omap_clock/0001-Added-the-Texas-Instruments-OMAP-Clock-driver-origin.patch"
-
-	#omap3: add device tree clock binding support
-	#${git} "${DIR}/patches/omap_clock/0002-Add-the-clock-bindings-to-omap3.dtsi-that-were-made-.patch"
-
-	#beagleboard-xm: add abb bindings and OPP1G operating point for 1 GHz operation
-	#${git} "${DIR}/patches/omap_clock/0003-Now-this-one-is-mine-lol.-Reading-through-the-ti-abb.patch"
-
-	${git} "${DIR}/patches/omap_clock/0001-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
+	#wip:
+	${git} "${DIR}/patches/clock/0007-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
 }
 
 dts () {
@@ -395,7 +384,6 @@ omap_dt_dss_v3
 
 omap_video
 clock
-omap_clock
 
 dts
 bone
