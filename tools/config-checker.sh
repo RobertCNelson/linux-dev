@@ -377,6 +377,18 @@ config="CONFIG_TWL6040_CORE"
 check_if_set_then_set
 config="CONFIG_OMAP4_THERMAL"
 check_if_set_then_set
+config="CONFIG_MEDIA_SUPPORT"
+check_if_set_then_set
+config="CONFIG_MEDIA_CAMERA_SUPPORT"
+check_if_set_then_set
+config="CONFIG_MEDIA_CONTROLLER"
+check_if_set_then_set
+config="CONFIG_VIDEO_V4L2_SUBDEV_API"
+check_if_set_then_set
+config="CONFIG_STAGING_MEDIA"
+check_if_set_then_set
+config="CONFIG_VIDEO_OMAP4"
+check_if_set_then_set
 
 #omap5:
 if_config="CONFIG_SOC_OMAP5"
@@ -543,6 +555,8 @@ check_config_builtin
 
 #Useful
 config="CONFIG_I2C_CHARDEV"
+check_config_builtin
+config="CONFIG_I2C_MUX"
 check_config_builtin
 config="CONFIG_DEBUG_GPIO"
 check_config_builtin
