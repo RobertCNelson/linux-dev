@@ -285,13 +285,6 @@ omap_dt_dss_v3 () {
 	${git} "${DIR}/patches/omap_dt_dss_v3/0062-ARM-OMAP2-clock-fix-clkoutx2-with-CLK_SET_RATE_PAREN.patch"
 }
 
-imx () {
-	echo "dir: imx"
-	#${git} "${DIR}/patches/imx/0001-ahci-imx-Explicitly-clear-IMX6Q_GPR13_SATA_MPLL_CLK_.patch"
-#	${git} "${DIR}/patches/imx/0002-ahci-imx-Pull-out-the-clock-enable-disable-calls.patch"
-#	${git} "${DIR}/patches/imx/0003-ahci-imx-Add-i.MX53-support.patch"
-}
-
 omap_video () {
 	echo "dir: omap_video"
 	${git} "${DIR}/patches/omap_video/0001-dts-omap3-beagle-add-i2c2-i2c3.patch"
@@ -401,7 +394,6 @@ omap_next
 
 omap_dt_dss_v3
 
-imx
 omap_video
 clock
 omap_clock
