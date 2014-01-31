@@ -344,10 +344,19 @@ omap_sprz319_erratum () {
 	#${git} "${DIR}/patches/omap_sprz319_erratum_v2.1/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
 }
 
+omap3_beagle_xm_rework () {
+	echo "dir: omap3_beagle_xm_rework"
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
+
+	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-ab.dts
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-ARM-dts-omap3-beagle-xm-ab.dtb-copy-from-omap3-beagl.patch"
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0003-ARM-dts-omap3-beagle-xm-ab.dtb-build.patch"
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0004-ARM-dts-omap3-beagle-xm-ab.dtb-invert-usb-host.patch"
+}
+
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
-#	${git} "${DIR}/patches/fixes/0002-crypto-omap-aes-add-error-check-for-pm_runtime_get_s.patch"
 	${git} "${DIR}/patches/fixes/0002-fix-compilation-of-imx-hdmi.patch"
 }
 
@@ -369,21 +378,11 @@ vivante () {
 
 saucy () {
 	echo "dir: saucy"
-	#need to be re-tested with v3.13-rcX
+	#need to be re-tested with v3.14-rcX
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
 	${git} "${DIR}/patches/saucy/0001-saucy-error-variable-ilace-set-but-not-used-Werror-u.patch"
 	${git} "${DIR}/patches/saucy/0002-saucy-disable-Werror-pointer-sign.patch"
 	${git} "${DIR}/patches/saucy/0003-saucy-disable-stack-protector.patch"
-}
-
-omap3_beagle_xm_rework () {
-	echo "dir: omap3_beagle_xm_rework"
-	${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-
-	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-	${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-ARM-dts-omap3-beagle-xm-ab.dtb-copy-from-omap3-beagl.patch"
-	${git} "${DIR}/patches/omap3_beagle_xm_rework/0003-ARM-dts-omap3-beagle-xm-ab.dtb-build.patch"
-	${git} "${DIR}/patches/omap3_beagle_xm_rework/0004-ARM-dts-omap3-beagle-xm-ab.dtb-invert-usb-host.patch"
 }
 
 #revert
@@ -402,10 +401,11 @@ dts
 bone
 imx_video_staging
 omap_sprz319_erratum
+
+omap3_beagle_xm_rework
+
 fixes
 vivante
-
 #saucy
-omap3_beagle_xm_rework
 
 echo "patch.sh ran successful"
