@@ -285,11 +285,6 @@ omap_dt_dss_v3 () {
 	${git} "${DIR}/patches/omap_dt_dss_v3/0062-ARM-OMAP2-clock-fix-clkoutx2-with-CLK_SET_RATE_PAREN.patch"
 }
 
-omap_video () {
-	echo "dir: omap_video"
-	${git} "${DIR}/patches/omap_video/0001-dts-omap3-beagle-add-i2c2-i2c3.patch"
-}
-
 clock () {
 	echo "dir: clock"
 	${git} "${DIR}/patches/clock/0001-clk-ti-am335x-remove-unecessary-cpu0-clk-node.patch"
@@ -310,21 +305,19 @@ dts () {
 	${git} "${DIR}/patches/dts/0002-ARM-dts-imx6qdl-wandboard-Add-support-for-i2c1.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
 	${git} "${DIR}/patches/dts/0004-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
-}
 
-bone () {
-	echo "dir: bone"
-	${git} "${DIR}/patches/bone/0001-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
-	${git} "${DIR}/patches/bone/0002-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
-	${git} "${DIR}/patches/bone/0003-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
-	${git} "${DIR}/patches/bone/0004-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
+	${git} "${DIR}/patches/dts/0005-dts-omap3-beagle-add-i2c2-i2c3.patch"
+
+	${git} "${DIR}/patches/dts/0006-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
+	${git} "${DIR}/patches/dts/0007-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
+	${git} "${DIR}/patches/dts/0008-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
+	${git} "${DIR}/patches/dts/0009-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
 }
 
 imx_video_staging () {
 	echo "dir: imx_video_staging"
-#	${git} "${DIR}/patches/imx_video_staging/0001-imx-drm-Add-mx6-hdmi-transmitter-support.patch"
-	${git} "${DIR}/patches/imx_video_staging/0002-ARM-dts-mx6qdl-Add-HDMI-support.patch"
-	${git} "${DIR}/patches/imx_video_staging/0003-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
+	${git} "${DIR}/patches/imx_video_staging/0001-ARM-dts-mx6qdl-Add-HDMI-support.patch"
+	${git} "${DIR}/patches/imx_video_staging/0002-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
 }
 
 omap_sprz319_erratum () {
@@ -381,12 +374,10 @@ imx_next
 omap_next
 
 omap_dt_dss_v3
-
-omap_video
 clock
 
 dts
-bone
+
 imx_video_staging
 omap_sprz319_erratum
 
