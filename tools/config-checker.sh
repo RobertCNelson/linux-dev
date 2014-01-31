@@ -400,6 +400,8 @@ config="CONFIG_GPIO_PALMAS"
 check_if_set_then_set
 config="CONFIG_OMAP5_THERMAL"
 check_if_set_then_set
+config="CONFIG_RTC_DRV_PALMAS"
+check_if_set_then_set
 
 #BeagleBoneBlack:
 if_config="CONFIG_SOC_AM33XX"
