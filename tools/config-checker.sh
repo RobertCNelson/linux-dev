@@ -518,6 +518,8 @@ config="CONFIG_CC_STACKPROTECTOR_REGULAR"
 check_config_builtin
 
 #Android
+config="CONFIG_STAGING"
+check_config_builtin
 config="CONFIG_ANDROID"
 check_config_builtin
 config="CONFIG_ANDROID_BINDER_IPC"

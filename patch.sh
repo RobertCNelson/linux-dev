@@ -217,43 +217,6 @@ omap_next () {
 	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
 }
 
-omap_dt_dss () {
-	echo "dir: omap_dt_dss"
-	#From: https://git.kernel.org/cgit/linux/kernel/git/tomba/linux.git/log/?h=work/dss-dt
-
-	${git} "${DIR}/patches/omap_dt_dss/0001-Revert-ARM-OMAP4-hwmod-data-add-DSS-data-back.patch"
-	#${git} "${DIR}/patches/omap_dt_dss/0002-gpio-twl4030-Fix-regression-for-twl-gpio-LED-output.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0003-omap4-sdp.dts-add-power-supply-for-backlight.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0004-OMAPDSS-rename-display-sysfs-name-entry.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0005-OMAPDSS-DSI-fix-fifosize.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0006-ARM-OMAP-remove-DSS-DT-hack.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0007-OMAPDSS-remove-DT-hacks-for-regulators.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0008-Revert-ARM-dts-omap3-igep0020-name-twl4030-VPLL2-reg.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0009-ARM-OMAP2-add-omapdss_init_of.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0010-OMAPDSS-if-dssdev-name-NULL-use-alias.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0011-OMAPDSS-get-dssdev-alias-from-DT-alias.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0012-OMAPFB-clean-up-default-display-search.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0013-OMAPFB-search-for-default-display-with-DT-alias.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0014-OMAPDSS-add-of-helpers.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0015-OMAPDSS-Add-DT-support-to-DSS-DISPC-DPI-HDMI-VENC.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0016-OMAPDSS-Add-DT-support-to-DSI.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0017-ARM-omap3.dtsi-add-omapdss-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0018-ARM-omap4.dtsi-add-omapdss-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0019-ARM-omap4-panda.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0020-ARM-omap4-sdp.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0021-ARM-omap3-tobi.dts-add-lcd-TEST.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0022-ARM-omap3-beagle.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0023-ARM-omap3-beagle-xm.dts-add-display-information.patch"
-#	${git} "${DIR}/patches/omap_dt_dss/0024-ARM-omap3-igep0020.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0025-OMAPDSS-panel-dsi-cm-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0026-OMAPDSS-encoder-tfp410-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0027-OMAPDSS-connector-dvi-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0028-OMAPDSS-encoder-tpd12s015-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0029-OMAPDSS-hdmi-connector-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0030-OMAPDSS-panel-dpi-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0031-OMAPDSS-connector-analog-tv-Add-DT-support.patch"
-}
-
 omap_dt_dss_v3 () {
 	echo "dir: omap_dt_dss_v3"
 	#From: https://git.kernel.org/cgit/linux/kernel/git/tomba/linux.git/log/?h=work/dss-dt-review-3
@@ -391,20 +354,6 @@ imx_video_staging () {
 	${git} "${DIR}/patches/imx_video_staging/0003-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
 }
 
-omap3_beagle_xm_rework () {
-	echo "dir: omap3_beagle_xm_rework"
-	#FIXED IN BOOTLOADER
-	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-c.dts
-	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-	#gedit arch/arm/boot/dts/Makefile add ^
-	#${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-split-omap3-beagle-xm-to-ab-and-c-variant.patch"
-	#xm-ab has active high usb host power on...
-	#${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-ARM-dts-omap3-beagle-xm-ab-usb-host-is-active-high-t.patch"
-	#${git} "${DIR}/patches/omap3_beagle_xm_rework/0003-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-
-	${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-}
-
 omap_sprz319_erratum () {
 	echo "dir: omap_sprz319_erratum"
 	# Apply the modified sprz319 erratum for the v3.11-rc2 kernel
@@ -443,13 +392,22 @@ saucy () {
 	${git} "${DIR}/patches/saucy/0003-saucy-disable-stack-protector.patch"
 }
 
+omap3_beagle_xm_rework () {
+	echo "dir: omap3_beagle_xm_rework"
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
+
+	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-ab.dts
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-ARM-dts-omap3-beagle-xm-ab.dtb-copy-from-omap3-beagl.patch"
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0003-ARM-dts-omap3-beagle-xm-ab.dtb-build.patch"
+	${git} "${DIR}/patches/omap3_beagle_xm_rework/0004-ARM-dts-omap3-beagle-xm-ab.dtb-invert-usb-host.patch"
+}
+
 #revert
 arm
 drivers
 imx_next
 omap_next
 
-#omap_dt_dss
 omap_dt_dss_v3
 
 imx
@@ -461,11 +419,11 @@ omap_clock
 dts
 bone
 imx_video_staging
-omap3_beagle_xm_rework
 omap_sprz319_erratum
 fixes
 vivante
 
 #saucy
+omap3_beagle_xm_rework
 
 echo "patch.sh ran successful"
