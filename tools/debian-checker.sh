@@ -212,7 +212,6 @@ config="CONFIG_MODULE_FORCE_UNLOAD"
 check_config_builtin
 config="CONFIG_MODVERSIONS"
 check_config_builtin
-
 config="CONFIG_BLK_DEV_BSGLIB"
 check_config_builtin
 config="CONFIG_BLK_DEV_INTEGRITY"
@@ -224,6 +223,8 @@ check_config_builtin
 # Partition Types
 #
 
+config="CONFIG_PARTITION_ADVANCED"
+check_config_builtin
 config="CONFIG_KARMA_PARTITION"
 check_config_builtin
 
