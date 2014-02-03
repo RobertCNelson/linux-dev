@@ -56,7 +56,7 @@ revert () {
 
 arm () {
 	echo "dir: arm"
-	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
+#	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 }
 
 drivers () {
