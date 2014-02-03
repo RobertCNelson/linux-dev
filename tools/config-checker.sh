@@ -126,12 +126,12 @@ config="CONFIG_RESOURCE_COUNTERS"
 check_config_builtin
 config="CONFIG_MEMCG"
 check_config_builtin
-config="CONFIG_MEMCG_DISABLED"
-check_config_builtin
+#config="CONFIG_MEMCG_DISABLED"
+#check_config_builtin
 config="CONFIG_MEMCG_SWAP"
 check_config_builtin
-config="CONFIG_MEMCG_SWAP_ENABLED"
-check_config_disabled
+#config="CONFIG_MEMCG_SWAP_ENABLED"
+#check_config_disabled
 config="CONFIG_CGROUP_PERF"
 check_config_builtin
 config="CONFIG_CGROUP_SCHED"
@@ -154,8 +154,8 @@ config="CONFIG_PID_NS"
 check_config_builtin
 config="CONFIG_NET_NS"
 check_config_builtin
-config="CONFIG_UIDGID_STRICT_TYPE_CHECKS"
-check_config_builtin
+#config="CONFIG_UIDGID_STRICT_TYPE_CHECKS"
+#check_config_builtin
 config="CONFIG_SCHED_AUTOGROUP"
 check_config_builtin
 config="CONFIG_MM_OWNER"
@@ -235,6 +235,13 @@ check_config_builtin
 config="CONFIG_PARTITION_ADVANCED"
 check_config_builtin
 config="CONFIG_KARMA_PARTITION"
+check_config_builtin
+
+#
+# IO Schedulers
+#
+
+config="CONFIG_CFQ_GROUP_IOSCHED"
 check_config_builtin
 
 #

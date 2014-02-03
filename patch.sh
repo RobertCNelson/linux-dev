@@ -54,11 +54,6 @@ revert () {
 	echo "dir: revert"
 }
 
-arm () {
-	echo "dir: arm"
-#	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
-}
-
 drivers () {
 	echo "dir: drivers"
 	${git} "${DIR}/patches/drivers/0001-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
@@ -340,6 +335,7 @@ fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
 	${git} "${DIR}/patches/fixes/0002-fix-compilation-of-imx-hdmi.patch"
+	${git} "${DIR}/patches/fixes/0003-Makefile-extra.patch"
 }
 
 vivante () {
@@ -368,7 +364,6 @@ saucy () {
 }
 
 #revert
-arm
 drivers
 imx_next
 omap_next
