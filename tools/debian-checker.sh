@@ -346,8 +346,6 @@ config="CONFIG_PM_WAKELOCKS_GC"
 check_config_builtin
 config="CONFIG_PM_ADVANCED_DEBUG"
 check_config_disable
-config="CONFIG_APM_EMULATION"
-check_config_disable
 
 #
 # Networking options
@@ -1638,10 +1636,6 @@ config="CONFIG_VIDEO_CODA"
 check_config_builtin
 config="CONFIG_VIDEO_MEM2MEM_DEINTERLACE"
 check_config_module
-config="CONFIG_VIDEO_SH_VEU"
-check_config_module
-config="CONFIG_VIDEO_RENESAS_VSP1"
-check_config_disable
 config="CONFIG_VIDEO_VIVI"
 check_config_disable
 
@@ -1760,10 +1754,6 @@ check_config_builtin
 #
 # Frame buffer hardware drivers
 #
-config="CONFIG_FB_SMSCUFX"
-check_config_disable
-config="CONFIG_FB_UDL"
-check_config_disable
 config="CONFIG_OMAP2_DSS"
 check_config_builtin
 config="CONFIG_OMAP2_DSS_SDI"
@@ -2049,12 +2039,6 @@ config="CONFIG_USB_G_NOKIA"
 check_config_disable
 config="CONFIG_MMC_UNSAFE_RESUME"
 check_config_builtin
-
-#
-# MMC/SD/SDIO Card Drivers
-#
-config="CONFIG_SDIO_UART"
-check_config_disable
 
 #
 # MMC/SD/SDIO Host Controller Drivers
@@ -2738,10 +2722,6 @@ check_config_value
 #
 config="CONFIG_ECRYPT_FS_MESSAGING"
 check_config_builtin
-config="CONFIG_HFS_FS"
-check_config_disable
-config="CONFIG_HFSPLUS_FS"
-check_config_disable
 config="CONFIG_BEFS_FS"
 check_config_disable
 config="CONFIG_BFS_FS"
