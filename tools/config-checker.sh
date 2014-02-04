@@ -2,6 +2,18 @@
 
 DIR=$PWD
 
+check_config_value () {
+	unset test_config
+	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
+	if [ "x${test_config}" = "x" ] ; then
+		echo "echo ${config}=${value} >> ./KERNEL/.config"
+	else
+		if [ ! "x${test_config}" = "x${config}=${value}" ] ; then
+			echo "sed -i -e 's:${test_config}:${config}=${value}:g' ./KERNEL/.config"
+		fi
+	fi
+}
+
 check_config_builtin () {
 	unset test_config
 	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)

@@ -1242,12 +1242,6 @@ config="CONFIG_SERIAL_FSL_LPUART_CONSOLE"
 check_config_builtin
 config="CONFIG_VIRTIO_CONSOLE"
 check_config_disable
-config="CONFIG_HW_RANDOM"
-check_config_builtin
-config="CONFIG_HW_RANDOM_OMAP"
-check_config_builtin
-config="CONFIG_HW_RANDOM_OMAP3_ROM"
-check_config_builtin
 config="CONFIG_HW_RANDOM_VIRTIO"
 check_config_disable
 config="CONFIG_I2C_CHARDEV"
@@ -1645,8 +1639,6 @@ check_config_module
 #
 # Webcam, TV (analog/digital) USB devices
 #
-config="CONFIG_VIDEO_DM6446_CCDC"
-check_config_module
 config="CONFIG_VIDEO_OMAP3"
 check_config_module
 config="CONFIG_VIDEO_OMAP3_DEBUG"
@@ -1951,14 +1943,10 @@ check_config_builtin
 #
 config="CONFIG_HID_APPLEIR"
 check_config_module
-config="CONFIG_HID_ELO"
-check_config_module
 config="CONFIG_HID_PICOLCD_LCD"
 check_config_builtin
 config="CONFIG_SONY_FF"
 check_config_builtin
-config="CONFIG_HID_XINMO"
-check_config_module
 
 #
 # I2C HID support
