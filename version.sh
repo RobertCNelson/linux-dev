@@ -23,19 +23,19 @@ config="omap2plus_defconfig"
 #toolchain="gcc_arm_embedded_4_8"
 #toolchain="cortex_gcc_4_6"
 #toolchain="cortex_gcc_4_7"
-toolchain="cortex_gcc_4_8"
-#toolchain="gcc_linaro_gnueabihf_4_8"
+#toolchain="cortex_gcc_4_8"
+toolchain="gcc_linaro_gnueabihf_4_8"
 
 #Kernel/Build
-KERNEL_REL=3.13
-KERNEL_TAG=${KERNEL_REL}.1
-BUILD=bone5
+KERNEL_REL=3.14
+KERNEL_TAG=${KERNEL_REL}-rc1
+BUILD=bone0
 
 #v3.X-rcX + upto SHA
 #KERNEL_SHA="e6036c0b88962df82a8853971b86a55f09faef40"
 
 #git branch
-BRANCH="am33x-v3.13"
+BRANCH="am33x-v3.14"
 
 BUILDREV=1.0
 DISTRO=cross
