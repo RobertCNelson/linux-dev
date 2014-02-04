@@ -1217,6 +1217,12 @@ config="CONFIG_SERIAL_FSL_LPUART_CONSOLE"
 check_config_builtin
 config="CONFIG_VIRTIO_CONSOLE"
 check_config_disable
+config="CONFIG_HW_RANDOM"
+check_config_builtin
+config="CONFIG_HW_RANDOM_OMAP"
+check_config_builtin
+config="CONFIG_HW_RANDOM_OMAP3_ROM"
+check_config_builtin
 config="CONFIG_HW_RANDOM_VIRTIO"
 check_config_disable
 config="CONFIG_I2C_CHARDEV"
@@ -2907,7 +2913,10 @@ check_config_builtin
 config="CONFIG_DEFAULT_SECURITY_DAC"
 check_config_disable
 
-#BROKEN:
+echo "#Bugs:"
+config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS"
+check_config_builtin
+
 config="CONFIG_DRM_VIVANTE"
 check_config_disable
 
