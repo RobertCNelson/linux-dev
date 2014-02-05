@@ -2722,12 +2722,6 @@ check_config_value
 #
 config="CONFIG_ECRYPT_FS_MESSAGING"
 check_config_builtin
-config="CONFIG_BEFS_FS"
-check_config_disable
-config="CONFIG_BFS_FS"
-check_config_disable
-config="CONFIG_EFS_FS"
-check_config_disable
 config="CONFIG_JFFS2_FS"
 check_config_disable
 config="CONFIG_ROMFS_BACKED_BY_BLOCK"
@@ -2770,12 +2764,6 @@ config="CONFIG_CIFS_DFS_UPCALL"
 check_config_disable
 config="CONFIG_NCP_FS"
 check_config_disable
-config="CONFIG_CODA_FS"
-check_config_disable
-config="CONFIG_AFS_FS"
-check_config_disable
-config="CONFIG_9P_FS"
-check_config_disable
 config="CONFIG_NLS_DEFAULT"
 value=\"iso8859-1\"
 check_config_value
@@ -2783,8 +2771,6 @@ config="CONFIG_NLS_CODEPAGE_437"
 check_config_builtin
 config="CONFIG_NLS_ISO8859_1"
 check_config_builtin
-config="CONFIG_DLM"
-check_config_disable
 
 #
 # printk and dmesg options
