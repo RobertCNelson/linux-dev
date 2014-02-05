@@ -1,0 +1,45 @@
+From 2fa44e2c0cb42b61ae8902cd255119cd8b1c5bc9 Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Mon, 16 Dec 2013 18:12:53 -0700
+Subject: [PATCH 127/199] ARM: dts: imx6qdl-sabrelite: move USDHC3 CD/WP to
+ pinctrl_usdhc3
+
+This patch moves pin SD3_DAT5/4 (CD/WP) from pinctrl_hog to pinctrl_usdhc3.
+It also explicitly sets the pad SD3_DAT5 to 0x1b0b0, which is also the value
+that it has before this patch if using mainline u-boot.
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-sabrelite.dtsi | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
+index 8bb910b..96c3902 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
+@@ -117,8 +117,6 @@
+ 				MX6QDL_PAD_EIM_D19__GPIO3_IO19  0x80000000
+ 				MX6QDL_PAD_EIM_D22__GPIO3_IO22  0x80000000
+ 				MX6QDL_PAD_EIM_D23__GPIO3_IO23  0x80000000
+-				MX6QDL_PAD_SD3_DAT5__GPIO7_IO00 0x80000000
+-				MX6QDL_PAD_SD3_DAT4__GPIO7_IO01 0x1f0b0
+ 				MX6QDL_PAD_GPIO_0__CCM_CLKO1    0x80000000
+ 			>;
+ 		};
+@@ -152,7 +150,11 @@
+ 		};
+ 
+ 		pinctrl_usdhc3: usdhc3grp {
+-			fsl,pins = <MX6QDL_USDHC3_PINGRP_D4>;
++			fsl,pins = <
++				MX6QDL_USDHC3_PINGRP_D4
++				MX6QDL_PAD_SD3_DAT5__GPIO7_IO00 0x1b0b0	/* CD */
++				MX6QDL_PAD_SD3_DAT4__GPIO7_IO01 0x1f0b0	/* WP */
++			>;
+ 		};
+ 
+ 		pinctrl_usdhc4: usdhc4grp {
+-- 
+1.8.5.3
+
