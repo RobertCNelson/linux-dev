@@ -872,11 +872,19 @@ machinekit () {
 	${git} "${DIR}/patches/machinekit/0001-Add-dir-changeable-property-to-gpio-of-helper.patch"
 }
 
+sgx () {
+	echo "dir: sgx"
+	${git} "${DIR}/patches/sgx/0001-OpenGl-added-SGX-device-to-device-tree.patch"
+	${git} "${DIR}/patches/sgx/0002-OpenGL-apply-SGX-patch-from-TI-forum-FIXES-crash-aft.patch"
+	${git} "${DIR}/patches/sgx/0003-OpenGL-fixed-IRQ-offset.patch"
+}
+
 am33x
 arm
 omap
 am33x_after
 saucy
 machinekit
+sgx
 
 echo "patch.sh ran successful"
