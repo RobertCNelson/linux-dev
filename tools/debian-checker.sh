@@ -130,11 +130,11 @@ check_config_builtin
 config="CONFIG_HAVE_CC_STACKPROTECTOR"
 check_config_builtin
 config="CONFIG_CC_STACKPROTECTOR"
-check_config_disable
-config="CONFIG_CC_STACKPROTECTOR_NONE"
 check_config_builtin
-config="CONFIG_CC_STACKPROTECTOR_REGULAR"
+config="CONFIG_CC_STACKPROTECTOR_NONE"
 check_config_disable
+config="CONFIG_CC_STACKPROTECTOR_REGULAR"
+check_config_builtin
 config="CONFIG_CC_STACKPROTECTOR_STRONG"
 check_config_disable
 
@@ -2730,12 +2730,6 @@ config="CONFIG_EFS_FS"
 check_config_disable
 config="CONFIG_JFFS2_FS"
 check_config_disable
-config="CONFIG_VXFS_FS"
-check_config_disable
-config="CONFIG_MINIX_FS"
-check_config_disable
-config="CONFIG_OMFS_FS"
-check_config_disable
 config="CONFIG_QNX4FS_FS"
 check_config_disable
 config="CONFIG_QNX6FS_FS"
@@ -2743,10 +2737,6 @@ check_config_disable
 config="CONFIG_ROMFS_BACKED_BY_BLOCK"
 check_config_builtin
 config="CONFIG_ROMFS_BACKED_BY_BOTH"
-check_config_disable
-config="CONFIG_SYSV_FS"
-check_config_disable
-config="CONFIG_UFS_FS"
 check_config_disable
 config="CONFIG_F2FS_FS"
 check_config_builtin
