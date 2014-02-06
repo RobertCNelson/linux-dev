@@ -110,7 +110,6 @@ check_config_builtin
 #
 # Kernel Performance Events And Counters
 #
-
 config="CONFIG_SLUB_DEBUG"
 check_config_disable
 config="CONFIG_SLAB"
@@ -141,7 +140,6 @@ check_config_disable
 #
 # CPU Core family selection
 #
-
 config="CONFIG_ARCH_MVEBU"
 check_config_disable
 config="CONFIG_GPIO_PCA953X"
@@ -162,7 +160,6 @@ check_config_disable
 #
 # Device tree only
 #
-
 config="CONFIG_SOC_IMX50"
 check_config_builtin
 config="CONFIG_SOC_IMX6SL"
@@ -185,14 +182,12 @@ check_config_builtin
 #
 # TI OMAP2/3/4 Specific Features
 #
-
 config="CONFIG_SOC_DRA7XX"
 check_config_builtin
 
 #
 # OMAP Legacy Platform Data Board Type
 #
-
 config="CONFIG_MACH_OMAP3_BEAGLE"
 check_config_disable
 config="CONFIG_MACH_DEVKIT8000"
@@ -239,7 +234,6 @@ check_config_disable
 #
 # Processor Features
 #
-
 config="CONFIG_ARM_ERRATA_430973"
 check_config_builtin
 config="CONFIG_PL310_ERRATA_753970"
@@ -248,7 +242,6 @@ check_config_disable
 #
 # Bus support
 #
-
 config="CONFIG_PCI"
 check_config_disable
 config="CONFIG_PCI_SYSCALL"
@@ -257,7 +250,6 @@ check_config_disable
 #
 # Kernel Features
 #
-
 config="CONFIG_ARM_PSCI"
 check_config_disable
 config="CONFIG_PREEMPT_NONE"
@@ -1820,82 +1812,22 @@ config="CONFIG_LOGO_LINUX_CLUT224"
 check_config_builtin
 config="CONFIG_FB_SSD1307"
 check_config_builtin
-config="CONFIG_SOUND"
-check_config_builtin
 config="CONFIG_SOUND_OSS_CORE_PRECLAIM"
 check_config_builtin
-config="CONFIG_SND"
-check_config_builtin
-config="CONFIG_SND_TIMER"
-check_config_builtin
-config="CONFIG_SND_PCM"
-check_config_builtin
-config="CONFIG_SND_DMAENGINE_PCM"
-check_config_builtin
-config="CONFIG_SND_COMPRESS_OFFLOAD"
-check_config_builtin
-config="CONFIG_SND_SEQUENCER_OSS"
-check_config_builtin
 config="CONFIG_SND_ALOOP"
-check_config_disable
+check_config_module
 config="CONFIG_SND_AC97_POWER_SAVE"
-check_config_disable
+check_config_builtin
 config="CONFIG_SND_USB_HIFACE"
 check_config_module
-config="CONFIG_SND_SOC"
-check_config_builtin
-config="CONFIG_SND_SOC_FSL_SSI"
-check_config_builtin
-config="CONFIG_SND_SOC_FSL_SPDIF"
-check_config_builtin
-config="CONFIG_SND_IMX_SOC"
-check_config_builtin
-config="CONFIG_SND_SOC_IMX_SSI"
-check_config_builtin
-config="CONFIG_SND_SOC_IMX_PCM_DMA"
-check_config_builtin
-config="CONFIG_SND_SOC_IMX_AUDMUX"
-check_config_builtin
+config="CONFIG_SND_DAVINCI_SOC"
+check_config_module
+config="CONFIG_SND_AM33XX_SOC_EVM"
+check_config_module
 config="CONFIG_SND_SOC_IMX_WM8962"
-check_config_builtin
-config="CONFIG_SND_SOC_IMX_SGTL5000"
-check_config_builtin
+check_config_module
 config="CONFIG_SND_SOC_IMX_SPDIF"
-check_config_builtin
-config="CONFIG_SND_SOC_IMX_MC13783"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC_DMIC"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC_MCBSP"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC_MCPDM"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC_HDMI"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC_OMAP_TWL4030"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC_OMAP_ABE_TWL6040"
-check_config_builtin
-config="CONFIG_SND_OMAP_SOC_OMAP_HDMI"
-check_config_builtin
-config="CONFIG_SND_SOC_I2C_AND_SPI"
-check_config_builtin
-config="CONFIG_SND_SOC_DMIC"
-check_config_builtin
-config="CONFIG_SND_SOC_HDMI_CODEC"
-check_config_builtin
-config="CONFIG_SND_SOC_SGTL5000"
-check_config_builtin
-config="CONFIG_SND_SOC_TWL4030"
-check_config_builtin
-config="CONFIG_SND_SOC_TWL6040"
-check_config_builtin
-config="CONFIG_SND_SOC_WM8962"
-check_config_builtin
-config="CONFIG_SND_SOC_MC13783"
-check_config_builtin
+check_config_module
 
 #
 # HID support
