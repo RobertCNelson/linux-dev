@@ -2,12 +2,22 @@
 
 DIR=$PWD
 
+check_config_value () {
+	unset test_config
+	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
+	if [ "x${test_config}" = "x" ] ; then
+		echo "echo ${config}=${value} >> ./KERNEL/.config"
+	else
+		if [ ! "x${test_config}" = "x${config}=${value}" ] ; then
+			echo "sed -i -e 's:${test_config}:${config}=${value}:g' ./KERNEL/.config"
+		fi
+	fi
+}
+
 check_config_builtin () {
 	unset test_config
 	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
-		echo "------------------------------------"
-		echo "Config: [${config}=y] not enabled"
 		echo "echo ${config}=y >> ./KERNEL/.config"
 	fi
 }
@@ -16,14 +26,11 @@ check_config_module () {
 	unset test_config
 	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x${config}=y" ] ; then
-		echo "------------------------------------"
 		echo "sed -i -e 's:${config}=y:${config}=m:g' ./KERNEL/.config"
 	else
 		unset test_config
 		test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
 		if [ "x${test_config}" = "x" ] ; then
-			echo "------------------------------------"
-			echo "Config: [${config}] not enabled"
 			echo "echo ${config}=m >> ./KERNEL/.config"
 		fi
 	fi
@@ -33,19 +40,15 @@ check_config () {
 	unset test_config
 	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
-		echo "------------------------------------"
-		echo "Config: [${config}] not enabled"
 		echo "echo ${config}=y >> ./KERNEL/.config"
 		echo "echo ${config}=m >> ./KERNEL/.config"
 	fi
 }
 
-check_config_disabled () {
+check_config_disable () {
 	unset test_config
 	test_config=$(grep "${config} is not set" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
-		echo "------------------------------------"
-		echo "Disable config: [${config}]"
 		unset test_config
 		test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
 		if [ "x${test_config}" = "x${config}=y" ] ; then
@@ -53,6 +56,14 @@ check_config_disabled () {
 		else
 			echo "sed -i -e 's:${config}=m:# ${config} is not set:g' ./KERNEL/.config"
 		fi
+	fi
+}
+
+check_if_set_then_set_module () {
+	unset test_config
+	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
+	if [ "x${test_config}" = "x${if_config}=y" ] ; then
+		check_config_module
 	fi
 }
 
@@ -68,7 +79,7 @@ check_if_set_then_disable () {
 	unset test_config
 	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x${if_config}=y" ] ; then
-		check_config_disabled
+		check_config_disable
 	fi
 }
 
@@ -170,10 +181,10 @@ check_config_builtin
 config="CONFIG_PROC_FS"
 check_config_builtin
 config="CONFIG_SYSFS_DEPRECATED"
-check_config_disabled
+check_config_disable
 #CONFIG_UEVENT_HELPER_PATH=""
 config="CONFIG_FW_LOADER_USER_HELPER"
-check_config_disabled
+check_config_disable
 #CONFIG_DMIID
 config="CONFIG_FHANDLE"
 check_config_builtin
@@ -194,7 +205,7 @@ check_config_builtin
 config="CONFIG_SCHED_DEBUG"
 check_config_builtin
 #config="CONFIG_AUDIT"
-#check_config_disabled
+#check_config_disable
 
 #zram
 config="CONFIG_ZSMALLOC"
@@ -204,10 +215,10 @@ check_config_module
 
 #ancient...
 config="CONFIG_OABI_COMPAT"
-check_config_disabled
+check_config_disable
 
 config="CONFIG_LOCALVERSION_AUTO"
-check_config_disabled
+check_config_disable
 
 #AM335 usb
 config="CONFIG_AM335X_PHY_USB"
@@ -265,6 +276,6 @@ check_config_builtin
 config="CONFIG_GENERIC_CPUFREQ_CPU0"
 check_config_builtin
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
-check_config_disabled
+check_config_disable
 
 #
