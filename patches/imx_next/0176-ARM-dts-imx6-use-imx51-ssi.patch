@@ -1,0 +1,93 @@
+From d29ab99f871665bf54dbc520febbacb996c71ac1 Mon Sep 17 00:00:00 2001
+From: Markus Pargmann <mpa@pengutronix.de>
+Date: Fri, 17 Jan 2014 10:07:42 +0100
+Subject: [PATCH 176/184] ARM: dts: imx6: use imx51-ssi
+
+imx51-ssi and imx21-ssi are different IPs. imx51-ssi supports online
+reconfiguration and needs this for correct interaction with SDMA. This
+patch adds imx51-ssi before each imx21-ssi for all imx6 SoCs.
+
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl.dtsi | 12 +++++++++---
+ arch/arm/boot/dts/imx6sl.dtsi  | 12 +++++++++---
+ 2 files changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index 2dd30ec..947e463 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -251,7 +251,9 @@
+ 				};
+ 
+ 				ssi1: ssi@02028000 {
+-					compatible = "fsl,imx6q-ssi","fsl,imx21-ssi";
++					compatible = "fsl,imx6q-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x02028000 0x4000>;
+ 					interrupts = <0 46 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clks 178>;
+@@ -264,7 +266,9 @@
+ 				};
+ 
+ 				ssi2: ssi@0202c000 {
+-					compatible = "fsl,imx6q-ssi","fsl,imx21-ssi";
++					compatible = "fsl,imx6q-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x0202c000 0x4000>;
+ 					interrupts = <0 47 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clks 179>;
+@@ -277,7 +281,9 @@
+ 				};
+ 
+ 				ssi3: ssi@02030000 {
+-					compatible = "fsl,imx6q-ssi","fsl,imx21-ssi";
++					compatible = "fsl,imx6q-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x02030000 0x4000>;
+ 					interrupts = <0 48 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clks 180>;
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index a655b5b..3cb4941 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -225,7 +225,9 @@
+ 				};
+ 
+ 				ssi1: ssi@02028000 {
+-					compatible = "fsl,imx6sl-ssi","fsl,imx21-ssi";
++					compatible = "fsl,imx6sl-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x02028000 0x4000>;
+ 					interrupts = <0 46 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clks IMX6SL_CLK_SSI1>;
+@@ -237,7 +239,9 @@
+ 				};
+ 
+ 				ssi2: ssi@0202c000 {
+-					compatible = "fsl,imx6sl-ssi","fsl,imx21-ssi";
++					compatible = "fsl,imx6sl-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x0202c000 0x4000>;
+ 					interrupts = <0 47 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clks IMX6SL_CLK_SSI2>;
+@@ -249,7 +253,9 @@
+ 				};
+ 
+ 				ssi3: ssi@02030000 {
+-					compatible = "fsl,imx6sl-ssi","fsl,imx21-ssi";
++					compatible = "fsl,imx6sl-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x02030000 0x4000>;
+ 					interrupts = <0 48 IRQ_TYPE_LEVEL_HIGH>;
+ 					clocks = <&clks IMX6SL_CLK_SSI3>;
+-- 
+1.8.5.3
+

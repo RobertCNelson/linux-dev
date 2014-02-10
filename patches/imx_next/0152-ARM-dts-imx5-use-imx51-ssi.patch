@@ -1,0 +1,79 @@
+From 985b9cf7bca548393f2fdef7d574ef4da3b390f8 Mon Sep 17 00:00:00 2001
+From: Markus Pargmann <mpa@pengutronix.de>
+Date: Fri, 17 Jan 2014 10:07:42 +0100
+Subject: [PATCH 152/184] ARM: dts: imx5: use imx51-ssi
+
+imx51-ssi and imx21-ssi are different IPs. imx51-ssi supports online
+reconfiguration and needs this for correct interaction with SDMA. This
+patch adds imx51-ssi before each imx21-ssi for all imx5 SoCs.
+
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx50.dtsi |  7 +++++--
+ arch/arm/boot/dts/imx53.dtsi | 10 +++++++---
+ 2 files changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx50.dtsi b/arch/arm/boot/dts/imx50.dtsi
+index 7152472..0c75fe3 100644
+--- a/arch/arm/boot/dts/imx50.dtsi
++++ b/arch/arm/boot/dts/imx50.dtsi
+@@ -140,7 +140,9 @@
+ 				};
+ 
+ 				ssi2: ssi@50014000 {
+-					compatible = "fsl,imx50-ssi", "fsl,imx21-ssi";
++					compatible = "fsl,imx50-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x50014000 0x4000>;
+ 					interrupts = <30>;
+ 					clocks = <&clks IMX5_CLK_SSI2_IPG_GATE>;
+@@ -445,7 +447,8 @@
+ 			};
+ 
+ 			ssi1: ssi@63fcc000 {
+-				compatible = "fsl,imx50-ssi", "fsl,imx21-ssi";
++				compatible = "fsl,imx50-ssi", "fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 				reg = <0x63fcc000 0x4000>;
+ 				interrupts = <29>;
+ 				clocks = <&clks IMX5_CLK_SSI1_IPG_GATE>;
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index 194866a..80615df 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -175,7 +175,9 @@
+ 				};
+ 
+ 				ssi2: ssi@50014000 {
+-					compatible = "fsl,imx53-ssi", "fsl,imx21-ssi";
++					compatible = "fsl,imx53-ssi",
++							"fsl,imx51-ssi",
++							"fsl,imx21-ssi";
+ 					reg = <0x50014000 0x4000>;
+ 					interrupts = <30>;
+ 					clocks = <&clks IMX5_CLK_SSI2_IPG_GATE>;
+@@ -594,7 +596,8 @@
+ 			};
+ 
+ 			ssi1: ssi@63fcc000 {
+-				compatible = "fsl,imx53-ssi", "fsl,imx21-ssi";
++				compatible = "fsl,imx53-ssi", "fsl,imx51-ssi",
++						"fsl,imx21-ssi";
+ 				reg = <0x63fcc000 0x4000>;
+ 				interrupts = <29>;
+ 				clocks = <&clks IMX5_CLK_SSI1_IPG_GATE>;
+@@ -621,7 +624,8 @@
+ 			};
+ 
+ 			ssi3: ssi@63fe8000 {
+-				compatible = "fsl,imx53-ssi", "fsl,imx21-ssi";
++				compatible = "fsl,imx53-ssi", "fsl,imx51-ssi",
++						"fsl,imx21-ssi";
+ 				reg = <0x63fe8000 0x4000>;
+ 				interrupts = <96>;
+ 				clocks = <&clks IMX5_CLK_SSI3_IPG_GATE>;
+-- 
+1.8.5.3
+

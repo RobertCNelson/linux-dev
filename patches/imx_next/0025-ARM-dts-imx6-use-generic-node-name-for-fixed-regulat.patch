@@ -1,0 +1,185 @@
+From ef2ac31c9e83e2b940fead54878317262048919d Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@linaro.org>
+Date: Fri, 7 Feb 2014 23:22:50 +0800
+Subject: [PATCH 025/184] ARM: dts: imx6: use generic node name for fixed
+ regulator
+
+The device tree specification recommends that generic name should be
+used for nodes.  So instead of naming those fixed regulator nodes
+arbitrarily, let's use the generic name 'regulator@num' for those nodes.
+
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6q-arm2.dts         |  8 ++++++--
+ arch/arm/boot/dts/imx6q-sabrelite.dts    | 11 ++++++++---
+ arch/arm/boot/dts/imx6qdl-sabresd.dtsi   | 11 ++++++++---
+ arch/arm/boot/dts/imx6qdl-wandboard.dtsi |  8 ++++++--
+ arch/arm/boot/dts/imx6sl-evk.dts         |  8 ++++++--
+ 5 files changed, 34 insertions(+), 12 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6q-arm2.dts b/arch/arm/boot/dts/imx6q-arm2.dts
+index ca45bbf..010ee8c 100644
+--- a/arch/arm/boot/dts/imx6q-arm2.dts
++++ b/arch/arm/boot/dts/imx6q-arm2.dts
+@@ -23,17 +23,21 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+index 26e1608d..fc1c11c 100644
+--- a/arch/arm/boot/dts/imx6q-sabrelite.dts
++++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+@@ -23,25 +23,30 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_2p5v: 2p5v {
++		reg_2p5v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "2P5V";
+ 			regulator-min-microvolt = <2500000>;
+ 			regulator-max-microvolt = <2500000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+index 4a7997e..cb5c7f0 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+@@ -17,9 +17,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb_otg_vbus: usb_otg_vbus {
++		reg_usb_otg_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb_otg_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -27,8 +30,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_usb_h1_vbus: usb_h1_vbus {
++		reg_usb_h1_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb_h1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -36,8 +40,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_audio: wm8962_supply {
++		reg_audio: regulator@2 {
+ 			compatible = "regulator-fixed";
++			reg = <2>;
+ 			regulator-name = "wm8962-supply";
+ 			gpio = <&gpio4 10 0>;
+ 			enable-active-high;
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index b4a5775..815b160 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -12,17 +12,21 @@
+ / {
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_2p5v: 2p5v {
++		reg_2p5v: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "2P5V";
+ 			regulator-min-microvolt = <2500000>;
+ 			regulator-max-microvolt = <2500000>;
+ 			regulator-always-on;
+ 		};
+ 
+-		reg_3p3v: 3p3v {
++		reg_3p3v: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "3P3V";
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/imx6sl-evk.dts b/arch/arm/boot/dts/imx6sl-evk.dts
+index 9b11d1e..8594d13 100644
+--- a/arch/arm/boot/dts/imx6sl-evk.dts
++++ b/arch/arm/boot/dts/imx6sl-evk.dts
+@@ -20,9 +20,12 @@
+ 
+ 	regulators {
+ 		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
+ 
+-		reg_usb_otg1_vbus: usb_otg1_vbus {
++		reg_usb_otg1_vbus: regulator@0 {
+ 			compatible = "regulator-fixed";
++			reg = <0>;
+ 			regulator-name = "usb_otg1_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+@@ -30,8 +33,9 @@
+ 			enable-active-high;
+ 		};
+ 
+-		reg_usb_otg2_vbus: usb_otg2_vbus {
++		reg_usb_otg2_vbus: regulator@1 {
+ 			compatible = "regulator-fixed";
++			reg = <1>;
+ 			regulator-name = "usb_otg2_vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+-- 
+1.8.5.3
+

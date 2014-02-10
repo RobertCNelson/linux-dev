@@ -1,0 +1,32 @@
+From 8199d4c4e391d1d18a3649bddb8a9568bb1ca2c1 Mon Sep 17 00:00:00 2001
+From: Anson Huang <b20788@freescale.com>
+Date: Mon, 16 Dec 2013 16:07:37 -0500
+Subject: [PATCH 056/184] ARM: dts: imx6q: update setting of VDDARM_CAP voltage
+
+According to datasheet, VDD_CACHE_CAP must not exceed VDDARM_CAP
+by more than 200mV, as all of i.MX6Q boards' VDD_CACHE_CAP currently
+are connected to VDDSOC_CAP, so we need to follow this rule by
+increasing VDDARM_CAP's voltage.
+
+Signed-off-by: Anson Huang <b20788@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6q.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 9581ae4..7acfda7 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -27,7 +27,7 @@
+ 				1200000 1275000
+ 				996000  1250000
+ 				792000  1150000
+-				396000  950000
++				396000  975000
+ 			>;
+ 			clock-latency = <61036>; /* two CLK32 periods */
+ 			clocks = <&clks 104>, <&clks 6>, <&clks 16>,
+-- 
+1.8.5.3
+

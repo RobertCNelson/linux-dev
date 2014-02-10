@@ -1,0 +1,41 @@
+From 70286661945eacb7f7ade5aa3f5823db0b061a32 Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Mon, 16 Dec 2013 18:12:54 -0700
+Subject: [PATCH 046/184] ARM: dts: imx6qdl-sabrelite: move spi-nor CS to
+ pinctrl_ecspi1
+
+This patch moves pin EIM_D19 (CS) from pinctrl_hog to pinctrl_ecspi1.
+It also explicitly sets the pad to 0x000b1.
+
+Before this patch, it has the value 0x100b1 if using mainline u-boot.
+So this patch also removes hysteresis since the pad is always an output.
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-sabrelite.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
+index b4646c4..895d4d6 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabrelite.dtsi
+@@ -114,7 +114,6 @@
+ 	imx6q-sabrelite {
+ 		pinctrl_hog: hoggrp {
+ 			fsl,pins = <
+-				MX6QDL_PAD_EIM_D19__GPIO3_IO19  0x80000000
+ 				MX6QDL_PAD_EIM_D22__GPIO3_IO22  0x80000000
+ 				MX6QDL_PAD_EIM_D23__GPIO3_IO23  0x80000000
+ 				MX6QDL_PAD_GPIO_0__CCM_CLKO1    0x80000000
+@@ -135,6 +134,7 @@
+ 				MX6QDL_PAD_EIM_D17__ECSPI1_MISO		0x100b1
+ 				MX6QDL_PAD_EIM_D18__ECSPI1_MOSI		0x100b1
+ 				MX6QDL_PAD_EIM_D16__ECSPI1_SCLK		0x100b1
++				MX6QDL_PAD_EIM_D19__GPIO3_IO19  0x000b1	/* CS */
+ 			>;
+ 		};
+ 
+-- 
+1.8.5.3
+

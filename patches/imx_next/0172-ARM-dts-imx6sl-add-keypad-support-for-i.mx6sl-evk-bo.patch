@@ -1,0 +1,96 @@
+From 2ef64b2967945ef4114e1c151053c0026a09a91d Mon Sep 17 00:00:00 2001
+From: Anson Huang <b20788@freescale.com>
+Date: Tue, 14 Jan 2014 17:30:28 +0800
+Subject: [PATCH 172/184] ARM: dts: imx6sl: add keypad support for i.mx6sl-evk
+ board.
+
+i.MX6SL EVK board has a 3*3 keypad matrix to support 8 keypads,
+enable them, the keymap is as below:
+
+SW6:  MATRIX_KEY(0x0, 0x0, KEY_UP)         /* ROW0, COL0 */
+SW7:  MATRIX_KEY(0x0, 0x1, KEY_DOWN)       /* ROW0, COL1 */
+SW8:  MATRIX_KEY(0x0, 0x2, KEY_ENTER)      /* ROW0, COL2 */
+SW9:  MATRIX_KEY(0x1, 0x0, KEY_HOME)       /* ROW1, COL0 */
+SW10: MATRIX_KEY(0x1, 0x1, KEY_RIGHT)      /* ROW1, COL1 */
+SW11: MATRIX_KEY(0x1, 0x2, KEY_LEFT)       /* ROW1, COL2 */
+SW12: MATRIX_KEY(0x2, 0x0, KEY_VOLUMEDOWN) /* ROW2, COL0 */
+SW13: MATRIX_KEY(0x2, 0x1, KEY_VOLUMEUP)   /* ROW2, COL1 */
+
+Signed-off-by: Anson Huang <b20788@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6sl-evk.dts | 28 ++++++++++++++++++++++++++++
+ arch/arm/boot/dts/imx6sl.dtsi    |  2 ++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6sl-evk.dts b/arch/arm/boot/dts/imx6sl-evk.dts
+index 8594d13..0001804 100644
+--- a/arch/arm/boot/dts/imx6sl-evk.dts
++++ b/arch/arm/boot/dts/imx6sl-evk.dts
+@@ -8,6 +8,7 @@
+ 
+ /dts-v1/;
+ 
++#include <dt-bindings/input/input.h>
+ #include "imx6sl.dtsi"
+ 
+ / {
+@@ -107,6 +108,17 @@
+ 			>;
+ 		};
+ 
++		pinctrl_kpp: kppgrp {
++			fsl,pins = <
++				MX6SL_PAD_KEY_ROW0__KEY_ROW0    0x1b010
++				MX6SL_PAD_KEY_ROW1__KEY_ROW1    0x1b010
++				MX6SL_PAD_KEY_ROW2__KEY_ROW2    0x1b0b0
++				MX6SL_PAD_KEY_COL0__KEY_COL0    0x110b0
++				MX6SL_PAD_KEY_COL1__KEY_COL1    0x110b0
++				MX6SL_PAD_KEY_COL2__KEY_COL2    0x110b0
++			>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX6SL_PAD_UART1_RXD__UART1_RX_DATA	0x1b0b1
+@@ -233,6 +245,22 @@
+ 	};
+ };
+ 
++&kpp {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_kpp>;
++	linux,keymap = <
++			MATRIX_KEY(0x0, 0x0, KEY_UP)         /* ROW0, COL0 */
++			MATRIX_KEY(0x0, 0x1, KEY_DOWN)       /* ROW0, COL1 */
++			MATRIX_KEY(0x0, 0x2, KEY_ENTER)      /* ROW0, COL2 */
++			MATRIX_KEY(0x1, 0x0, KEY_HOME)       /* ROW1, COL0 */
++			MATRIX_KEY(0x1, 0x1, KEY_RIGHT)      /* ROW1, COL1 */
++			MATRIX_KEY(0x1, 0x2, KEY_LEFT)       /* ROW1, COL2 */
++			MATRIX_KEY(0x2, 0x0, KEY_VOLUMEDOWN) /* ROW2, COL0 */
++			MATRIX_KEY(0x2, 0x1, KEY_VOLUMEUP)   /* ROW2, COL1 */
++	>;
++	status = "okay";
++};
++
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart1>;
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index f9acad6..a655b5b 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -392,8 +392,10 @@
+ 			};
+ 
+ 			kpp: kpp@020b8000 {
++				compatible = "fsl,imx6sl-kpp", "fsl,imx21-kpp";
+ 				reg = <0x020b8000 0x4000>;
+ 				interrupts = <0 82 IRQ_TYPE_LEVEL_HIGH>;
++				clocks = <&clks IMX6SL_CLK_DUMMY>;
+ 			};
+ 
+ 			wdog1: wdog@020bc000 {
+-- 
+1.8.5.3
+

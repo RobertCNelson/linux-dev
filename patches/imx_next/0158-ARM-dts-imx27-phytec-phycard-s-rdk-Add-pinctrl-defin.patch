@@ -1,0 +1,50 @@
+From e40b9d3eb0dbc1ddb8d8a25f6ecd7888d8f98f69 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Tue, 4 Feb 2014 18:59:32 +0400
+Subject: [PATCH 158/184] ARM: dts: imx27-phytec-phycard-s-rdk: Add pinctrl
+ definitions for SDHC2
+
+This patch adds pinctrl definitions for SDHC2 for Phytec PCA100 RDK board.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
+index 04cadfc..1cd3a87 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
+@@ -88,6 +88,18 @@
+ 			>;
+ 		};
+ 
++		pinctrl_sdhc2: sdhc2grp {
++			fsl,pins = <
++				MX27_PAD_SD2_CLK__SD2_CLK 0x0
++				MX27_PAD_SD2_CMD__SD2_CMD 0x0
++				MX27_PAD_SD2_D0__SD2_D0 0x0
++				MX27_PAD_SD2_D1__SD2_D1 0x0
++				MX27_PAD_SD2_D2__SD2_D2 0x0
++				MX27_PAD_SD2_D3__SD2_D3 0x0
++				MX27_PAD_SSI3_RXDAT__GPIO3_29 0x0 /* CD */
++			>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX27_PAD_UART1_TXD__UART1_TXD 0x0
+@@ -124,6 +136,8 @@
+ };
+ 
+ &sdhci2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_sdhc2>;
+ 	cd-gpios = <&gpio3 29 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
+ };
+-- 
+1.8.5.3
+

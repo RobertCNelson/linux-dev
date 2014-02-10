@@ -1,0 +1,50 @@
+From d9a481d0d00c05e49542781823128f29d7b9d821 Mon Sep 17 00:00:00 2001
+From: John Tobias <john.tobias.ph@gmail.com>
+Date: Thu, 19 Dec 2013 12:35:36 -0800
+Subject: [PATCH 060/184] ARM: dts: imx6sl: Adding cpu frequency and VDDSOC/PU
+ table.
+
+Device tree for iMX6SL doesn't have an existing cpu frequency table
+as well as the VDDSOC/PU.
+
+Signed-off-by: John Tobias <john.tobias.ph@gmail.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6sl.dtsi | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index d1dbfb4..fd14412 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -39,6 +39,27 @@
+ 			device_type = "cpu";
+ 			reg = <0x0>;
+ 			next-level-cache = <&L2>;
++			operating-points = <
++				/* kHz    uV */
++				996000  1275000
++				792000  1175000
++				396000  975000
++			>;
++			fsl,soc-operating-points = <
++				/* ARM kHz      SOC-PU uV */
++				996000          1225000
++				792000          1175000
++				396000          1175000
++			>;
++			clock-latency = <61036>; /* two CLK32 periods */
++			clocks = <&clks IMX6SL_CLK_ARM>, <&clks IMX6SL_CLK_PLL2_PFD2>,
++					<&clks IMX6SL_CLK_STEP>, <&clks IMX6SL_CLK_PLL1_SW>,
++					<&clks IMX6SL_CLK_PLL1_SYS>;
++			clock-names = "arm", "pll2_pfd2_396m", "step",
++				      "pll1_sw", "pll1_sys";
++			arm-supply = <&reg_arm>;
++			pu-supply = <&reg_pu>;
++			soc-supply = <&reg_soc>;
+ 		};
+ 	};
+ 
+-- 
+1.8.5.3
+

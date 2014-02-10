@@ -1,0 +1,73 @@
+From 6d482194585f36543128d1c22c86b1d2dbb62e39 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Wed, 29 Jan 2014 17:10:04 +0100
+Subject: [PATCH 017/184] ARM: imx6: Initialize low-power mode early again
+
+Since commit 9e8147bb5ec5d1dda2141da70f96b98985a306cb
+"ARM: imx6q: move low-power code out of clock driver"
+the kernel fails to boot on i.MX6Q/D if preemption is
+enabled (CONFIG_PREEMPT=y). The kernel just hangs
+before the console comes up.
+
+The above commit moved the initalization of the low-power
+mode setting (enabling clocked WAIT states), which was
+introduced in commit 83ae20981ae924c37d02a42c829155fc3851260c
+"ARM: imx: correct low-power mode setting", from
+imx6q_clks_init to imx6q_pm_init. Now it is called
+much later, after all cores are enabled.
+
+This patch moves the low-power mode initialization back
+to imx6q_clks_init again (and to imx6sl_clks_init).
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/mach-imx/clk-imx6q.c  | 3 +++
+ arch/arm/mach-imx/clk-imx6sl.c | 3 +++
+ arch/arm/mach-imx/pm-imx6q.c   | 2 --
+ 3 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+index af2e582..4d677f4 100644
+--- a/arch/arm/mach-imx/clk-imx6q.c
++++ b/arch/arm/mach-imx/clk-imx6q.c
+@@ -482,6 +482,9 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 	if (IS_ENABLED(CONFIG_PCI_IMX6))
+ 		clk_set_parent(clk[lvds1_sel], clk[sata_ref]);
+ 
++	/* Set initial power mode */
++	imx6q_set_lpm(WAIT_CLOCKED);
++
+ 	np = of_find_compatible_node(NULL, NULL, "fsl,imx6q-gpt");
+ 	base = of_iomap(np, 0);
+ 	WARN_ON(!base);
+diff --git a/arch/arm/mach-imx/clk-imx6sl.c b/arch/arm/mach-imx/clk-imx6sl.c
+index 04e9f1c..b71570d 100644
+--- a/arch/arm/mach-imx/clk-imx6sl.c
++++ b/arch/arm/mach-imx/clk-imx6sl.c
+@@ -310,6 +310,9 @@ static void __init imx6sl_clocks_init(struct device_node *ccm_node)
+ 	/* Audio-related clocks configuration */
+ 	clk_set_parent(clks[IMX6SL_CLK_SPDIF0_SEL], clks[IMX6SL_CLK_PLL3_PFD3]);
+ 
++	/* Set initial power mode */
++	imx6q_set_lpm(WAIT_CLOCKED);
++
+ 	np = of_find_compatible_node(NULL, NULL, "fsl,imx6sl-gpt");
+ 	base = of_iomap(np, 0);
+ 	WARN_ON(!base);
+diff --git a/arch/arm/mach-imx/pm-imx6q.c b/arch/arm/mach-imx/pm-imx6q.c
+index c8fea8f..a9a187d 100644
+--- a/arch/arm/mach-imx/pm-imx6q.c
++++ b/arch/arm/mach-imx/pm-imx6q.c
+@@ -532,8 +532,6 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
+ 		regmap_update_bits(gpr, IOMUXC_GPR1, IMX6Q_GPR1_GINT,
+ 				   IMX6Q_GPR1_GINT);
+ 
+-	/* Set initial power mode */
+-	imx6q_set_lpm(WAIT_CLOCKED);
+ 
+ 	suspend_set_ops(&imx6q_pm_ops);
+ }
+-- 
+1.8.5.3
+

@@ -1,0 +1,57 @@
+From a4f62e9680a8675f25afa3265b3edb6aac1e4ab3 Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marex@denx.de>
+Date: Sun, 17 Nov 2013 02:19:40 +0100
+Subject: [PATCH 095/184] ARM: dts: imx53: Fix backlight for M53EVK
+
+Remove the PWM backlight pin from the hog pins list, so it doesn't
+collide with the PWM pin group. Moreover, add dummy regulator for
+the backlight so that the backlight driver probes correctly.
+
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx53-m53evk.dts | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx53-m53evk.dts b/arch/arm/boot/dts/imx53-m53evk.dts
+index 08984c0..d466070 100644
+--- a/arch/arm/boot/dts/imx53-m53evk.dts
++++ b/arch/arm/boot/dts/imx53-m53evk.dts
+@@ -51,6 +51,7 @@
+ 		pwms = <&pwm1 0 3000>;
+ 		brightness-levels = <0 4 8 16 32 64 128 255>;
+ 		default-brightness-level = <6>;
++		power-supply = <&reg_backlight>;
+ 	};
+ 
+ 	leds {
+@@ -84,6 +85,17 @@
+ 			regulator-max-microvolt = <3200000>;
+ 			regulator-always-on;
+ 		};
++
++
++		reg_backlight: regulator@1 {
++			compatible = "regulator-fixed";
++			reg = <1>;
++			regulator-name = "lcd-supply";
++			regulator-min-microvolt = <3200000>;
++			regulator-max-microvolt = <3200000>;
++			regulator-always-on;
++		};
++
+ 	};
+ 
+ 	sound {
+@@ -210,8 +222,6 @@
+ 				MX53_PAD_GPIO_0__CCM_SSI_EXT1_CLK	0x80000000
+ 				MX53_PAD_EIM_EB3__GPIO2_31		0x80000000
+ 				MX53_PAD_PATA_DA_0__GPIO7_6		0x80000000
+-				MX53_PAD_DISP0_DAT8__PWM1_PWMO		0x5
+-
+ 			>;
+ 		};
+ 
+-- 
+1.8.5.3
+

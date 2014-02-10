@@ -1,0 +1,48 @@
+From 6a21686fe79e29b1c5f880c7508d3b7469429f61 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Tue, 4 Feb 2014 18:59:31 +0400
+Subject: [PATCH 157/184] ARM: dts: imx27-phytec-phycard-s-som: Add NFC node
+
+This patch adds the NFC devicetree node for Phytec PCA100 module.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts b/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts
+index a28b6c7..1b62480 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-som.dts
+@@ -78,5 +78,26 @@
+ 				MX27_PAD_I2C2_SCL__I2C2_SCL 0x0
+ 			>;
+ 		};
++
++		pinctrl_nfc: nfcgrp {
++			fsl,pins = <
++				MX27_PAD_NFRB__NFRB 0x0
++				MX27_PAD_NFCLE__NFCLE 0x0
++				MX27_PAD_NFWP_B__NFWP_B 0x0
++				MX27_PAD_NFCE_B__NFCE_B 0x0
++				MX27_PAD_NFALE__NFALE 0x0
++				MX27_PAD_NFRE_B__NFRE_B 0x0
++				MX27_PAD_NFWE_B__NFWE_B 0x0
++			>;
++		};
+ 	};
+ };
++
++&nfc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_nfc>;
++	nand-bus-width = <8>;
++	nand-ecc-mode = "hw";
++	nand-on-flash-bbt;
++	status = "okay";
++};
+-- 
+1.8.5.3
+
