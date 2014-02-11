@@ -336,8 +336,6 @@ config="CONFIG_PM_WAKELOCKS"
 check_config_builtin
 config="CONFIG_PM_WAKELOCKS_GC"
 check_config_builtin
-config="CONFIG_PM_ADVANCED_DEBUG"
-check_config_disable
 
 #
 # Networking options
@@ -460,26 +458,6 @@ config="CONFIG_CGROUP_NET_PRIO"
 check_config_module
 config="CONFIG_CGROUP_NET_CLASSID"
 check_config_builtin
-
-#
-# CAN Device Drivers
-#
-config="CONFIG_CAN_LEDS"
-check_config_builtin
-config="CONFIG_CAN_AT91"
-check_config_module
-config="CONFIG_CAN_TI_HECC"
-check_config_module
-config="CONFIG_CAN_MCP251X"
-check_config_module
-config="CONFIG_CAN_GRCAN"
-check_config_module
-config="CONFIG_CAN_SJA1000"
-check_config_disable
-config="CONFIG_CAN_C_CAN"
-check_config_module
-config="CONFIG_CAN_C_CAN_PLATFORM"
-check_config_module
 
 #
 # CAN USB interfaces
@@ -638,8 +616,6 @@ config="CONFIG_MTD_CFI_STAA"
 check_config_builtin
 config="CONFIG_MTD_CFI_UTIL"
 check_config_builtin
-config="CONFIG_MTD_RAM"
-check_config_disable
 
 #
 # Mapping drivers for chip access
@@ -959,20 +935,6 @@ config="CONFIG_IEEE802154_AT86RF230"
 check_config_module
 config="CONFIG_IEEE802154_MRF24J40"
 check_config_module
-
-#
-# Input device support
-#
-config="CONFIG_INPUT_POLLDEV"
-check_config_builtin
-config="CONFIG_INPUT_MATRIXKMAP"
-check_config_builtin
-
-#
-# Userland interfaces
-#
-config="CONFIG_INPUT_EVDEV"
-check_config_builtin
 
 #
 # Input Device Drivers
