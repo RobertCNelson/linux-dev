@@ -1,0 +1,84 @@
+From 7bf4072833952ea2a8ac352b891de1329c357904 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Wed, 12 Feb 2014 12:18:52 +0200
+Subject: [PATCH 11/12] ARM: dts: OMAP2+: Get rid of incompatible ids for USB
+ host nodes
+
+The OMAP EHCI and OHCI controllers are not compatible with drivers
+other than "ti,ehci-omap" and "ti,ohci-omap3" respectively, so get
+rid of the incompatible ids.
+
+CC: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ arch/arm/boot/dts/omap3.dtsi | 4 ++--
+ arch/arm/boot/dts/omap4.dtsi | 4 ++--
+ arch/arm/boot/dts/omap5.dtsi | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+index 01f2b3b..4b655c40 100644
+--- a/arch/arm/boot/dts/omap3.dtsi
++++ b/arch/arm/boot/dts/omap3.dtsi
+@@ -639,14 +639,14 @@
+ 			ranges;
+ 
+ 			usbhsohci: ohci@48064400 {
+-				compatible = "ti,ohci-omap3", "usb-ohci";
++				compatible = "ti,ohci-omap3";
+ 				reg = <0x48064400 0x400>;
+ 				interrupt-parent = <&intc>;
+ 				interrupts = <76>;
+ 			};
+ 
+ 			usbhsehci: ehci@48064800 {
+-				compatible = "ti,ehci-omap", "usb-ehci";
++				compatible = "ti,ehci-omap";
+ 				reg = <0x48064800 0x400>;
+ 				interrupt-parent = <&intc>;
+ 				interrupts = <77>;
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index b433dd6..9e092d8 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -710,14 +710,14 @@
+ 				      "refclk_60m_ext_p2";
+ 
+ 			usbhsohci: ohci@4a064800 {
+-				compatible = "ti,ohci-omap3", "usb-ohci";
++				compatible = "ti,ohci-omap3";
+ 				reg = <0x4a064800 0x400>;
+ 				interrupt-parent = <&gic>;
+ 				interrupts = <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
+ 			};
+ 
+ 			usbhsehci: ehci@4a064c00 {
+-				compatible = "ti,ehci-omap", "usb-ehci";
++				compatible = "ti,ehci-omap";
+ 				reg = <0x4a064c00 0x400>;
+ 				interrupt-parent = <&gic>;
+ 				interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index c53011e..37a04b4 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -789,14 +789,14 @@
+ 				      "refclk_60m_ext_p2";
+ 
+ 			usbhsohci: ohci@4a064800 {
+-				compatible = "ti,ohci-omap3", "usb-ohci";
++				compatible = "ti,ohci-omap3";
+ 				reg = <0x4a064800 0x400>;
+ 				interrupt-parent = <&gic>;
+ 				interrupts = <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
+ 			};
+ 
+ 			usbhsehci: ehci@4a064c00 {
+-				compatible = "ti,ehci-omap", "usb-ehci";
++				compatible = "ti,ehci-omap";
+ 				reg = <0x4a064c00 0x400>;
+ 				interrupt-parent = <&gic>;
+ 				interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
+-- 
+1.8.5.3
+

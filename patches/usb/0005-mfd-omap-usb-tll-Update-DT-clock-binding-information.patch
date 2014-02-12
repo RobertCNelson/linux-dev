@@ -1,0 +1,39 @@
+From c29eafe9ad987da2fa9a74e670783bfe0539be07 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Wed, 12 Feb 2014 12:18:46 +0200
+Subject: [PATCH 05/12] mfd: omap-usb-tll: Update DT clock binding information
+
+The omap-usb-tll driver needs one clock for each TLL channel.
+Add this information to the DT binding document.
+
+CC: Lee Jones <lee.jones@linaro.org>
+CC: Samuel Ortiz <sameo@linux.intel.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ Documentation/devicetree/bindings/mfd/omap-usb-tll.txt | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/mfd/omap-usb-tll.txt b/Documentation/devicetree/bindings/mfd/omap-usb-tll.txt
+index 62fe697..c58d704 100644
+--- a/Documentation/devicetree/bindings/mfd/omap-usb-tll.txt
++++ b/Documentation/devicetree/bindings/mfd/omap-usb-tll.txt
+@@ -7,6 +7,16 @@ Required properties:
+ - interrupts : should contain the TLL module's interrupt
+ - ti,hwmod : must contain "usb_tll_hs"
+ 
++Optional properties:
++
++- clocks: a list of phandles and clock-specifier pairs, one for each entry in
++  clock-names.
++
++- clock-names: should include:
++  * "usb_tll_hs_usb_ch0_clk" - USB TLL channel 0 clock
++  * "usb_tll_hs_usb_ch1_clk" - USB TLL channel 1 clock
++  * "usb_tll_hs_usb_ch2_clk" - USB TLL channel 2 clock
++
+ Example:
+ 
+ 	usbhstll: usbhstll@4a062000 {
+-- 
+1.8.5.3
+

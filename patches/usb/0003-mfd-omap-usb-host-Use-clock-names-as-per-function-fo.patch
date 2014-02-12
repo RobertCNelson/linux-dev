@@ -1,0 +1,47 @@
+From 7151171fef9d7f41a5ceb2a7789dc8e2710759b5 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Wed, 12 Feb 2014 12:18:44 +0200
+Subject: [PATCH 03/12] mfd: omap-usb-host: Use clock names as per function for
+ reference clocks
+
+Use a meaningful name for the reference clocks so that it indicates the function.
+
+CC: Lee Jones <lee.jones@linaro.org>
+CC: Samuel Ortiz <sameo@linux.intel.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ drivers/mfd/omap-usb-host.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mfd/omap-usb-host.c b/drivers/mfd/omap-usb-host.c
+index 60a3bed..ce620a8 100644
+--- a/drivers/mfd/omap-usb-host.c
++++ b/drivers/mfd/omap-usb-host.c
+@@ -714,21 +714,21 @@ static int usbhs_omap_probe(struct platform_device *pdev)
+ 		goto err_mem;
+ 	}
+ 
+-	omap->xclk60mhsp1_ck = devm_clk_get(dev, "xclk60mhsp1_ck");
++	omap->xclk60mhsp1_ck = devm_clk_get(dev, "refclk_60m_ext_p1");
+ 	if (IS_ERR(omap->xclk60mhsp1_ck)) {
+ 		ret = PTR_ERR(omap->xclk60mhsp1_ck);
+ 		dev_err(dev, "xclk60mhsp1_ck failed error:%d\n", ret);
+ 		goto err_mem;
+ 	}
+ 
+-	omap->xclk60mhsp2_ck = devm_clk_get(dev, "xclk60mhsp2_ck");
++	omap->xclk60mhsp2_ck = devm_clk_get(dev, "refclk_60m_ext_p2");
+ 	if (IS_ERR(omap->xclk60mhsp2_ck)) {
+ 		ret = PTR_ERR(omap->xclk60mhsp2_ck);
+ 		dev_err(dev, "xclk60mhsp2_ck failed error:%d\n", ret);
+ 		goto err_mem;
+ 	}
+ 
+-	omap->init_60m_fclk = devm_clk_get(dev, "init_60m_fclk");
++	omap->init_60m_fclk = devm_clk_get(dev, "refclk_60m_int");
+ 	if (IS_ERR(omap->init_60m_fclk)) {
+ 		ret = PTR_ERR(omap->init_60m_fclk);
+ 		dev_err(dev, "init_60m_fclk failed error:%d\n", ret);
+-- 
+1.8.5.3
+

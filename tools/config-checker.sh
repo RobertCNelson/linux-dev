@@ -376,6 +376,8 @@ config="CONFIG_NFT_QUEUE"
 check_config_module
 config="CONFIG_NFT_REJECT"
 check_config_module
+config="CONFIG_NFT_REJECT_INET"
+check_config_module
 config="CONFIG_NFT_COMPAT"
 check_config_module
 
@@ -404,6 +406,8 @@ config="CONFIG_NFT_CHAIN_ROUTE_IPV4"
 check_config_module
 config="CONFIG_NFT_CHAIN_NAT_IPV4"
 check_config_disable
+config="CONFIG_NFT_REJECT_IPV4"
+check_config_module
 config="CONFIG_NF_TABLES_ARP"
 check_config_module
 config="CONFIG_IP_NF_MATCH_ECN"
@@ -426,6 +430,8 @@ config="CONFIG_NFT_CHAIN_ROUTE_IPV6"
 check_config_module
 config="CONFIG_NFT_CHAIN_NAT_IPV6"
 check_config_disable
+config="CONFIG_NFT_REJECT_IPV6"
+check_config_module
 config="CONFIG_IP6_NF_TARGET_SYNPROXY"
 check_config_module
 config="CONFIG_NF_TABLES_BRIDGE"
@@ -878,6 +884,8 @@ check_config_disable
 # USB Network Adapters
 #
 config="CONFIG_USB_NET_HUAWEI_CDC_NCM"
+check_config_module
+config="CONFIG_USB_NET_SR9800"
 check_config_module
 config="CONFIG_USB_ZD1201"
 check_config_module
