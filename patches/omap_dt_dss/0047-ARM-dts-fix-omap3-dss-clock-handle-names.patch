@@ -1,0 +1,88 @@
+From f5ec0ed237c8758088ff3829d86afc73c9764d3c Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Wed, 12 Feb 2014 15:45:57 +0200
+Subject: [PATCH 47/51] ARM: dts: fix omap3 dss clock handle names
+
+The DSS fclk and iclk handles are named differently on OMAP3430 ES1 than
+on later OMAP revisions. The ES1 has handles 'dss1_alwon_fck_3430es1'
+and 'dss_ick_3430es1', whereas later revisions have similar names but
+ending with 'es2'.
+
+This means we don't have one clock handle to which we could refer to
+when defining the DSS clocks.
+
+However, as the namespaces are separate for ES1 and ES2+ OMAPs, we can
+just rename the handles to 'dss1_alwon_fck' and 'dss_ick' for both ES1
+and ES2+, removing the issue.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/boot/dts/omap3430es1-clocks.dtsi                     | 6 +++---
+ arch/arm/boot/dts/omap36xx-am35xx-omap3430es2plus-clocks.dtsi | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap3430es1-clocks.dtsi b/arch/arm/boot/dts/omap3430es1-clocks.dtsi
+index 02f6c7f..f920265 100644
+--- a/arch/arm/boot/dts/omap3430es1-clocks.dtsi
++++ b/arch/arm/boot/dts/omap3430es1-clocks.dtsi
+@@ -152,7 +152,7 @@
+ 		clocks = <&usb_l4_gate_ick>, <&usb_l4_div_ick>;
+ 	};
+ 
+-	dss1_alwon_fck_3430es1: dss1_alwon_fck_3430es1 {
++	dss1_alwon_fck: dss1_alwon_fck_3430es1 {
+ 		#clock-cells = <0>;
+ 		compatible = "ti,gate-clock";
+ 		clocks = <&dpll4_m4x2_ck>;
+@@ -161,7 +161,7 @@
+ 		ti,set-rate-parent;
+ 	};
+ 
+-	dss_ick_3430es1: dss_ick_3430es1 {
++	dss_ick: dss_ick_3430es1 {
+ 		#clock-cells = <0>;
+ 		compatible = "ti,omap3-no-wait-interface-clock";
+ 		clocks = <&l4_ick>;
+@@ -184,7 +184,7 @@
+ 	dss_clkdm: dss_clkdm {
+ 		compatible = "ti,clockdomain";
+ 		clocks = <&dss_tv_fck>, <&dss_96m_fck>, <&dss2_alwon_fck>,
+-			 <&dss1_alwon_fck_3430es1>, <&dss_ick_3430es1>;
++			 <&dss1_alwon_fck>, <&dss_ick>;
+ 	};
+ 
+ 	d2d_clkdm: d2d_clkdm {
+diff --git a/arch/arm/boot/dts/omap36xx-am35xx-omap3430es2plus-clocks.dtsi b/arch/arm/boot/dts/omap36xx-am35xx-omap3430es2plus-clocks.dtsi
+index af9ae534..080fb3f 100644
+--- a/arch/arm/boot/dts/omap36xx-am35xx-omap3430es2plus-clocks.dtsi
++++ b/arch/arm/boot/dts/omap36xx-am35xx-omap3430es2plus-clocks.dtsi
+@@ -160,7 +160,7 @@
+ 		ti,bit-shift = <30>;
+ 	};
+ 
+-	dss1_alwon_fck_3430es2: dss1_alwon_fck_3430es2 {
++	dss1_alwon_fck: dss1_alwon_fck_3430es2 {
+ 		#clock-cells = <0>;
+ 		compatible = "ti,dss-gate-clock";
+ 		clocks = <&dpll4_m4x2_ck>;
+@@ -169,7 +169,7 @@
+ 		ti,set-rate-parent;
+ 	};
+ 
+-	dss_ick_3430es2: dss_ick_3430es2 {
++	dss_ick: dss_ick_3430es2 {
+ 		#clock-cells = <0>;
+ 		compatible = "ti,omap3-dss-interface-clock";
+ 		clocks = <&l4_ick>;
+@@ -216,7 +216,7 @@
+ 	dss_clkdm: dss_clkdm {
+ 		compatible = "ti,clockdomain";
+ 		clocks = <&dss_tv_fck>, <&dss_96m_fck>, <&dss2_alwon_fck>,
+-			 <&dss1_alwon_fck_3430es2>, <&dss_ick_3430es2>;
++			 <&dss1_alwon_fck>, <&dss_ick>;
+ 	};
+ 
+ 	core_l4_clkdm: core_l4_clkdm {
+-- 
+1.8.5.3
+

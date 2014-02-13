@@ -1,0 +1,49 @@
+From 12924e495b043859eb696658993eec7b60c40b47 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 13 Feb 2014 11:14:58 +0200
+Subject: [PATCH 49/51] ARM: dts: use ti,fixed-factor-clock for
+ dpll4_m4x2_mul_ck
+
+We need to use set-rate-parent for dpll4_m4 clock path, so use the
+ti,fixed-factor-clock version which supports set-rate-parent property.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/boot/dts/omap36xx-clocks.dtsi | 2 +-
+ arch/arm/boot/dts/omap3xxx-clocks.dtsi | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap36xx-clocks.dtsi b/arch/arm/boot/dts/omap36xx-clocks.dtsi
+index 0b2df76..6b5280d 100644
+--- a/arch/arm/boot/dts/omap36xx-clocks.dtsi
++++ b/arch/arm/boot/dts/omap36xx-clocks.dtsi
+@@ -79,7 +79,7 @@
+ };
+ 
+ &dpll4_m4x2_mul_ck {
+-	clock-mult = <1>;
++	ti,clock-mult = <1>;
+ };
+ 
+ &dpll4_m5x2_mul_ck {
+diff --git a/arch/arm/boot/dts/omap3xxx-clocks.dtsi b/arch/arm/boot/dts/omap3xxx-clocks.dtsi
+index cb04d4b..df3c699 100644
+--- a/arch/arm/boot/dts/omap3xxx-clocks.dtsi
++++ b/arch/arm/boot/dts/omap3xxx-clocks.dtsi
+@@ -425,10 +425,10 @@
+ 
+ 	dpll4_m4x2_mul_ck: dpll4_m4x2_mul_ck {
+ 		#clock-cells = <0>;
+-		compatible = "fixed-factor-clock";
++		compatible = "ti,fixed-factor-clock";
+ 		clocks = <&dpll4_m4_ck>;
+-		clock-mult = <2>;
+-		clock-div = <1>;
++		ti,clock-mult = <2>;
++		ti,clock-div = <1>;
+ 	};
+ 
+ 	dpll4_m4x2_ck: dpll4_m4x2_ck {
+-- 
+1.8.5.3
+

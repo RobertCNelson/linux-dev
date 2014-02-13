@@ -1,0 +1,182 @@
+From 9fd9e683c4e967289e6e17de40c2372d3fbccce4 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 30 Jan 2014 13:17:20 +0200
+Subject: [PATCH 46/51] ARM: OMAP2+: clock: fix clkoutx2 with
+ CLK_SET_RATE_PARENT
+
+If CLK_SET_RATE_PARENT is set for a clkoutx2 clock, calling
+clk_set_rate() on the clock "skips" the x2 multiplier as there are no
+set_rate and round_rate functions defined for the clkoutx2.
+
+This results in getting double the requested clock rates, breaking the
+display on omap3430 based devices. This got broken when
+d0f58bd3bba3877fb1af4664c4e33273d36f00e4 and related patches were merged
+for v3.14, as omapdss driver now relies more on the clk-framework and
+CLK_SET_RATE_PARENT.
+
+This patch implements set_rate and round_rate for clkoutx2.
+
+Tested on OMAP3430, OMAP3630, OMAP4460.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/mach-omap2/cclock3xxx_data.c |  2 +
+ arch/arm/mach-omap2/dpll3xxx.c        | 92 +++++++++++++++++++++++++++++------
+ include/linux/clk/ti.h                |  4 ++
+ 3 files changed, 83 insertions(+), 15 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/cclock3xxx_data.c b/arch/arm/mach-omap2/cclock3xxx_data.c
+index 3b05aea..11ed915 100644
+--- a/arch/arm/mach-omap2/cclock3xxx_data.c
++++ b/arch/arm/mach-omap2/cclock3xxx_data.c
+@@ -433,7 +433,9 @@ static const struct clk_ops dpll4_m5x2_ck_ops = {
+ 	.enable		= &omap2_dflt_clk_enable,
+ 	.disable	= &omap2_dflt_clk_disable,
+ 	.is_enabled	= &omap2_dflt_clk_is_enabled,
++	.set_rate	= &omap3_clkoutx2_set_rate,
+ 	.recalc_rate	= &omap3_clkoutx2_recalc,
++	.round_rate	= &omap3_clkoutx2_round_rate,
+ };
+ 
+ static const struct clk_ops dpll4_m5x2_ck_3630_ops = {
+diff --git a/arch/arm/mach-omap2/dpll3xxx.c b/arch/arm/mach-omap2/dpll3xxx.c
+index 3185ced..3c418ea 100644
+--- a/arch/arm/mach-omap2/dpll3xxx.c
++++ b/arch/arm/mach-omap2/dpll3xxx.c
+@@ -623,6 +623,32 @@ void omap3_dpll_deny_idle(struct clk_hw_omap *clk)
+ 
+ /* Clock control for DPLL outputs */
+ 
++/* Find the parent DPLL for the given clkoutx2 clock */
++static struct clk_hw_omap *omap3_find_clkoutx2_dpll(struct clk_hw *hw)
++{
++	struct clk_hw_omap *pclk = NULL;
++	struct clk *parent;
++
++	/* Walk up the parents of clk, looking for a DPLL */
++	do {
++		do {
++			parent = __clk_get_parent(hw->clk);
++			hw = __clk_get_hw(parent);
++		} while (hw && (__clk_get_flags(hw->clk) & CLK_IS_BASIC));
++		if (!hw)
++			break;
++		pclk = to_clk_hw_omap(hw);
++	} while (pclk && !pclk->dpll_data);
++
++	/* clk does not have a DPLL as a parent?  error in the clock data */
++	if (!pclk) {
++		WARN_ON(1);
++		return NULL;
++	}
++
++	return pclk;
++}
++
+ /**
+  * omap3_clkoutx2_recalc - recalculate DPLL X2 output virtual clock rate
+  * @clk: DPLL output struct clk
+@@ -637,27 +663,14 @@ unsigned long omap3_clkoutx2_recalc(struct clk_hw *hw,
+ 	unsigned long rate;
+ 	u32 v;
+ 	struct clk_hw_omap *pclk = NULL;
+-	struct clk *parent;
+ 
+ 	if (!parent_rate)
+ 		return 0;
+ 
+-	/* Walk up the parents of clk, looking for a DPLL */
+-	do {
+-		do {
+-			parent = __clk_get_parent(hw->clk);
+-			hw = __clk_get_hw(parent);
+-		} while (hw && (__clk_get_flags(hw->clk) & CLK_IS_BASIC));
+-		if (!hw)
+-			break;
+-		pclk = to_clk_hw_omap(hw);
+-	} while (pclk && !pclk->dpll_data);
++	pclk = omap3_find_clkoutx2_dpll(hw);
+ 
+-	/* clk does not have a DPLL as a parent?  error in the clock data */
+-	if (!pclk) {
+-		WARN_ON(1);
++	if (!pclk)
+ 		return 0;
+-	}
+ 
+ 	dd = pclk->dpll_data;
+ 
+@@ -672,6 +685,55 @@ unsigned long omap3_clkoutx2_recalc(struct clk_hw *hw,
+ 	return rate;
+ }
+ 
++int omap3_clkoutx2_set_rate(struct clk_hw *hw, unsigned long rate,
++					unsigned long parent_rate)
++{
++	return 0;
++}
++
++long omap3_clkoutx2_round_rate(struct clk_hw *hw, unsigned long rate,
++		unsigned long *prate)
++{
++	const struct dpll_data *dd;
++	u32 v;
++	struct clk_hw_omap *pclk = NULL;
++
++	if (!*prate)
++		return 0;
++
++	pclk = omap3_find_clkoutx2_dpll(hw);
++
++	if (!pclk)
++		return 0;
++
++	dd = pclk->dpll_data;
++
++	/* TYPE J does not have a clkoutx2 */
++	if (dd->flags & DPLL_J_TYPE) {
++		*prate = __clk_round_rate(__clk_get_parent(pclk->hw.clk), rate);
++		return *prate;
++	}
++
++	WARN_ON(!dd->enable_mask);
++
++	v = omap2_clk_readl(pclk, dd->control_reg) & dd->enable_mask;
++	v >>= __ffs(dd->enable_mask);
++
++	/* If in bypass, the rate is fixed to the bypass rate*/
++	if (v != OMAP3XXX_EN_DPLL_LOCKED)
++		return *prate;
++
++	if (__clk_get_flags(hw->clk) & CLK_SET_RATE_PARENT) {
++		unsigned long best_parent;
++
++		best_parent = (rate / 2);
++		*prate = __clk_round_rate(__clk_get_parent(hw->clk),
++				best_parent);
++	}
++
++	return *prate * 2;
++}
++
+ /* OMAP3/4 non-CORE DPLL clkops */
+ const struct clk_hw_omap_ops clkhwops_omap3_dpll = {
+ 	.allow_idle	= omap3_dpll_allow_idle,
+diff --git a/include/linux/clk/ti.h b/include/linux/clk/ti.h
+index 092b641..4a21a87 100644
+--- a/include/linux/clk/ti.h
++++ b/include/linux/clk/ti.h
+@@ -245,6 +245,10 @@ long omap2_dpll_round_rate(struct clk_hw *hw, unsigned long target_rate,
+ void omap2_init_clk_clkdm(struct clk_hw *clk);
+ unsigned long omap3_clkoutx2_recalc(struct clk_hw *hw,
+ 				    unsigned long parent_rate);
++int omap3_clkoutx2_set_rate(struct clk_hw *hw, unsigned long rate,
++					unsigned long parent_rate);
++long omap3_clkoutx2_round_rate(struct clk_hw *hw, unsigned long rate,
++		unsigned long *prate);
+ int omap2_clkops_enable_clkdm(struct clk_hw *hw);
+ void omap2_clkops_disable_clkdm(struct clk_hw *hw);
+ int omap2_clk_disable_autoidle_all(void);
+-- 
+1.8.5.3
+

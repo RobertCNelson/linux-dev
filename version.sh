@@ -29,10 +29,10 @@ toolchain="gcc_linaro_gnueabihf_4_8"
 #Kernel/Build
 KERNEL_REL=3.14
 KERNEL_TAG=${KERNEL_REL}-rc2
-BUILD=armv7-devel-r58
+BUILD=armv7-devel-r59
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="45f7fdc2ffb9d5af4dab593843e89da70d1259e3"
+KERNEL_SHA="4675348e78fab420e70f9144b320d9c063c7cee8"
 
 #git branch
 #BRANCH="v3.14.x"

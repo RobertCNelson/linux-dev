@@ -1,0 +1,65 @@
+From 374901cd3ba4cd7b961a286ff535c6fecc0b2b24 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 13 Feb 2014 10:58:32 +0200
+Subject: [PATCH 48/51] ARM: dts: fix DPLL4 x2 clkouts on 3630
+
+OMAP3630 DPLL4 is different than on OMAP3430, in that it doesn't have
+the x2 multiplier for its outputs. This is not currently reflected in
+the clock DT data.
+
+Fix the issue by setting the clock multiplier to 1 (instead of 2) for the
+DPLL4 output clocks.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ arch/arm/boot/dts/omap36xx-clocks.dtsi | 20 ++++++++++++++++++++
+ arch/arm/boot/dts/omap36xx.dtsi        |  2 +-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap36xx-clocks.dtsi b/arch/arm/boot/dts/omap36xx-clocks.dtsi
+index 2fcf253..0b2df76 100644
+--- a/arch/arm/boot/dts/omap36xx-clocks.dtsi
++++ b/arch/arm/boot/dts/omap36xx-clocks.dtsi
+@@ -70,6 +70,26 @@
+ 	};
+ };
+ 
++&dpll4_m2x2_mul_ck {
++	clock-mult = <1>;
++};
++
++&dpll4_m3x2_mul_ck {
++	clock-mult = <1>;
++};
++
++&dpll4_m4x2_mul_ck {
++	clock-mult = <1>;
++};
++
++&dpll4_m5x2_mul_ck {
++	clock-mult = <1>;
++};
++
++&dpll4_m6x2_mul_ck {
++	clock-mult = <1>;
++};
++
+ &cm_clockdomains {
+ 	dpll4_clkdm: dpll4_clkdm {
+ 		compatible = "ti,clockdomain";
+diff --git a/arch/arm/boot/dts/omap36xx.dtsi b/arch/arm/boot/dts/omap36xx.dtsi
+index 0663f5b..94e1cdc 100644
+--- a/arch/arm/boot/dts/omap36xx.dtsi
++++ b/arch/arm/boot/dts/omap36xx.dtsi
+@@ -58,7 +58,7 @@
+ 	clock-names = "fck", "tv_dac_clk";
+ };
+ 
+-/include/ "omap36xx-clocks.dtsi"
+ /include/ "omap34xx-omap36xx-clocks.dtsi"
+ /include/ "omap36xx-omap3430es2plus-clocks.dtsi"
+ /include/ "omap36xx-am35xx-omap3430es2plus-clocks.dtsi"
++/include/ "omap36xx-clocks.dtsi"
+-- 
+1.8.5.3
+
