@@ -267,10 +267,16 @@ debian_regs () {
 			unset error_unknown_deb_distro
 			unset warn_eol_distro
 			;;
-		lucid|precise|quantal|raring|saucy|trusty)
+		lucid|precise|quantal|saucy|trusty)
 			#Supported Ubuntu:
 			unset error_unknown_deb_distro
 			unset warn_eol_distro
+			;;
+		raring)
+			#Old Ubuntu: between lts: precise -> trusty
+			#But still on: http://us.archive.ubuntu.com/ubuntu/dists/
+			unset error_unknown_deb_distro
+			warn_eol_distro=1
 			;;
 		oneiric)
 			#Old Ubuntu: between lts: lucid -> precise
@@ -361,6 +367,10 @@ debian_regs () {
 
 	if [ "${warn_eol_distro}" ] ; then
 		echo "End Of Life (EOL) deb based distro detected."
+		echo "-----------------------------"
+	fi
+
+	if [ "${stop_pkg_search}" ] ; then
 		echo "Dependency check skipped, you are on your own."
 		echo "-----------------------------"
 		unset deb_pkgs

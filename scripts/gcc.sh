@@ -134,14 +134,12 @@ gcc_toolchain () {
 		binary="bin/arm-linux-gnueabihf-"
 		;;
 	gcc_linaro_gnueabihf_4_8)
-		#https://releases.linaro.org/13.12/components/toolchain/binaries/
-		#https://releases.linaro.org/13.12/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.8-2013.12_linux.tar.xz
-
+		#https://releases.linaro.org/14.01/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.8-2014.01_linux.tar.xz
 		gcc_version="4.8"
-		release="2013.12"
+		release="2014.01"
 		toolchain_name="gcc-linaro-arm-linux-gnueabihf"
 		site="https://releases.linaro.org"
-		version="13.12/components/toolchain/binaries"
+		version="14.01/components/toolchain/binaries"
 		directory="${toolchain_name}-${gcc_version}-${release}_linux"
 		filename="${directory}.tar.xz"
 		datestamp="${release}-${toolchain_name}"
