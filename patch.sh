@@ -80,7 +80,7 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0014-ARM-imx-add-suspend-in-ocram-support-for-i.mx6sl.patch"
 	${git} "${DIR}/patches/imx_next/0015-ARM-imx-add-always-on-clock-array-for-i.mx6sl-to-mai.patch"
 	${git} "${DIR}/patches/imx_next/0016-ARM-imx-enable-delaytimer-on-the-imx-timer.patch"
-	${git} "${DIR}/patches/imx_next/0017-ARM-imx6-Initialize-low-power-mode-early-again.patch"
+#	${git} "${DIR}/patches/imx_next/0017-ARM-imx6-Initialize-low-power-mode-early-again.patch"
 	${git} "${DIR}/patches/imx_next/0018-ARM-dts-i.MX53-Internal-keyboard-controller.patch"
 	${git} "${DIR}/patches/imx_next/0019-ARM-dts-disable-flexcan-by-default.patch"
 	${git} "${DIR}/patches/imx_next/0020-ARM-dts-add-Gateworks-Ventana-support.patch"
@@ -301,8 +301,8 @@ omap_dt_dss () {
 	${git} "${DIR}/patches/omap_dt_dss/0039-Doc-DT-Add-DT-binding-documentation-for-Sony-acx565a.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0040-Doc-DT-Add-DT-binding-documentation-for-TFP410-encod.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0041-Doc-DT-Add-DT-binding-documentation-for-tpd12s015-en.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0042-OMAPDSS-DISPC-decimation-rounding-fix.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0043-OMAPDSS-fix-fck-field-types.patch"
+#	${git} "${DIR}/patches/omap_dt_dss/0042-OMAPDSS-DISPC-decimation-rounding-fix.patch"
+#	${git} "${DIR}/patches/omap_dt_dss/0043-OMAPDSS-fix-fck-field-types.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0044-clk-divider-fix-rate-calculation-for-fractional-rate.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0045-clk-ti-divider-fix-rate-calculation-for-fractional-r.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0046-ARM-OMAP2-clock-fix-clkoutx2-with-CLK_SET_RATE_PAREN.patch"
@@ -383,7 +383,7 @@ omap3_beagle_xm_rework () {
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
-	${git} "${DIR}/patches/fixes/0002-fix-compilation-of-imx-hdmi.patch"
+#	${git} "${DIR}/patches/fixes/0002-fix-compilation-of-imx-hdmi.patch"
 	${git} "${DIR}/patches/fixes/0003-Makefile-extra.patch"
 }
 
