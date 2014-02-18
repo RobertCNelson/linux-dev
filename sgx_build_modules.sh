@@ -20,21 +20,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-VERSION="v2014.01-1"
+VERSION="v2014.02-1"
 
 unset DIR
 
 DIR=$PWD
 
-SDK="5.01.00.01"
-sdk_version="5_01_00_01"
-SDK_DIR="5_01_00_01"
+SDK="5.01.01.01"
+sdk_version="5_01_01_01"
+SDK_DIR="5_01_01_01"
 SGX_SHA="origin/${SDK}"
 #SGX_SHA="origin/master"
 
 http_ti="http://software-dl.ti.com/dsps/dsps_public_sw/gfxsdk/"
 sgx_file="Graphics_SDK_setuplinux_hardfp_${sdk_version}.bin"
-sgx_md5sum="0ee7d59808330d442a51c0990c2cb30e"
+sgx_md5sum="94acdbd20152c905939c2448d5e80a72"
 
 dl_sdk () {
 	echo "md5sum mis-match: ${md5sum} (re-downloading)"
@@ -140,13 +140,7 @@ copy_sgx_binaries () {
 
 	cp -r "${DIR}"/ignore/SDK_BIN/Graphics_SDK_setuplinux_${sdk_version}/tools "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/"
 
-#	es_version="es3.x"
-#	copy_sgx_es
-
 #	es_version="es5.x"
-#	copy_sgx_es
-
-#	es_version="es6.x"
 #	copy_sgx_es
 
 	es_version="es8.x"
@@ -180,7 +174,7 @@ build_sgx_modules () {
 	mkdir -p "${DIR}/ignore/ti-sdk-pvr/Graphics_SDK/gfx_rel_es$2/" || true
 
 	pwd
-	echo "make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} FBDEV={yes | no} all"
+	echo "make BUILD={debug | release} OMAPES={5.x | 8.x | 9.x} FBDEV={yes | no} all"
 	echo "make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" "$4""
 	make ${GRAPHICS_PATH} ${KERNEL_PATH} HOME=${HOME} ${CROSS} BUILD="$1" OMAPES="$2" FBDEV="$3" "$4"
 	cd ${DIR}/
@@ -208,7 +202,7 @@ installing_sgx_modules () {
 	GRAPHICS_INSTALL_DIR="${INSTALL_HOME}Graphics_SDK_setuplinux_${sdk_version}"
 
 	pwd
-	echo "make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} install"
+	echo "make BUILD=(debug | release} OMAPES={5.x | 8.x | 9.x} install"
 	echo "make DESTDIR=${DESTDIR} HOME=${INSTALL_HOME} GRAPHICS_INSTALL_DIR=${GRAPHICS_INSTALL_DIR} BUILD="$1" OMAPES="$2" "$3""
 	make DESTDIR=${DESTDIR} HOME=${INSTALL_HOME} GRAPHICS_INSTALL_DIR=${GRAPHICS_INSTALL_DIR} BUILD="$1" OMAPES="$2" "$3"
 
@@ -263,18 +257,12 @@ if [ -e ${DIR}/system.sh ] ; then
 	fi
 
 	#Build:
-	#make BUILD={debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} FBDEV={yes | no} all
+	#make BUILD={debug | release} OMAPES={5.x | 8.x | 9.x} FBDEV={yes | no} all
 	#Install:
-	#make BUILD=(debug | release} OMAPES={3.x | 5.x | 6.x | 8.x | 9.x} install
-
-#	clean_sgx_modules
-#	build_sgx_modules release 3.x yes all
+	#make BUILD=(debug | release} OMAPES={5.x | 8.x | 9.x} install
 
 #	clean_sgx_modules
 #	build_sgx_modules release 5.x yes all
-
-#	clean_sgx_modules
-#	build_sgx_modules release 6.x yes all
 
 	clean_sgx_modules
 	build_sgx_modules release 8.x no all
