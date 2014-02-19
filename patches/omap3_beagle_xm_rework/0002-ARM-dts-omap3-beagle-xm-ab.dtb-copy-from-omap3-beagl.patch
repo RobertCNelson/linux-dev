@@ -1,21 +1,21 @@
-From 648e24402015a7daeae1a4de6c56eaf3ba8b3ef6 Mon Sep 17 00:00:00 2001
+From 0cf7dac2d343acec31e8cb46d9b0398b0fe4630c Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 13 Feb 2014 10:10:23 -0600
+Date: Wed, 19 Feb 2014 09:43:11 -0600
 Subject: [PATCH 2/4] ARM: dts: omap3-beagle-xm-ab.dtb: copy from
  omap3-beagle-xm.dts
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 366 +++++++++++++++++++++++++++++++
- 1 file changed, 366 insertions(+)
+ arch/arm/boot/dts/omap3-beagle-xm-ab.dts | 415 +++++++++++++++++++++++++++++++
+ 1 file changed, 415 insertions(+)
  create mode 100644 arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm-ab.dts b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
 new file mode 100644
-index 0000000..b557266
+index 0000000..02a9a43
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-@@ -0,0 +1,366 @@
+@@ -0,0 +1,415 @@
 +/*
 + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -211,6 +211,25 @@ index 0000000..b557266
 +		>;
 +	};
 +
++	spi3_pins: pinmux_spi3_pins {
++		pinctrl-single,pins = <
++			0x128 (PIN_INPUT | MUX_MODE1) /* sdmmc2_clk.mcspi3_clk gpio_130 */
++			0x12a (PIN_OUTPUT | MUX_MODE1) /* sdmmc2_cmd.mcspi3_simo gpio_131 */
++			0x12c (PIN_INPUT_PULLUP | MUX_MODE1) /* sdmmc2_dat0.mcspi3_somi gpio_132 */
++			0x130 (PIN_OUTPUT | MUX_MODE1) /* sdmmc2_dat2.mcspi3_cs1 gpio_134 */
++			0x132 (PIN_OUTPUT | MUX_MODE1) /* sdmmc2_dat3.mcspi3_cs0 gpio_135 */
++		>;
++	};
++
++	spi4_pins: pinmux_spi4_pins {
++		pinctrl-single,pins = <
++			0x15c (PIN_INPUT | MUX_MODE1) /* mcbsp1_clkr.mcspi4_clk gpio_156 */
++			0x160 (PIN_OUTPUT | MUX_MODE1) /* mcbsp1_dx.mcspi4_simo gpio_158 */
++			0x162 (PIN_INPUT_PULLUP | MUX_MODE1) /* mcbsp1_dr.mcspi4_somi gpio_159 */
++			0x166 (PIN_OUTPUT | MUX_MODE1) /* mcbsp1_fsx.mcspi4_cs0 gpio_161 */
++		>;
++	};
++
 +	hsusb2_pins: pinmux_hsusb2_pins {
 +		pinctrl-single,pins = <
 +			OMAP3_CORE1_IOPAD(0x21d4, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi1_cs3.hsusb2_data2 */
@@ -309,6 +328,36 @@ index 0000000..b557266
 +
 +&mmc3 {
 +	status = "disabled";
++};
++
++&mcspi3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi3_pins>;
++	status = "okay";
++
++	spidev0: spi@0 {
++		compatible = "spidev";
++		reg = <0>;
++		spi-max-frequency = <48000000>;
++	};
++
++	spidev1: spi@1 {
++		compatible = "spidev";
++		reg = <1>;
++		spi-max-frequency = <48000000>;
++	};
++};
++
++&mcspi4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi4_pins>;
++	status = "okay";
++
++	spidev2: spi@0 {
++		compatible = "spidev";
++		reg = <0>;
++		spi-max-frequency = <48000000>;
++	};
 +};
 +
 +&twl_gpio {
