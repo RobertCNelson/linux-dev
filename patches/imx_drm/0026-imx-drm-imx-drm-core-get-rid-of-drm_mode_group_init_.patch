@@ -1,0 +1,39 @@
+From 592d52a2596477ab364eef2ff8bb6e62c523dfd1 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 18 Feb 2014 20:11:50 +0000
+Subject: [PATCH 26/34] imx-drm: imx-drm-core: get rid of
+ drm_mode_group_init_legacy_group()
+
+Since we're now operating like a conventional DRM driver, doing all
+the initialisation within the driver's ->load callback, we don't
+need to mess around with the mode groups - we can rely on the one
+in the DRM platform code.
+
+Acked-by: Philipp Zabel <p.zabel@pengutronix.de>
+Acked-by: Shawn Guo <shawn.guo@linaro.org>
+Reviewed-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/imx-drm/imx-drm-core.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/staging/imx-drm/imx-drm-core.c b/drivers/staging/imx-drm/imx-drm-core.c
+index b27c425..dd97412 100644
+--- a/drivers/staging/imx-drm/imx-drm-core.c
++++ b/drivers/staging/imx-drm/imx-drm-core.c
+@@ -274,12 +274,6 @@ static int imx_drm_driver_load(struct drm_device *drm, unsigned long flags)
+ 
+ 	drm_kms_helper_poll_init(drm);
+ 
+-	/* setup the grouping for the legacy output */
+-	ret = drm_mode_group_init_legacy_group(drm,
+-			&drm->primary->mode_group);
+-	if (ret)
+-		goto err_kms;
+-
+ 	ret = drm_vblank_init(drm, MAX_CRTC);
+ 	if (ret)
+ 		goto err_kms;
+-- 
+1.8.5.3
+

@@ -1,0 +1,800 @@
+From 32f4c5063d0b0caa6347660784adb4cbb005b984 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 18 Feb 2014 20:12:31 +0000
+Subject: [PATCH 34/34] imx-drm: add CEC HDMI driver
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/imx-drm/Kconfig       |   8 +
+ drivers/staging/imx-drm/Makefile      |   1 +
+ drivers/staging/imx-drm/dw-hdmi-cec.c | 561 ++++++++++++++++++++++++++++++++++
+ drivers/staging/imx-drm/dw-hdmi-cec.h |  16 +
+ drivers/staging/imx-drm/imx-hdmi.c    |  66 +++-
+ drivers/staging/imx-drm/imx-hdmi.h    |   3 +
+ 6 files changed, 645 insertions(+), 10 deletions(-)
+ create mode 100644 drivers/staging/imx-drm/dw-hdmi-cec.c
+ create mode 100644 drivers/staging/imx-drm/dw-hdmi-cec.h
+
+diff --git a/drivers/staging/imx-drm/Kconfig b/drivers/staging/imx-drm/Kconfig
+index 78319ad..8f4c568 100644
+--- a/drivers/staging/imx-drm/Kconfig
++++ b/drivers/staging/imx-drm/Kconfig
+@@ -59,3 +59,11 @@ config DRM_IMX_HDMI
+ 	depends on DRM_IMX
+ 	help
+ 	  Choose this if you want to use HDMI on i.MX6.
++
++config DRM_DW_HDMI_CEC
++	tristate "Synopsis Designware CEC interface"
++	depends on DRM_IMX_HDMI != n
++	help
++	  Support the CEC interface which is part of the Synposis
++	  Designware HDMI block.  This is used in conjunction with
++	  the i.MX HDMI driver.
+diff --git a/drivers/staging/imx-drm/Makefile b/drivers/staging/imx-drm/Makefile
+index f554aa6..53bc725 100644
+--- a/drivers/staging/imx-drm/Makefile
++++ b/drivers/staging/imx-drm/Makefile
+@@ -12,3 +12,4 @@ obj-$(CONFIG_DRM_IMX_IPUV3_CORE) += ipu-v3/
+ imx-ipuv3-crtc-objs  := ipuv3-crtc.o ipuv3-plane.o
+ obj-$(CONFIG_DRM_IMX_IPUV3)	+= imx-ipuv3-crtc.o
+ obj-$(CONFIG_DRM_IMX_HDMI) += imxhdmi.o
++obj-$(CONFIG_DRM_DW_HDMI_CEC) += dw-hdmi-cec.o
+diff --git a/drivers/staging/imx-drm/dw-hdmi-cec.c b/drivers/staging/imx-drm/dw-hdmi-cec.c
+new file mode 100644
+index 0000000..fee508d
+--- /dev/null
++++ b/drivers/staging/imx-drm/dw-hdmi-cec.c
+@@ -0,0 +1,561 @@
++/* http://git.freescale.com/git/cgit.cgi/imx/linux-2.6-imx.git/tree/drivers/mxc/hdmi-cec/mxc_hdmi-cec.c?h=imx_3.0.35_4.1.0 */
++#include <linux/cdev.h>
++#include <linux/device.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/list.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/platform_device.h>
++#include <linux/poll.h>
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/wait.h>
++
++#include "imx-hdmi.h"
++#include "dw-hdmi-cec.h"
++
++#define MAX_MESSAGE_LEN 16
++#define DEV_NAME "mxc_hdmi_cec"
++
++enum {
++	CEC_STAT_DONE		= BIT(0),
++	CEC_STAT_EOM		= BIT(1),
++	CEC_STAT_NACK		= BIT(2),
++	CEC_STAT_ARBLOST	= BIT(3),
++	CEC_STAT_ERROR_INIT	= BIT(4),
++	CEC_STAT_ERROR_FOLL	= BIT(5),
++	CEC_STAT_WAKEUP		= BIT(6),
++
++	CEC_CTRL_START		= BIT(0),
++	CEC_CTRL_NORMAL		= 1 << 1,
++};
++
++static struct class *cec_class;
++static int cec_major;
++
++struct dw_hdmi_cec {
++	struct device *dev;
++	struct cdev cdev;
++	void __iomem *base;
++	const struct dw_hdmi_cec_ops *ops;
++	void *ops_data;
++	int irq;
++
++	struct mutex mutex;
++	unsigned users;
++
++	spinlock_t lock;
++	wait_queue_head_t waitq;
++	struct list_head events;
++	uint8_t write_busy;
++
++	uint8_t	retries;
++	uint16_t addresses;
++	uint16_t physical;
++};
++
++enum {
++	MESSAGE_TYPE_RECEIVE_SUCCESS = 1,
++	MESSAGE_TYPE_NOACK,
++	MESSAGE_TYPE_DISCONNECTED,
++	MESSAGE_TYPE_CONNECTED,
++	MESSAGE_TYPE_SEND_SUCCESS,
++	MESSAGE_TYPE_SEND_ERROR,
++};
++
++enum {
++	HDMICEC_IOC_MAGIC = 'H',
++	/* This is wrong: we pass the argument as a number, not a pointer */
++	HDMICEC_IOC_O_SETLOGICALADDRESS	= _IOW(HDMICEC_IOC_MAGIC, 1, unsigned char),
++	HDMICEC_IOC_SETLOGICALADDRESS	= _IO(HDMICEC_IOC_MAGIC, 1),
++	HDMICEC_IOC_STARTDEVICE		= _IO(HDMICEC_IOC_MAGIC, 2),
++	HDMICEC_IOC_STOPDEVICE		= _IO(HDMICEC_IOC_MAGIC, 3),
++	HDMICEC_IOC_GETPHYADDRESS	= _IOR(HDMICEC_IOC_MAGIC, 4, unsigned char[4]),
++};
++
++struct dw_hdmi_cec_user_event {
++	uint32_t event_type;
++	uint32_t msg_len;
++	uint8_t msg[MAX_MESSAGE_LEN];
++};
++
++struct dw_hdmi_cec_event {
++	struct dw_hdmi_cec_user_event usr;
++	struct list_head node;
++};
++
++static void dw_hdmi_event(struct dw_hdmi_cec *cec, int type)
++{
++	struct dw_hdmi_cec_event *event;
++	unsigned long flags;
++
++	event = kzalloc(sizeof(*event), GFP_ATOMIC);
++	if (event) {
++		event->usr.event_type = type;
++
++		if (type == MESSAGE_TYPE_RECEIVE_SUCCESS) {
++			unsigned i;
++
++			event->usr.msg_len = readb(cec->base + HDMI_CEC_RX_CNT);
++
++			for (i = 0; i < event->usr.msg_len; i++)
++				event->usr.msg[i] = readb(cec->base + HDMI_CEC_RX_DATA0 + i);
++
++			writeb(0, cec->base + HDMI_CEC_LOCK);
++		}
++
++		spin_lock_irqsave(&cec->lock, flags);
++		list_add_tail(&event->node, &cec->events);
++		spin_unlock_irqrestore(&cec->lock, flags);
++		wake_up(&cec->waitq);
++	}
++}
++
++static void dw_hdmi_set_address(struct dw_hdmi_cec *cec)
++{
++	writeb(cec->addresses & 255, cec->base + HDMI_CEC_ADDR_L);
++	writeb(cec->addresses >> 8, cec->base + HDMI_CEC_ADDR_H);
++}
++
++static void dw_hdmi_send_message(struct dw_hdmi_cec *cec, uint8_t *msg,
++	size_t count)
++{
++	unsigned long flags;
++	unsigned i;
++
++	for (i = 0; i < count; i++)
++		writeb(msg[i], cec->base + HDMI_CEC_TX_DATA0 + i);
++
++	writeb(count, cec->base + HDMI_CEC_TX_CNT);
++
++	spin_lock_irqsave(&cec->lock, flags);
++	cec->retries = 5;
++	cec->write_busy = 1;
++	writeb(CEC_CTRL_NORMAL | CEC_CTRL_START, cec->base + HDMI_CEC_CTRL);
++	spin_unlock_irqrestore(&cec->lock, flags);
++}
++
++static int dw_hdmi_lock_write(struct dw_hdmi_cec *cec, struct file *file)
++	__acquires(cec->mutex)
++{
++	int ret;
++
++	do {
++		if (file->f_flags & O_NONBLOCK) {
++			if (cec->write_busy)
++				return -EAGAIN;
++		} else {
++			ret = wait_event_interruptible(cec->waitq,
++						       !cec->write_busy);
++			if (ret)
++				break;
++		}
++
++		ret = mutex_lock_interruptible(&cec->mutex);
++		if (ret)
++			break;
++
++		if (!cec->write_busy)
++			break;
++
++		mutex_unlock(&cec->mutex);
++	} while (1);
++
++	return ret;
++}
++
++static irqreturn_t dw_hdmi_cec_irq(int irq, void *data)
++{
++	struct dw_hdmi_cec *cec = data;
++	unsigned stat = readb(cec->base + HDMI_IH_CEC_STAT0);
++
++	if (stat == 0)
++		return IRQ_NONE;
++
++	writeb(stat, cec->base + HDMI_IH_CEC_STAT0);
++
++	if (stat & CEC_STAT_ERROR_INIT) {
++		if (cec->retries) {
++			unsigned v = readb(cec->base + HDMI_CEC_CTRL);
++			writeb(v | CEC_CTRL_START, cec->base + HDMI_CEC_CTRL);
++			cec->retries -= 1;
++		} else {
++			cec->write_busy = 0;
++			dw_hdmi_event(cec, MESSAGE_TYPE_SEND_ERROR);
++		}
++	} else if (stat & (CEC_STAT_DONE | CEC_STAT_NACK)) {
++		cec->retries = 0;
++		cec->write_busy = 0;
++		if (stat & CEC_STAT_DONE) {
++			dw_hdmi_event(cec, MESSAGE_TYPE_SEND_SUCCESS);
++		} else {
++			dw_hdmi_event(cec, MESSAGE_TYPE_NOACK);
++		}
++	}
++
++	if (stat & CEC_STAT_EOM)
++		dw_hdmi_event(cec, MESSAGE_TYPE_RECEIVE_SUCCESS);
++
++	return IRQ_HANDLED;
++}
++EXPORT_SYMBOL(dw_hdmi_cec_irq);
++
++static ssize_t dw_hdmi_cec_read(struct file *file, char __user *buf,
++	size_t count, loff_t *ppos)
++{
++	struct dw_hdmi_cec *cec = file->private_data;
++	ssize_t ret;
++
++	if (count > sizeof(struct dw_hdmi_cec_user_event))
++		count = sizeof(struct dw_hdmi_cec_user_event);
++
++	if (!access_ok(VERIFY_WRITE, buf, count))
++		return -EFAULT;
++
++	do {
++		struct dw_hdmi_cec_event *event = NULL;
++		unsigned long flags;
++
++		spin_lock_irqsave(&cec->lock, flags);
++		if (!list_empty(&cec->events)) {
++			event = list_first_entry(&cec->events,
++					struct dw_hdmi_cec_event, node);
++			list_del(&event->node);
++		}
++		spin_unlock_irqrestore(&cec->lock, flags);
++
++		if (event) {
++			ret = __copy_to_user(buf, &event->usr, count) ?
++				 -EFAULT : count;
++			kfree(event);
++			break;
++		}
++
++		if (file->f_flags & O_NONBLOCK) {
++			ret = -EAGAIN;
++			break;
++		}
++
++		ret = wait_event_interruptible(cec->waitq,
++					       !list_empty(&cec->events));
++		if (ret)
++			break;
++	} while (1);
++
++	return ret;
++}
++
++static ssize_t dw_hdmi_cec_write(struct file *file, const char __user *buf,
++	size_t count, loff_t *ppos)
++{
++	struct dw_hdmi_cec *cec = file->private_data;
++	uint8_t msg[MAX_MESSAGE_LEN];
++	int ret;
++
++	if (count > sizeof(msg))
++		return -E2BIG;
++
++	if (copy_from_user(msg, buf, count))
++		return -EFAULT;
++
++	ret = dw_hdmi_lock_write(cec, file);
++	if (ret)
++		return ret;
++
++	dw_hdmi_send_message(cec, msg, count);
++
++	mutex_unlock(&cec->mutex);
++
++	return count;
++}
++
++static long dw_hdmi_cec_ioctl(struct file *file, u_int cmd, unsigned long arg)
++{
++	struct dw_hdmi_cec *cec = file->private_data;
++	int ret;
++
++	switch (cmd) {
++	case HDMICEC_IOC_O_SETLOGICALADDRESS:
++	case HDMICEC_IOC_SETLOGICALADDRESS:
++		if (arg > 15) {
++			ret = -EINVAL;
++			break;
++		}
++
++		ret = dw_hdmi_lock_write(cec, file);
++		if (ret == 0) {
++			unsigned char msg[1];
++
++			cec->addresses = BIT(arg);
++			dw_hdmi_set_address(cec);
++
++			/*
++			 * Send a ping message with the source and destination
++			 * set to our address; the result indicates whether
++			 * unit has chosen our address simultaneously.
++			 */
++			msg[0] = arg << 4 | arg;
++			dw_hdmi_send_message(cec, msg, sizeof(msg));
++			mutex_unlock(&cec->mutex);
++		}
++		break;
++
++	case HDMICEC_IOC_STARTDEVICE:
++		ret = mutex_lock_interruptible(&cec->mutex);
++		if (ret == 0) {
++			cec->addresses = BIT(15);
++			dw_hdmi_set_address(cec);
++			mutex_unlock(&cec->mutex);
++		}
++		break;
++
++	case HDMICEC_IOC_STOPDEVICE:
++		ret = 0;
++		break;
++
++	case HDMICEC_IOC_GETPHYADDRESS:
++		ret = put_user(cec->physical, (uint16_t __user *)arg);
++		ret = -ENOIOCTLCMD;
++		break;
++
++	default:
++		ret = -ENOIOCTLCMD;
++		break;
++	}
++
++	return ret;
++}
++
++static unsigned dw_hdmi_cec_poll(struct file *file, poll_table *wait)
++{
++	struct dw_hdmi_cec *cec = file->private_data;
++	unsigned mask = 0;
++
++	poll_wait(file, &cec->waitq, wait);
++
++	if (cec->write_busy == 0)
++		mask |= POLLOUT | POLLWRNORM;
++	if (!list_empty(&cec->events))
++		mask |= POLLIN | POLLRDNORM;
++
++	return mask;
++}
++
++static int dw_hdmi_cec_open(struct inode *inode, struct file *file)
++{
++	struct dw_hdmi_cec *cec = container_of(inode->i_cdev,
++					       struct dw_hdmi_cec, cdev);
++	int ret = 0;
++
++	nonseekable_open(inode, file);
++
++	file->private_data = cec;
++
++	ret = mutex_lock_interruptible(&cec->mutex);
++	if (ret)
++		return ret;
++
++	if (cec->users++ == 0) {
++		unsigned irqs;
++
++		writeb(0, cec->base + HDMI_CEC_CTRL);
++		writeb(~0, cec->base + HDMI_IH_CEC_STAT0);
++		writeb(0, cec->base + HDMI_CEC_LOCK);
++
++		ret = request_irq(cec->irq, dw_hdmi_cec_irq, IRQF_SHARED,
++				  DEV_NAME, cec);
++		if (ret < 0) {
++			cec->users = 0;
++			goto unlock;
++		}
++
++		cec->addresses = BIT(15);
++		dw_hdmi_set_address(cec);
++
++		cec->ops->enable(cec->ops_data);
++
++		irqs = CEC_STAT_ERROR_INIT | CEC_STAT_NACK | CEC_STAT_EOM |
++		       CEC_STAT_DONE;
++		writeb(irqs, cec->base + HDMI_CEC_POLARITY);
++		writeb(~irqs, cec->base + HDMI_CEC_MASK);
++		writeb(~irqs, cec->base + HDMI_IH_MUTE_CEC_STAT0);
++	}
++ unlock:
++	mutex_unlock(&cec->mutex);
++
++	return ret;
++}
++
++static int dw_hdmi_cec_release(struct inode *inode, struct file *file)
++{
++	struct dw_hdmi_cec *cec = file->private_data;
++
++	mutex_lock(&cec->mutex);
++	if (cec->users >= 1)
++		cec->users -= 1;
++	if (cec->users == 0) {
++		/*
++		 * Wait for any write to complete before shutting down.
++		 * A message should complete in a maximum of 2.75ms *
++		 * 160 bits + 4.7ms, or 444.7ms.  Let's call that 500ms.
++		 * If we time out, shutdown anyway.
++		 */
++		wait_event_timeout(cec->waitq, !cec->write_busy,
++				   msecs_to_jiffies(500));
++
++		writeb(~0, cec->base + HDMI_CEC_MASK);
++		writeb(~0, cec->base + HDMI_IH_MUTE_CEC_STAT0);
++		writeb(0, cec->base + HDMI_CEC_POLARITY);
++
++		free_irq(cec->irq, cec);
++
++		cec->ops->disable(cec->ops_data);
++
++		while (!list_empty(&cec->events)) {
++			struct dw_hdmi_cec_event *event;
++
++			event = list_first_entry(&cec->events,
++					struct dw_hdmi_cec_event, node);
++			list_del(&event->node);
++			kfree(event);
++		}
++	}
++	mutex_unlock(&cec->mutex);
++	return 0;
++}
++
++static const struct file_operations hdmi_cec_fops = {
++	.owner = THIS_MODULE,
++	.read = dw_hdmi_cec_read,
++	.write = dw_hdmi_cec_write,
++	.open = dw_hdmi_cec_open,
++	.unlocked_ioctl = dw_hdmi_cec_ioctl,
++	.release = dw_hdmi_cec_release,
++	.poll = dw_hdmi_cec_poll,
++};
++
++static int dw_hdmi_cec_probe(struct platform_device *pdev)
++{
++	struct dw_hdmi_cec_data *data = dev_get_platdata(&pdev->dev);
++	struct dw_hdmi_cec *cec;
++	struct device *cd;
++	dev_t devn = MKDEV(cec_major, 0);
++	int ret;
++
++	if (!data)
++		return -ENXIO;
++
++	cec = devm_kzalloc(&pdev->dev, sizeof(*cec), GFP_KERNEL);
++	if (!cec)
++		return -ENOMEM;
++
++	cec->dev = &pdev->dev;
++	cec->base = data->base;
++	cec->irq = data->irq;
++	cec->ops = data->ops;
++	cec->ops_data = data->ops_data;
++
++	INIT_LIST_HEAD(&cec->events);
++	init_waitqueue_head(&cec->waitq);
++	spin_lock_init(&cec->lock);
++	mutex_init(&cec->mutex);
++
++	/* FIXME: soft-reset the CEC interface */
++
++	cec->addresses = BIT(15);
++	dw_hdmi_set_address(cec);
++	writeb(0, cec->base + HDMI_CEC_TX_CNT);
++	writeb(~0, cec->base + HDMI_CEC_MASK);
++	writeb(~0, cec->base + HDMI_IH_MUTE_CEC_STAT0);
++	writeb(0, cec->base + HDMI_CEC_POLARITY);
++
++	cdev_init(&cec->cdev, &hdmi_cec_fops);
++	cec->cdev.owner = THIS_MODULE;
++	ret = cdev_add(&cec->cdev, devn, 1);
++	if (ret < 0)
++		goto err_cdev;
++
++	cd = device_create(cec_class, cec->dev, devn, NULL, DEV_NAME);
++	if (IS_ERR(cd)) {
++		ret = PTR_ERR(cd);
++		dev_err(cec->dev, "can't create device: %d\n", ret);
++		goto err_dev;
++	}
++
++	return 0;
++
++ err_dev:
++	cdev_del(&cec->cdev);
++ err_cdev:
++	return ret;
++}
++
++static int dw_hdmi_cec_remove(struct platform_device *pdev)
++{
++	struct dw_hdmi_cec *cec = platform_get_drvdata(pdev);
++	dev_t devn = MKDEV(cec_major, 0);
++
++	device_destroy(cec_class, devn);
++	cdev_del(&cec->cdev);
++
++	return 0;
++}
++
++static struct platform_driver dw_hdmi_cec_driver = {
++	.probe	= dw_hdmi_cec_probe,
++	.remove	= dw_hdmi_cec_remove,
++	.driver = {
++		.name = "dw-hdmi-cec",
++		.owner = THIS_MODULE,
++	},
++};
++
++static int dw_hdmi_cec_init(void)
++{
++	dev_t dev;
++	int ret;
++
++	cec_class = class_create(THIS_MODULE, DEV_NAME);
++	if (IS_ERR(cec_class)) {
++		ret = PTR_ERR(cec_class);
++		pr_err("cec: can't create cec class: %d\n", ret);
++		goto err_class;
++	}
++
++	ret = alloc_chrdev_region(&dev, 0, 1, DEV_NAME);
++	if (ret) {
++		pr_err("cec: can't create character devices: %d\n", ret);
++		goto err_chrdev;
++	}
++
++	cec_major = MAJOR(dev);
++
++	ret = platform_driver_register(&dw_hdmi_cec_driver);
++	if (ret)
++		goto err_driver;
++
++	return 0;
++
++ err_driver:
++	unregister_chrdev_region(MKDEV(cec_major, 0), 1);
++ err_chrdev:
++	class_destroy(cec_class);
++ err_class:
++	return ret;
++}
++module_init(dw_hdmi_cec_init);
++
++static void dw_hdmi_cec_exit(void)
++{
++	platform_driver_unregister(&dw_hdmi_cec_driver);
++	unregister_chrdev_region(MKDEV(cec_major, 0), 1);
++	class_destroy(cec_class);
++}
++module_exit(dw_hdmi_cec_exit);
++
++MODULE_AUTHOR("Russell King <rmk+kernel@arm.linux.org.uk>");
++MODULE_DESCRIPTION("Synopsis Designware HDMI CEC driver for i.MX");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS(PLATFORM_MODULE_PREFIX "dw-hdmi-cec");
+diff --git a/drivers/staging/imx-drm/dw-hdmi-cec.h b/drivers/staging/imx-drm/dw-hdmi-cec.h
+new file mode 100644
+index 0000000..5ff40cc
+--- /dev/null
++++ b/drivers/staging/imx-drm/dw-hdmi-cec.h
+@@ -0,0 +1,16 @@
++#ifndef DW_HDMI_CEC_H
++#define DW_HDMI_CEC_H
++
++struct dw_hdmi_cec_ops {
++	void (*enable)(void *);
++	void (*disable)(void *);
++};
++
++struct dw_hdmi_cec_data {
++	void __iomem *base;
++	int irq;
++	const struct dw_hdmi_cec_ops *ops;
++	void *ops_data;
++};
++
++#endif
+diff --git a/drivers/staging/imx-drm/imx-hdmi.c b/drivers/staging/imx-drm/imx-hdmi.c
+index df20f94..6021913 100644
+--- a/drivers/staging/imx-drm/imx-hdmi.c
++++ b/drivers/staging/imx-drm/imx-hdmi.c
+@@ -29,6 +29,7 @@
+ #include <drm/drm_encoder_slave.h>
+ 
+ #include "dw-hdmi-audio.h"
++#include "dw-hdmi-cec.h"
+ #include "ipu-v3/imx-ipu-v3.h"
+ #include "imx-hdmi.h"
+ #include "imx-drm.h"
+@@ -116,6 +117,7 @@ struct imx_hdmi {
+ 	struct drm_connector connector;
+ 	struct drm_encoder encoder;
+ 
++	struct platform_device *cec;
+ 	struct snd_dw_hdmi *audio;
+ 	enum imx_hdmi_devtype dev_type;
+ 	struct device *dev;
+@@ -128,6 +130,7 @@ struct imx_hdmi {
+ 	int vic;
+ 
+ 	u8 edid[HDMI_EDID_LEN];
++	u8 mc_clkdis;
+ 	bool cable_plugin;
+ 
+ 	bool phy_enabled;
+@@ -1154,8 +1157,6 @@ static void imx_hdmi_phy_disable(struct imx_hdmi *hdmi)
+ /* HDMI Initialization Step B.4 */
+ static void imx_hdmi_enable_video_path(struct imx_hdmi *hdmi)
+ {
+-	u8 clkdis;
+-
+ 	/* control period minimum duration */
+ 	hdmi_writeb(hdmi, 12, HDMI_FC_CTRLDUR);
+ 	hdmi_writeb(hdmi, 32, HDMI_FC_EXCTRLDUR);
+@@ -1167,23 +1168,28 @@ static void imx_hdmi_enable_video_path(struct imx_hdmi *hdmi)
+ 	hdmi_writeb(hdmi, 0x21, HDMI_FC_CH2PREAM);
+ 
+ 	/* Enable pixel clock and tmds data path */
+-	clkdis = 0x7F;
+-	clkdis &= ~HDMI_MC_CLKDIS_PIXELCLK_DISABLE;
+-	hdmi_writeb(hdmi, clkdis, HDMI_MC_CLKDIS);
++	hdmi->mc_clkdis |= HDMI_MC_CLKDIS_HDCPCLK_DISABLE |
++			   HDMI_MC_CLKDIS_CSCCLK_DISABLE |
++			   HDMI_MC_CLKDIS_AUDCLK_DISABLE |
++			   HDMI_MC_CLKDIS_PREPCLK_DISABLE |
++			   HDMI_MC_CLKDIS_TMDSCLK_DISABLE;
++	hdmi->mc_clkdis &= ~HDMI_MC_CLKDIS_PIXELCLK_DISABLE;
++	hdmi_writeb(hdmi, hdmi->mc_clkdis, HDMI_MC_CLKDIS);
+ 
+-	clkdis &= ~HDMI_MC_CLKDIS_TMDSCLK_DISABLE;
+-	hdmi_writeb(hdmi, clkdis, HDMI_MC_CLKDIS);
++	hdmi->mc_clkdis &= ~HDMI_MC_CLKDIS_TMDSCLK_DISABLE;
++	hdmi_writeb(hdmi, hdmi->mc_clkdis, HDMI_MC_CLKDIS);
+ 
+ 	/* Enable csc path */
+ 	if (is_color_space_conversion(hdmi)) {
+-		clkdis &= ~HDMI_MC_CLKDIS_CSCCLK_DISABLE;
+-		hdmi_writeb(hdmi, clkdis, HDMI_MC_CLKDIS);
++		hdmi->mc_clkdis &= ~HDMI_MC_CLKDIS_CSCCLK_DISABLE;
++		hdmi_writeb(hdmi, hdmi->mc_clkdis, HDMI_MC_CLKDIS);
+ 	}
+ }
+ 
+ static void hdmi_enable_audio_clk(struct imx_hdmi *hdmi)
+ {
+-	hdmi_modb(hdmi, 0, HDMI_MC_CLKDIS_AUDCLK_DISABLE, HDMI_MC_CLKDIS);
++	hdmi->mc_clkdis &= ~HDMI_MC_CLKDIS_AUDCLK_DISABLE;
++	hdmi_writeb(hdmi, hdmi->mc_clkdis, HDMI_MC_CLKDIS);
+ }
+ 
+ /* Workaround to clear the overflow condition */
+@@ -1578,6 +1584,27 @@ static int imx_hdmi_register(struct drm_device *drm, struct imx_hdmi *hdmi)
+ 	return 0;
+ }
+ 
++static void imx_hdmi_cec_enable(void *data)
++{
++	struct imx_hdmi *hdmi = data;
++
++	hdmi->mc_clkdis &= ~HDMI_MC_CLKDIS_CECCLK_DISABLE;
++	hdmi_writeb(hdmi, hdmi->mc_clkdis, HDMI_MC_CLKDIS);
++}
++
++static void imx_hdmi_cec_disable(void *data)
++{
++	struct imx_hdmi *hdmi = data;
++
++	hdmi->mc_clkdis |= HDMI_MC_CLKDIS_CECCLK_DISABLE;
++	hdmi_writeb(hdmi, hdmi->mc_clkdis, HDMI_MC_CLKDIS);
++}
++
++static const struct dw_hdmi_cec_ops imx_hdmi_cec_ops = {
++	.enable = imx_hdmi_cec_enable,
++	.disable = imx_hdmi_cec_disable,
++};
++
+ static struct platform_device_id imx_hdmi_devtype[] = {
+ 	{
+ 		.name = "imx6q-hdmi",
+@@ -1599,11 +1626,13 @@ MODULE_DEVICE_TABLE(of, imx_hdmi_dt_ids);
+ static int imx_hdmi_bind(struct device *dev, struct device *master, void *data)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
++	struct platform_device_info pdevinfo;
+ 	const struct of_device_id *of_id =
+ 				of_match_device(imx_hdmi_dt_ids, dev);
+ 	struct drm_device *drm = data;
+ 	struct device_node *np = dev->of_node;
+ 	struct device_node *ddc_node;
++	struct dw_hdmi_cec_data cec;
+ 	struct imx_hdmi *hdmi;
+ 	struct resource *iores;
+ 	int ret, irq;
+@@ -1616,6 +1645,7 @@ static int imx_hdmi_bind(struct device *dev, struct device *master, void *data)
+ 	hdmi->connector_status = connector_status_disconnected;
+ 	hdmi->sample_rate = 48000;
+ 	hdmi->ratio = 100;
++	hdmi->mc_clkdis = 0x7f;
+ 
+ 	if (of_id) {
+ 		const struct platform_device_id *device_id = of_id->data;
+@@ -1722,6 +1752,20 @@ static int imx_hdmi_bind(struct device *dev, struct device *master, void *data)
+ 	if (ret)
+ 		goto err_audio;
+ 
++	cec.base = hdmi->regs;
++	cec.irq = irq;
++	cec.ops = &imx_hdmi_cec_ops;
++	cec.ops_data = hdmi;
++
++	memset(&pdevinfo, 0, sizeof(pdevinfo));
++	pdevinfo.parent = dev;
++	pdevinfo.name = "dw-hdmi-cec";
++	pdevinfo.id = PLATFORM_DEVID_AUTO;
++	pdevinfo.data = &cec;
++	pdevinfo.size_data = sizeof(cec);
++
++	hdmi->cec = platform_device_register_full(&pdevinfo);
++
+ 	dev_set_drvdata(dev, hdmi);
+ 
+ 	return 0;
+@@ -1745,6 +1789,8 @@ static void imx_hdmi_unbind(struct device *dev, struct device *master,
+ {
+ 	struct imx_hdmi *hdmi = dev_get_drvdata(dev);
+ 
++	if (!IS_ERR(hdmi->cec))
++		platform_device_unregister(hdmi->cec);
+ 	snd_dw_hdmi_remove(hdmi->audio);
+ 
+ 	/* Disable all interrupts */
+diff --git a/drivers/staging/imx-drm/imx-hdmi.h b/drivers/staging/imx-drm/imx-hdmi.h
+index 5baaa9c..3dbd376 100644
+--- a/drivers/staging/imx-drm/imx-hdmi.h
++++ b/drivers/staging/imx-drm/imx-hdmi.h
+@@ -1034,4 +1034,7 @@ struct imx_hdmi;
+ void imx_hdmi_set_sample_rate(struct imx_hdmi *hdmi, unsigned int rate);
+ uint8_t *imx_hdmi_get_eld(struct imx_hdmi *hdmi);
+ 
++void hdmi_enable_cec(struct imx_hdmi *hdmi);
++void hdmi_disable_cec(struct imx_hdmi *hdmi);
++
+ #endif /* __IMX_HDMI_H__ */
+-- 
+1.8.5.3
+

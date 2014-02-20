@@ -1,0 +1,274 @@
+From 8dcf3f81055176963a1a8c88be50c55db23a96f1 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Tue, 18 Feb 2014 12:36:08 +0100
+Subject: [PATCH 7/9] ARM: dts: imx53: Add IPU DI ports and endpoints, move
+ imx-drm node to dtsi
+
+This patch connects IPU and display encoder (VGA, LVDS)
+device tree nodes, as well as parallel displays on the DISP0
+and DISP1 outputs, using the OF graph bindings described in
+Documentation/devicetree/bindings/media/video-interfaces.txt
+
+The IPU ports correspond to the two display interfaces. The
+order of endpoints in the ports is arbitrary.
+
+Since the imx-drm node now only needs to contain links to the
+display interfaces, it can be moved to the SoC dtsi level. At
+the board level, only connections between the display interface
+ports and encoders or panels have to be added.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ arch/arm/boot/dts/imx53-m53evk.dts      | 17 +++++----
+ arch/arm/boot/dts/imx53-mba53.dts       | 15 ++++----
+ arch/arm/boot/dts/imx53-qsb-common.dtsi | 17 +++++----
+ arch/arm/boot/dts/imx53.dtsi            | 64 ++++++++++++++++++++++++++++++---
+ 4 files changed, 89 insertions(+), 24 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx53-m53evk.dts b/arch/arm/boot/dts/imx53-m53evk.dts
+index d939ba8..f6d3ac3 100644
+--- a/arch/arm/boot/dts/imx53-m53evk.dts
++++ b/arch/arm/boot/dts/imx53-m53evk.dts
+@@ -23,7 +23,6 @@
+ 	soc {
+ 		display1: display@di1 {
+ 			compatible = "fsl,imx-parallel-display";
+-			crtcs = <&ipu 1>;
+ 			interface-pix-fmt = "bgr666";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pinctrl_ipu_disp1>;
+@@ -44,6 +43,12 @@
+ 				};
+ 			};
+ 		};
++
++		port {
++			display1_in: endpoint {
++				remote-endpoint = <&ipu_di1_disp1>;
++			};
++		};
+ 	};
+ 
+ 	backlight {
+@@ -54,12 +59,6 @@
+ 		power-supply = <&reg_backlight>;
+ 	};
+ 
+-	imx-drm {
+-		compatible = "fsl,imx-drm";
+-		crtcs = <&ipu 1>;
+-		connectors = <&display1>;
+-	};
+-
+ 	leds {
+ 		compatible = "gpio-leds";
+ 		pinctrl-names = "default";
+@@ -406,6 +405,10 @@
+ 	};
+ };
+ 
++&ipu_di1_disp1 {
++	remote-endpoint = <&display1_in>;
++};
++
+ &nfc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_nand>;
+diff --git a/arch/arm/boot/dts/imx53-mba53.dts b/arch/arm/boot/dts/imx53-mba53.dts
+index a398745..7cb4cac 100644
+--- a/arch/arm/boot/dts/imx53-mba53.dts
++++ b/arch/arm/boot/dts/imx53-mba53.dts
+@@ -30,15 +30,14 @@
+ 		compatible = "fsl,imx-parallel-display";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_disp1_1>;
+-		crtcs = <&ipu 1>;
+ 		interface-pix-fmt = "rgb24";
+ 		status = "disabled";
+-	};
+ 
+-	imx-drm {
+-		compatible = "fsl,imx-drm";
+-		crtcs = <&ipu 1>;
+-		connectors = <&disp1>, <&tve>;
++		port {
++			display1_in: endpoint {
++				remote-endpoint = <&ipu_di1_disp1>;
++			};
++		};
+ 	};
+ 
+ 	regulators {
+@@ -154,6 +153,10 @@
+ 	};
+ };
+ 
++&ipu_di1_disp1 {
++	remote-endpoint = <&display1_in>;
++};
++
+ &cspi {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/imx53-qsb-common.dtsi b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+index 50823d0..3f825a6 100644
+--- a/arch/arm/boot/dts/imx53-qsb-common.dtsi
++++ b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+@@ -19,7 +19,6 @@
+ 
+ 	display0: display@di0 {
+ 		compatible = "fsl,imx-parallel-display";
+-		crtcs = <&ipu 0>;
+ 		interface-pix-fmt = "rgb565";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_ipu_disp0>;
+@@ -42,6 +41,12 @@
+ 				pixelclk-active = <0>;
+ 			};
+ 		};
++
++		port {
++			display0_in: endpoint {
++				remote-endpoint = <&ipu_di0_disp0>;
++			};
++		};
+ 	};
+ 
+ 	gpio-keys {
+@@ -68,12 +73,6 @@
+ 		};
+ 	};
+ 
+-	imx-drm {
+-		compatible = "fsl,imx-drm";
+-		crtcs = <&ipu 0>;
+-		connectors = <&display0>;
+-	};
+-
+ 	leds {
+ 		compatible = "gpio-leds";
+ 		pinctrl-names = "default";
+@@ -132,6 +131,10 @@
+ 	status = "okay";
+ };
+ 
++&ipu_di0_disp0 {
++	remote-endpoint = <&display0_in>;
++};
++
+ &ssi2 {
+ 	fsl,mode = "i2s-slave";
+ 	status = "okay";
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index 80615df..25c92a8 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -52,6 +52,11 @@
+ 		};
+ 	};
+ 
++	imx-drm {
++		compatible = "fsl,imx-drm";
++		ports = <&ipu_di0>, <&ipu_di1>;
++	};
++
+ 	tzic: tz-interrupt-controller@0fffc000 {
+ 		compatible = "fsl,imx53-tzic", "fsl,tzic";
+ 		interrupt-controller;
+@@ -103,7 +108,8 @@
+ 		};
+ 
+ 		ipu: ipu@18000000 {
+-			#crtc-cells = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
+ 			compatible = "fsl,imx53-ipu";
+ 			reg = <0x18000000 0x080000000>;
+ 			interrupts = <11 10>;
+@@ -112,6 +118,41 @@
+ 			         <&clks IMX5_CLK_IPU_DI1_GATE>;
+ 			clock-names = "bus", "di0", "di1";
+ 			resets = <&src 2>;
++
++			ipu_di0: port@2 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <2>;
++
++				ipu_di0_disp0: endpoint@0 {
++					reg = <0>;
++				};
++
++				ipu_di0_lvds0: endpoint@1 {
++					reg = <1>;
++					remote-endpoint = <&lvds0_in>;
++				};
++			};
++
++			ipu_di1: port@3 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <3>;
++
++				ipu_di1_disp1: endpoint@0 {
++					reg = <0>;
++				};
++
++				ipu_di1_lvds1: endpoint@1 {
++					reg = <1>;
++					remote-endpoint = <&lvds1_in>;
++				};
++
++				ipu_di1_tve: endpoint@2 {
++					reg = <2>;
++					remote-endpoint = <&tve_in>;
++				};
++			};
+ 		};
+ 
+ 		aips@50000000 { /* AIPS1 */
+@@ -374,14 +415,24 @@
+ 
+ 				lvds-channel@0 {
+ 					reg = <0>;
+-					crtcs = <&ipu 0>;
+ 					status = "disabled";
++
++					port {
++						lvds0_in: endpoint {
++							remote-endpoint = <&ipu_di0_lvds0>;
++						};
++					};
+ 				};
+ 
+ 				lvds-channel@1 {
+ 					reg = <1>;
+-					crtcs = <&ipu 1>;
+ 					status = "disabled";
++
++					port {
++						lvds1_in: endpoint {
++							remote-endpoint = <&ipu_di0_lvds0>;
++						};
++					};
+ 				};
+ 			};
+ 
+@@ -655,8 +706,13 @@
+ 				clocks = <&clks IMX5_CLK_TVE_GATE>,
+ 				         <&clks IMX5_CLK_IPU_DI1_SEL>;
+ 				clock-names = "tve", "di_sel";
+-				crtcs = <&ipu 1>;
+ 				status = "disabled";
++
++				port {
++					tve_in: endpoint {
++						remote-endpoint = <&ipu_di1_tve>;
++					};
++				};
+ 			};
+ 
+ 			vpu: vpu@63ff4000 {
+-- 
+1.8.5.3
+
