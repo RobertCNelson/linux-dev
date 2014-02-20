@@ -1,0 +1,40 @@
+From a4108f2046976741ed06a2efbe87a2a3b83f5aa5 Mon Sep 17 00:00:00 2001
+From: Anson Huang <b20788@freescale.com>
+Date: Wed, 12 Feb 2014 17:57:02 +0800
+Subject: [PATCH 186/198] ARM: dts: imx6q: add 852MHz setpoint for CPU freq
+
+According to datasheet, i.MX6Q has setpoint of 852MHz
+which is exclusive with 996MHz, the fuse map of speed_grading
+defines the max speed of ARM, here we add this 852MHz
+setpoint opp info, kernel will check the speed_grading
+fuse and remove all illegal setpoints.
+
+Signed-off-by: Anson Huang <b20788@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6q.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 422d169..fadf498 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -30,6 +30,7 @@
+ 				/* kHz    uV */
+ 				1200000 1275000
+ 				996000  1250000
++				852000  1250000
+ 				792000  1150000
+ 				396000  975000
+ 			>;
+@@ -37,6 +38,7 @@
+ 				/* ARM kHz  SOC-PU uV */
+ 				1200000 1275000
+ 				996000	1250000
++				852000	1250000
+ 				792000	1175000
+ 				396000	1175000
+ 			>;
+-- 
+1.8.5.3
+

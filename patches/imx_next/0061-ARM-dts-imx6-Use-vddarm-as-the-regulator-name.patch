@@ -1,0 +1,52 @@
+From b017027bd3c2eab891b12690ba3289f89658d01e Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Thu, 19 Dec 2013 21:08:52 -0200
+Subject: [PATCH 061/198] ARM: dts: imx6: Use 'vddarm' as the regulator name
+
+Instead of calling the regulator for the ARM core as 'cpu', let's rename it
+as 'vddarm', so that we keep a better consistency with the other internal
+regulators:
+
+vdd1p1: 800 <--> 1375 mV at 1100 mV
+vdd3p0: 2800 <--> 3150 mV at 3000 mV
+vdd2p5: 2000 <--> 2750 mV at 2400 mV
+vddarm: 725 <--> 1450 mV at 1150 mV
+vddpu: 725 <--> 1450 mV at 1150 mV
+vddsoc: 725 <--> 1450 mV at 1200 mV
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl.dtsi | 2 +-
+ arch/arm/boot/dts/imx6sl.dtsi  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index c5a6604..556f632 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -513,7 +513,7 @@
+ 
+ 				reg_arm: regulator-vddcore@140 {
+ 					compatible = "fsl,anatop-regulator";
+-					regulator-name = "cpu";
++					regulator-name = "vddarm";
+ 					regulator-min-microvolt = <725000>;
+ 					regulator-max-microvolt = <1450000>;
+ 					regulator-always-on;
+diff --git a/arch/arm/boot/dts/imx6sl.dtsi b/arch/arm/boot/dts/imx6sl.dtsi
+index fd14412..8e7bce2 100644
+--- a/arch/arm/boot/dts/imx6sl.dtsi
++++ b/arch/arm/boot/dts/imx6sl.dtsi
+@@ -464,7 +464,7 @@
+ 
+ 				reg_arm: regulator-vddcore@140 {
+ 					compatible = "fsl,anatop-regulator";
+-					regulator-name = "cpu";
++					regulator-name = "vddarm";
+ 					regulator-min-microvolt = <725000>;
+ 					regulator-max-microvolt = <1450000>;
+ 					regulator-always-on;
+-- 
+1.8.5.3
+

@@ -1,0 +1,62 @@
+From 2d726639a086c253fcd2fa923a6d2a2bffc008ed Mon Sep 17 00:00:00 2001
+From: Nicolin Chen <Guangyu.Chen@freescale.com>
+Date: Mon, 16 Dec 2013 18:37:48 +0800
+Subject: [PATCH 042/198] ARM: dts: imx6qdl: add spdif support for sabreauto
+
+This patch adds spdif support for imx6qdl-sabreauto by inserting the cpu dai
+node with pinctrl group and its ASoC dai link node.
+
+Signed-off-by: Nicolin Chen <Guangyu.Chen@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-sabreauto.dtsi | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
+index 260f987..5fb41af 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
+@@ -14,6 +14,14 @@
+ 	memory {
+ 		reg = <0x10000000 0x80000000>;
+ 	};
++
++	sound-spdif {
++		compatible = "fsl,imx-audio-spdif",
++			   "fsl,imx-sabreauto-spdif";
++		model = "imx-spdif";
++		spdif-controller = <&spdif>;
++		spdif-in;
++	};
+ };
+ 
+ &ecspi1 {
+@@ -114,6 +122,12 @@
+ 			>;
+ 		};
+ 
++		pinctrl_spdif: spdifgrp {
++			fsl,pins = <
++				MX6QDL_PAD_KEY_COL3__SPDIF_IN 0x1b0b0
++			>;
++		};
++
+ 		pinctrl_uart4: uart4grp {
+ 			fsl,pins = <
+ 				MX6QDL_PAD_KEY_COL0__UART4_TX_DATA	0x1b0b1
+@@ -222,6 +236,12 @@
+ 	};
+ };
+ 
++&spdif {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_spdif>;
++	status = "okay";
++};
++
+ &uart4 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart4>;
+-- 
+1.8.5.3
+

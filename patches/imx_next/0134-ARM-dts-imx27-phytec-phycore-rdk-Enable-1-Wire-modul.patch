@@ -1,0 +1,47 @@
+From 9e584ccb3405160069ac02efa1fea9606f9d15d5 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Sat, 21 Dec 2013 11:11:38 +0400
+Subject: [PATCH 134/198] ARM: dts: imx27-phytec-phycore-rdk: Enable 1-Wire
+ module
+
+This patch enables 1-Wire module for Phytec PCM-970 RDK.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts b/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
+index fc2ed30..e9a9966 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
+@@ -44,6 +44,12 @@
+ 			>;
+ 		};
+ 
++		pinctrl_owire1: owire1grp {
++			fsl,pins = <
++				MX27_PAD_RTCK__OWIRE 0x0
++			>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX27_PAD_UART1_TXD__UART1_TXD 0x0
+@@ -64,6 +70,12 @@
+ 	};
+ };
+ 
++&owire {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_owire1>;
++	status = "okay";
++};
++
+ &sdhci2 {
+ 	bus-width = <4>;
+ 	cd-gpios = <&gpio3 29 GPIO_ACTIVE_HIGH>;
+-- 
+1.8.5.3
+

@@ -1,0 +1,36 @@
+From dc832e78c4e6ce861beb6047b24ae4561894baca Mon Sep 17 00:00:00 2001
+From: Anson Huang <b20788@freescale.com>
+Date: Thu, 19 Dec 2013 09:16:48 -0500
+Subject: [PATCH 056/198] ARM: dts: imx6q: add vddsoc/pu setpoint info
+
+i.MX6Q needs to update vddarm, vddsoc/pu regulators when cpu freq
+is changed, each setpoint has different voltage, so we need to
+pass vddarm, vddsoc/pu's freq-voltage info from dts together.
+
+Signed-off-by: Anson Huang <b20788@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6q.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 7acfda7..6295fa8 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -29,6 +29,13 @@
+ 				792000  1150000
+ 				396000  975000
+ 			>;
++			fsl,soc-operating-points = <
++				/* ARM kHz  SOC-PU uV */
++				1200000 1275000
++				996000	1250000
++				792000	1175000
++				396000	1175000
++			>;
+ 			clock-latency = <61036>; /* two CLK32 periods */
+ 			clocks = <&clks 104>, <&clks 6>, <&clks 16>,
+ 				 <&clks 17>, <&clks 170>;
+-- 
+1.8.5.3
+

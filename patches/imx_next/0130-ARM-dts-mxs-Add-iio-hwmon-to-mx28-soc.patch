@@ -1,0 +1,32 @@
+From 272aa19adfe5d4f0e919815acef4c75c07b13651 Mon Sep 17 00:00:00 2001
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Date: Wed, 18 Dec 2013 19:50:55 +0100
+Subject: [PATCH 130/198] ARM: dts: mxs: Add iio-hwmon to mx28 soc
+
+This allows to read the SoC on-die temperature sensor available on the LRADC by
+using:
+ cat /sys/class/hwmon/hwmon0/device/temp1_input
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx28.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx28.dtsi b/arch/arm/boot/dts/imx28.dtsi
+index 2575dd8..f60ed82 100644
+--- a/arch/arm/boot/dts/imx28.dtsi
++++ b/arch/arm/boot/dts/imx28.dtsi
+@@ -1182,4 +1182,9 @@
+ 			status = "disabled";
+ 		};
+ 	};
++
++	iio_hwmon {
++		compatible = "iio-hwmon";
++		io-channels = <&lradc 8>;
++	};
+ };
+-- 
+1.8.5.3
+

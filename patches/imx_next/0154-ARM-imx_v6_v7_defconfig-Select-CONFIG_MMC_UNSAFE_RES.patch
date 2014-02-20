@@ -1,0 +1,33 @@
+From b2be402b2fa5352cba53e46cbede22c9a70cb9a5 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Thu, 30 Jan 2014 13:04:12 -0200
+Subject: [PATCH 154/198] ARM: imx_v6_v7_defconfig: Select
+ CONFIG_MMC_UNSAFE_RESUME
+
+PM subsystem treats mmc card as removed during suspend.
+
+If MMC is used to store the root file system, it is better to tell the kernel
+not to treat it as a removable media, so select CONFIG_MMC_UNSAFE_RESUME for
+such purpose.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/configs/imx_v6_v7_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/imx_v6_v7_defconfig
+index 82ab3cc..7b76794 100644
+--- a/arch/arm/configs/imx_v6_v7_defconfig
++++ b/arch/arm/configs/imx_v6_v7_defconfig
+@@ -215,6 +215,7 @@ CONFIG_USB_GADGET=y
+ CONFIG_USB_ETH=m
+ CONFIG_USB_MASS_STORAGE=m
+ CONFIG_MMC=y
++CONFIG_MMC_UNSAFE_RESUME=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_PLTFM=y
+ CONFIG_MMC_SDHCI_ESDHC_IMX=y
+-- 
+1.8.5.3
+

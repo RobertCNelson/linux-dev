@@ -1,0 +1,61 @@
+From 00707941903ea4b3376845d2634bfa180418d787 Mon Sep 17 00:00:00 2001
+From: Sascha Silbe <x-linux@infra-silbe.de>
+Date: Thu, 6 Feb 2014 23:24:13 +0100
+Subject: [PATCH 183/198] ARM: dts: imx6qdl-wandboard: use GPIO_6 for FEC
+ interrupt
+
+Apply the same work-around for i.MX 6D/Q erratum 006687 as used for
+Sabre Lite for the Wandboard Dual / Quad.
+
+Like on the Sabre Lite, GPIO6 is used as a power down output for
+camera expansion boards. However, these expansion boards do not work
+with mainline yet anyway.
+
+Tested on a Wandboard Quad. Before the patch:
+
+root@arm:~# ping -q -f -c 10000 192.168.2.1
+PING 192.168.2.1 (192.168.2.1) 56(84) bytes of data.
+
+=== 192.168.2.1 ping statistics ===
+10000 packets transmitted, 10000 received, 0% packet loss, time 97363ms
+rtt min/avg/max/mdev = 0.290/9.586/10.198/1.432 ms, pipe 2, ipg/ewma 9.737/9.672 ms
+
+After the patch:
+
+root@arm:~# ping -q -f -c 10000 192.168.2.1
+PING 192.168.2.1 (192.168.2.1) 56(84) bytes of data.
+
+=== 192.168.2.1 ping statistics ===
+10000 packets transmitted, 10000 received, 0% packet loss, time 4810ms
+rtt min/avg/max/mdev = 0.246/0.355/0.863/0.044 ms, ipg/ewma 0.481/0.319 ms
+
+Signed-off-by: Sascha Silbe <x-linux@infra-silbe.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-wandboard.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index 81138b7..bdfdf89 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -123,6 +123,7 @@
+ 				MX6QDL_PAD_RGMII_RD3__RGMII_RD3		0x1b0b0
+ 				MX6QDL_PAD_RGMII_RX_CTL__RGMII_RX_CTL	0x1b0b0
+ 				MX6QDL_PAD_GPIO_16__ENET_REF_CLK	0x4001b0a8
++				MX6QDL_PAD_GPIO_6__ENET_IRQ		0x000b1
+ 			>;
+ 		};
+ 
+@@ -201,6 +202,8 @@
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
+ 	phy-reset-gpios = <&gpio3 29 0>;
++	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
++			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	status = "okay";
+ };
+ 
+-- 
+1.8.5.3
+

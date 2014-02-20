@@ -1,0 +1,45 @@
+From e06e5f6f056c3e9616a3ea126ef4cc08961ea577 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Sat, 21 Dec 2013 11:11:37 +0400
+Subject: [PATCH 133/198] ARM: dts: imx27-phytec-phycore-som: Add NFC pin group
+
+This patch adds pin group for NAND Flash Controller.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi b/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
+index ab75b72..73920a1e 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
++++ b/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
+@@ -223,10 +223,24 @@
+ 				MX27_PAD_I2C2_SCL__I2C2_SCL 0x0
+ 			>;
+ 		};
++
++		pinctrl_nfc: nfcgrp {
++			fsl,pins = <
++				MX27_PAD_NFRB__NFRB 0x0
++				MX27_PAD_NFCLE__NFCLE 0x0
++				MX27_PAD_NFWP_B__NFWP_B 0x0
++				MX27_PAD_NFCE_B__NFCE_B 0x0
++				MX27_PAD_NFALE__NFALE 0x0
++				MX27_PAD_NFRE_B__NFRE_B 0x0
++				MX27_PAD_NFWE_B__NFWE_B 0x0
++			>;
++		};
+ 	};
+ };
+ 
+ &nfc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_nfc>;
+ 	nand-bus-width = <8>;
+ 	nand-ecc-mode = "hw";
+ 	nand-on-flash-bbt;
+-- 
+1.8.5.3
+

@@ -1,0 +1,38 @@
+From 0c4a0ebbb6f0dc53727c999561789dcbdf617b60 Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Fri, 20 Dec 2013 11:47:12 -0700
+Subject: [PATCH 164/198] ARM: dts: imx6qdl-sabreauto: use GPIO_6 for FEC
+ interrupt.
+
+This works around a hardware bug.
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-sabreauto.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
+index 5fb41af..4018c16 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabreauto.dtsi
+@@ -44,6 +44,8 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+ 	phy-mode = "rgmii";
++	interrupts-extended = <&gpio1 6 IRQ_TYPE_LEVEL_HIGH>,
++			      <&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 	status = "okay";
+ };
+ 
+@@ -97,6 +99,7 @@
+ 				MX6QDL_PAD_RGMII_RD2__RGMII_RD2		0x1b0b0
+ 				MX6QDL_PAD_RGMII_RD3__RGMII_RD3		0x1b0b0
+ 				MX6QDL_PAD_RGMII_RX_CTL__RGMII_RX_CTL	0x1b0b0
++				MX6QDL_PAD_GPIO_6__ENET_IRQ		0x000b1
+ 			>;
+ 		};
+ 
+-- 
+1.8.5.3
+
