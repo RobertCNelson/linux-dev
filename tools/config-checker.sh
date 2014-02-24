@@ -260,8 +260,6 @@ config="CONFIG_HZ_100"
 check_config_builtin
 config="CONFIG_HZ_250"
 check_config_disable
-config="CONFIG_OABI_COMPAT"
-check_config_disable
 config="CONFIG_HIGHPTE"
 check_config_builtin
 config="CONFIG_MEMORY_ISOLATION"
@@ -340,45 +338,19 @@ check_config_builtin
 #
 # Networking options
 #
-config="CONFIG_IPV6_VTI"
-check_config_module
 config="CONFIG_NETLABEL"
 check_config_builtin
 
 #
 # Core Netfilter Configuration
 #
-config="CONFIG_NETFILTER_SYNPROXY"
-check_config_module
-config="CONFIG_NF_TABLES"
-check_config_module
 config="CONFIG_NF_TABLES_INET"
-check_config_module
-config="CONFIG_NFT_EXTHDR"
-check_config_module
-config="CONFIG_NFT_META"
-check_config_module
-config="CONFIG_NFT_CT"
-check_config_module
-config="CONFIG_NFT_RBTREE"
-check_config_module
-config="CONFIG_NFT_HASH"
-check_config_module
-config="CONFIG_NFT_COUNTER"
-check_config_module
-config="CONFIG_NFT_LOG"
-check_config_module
-config="CONFIG_NFT_LIMIT"
-check_config_module
-config="CONFIG_NFT_NAT"
 check_config_module
 config="CONFIG_NFT_QUEUE"
 check_config_module
 config="CONFIG_NFT_REJECT"
 check_config_module
 config="CONFIG_NFT_REJECT_INET"
-check_config_module
-config="CONFIG_NFT_COMPAT"
 check_config_module
 
 #
@@ -387,14 +359,6 @@ check_config_module
 config="CONFIG_NETFILTER_XT_MATCH_CGROUP"
 check_config_module
 config="CONFIG_NETFILTER_XT_MATCH_IPCOMP"
-check_config_module
-
-#
-# Xtables matches
-#
-config="CONFIG_IP_SET_HASH_NETPORTNET"
-check_config_module
-config="CONFIG_IP_SET_HASH_NETNET"
 check_config_module
 
 #
@@ -414,11 +378,11 @@ config="CONFIG_IP_NF_MATCH_ECN"
 check_config_module
 config="CONFIG_IP_NF_MATCH_TTL"
 check_config_module
-config="CONFIG_IP_NF_TARGET_SYNPROXY"
-check_config_module
 config="CONFIG_IP_NF_TARGET_NETMAP"
 check_config_module
 config="CONFIG_IP_NF_TARGET_REDIRECT"
+check_config_module
+config="CONFIG_IP_NF_TARGET_TTL"
 check_config_module
 
 #
@@ -431,8 +395,6 @@ check_config_module
 config="CONFIG_NFT_CHAIN_NAT_IPV6"
 check_config_disable
 config="CONFIG_NFT_REJECT_IPV6"
-check_config_module
-config="CONFIG_IP6_NF_TARGET_SYNPROXY"
 check_config_module
 config="CONFIG_NF_TABLES_BRIDGE"
 check_config_module
@@ -564,10 +526,10 @@ config="CONFIG_MAC80211_RC_PID"
 check_config_builtin
 config="CONFIG_NFC_DIGITAL"
 check_config_module
+config="CONFIG_NFC_NCI"
+check_config_module
 config="CONFIG_NFC_NCI_SPI"
 check_config_builtin
-config="CONFIG_NFC_HCI"
-check_config_module
 config="CONFIG_NFC_SHDLC"
 check_config_builtin
 
@@ -575,8 +537,6 @@ check_config_builtin
 # Near Field Communication (NFC) devices
 #
 config="CONFIG_NFC_WILINK"
-check_config_module
-config="CONFIG_NFC_PORT100"
 check_config_module
 config="CONFIG_NFC_PN544"
 check_config_module
@@ -883,8 +843,6 @@ check_config_disable
 #
 # USB Network Adapters
 #
-config="CONFIG_USB_NET_HUAWEI_CDC_NCM"
-check_config_module
 config="CONFIG_USB_NET_SR9800"
 check_config_module
 config="CONFIG_USB_ZD1201"
@@ -1086,8 +1044,6 @@ check_config_module
 config="CONFIG_TOUCHSCREEN_TSC_SERIO"
 check_config_module
 config="CONFIG_TOUCHSCREEN_ST1232"
-check_config_module
-config="CONFIG_TOUCHSCREEN_SUR40"
 check_config_module
 config="CONFIG_TOUCHSCREEN_ZFORCE"
 check_config_module
@@ -1816,10 +1772,14 @@ check_config_builtin
 #
 config="CONFIG_HID_APPLEIR"
 check_config_module
+config="CONFIG_HID_ELO"
+check_config_module
 config="CONFIG_HID_PICOLCD_LCD"
 check_config_builtin
 config="CONFIG_SONY_FF"
 check_config_builtin
+config="CONFIG_HID_XINMO"
+check_config_module
 
 #
 # I2C HID support
@@ -2581,6 +2541,8 @@ check_config_disable
 #
 # PHY Subsystem
 #
+config="CONFIG_GENERIC_PHY"
+check_config_builtin
 config="CONFIG_OMAP_USB2"
 check_config_builtin
 config="CONFIG_TWL4030_USB"
