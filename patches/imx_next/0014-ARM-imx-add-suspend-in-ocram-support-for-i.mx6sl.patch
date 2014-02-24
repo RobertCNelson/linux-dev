@@ -16,20 +16,20 @@ Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
  3 files changed, 61 insertions(+), 4 deletions(-)
 
 diff --git a/arch/arm/mach-imx/Makefile b/arch/arm/mach-imx/Makefile
-index 7fcd8d0..02cbb48 100644
+index 48b47aa..979ff84 100644
 --- a/arch/arm/mach-imx/Makefile
 +++ b/arch/arm/mach-imx/Makefile
-@@ -106,7 +106,7 @@ ifeq ($(CONFIG_PM),y)
+@@ -105,7 +105,7 @@ obj-$(CONFIG_SOC_IMX6SL) += clk-imx6sl.o mach-imx6sl.o
  AFLAGS_suspend-imx6.o :=-Wa,-march=armv7-a
  obj-$(CONFIG_SOC_IMX6Q) += pm-imx6q.o headsmp.o suspend-imx6.o
  # i.MX6SL reuses i.MX6Q code
 -obj-$(CONFIG_SOC_IMX6SL) += pm-imx6q.o headsmp.o
 +obj-$(CONFIG_SOC_IMX6SL) += pm-imx6q.o headsmp.o suspend-imx6.o
- endif
  
  # i.MX5 based machines
+ obj-$(CONFIG_MACH_MX51_BABBAGE) += mach-mx51_babbage.o
 diff --git a/arch/arm/mach-imx/pm-imx6q.c b/arch/arm/mach-imx/pm-imx6q.c
-index c1cbc3b..c8fea8f 100644
+index 4155161..a9a187d 100644
 --- a/arch/arm/mach-imx/pm-imx6q.c
 +++ b/arch/arm/mach-imx/pm-imx6q.c
 @@ -121,6 +121,14 @@ static const u32 imx6dl_mmdc_io_offset[] __initconst = {
@@ -64,7 +64,7 @@ index c1cbc3b..c8fea8f 100644
  /*
   * This structure is for passing necessary data for low level ocram
   * suspend code(arch/arm/mach-imx/suspend-imx6.S), if this struct
-@@ -532,5 +550,5 @@ void __init imx6dl_pm_init(void)
+@@ -530,5 +548,5 @@ void __init imx6dl_pm_init(void)
  
  void __init imx6sl_pm_init(void)
  {

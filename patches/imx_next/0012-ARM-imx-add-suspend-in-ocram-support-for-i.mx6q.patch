@@ -34,31 +34,31 @@ Signed-off-by: Anson Huang <b20788@freescale.com>
 Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
 ---
  arch/arm/mach-imx/Makefile       |   3 +-
- arch/arm/mach-imx/common.h       |   8 +-
+ arch/arm/mach-imx/common.h       |   5 +-
  arch/arm/mach-imx/hardware.h     |   4 +-
  arch/arm/mach-imx/mach-imx6q.c   |   2 +-
  arch/arm/mach-imx/mach-imx6sl.c  |   3 +-
  arch/arm/mach-imx/pm-imx6q.c     | 281 ++++++++++++++++++++++++++++++++++++-
  arch/arm/mach-imx/suspend-imx6.S | 289 +++++++++++++++++++++++++++++++++++++++
- 7 files changed, 579 insertions(+), 11 deletions(-)
+ 7 files changed, 576 insertions(+), 11 deletions(-)
  create mode 100644 arch/arm/mach-imx/suspend-imx6.S
 
 diff --git a/arch/arm/mach-imx/Makefile b/arch/arm/mach-imx/Makefile
-index 8589032..7fcd8d0 100644
+index 21114a9..48b47aa 100644
 --- a/arch/arm/mach-imx/Makefile
 +++ b/arch/arm/mach-imx/Makefile
-@@ -103,7 +103,8 @@ obj-$(CONFIG_SOC_IMX6Q) += clk-imx6q.o mach-imx6q.o
+@@ -102,7 +102,8 @@ obj-$(CONFIG_HOTPLUG_CPU) += hotplug.o
+ obj-$(CONFIG_SOC_IMX6Q) += clk-imx6q.o mach-imx6q.o
  obj-$(CONFIG_SOC_IMX6SL) += clk-imx6sl.o mach-imx6sl.o
  
- ifeq ($(CONFIG_PM),y)
 -obj-$(CONFIG_SOC_IMX6Q) += pm-imx6q.o headsmp.o
 +AFLAGS_suspend-imx6.o :=-Wa,-march=armv7-a
 +obj-$(CONFIG_SOC_IMX6Q) += pm-imx6q.o headsmp.o suspend-imx6.o
  # i.MX6SL reuses i.MX6Q code
  obj-$(CONFIG_SOC_IMX6SL) += pm-imx6q.o headsmp.o
- endif
+ 
 diff --git a/arch/arm/mach-imx/common.h b/arch/arm/mach-imx/common.h
-index 1048248..4dd932a 100644
+index b909b68..c429d51 100644
 --- a/arch/arm/mach-imx/common.h
 +++ b/arch/arm/mach-imx/common.h
 @@ -1,5 +1,5 @@
@@ -68,24 +68,17 @@ index 1048248..4dd932a 100644
   */
  
  /*
-@@ -146,11 +146,17 @@ void imx_cpu_die(unsigned int cpu);
+@@ -145,7 +145,10 @@ void imx6sl_set_wait_clk(bool enter);
+ void imx_cpu_die(unsigned int cpu);
  int imx_cpu_kill(unsigned int cpu);
  
- #ifdef CONFIG_PM
 +void imx6_suspend(void __iomem *ocram_vbase);
  void imx6q_pm_init(void);
 +void imx6dl_pm_init(void);
 +void imx6sl_pm_init(void);
  void imx6q_pm_set_ccm_base(void __iomem *base);
+ #ifdef CONFIG_PM
  void imx5_pm_init(void);
- #else
-+static inline void imx6_suspend(void __iomem *ocram_vbase) {}
- static inline void imx6q_pm_init(void) {}
-+static inline void imx6dl_pm_init(void) {}
-+static inline void imx6sl_pm_init(void) {}
- static inline void imx6q_pm_set_ccm_base(void __iomem *base) {}
- static inline void imx5_pm_init(void) {}
- #endif
 diff --git a/arch/arm/mach-imx/hardware.h b/arch/arm/mach-imx/hardware.h
 index a3b0b04..abf43bb 100644
 --- a/arch/arm/mach-imx/hardware.h
@@ -135,7 +128,7 @@ index a26fdb2..ad32338 100644
  
  static void __init imx6sl_init_irq(void)
 diff --git a/arch/arm/mach-imx/pm-imx6q.c b/arch/arm/mach-imx/pm-imx6q.c
-index d45acc0..626819d 100644
+index 30af3c0..a7b1e58 100644
 --- a/arch/arm/mach-imx/pm-imx6q.c
 +++ b/arch/arm/mach-imx/pm-imx6q.c
 @@ -1,5 +1,5 @@
@@ -459,7 +452,7 @@ index d45acc0..626819d 100644
  	/*
  	 * This is for SW workaround step #1 of ERR007265, see comments
  	 * in imx6q_set_lpm for details of this errata.
-@@ -241,3 +497,18 @@ void __init imx6q_pm_init(void)
+@@ -239,3 +495,18 @@ void __init imx6q_pm_init(void)
  
  	suspend_set_ops(&imx6q_pm_ops);
  }
