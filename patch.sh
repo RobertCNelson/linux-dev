@@ -138,6 +138,20 @@ sgx () {
 	${git} "${DIR}/patches/sgx/0007-Changes-according-to-TI-for-SGX-support.patch"
 }
 
+capes_one_layer () {
+	echo "dir: capes-one-layer"
+
+	#MAKE SURE TO ALWAYS ADD PINMUXS TO PATCH 1:
+	${git} "${DIR}/patches/capes-one-layer/0001-dts-am335x-boneblack-default.patch"
+
+	#Serial capes
+	${git} "${DIR}/patches/capes-one-layer/0002-dts-boneblack-ttyO1-ttyO2-ttyO4.patch"
+
+	#Update Makefile Last
+	${git} "${DIR}/patches/capes-one-layer/0003-build-capes-one-layer.patch"
+
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -155,6 +169,7 @@ usb
 #overlay
 #capemgr
 sgx
+capes_one_layer
 saucy
 
 echo "patch.sh ran successful"
