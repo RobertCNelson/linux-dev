@@ -76,11 +76,11 @@ mmc_write_rootfs () {
 		sudo cp -v "${DIR}/deploy/config-${KERNEL_UTS}" "${location}/boot/config-${KERNEL_UTS}"
 	fi
 
-	if [ -f "${DIR}/deploy/GFX_5.01.00.01.tar.gz" ] ; then
+	if [ -f "${DIR}/deploy/GFX_5.01.01.01.tar.gz" ] ; then
 		if [ ! -d "${location}/opt/" ] ; then
 			sudo mkdir -p "${location}/opt/"
 		fi
-		sudo cp -v "${DIR}/deploy/GFX_5.01.00.01.tar.gz" "${location}/opt/"
+		sudo cp -v "${DIR}/deploy/GFX_5.01.01.01.tar.gz" "${location}/opt/"
 	fi
 }
 
