@@ -1,0 +1,57 @@
+From ce8323b5b6d8c73126ae83ab4acc198534ec7e7a Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Tue, 25 Feb 2014 15:22:11 -0300
+Subject: [PATCH 1/2] ARM: dts: imx6qdl-sabresd: Add HDMI support
+
+Add device tree support for HDMI.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ arch/arm/boot/dts/imx6qdl-sabresd.dtsi | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+index 04487cb..bdcd4c3 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+@@ -82,7 +82,7 @@
+ 	imx_drm: imx-drm {
+ 		compatible = "fsl,imx-drm";
+ 		crtcs = <&ipu1 0>, <&ipu1 1>;
+-		connectors = <&ldb>;
++		connectors = <&ldb>, <&hdmi>;
+ 	};
+ 
+ 	sound {
+@@ -143,6 +143,14 @@
+ 	status = "okay";
+ };
+ 
++&hdmi {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_sabresd_hdmi>;
++	ddc = <&i2c2>;
++	status = "okay";
++	crtcs = <&ipu1 1>;
++};
++
+ &i2c1 {
+ 	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+@@ -385,6 +393,13 @@
+ 			>;
+ 		};
+ 
++
++		pinctrl_sabresd_hdmi: sabresd-hdmi {
++			fsl,pins = <
++				MX6QDL_PAD_KEY_ROW2__HDMI_TX_CEC_LINE 0x1f8b0
++			>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX6QDL_PAD_CSI0_DAT10__UART1_TX_DATA	0x1b0b1
+-- 
+1.8.5.3
+
