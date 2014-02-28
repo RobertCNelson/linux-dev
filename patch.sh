@@ -373,6 +373,7 @@ dts () {
 
 	${git} "${DIR}/patches/dts/0010-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0011-hack-wand-enable-hdmi.patch"
+	${git} "${DIR}/patches/dts/0012-arm-dts-vf610-twr-Add-support-for-sdhc1.patch"
 }
 
 imx_drm () {
@@ -441,7 +442,7 @@ fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
 #	${git} "${DIR}/patches/fixes/0002-fix-compilation-of-imx-hdmi.patch"
-	${git} "${DIR}/patches/fixes/0003-Makefile-extra.patch"
+#	${git} "${DIR}/patches/fixes/0003-Makefile-extra.patch"
 }
 
 vivante () {
