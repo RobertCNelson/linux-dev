@@ -38,7 +38,7 @@ dl_gcc_generic () {
 		if [ -d ${DIR}/dl/${directory} ] ; then
 			rm -rf ${DIR}/dl/${directory} || true
 		fi
-		${untar} ${DIR}/dl/${filename} -C ${DIR}/dl/
+		tar -xf ${DIR}/dl/${filename} -C ${DIR}/dl/
 		if [ -f ${DIR}/dl/${directory}/${binary}gcc ] ; then
 			touch ${DIR}/dl/${directory}/${datestamp}
 		fi
@@ -65,7 +65,6 @@ gcc_toolchain () {
 		directory="${toolchain_name}-4_7-2013q3"
 		filename="${directory}-${version_date}-linux.tar.bz2"
 		datestamp="${version_date}-${toolchain_name}"
-		untar="tar -xjf"
 
 		binary="bin/arm-none-eabi-"
 		;;
@@ -80,7 +79,6 @@ gcc_toolchain () {
 		directory="${toolchain_name}-4_8-2013q4"
 		filename="${directory}-${version_date}-linux.tar.bz2"
 		datestamp="${version_date}-${toolchain_name}"
-		untar="tar -xjf"
 
 		binary="bin/arm-none-eabi-"
 		;;
@@ -96,7 +94,6 @@ gcc_toolchain () {
 		directory="${toolchain_name}-${release}-${version_date}_linux"
 		filename="${directory}.tar.bz2"
 		datestamp="${version_date}-${toolchain_name}"
-		untar="tar -xjf"
 
 		binary="bin/arm-linux-gnueabi-"
 		;;
@@ -113,7 +110,6 @@ gcc_toolchain () {
 		directory="${toolchain_name}-${gcc_version}-${release}-${version_date}_linux"
 		filename="${directory}.tar.xz"
 		datestamp="${version_date}-${toolchain_name}"
-		untar="tar -xJf"
 
 		binary="bin/arm-linux-gnueabihf-"
 		;;
@@ -129,21 +125,19 @@ gcc_toolchain () {
 		directory="${toolchain_name}-${gcc_version}-${release}_linux"
 		filename="${directory}.tar.xz"
 		datestamp="${release}-${toolchain_name}"
-		untar="tar -xJf"
 
 		binary="bin/arm-linux-gnueabihf-"
 		;;
 	gcc_linaro_gnueabihf_4_8)
-		#https://releases.linaro.org/14.01/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.8-2014.01_linux.tar.xz
+		#https://releases.linaro.org/14.02/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.8-2014.02_linux.tar.xz
 		gcc_version="4.8"
-		release="2014.01"
+		release="2014.02"
 		toolchain_name="gcc-linaro-arm-linux-gnueabihf"
 		site="https://releases.linaro.org"
-		version="14.01/components/toolchain/binaries"
+		version="14.02/components/toolchain/binaries"
 		directory="${toolchain_name}-${gcc_version}-${release}_linux"
 		filename="${directory}.tar.xz"
 		datestamp="${release}-${toolchain_name}"
-		untar="tar -xf"
 
 		binary="bin/arm-linux-gnueabihf-"
 		;;

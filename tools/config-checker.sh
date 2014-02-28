@@ -2,6 +2,18 @@
 
 DIR=$PWD
 
+check_config_value () {
+	unset test_config
+	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
+	if [ "x${test_config}" = "x" ] ; then
+		echo "echo ${config}=${value} >> ./KERNEL/.config"
+	else
+		if [ ! "x${test_config}" = "x${config}=${value}" ] ; then
+			echo "sed -i -e 's:${test_config}:${config}=${value}:g' ./KERNEL/.config"
+		fi
+	fi
+}
+
 check_config_builtin () {
 	unset test_config
 	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
@@ -33,7 +45,7 @@ check_config () {
 	fi
 }
 
-check_config_disabled () {
+check_config_disable () {
 	unset test_config
 	test_config=$(grep "${config} is not set" ${DIR}/patches/defconfig || true)
 	if [ "x${test_config}" = "x" ] ; then
@@ -73,7 +85,7 @@ check_if_set_then_disable () {
 
 #Basic:
 config="CONFIG_LOCALVERSION_AUTO"
-check_config_disabled
+check_config_disable
 
 #Modules
 config="CONFIG_MODULES"
@@ -185,10 +197,10 @@ check_config_builtin
 config="CONFIG_PROC_FS"
 check_config_builtin
 config="CONFIG_SYSFS_DEPRECATED"
-check_config_disabled
+check_config_disable
 #CONFIG_UEVENT_HELPER_PATH=""
 config="CONFIG_FW_LOADER_USER_HELPER"
-check_config_disabled
+check_config_disable
 #CONFIG_DMIID
 config="CONFIG_FHANDLE"
 check_config_builtin
@@ -209,7 +221,7 @@ check_config_builtin
 config="CONFIG_SCHED_DEBUG"
 check_config_builtin
 #config="CONFIG_AUDIT"
-#check_config_disabled
+#check_config_disable
 
 #zram
 config="CONFIG_STAGING"
@@ -221,9 +233,9 @@ check_config_module
 
 #ancient...
 config="CONFIG_OABI_COMPAT"
-check_config_disabled
+check_config_disable
 
 #Bugs:
 config="CONFIG_USB_GADGET_DEBUG"
-check_config_disabled
+check_config_disable
 #
