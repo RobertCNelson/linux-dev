@@ -1,0 +1,984 @@
+From 394af9cf91d87363e4a1e8f584e5ccbd6361f840 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 6 Mar 2014 16:33:01 -0600
+Subject: [PATCH] add work in progress: am335x-som board
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/Makefile       |   1 +
+ arch/arm/boot/dts/am335x-som.dts | 951 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 952 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-som.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index bfb75e4..88bec76 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -205,6 +205,7 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
+ 	am335x-boneblack-cape-bone-argus.dtb \
+ 	am335x-nano.dtb \
+ 	am335x-base0033.dtb \
++	am335x-som.dtb \
+ 	am3517-evm.dtb \
+ 	am3517_mt_ventoux.dtb \
+ 	am43x-epos-evm.dtb \
+diff --git a/arch/arm/boot/dts/am335x-som.dts b/arch/arm/boot/dts/am335x-som.dts
+new file mode 100644
+index 0000000..b4c5ff5
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-som.dts
+@@ -0,0 +1,951 @@
++/dts-v1/;
++
++/ {
++	#address-cells = <0x1>;
++	#size-cells = <0x1>;
++	compatible = "ti,am335x-som", "ti,am33xx";
++	interrupt-parent = <0x1>;
++	model = "TI AM335x SOM";
++
++	chosen {
++	};
++
++	aliases {
++		serial0 = "/ocp/serial@44e09000";
++		serial1 = "/ocp/serial@48022000";
++		serial2 = "/ocp/serial@48024000";
++		serial3 = "/ocp/serial@481a6000";
++		serial4 = "/ocp/serial@481a8000";
++		serial5 = "/ocp/serial@481aa000";
++		d_can0 = "/ocp/d_can@481cc000";
++		d_can1 = "/ocp/d_can@481d0000";
++	};
++
++	memory {
++		device_type = "memory";
++		reg = <0x80000000 0x20000000>;
++	};
++
++	cpus {
++		#address-cells = <0x1>;
++		#size-cells = <0x0>;
++
++		cpu@0 {
++			compatible = "arm,cortex-a8";
++			device_type = "cpu";
++			reg = <0x0>;
++			operating-points = <0xafc80 0x139b88 0x927c0 0x12b128 0x7a120 0x112a88 0x43238 0x112a88>;
++			voltage-tolerance = <0x2>;
++			clock-latency = <0x493e0>;
++			cpu0-supply = <0x2>;
++		};
++	};
++
++	soc {
++		compatible = "ti,omap-infra";
++
++		mpu {
++			compatible = "ti,omap3-mpu";
++			ti,hwmods = "mpu";
++		};
++	};
++
++	pinmux@44e10800 {
++		compatible = "pinctrl-single";
++		reg = <0x44e10800 0x238>;
++		#address-cells = <0x1>;
++		#size-cells = <0x0>;
++		pinctrl-single,register-width = <0x20>;
++		pinctrl-single,function-mask = <0x7f>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x3>;
++		linux,phandle = <0x11>;
++		phandle = <0x11>;
++
++		user_leds_s0 {
++			pinctrl-single,pins = <0x1b0 0x7 0x198 0x7 0x1a8 0x7>;
++			linux,phandle = <0xe>;
++			phandle = <0xe>;
++		};
++
++		pinmux_i2c0_pins {
++			pinctrl-single,pins = <0x188 0x30 0x18c 0x30>;
++			linux,phandle = <0x5>;
++			phandle = <0x5>;
++		};
++
++		pinmux_uart0_pins {
++			pinctrl-single,pins = <0x170 0x30 0x174 0x0>;
++			linux,phandle = <0x4>;
++			phandle = <0x4>;
++		};
++
++		pinmux_clkout2_pin {
++			pinctrl-single,pins = <0x1b4 0x3>;
++			linux,phandle = <0x3>;
++			phandle = <0x3>;
++		};
++
++		cpsw_default {
++			pinctrl-single,pins = <0x114 0x2 0x118 0x22 0x11c 0x2 0x120 0x2 0x124 0x2 0x128 0x2 0x12c 0x2 0x130 0x22 0x134 0x22 0x138 0x22 0x13c 0x22 0x140 0x22 0x40 0x5 0x64 0x25 0x44 0x5 0x48 0x5 0x4c 0x5 0x50 0x5 0x68 0x25 0x54 0x25 0x58 0x25 0x5c 0x25 0x60 0x25>;
++			linux,phandle = <0x9>;
++			phandle = <0x9>;
++		};
++
++		cpsw_sleep {
++			pinctrl-single,pins = <0x114 0x27 0x118 0x27 0x11c 0x27 0x120 0x27 0x124 0x27 0x128 0x27 0x12c 0x27 0x130 0x27 0x134 0x27 0x138 0x27 0x13c 0x27 0x140 0x27 0x40 0x27 0x44 0x27 0x48 0x27 0x4c 0x27 0x50 0x27 0x54 0x27 0x58 0x27 0x5c 0x27 0x60 0x27 0x64 0x27 0x68 0x27 0x6c 0x27>;
++			linux,phandle = <0xa>;
++			phandle = <0xa>;
++		};
++
++		davinci_mdio_default {
++			pinctrl-single,pins = <0x148 0x70 0x14c 0x10>;
++			linux,phandle = <0xb>;
++			phandle = <0xb>;
++		};
++
++		davinci_mdio_sleep {
++			pinctrl-single,pins = <0x148 0x27 0x14c 0x27>;
++			linux,phandle = <0xc>;
++			phandle = <0xc>;
++		};
++	};
++
++	ocp {
++		compatible = "simple-bus";
++		#address-cells = <0x1>;
++		#size-cells = <0x1>;
++		ranges;
++		ti,hwmods = "l3_main";
++
++		interrupt-controller@48200000 {
++			compatible = "ti,omap2-intc";
++			interrupt-controller;
++			#interrupt-cells = <0x1>;
++			ti,intc-size = <0x80>;
++			reg = <0x48200000 0x1000>;
++			linux,phandle = <0x1>;
++			phandle = <0x1>;
++		};
++
++		edma@49000000 {
++			compatible = "ti,edma3";
++			ti,hwmods = "tpcc", "tptc0", "tptc1", "tptc2";
++			reg = <0x49000000 0x10000 0x44e10f90 0x10>;
++			interrupts = <0xc 0xd 0xe>;
++			#dma-cells = <0x1>;
++			dma-channels = <0x40>;
++			ti,edma-regions = <0x4>;
++			ti,edma-slots = <0x100>;
++			linux,phandle = <0x7>;
++			phandle = <0x7>;
++		};
++
++		gpio@44e07000 {
++			compatible = "ti,omap4-gpio";
++			ti,hwmods = "gpio1";
++			gpio-controller;
++			#gpio-cells = <0x2>;
++			interrupt-controller;
++			#interrupt-cells = <0x1>;
++			reg = <0x44e07000 0x1000>;
++			interrupts = <0x60>;
++			linux,phandle = <0xf>;
++			phandle = <0xf>;
++		};
++
++		gpio@4804c000 {
++			compatible = "ti,omap4-gpio";
++			ti,hwmods = "gpio2";
++			gpio-controller;
++			#gpio-cells = <0x2>;
++			interrupt-controller;
++			#interrupt-cells = <0x1>;
++			reg = <0x4804c000 0x1000>;
++			interrupts = <0x62>;
++			linux,phandle = <0x12>;
++			phandle = <0x12>;
++		};
++
++		gpio@481ac000 {
++			compatible = "ti,omap4-gpio";
++			ti,hwmods = "gpio3";
++			gpio-controller;
++			#gpio-cells = <0x2>;
++			interrupt-controller;
++			#interrupt-cells = <0x1>;
++			reg = <0x481ac000 0x1000>;
++			interrupts = <0x20>;
++			linux,phandle = <0x13>;
++			phandle = <0x13>;
++		};
++
++		gpio@481ae000 {
++			compatible = "ti,omap4-gpio";
++			ti,hwmods = "gpio4";
++			gpio-controller;
++			#gpio-cells = <0x2>;
++			interrupt-controller;
++			#interrupt-cells = <0x1>;
++			reg = <0x481ae000 0x1000>;
++			interrupts = <0x3e>;
++			linux,phandle = <0x10>;
++			phandle = <0x10>;
++		};
++
++		serial@44e09000 {
++			compatible = "ti,omap3-uart";
++			ti,hwmods = "uart1";
++			clock-frequency = <0x2dc6c00>;
++			reg = <0x44e09000 0x2000>;
++			interrupts = <0x48>;
++			status = "okay";
++			pinctrl-names = "default";
++			pinctrl-0 = <0x4>;
++			linux,phandle = <0x14>;
++			phandle = <0x14>;
++		};
++
++		serial@48022000 {
++			compatible = "ti,omap3-uart";
++			ti,hwmods = "uart2";
++			clock-frequency = <0x2dc6c00>;
++			reg = <0x48022000 0x2000>;
++			interrupts = <0x49>;
++			status = "disabled";
++			linux,phandle = <0x15>;
++			phandle = <0x15>;
++		};
++
++		serial@48024000 {
++			compatible = "ti,omap3-uart";
++			ti,hwmods = "uart3";
++			clock-frequency = <0x2dc6c00>;
++			reg = <0x48024000 0x2000>;
++			interrupts = <0x4a>;
++			status = "disabled";
++			linux,phandle = <0x16>;
++			phandle = <0x16>;
++		};
++
++		serial@481a6000 {
++			compatible = "ti,omap3-uart";
++			ti,hwmods = "uart4";
++			clock-frequency = <0x2dc6c00>;
++			reg = <0x481a6000 0x2000>;
++			interrupts = <0x2c>;
++			status = "disabled";
++			linux,phandle = <0x17>;
++			phandle = <0x17>;
++		};
++
++		serial@481a8000 {
++			compatible = "ti,omap3-uart";
++			ti,hwmods = "uart5";
++			clock-frequency = <0x2dc6c00>;
++			reg = <0x481a8000 0x2000>;
++			interrupts = <0x2d>;
++			status = "disabled";
++			linux,phandle = <0x18>;
++			phandle = <0x18>;
++		};
++
++		serial@481aa000 {
++			compatible = "ti,omap3-uart";
++			ti,hwmods = "uart6";
++			clock-frequency = <0x2dc6c00>;
++			reg = <0x481aa000 0x2000>;
++			interrupts = <0x2e>;
++			status = "disabled";
++			linux,phandle = <0x19>;
++			phandle = <0x19>;
++		};
++
++		i2c@44e0b000 {
++			compatible = "ti,omap4-i2c";
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			ti,hwmods = "i2c1";
++			reg = <0x44e0b000 0x1000>;
++			interrupts = <0x46>;
++			status = "okay";
++			pinctrl-names = "default";
++			pinctrl-0 = <0x5>;
++			clock-frequency = <0x61a80>;
++			linux,phandle = <0x1a>;
++			phandle = <0x1a>;
++
++			tps@2d {
++				reg = <0x2d>;
++				compatible = "ti,tps65910";
++				vcc1-supply = <0x6>;
++				vcc2-supply = <0x6>;
++				vcc3-supply = <0x6>;
++				vcc4-supply = <0x6>;
++				vcc5-supply = <0x6>;
++				vcc6-supply = <0x6>;
++				vcc7-supply = <0x6>;
++				vccio-supply = <0x6>;
++				linux,phandle = <0x1b>;
++				phandle = <0x1b>;
++
++				regulators {
++					#address-cells = <0x1>;
++					#size-cells = <0x0>;
++
++					regulator@0 {
++						reg = <0x0>;
++						regulator-compatible = "vrtc";
++						regulator-always-on;
++						linux,phandle = <0x1c>;
++						phandle = <0x1c>;
++					};
++
++					regulator@1 {
++						reg = <0x1>;
++						regulator-compatible = "vio";
++						regulator-always-on;
++						linux,phandle = <0x1d>;
++						phandle = <0x1d>;
++					};
++
++					regulator@2 {
++						reg = <0x2>;
++						regulator-compatible = "vdd1";
++						regulator-name = "vdd_mpu";
++						regulator-min-microvolt = <0xdec74>;
++						regulator-max-microvolt = <0x1406f4>;
++						regulator-boot-on;
++						regulator-always-on;
++						linux,phandle = <0x2>;
++						phandle = <0x2>;
++					};
++
++					regulator@3 {
++						reg = <0x3>;
++						regulator-compatible = "vdd2";
++						regulator-name = "vdd_core";
++						regulator-min-microvolt = <0xdec74>;
++						regulator-max-microvolt = <0x118c30>;
++						regulator-boot-on;
++						regulator-always-on;
++						linux,phandle = <0x1e>;
++						phandle = <0x1e>;
++					};
++
++					regulator@4 {
++						reg = <0x4>;
++						regulator-compatible = "vdd3";
++						regulator-always-on;
++						linux,phandle = <0x1f>;
++						phandle = <0x1f>;
++					};
++
++					regulator@5 {
++						reg = <0x5>;
++						regulator-compatible = "vdig1";
++						regulator-always-on;
++						linux,phandle = <0x20>;
++						phandle = <0x20>;
++					};
++
++					regulator@6 {
++						reg = <0x6>;
++						regulator-compatible = "vdig2";
++						regulator-always-on;
++						linux,phandle = <0x21>;
++						phandle = <0x21>;
++					};
++
++					regulator@7 {
++						reg = <0x7>;
++						regulator-compatible = "vpll";
++						regulator-always-on;
++						linux,phandle = <0x22>;
++						phandle = <0x22>;
++					};
++
++					regulator@8 {
++						reg = <0x8>;
++						regulator-compatible = "vdac";
++						regulator-always-on;
++						linux,phandle = <0x23>;
++						phandle = <0x23>;
++					};
++
++					regulator@9 {
++						reg = <0x9>;
++						regulator-compatible = "vaux1";
++						regulator-always-on;
++						linux,phandle = <0x24>;
++						phandle = <0x24>;
++					};
++
++					regulator@10 {
++						reg = <0xa>;
++						regulator-compatible = "vaux2";
++						regulator-always-on;
++						linux,phandle = <0x25>;
++						phandle = <0x25>;
++					};
++
++					regulator@11 {
++						reg = <0xb>;
++						regulator-compatible = "vaux33";
++						regulator-always-on;
++						linux,phandle = <0x26>;
++						phandle = <0x26>;
++					};
++
++					regulator@12 {
++						reg = <0xc>;
++						regulator-compatible = "vmmc";
++						regulator-min-microvolt = <0x1b7740>;
++						regulator-max-microvolt = <0x325aa0>;
++						regulator-always-on;
++						linux,phandle = <0x8>;
++						phandle = <0x8>;
++					};
++				};
++			};
++		};
++
++		i2c@4802a000 {
++			compatible = "ti,omap4-i2c";
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			ti,hwmods = "i2c2";
++			reg = <0x4802a000 0x1000>;
++			interrupts = <0x47>;
++			status = "disabled";
++			linux,phandle = <0x27>;
++			phandle = <0x27>;
++		};
++
++		i2c@4819c000 {
++			compatible = "ti,omap4-i2c";
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			ti,hwmods = "i2c3";
++			reg = <0x4819c000 0x1000>;
++			interrupts = <0x1e>;
++			status = "disabled";
++			linux,phandle = <0x28>;
++			phandle = <0x28>;
++		};
++
++		mmc@48060000 {
++			compatible = "ti,omap4-hsmmc";
++			ti,hwmods = "mmc1";
++			ti,dual-volt;
++			ti,needs-special-reset;
++			ti,needs-special-hs-handling;
++			dmas = <0x7 0x18 0x7 0x19>;
++			dma-names = "tx", "rx";
++			interrupts = <0x40>;
++			interrupt-parent = <0x1>;
++			reg = <0x48060000 0x1000>;
++			status = "okay";
++			vmmc-supply = <0x8>;
++			linux,phandle = <0x29>;
++			phandle = <0x29>;
++		};
++
++		mmc@481d8000 {
++			compatible = "ti,omap4-hsmmc";
++			ti,hwmods = "mmc2";
++			ti,needs-special-reset;
++			dmas = <0x7 0x2 0x7 0x3>;
++			dma-names = "tx", "rx";
++			interrupts = <0x1c>;
++			interrupt-parent = <0x1>;
++			reg = <0x481d8000 0x1000>;
++			status = "disabled";
++			linux,phandle = <0x2a>;
++			phandle = <0x2a>;
++		};
++
++		mmc@47810000 {
++			compatible = "ti,omap4-hsmmc";
++			ti,hwmods = "mmc3";
++			ti,needs-special-reset;
++			interrupts = <0x1d>;
++			interrupt-parent = <0x1>;
++			reg = <0x47810000 0x1000>;
++			status = "disabled";
++			linux,phandle = <0x2b>;
++			phandle = <0x2b>;
++		};
++
++		wdt@44e35000 {
++			compatible = "ti,omap3-wdt";
++			ti,hwmods = "wd_timer2";
++			reg = <0x44e35000 0x1000>;
++			interrupts = <0x5b>;
++			linux,phandle = <0x2c>;
++			phandle = <0x2c>;
++		};
++
++		d_can@481cc000 {
++			compatible = "bosch,d_can";
++			ti,hwmods = "d_can0";
++			reg = <0x481cc000 0x2000 0x44e10644 0x4>;
++			interrupts = <0x34>;
++			status = "disabled";
++			linux,phandle = <0x2d>;
++			phandle = <0x2d>;
++		};
++
++		d_can@481d0000 {
++			compatible = "bosch,d_can";
++			ti,hwmods = "d_can1";
++			reg = <0x481d0000 0x2000 0x44e10644 0x4>;
++			interrupts = <0x37>;
++			status = "disabled";
++			linux,phandle = <0x2e>;
++			phandle = <0x2e>;
++		};
++
++		timer@44e31000 {
++			compatible = "ti,am335x-timer-1ms";
++			reg = <0x44e31000 0x400>;
++			interrupts = <0x43>;
++			ti,hwmods = "timer1";
++			ti,timer-alwon;
++			linux,phandle = <0x2f>;
++			phandle = <0x2f>;
++		};
++
++		timer@48040000 {
++			compatible = "ti,am335x-timer";
++			reg = <0x48040000 0x400>;
++			interrupts = <0x44>;
++			ti,hwmods = "timer2";
++			linux,phandle = <0x30>;
++			phandle = <0x30>;
++		};
++
++		timer@48042000 {
++			compatible = "ti,am335x-timer";
++			reg = <0x48042000 0x400>;
++			interrupts = <0x45>;
++			ti,hwmods = "timer3";
++			linux,phandle = <0x31>;
++			phandle = <0x31>;
++		};
++
++		timer@48044000 {
++			compatible = "ti,am335x-timer";
++			reg = <0x48044000 0x400>;
++			interrupts = <0x5c>;
++			ti,hwmods = "timer4";
++			ti,timer-pwm;
++			linux,phandle = <0x32>;
++			phandle = <0x32>;
++		};
++
++		timer@48046000 {
++			compatible = "ti,am335x-timer";
++			reg = <0x48046000 0x400>;
++			interrupts = <0x5d>;
++			ti,hwmods = "timer5";
++			ti,timer-pwm;
++			linux,phandle = <0x33>;
++			phandle = <0x33>;
++		};
++
++		timer@48048000 {
++			compatible = "ti,am335x-timer";
++			reg = <0x48048000 0x400>;
++			interrupts = <0x5e>;
++			ti,hwmods = "timer6";
++			ti,timer-pwm;
++			linux,phandle = <0x34>;
++			phandle = <0x34>;
++		};
++
++		timer@4804a000 {
++			compatible = "ti,am335x-timer";
++			reg = <0x4804a000 0x400>;
++			interrupts = <0x5f>;
++			ti,hwmods = "timer7";
++			ti,timer-pwm;
++			linux,phandle = <0x35>;
++			phandle = <0x35>;
++		};
++
++		rtc@44e3e000 {
++			compatible = "ti,da830-rtc";
++			reg = <0x44e3e000 0x1000>;
++			interrupts = <0x4b 0x4c>;
++			ti,hwmods = "rtc";
++		};
++
++		spi@48030000 {
++			compatible = "ti,omap4-mcspi";
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			reg = <0x48030000 0x400>;
++			interrupts = <0x41>;
++			ti,spi-num-cs = <0x2>;
++			ti,hwmods = "spi0";
++			dmas = <0x7 0x10 0x7 0x11 0x7 0x12 0x7 0x13>;
++			dma-names = "tx0", "rx0", "tx1", "rx1";
++			status = "disabled";
++			linux,phandle = <0x36>;
++			phandle = <0x36>;
++		};
++
++		spi@481a0000 {
++			compatible = "ti,omap4-mcspi";
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			reg = <0x481a0000 0x400>;
++			interrupts = <0x7d>;
++			ti,spi-num-cs = <0x2>;
++			ti,hwmods = "spi1";
++			dmas = <0x7 0x2a 0x7 0x2b 0x7 0x2c 0x7 0x2d>;
++			dma-names = "tx0", "rx0", "tx1", "rx1";
++			status = "disabled";
++			linux,phandle = <0x37>;
++			phandle = <0x37>;
++		};
++
++		usb@47400000 {
++			compatible = "ti,musb-am33xx";
++			reg = <0x47400000 0x1000 0x47401000 0x800 0x47401800 0x800>;
++			interrupts = <0x11 0x12 0x13>;
++			multipoint = <0x1>;
++			num-eps = <0x10>;
++			ram-bits = <0xc>;
++			port0-mode = <0x3>;
++			port1-mode = <0x3>;
++			power = <0xfa>;
++			ti,hwmods = "usb_otg_hs";
++		};
++
++		epwmss@48300000 {
++			compatible = "ti,am33xx-pwmss";
++			reg = <0x48300000 0x10>;
++			ti,hwmods = "epwmss0";
++			#address-cells = <0x1>;
++			#size-cells = <0x1>;
++			status = "disabled";
++			ranges = <0x48300100 0x48300100 0x80 0x48300180 0x48300180 0x80 0x48300200 0x48300200 0x80>;
++			linux,phandle = <0x38>;
++			phandle = <0x38>;
++
++			ecap@48300100 {
++				compatible = "ti,am33xx-ecap";
++				#pwm-cells = <0x3>;
++				reg = <0x48300100 0x80>;
++				ti,hwmods = "ecap0";
++				status = "disabled";
++				linux,phandle = <0x39>;
++				phandle = <0x39>;
++			};
++
++			ehrpwm@48300200 {
++				compatible = "ti,am33xx-ehrpwm";
++				#pwm-cells = <0x3>;
++				reg = <0x48300200 0x80>;
++				ti,hwmods = "ehrpwm0";
++				status = "disabled";
++				linux,phandle = <0x3a>;
++				phandle = <0x3a>;
++			};
++		};
++
++		epwmss@48302000 {
++			compatible = "ti,am33xx-pwmss";
++			reg = <0x48302000 0x10>;
++			ti,hwmods = "epwmss1";
++			#address-cells = <0x1>;
++			#size-cells = <0x1>;
++			status = "disabled";
++			ranges = <0x48302100 0x48302100 0x80 0x48302180 0x48302180 0x80 0x48302200 0x48302200 0x80>;
++			linux,phandle = <0x3b>;
++			phandle = <0x3b>;
++
++			ecap@48302100 {
++				compatible = "ti,am33xx-ecap";
++				#pwm-cells = <0x3>;
++				reg = <0x48302100 0x80>;
++				ti,hwmods = "ecap1";
++				status = "disabled";
++				linux,phandle = <0x3c>;
++				phandle = <0x3c>;
++			};
++
++			ehrpwm@48302200 {
++				compatible = "ti,am33xx-ehrpwm";
++				#pwm-cells = <0x3>;
++				reg = <0x48302200 0x80>;
++				ti,hwmods = "ehrpwm1";
++				status = "disabled";
++				linux,phandle = <0x3d>;
++				phandle = <0x3d>;
++			};
++		};
++
++		epwmss@48304000 {
++			compatible = "ti,am33xx-pwmss";
++			reg = <0x48304000 0x10>;
++			ti,hwmods = "epwmss2";
++			#address-cells = <0x1>;
++			#size-cells = <0x1>;
++			status = "disabled";
++			ranges = <0x48304100 0x48304100 0x80 0x48304180 0x48304180 0x80 0x48304200 0x48304200 0x80>;
++			linux,phandle = <0x3e>;
++			phandle = <0x3e>;
++
++			ecap@48304100 {
++				compatible = "ti,am33xx-ecap";
++				#pwm-cells = <0x3>;
++				reg = <0x48304100 0x80>;
++				ti,hwmods = "ecap2";
++				status = "disabled";
++				linux,phandle = <0x3f>;
++				phandle = <0x3f>;
++			};
++
++			ehrpwm@48304200 {
++				compatible = "ti,am33xx-ehrpwm";
++				#pwm-cells = <0x3>;
++				reg = <0x48304200 0x80>;
++				ti,hwmods = "ehrpwm2";
++				status = "disabled";
++				linux,phandle = <0x40>;
++				phandle = <0x40>;
++			};
++		};
++
++		ethernet@4a100000 {
++			compatible = "ti,cpsw";
++			ti,hwmods = "cpgmac0";
++			cpdma_channels = <0x8>;
++			ale_entries = <0x400>;
++			bd_ram_size = <0x2000>;
++			no_bd_ram = <0x0>;
++			rx_descs = <0x40>;
++			mac_control = <0x20>;
++			slaves = <0x2>;
++			active_slave = <0x0>;
++			cpts_clock_mult = <0x80000000>;
++			cpts_clock_shift = <0x1d>;
++			reg = <0x4a100000 0x800 0x4a101200 0x100>;
++			#address-cells = <0x1>;
++			#size-cells = <0x1>;
++			interrupt-parent = <0x1>;
++			interrupts = <0x28 0x29 0x2a 0x2b>;
++			ranges;
++			pinctrl-names = "default", "sleep";
++			pinctrl-0 = <0x9>;
++			pinctrl-1 = <0xa>;
++			linux,phandle = <0x41>;
++			phandle = <0x41>;
++
++			mdio@4a101000 {
++				compatible = "ti,davinci_mdio";
++				#address-cells = <0x1>;
++				#size-cells = <0x0>;
++				ti,hwmods = "davinci_mdio";
++				bus_freq = <0xf4240>;
++				reg = <0x4a101000 0x100>;
++				pinctrl-names = "default", "sleep";
++				pinctrl-0 = <0xb>;
++				pinctrl-1 = <0xc>;
++				linux,phandle = <0xd>;
++				phandle = <0xd>;
++			};
++
++			slave@4a100200 {
++				mac-address = [00 00 00 00 00 00];
++				phy_id = <0xd 0x0>;
++				phy-mode = "rgmii-txid";
++				linux,phandle = <0x42>;
++				phandle = <0x42>;
++			};
++
++			slave@4a100300 {
++				mac-address = [00 00 00 00 00 00];
++				phy_id = <0xd 0x1>;
++				phy-mode = "rgmii-txid";
++				linux,phandle = <0x43>;
++				phandle = <0x43>;
++			};
++		};
++
++		ocmcram@40300000 {
++			compatible = "ti,am3352-ocmcram";
++			reg = <0x40300000 0x10000>;
++			ti,hwmods = "ocmcram";
++			linux,phandle = <0x44>;
++			phandle = <0x44>;
++		};
++
++		wkup_m3@44d00000 {
++			compatible = "ti,am3353-wkup-m3";
++			reg = <0x44d00000 0x4000 0x44d80000 0x2000>;
++			ti,hwmods = "wkup_m3";
++			linux,phandle = <0x45>;
++			phandle = <0x45>;
++		};
++
++		elm@48080000 {
++			compatible = "ti,am3352-elm";
++			reg = <0x48080000 0x2000>;
++			interrupts = <0x4>;
++			ti,hwmods = "elm";
++			status = "disabled";
++			linux,phandle = <0x46>;
++			phandle = <0x46>;
++		};
++
++		tscadc@44e0d000 {
++			compatible = "ti,am3359-tscadc";
++			reg = <0x44e0d000 0x1000>;
++			interrupt-parent = <0x1>;
++			interrupts = <0x10>;
++			ti,hwmods = "adc_tsc";
++			status = "disabled";
++			linux,phandle = <0x47>;
++			phandle = <0x47>;
++
++			tsc {
++				compatible = "ti,am3359-tsc";
++			};
++
++			adc {
++				#io-channel-cells = <0x1>;
++				compatible = "ti,am3359-adc";
++				linux,phandle = <0x48>;
++				phandle = <0x48>;
++			};
++		};
++
++		gpmc@50000000 {
++			compatible = "ti,am3352-gpmc";
++			ti,hwmods = "gpmc";
++			reg = <0x50000000 0x2000>;
++			interrupts = <0x64>;
++			gpmc,num-cs = <0x7>;
++			gpmc,num-waitpins = <0x2>;
++			#address-cells = <0x2>;
++			#size-cells = <0x1>;
++			status = "disabled";
++			linux,phandle = <0x49>;
++			phandle = <0x49>;
++		};
++	};
++
++	fixedregulator@0 {
++		compatible = "regulator-fixed";
++		regulator-name = "vbat";
++		regulator-min-microvolt = <0x4c4b40>;
++		regulator-max-microvolt = <0x4c4b40>;
++		regulator-boot-on;
++		linux,phandle = <0x6>;
++		phandle = <0x6>;
++	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <0xe>;
++		compatible = "gpio-leds";
++
++		led@1 {
++			label = "led1:green:heartbeat";
++			gpios = <0xf 0x13 0x0>;
++			linux,default-trigger = "heartbeat";
++		};
++
++		led@2 {
++			label = "led2:red:heartbeat";
++			gpios = <0x10 0x14 0x0>;
++			linux,default-trigger = "heartbeat";
++		};
++
++		led@3 {
++			label = "led3:yello:heartbeat";
++			gpios = <0x10 0x15 0x0>;
++			linux,default-trigger = "heartbeat";
++		};
++	};
++
++	__symbols__ {
++		am33xx_pinmux = "/pinmux@44e10800";
++		user_leds_s0 = "/pinmux@44e10800/user_leds_s0";
++		i2c0_pins = "/pinmux@44e10800/pinmux_i2c0_pins";
++		uart0_pins = "/pinmux@44e10800/pinmux_uart0_pins";
++		clkout2_pin = "/pinmux@44e10800/pinmux_clkout2_pin";
++		cpsw_default = "/pinmux@44e10800/cpsw_default";
++		cpsw_sleep = "/pinmux@44e10800/cpsw_sleep";
++		davinci_mdio_default = "/pinmux@44e10800/davinci_mdio_default";
++		davinci_mdio_sleep = "/pinmux@44e10800/davinci_mdio_sleep";
++		intc = "/ocp/interrupt-controller@48200000";
++		edma = "/ocp/edma@49000000";
++		gpio0 = "/ocp/gpio@44e07000";
++		gpio1 = "/ocp/gpio@4804c000";
++		gpio2 = "/ocp/gpio@481ac000";
++		gpio3 = "/ocp/gpio@481ae000";
++		uart0 = "/ocp/serial@44e09000";
++		uart1 = "/ocp/serial@48022000";
++		uart2 = "/ocp/serial@48024000";
++		uart3 = "/ocp/serial@481a6000";
++		uart4 = "/ocp/serial@481a8000";
++		uart5 = "/ocp/serial@481aa000";
++		i2c0 = "/ocp/i2c@44e0b000";
++		tps = "/ocp/i2c@44e0b000/tps@2d";
++		vrtc_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@0";
++		vio_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@1";
++		vdd1_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@2";
++		vdd2_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@3";
++		vdd3_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@4";
++		vdig1_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@5";
++		vdig2_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@6";
++		vpll_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@7";
++		vdac_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@8";
++		vaux1_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@9";
++		vaux2_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@10";
++		vaux33_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@11";
++		vmmc_reg = "/ocp/i2c@44e0b000/tps@2d/regulators/regulator@12";
++		i2c1 = "/ocp/i2c@4802a000";
++		i2c2 = "/ocp/i2c@4819c000";
++		mmc1 = "/ocp/mmc@48060000";
++		mmc2 = "/ocp/mmc@481d8000";
++		mmc3 = "/ocp/mmc@47810000";
++		wdt2 = "/ocp/wdt@44e35000";
++		dcan0 = "/ocp/d_can@481cc000";
++		dcan1 = "/ocp/d_can@481d0000";
++		timer1 = "/ocp/timer@44e31000";
++		timer2 = "/ocp/timer@48040000";
++		timer3 = "/ocp/timer@48042000";
++		timer4 = "/ocp/timer@48044000";
++		timer5 = "/ocp/timer@48046000";
++		timer6 = "/ocp/timer@48048000";
++		timer7 = "/ocp/timer@4804a000";
++		spi0 = "/ocp/spi@48030000";
++		spi1 = "/ocp/spi@481a0000";
++		epwmss0 = "/ocp/epwmss@48300000";
++		ecap0 = "/ocp/epwmss@48300000/ecap@48300100";
++		ehrpwm0 = "/ocp/epwmss@48300000/ehrpwm@48300200";
++		epwmss1 = "/ocp/epwmss@48302000";
++		ecap1 = "/ocp/epwmss@48302000/ecap@48302100";
++		ehrpwm1 = "/ocp/epwmss@48302000/ehrpwm@48302200";
++		epwmss2 = "/ocp/epwmss@48304000";
++		ecap2 = "/ocp/epwmss@48304000/ecap@48304100";
++		ehrpwm2 = "/ocp/epwmss@48304000/ehrpwm@48304200";
++		mac = "/ocp/ethernet@4a100000";
++		davinci_mdio = "/ocp/ethernet@4a100000/mdio@4a101000";
++		cpsw_emac0 = "/ocp/ethernet@4a100000/slave@4a100200";
++		cpsw_emac1 = "/ocp/ethernet@4a100000/slave@4a100300";
++		ocmcram = "/ocp/ocmcram@40300000";
++		wkup_m3 = "/ocp/wkup_m3@44d00000";
++		elm = "/ocp/elm@48080000";
++		tscadc = "/ocp/tscadc@44e0d000";
++		am335x_adc = "/ocp/tscadc@44e0d000/adc";
++		gpmc = "/ocp/gpmc@50000000";
++		vbat = "/fixedregulator@0";
++	};
++};
+-- 
+1.9.0
+

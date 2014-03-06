@@ -154,6 +154,11 @@ capes_one_layer () {
 	${git} "${DIR}/patches/capes-one-layer/0004-build-capes-one-layer.patch"
 }
 
+boards () {
+	echo "dir: boards"
+	${git} "${DIR}/patches/boards/0001-add-work-in-progress-am335x-som-board.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -172,6 +177,7 @@ usb
 #capemgr
 sgx
 capes_one_layer
+boards
 saucy
 
 echo "patch.sh ran successful"
