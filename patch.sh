@@ -147,9 +147,11 @@ capes_one_layer () {
 	#Serial capes
 	${git} "${DIR}/patches/capes-one-layer/0002-dts-boneblack-ttyO1-ttyO2-ttyO4.patch"
 
-	#Update Makefile Last
-	${git} "${DIR}/patches/capes-one-layer/0003-build-capes-one-layer.patch"
+	#Argus UPS Cape
+	${git} "${DIR}/patches/capes-one-layer/0003-Added-Argus-UPS-cape-support.patch"
 
+	#Update Makefile Last
+	${git} "${DIR}/patches/capes-one-layer/0004-build-capes-one-layer.patch"
 }
 
 saucy () {
