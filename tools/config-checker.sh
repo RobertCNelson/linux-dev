@@ -865,26 +865,6 @@ config="CONFIG_P54_SPI"
 check_config_module
 config="CONFIG_P54_SPI_DEFAULT_EEPROM"
 check_config_disable
-config="CONFIG_WL_TI"
-check_config_builtin
-config="CONFIG_WL1251"
-check_config_module
-config="CONFIG_WL1251_SPI"
-check_config_module
-config="CONFIG_WL1251_SDIO"
-check_config_module
-config="CONFIG_WL12XX"
-check_config_module
-config="CONFIG_WL18XX"
-check_config_module
-config="CONFIG_WLCORE"
-check_config_module
-config="CONFIG_WLCORE_SPI"
-check_config_module
-config="CONFIG_WLCORE_SDIO"
-check_config_module
-config="CONFIG_WILINK_PLATFORM_DATA"
-check_config_builtin
 config="CONFIG_MWIFIEX"
 check_config_module
 config="CONFIG_MWIFIEX_SDIO"
@@ -1772,14 +1752,10 @@ check_config_builtin
 #
 config="CONFIG_HID_APPLEIR"
 check_config_module
-config="CONFIG_HID_ELO"
-check_config_module
 config="CONFIG_HID_PICOLCD_LCD"
 check_config_builtin
 config="CONFIG_SONY_FF"
 check_config_builtin
-config="CONFIG_HID_XINMO"
-check_config_module
 
 #
 # I2C HID support
