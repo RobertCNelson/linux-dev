@@ -55,6 +55,11 @@ arm () {
 	${git} "${DIR}/patches/arm/0001-deb-pkg-Simplify-architecture-matching-for-cross-bui.patch"
 }
 
+deassert_hard_reset () {
+	echo "dir: deassert-hard-reset"
+	${git} "${DIR}/patches/deassert-hard-reset/0001-ARM-omap-add-DT-support-for-deasserting-hardware-res.patch"
+}
+
 dts () {
 	echo "dir: dts"
 	${git} "${DIR}/patches/dts/0001-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
@@ -127,6 +132,11 @@ capemgr () {
 	${git} "${DIR}/patches/capemgr/0001-wip-add-capemgr-from-3.8.patch"
 }
 
+pru () {
+	echo "dir: pru"
+	${git} "${DIR}/patches/pru/0001-Rebased-the-PRUSS-patch-from-3.12-commit-2c2a6c5.patch"
+}
+
 sgx () {
 	echo "dir: sgx"
 	${git} "${DIR}/patches/sgx/0001-reset-Add-driver-for-gpio-controlled-reset-pins.patch"
@@ -169,12 +179,14 @@ saucy () {
 
 ###
 arm
+deassert_hard_reset
 dts
 fixes
 usb
 #audio
 #overlay
 #capemgr
+pru
 sgx
 static_capes
 boards
