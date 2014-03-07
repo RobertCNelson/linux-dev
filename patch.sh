@@ -138,20 +138,20 @@ sgx () {
 	${git} "${DIR}/patches/sgx/0007-Changes-according-to-TI-for-SGX-support.patch"
 }
 
-capes_one_layer () {
-	echo "dir: capes-one-layer"
+static_capes () {
+	echo "dir: static-capes"
 
 	#MAKE SURE TO ALWAYS ADD PINMUXS TO PATCH 1:
-	${git} "${DIR}/patches/capes-one-layer/0001-dts-am335x-boneblack-default.patch"
+	${git} "${DIR}/patches/static-capes/0001-dts-am335x-boneblack-default.patch"
 
 	#Serial capes
-	${git} "${DIR}/patches/capes-one-layer/0002-dts-boneblack-ttyO1-ttyO2-ttyO4.patch"
+	${git} "${DIR}/patches/static-capes/0002-dts-boneblack-ttyO1-ttyO2-ttyO4.patch"
 
 	#Argus UPS Cape
-	${git} "${DIR}/patches/capes-one-layer/0003-Added-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/static-capes/0003-Added-Argus-UPS-cape-support.patch"
 
 	#Update Makefile Last
-	${git} "${DIR}/patches/capes-one-layer/0004-build-capes-one-layer.patch"
+	${git} "${DIR}/patches/static-capes/0004-build-capes-one-layer.patch"
 }
 
 boards () {
@@ -176,7 +176,7 @@ usb
 #overlay
 #capemgr
 sgx
-capes_one_layer
+static_capes
 boards
 saucy
 
