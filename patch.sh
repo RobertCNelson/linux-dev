@@ -319,7 +319,7 @@ omap_dt_dss () {
 #	${git} "${DIR}/patches/omap_dt_dss/0043-OMAPDSS-fix-fck-field-types.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0044-clk-divider-fix-rate-calculation-for-fractional-rate.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0045-clk-ti-divider-fix-rate-calculation-for-fractional-r.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0046-ARM-OMAP2-clock-fix-clkoutx2-with-CLK_SET_RATE_PAREN.patch"
+#	${git} "${DIR}/patches/omap_dt_dss/0046-ARM-OMAP2-clock-fix-clkoutx2-with-CLK_SET_RATE_PAREN.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0047-ARM-dts-fix-omap3-dss-clock-handle-names.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0048-ARM-dts-fix-DPLL4-x2-clkouts-on-3630.patch"
 	${git} "${DIR}/patches/omap_dt_dss/0049-ARM-dts-use-ti-fixed-factor-clock-for-dpll4_m4x2_mul.patch"
