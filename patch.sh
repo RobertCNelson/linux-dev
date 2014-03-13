@@ -148,14 +148,26 @@ sgx () {
 	${git} "${DIR}/patches/sgx/0007-Changes-according-to-TI-for-SGX-support.patch"
 }
 
+dts_bone () {
+	echo "dir: dts-bone"
+	${git} "${DIR}/patches/dts_bone/0001-arm-dts-am335x-bone-common-add-uart2_pins-uart4_pins.patch"
+
+}
+
+dts_bone_capes () {
+	echo "dir: dts-bone-capes"
+	${git} "${DIR}/patches/dts_bone_capes/0001-capes-ttyO1-ttyO2-ttyO4.patch"
+	${git} "${DIR}/patches/dts_bone_capes/0002-capes-Makefile.patch"
+}
+
 static_capes () {
 	echo "dir: static-capes"
 
 	#MAKE SURE TO ALWAYS ADD PINMUXS TO PATCH 1:
-	${git} "${DIR}/patches/static-capes/0001-dts-am335x-boneblack-default.patch"
+	#${git} "${DIR}/patches/static-capes/0001-dts-am335x-boneblack-default.patch"
 
 	#Serial capes
-	${git} "${DIR}/patches/static-capes/0002-dts-boneblack-ttyO1-ttyO2-ttyO4.patch"
+	#${git} "${DIR}/patches/static-capes/0002-dts-boneblack-ttyO1-ttyO2-ttyO4.patch"
 
 	#Argus UPS Cape
 	${git} "${DIR}/patches/static-capes/0003-Added-Argus-UPS-cape-support.patch"
@@ -188,8 +200,13 @@ usb
 #capemgr
 pru
 sgx
+
+dts_bone
+dts_bone_capes
+
 static_capes
 boards
+
 saucy
 
 echo "patch.sh ran successful"
