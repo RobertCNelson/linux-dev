@@ -171,6 +171,7 @@ static_capes () {
 
 	#Argus UPS Cape
 	${git} "${DIR}/patches/static-capes/0003-Added-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/static-capes/0004-Argus-UPS-cape.-Fixed-GPIO-numbering.-Added-BBW.patch"
 
 	#Update Makefile Last
 	${git} "${DIR}/patches/static-capes/0004-build-capes-one-layer.patch"
