@@ -82,6 +82,19 @@ gcc_toolchain () {
 
 		binary="bin/arm-none-eabi-"
 		;;
+	gcc_linaro_eabi_4_8)
+		#http://releases.linaro.org/14.02/components/toolchain/binaries/gcc-linaro-arm-none-eabi-4.8-2014.02_linux.tar.xz
+		gcc_version="4.8"
+		release="2014.02"
+		toolchain_name="gcc-linaro-arm-none-eabi"
+		site="https://releases.linaro.org"
+		version="14.02/components/toolchain/binaries"
+		directory="${toolchain_name}-${gcc_version}-${release}_linux"
+		filename="${directory}.tar.xz"
+		datestamp="${release}-${toolchain_name}"
+
+		binary="bin/arm-none-eabi-"
+		;;
 	gcc_linaro_gnueabi_4_6)
 		#http://releases.linaro.org/12.03/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabi-2012.03-20120326_linux.tar.bz2
 		release="2012.03"
