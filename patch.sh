@@ -71,6 +71,7 @@ dts () {
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
+	${git} "${DIR}/patches/fixes/0002-deb-pkg-sync-with-v3.14.patch"
 }
 
 usb  () {
@@ -191,7 +192,7 @@ saucy () {
 }
 
 ###
-arm
+#arm
 deassert_hard_reset
 dts
 fixes
