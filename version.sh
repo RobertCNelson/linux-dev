@@ -21,6 +21,7 @@ config="omap2plus_defconfig"
 
 #toolchain="arm9_gcc_4_7"
 #toolchain="gcc_arm_embedded_4_8"
+#toolchain="gcc_linaro_eabi_4_8"
 #toolchain="gcc_linaro_gnueabi_4_6"
 #toolchain="gcc_linaro_gnueabihf_4_7"
 toolchain="gcc_linaro_gnueabihf_4_8"
