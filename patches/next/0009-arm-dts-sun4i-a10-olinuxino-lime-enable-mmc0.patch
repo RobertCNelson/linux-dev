@@ -1,0 +1,32 @@
+From 47f10ba9038928f089c65a6876cb544a7609033c Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 25 Mar 2014 10:24:36 -0500
+Subject: [PATCH 9/9] arm: dts: sun4i-a10-olinuxino-lime: enable mmc0
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts b/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
+index 66cf0c7..240e376 100644
+--- a/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
++++ b/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
+@@ -47,6 +47,14 @@
+ 			status = "okay";
+ 		};
+ 
++		mmc0: mmc@01c0f000 {
++			pinctrl-names = "default", "default";
++			pinctrl-0 = <&mmc0_pins_a>;
++			pinctrl-1 = <&mmc0_cd_pin_reference_design>;
++			cd-gpios = <&pio 7 1 0>; /* PH1 */
++			status = "okay";
++		};
++
+ 		ahci: sata@01c18000 {
+ 			target-supply = <&reg_ahci_5v>;
+ 			status = "okay";
+-- 
+1.9.0
+
