@@ -83,8 +83,6 @@ check_if_set_then_disable () {
 	fi
 }
 
-# Linux/arm 3.12.8 Kernel Configuration
-
 #
 # RCU Subsystem
 #
@@ -222,8 +220,6 @@ config="CONFIG_MACH_TI8148EVM"
 check_config_disable
 config="CONFIG_ARCH_SOCFPGA"
 check_config_disable
-config="CONFIG_ARCH_SUNXI"
-check_config_disable
 config="CONFIG_ARCH_VEXPRESS"
 check_config_disable
 config="CONFIG_ARCH_VIRT"
@@ -250,8 +246,6 @@ check_config_disable
 #
 # Kernel Features
 #
-config="CONFIG_ARM_PSCI"
-check_config_disable
 config="CONFIG_PREEMPT_NONE"
 check_config_builtin
 config="CONFIG_PREEMPT_VOLUNTARY"
@@ -530,6 +524,8 @@ config="CONFIG_NFC_NCI"
 check_config_module
 config="CONFIG_NFC_NCI_SPI"
 check_config_builtin
+config="CONFIG_NFC_HCI"
+check_config_module
 config="CONFIG_NFC_SHDLC"
 check_config_builtin
 
@@ -683,6 +679,8 @@ config="CONFIG_EEPROM_93CX6"
 check_config_builtin
 config="CONFIG_EEPROM_93XX46"
 check_config_module
+config="CONFIG_EEPROM_SUNXI_SID"
+check_config_builtin
 
 #
 # Texas Instruments shared transport line discipline
@@ -771,13 +769,7 @@ config="CONFIG_SATA_AHCI_PLATFORM"
 check_config_builtin
 config="CONFIG_AHCI_IMX"
 check_config_builtin
-
-#
-# SATA SFF controllers with BMDMA
-#
-config="CONFIG_SATA_HIGHBANK"
-check_config_builtin
-config="CONFIG_SATA_MV"
+config="CONFIG_AHCI_SUNXI"
 check_config_builtin
 
 #
@@ -1135,6 +1127,8 @@ config="CONFIG_I2C_DESIGNWARE_PLATFORM"
 check_config_builtin
 config="CONFIG_I2C_IMX"
 check_config_builtin
+config="CONFIG_I2C_MV64XXX"
+check_config_builtin
 config="CONFIG_I2C_OCORES"
 check_config_disable
 config="CONFIG_I2C_PCA_PLATFORM"
@@ -1154,6 +1148,10 @@ check_config_module
 config="CONFIG_SPI_IMX"
 check_config_builtin
 config="CONFIG_SPI_OMAP24XX"
+check_config_builtin
+config="CONFIG_SPI_SUN4I"
+check_config_builtin
+config="CONFIG_SPI_SUN6I"
 check_config_builtin
 
 #
@@ -1185,7 +1183,6 @@ config="CONFIG_GPIO_ADP5588"
 check_config_module
 config="CONFIG_GPIO_ADNP"
 check_config_module
-
 
 #
 # SPI GPIO expanders:
@@ -1411,6 +1408,8 @@ check_config_builtin
 config="CONFIG_DA9055_WATCHDOG"
 check_config_disable
 config="CONFIG_OMAP_WATCHDOG"
+check_config_builtin
+config="CONFIG_SUNXI_WATCHDOG"
 check_config_builtin
 config="CONFIG_TWL4030_WATCHDOG"
 check_config_builtin
@@ -2089,6 +2088,8 @@ check_config_module
 #
 # on-CPU RTC drivers
 #
+config="CONFIG_RTC_DRV_SUNXI"
+check_config_builtin
 config="CONFIG_RTC_DRV_MC13XXX"
 check_config_builtin
 config="CONFIG_RTC_DRV_MXC"
