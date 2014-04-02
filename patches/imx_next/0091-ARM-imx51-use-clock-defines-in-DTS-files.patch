@@ -13,7 +13,7 @@ Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
  1 file changed, 61 insertions(+), 37 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
-index bb958f9..279aa1e 100644
+index 3a69dc0..1da8dcf 100644
 --- a/arch/arm/boot/dts/imx51.dtsi
 +++ b/arch/arm/boot/dts/imx51.dtsi
 @@ -13,6 +13,7 @@
@@ -34,7 +34,7 @@ index bb958f9..279aa1e 100644
  			operating-points = <
  				166000	1000000
  				600000	1050000
-@@ -97,7 +99,9 @@
+@@ -103,7 +105,9 @@
  			compatible = "fsl,imx51-ipu";
  			reg = <0x40000000 0x20000000>;
  			interrupts = <11 10>;
@@ -44,8 +44,8 @@ index bb958f9..279aa1e 100644
 +			         <&clks IMX5_CLK_IPU_DI1_GATE>;
  			clock-names = "bus", "di0", "di1";
  			resets = <&src 2>;
- 		};
-@@ -120,7 +124,9 @@
+ 
+@@ -140,7 +144,9 @@
  					compatible = "fsl,imx51-esdhc";
  					reg = <0x70004000 0x4000>;
  					interrupts = <1>;
@@ -56,7 +56,7 @@ index bb958f9..279aa1e 100644
  					clock-names = "ipg", "ahb", "per";
  					status = "disabled";
  				};
-@@ -129,7 +135,9 @@
+@@ -149,7 +155,9 @@
  					compatible = "fsl,imx51-esdhc";
  					reg = <0x70008000 0x4000>;
  					interrupts = <2>;
@@ -67,7 +67,7 @@ index bb958f9..279aa1e 100644
  					clock-names = "ipg", "ahb", "per";
  					bus-width = <4>;
  					status = "disabled";
-@@ -139,7 +147,8 @@
+@@ -159,7 +167,8 @@
  					compatible = "fsl,imx51-uart", "fsl,imx21-uart";
  					reg = <0x7000c000 0x4000>;
  					interrupts = <33>;
@@ -77,7 +77,7 @@ index bb958f9..279aa1e 100644
  					clock-names = "ipg", "per";
  					status = "disabled";
  				};
-@@ -150,7 +159,8 @@
+@@ -170,7 +179,8 @@
  					compatible = "fsl,imx51-ecspi";
  					reg = <0x70010000 0x4000>;
  					interrupts = <36>;
@@ -87,7 +87,7 @@ index bb958f9..279aa1e 100644
  					clock-names = "ipg", "per";
  					status = "disabled";
  				};
-@@ -159,7 +169,7 @@
+@@ -179,7 +189,7 @@
  					compatible = "fsl,imx51-ssi", "fsl,imx21-ssi";
  					reg = <0x70014000 0x4000>;
  					interrupts = <30>;
@@ -96,7 +96,7 @@ index bb958f9..279aa1e 100644
  					dmas = <&sdma 24 1 0>,
  					       <&sdma 25 1 0>;
  					dma-names = "rx", "tx";
-@@ -172,7 +182,9 @@
+@@ -192,7 +202,9 @@
  					compatible = "fsl,imx51-esdhc";
  					reg = <0x70020000 0x4000>;
  					interrupts = <3>;
@@ -107,7 +107,7 @@ index bb958f9..279aa1e 100644
  					clock-names = "ipg", "ahb", "per";
  					bus-width = <4>;
  					status = "disabled";
-@@ -182,7 +194,9 @@
+@@ -202,7 +214,9 @@
  					compatible = "fsl,imx51-esdhc";
  					reg = <0x70024000 0x4000>;
  					interrupts = <4>;
@@ -118,7 +118,7 @@ index bb958f9..279aa1e 100644
  					clock-names = "ipg", "ahb", "per";
  					bus-width = <4>;
  					status = "disabled";
-@@ -191,7 +205,7 @@
+@@ -211,7 +225,7 @@
  
  			usbphy0: usbphy@0 {
  				compatible = "usb-nop-xceiv";
@@ -127,7 +127,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "main_clk";
  				status = "okay";
  			};
-@@ -200,7 +214,7 @@
+@@ -220,7 +234,7 @@
  				compatible = "fsl,imx51-usb", "fsl,imx27-usb";
  				reg = <0x73f80000 0x0200>;
  				interrupts = <18>;
@@ -136,7 +136,7 @@ index bb958f9..279aa1e 100644
  				fsl,usbmisc = <&usbmisc 0>;
  				fsl,usbphy = <&usbphy0>;
  				status = "disabled";
-@@ -210,7 +224,7 @@
+@@ -230,7 +244,7 @@
  				compatible = "fsl,imx51-usb", "fsl,imx27-usb";
  				reg = <0x73f80200 0x0200>;
  				interrupts = <14>;
@@ -145,7 +145,7 @@ index bb958f9..279aa1e 100644
  				fsl,usbmisc = <&usbmisc 1>;
  				status = "disabled";
  			};
-@@ -219,7 +233,7 @@
+@@ -239,7 +253,7 @@
  				compatible = "fsl,imx51-usb", "fsl,imx27-usb";
  				reg = <0x73f80400 0x0200>;
  				interrupts = <16>;
@@ -154,7 +154,7 @@ index bb958f9..279aa1e 100644
  				fsl,usbmisc = <&usbmisc 2>;
  				status = "disabled";
  			};
-@@ -228,7 +242,7 @@
+@@ -248,7 +262,7 @@
  				compatible = "fsl,imx51-usb", "fsl,imx27-usb";
  				reg = <0x73f80600 0x0200>;
  				interrupts = <17>;
@@ -163,7 +163,7 @@ index bb958f9..279aa1e 100644
  				fsl,usbmisc = <&usbmisc 3>;
  				status = "disabled";
  			};
-@@ -237,7 +251,7 @@
+@@ -257,7 +271,7 @@
  				#index-cells = <1>;
  				compatible = "fsl,imx51-usbmisc";
  				reg = <0x73f80800 0x200>;
@@ -172,7 +172,7 @@ index bb958f9..279aa1e 100644
  			};
  
  			gpio1: gpio@73f84000 {
-@@ -284,7 +298,7 @@
+@@ -304,7 +318,7 @@
  				compatible = "fsl,imx51-kpp", "fsl,imx21-kpp";
  				reg = <0x73f94000 0x4000>;
  				interrupts = <60>;
@@ -181,7 +181,7 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
  
-@@ -292,14 +306,14 @@
+@@ -312,14 +326,14 @@
  				compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
  				reg = <0x73f98000 0x4000>;
  				interrupts = <58>;
@@ -198,7 +198,7 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
  
-@@ -307,7 +321,8 @@
+@@ -327,7 +341,8 @@
  				compatible = "fsl,imx51-gpt", "fsl,imx31-gpt";
  				reg = <0x73fa0000 0x4000>;
  				interrupts = <39>;
@@ -208,7 +208,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "per";
  			};
  
-@@ -320,7 +335,8 @@
+@@ -340,7 +355,8 @@
  				#pwm-cells = <2>;
  				compatible = "fsl,imx51-pwm", "fsl,imx27-pwm";
  				reg = <0x73fb4000 0x4000>;
@@ -218,7 +218,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "per";
  				interrupts = <61>;
  			};
-@@ -329,7 +345,8 @@
+@@ -349,7 +365,8 @@
  				#pwm-cells = <2>;
  				compatible = "fsl,imx51-pwm", "fsl,imx27-pwm";
  				reg = <0x73fb8000 0x4000>;
@@ -228,7 +228,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "per";
  				interrupts = <94>;
  			};
-@@ -338,7 +355,8 @@
+@@ -358,7 +375,8 @@
  				compatible = "fsl,imx51-uart", "fsl,imx21-uart";
  				reg = <0x73fbc000 0x4000>;
  				interrupts = <31>;
@@ -238,7 +238,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "per";
  				status = "disabled";
  			};
-@@ -347,7 +365,8 @@
+@@ -367,7 +385,8 @@
  				compatible = "fsl,imx51-uart", "fsl,imx21-uart";
  				reg = <0x73fc0000 0x4000>;
  				interrupts = <32>;
@@ -248,7 +248,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "per";
  				status = "disabled";
  			};
-@@ -377,14 +396,14 @@
+@@ -397,14 +416,14 @@
  				compatible = "fsl,imx51-iim", "fsl,imx27-iim";
  				reg = <0x83f98000 0x4000>;
  				interrupts = <69>;
@@ -265,7 +265,7 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
  
-@@ -394,7 +413,8 @@
+@@ -414,7 +433,8 @@
  				compatible = "fsl,imx51-ecspi";
  				reg = <0x83fac000 0x4000>;
  				interrupts = <37>;
@@ -275,7 +275,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "per";
  				status = "disabled";
  			};
-@@ -403,7 +423,8 @@
+@@ -423,7 +443,8 @@
  				compatible = "fsl,imx51-sdma", "fsl,imx35-sdma";
  				reg = <0x83fb0000 0x4000>;
  				interrupts = <6>;
@@ -285,7 +285,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "ahb";
  				#dma-cells = <3>;
  				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx51.bin";
-@@ -415,7 +436,8 @@
+@@ -435,7 +456,8 @@
  				compatible = "fsl,imx51-cspi", "fsl,imx35-cspi";
  				reg = <0x83fc0000 0x4000>;
  				interrupts = <38>;
@@ -295,7 +295,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "ipg", "per";
  				status = "disabled";
  			};
-@@ -426,7 +448,7 @@
+@@ -446,7 +468,7 @@
  				compatible = "fsl,imx51-i2c", "fsl,imx21-i2c";
  				reg = <0x83fc4000 0x4000>;
  				interrupts = <63>;
@@ -304,7 +304,7 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
  
-@@ -436,7 +458,7 @@
+@@ -456,7 +478,7 @@
  				compatible = "fsl,imx51-i2c", "fsl,imx21-i2c";
  				reg = <0x83fc8000 0x4000>;
  				interrupts = <62>;
@@ -313,7 +313,7 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
  
-@@ -444,7 +466,7 @@
+@@ -464,7 +486,7 @@
  				compatible = "fsl,imx51-ssi", "fsl,imx21-ssi";
  				reg = <0x83fcc000 0x4000>;
  				interrupts = <29>;
@@ -322,7 +322,7 @@ index bb958f9..279aa1e 100644
  				dmas = <&sdma 28 0 0>,
  				       <&sdma 29 0 0>;
  				dma-names = "rx", "tx";
-@@ -456,7 +478,7 @@
+@@ -476,7 +498,7 @@
  			audmux: audmux@83fd0000 {
  				compatible = "fsl,imx51-audmux", "fsl,imx31-audmux";
  				reg = <0x83fd0000 0x4000>;
@@ -331,7 +331,7 @@ index bb958f9..279aa1e 100644
  				clock-names = "audmux";
  				status = "disabled";
  			};
-@@ -466,7 +488,7 @@
+@@ -486,7 +508,7 @@
  				#size-cells = <1>;
  				compatible = "fsl,imx51-weim";
  				reg = <0x83fda000 0x1000>;
@@ -340,7 +340,7 @@ index bb958f9..279aa1e 100644
  				ranges = <
  					0 0 0xb0000000 0x08000000
  					1 0 0xb8000000 0x08000000
-@@ -482,7 +504,7 @@
+@@ -502,7 +524,7 @@
  				compatible = "fsl,imx51-nand";
  				reg = <0x83fdb000 0x1000 0xcfff0000 0x10000>;
  				interrupts = <8>;
@@ -349,7 +349,7 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
  
-@@ -490,7 +512,7 @@
+@@ -510,7 +532,7 @@
  				compatible = "fsl,imx51-pata", "fsl,imx27-pata";
  				reg = <0x83fe0000 0x4000>;
  				interrupts = <70>;
@@ -358,7 +358,7 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
  
-@@ -498,7 +520,7 @@
+@@ -518,7 +540,7 @@
  				compatible = "fsl,imx51-ssi", "fsl,imx21-ssi";
  				reg = <0x83fe8000 0x4000>;
  				interrupts = <96>;
@@ -367,7 +367,7 @@ index bb958f9..279aa1e 100644
  				dmas = <&sdma 46 0 0>,
  				       <&sdma 47 0 0>;
  				dma-names = "rx", "tx";
-@@ -511,7 +533,9 @@
+@@ -531,7 +553,9 @@
  				compatible = "fsl,imx51-fec", "fsl,imx27-fec";
  				reg = <0x83fec000 0x4000>;
  				interrupts = <87>;
@@ -379,5 +379,5 @@ index bb958f9..279aa1e 100644
  				status = "disabled";
  			};
 -- 
-1.8.5.3
+1.9.1
 

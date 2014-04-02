@@ -12,7 +12,7 @@ Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
  1 file changed, 92 insertions(+), 70 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
-index 35487eb..0816067 100644
+index a4a4a27..7897370 100644
 --- a/arch/arm/boot/dts/imx6qdl.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl.dtsi
 @@ -75,7 +75,10 @@
@@ -413,7 +413,7 @@ index 35487eb..0816067 100644
  			};
  
  			gpr: iomuxc-gpr@020e0000 {
-@@ -634,18 +651,18 @@
+@@ -697,18 +714,18 @@
  
  			dcic1: dcic@020e4000 {
  				reg = <0x020e4000 0x4000>;
@@ -435,7 +435,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 155>, <&clks 155>;
  				clock-names = "ipg", "ahb";
  				#dma-cells = <3>;
-@@ -662,7 +679,8 @@
+@@ -725,7 +742,8 @@
  
  			caam@02100000 {
  				reg = <0x02100000 0x40000>;
@@ -445,7 +445,7 @@ index 35487eb..0816067 100644
  			};
  
  			aipstz@0217c000 { /* AIPSTZ2 */
-@@ -672,7 +690,7 @@
+@@ -735,7 +753,7 @@
  			usbotg: usb@02184000 {
  				compatible = "fsl,imx6q-usb", "fsl,imx27-usb";
  				reg = <0x02184000 0x200>;
@@ -454,7 +454,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 162>;
  				fsl,usbphy = <&usbphy1>;
  				fsl,usbmisc = <&usbmisc 0>;
-@@ -682,7 +700,7 @@
+@@ -745,7 +763,7 @@
  			usbh1: usb@02184200 {
  				compatible = "fsl,imx6q-usb", "fsl,imx27-usb";
  				reg = <0x02184200 0x200>;
@@ -463,7 +463,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 162>;
  				fsl,usbphy = <&usbphy2>;
  				fsl,usbmisc = <&usbmisc 1>;
-@@ -692,7 +710,7 @@
+@@ -755,7 +773,7 @@
  			usbh2: usb@02184400 {
  				compatible = "fsl,imx6q-usb", "fsl,imx27-usb";
  				reg = <0x02184400 0x200>;
@@ -472,7 +472,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 162>;
  				fsl,usbmisc = <&usbmisc 2>;
  				status = "disabled";
-@@ -701,7 +719,7 @@
+@@ -764,7 +782,7 @@
  			usbh3: usb@02184600 {
  				compatible = "fsl,imx6q-usb", "fsl,imx27-usb";
  				reg = <0x02184600 0x200>;
@@ -481,7 +481,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 162>;
  				fsl,usbmisc = <&usbmisc 3>;
  				status = "disabled";
-@@ -717,7 +735,8 @@
+@@ -780,7 +798,8 @@
  			fec: ethernet@02188000 {
  				compatible = "fsl,imx6q-fec";
  				reg = <0x02188000 0x4000>;
@@ -491,7 +491,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 117>, <&clks 117>, <&clks 190>;
  				clock-names = "ipg", "ahb", "ptp";
  				status = "disabled";
-@@ -725,13 +744,15 @@
+@@ -788,13 +807,15 @@
  
  			mlb@0218c000 {
  				reg = <0x0218c000 0x4000>;
@@ -509,7 +509,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 163>, <&clks 163>, <&clks 163>;
  				clock-names = "ipg", "ahb", "per";
  				bus-width = <4>;
-@@ -741,7 +762,7 @@
+@@ -804,7 +825,7 @@
  			usdhc2: usdhc@02194000 {
  				compatible = "fsl,imx6q-usdhc";
  				reg = <0x02194000 0x4000>;
@@ -518,7 +518,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 164>, <&clks 164>, <&clks 164>;
  				clock-names = "ipg", "ahb", "per";
  				bus-width = <4>;
-@@ -751,7 +772,7 @@
+@@ -814,7 +835,7 @@
  			usdhc3: usdhc@02198000 {
  				compatible = "fsl,imx6q-usdhc";
  				reg = <0x02198000 0x4000>;
@@ -527,7 +527,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 165>, <&clks 165>, <&clks 165>;
  				clock-names = "ipg", "ahb", "per";
  				bus-width = <4>;
-@@ -761,7 +782,7 @@
+@@ -824,7 +845,7 @@
  			usdhc4: usdhc@0219c000 {
  				compatible = "fsl,imx6q-usdhc";
  				reg = <0x0219c000 0x4000>;
@@ -536,7 +536,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 166>, <&clks 166>, <&clks 166>;
  				clock-names = "ipg", "ahb", "per";
  				bus-width = <4>;
-@@ -773,7 +794,7 @@
+@@ -836,7 +857,7 @@
  				#size-cells = <0>;
  				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
  				reg = <0x021a0000 0x4000>;
@@ -545,7 +545,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 125>;
  				status = "disabled";
  			};
-@@ -783,7 +804,7 @@
+@@ -846,7 +867,7 @@
  				#size-cells = <0>;
  				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
  				reg = <0x021a4000 0x4000>;
@@ -554,7 +554,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 126>;
  				status = "disabled";
  			};
-@@ -793,7 +814,7 @@
+@@ -856,7 +877,7 @@
  				#size-cells = <0>;
  				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
  				reg = <0x021a8000 0x4000>;
@@ -563,7 +563,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 127>;
  				status = "disabled";
  			};
-@@ -814,7 +835,7 @@
+@@ -877,7 +898,7 @@
  			weim: weim@021b8000 {
  				compatible = "fsl,imx6q-weim";
  				reg = <0x021b8000 0x4000>;
@@ -572,7 +572,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 196>;
  			};
  
-@@ -825,12 +846,12 @@
+@@ -888,12 +909,12 @@
  
  			tzasc@021d0000 { /* TZASC1 */
  				reg = <0x021d0000 0x4000>;
@@ -587,7 +587,7 @@ index 35487eb..0816067 100644
  			};
  
  			audmux: audmux@021d8000 {
-@@ -849,13 +870,13 @@
+@@ -931,13 +952,13 @@
  
  			vdoa@021e4000 {
  				reg = <0x021e4000 0x4000>;
@@ -603,7 +603,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 160>, <&clks 161>;
  				clock-names = "ipg", "per";
  				dmas = <&sdma 27 4 0>, <&sdma 28 4 0>;
-@@ -866,7 +887,7 @@
+@@ -948,7 +969,7 @@
  			uart3: serial@021ec000 {
  				compatible = "fsl,imx6q-uart", "fsl,imx21-uart";
  				reg = <0x021ec000 0x4000>;
@@ -612,7 +612,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 160>, <&clks 161>;
  				clock-names = "ipg", "per";
  				dmas = <&sdma 29 4 0>, <&sdma 30 4 0>;
-@@ -877,7 +898,7 @@
+@@ -959,7 +980,7 @@
  			uart4: serial@021f0000 {
  				compatible = "fsl,imx6q-uart", "fsl,imx21-uart";
  				reg = <0x021f0000 0x4000>;
@@ -621,7 +621,7 @@ index 35487eb..0816067 100644
  				clocks = <&clks 160>, <&clks 161>;
  				clock-names = "ipg", "per";
  				dmas = <&sdma 31 4 0>, <&sdma 32 4 0>;
-@@ -888,7 +909,7 @@
+@@ -970,7 +991,7 @@
  			uart5: serial@021f4000 {
  				compatible = "fsl,imx6q-uart", "fsl,imx21-uart";
  				reg = <0x021f4000 0x4000>;
@@ -630,8 +630,8 @@ index 35487eb..0816067 100644
  				clocks = <&clks 160>, <&clks 161>;
  				clock-names = "ipg", "per";
  				dmas = <&sdma 33 4 0>, <&sdma 34 4 0>;
-@@ -901,7 +922,8 @@
- 			#crtc-cells = <1>;
+@@ -984,7 +1005,8 @@
+ 			#size-cells = <0>;
  			compatible = "fsl,imx6q-ipu";
  			reg = <0x02400000 0x400000>;
 -			interrupts = <0 6 0x4 0 5 0x4>;
@@ -641,5 +641,5 @@ index 35487eb..0816067 100644
  			clock-names = "bus", "di0", "di1";
  			resets = <&src 2>;
 -- 
-1.8.5.3
+1.9.1
 

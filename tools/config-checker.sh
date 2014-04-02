@@ -1627,8 +1627,6 @@ config="CONFIG_DRM_OMAP"
 check_config_builtin
 config="CONFIG_DRM_TILCDC"
 check_config_builtin
-config="CONFIG_VIDEO_OUTPUT_CONTROL"
-check_config_disable
 config="CONFIG_HDMI"
 check_config_builtin
 config="CONFIG_FIRMWARE_EDID"
@@ -1837,10 +1835,6 @@ check_config_module
 #
 # USB Physical Layer drivers
 #
-config="CONFIG_OMAP_CONTROL_USB"
-check_config_builtin
-config="CONFIG_OMAP_USB3"
-check_config_builtin
 config="CONFIG_TWL6030_USB"
 check_config_builtin
 config="CONFIG_USB_GPIO_VBUS"
@@ -2332,6 +2326,8 @@ config="CONFIG_TI_AM335X_ADC"
 check_config_module
 config="CONFIG_TWL6030_GPADC"
 check_config_module
+config="CONFIG_VF610_ADC"
+check_config_module
 
 #
 # Amplifiers
@@ -2522,7 +2518,11 @@ config="CONFIG_GENERIC_PHY"
 check_config_builtin
 config="CONFIG_OMAP_USB2"
 check_config_builtin
+config="CONFIG_TI_PIPE3"
+check_config_builtin
 config="CONFIG_TWL4030_USB"
+check_config_builtin
+config="CONFIG_PHY_SUN4I_USB"
 check_config_builtin
 
 #

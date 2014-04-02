@@ -206,12 +206,12 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0140-ARM-dts-imx53-Add-gpio-and-input-dt-includes.patch"
 	${git} "${DIR}/patches/imx_next/0141-ARM-dts-vf610-use-the-interrupt-macros.patch"
 	${git} "${DIR}/patches/imx_next/0142-ARM-dts-imx53-evk-Remove-board-support.patch"
-	${git} "${DIR}/patches/imx_next/0143-ARM-dts-i.MX53-move-common-QSB-nodes-to-new-file.patch"
-	${git} "${DIR}/patches/imx_next/0144-ARM-dts-i.MX53-add-support-for-MCIMX53-START-R.patch"
+#	${git} "${DIR}/patches/imx_next/0143-ARM-dts-i.MX53-move-common-QSB-nodes-to-new-file.patch"
+#	${git} "${DIR}/patches/imx_next/0144-ARM-dts-i.MX53-add-support-for-MCIMX53-START-R.patch"
 	${git} "${DIR}/patches/imx_next/0145-ARM-dts-i.MX51-Switch-to-use-standard-definitions-fo.patch"
 	${git} "${DIR}/patches/imx_next/0146-ARM-dts-imx28-apf28dev-add-user-button.patch"
 	${git} "${DIR}/patches/imx_next/0147-ARM-dts-Add-support-for-the-cpuimx35-board-from-Eukr.patch"
-	${git} "${DIR}/patches/imx_next/0148-ARM-dts-imx53-add-support-for-Ka-Ro-TX53-modules.patch"
+#	${git} "${DIR}/patches/imx_next/0148-ARM-dts-imx53-add-support-for-Ka-Ro-TX53-modules.patch"
 	${git} "${DIR}/patches/imx_next/0149-ARM-dts-imx53-Add-mmc-aliases.patch"
 	${git} "${DIR}/patches/imx_next/0150-ARM-dts-imx51-Add-mmc-aliases.patch"
 	${git} "${DIR}/patches/imx_next/0151-ARM-dts-imx5-use-imx51-ssi.patch"
@@ -221,7 +221,7 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0155-ARM-dts-imx27-phytec-phycard-s-som-Sort-entries.patch"
 	${git} "${DIR}/patches/imx_next/0156-ARM-dts-imx27-phytec-phycard-s-som-Add-NFC-node.patch"
 	${git} "${DIR}/patches/imx_next/0157-ARM-dts-imx27-phytec-phycard-s-rdk-Add-pinctrl-defin.patch"
-	${git} "${DIR}/patches/imx_next/0158-ARM-dts-mx53-Remove-enable-active-low-property.patch"
+#	${git} "${DIR}/patches/imx_next/0158-ARM-dts-mx53-Remove-enable-active-low-property.patch"
 	${git} "${DIR}/patches/imx_next/0159-ARM-dts-imx28-tx28-Remove-enable-active-low-property.patch"
 	${git} "${DIR}/patches/imx_next/0160-ARM-imx6q-remove-unneeded-clk-lookups.patch"
 	${git} "${DIR}/patches/imx_next/0161-ARM-imx6q-support-ptp-and-rmii-clock-from-pad.patch"
@@ -239,8 +239,8 @@ imx_next () {
 	${git} "${DIR}/patches/imx_next/0173-ARM-dts-imx6q-Add-spi4-alias.patch"
 	${git} "${DIR}/patches/imx_next/0174-ARM-dts-imx6qdl-Add-mmc-aliases.patch"
 	${git} "${DIR}/patches/imx_next/0175-ARM-dts-imx6-use-imx51-ssi.patch"
-	${git} "${DIR}/patches/imx_next/0176-ARM-dts-imx6-Add-DFI-FS700-M60-board-support.patch"
-	${git} "${DIR}/patches/imx_next/0177-ARM-dts-imx6q-Add-support-for-Zealz-GK802.patch"
+#	${git} "${DIR}/patches/imx_next/0176-ARM-dts-imx6-Add-DFI-FS700-M60-board-support.patch"
+#	${git} "${DIR}/patches/imx_next/0177-ARM-dts-imx6q-Add-support-for-Zealz-GK802.patch"
 	${git} "${DIR}/patches/imx_next/0178-ARM-dts-imx6qdl-sabresd-correct-gpio-key-s-active-st.patch"
 	${git} "${DIR}/patches/imx_next/0179-ARM-dts-imx6sl-evk-Add-PFUZE100-support.patch"
 	${git} "${DIR}/patches/imx_next/0180-ARM-dts-imx6sl-evk-Add-audio-support.patch"
@@ -495,8 +495,8 @@ usb
 
 dts
 
-imx_drm
-imx_drm_dts
+#imx_drm
+#imx_drm_dts
 #imx_video_staging
 omap_sprz319_erratum
 
