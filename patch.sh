@@ -81,6 +81,24 @@ sgx () {
 	${git} "${DIR}/patches/sgx/0007-Changes-according-to-TI-for-SGX-support.patch"
 }
 
+dts_bone () {
+	echo "dir: dts-bone"
+	${git} "${DIR}/patches/dts-bone/0001-arm-dts-am335x-bone-common-add-uart2_pins-uart4_pins.patch"
+
+}
+
+dts_bone_capes () {
+	echo "dir: dts-bone-capes"
+	${git} "${DIR}/patches/dts-bone-capes/0001-capes-ttyO1-ttyO2-ttyO4.patch"
+	${git} "${DIR}/patches/dts-bone-capes/0002-capes-Makefile.patch"
+}
+
+static_capes () {
+	echo "dir: static-capes"
+	${git} "${DIR}/patches/static-capes/0001-Added-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/static-capes/0002-Added-Argus-UPS-cape-support-BBW.patch"
+}
+
 saucy () {
 	echo "dir: saucy"
 	#Ubuntu Saucy: so Ubuntu decided to enable almost every Warning -> Error option...
@@ -93,6 +111,11 @@ dts
 fixes
 usb
 #sgx
+
+dts_bone
+dts_bone_capes
+static_capes
+
 saucy
 
 echo "patch.sh ran successful"
