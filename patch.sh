@@ -837,6 +837,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0023-apply-htu21-patch.patch"
 	${git} "${DIR}/patches/capes/0024-add-support-for-weather-cape-rev-b.patch"
 	${git} "${DIR}/patches/capes/0025-capes-Add-cape-universal-overlay-files-More-details-.patch"
+	${git} "${DIR}/patches/capes/0026-remove-1-wire-gpio-in-weather-cape-rev-B.patch"
 
 	echo "dir: proto"
 	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
