@@ -71,43 +71,27 @@ omap_next () {
 	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
 }
 
-clock () {
-	echo "dir: clock"
-#	${git} "${DIR}/patches/clock/0001-clk-ti-am335x-remove-unecessary-cpu0-clk-node.patch"
-#	${git} "${DIR}/patches/clock/0002-ARM-dts-OMAP3-add-clock-nodes-for-CPU.patch"
-
-#	${git} "${DIR}/patches/clock/0003-ARM-dts-OMAP36xx-Add-device-node-for-ABB.patch"
-#	${git} "${DIR}/patches/clock/0004-ARM-dts-OMAP4-Add-device-nodes-for-ABB.patch"
-#	${git} "${DIR}/patches/clock/0005-ARM-dts-OMAP5-Add-device-nodes-for-ABB.patch"
-#	${git} "${DIR}/patches/clock/0006-ARM-dts-DRA7-Add-device-nodes-for-ABB.patch"
-
-	#wip:
-	${git} "${DIR}/patches/clock/0007-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
-}
-
 dts () {
 	echo "dir: dts"
 	${git} "${DIR}/patches/dts/0001-ARM-dts-imx6qdl-wandboard-add-gpio-lines-to-wandboar.patch"
 	${git} "${DIR}/patches/dts/0002-ARM-dts-imx6qdl-wandboard-Add-support-for-i2c1.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
 	${git} "${DIR}/patches/dts/0004-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
-
-	${git} "${DIR}/patches/dts/0005-ARM-dts-omap3-beagle-add-i2c2.patch"
+	${git} "${DIR}/patches/dts/0005-hack-wand-enable-hdmi.patch"
 
 	${git} "${DIR}/patches/dts/0006-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
 	${git} "${DIR}/patches/dts/0007-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/dts/0008-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
 	${git} "${DIR}/patches/dts/0009-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
 
-	${git} "${DIR}/patches/dts/0010-ARM-dts-omap3-beagle-xm-spidev.patch"
-	${git} "${DIR}/patches/dts/0011-hack-wand-enable-hdmi.patch"
-	${git} "${DIR}/patches/dts/0012-arm-dts-vf610-twr-Add-support-for-sdhc1.patch"
-}
+	${git} "${DIR}/patches/dts/0010-ARM-dts-omap3-beagle-add-i2c2.patch"
 
-imx_video_staging () {
-	echo "dir: imx_video_staging"
-	${git} "${DIR}/patches/imx_video_staging/0001-ARM-dts-mx6qdl-Add-HDMI-support.patch"
-	${git} "${DIR}/patches/imx_video_staging/0002-ARM-dts-imx6qdl-wandboard-Add-HDMI-support.patch"
+	${git} "${DIR}/patches/dts/0011-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
+	${git} "${DIR}/patches/dts/0012-ARM-dts-omap3-beagle-xm-spidev.patch"
+	${git} "${DIR}/patches/dts/0013-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
+	${git} "${DIR}/patches/dts/0014-arch-omap3-add-xm-ab-variant.patch"
+
+	${git} "${DIR}/patches/dts/0015-arm-dts-vf610-twr-Add-support-for-sdhc1.patch"
 }
 
 omap_sprz319_erratum () {
@@ -116,22 +100,9 @@ omap_sprz319_erratum () {
 	#${git} "${DIR}/patches/omap_sprz319_erratum_v2.1/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
 }
 
-omap3_beagle_xm_rework () {
-	echo "dir: omap3_beagle_xm_rework"
-	${git} "${DIR}/patches/omap3_beagle_xm_rework/0001-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-	${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-arch-omap3-add-xm-ab-variant.patch"
-
-	#cp arch/arm/boot/dts/omap3-beagle-xm.dts arch/arm/boot/dts/omap3-beagle-xm-ab.dts
-#	${git} "${DIR}/patches/omap3_beagle_xm_rework/0002-ARM-dts-omap3-beagle-xm-ab.dtb-copy-from-omap3-beagl.patch"
-#	${git} "${DIR}/patches/omap3_beagle_xm_rework/0003-ARM-dts-omap3-beagle-xm-ab.dtb-build.patch"
-#	${git} "${DIR}/patches/omap3_beagle_xm_rework/0004-ARM-dts-omap3-beagle-xm-ab.dtb-invert-usb-host.patch"
-}
-
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
-#	${git} "${DIR}/patches/fixes/0002-fix-compilation-of-imx-hdmi.patch"
-#	${git} "${DIR}/patches/fixes/0003-Makefile-extra.patch"
 }
 
 vivante () {
@@ -169,12 +140,8 @@ drivers
 #imx_next
 #omap_next
 
-clock
 dts
-
-omap_sprz319_erratum
-
-omap3_beagle_xm_rework
+#omap_sprz319_erratum
 
 fixes
 vivante
