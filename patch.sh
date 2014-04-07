@@ -71,63 +71,6 @@ omap_next () {
 	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
 }
 
-omap_dt_dss () {
-	echo "dir: omap_dt_dss"
-	#From: https://git.kernel.org/cgit/linux/kernel/git/tomba/linux.git/log/?h=work/dss-dt
-
-	${git} "${DIR}/patches/omap_dt_dss/0001-ARM-OMAP2-add-omapdss_init_of.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0002-ARM-OMAP2-DT-compatible-tweak-for-displays.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0003-OMAPDSS-add-label-support-for-DT.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0004-OMAPDSS-get-dssdev-alias-from-DT-alias.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0005-OMAPFB-clean-up-default-display-search.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0006-OMAPFB-search-for-default-display-with-DT-alias.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0007-OMAPDSS-add-of-helpers.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0008-OMAPDSS-Improve-regulator-names-for-DT.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0009-OMAPDSS-Add-DT-support-to-DSS.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0010-OMAPDSS-Add-DT-support-to-DISPC.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0011-OMAPDSS-Add-DT-support-to-HDMI.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0012-OMAPDSS-Add-DT-support-to-VENC.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0013-OMAPDSS-Add-DT-support-to-DSI.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0014-OMAPDSS-panel-dsi-cm-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0015-OMAPDSS-encoder-tfp410-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0016-OMAPDSS-connector-dvi-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0017-OMAPDSS-encoder-tpd12s015-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0018-OMAPDSS-hdmi-connector-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0019-OMAPDSS-panel-dpi-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0020-OMAPDSS-connector-analog-tv-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0021-OMAPDSS-acx565akm-Add-DT-support.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0022-ARM-omap2.dtsi-add-omapdss-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0023-ARM-omap3.dtsi-add-omapdss-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0024-ARM-omap4.dtsi-add-omapdss-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0025-ARM-omap4-panda.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0026-ARM-omap4-sdp.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0027-ARM-omap3-beagle.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0028-ARM-omap3-beagle-xm.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0029-ARM-omap3-igep0020.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0030-ARM-omap3-n900.dts-add-display-information.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0031-OMAPDSS-remove-DT-hacks-for-regulators.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0032-ARM-OMAP2-remove-pdata-quirks-for-displays.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0033-Doc-DT-Add-OMAP-DSS-DT-Bindings.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0034-Doc-DT-Add-DT-binding-documentation-for-Analog-TV-Co.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0035-Doc-DT-Add-DT-binding-documentation-for-DVI-Connecto.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0036-Doc-DT-Add-DT-binding-documentation-for-HDMI-Connect.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0037-Doc-DT-Add-DT-binding-documentation-for-MIPI-DPI-Pan.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0038-Doc-DT-Add-DT-binding-documentation-for-MIPI-DSI-CM-.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0039-Doc-DT-Add-DT-binding-documentation-for-Sony-acx565a.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0040-Doc-DT-Add-DT-binding-documentation-for-TFP410-encod.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0041-Doc-DT-Add-DT-binding-documentation-for-tpd12s015-en.patch"
-#	${git} "${DIR}/patches/omap_dt_dss/0042-OMAPDSS-DISPC-decimation-rounding-fix.patch"
-#	${git} "${DIR}/patches/omap_dt_dss/0043-OMAPDSS-fix-fck-field-types.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0044-clk-divider-fix-rate-calculation-for-fractional-rate.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0045-clk-ti-divider-fix-rate-calculation-for-fractional-r.patch"
-#	${git} "${DIR}/patches/omap_dt_dss/0046-ARM-OMAP2-clock-fix-clkoutx2-with-CLK_SET_RATE_PAREN.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0047-ARM-dts-fix-omap3-dss-clock-handle-names.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0048-ARM-dts-fix-DPLL4-x2-clkouts-on-3630.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0049-ARM-dts-use-ti-fixed-factor-clock-for-dpll4_m4x2_mul.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0050-ARM-dts-set-ti-set-rate-parent-for-dpll4_m4-path.patch"
-	${git} "${DIR}/patches/omap_dt_dss/0051-OMAPDSS-fix-rounding-when-calculating-fclk-rate.patch"
-}
-
 clock () {
 	echo "dir: clock"
 #	${git} "${DIR}/patches/clock/0001-clk-ti-am335x-remove-unecessary-cpu0-clk-node.patch"
@@ -291,7 +234,6 @@ drivers
 #imx_next
 #omap_next
 
-#omap_dt_dss
 clock
 #usb
 
