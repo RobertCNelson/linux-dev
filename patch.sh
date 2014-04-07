@@ -120,46 +120,6 @@ dts () {
 	${git} "${DIR}/patches/dts/0012-arm-dts-vf610-twr-Add-support-for-sdhc1.patch"
 }
 
-imx_drm () {
-	echo "dir: imx_drm"
-
-	${git} "${DIR}/patches/imx_drm/0001-imx-drm-imx-hdmi-convert-HDMI-clock-settings-to-tabu.patch"
-	${git} "${DIR}/patches/imx_drm/0002-imx-drm-imx-hdmi-clean-up-setting-CSC-registers.patch"
-	${git} "${DIR}/patches/imx_drm/0003-imx-drm-imx-hdmi-provide-register-modification-funct.patch"
-	${git} "${DIR}/patches/imx_drm/0004-imx-drm-imx-hdmi-clean-up-setting-of-vp_conf.patch"
-	${git} "${DIR}/patches/imx_drm/0005-imx-drm-imx-hdmi-fix-CTS-N-setup-at-init-time.patch"
-	${git} "${DIR}/patches/imx_drm/0006-imx-drm-ipu-v3-more-inteligent-DI-clock-selection.patch"
-	${git} "${DIR}/patches/imx_drm/0007-imx-drm-ipu-v3-don-t-use-clk_round_rate-before-clk_s.patch"
-	${git} "${DIR}/patches/imx_drm/0008-imx-drm-ipu-v3-more-clocking-fixes.patch"
-	${git} "${DIR}/patches/imx_drm/0009-imx-drm-add-imx6-DT-configuration-for-HDMI.patch"
-	${git} "${DIR}/patches/imx_drm/0010-imx-drm-update-and-fix-imx6-DT-descriptions-for-v3-H.patch"
-	${git} "${DIR}/patches/imx_drm/0011-imx-drm-imx-drm-core-sanitise-imx_drm_encoder_get_mu.patch"
-	${git} "${DIR}/patches/imx_drm/0012-imx-drm-imx-drm-core-use-array-instead-of-list-for-C.patch"
-	${git} "${DIR}/patches/imx_drm/0013-imx-drm-provide-common-connector-mode-validation-fun.patch"
-	${git} "${DIR}/patches/imx_drm/0014-imx-drm-simplify-setup-of-panel-format.patch"
-	${git} "${DIR}/patches/imx_drm/0015-imx-drm-convert-to-componentised-device-support.patch"
-	${git} "${DIR}/patches/imx_drm/0016-imx-drm-delay-publishing-sysfs-connector-entries.patch"
-	${git} "${DIR}/patches/imx_drm/0017-imx-drm-remove-separate-imx-fbdev.patch"
-	${git} "${DIR}/patches/imx_drm/0018-imx-drm-remove-imx-fb.c.patch"
-	${git} "${DIR}/patches/imx_drm/0019-imx-drm-use-supplied-drm_device-where-possible.patch"
-	${git} "${DIR}/patches/imx_drm/0020-imx-drm-imx-drm-core-provide-helper-function-to-pars.patch"
-	${git} "${DIR}/patches/imx_drm/0021-imx-drm-imx-drm-core-provide-common-connector-and-en.patch"
-	${git} "${DIR}/patches/imx_drm/0022-imx-drm-initialise-drm-components-directly.patch"
-	${git} "${DIR}/patches/imx_drm/0023-imx-drm-imx-drm-core-remove-imx_drm_connector-and-im.patch"
-	${git} "${DIR}/patches/imx_drm/0024-imx-drm-imx-drm-core-get-rid-of-drm_mode_group_init_.patch"
-	${git} "${DIR}/patches/imx_drm/0025-imx-drm-imx-drm-core-kill-off-mutex.patch"
-	${git} "${DIR}/patches/imx_drm/0026-imx-drm-imx-drm-core-move-allocation-of-imxdrm-devic.patch"
-	${git} "${DIR}/patches/imx_drm/0027-imx-drm-imx-drm-core-various-cleanups.patch"
-	${git} "${DIR}/patches/imx_drm/0028-imx-drm-imx-drm-core-add-core-hotplug-connector-supp.patch"
-	${git} "${DIR}/patches/imx_drm/0029-imx-drm-imx-hdmi-add-hotplug-support-to-HDMI-compone.patch"
-}
-
-imx_drm_dts () {
-	echo "dir: imx_drm_dts"
-	${git} "${DIR}/patches/imx_drm_dts/0001-ARM-dts-imx6qdl-sabresd-Add-HDMI-support.patch"
-	${git} "${DIR}/patches/imx_drm_dts/0002-arm-dts-wandboard-enable-hdmi-quad-has-to-force-edid.patch"
-}
-
 imx_video_staging () {
 	echo "dir: imx_video_staging"
 	${git} "${DIR}/patches/imx_video_staging/0001-ARM-dts-mx6qdl-Add-HDMI-support.patch"
@@ -237,8 +197,6 @@ drivers
 clock
 dts
 
-#imx_drm
-#imx_drm_dts
 #imx_video_staging
 omap_sprz319_erratum
 
