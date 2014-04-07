@@ -235,8 +235,6 @@ drivers
 #omap_next
 
 clock
-#usb
-
 dts
 
 #imx_drm
