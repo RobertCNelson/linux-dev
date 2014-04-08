@@ -839,6 +839,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0025-capes-Add-cape-universal-overlay-files-More-details-.patch"
 	${git} "${DIR}/patches/capes/0026-remove-1-wire-gpio-in-weather-cape-rev-B.patch"
 	${git} "${DIR}/patches/capes/0027-cape-add-cape-bone-ibb-00A0.dts.patch"
+	${git} "${DIR}/patches/capes/0028-adds-DTS-for-CryptoCape.patch"
 
 	echo "dir: proto"
 	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
