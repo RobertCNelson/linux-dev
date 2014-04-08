@@ -886,6 +886,11 @@ sgx () {
 	${git} "${DIR}/patches/sgx/0003-OpenGL-fixed-IRQ-offset.patch"
 }
 
+backports () {
+	echo "dir: backports"
+	${git} "${DIR}/patches/backports/0001-test-backport-v3.13.7-tpm_i2c_atmel.c.patch"
+}
+
 am33x
 arm
 omap
@@ -893,5 +898,6 @@ am33x_after
 saucy
 machinekit
 sgx
+backports
 
 echo "patch.sh ran successful"
