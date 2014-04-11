@@ -38,17 +38,29 @@ patch_kernel () {
 	cd ${DIR}/
 }
 
+config_reference () {
+	echo "Updating reference config: ${ref_config}"
+	make ARCH=arm CROSS_COMPILE=${CC} ${ref_config}
+	cp -v .config ${DIR}/patches/example_${ref_config}
+}
+
 copy_defconfig () {
 	cd ${DIR}/KERNEL/
 	make ARCH=arm CROSS_COMPILE=${CC} distclean
 	make ARCH=arm CROSS_COMPILE=${CC} ${config}
 	cp -v .config ${DIR}/patches/ref_${config}
 
-	make ARCH=arm CROSS_COMPILE=${CC} imx_v6_v7_defconfig
-	cp -v .config ${DIR}/patches/example_imx_v6_v7_defconfig
+	ref_config="imx_v6_v7_defconfig"
+	config_reference
 
-	make ARCH=arm CROSS_COMPILE=${CC} omap2plus_defconfig
-	cp -v .config ${DIR}/patches/example_omap2plus_defconfig
+	ref_config="omap2plus_defconfig"
+	config_reference
+
+	ref_config="sunxi_defconfig"
+	config_reference
+
+	ref_config="tegra_defconfig"
+	config_reference
 
 	cp -v ${DIR}/patches/defconfig .config
 	cd ${DIR}/
