@@ -228,6 +228,17 @@ debian_regs () {
 			fi
 		fi
 
+		if [ "x${deb_distro}" = "xluna" ] ; then
+			#http://distrowatch.com/table.php?distribution=elementary
+			#lsb_release -a
+			#No LSB modules are available.
+			#Distributor ID:    elementary OS
+			#Description:    elementary OS Luna
+			#Release:    0.2
+			#Codename:    luna
+			deb_distro="precise"
+		fi
+
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/oldreleases.php
 		#http://packages.linuxmint.com/index.php
