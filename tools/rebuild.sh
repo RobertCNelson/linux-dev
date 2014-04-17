@@ -144,7 +144,7 @@ make_pkg () {
 		;;
 	dtbs)
 		if [ "x${has_dtbs_install}" = "xenable" ] ; then
-			make -s ARCH=arm CROSS_COMPILE=${CC} dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
+			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
 		else
 			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
 		fi
