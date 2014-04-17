@@ -81,7 +81,7 @@ redhat_reqs () {
 			#pkg="uboot-tools"
 			#check_rpm
 			;;
-		17|18|19|20)
+		17|18|19|20|21)
 			pkg="uboot-tools"
 			check_rpm
 			;;
@@ -269,6 +269,9 @@ debian_regs () {
 			;;
 		petra)
 			deb_distro="saucy"
+			;;
+		qiana)
+			deb_distro="trusty"
 			;;
 		esac
 
