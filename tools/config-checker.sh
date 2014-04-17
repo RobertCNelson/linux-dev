@@ -2704,7 +2704,7 @@ config="CONFIG_STRICT_DEVMEM"
 check_config_builtin
 
 echo "#Bugs:"
-#config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS"
-#check_config_builtin
+config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS"
+check_config_builtin
 
 #
