@@ -106,6 +106,11 @@ saucy () {
 	${git} "${DIR}/patches/saucy/0002-saucy-error-variable-ilace-set-but-not-used-Werror-u.patch"
 }
 
+rt () {
+	echo "dir: rt"
+	${git} "${DIR}/patches/rt/0001-rt-3.14-patchset.patch"
+}
+
 ###
 dts
 fixes
@@ -117,5 +122,8 @@ dts_bone_capes
 static_capes
 
 saucy
+
+#disabled by default
+#rt
 
 echo "patch.sh ran successful"
