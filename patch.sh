@@ -92,6 +92,7 @@ dts () {
 	${git} "${DIR}/patches/dts/0014-arch-omap3-add-xm-ab-variant.patch"
 
 	${git} "${DIR}/patches/dts/0015-arm-dts-vf610-twr-Add-support-for-sdhc1.patch"
+	${git} "${DIR}/patches/dts/0016-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
 }
 
 omap_sprz319_erratum () {
