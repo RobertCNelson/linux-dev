@@ -10,7 +10,7 @@ if [ -e ${DIR}/version.sh ]; then
 		BRANCH="master"
 	fi
 
-	git commit -a -m "scripts: sync with master of: git://github.com/RobertCNelson/stable-kernel.git" -s
+	git commit -a -m "scripts: sync with master of: https://github.com/RobertCNelson/stable-kernel.git" -s
 
 	git push origin ${BRANCH}
 fi

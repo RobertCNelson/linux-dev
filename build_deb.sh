@@ -120,7 +120,11 @@ make_pkg () {
 		make -s ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
 		;;
 	dtbs)
-		find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
+		if [ "x${has_dtbs_install}" = "xenable" ] ; then
+			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
+		else
+			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
+		fi
 		;;
 	esac
 
