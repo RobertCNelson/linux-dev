@@ -114,14 +114,14 @@ rt () {
 ###
 dts
 fixes
-usb
+#usb
 #sgx
 
 dts_bone
 dts_bone_capes
 static_capes
 
-saucy
+#saucy
 
 #disabled by default
 #rt

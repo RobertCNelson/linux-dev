@@ -27,15 +27,15 @@ config="omap2plus_defconfig"
 toolchain="gcc_linaro_gnueabihf_4_8"
 
 #Kernel/Build
-KERNEL_REL=3.14
-KERNEL_TAG=${KERNEL_REL}.1
-BUILD=bone2
+KERNEL_REL=3.15
+KERNEL_TAG=${KERNEL_REL}-rc2
+BUILD=bone0
 
 #v3.X-rcX + upto SHA
 #KERNEL_SHA="e6036c0b88962df82a8853971b86a55f09faef40"
 
 #git branch
-BRANCH="am33x-v3.14"
+BRANCH="am33x-v3.15"
 
 BUILDREV=1.0
 DISTRO=cross

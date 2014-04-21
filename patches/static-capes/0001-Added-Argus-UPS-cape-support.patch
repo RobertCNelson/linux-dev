@@ -19,17 +19,17 @@ Signed-off-by: Dave Lambert <dave@lambsys.com>
  create mode 100644 drivers/misc/cape_bone_argus/cape_bone_argus.c
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index a96c269..2286fb6 100644
+index 05d4302..74b3a89 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -232,6 +232,7 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
+@@ -287,6 +287,7 @@ dtb-$(CONFIG_ARCH_OMAP2PLUS) += omap2420-h4.dtb \
  	am335x-boneblack-ttyO1.dtb \
  	am335x-boneblack-ttyO2.dtb \
  	am335x-boneblack-ttyO4.dtb \
 +	am335x-boneblack-cape-bone-argus.dtb \
  	am335x-nano.dtb \
  	am335x-base0033.dtb \
- 	am3517-evm.dtb \
+ 	am3517-craneboard.dtb \
 diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 new file mode 100644
 index 0000000..c4c7556
@@ -435,26 +435,28 @@ index 0000000..c4c7556
 +	};
 +};
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 6cb388e..4a01031 100644
+index 8baff0e..535a5b7 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -525,5 +525,6 @@ source "drivers/misc/altera-stapl/Kconfig"
+@@ -525,6 +525,7 @@ source "drivers/misc/altera-stapl/Kconfig"
  source "drivers/misc/mei/Kconfig"
  source "drivers/misc/vmw_vmci/Kconfig"
  source "drivers/misc/mic/Kconfig"
 +source "drivers/misc/cape_bone_argus/Kconfig"
  source "drivers/misc/genwqe/Kconfig"
+ source "drivers/misc/echo/Kconfig"
  endmenu
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 99b9424..a9f4040 100644
+index 7eb4b69..39f6a02 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -53,4 +53,5 @@ obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
+@@ -53,5 +53,6 @@ obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
  obj-$(CONFIG_LATTICE_ECP3_CONFIG)	+= lattice-ecp3-config.o
  obj-$(CONFIG_SRAM)		+= sram.o
  obj-y				+= mic/
 +obj-y				+= cape_bone_argus/
  obj-$(CONFIG_GENWQE)		+= genwqe/
+ obj-$(CONFIG_ECHO)		+= echo/
 diff --git a/drivers/misc/cape_bone_argus/Kconfig b/drivers/misc/cape_bone_argus/Kconfig
 new file mode 100644
 index 0000000..1b39661
@@ -901,5 +903,5 @@ index 0000000..c434218
 +MODULE_ALIAS("platform:argus-ups");
 +MODULE_DEVICE_TABLE(of, argus_ups_of_ids);
 -- 
-1.9.1
+1.9.2
 
