@@ -544,64 +544,6 @@ config="CONFIG_OMAP_OCP2SCP"
 check_config_builtin
 
 #
-# RAM/ROM/Flash chip drivers
-#
-config="CONFIG_MTD_CFI"
-check_config_builtin
-config="CONFIG_MTD_JEDECPROBE"
-check_config_builtin
-config="CONFIG_MTD_GEN_PROBE"
-check_config_builtin
-config="CONFIG_MTD_CFI_ADV_OPTIONS"
-check_config_disable
-config="CONFIG_MTD_CFI_INTELEXT"
-check_config_builtin
-config="CONFIG_MTD_CFI_AMDSTD"
-check_config_builtin
-config="CONFIG_MTD_CFI_STAA"
-check_config_builtin
-config="CONFIG_MTD_CFI_UTIL"
-check_config_builtin
-
-#
-# Mapping drivers for chip access
-#
-config="CONFIG_MTD_PHYSMAP"
-check_config_disable
-config="CONFIG_MTD_PHYSMAP_OF"
-check_config_builtin
-config="CONFIG_MTD_IMPA7"
-check_config_disable
-config="CONFIG_MTD_PLATRAM"
-check_config_disable
-
-#
-# Self-contained MTD device drivers
-#
-config="CONFIG_MTD_DATAFLASH"
-check_config_builtin
-config="CONFIG_MTD_M25P80"
-check_config_builtin
-config="CONFIG_MTD_SST25L"
-check_config_builtin
-
-#
-# Disk-On-Chip Device Drivers
-#
-config="CONFIG_MTD_NAND"
-check_config_disable
-config="CONFIG_MTD_ONENAND"
-check_config_disable
-
-#
-# LPDDR flash memory drivers
-#
-config="CONFIG_MTD_LPDDR"
-check_config_disable
-config="CONFIG_MTD_UBI"
-check_config_disable
-
-#
 # Device Tree and Open Firmware support
 #
 config="CONFIG_PARPORT"
