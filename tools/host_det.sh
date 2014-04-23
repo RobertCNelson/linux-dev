@@ -281,28 +281,28 @@ debian_regs () {
 			unset error_unknown_deb_distro
 			unset warn_eol_distro
 			;;
-		lucid|precise|quantal|saucy|trusty)
-			#Supported Ubuntu:
+		trusty|utopic)
+			#lts: trusty -> xyz
+			unset error_unknown_deb_distro
+			unset warn_eol_distro
+			;;
+		precise|quantal|saucy)
+			#lts: precise -> trusty
 			unset error_unknown_deb_distro
 			unset warn_eol_distro
 			;;
 		raring)
-			#Old Ubuntu: between lts: precise -> trusty
-			#But still on: http://us.archive.ubuntu.com/ubuntu/dists/
+			#EOL Ubuntu: between lts: precise -> trusty
 			unset error_unknown_deb_distro
 			warn_eol_distro=1
 			;;
-		oneiric)
-			#Old Ubuntu: between lts: lucid -> precise
-			#But still on: http://us.archive.ubuntu.com/ubuntu/dists/ (supported except for oneiric)
-			#in 'theory' could bring oneiric back, but no reason too at this point...
+		lucid)
+			#lts: lucid -> precise
 			unset error_unknown_deb_distro
-			warn_eol_distro=1
-			stop_pkg_search=1
+			unset warn_eol_distro
 			;;
-		maverick|natty)
-			#Old Ubuntu: between lts: lucid -> precise
-			#removed from http://us.archive.ubuntu.com/ubuntu/dists/ thus unsupported...
+		maverick|natty|oneiric)
+			#EOL Ubuntu: between lts: lucid -> precise
 			unset error_unknown_deb_distro
 			warn_eol_distro=1
 			stop_pkg_search=1
@@ -338,7 +338,7 @@ debian_regs () {
 
 		#Libs; starting with jessie/sid/saucy, lib<pkg_name>-dev:<arch>
 		case "${deb_distro}" in
-		jessie|sid|saucy|trusty)
+		jessie|sid|saucy|trusty|utopic)
 			pkg="libncurses5-dev:${deb_arch}"
 			check_dpkg
 			;;
@@ -356,7 +356,7 @@ debian_regs () {
 				pkg="ia32-libs"
 				check_dpkg
 				;;
-			wheezy|jessie|sid|quantal|raring|saucy|trusty)
+			wheezy|jessie|sid|quantal|raring|saucy|trusty|utopic)
 				pkg="libc6:i386"
 				check_dpkg
 				pkg="libncurses5:i386"
