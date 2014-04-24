@@ -21,17 +21,14 @@
 # THE SOFTWARE.
 
 unset KERNEL_UTS
-unset MMC
 unset ZRELADDR
-
-BOOT_PARITION="1"
 
 DIR=$PWD
 
 . ${DIR}/version.sh
 
 mmc_write_rootfs () {
-	echo "Installing ${KERNEL_UTS}-modules.tar.gz to ${partition}"
+	echo "Installing ${KERNEL_UTS}-modules.tar.gz"
 
 	if [ -d "${location}/lib/modules/${KERNEL_UTS}" ] ; then
 		sudo rm -rf "${location}/lib/modules/${KERNEL_UTS}" || true
@@ -40,7 +37,7 @@ mmc_write_rootfs () {
 	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}/"
 	sync
 
-	echo "Installing ${KERNEL_UTS}-firmware.tar.gz to ${partition}"
+	echo "Installing ${KERNEL_UTS}-firmware.tar.gz"
 
 	if [ -d "${DIR}/deploy/tmp" ] ; then
 		rm -rf "${DIR}/deploy/tmp" || true
@@ -80,7 +77,7 @@ mmc_write_rootfs () {
 }
 
 mmc_write_boot () {
-	echo "Installing ${KERNEL_UTS} to ${partition}"
+	echo "Installing ${KERNEL_UTS}"
 
 	if [ -f "${location}/SOC.sh" ] ; then
 		. "${location}/SOC.sh"
@@ -124,135 +121,19 @@ mmc_write_boot () {
 	fi
 }
 
-mmc_partition_discover () {
-	if [ -f "${DIR}/deploy/disk/uEnv.txt" ] || [ -f "${DIR}/deploy/disk/BOOT.BIN" ] ; then
-		location="${DIR}/deploy/disk"
-		mmc_write_boot
-	fi
-
-	if [ -f "${DIR}/deploy/disk/boot/uEnv.txt" ] ; then
-		location="${DIR}/deploy/disk/boot"
-		mmc_write_boot
-	fi
-
-	if [ -f "${DIR}/deploy/disk/etc/fstab" ] ; then
-		location="${DIR}/deploy/disk"
-		mmc_write_rootfs
-	fi
-}
-
-mmc_unmount () {
-	cd "${DIR}/deploy/disk"
-	sync
-	sync
-	cd -
-	sudo umount "${DIR}/deploy/disk" || true
-}
-
-mmc_detect_n_mount () {
-	echo "Starting Partition Search"
-	echo "-----------------------------"
-	num_partitions=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | wc -l)
-
-	i=0 ; while test $i -le ${num_partitions} ; do
-		partition=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | head -${i} | tail -1 | awk '{print $1}')
-		if [ ! "x${partition}" = "x" ] ; then
-			echo "Trying: [${partition}]"
-
-			if [ ! -d "${DIR}/deploy/disk/" ] ; then
-				mkdir -p "${DIR}/deploy/disk/"
-			fi
-
-			echo "Partition: [${partition}] trying: [vfat], [ext4]"
-			if sudo mount -t vfat ${partition} "${DIR}/deploy/disk/" 2>/dev/null ; then
-				echo "Partition: [vfat]"
-				UNTAR="xfo"
-				mmc_partition_discover
-				mmc_unmount
-			elif sudo mount -t ext4 ${partition} "${DIR}/deploy/disk/" 2>/dev/null ; then
-				echo "Partition: [extX]"
-				UNTAR="xf"
-				mmc_partition_discover
-				mmc_unmount
-			fi
-		fi
-	i=$(($i+1))
-	done
-
-	echo "-----------------------------"
-	echo "This script has finished..."
-	echo "For verification, always test this media with your end device..."
-}
-
-unmount_partitions () {
-	echo ""
-	echo "Debug: Existing Partition on drive:"
-	echo "-----------------------------"
-	LC_ALL=C sudo fdisk -l ${MMC}
-
-	echo ""
-	echo "Unmounting Partitions"
-	echo "-----------------------------"
-
-	NUM_MOUNTS=$(mount | grep -v none | grep "${MMC}" | wc -l)
-
-	i=0 ; while test $i -le ${NUM_MOUNTS} ; do
-		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
-		sudo umount ${DRIVE} >/dev/null 2>&1 || true
-	i=$(($i+1))
-	done
-
-	mkdir -p "${DIR}/deploy/disk/"
-	mmc_detect_n_mount
-}
-
-list_mmc () {
-	echo "fdisk -l:"
-	LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk /dev/" --color=never
-	echo ""
-	echo "lsblk:"
-	lsblk | grep -v sr0
-	echo "-----------------------------"
-}
-
-check_mmc () {
-	FDISK=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "Disk ${MMC}" | awk '{print $2}')
-
-	if [ "x${FDISK}" = "x${MMC}:" ] ; then
-		echo ""
-		echo "I see..."
-		list_mmc
-		echo -n "Are you 100% sure, on selecting [${MMC}] (y/n)? "
-		read response
-		if [ "x${response}" = "xy" ] ; then
-			unmount_partitions
-		fi
-		echo ""
-	else
-		echo ""
-		echo "Are you sure? I Don't see [${MMC}], here is what I do see..."
-		echo ""
-		list_mmc
-		echo "Please update MMC variable in system.sh"
-	fi
-}
-
 if [ -f "${DIR}/system.sh" ] ; then
 	. ${DIR}/system.sh
 
 	if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
 		KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
-		if [ "x${MMC}" = "x" ] ; then
-			echo "-----------------------------"
-			echo "lsblk:"
-			lsblk | grep -v sr0
-			echo "-----------------------------"
-			echo "ERROR: MMC is not defined in system.sh"
-		else
-			unset PARTITION_PREFIX
-			echo ${MMC} | grep mmcblk >/dev/null && PARTITION_PREFIX="p"
-			check_mmc
+		if [ -f "/boot/uboot/uEnv.txt" ] ; then
+			location="/boot/uboot"
+			mmc_write_boot
+			location=""
+			mmc_write_rootfs
 			sync
+		else
+			echo "ERROR: /boot/uboot/uEnv.txt not found, this is for local install only..."
 		fi
 	else
 		echo "ERROR: arch/arm/boot/zImage not found, Please run build_kernel.sh before running this script..."
