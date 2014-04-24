@@ -122,8 +122,7 @@ am33x () {
 	${git} "${DIR}/patches/adc/0016-MFD-ti_tscadc-disable-TSC-control-register-bits-when.patch"
 	${git} "${DIR}/patches/adc/0017-IIO-ADC-ti_adc-Fix-1st-sample-read.patch"
 	${git} "${DIR}/patches/adc/0018-input-ti_tsc-Enable-shared-IRQ-TSC.patch"
-	${git} "${DIR}/patches/adc/0019-iio-ti_am335x_adc-Add-continuous-sampling-and-trigge.patch"
-	${git} "${DIR}/patches/adc/0020-iio-ti_am335x_adc-Add-IIO-map-interface.patch"
+	${git} "${DIR}/patches/adc/0019-iio-ti_am335x_adc-Add-IIO-map-interface.patch"
 
 	echo "dir: i2c"
 	${git} "${DIR}/patches/i2c/0001-pinctrl-pinctrl-single-must-be-initialized-early.patch"
