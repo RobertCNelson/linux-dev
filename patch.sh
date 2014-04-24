@@ -839,6 +839,8 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0026-remove-1-wire-gpio-in-weather-cape-rev-B.patch"
 	${git} "${DIR}/patches/capes/0027-cape-add-cape-bone-ibb-00A0.dts.patch"
 	${git} "${DIR}/patches/capes/0028-adds-DTS-for-CryptoCape.patch"
+	${git} "${DIR}/patches/capes/0029-Provides-a-sysfs-interface-to-the-eQEP-hardware-on-t.patch"
+	${git} "${DIR}/patches/capes/0030-capes-add-bone_eqep-from-https-github.com-Teknoman11.patch"
 
 	echo "dir: proto"
 	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
