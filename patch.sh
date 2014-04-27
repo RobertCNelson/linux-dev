@@ -89,7 +89,7 @@ dts () {
 	${git} "${DIR}/patches/dts/0011-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
 	${git} "${DIR}/patches/dts/0012-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0013-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-	${git} "${DIR}/patches/dts/0014-arch-omap3-add-xm-ab-variant.patch"
+#	${git} "${DIR}/patches/dts/0014-arch-omap3-add-xm-ab-variant.patch"
 
 	${git} "${DIR}/patches/dts/0015-arm-dts-vf610-twr-Add-support-for-sdhc1.patch"
 	${git} "${DIR}/patches/dts/0016-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
@@ -104,7 +104,7 @@ omap_sprz319_erratum () {
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
-	${git} "${DIR}/patches/fixes/0002-arm-add-CLKSRC_OF.patch"
+#	${git} "${DIR}/patches/fixes/0002-arm-add-CLKSRC_OF.patch"
 }
 
 vivante () {
