@@ -37,7 +37,7 @@ mmc_write_rootfs () {
 		sudo rm -rf "${location}/lib/modules/${KERNEL_UTS}" || true
 	fi
 
-	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}"
+	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}/"
 	sync
 
 	echo "Installing ${KERNEL_UTS}-firmware.tar.gz to ${partition}"
@@ -76,13 +76,6 @@ mmc_write_rootfs () {
 		fi
 		sudo cp -v "${DIR}/deploy/config-${KERNEL_UTS}" "${location}/boot/config-${KERNEL_UTS}"
 		sync
-	fi
-
-	if [ -f "${DIR}/deploy/GFX_5.01.00.01.tar.gz" ] ; then
-		if [ ! -d "${location}/opt/" ] ; then
-			sudo mkdir -p "${location}/opt/"
-		fi
-		sudo cp -v "${DIR}/deploy/GFX_5.01.00.01.tar.gz" "${location}/opt/"
 	fi
 }
 
