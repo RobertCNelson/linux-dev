@@ -841,6 +841,12 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0028-adds-DTS-for-CryptoCape.patch"
 	${git} "${DIR}/patches/capes/0029-Provides-a-sysfs-interface-to-the-eQEP-hardware-on-t.patch"
 	${git} "${DIR}/patches/capes/0030-capes-add-bone_eqep-from-https-github.com-Teknoman11.patch"
+	${git} "${DIR}/patches/capes/0031-Inserting-logibone-into-cape-support-list.patch"
+
+	echo "dir: logibone"
+	${git} "${DIR}/patches/logibone/0001-Adding-DTS-file-for-logibone-support.patch"
+	${git} "${DIR}/patches/logibone/0002-Adding-logibone-dma-kernel-driver.patch"
+
 
 	echo "dir: proto"
 	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
