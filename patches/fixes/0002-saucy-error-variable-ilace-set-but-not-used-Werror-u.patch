@@ -1,0 +1,37 @@
+From 7f0e6e25e55b0713e6fe46e76bd1fb85e353648f Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Mon, 22 Jul 2013 10:51:46 -0500
+Subject: [PATCH 2/2] saucy: error: variable 'ilace' set but not used
+ [-Werror=unused-but-set-variable]
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/gpu/drm/omapdrm/omap_plane.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/omapdrm/omap_plane.c
+index 046d5e6..ef3ebe5d 100644
+--- a/drivers/gpu/drm/omapdrm/omap_plane.c
++++ b/drivers/gpu/drm/omapdrm/omap_plane.c
+@@ -121,7 +121,8 @@ static void omap_plane_pre_apply(struct omap_drm_apply *apply)
+ 	struct drm_crtc *crtc = plane->crtc;
+ 	enum omap_channel channel;
+ 	bool enabled = omap_plane->enabled && crtc;
+-	bool ilace, replication;
++	//bool ilace, replication;
++	bool replication;
+ 	int ret;
+ 
+ 	DBG("%s, enabled=%d", omap_plane->name, enabled);
+@@ -146,7 +147,7 @@ static void omap_plane_pre_apply(struct omap_drm_apply *apply)
+ 			info->paddr, info->p_uv_addr);
+ 
+ 	/* TODO: */
+-	ilace = false;
++	//ilace = false;
+ 	replication = false;
+ 
+ 	/* and finally, update omapdss: */
+-- 
+1.8.5.3
+
