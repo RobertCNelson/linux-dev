@@ -1,0 +1,55 @@
+From 972ffaa879c1320252f045b7c172dc8819b536af Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Thu, 13 Mar 2014 10:18:44 +0100
+Subject: [PATCH 017/110] ARM: dts: i.MX35: Add USB support.
+
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx35.dtsi | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx35.dtsi b/arch/arm/boot/dts/imx35.dtsi
+index 474a73d..4759abb 100644
+--- a/arch/arm/boot/dts/imx35.dtsi
++++ b/arch/arm/boot/dts/imx35.dtsi
+@@ -298,6 +298,7 @@
+ 				interrupts = <37>;
+ 				clocks = <&clks 73>;
+ 				fsl,usbmisc = <&usbmisc 0>;
++				fsl,usbphy = <&usbphy0>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -307,6 +308,7 @@
+ 				interrupts = <35>;
+ 				clocks = <&clks 73>;
+ 				fsl,usbmisc = <&usbmisc 1>;
++				fsl,usbphy = <&usbphy1>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -355,4 +357,20 @@
+ 			};
+ 		};
+ 	};
++
++	usbphy {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		usbphy0: usb-phy@0 {
++			reg = <0>;
++			compatible = "usb-nop-xceiv";
++		};
++
++		usbphy1: usb-phy@1 {
++			reg = <1>;
++			compatible = "usb-nop-xceiv";
++		};
++	};
+ };
+-- 
+1.9.2
+

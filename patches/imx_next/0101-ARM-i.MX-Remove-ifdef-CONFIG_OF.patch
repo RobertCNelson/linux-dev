@@ -1,0 +1,51 @@
+From b4321504872a9bd81b674ce1e6c9ba98d1336228 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Sat, 19 Apr 2014 09:04:03 +0400
+Subject: [PATCH 101/110] ARM: i.MX: Remove #ifdef CONFIG_OF
+
+CONFIG_OF is always selected for i.MX.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/clk-imx27.c | 2 --
+ arch/arm/mach-imx/clk-imx31.c | 2 --
+ 2 files changed, 4 deletions(-)
+
+diff --git a/arch/arm/mach-imx/clk-imx27.c b/arch/arm/mach-imx/clk-imx27.c
+index d2da890..0db0b4f 100644
+--- a/arch/arm/mach-imx/clk-imx27.c
++++ b/arch/arm/mach-imx/clk-imx27.c
+@@ -296,7 +296,6 @@ int __init mx27_clocks_init(unsigned long fref)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_OF
+ int __init mx27_clocks_init_dt(void)
+ {
+ 	struct device_node *np;
+@@ -312,4 +311,3 @@ int __init mx27_clocks_init_dt(void)
+ 
+ 	return mx27_clocks_init(fref);
+ }
+-#endif
+diff --git a/arch/arm/mach-imx/clk-imx31.c b/arch/arm/mach-imx/clk-imx31.c
+index b5b65f3..4a9de08 100644
+--- a/arch/arm/mach-imx/clk-imx31.c
++++ b/arch/arm/mach-imx/clk-imx31.c
+@@ -191,7 +191,6 @@ int __init mx31_clocks_init(unsigned long fref)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_OF
+ int __init mx31_clocks_init_dt(void)
+ {
+ 	struct device_node *np;
+@@ -207,4 +206,3 @@ int __init mx31_clocks_init_dt(void)
+ 
+ 	return mx31_clocks_init(fref);
+ }
+-#endif
+-- 
+1.9.2
+

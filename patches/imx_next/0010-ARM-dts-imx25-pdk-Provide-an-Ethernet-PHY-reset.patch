@@ -1,0 +1,37 @@
+From 9d481281aa1bb8c31089606fb62cc5c1323fe1ab Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Wed, 5 Mar 2014 17:30:39 -0300
+Subject: [PATCH 010/110] ARM: dts: imx25-pdk: Provide an Ethernet PHY reset
+
+GPIO4_8 is connected to the Ethernet PHY reset line, so populate the
+'phy-reset-gpios' property accordingly.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx25-pdk.dts | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx25-pdk.dts b/arch/arm/boot/dts/imx25-pdk.dts
+index d15349e..9d14fbc 100644
+--- a/arch/arm/boot/dts/imx25-pdk.dts
++++ b/arch/arm/boot/dts/imx25-pdk.dts
+@@ -42,6 +42,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_fec>;
+ 	phy-supply = <&reg_fec_3v3>;
++	phy-reset-gpios = <&gpio4 8 0>;
+ 	status = "okay";
+ };
+ 
+@@ -59,6 +60,7 @@
+ 				MX25_PAD_FEC_RX_DV__FEC_RX_DV		0x80000000
+ 				MX25_PAD_FEC_TX_CLK__FEC_TX_CLK		0x1c0
+ 				MX25_PAD_A17__GPIO_2_3			0x80000000
++				MX25_PAD_D12__GPIO_4_8			0x80000000
+ 			>;
+ 		};
+ 
+-- 
+1.9.2
+

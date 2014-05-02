@@ -1,0 +1,195 @@
+From bcde27acb453e7f88587dfd92e5899459330423e Mon Sep 17 00:00:00 2001
+From: Gilles Chanteperdrix <gilles.chanteperdrix@xenomai.org>
+Date: Sat, 5 Apr 2014 17:57:45 +0200
+Subject: [PATCH 093/110] ARM: imx: factor device tree timer initialization
+
+Signed-off-by: Gilles Chanteperdrix <gilles.chanteperdrix@xenomai.org>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/clk-imx25.c       |  9 +--------
+ arch/arm/mach-imx/clk-imx51-imx53.c | 18 ++++--------------
+ arch/arm/mach-imx/clk-imx6q.c       |  8 ++------
+ arch/arm/mach-imx/clk-imx6sl.c      |  6 +-----
+ arch/arm/mach-imx/common.h          |  2 ++
+ arch/arm/mach-imx/time.c            | 15 +++++++++++++++
+ 6 files changed, 25 insertions(+), 33 deletions(-)
+
+diff --git a/arch/arm/mach-imx/clk-imx25.c b/arch/arm/mach-imx/clk-imx25.c
+index c212a57..ae578c0 100644
+--- a/arch/arm/mach-imx/clk-imx25.c
++++ b/arch/arm/mach-imx/clk-imx25.c
+@@ -317,8 +317,6 @@ int __init mx25_clocks_init(void)
+ int __init mx25_clocks_init_dt(void)
+ {
+ 	struct device_node *np;
+-	void __iomem *base;
+-	int irq;
+ 	unsigned long osc_rate = 24000000;
+ 
+ 	/* retrieve the freqency of fixed clocks from device tree */
+@@ -338,12 +336,7 @@ int __init mx25_clocks_init_dt(void)
+ 
+ 	__mx25_clocks_init(osc_rate);
+ 
+-	np = of_find_compatible_node(NULL, NULL, "fsl,imx25-gpt");
+-	base = of_iomap(np, 0);
+-	WARN_ON(!base);
+-	irq = irq_of_parse_and_map(np, 0);
+-
+-	mxc_timer_init(base, irq);
++	mxc_timer_init_dt(of_find_compatible_node(NULL, NULL, "fsl,imx25-gpt"));
+ 
+ 	return 0;
+ }
+diff --git a/arch/arm/mach-imx/clk-imx51-imx53.c b/arch/arm/mach-imx/clk-imx51-imx53.c
+index b409773..21d2b11 100644
+--- a/arch/arm/mach-imx/clk-imx51-imx53.c
++++ b/arch/arm/mach-imx/clk-imx51-imx53.c
+@@ -322,9 +322,8 @@ static void __init mx5_clocks_common_init(unsigned long rate_ckil,
+ 
+ static void __init mx50_clocks_init(struct device_node *np)
+ {
+-	void __iomem *base;
+ 	unsigned long r;
+-	int i, irq;
++	int i;
+ 
+ 	clk[IMX5_CLK_PLL1_SW]		= imx_clk_pllv2("pll1_sw", "osc", MX53_DPLL1_BASE);
+ 	clk[IMX5_CLK_PLL2_SW]		= imx_clk_pllv2("pll2_sw", "osc", MX53_DPLL2_BASE);
+@@ -372,11 +371,7 @@ static void __init mx50_clocks_init(struct device_node *np)
+ 	r = clk_round_rate(clk[IMX5_CLK_USBOH3_PER_GATE], 54000000);
+ 	clk_set_rate(clk[IMX5_CLK_USBOH3_PER_GATE], r);
+ 
+-	np = of_find_compatible_node(NULL, NULL, "fsl,imx50-gpt");
+-	base = of_iomap(np, 0);
+-	WARN_ON(!base);
+-	irq = irq_of_parse_and_map(np, 0);
+-	mxc_timer_init(base, irq);
++	mxc_timer_init_dt(of_find_compatible_node(NULL, NULL, "fsl,imx50-gpt"));
+ }
+ CLK_OF_DECLARE(imx50_ccm, "fsl,imx50-ccm", mx50_clocks_init);
+ 
+@@ -491,9 +486,8 @@ CLK_OF_DECLARE(imx51_ccm, "fsl,imx51-ccm", mx51_clocks_init_dt);
+ 
+ static void __init mx53_clocks_init(struct device_node *np)
+ {
+-	int i, irq;
++	int i;
+ 	unsigned long r;
+-	void __iomem *base;
+ 
+ 	clk[IMX5_CLK_PLL1_SW]		= imx_clk_pllv2("pll1_sw", "osc", MX53_DPLL1_BASE);
+ 	clk[IMX5_CLK_PLL2_SW]		= imx_clk_pllv2("pll2_sw", "osc", MX53_DPLL2_BASE);
+@@ -590,10 +584,6 @@ static void __init mx53_clocks_init(struct device_node *np)
+ 	r = clk_round_rate(clk[IMX5_CLK_USBOH3_PER_GATE], 54000000);
+ 	clk_set_rate(clk[IMX5_CLK_USBOH3_PER_GATE], r);
+ 
+-	np = of_find_compatible_node(NULL, NULL, "fsl,imx53-gpt");
+-	base = of_iomap(np, 0);
+-	WARN_ON(!base);
+-	irq = irq_of_parse_and_map(np, 0);
+-	mxc_timer_init(base, irq);
++	mxc_timer_init_dt(of_find_compatible_node(NULL, NULL, "fsl,imx53-gpt"));
+ }
+ CLK_OF_DECLARE(imx53_ccm, "fsl,imx53-ccm", mx53_clocks_init);
+diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+index 2b4d6ac..d44d7c3 100644
+--- a/arch/arm/mach-imx/clk-imx6q.c
++++ b/arch/arm/mach-imx/clk-imx6q.c
+@@ -144,7 +144,7 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ {
+ 	struct device_node *np;
+ 	void __iomem *base;
+-	int i, irq;
++	int i;
+ 	int ret;
+ 
+ 	clk[dummy] = imx_clk_fixed("dummy", 0);
+@@ -489,10 +489,6 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 	/* Set initial power mode */
+ 	imx6q_set_lpm(WAIT_CLOCKED);
+ 
+-	np = of_find_compatible_node(NULL, NULL, "fsl,imx6q-gpt");
+-	base = of_iomap(np, 0);
+-	WARN_ON(!base);
+-	irq = irq_of_parse_and_map(np, 0);
+-	mxc_timer_init(base, irq);
++	mxc_timer_init_dt(of_find_compatible_node(NULL, NULL, "fsl,imx6q-gpt"));
+ }
+ CLK_OF_DECLARE(imx6q, "fsl,imx6q-ccm", imx6q_clocks_init);
+diff --git a/arch/arm/mach-imx/clk-imx6sl.c b/arch/arm/mach-imx/clk-imx6sl.c
+index f7073c0..21cf06c 100644
+--- a/arch/arm/mach-imx/clk-imx6sl.c
++++ b/arch/arm/mach-imx/clk-imx6sl.c
+@@ -169,7 +169,6 @@ static void __init imx6sl_clocks_init(struct device_node *ccm_node)
+ {
+ 	struct device_node *np;
+ 	void __iomem *base;
+-	int irq;
+ 	int i;
+ 	int ret;
+ 
+@@ -385,9 +384,6 @@ static void __init imx6sl_clocks_init(struct device_node *ccm_node)
+ 	imx6q_set_lpm(WAIT_CLOCKED);
+ 
+ 	np = of_find_compatible_node(NULL, NULL, "fsl,imx6sl-gpt");
+-	base = of_iomap(np, 0);
+-	WARN_ON(!base);
+-	irq = irq_of_parse_and_map(np, 0);
+-	mxc_timer_init(base, irq);
++	mxc_timer_init_dt(np);
+ }
+ CLK_OF_DECLARE(imx6sl, "fsl,imx6sl-ccm", imx6sl_clocks_init);
+diff --git a/arch/arm/mach-imx/common.h b/arch/arm/mach-imx/common.h
+index b5241ea..4facd01 100644
+--- a/arch/arm/mach-imx/common.h
++++ b/arch/arm/mach-imx/common.h
+@@ -17,6 +17,7 @@ struct irq_data;
+ struct platform_device;
+ struct pt_regs;
+ struct clk;
++struct device_node;
+ enum mxc_cpu_pwr_mode;
+ 
+ void mx1_map_io(void);
+@@ -56,6 +57,7 @@ void imx51_init_late(void);
+ void imx53_init_late(void);
+ void epit_timer_init(void __iomem *base, int irq);
+ void mxc_timer_init(void __iomem *, int);
++void mxc_timer_init_dt(struct device_node *);
+ int mx1_clocks_init(unsigned long fref);
+ int mx21_clocks_init(unsigned long lref, unsigned long fref);
+ int mx25_clocks_init(void);
+diff --git a/arch/arm/mach-imx/time.c b/arch/arm/mach-imx/time.c
+index 65222ea..bed081e 100644
+--- a/arch/arm/mach-imx/time.c
++++ b/arch/arm/mach-imx/time.c
+@@ -28,6 +28,9 @@
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/sched_clock.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_irq.h>
+ 
+ #include <asm/mach/time.h>
+ 
+@@ -328,3 +331,15 @@ void __init mxc_timer_init(void __iomem *base, int irq)
+ 	/* Make irqs happen */
+ 	setup_irq(irq, &mxc_timer_irq);
+ }
++
++void __init mxc_timer_init_dt(struct device_node *np)
++{
++	void __iomem *base;
++	int irq;
++
++	base = of_iomap(np, 0);
++	WARN_ON(!base);
++	irq = irq_of_parse_and_map(np, 0);
++
++	mxc_timer_init(base, irq);
++}
+-- 
+1.9.2
+

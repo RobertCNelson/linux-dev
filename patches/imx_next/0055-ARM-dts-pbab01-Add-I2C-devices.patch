@@ -1,0 +1,47 @@
+From 911ed06ba0fbf5a6abc4e9c5d2584f7e0fe0bb87 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Mon, 14 Apr 2014 17:37:29 +0200
+Subject: [PATCH 055/110] ARM: dts: pbab01: Add I2C devices
+
+This patch adds the TLV320, STMPE811, RTC8564, and MX1037 ICs to the I2C2 bus.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
+index a449a580..c6ab762 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
+@@ -28,6 +28,26 @@
+ 	pinctrl-0 = <&pinctrl_i2c2>;
+ 	clock-frequency = <100000>;
+ 	status = "okay";
++
++	tlv320@18 {
++		compatible = "ti,tlv320aic3x";
++		reg = <0x18>;
++	};
++
++	stmpe@41 {
++		compatible = "st,stmpe811";
++		reg = <0x41>;
++	};
++
++	rtc@51 {
++		compatible = "nxp,rtc8564";
++		reg = <0x51>;
++	};
++
++	adc@64 {
++		compatible = "maxim,max1037";
++		reg = <0x64>;
++	};
+ };
+ 
+ &i2c3 {
+-- 
+1.9.2
+

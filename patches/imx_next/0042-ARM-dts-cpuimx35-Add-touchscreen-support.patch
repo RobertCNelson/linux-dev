@@ -1,0 +1,47 @@
+From 27081096116e2b6f5a7a75635523b6f7845cb2f5 Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Tue, 8 Apr 2014 18:22:41 +0200
+Subject: [PATCH 042/110] ARM: dts: cpuimx35 Add touchscreen support.
+
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi b/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
+index 906ae93..9c2b715 100644
+--- a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
++++ b/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
+@@ -37,6 +37,17 @@
+ 		compatible = "nxp,pcf8563";
+ 		reg = <0x51>;
+ 	};
++
++	tsc2007: tsc2007@48 {
++		compatible = "ti,tsc2007";
++		gpios = <&gpio3 2 0>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <0x2 0x8>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_tsc2007_1>;
++		reg = <0x48>;
++		ti,x-plate-ohms = <180>;
++	};
+ };
+ 
+ &iomuxc {
+@@ -70,6 +81,10 @@
+ 				MX35_PAD_I2C1_DAT__I2C1_SDA		0x80000000
+ 			>;
+ 		};
++
++		pinctrl_tsc2007_1: tsc2007grp-1 {
++			fsl,pins = <MX35_PAD_ATA_DA2__GPIO3_2 0x80000000>;
++		};
+ 	};
+ };
+ 
+-- 
+1.9.2
+

@@ -1,0 +1,47 @@
+From 11d7becb99a47c250b5c44fc183563a8c971736f Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Wed, 16 Apr 2014 11:24:56 +0400
+Subject: [PATCH 065/110] ARM: dts: imx51-babbage: Add devicetree node for I2C1
+
+This patch adds devicetree node and pinctrl group for I2C1.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx51-babbage.dts | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx51-babbage.dts b/arch/arm/boot/dts/imx51-babbage.dts
+index 6484b73..5a50bbf 100644
+--- a/arch/arm/boot/dts/imx51-babbage.dts
++++ b/arch/arm/boot/dts/imx51-babbage.dts
+@@ -335,6 +335,12 @@
+ 	status = "okay";
+ };
+ 
++&i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c1>;
++	status = "okay";
++};
++
+ &i2c2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_i2c2>;
+@@ -513,6 +519,13 @@
+ 			>;
+ 		};
+ 
++		pinctrl_i2c1: i2c1grp {
++			fsl,pins = <
++				MX51_PAD_EIM_D19__I2C1_SCL		0x400001ed
++				MX51_PAD_EIM_D16__I2C1_SDA		0x400001ed
++			>;
++		};
++
+ 		pinctrl_i2c2: i2c2grp {
+ 			fsl,pins = <
+ 				MX51_PAD_KEY_COL4__I2C2_SCL		0x400001ed
+-- 
+1.9.2
+

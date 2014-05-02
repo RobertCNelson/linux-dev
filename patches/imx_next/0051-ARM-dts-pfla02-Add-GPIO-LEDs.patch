@@ -1,0 +1,50 @@
+From bed5c3e39057fa8837f466856def225c311688b5 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Mon, 14 Apr 2014 17:37:25 +0200
+Subject: [PATCH 051/110] ARM: dts: pfla02: Add GPIO LEDs
+
+This patch enables the red and green GPIO LEDs on Phytec phyFLEX i.MX6 modules.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index 8ab2c44..7138937 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -40,6 +40,20 @@
+ 			gpio = <&gpio1 0 0>;
+ 		};
+ 	};
++
++	gpio_leds: leds {
++		compatible = "gpio-leds";
++
++		green {
++			label = "phyflex:green";
++			gpios = <&gpio1 30 0>;
++		};
++
++		red {
++			label = "phyflex:red";
++			gpios = <&gpio2 31 0>;
++		};
++	};
+ };
+ 
+ &ecspi3 {
+@@ -156,6 +170,8 @@
+ 				MX6QDL_PAD_EIM_D23__GPIO3_IO23 0x80000000
+ 				MX6QDL_PAD_DISP0_DAT3__GPIO4_IO24 0x80000000 /* SPI NOR chipselect */
+ 				MX6QDL_PAD_DI0_PIN15__GPIO4_IO17  0x80000000 /* PMIC interrupt */
++				MX6QDL_PAD_ENET_TXD0__GPIO1_IO30 0x80000000 /* Green LED */
++				MX6QDL_PAD_EIM_EB3__GPIO2_IO31 0x80000000 /* Red LED */
+ 			>;
+ 		};
+ 
+-- 
+1.9.2
+

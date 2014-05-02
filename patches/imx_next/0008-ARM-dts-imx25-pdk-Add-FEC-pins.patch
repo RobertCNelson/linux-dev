@@ -1,0 +1,49 @@
+From d59c5883a1bceefe776020726f73701621b0895d Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Wed, 5 Mar 2014 17:30:37 -0300
+Subject: [PATCH 008/110] ARM: dts: imx25-pdk: Add FEC pins
+
+Instead of relying on the bootloader for configuring the FEC pins, pass the
+FEC pin configuration via device tree instead.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx25-pdk.dts | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx25-pdk.dts b/arch/arm/boot/dts/imx25-pdk.dts
+index d642980..a97dd73 100644
+--- a/arch/arm/boot/dts/imx25-pdk.dts
++++ b/arch/arm/boot/dts/imx25-pdk.dts
+@@ -23,11 +23,27 @@
+ 
+ &fec {
+ 	phy-mode = "rmii";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_fec>;
+ 	status = "okay";
+ };
+ 
+ &iomuxc {
+ 	imx25-pdk {
++		pinctrl_fec: fecgrp {
++			fsl,pins = <
++				MX25_PAD_FEC_MDC__FEC_MDC		0x80000000
++				MX25_PAD_FEC_MDIO__FEC_MDIO		0x400001e0
++				MX25_PAD_FEC_TDATA0__FEC_TDATA0		0x80000000
++				MX25_PAD_FEC_TDATA1__FEC_TDATA1		0x80000000
++				MX25_PAD_FEC_TX_EN__FEC_TX_EN		0x80000000
++				MX25_PAD_FEC_RDATA0__FEC_RDATA0		0x80000000
++				MX25_PAD_FEC_RDATA1__FEC_RDATA1		0x80000000
++				MX25_PAD_FEC_RX_DV__FEC_RX_DV		0x80000000
++				MX25_PAD_FEC_TX_CLK__FEC_TX_CLK		0x1c0
++			>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX25_PAD_UART1_RTS__UART1_RTS		0xe0
+-- 
+1.9.2
+

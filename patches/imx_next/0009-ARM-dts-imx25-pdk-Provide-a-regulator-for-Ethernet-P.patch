@@ -1,0 +1,60 @@
+From 0ce64a154ac3b8d429aa5e596dde358261c3a76e Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Wed, 5 Mar 2014 17:30:38 -0300
+Subject: [PATCH 009/110] ARM: dts: imx25-pdk: Provide a regulator for Ethernet
+ PHY
+
+GPIO2_3 controls the power to the Ethernet PHY, so provide a regulator node
+for this.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx25-pdk.dts | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx25-pdk.dts b/arch/arm/boot/dts/imx25-pdk.dts
+index a97dd73..d15349e 100644
+--- a/arch/arm/boot/dts/imx25-pdk.dts
++++ b/arch/arm/boot/dts/imx25-pdk.dts
+@@ -19,12 +19,29 @@
+ 	memory {
+ 		reg = <0x80000000 0x4000000>;
+ 	};
++
++	regulators {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		reg_fec_3v3: regulator@0 {
++			compatible = "regulator-fixed";
++			reg = <0>;
++			regulator-name = "fec-3v3";
++			regulator-min-microvolt = <3300000>;
++			regulator-max-microvolt = <3300000>;
++			gpio = <&gpio2 3 0>;
++			enable-active-high;
++		};
++	};
+ };
+ 
+ &fec {
+ 	phy-mode = "rmii";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_fec>;
++	phy-supply = <&reg_fec_3v3>;
+ 	status = "okay";
+ };
+ 
+@@ -41,6 +58,7 @@
+ 				MX25_PAD_FEC_RDATA1__FEC_RDATA1		0x80000000
+ 				MX25_PAD_FEC_RX_DV__FEC_RX_DV		0x80000000
+ 				MX25_PAD_FEC_TX_CLK__FEC_TX_CLK		0x1c0
++				MX25_PAD_A17__GPIO_2_3			0x80000000
+ 			>;
+ 		};
+ 
+-- 
+1.9.2
+

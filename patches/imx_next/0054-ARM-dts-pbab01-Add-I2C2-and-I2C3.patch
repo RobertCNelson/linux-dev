@@ -1,0 +1,59 @@
+From bff43e67b8adef04bad746d9f00ccc689e3fbf98 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Mon, 14 Apr 2014 17:37:28 +0200
+Subject: [PATCH 054/110] ARM: dts: pbab01: Add I2C2 and I2C3
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi | 30 ++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
+index 4e36aef..a449a580 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
+@@ -23,6 +23,20 @@
+ 	status = "okay";
+ };
+ 
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2>;
++	clock-frequency = <100000>;
++	status = "okay";
++};
++
++&i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c3>;
++	clock-frequency = <100000>;
++	status = "okay";
++};
++
+ &uart4 {
+ 	status = "okay";
+ };
+@@ -42,3 +56,19 @@
+ &usdhc3 {
+ 	status = "okay";
+ };
++
++&iomuxc {
++	pinctrl_i2c2: i2c2grp {
++		fsl,pins = <
++			MX6QDL_PAD_EIM_EB2__I2C2_SCL		0x4001b8b1
++			MX6QDL_PAD_EIM_D16__I2C2_SDA		0x4001b8b1
++		>;
++	};
++
++	pinctrl_i2c3: i2c3grp {
++		fsl,pins = <
++			MX6QDL_PAD_EIM_D17__I2C3_SCL		0x4001b8b1
++			MX6QDL_PAD_EIM_D18__I2C3_SDA		0x4001b8b1
++		>;
++	};
++};
+-- 
+1.9.2
+

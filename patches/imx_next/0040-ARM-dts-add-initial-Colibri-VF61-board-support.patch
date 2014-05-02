@@ -1,0 +1,162 @@
+From 306d428907fa9da1bad985674440c5163181495f Mon Sep 17 00:00:00 2001
+From: Stefan Agner <stefan@agner.ch>
+Date: Thu, 3 Apr 2014 17:47:10 +0200
+Subject: [PATCH 040/110] ARM: dts: add initial Colibri VF61 board support
+
+Add initial Toradex Colibri VF61 board support. Ethernet, UART
+and SDHC cards are working. Cache latencies need to be a bit
+higher than vf610.dtsi suggests. Those values are validated
+by running multiple memory tests.
+
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/Makefile          |   1 +
+ arch/arm/boot/dts/vf610-colibri.dts | 123 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 124 insertions(+)
+ create mode 100644 arch/arm/boot/dts/vf610-colibri.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 6807e3e..b5cd7f2 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -204,6 +204,7 @@ dtb-$(CONFIG_ARCH_MXC) += \
+ 	imx6q-udoo.dtb \
+ 	imx6q-wandboard.dtb \
+ 	imx6sl-evk.dtb \
++	vf610-colibri.dtb \
+ 	vf610-cosmic.dtb \
+ 	vf610-twr.dtb
+ dtb-$(CONFIG_ARCH_MXS) += imx23-evk.dtb \
+diff --git a/arch/arm/boot/dts/vf610-colibri.dts b/arch/arm/boot/dts/vf610-colibri.dts
+new file mode 100644
+index 0000000..aecc7db
+--- /dev/null
++++ b/arch/arm/boot/dts/vf610-colibri.dts
+@@ -0,0 +1,123 @@
++/*
++ * Copyright 2014 Toradex AG
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++/dts-v1/;
++#include "vf610.dtsi"
++
++/ {
++	model = "Toradex Colibri VF61 COM";
++	compatible = "toradex,vf610-colibri", "fsl,vf610";
++
++	chosen {
++		bootargs = "console=ttyLP0,115200";
++	};
++
++	memory {
++		reg = <0x80000000 0x10000000>;
++	};
++
++	clocks {
++		enet_ext {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <50000000>;
++		};
++	};
++
++};
++
++&esdhc1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_esdhc1>;
++	bus-width = <4>;
++	status = "okay";
++};
++
++&fec1 {
++	phy-mode = "rmii";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_fec1>;
++	status = "okay";
++};
++
++&L2 {
++	arm,data-latency = <2 1 2>;
++	arm,tag-latency = <3 2 3>;
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart0>;
++	status = "okay";
++};
++
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1>;
++	status = "okay";
++};
++
++&uart2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart2>;
++	status = "okay";
++};
++
++&iomuxc {
++	vf610-colibri {
++		pinctrl_esdhc1: esdhc1grp {
++			fsl,fsl,pins = <
++				VF610_PAD_PTA24__ESDHC1_CLK	0x31ef
++				VF610_PAD_PTA25__ESDHC1_CMD	0x31ef
++				VF610_PAD_PTA26__ESDHC1_DAT0	0x31ef
++				VF610_PAD_PTA27__ESDHC1_DAT1	0x31ef
++				VF610_PAD_PTA28__ESDHC1_DATA2	0x31ef
++				VF610_PAD_PTA29__ESDHC1_DAT3	0x31ef
++				VF610_PAD_PTB20__GPIO_42	0x219d
++			>;
++		};
++
++		pinctrl_fec1: fec1grp {
++			fsl,pins = <
++				VF610_PAD_PTC9__ENET_RMII1_MDC		0x30d2
++				VF610_PAD_PTC10__ENET_RMII1_MDIO	0x30d3
++				VF610_PAD_PTC11__ENET_RMII1_CRS		0x30d1
++				VF610_PAD_PTC12__ENET_RMII_RXD1		0x30d1
++				VF610_PAD_PTC13__ENET_RMII1_RXD0	0x30d1
++				VF610_PAD_PTC14__ENET_RMII1_RXER	0x30d1
++				VF610_PAD_PTC15__ENET_RMII1_TXD1	0x30d2
++				VF610_PAD_PTC16__ENET_RMII1_TXD0	0x30d2
++				VF610_PAD_PTC17__ENET_RMII1_TXEN	0x30d2
++			>;
++		};
++
++		pinctrl_uart0: uart0grp {
++			fsl,pins = <
++				VF610_PAD_PTB10__UART0_TX		0x21a2
++				VF610_PAD_PTB11__UART0_RX		0x21a1
++			>;
++		};
++
++		pinctrl_uart1: uart1grp {
++			fsl,pins = <
++				VF610_PAD_PTB4__UART1_TX		0x21a2
++				VF610_PAD_PTB5__UART1_RX		0x21a1
++			>;
++		};
++
++		pinctrl_uart2: uart2grp {
++			fsl,pins = <
++				VF610_PAD_PTD0__UART2_TX		0x21a2
++				VF610_PAD_PTD1__UART2_RX		0x21a1
++				VF610_PAD_PTD2__UART2_RTS		0x21a2
++				VF610_PAD_PTD3__UART2_CTS		0x21a1
++			>;
++		};
++	};
++};
+-- 
+1.9.2
+

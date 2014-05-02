@@ -1,0 +1,44 @@
+From e32af0abef474ff48437f328b91e8829a7dd2685 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Wed, 16 Apr 2014 11:24:50 +0400
+Subject: [PATCH 059/110] ARM: dts: i.MX51: Allow to define partitions onto NFC
+
+This patch allow to define partitions onto NFC in user defined
+devicetrees.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi | 2 --
+ arch/arm/boot/dts/imx51.dtsi                      | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi b/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
+index 7787f46..321662f 100644
+--- a/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
++++ b/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
+@@ -195,8 +195,6 @@
+ 	nand-bus-width = <8>;
+ 	nand-ecc-mode = "hw";
+ 	nand-on-flash-bbt;
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
+index 51b8670..bebbf3b 100644
+--- a/arch/arm/boot/dts/imx51.dtsi
++++ b/arch/arm/boot/dts/imx51.dtsi
+@@ -538,6 +538,8 @@
+ 			};
+ 
+ 			nfc: nand@83fdb000 {
++				#address-cells = <1>;
++				#size-cells = <1>;
+ 				compatible = "fsl,imx51-nand";
+ 				reg = <0x83fdb000 0x1000 0xcfff0000 0x10000>;
+ 				interrupts = <8>;
+-- 
+1.9.2
+

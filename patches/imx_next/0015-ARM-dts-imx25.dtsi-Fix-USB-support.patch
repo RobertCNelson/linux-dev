@@ -1,0 +1,80 @@
+From 85ef130bc23d10fb4de9945166dbf963e7a57088 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Thu, 13 Mar 2014 10:18:42 +0100
+Subject: [PATCH 015/110] ARM: dts: imx25.dtsi: Fix USB support.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx25.dtsi | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
+index cc441ec..9c09257 100644
+--- a/arch/arm/boot/dts/imx25.dtsi
++++ b/arch/arm/boot/dts/imx25.dtsi
+@@ -483,22 +483,13 @@
+ 				clocks = <&clks 99>;
+ 			};
+ 
+-			usbphy1: usbphy@1 {
+-				compatible = "nop-usbphy";
+-				status = "disabled";
+-			};
+-
+-			usbphy2: usbphy@2 {
+-				compatible = "nop-usbphy";
+-				status = "disabled";
+-			};
+-
+ 			usbotg: usb@53ff4000 {
+ 				compatible = "fsl,imx25-usb", "fsl,imx27-usb";
+ 				reg = <0x53ff4000 0x0200>;
+ 				interrupts = <37>;
+ 				clocks = <&clks 70>;
+ 				fsl,usbmisc = <&usbmisc 0>;
++				fsl,usbphy = <&usbphy0>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -508,6 +499,7 @@
+ 				interrupts = <35>;
+ 				clocks = <&clks 70>;
+ 				fsl,usbmisc = <&usbmisc 1>;
++				fsl,usbphy = <&usbphy1>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -517,7 +509,6 @@
+ 				clocks = <&clks 9>, <&clks 70>, <&clks 8>;
+ 				clock-names = "ipg", "ahb", "per";
+ 				reg = <0x53ff4600 0x00f>;
+-				status = "disabled";
+ 			};
+ 
+ 			dryice@53ffc000 {
+@@ -549,4 +540,20 @@
+ 			};
+ 		};
+ 	};
++
++	usbphy {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		usbphy0: usb-phy@0 {
++			reg = <0>;
++			compatible = "usb-nop-xceiv";
++		};
++
++		usbphy1: usb-phy@1 {
++			reg = <1>;
++			compatible = "usb-nop-xceiv";
++		};
++	};
+ };
+-- 
+1.9.2
+

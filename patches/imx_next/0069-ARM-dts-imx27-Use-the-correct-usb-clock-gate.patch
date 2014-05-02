@@ -1,0 +1,67 @@
+From a599892070c283dde1d121ac60a07b3dbaf96643 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Wed, 16 Apr 2014 14:53:18 -0300
+Subject: [PATCH 069/110] ARM: dts: imx27: Use the correct usb clock gate
+
+USB Host1, Host2 and OTG are gated via 'usb_ipg_gate' clock, so fix it in order
+to avoid the following kernel oops:
+
+usbcore: registered new interface driver usb-storage
+10024000.usb supply vbus not found, using dummy regulator
+Unhandled fault: external abort on non-linefetch (0x808) at 0xf4424184
+Internal error: : 808 [#1] PREEMPT ARM
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper Not tainted 3.15.0-rc1-26325-g971f9fd-dirty #64
+task: c7829aa0 ti: c7836000 task.ti: c7836000
+PC is at ci_hdrc_probe+0x3a4/0x634
+LR is at ci_hdrc_probe+0x100/0x634
+pc : [<c036cc78>]    lr : [<c036c9d4>]    psr: 60000013
+sp : c7837d48  ip : 00000001  fp : 00000000
+r10: 00000000  r9 : 00000000  r8 : c791b6c0
+r7 : c7945000  r6 : f4424000  r5 : c7945010  r4 : c794e010
+r3 : f4424184  r2 : 00000000  r1 : 8c000004  r0 : 0c000004
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment kernel
+Control: 0005317f  Table: a0004000  DAC: 00000017
+Process swapper (pid: 1, stack limit = 0xc78361c0)
+Stack: (0xc7837d48 to 0xc7838000)
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx27.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+index 00cf66c..948354e 100644
+--- a/arch/arm/boot/dts/imx27.dtsi
++++ b/arch/arm/boot/dts/imx27.dtsi
+@@ -465,7 +465,7 @@
+ 				compatible = "fsl,imx27-usb";
+ 				reg = <0x10024000 0x200>;
+ 				interrupts = <56>;
+-				clocks = <&clks 15>;
++				clocks = <&clks 75>;
+ 				fsl,usbmisc = <&usbmisc 0>;
+ 				fsl,usbphy = <&usbphy0>;
+ 				status = "disabled";
+@@ -475,7 +475,7 @@
+ 				compatible = "fsl,imx27-usb";
+ 				reg = <0x10024200 0x200>;
+ 				interrupts = <54>;
+-				clocks = <&clks 15>;
++				clocks = <&clks 75>;
+ 				fsl,usbmisc = <&usbmisc 1>;
+ 				status = "disabled";
+ 			};
+@@ -484,7 +484,7 @@
+ 				compatible = "fsl,imx27-usb";
+ 				reg = <0x10024400 0x200>;
+ 				interrupts = <55>;
+-				clocks = <&clks 15>;
++				clocks = <&clks 75>;
+ 				fsl,usbmisc = <&usbmisc 2>;
+ 				fsl,usbphy = <&usbphy2>;
+ 				status = "disabled";
+-- 
+1.9.2
+

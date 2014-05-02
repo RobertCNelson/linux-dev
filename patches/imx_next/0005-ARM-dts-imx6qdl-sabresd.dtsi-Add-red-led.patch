@@ -1,0 +1,60 @@
+From 7103fa8c6fee1c62cc9cd52ce8a07f2a766acb8e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@freescale.com>
+Date: Wed, 5 Mar 2014 19:58:39 +0100
+Subject: [PATCH 005/110] ARM: dts: imx6qdl-sabresd.dtsi: Add red led
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Make the red gpio led available to the user.
+
+This can be toggled with the sysfs for example, or used as a heartbeat or mmc
+activity light by changing the trigger.
+
+Signed-off-by: Vincent Stehlé <vincent.stehle@freescale.com>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx6qdl-sabresd.dtsi | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+index 0d816d3..7a88d9a 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+@@ -105,6 +105,17 @@
+ 		default-brightness-level = <7>;
+ 		status = "okay";
+ 	};
++
++	leds {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_gpio_leds>;
++
++		red {
++		        gpios = <&gpio1 2 0>;
++		        default-state = "on";
++		};
++	};
+ };
+ 
+ &audmux {
+@@ -422,6 +433,14 @@
+ 			>;
+ 		};
+ 	};
++
++	gpio_leds {
++		pinctrl_gpio_leds: gpioledsgrp {
++			fsl,pins = <
++				MX6QDL_PAD_GPIO_2__GPIO1_IO02 0x80000000
++			>;
++		};
++	};
+ };
+ 
+ &ldb {
+-- 
+1.9.2
+

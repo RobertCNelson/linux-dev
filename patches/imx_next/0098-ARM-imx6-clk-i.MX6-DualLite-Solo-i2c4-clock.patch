@@ -1,0 +1,36 @@
+From 2df71af106067e7e3e8828b37190ef5f11bd3818 Mon Sep 17 00:00:00 2001
+From: Iain Paton <ipaton0@gmail.com>
+Date: Wed, 16 Apr 2014 19:33:24 +0100
+Subject: [PATCH 098/110] ARM: imx6: clk: i.MX6 DualLite/Solo i2c4 clock
+
+Compared to i.MX6 Quad/Dual the CCM_CCGR1 register in the i.MX6 Solo/DualLite
+replaces the ecspi5 clock with the i2c4 clock.
+
+Handle this difference using cpu_is_imx6dl().
+
+Signed-off-by: Iain Paton <ipaton0@gmail.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/clk-imx6q.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+index d44d7c3..8440878 100644
+--- a/arch/arm/mach-imx/clk-imx6q.c
++++ b/arch/arm/mach-imx/clk-imx6q.c
+@@ -352,7 +352,11 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 	clk[ecspi2]       = imx_clk_gate2("ecspi2",        "ecspi_root",        base + 0x6c, 2);
+ 	clk[ecspi3]       = imx_clk_gate2("ecspi3",        "ecspi_root",        base + 0x6c, 4);
+ 	clk[ecspi4]       = imx_clk_gate2("ecspi4",        "ecspi_root",        base + 0x6c, 6);
+-	clk[ecspi5]       = imx_clk_gate2("ecspi5",        "ecspi_root",        base + 0x6c, 8);
++	if (cpu_is_imx6dl())
++		/* ecspi5 is replaced with i2c4 on imx6dl & imx6s */
++		clk[ecspi5] = imx_clk_gate2("i2c4",        "ipg_per",           base + 0x6c, 8);
++	else
++		clk[ecspi5] = imx_clk_gate2("ecspi5",      "ecspi_root",        base + 0x6c, 8);
+ 	clk[enet]         = imx_clk_gate2("enet",          "ipg",               base + 0x6c, 10);
+ 	clk[esai]         = imx_clk_gate2("esai",          "esai_podf",         base + 0x6c, 16);
+ 	clk[gpt_ipg]      = imx_clk_gate2("gpt_ipg",       "ipg",               base + 0x6c, 20);
+-- 
+1.9.2
+

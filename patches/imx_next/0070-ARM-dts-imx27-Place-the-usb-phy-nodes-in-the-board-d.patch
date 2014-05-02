@@ -1,0 +1,154 @@
+From 398e2749f23b81e5e1ee5d0e70bcafd5aa6a319f Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Wed, 16 Apr 2014 14:53:19 -0300
+Subject: [PATCH 070/110] ARM: dts: imx27: Place the usb phy nodes in the board
+ dts files
+
+It is not a good approach to have the USB PHY nodes inside imx27.dtsi since
+the USB PHYs on mx27 are not internal to the SoC.
+
+Place the USB PHY nodes in the board dts files instead.
+
+Also, each board may have a different clock source for the USB PHY, so do not
+hardcode it.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts  | 19 +++++++++++++++----
+ arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi | 19 +++++++++++++++----
+ arch/arm/boot/dts/imx27.dtsi                    | 22 ----------------------
+ 3 files changed, 30 insertions(+), 30 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts b/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
+index 8b4181b..0875327 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
++++ b/arch/arm/boot/dts/imx27-phytec-phycore-rdk.dts
+@@ -37,6 +37,20 @@
+ 			};
+ 		};
+ 	};
++
++	usbphy {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		usbphy2: usbphy@2 {
++			compatible = "usb-nop-xceiv";
++			reg = <0>;
++			vcc-supply = <&reg_5v0>;
++			clocks = <&clks 0>;
++			clock-names = "main_clk";
++		};
++	};
+ };
+ 
+ &cspi1 {
+@@ -268,14 +282,11 @@
+ 	dr_mode = "host";
+ 	phy_type = "ulpi";
+ 	vbus-supply = <&reg_5v0>;
++	fsl,usbphy = <&usbphy2>;
+ 	disable-over-current;
+ 	status = "okay";
+ };
+ 
+-&usbphy2 {
+-	vcc-supply = <&reg_5v0>;
+-};
+-
+ &weim {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_weim>;
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi b/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
+index 33c5dc2..32cc7dac9a 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
++++ b/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
+@@ -41,6 +41,20 @@
+ 			regulator-max-microvolt = <5000000>;
+ 		};
+ 	};
++
++	usbphy {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		usbphy0: usbphy@0 {
++			compatible = "usb-nop-xceiv";
++			reg = <0>;
++			vcc-supply = <&sw3_reg>;
++			clocks = <&clks 0>;
++			clock-names = "main_clk";
++		};
++	};
+ };
+ 
+ &audmux {
+@@ -307,14 +321,11 @@
+ 	pinctrl-0 = <&pinctrl_usbotg>;
+ 	dr_mode = "otg";
+ 	phy_type = "ulpi";
++	fsl,usbphy = <&usbphy0>;
+ 	vbus-supply = <&sw3_reg>;
+ 	status = "okay";
+ };
+ 
+-&usbphy0 {
+-	vcc-supply = <&sw3_reg>;
+-};
+-
+ &weim {
+ 	status = "okay";
+ 
+diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+index 948354e..b2c103e 100644
+--- a/arch/arm/boot/dts/imx27.dtsi
++++ b/arch/arm/boot/dts/imx27.dtsi
+@@ -72,26 +72,6 @@
+ 		};
+ 	};
+ 
+-	usbphy {
+-		compatible = "simple-bus";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		usbphy0: usbphy@0 {
+-			compatible = "usb-nop-xceiv";
+-			reg = <0>;
+-			clocks = <&clks 75>;
+-			clock-names = "main_clk";
+-		};
+-
+-		usbphy2: usbphy@2 {
+-			compatible = "usb-nop-xceiv";
+-			reg = <2>;
+-			clocks = <&clks 75>;
+-			clock-names = "main_clk";
+-		};
+-	};
+-
+ 	soc {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+@@ -467,7 +447,6 @@
+ 				interrupts = <56>;
+ 				clocks = <&clks 75>;
+ 				fsl,usbmisc = <&usbmisc 0>;
+-				fsl,usbphy = <&usbphy0>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -486,7 +465,6 @@
+ 				interrupts = <55>;
+ 				clocks = <&clks 75>;
+ 				fsl,usbmisc = <&usbmisc 2>;
+-				fsl,usbphy = <&usbphy2>;
+ 				status = "disabled";
+ 			};
+ 
+-- 
+1.9.2
+

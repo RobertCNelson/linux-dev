@@ -1,0 +1,50 @@
+From 0a1151b52b820b92aebd86422c2513e34b4b986a Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Wed, 15 Jan 2014 18:23:26 +0100
+Subject: [PATCH 001/110] ARM: dts: mbimxsd35: Add sound support.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Cc: Eric Bénard <eric@eukrea.com>
+Cc: Grant Likely <grant.likely@linaro.org>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+Cc: devicetree@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx35-eukrea-mbimxsd35-baseboard.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx35-eukrea-mbimxsd35-baseboard.dts b/arch/arm/boot/dts/imx35-eukrea-mbimxsd35-baseboard.dts
+index 1bdec21..71197b9 100644
+--- a/arch/arm/boot/dts/imx35-eukrea-mbimxsd35-baseboard.dts
++++ b/arch/arm/boot/dts/imx35-eukrea-mbimxsd35-baseboard.dts
+@@ -46,6 +46,14 @@
+ 			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
++
++	sound {
++		compatible = "eukrea,asoc-tlv320";
++		eukrea,model = "imx35-eukrea-tlv320aic23";
++		ssi-controller = <&ssi1>;
++		fsl,mux-int-port = <1>;
++		fsl,mux-ext-port = <4>;
++	};
+ };
+ 
+ &audmux {
+@@ -124,6 +132,7 @@
+ };
+ 
+ &ssi1 {
++	codec-handle = <&tlv320aic23>;
+ 	fsl,mode = "i2s-slave";
+ 	status = "okay";
+ };
+-- 
+1.9.2
+

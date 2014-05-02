@@ -1,0 +1,51 @@
+From dd3e2a652d55244d01fb727b62937512eebfee72 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Wed, 5 Mar 2014 17:30:36 -0300
+Subject: [PATCH 007/110] ARM: dts: imx25-pdk: Add UART1 pins
+
+UART1 is the console port on mx25pdk board.
+
+Add the pin configuration for UART1 port and also pass 'fsl,uart-has-rtscts'
+to indicate that the port has RTS and CTS pins.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx25-pdk.dts | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx25-pdk.dts b/arch/arm/boot/dts/imx25-pdk.dts
+index 88267c5..d642980 100644
+--- a/arch/arm/boot/dts/imx25-pdk.dts
++++ b/arch/arm/boot/dts/imx25-pdk.dts
+@@ -26,11 +26,27 @@
+ 	status = "okay";
+ };
+ 
++&iomuxc {
++	imx25-pdk {
++		pinctrl_uart1: uart1grp {
++			fsl,pins = <
++				MX25_PAD_UART1_RTS__UART1_RTS		0xe0
++				MX25_PAD_UART1_CTS__UART1_CTS		0xe0
++				MX25_PAD_UART1_TXD__UART1_TXD		0x80000000
++				MX25_PAD_UART1_RXD__UART1_RXD		0xc0
++			>;
++		};
++	};
++};
++
+ &nfc {
+ 	nand-on-flash-bbt;
+ 	status = "okay";
+ };
+ 
+ &uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1>;
++	fsl,uart-has-rtscts;
+ 	status = "okay";
+ };
+-- 
+1.9.2
+

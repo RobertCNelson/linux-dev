@@ -1,0 +1,43 @@
+From dd4c90af527c96cb7dd85c3cced4ef26156c621f Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Wed, 16 Apr 2014 11:24:52 +0400
+Subject: [PATCH 061/110] ARM: dts: imx51-babbage: Add missing pingroup for
+ PMIC
+
+This patch adds missing pin definition for PMIC IRQ GPIO.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx51-babbage.dts | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx51-babbage.dts b/arch/arm/boot/dts/imx51-babbage.dts
+index ad143eb..1652f6a 100644
+--- a/arch/arm/boot/dts/imx51-babbage.dts
++++ b/arch/arm/boot/dts/imx51-babbage.dts
+@@ -199,6 +199,8 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		compatible = "fsl,mc13892";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_pmic>;
+ 		spi-max-frequency = <6000000>;
+ 		spi-cs-high;
+ 		reg = <0>;
+@@ -490,6 +492,12 @@
+ 			>;
+ 		};
+ 
++		pinctrl_pmic: pmicgrp {
++			fsl,pins = <
++				MX51_PAD_GPIO1_8__GPIO1_8		0xe5 /* IRQ */
++			>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX51_PAD_UART1_RXD__UART1_RXD		0x1c5
+-- 
+1.9.2
+

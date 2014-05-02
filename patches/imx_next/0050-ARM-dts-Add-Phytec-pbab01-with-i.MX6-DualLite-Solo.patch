@@ -1,0 +1,153 @@
+From e82f1ef5db823ad3de2cb646e3468fcbac0a2916 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Mon, 14 Apr 2014 17:37:24 +0200
+Subject: [PATCH 050/110] ARM: dts: Add Phytec pbab01 with i.MX6 DualLite/Solo
+
+The PBA-B-01 carrier board can be equipped with either Quad or DualLite/Solo
+phyFLEX i.MX6 modules (PFL-A-02).
+This moves all common devices into imx6qdl-phytec-pbab01.dtsi. The SoC specific
+device trees then just include the pfla01 and pbab01 dtsi files corresponding
+to the SoC variant.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/Makefile                   |  1 +
+ arch/arm/boot/dts/imx6dl-phytec-pbab01.dts   | 19 ++++++++++++++
+ arch/arm/boot/dts/imx6q-phytec-pbab01.dts    | 31 ++---------------------
+ arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi | 38 ++++++++++++++++++++++++++++
+ 4 files changed, 60 insertions(+), 29 deletions(-)
+ create mode 100644 arch/arm/boot/dts/imx6dl-phytec-pbab01.dts
+ create mode 100644 arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 400e194..917ff44 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -181,6 +181,7 @@ dtb-$(CONFIG_ARCH_MXC) += \
+ 	imx6dl-gw54xx.dtb \
+ 	imx6dl-hummingboard.dtb \
+ 	imx6dl-nitrogen6x.dtb \
++	imx6dl-phytec-pbab01.dtb \
+ 	imx6dl-sabreauto.dtb \
+ 	imx6dl-sabrelite.dtb \
+ 	imx6dl-sabresd.dtb \
+diff --git a/arch/arm/boot/dts/imx6dl-phytec-pbab01.dts b/arch/arm/boot/dts/imx6dl-phytec-pbab01.dts
+new file mode 100644
+index 0000000..08e9780
+--- /dev/null
++++ b/arch/arm/boot/dts/imx6dl-phytec-pbab01.dts
+@@ -0,0 +1,19 @@
++/*
++ * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
++
++/dts-v1/;
++#include "imx6dl-phytec-pfla02.dtsi"
++#include "imx6qdl-phytec-pbab01.dtsi"
++
++/ {
++	model = "Phytec phyFLEX-i.MX6 DualLite/Solo Carrier-Board";
++	compatible = "phytec,imx6dl-pbab01", "phytec,imx6dl-pfla02", "fsl,imx6dl";
++};
+diff --git a/arch/arm/boot/dts/imx6q-phytec-pbab01.dts b/arch/arm/boot/dts/imx6q-phytec-pbab01.dts
+index 5607c33..3a43dab 100644
+--- a/arch/arm/boot/dts/imx6q-phytec-pbab01.dts
++++ b/arch/arm/boot/dts/imx6q-phytec-pbab01.dts
+@@ -11,40 +11,13 @@
+ 
+ /dts-v1/;
+ #include "imx6q-phytec-pfla02.dtsi"
++#include "imx6qdl-phytec-pbab01.dtsi"
+ 
+ / {
+ 	model = "Phytec phyFLEX-i.MX6 Quad Carrier-Board";
+ 	compatible = "phytec,imx6q-pbab01", "phytec,imx6q-pfla02", "fsl,imx6q";
+ };
+ 
+-&fec {
+-	status = "okay";
+-};
+-
+-&gpmi {
+-	status = "okay";
+-};
+-
+ &sata {
+-	status = "okay";
+-};
+-
+-&uart4 {
+-	status = "okay";
+-};
+-
+-&usbh1 {
+-	status = "okay";
+-};
+-
+-&usbotg {
+-	status = "okay";
+-};
+-
+-&usdhc2 {
+-	status = "okay";
+-};
+-
+-&usdhc3 {
+-	status = "okay";
++        status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
+new file mode 100644
+index 0000000..cd2d4af
+--- /dev/null
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pbab01.dtsi
+@@ -0,0 +1,38 @@
++/*
++ * Copyright 2013 Christian Hemp, Phytec Messtechnik GmbH
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
++
++&fec {
++	status = "okay";
++};
++
++&gpmi {
++	status = "okay";
++};
++
++&uart4 {
++	status = "okay";
++};
++
++&usbh1 {
++	status = "okay";
++};
++
++&usbotg {
++	status = "okay";
++};
++
++&usdhc2 {
++	status = "okay";
++};
++
++&usdhc3 {
++	status = "okay";
++};
+-- 
+1.9.2
+

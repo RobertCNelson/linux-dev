@@ -1,0 +1,56 @@
+From 3b0c40d1f9b3acfed64f1abc68f16cf95314aec3 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Fri, 18 Apr 2014 16:07:44 +0800
+Subject: [PATCH 103/110] ARM: imx: lock is always valid for clk_gate2
+
+The imx specific clk_gate2 always has a valid lock with the clock.  So
+the validation on gate->lock is not really needed.  Remove it.
+
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/clk-gate2.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/mach-imx/clk-gate2.c b/arch/arm/mach-imx/clk-gate2.c
+index 7e98ccb..0803df9 100644
+--- a/arch/arm/mach-imx/clk-gate2.c
++++ b/arch/arm/mach-imx/clk-gate2.c
+@@ -43,15 +43,13 @@ static int clk_gate2_enable(struct clk_hw *hw)
+ 	u32 reg;
+ 	unsigned long flags = 0;
+ 
+-	if (gate->lock)
+-		spin_lock_irqsave(gate->lock, flags);
++	spin_lock_irqsave(gate->lock, flags);
+ 
+ 	reg = readl(gate->reg);
+ 	reg |= 3 << gate->bit_idx;
+ 	writel(reg, gate->reg);
+ 
+-	if (gate->lock)
+-		spin_unlock_irqrestore(gate->lock, flags);
++	spin_unlock_irqrestore(gate->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -62,15 +60,13 @@ static void clk_gate2_disable(struct clk_hw *hw)
+ 	u32 reg;
+ 	unsigned long flags = 0;
+ 
+-	if (gate->lock)
+-		spin_lock_irqsave(gate->lock, flags);
++	spin_lock_irqsave(gate->lock, flags);
+ 
+ 	reg = readl(gate->reg);
+ 	reg &= ~(3 << gate->bit_idx);
+ 	writel(reg, gate->reg);
+ 
+-	if (gate->lock)
+-		spin_unlock_irqrestore(gate->lock, flags);
++	spin_unlock_irqrestore(gate->lock, flags);
+ }
+ 
+ static int clk_gate2_is_enabled(struct clk_hw *hw)
+-- 
+1.9.2
+

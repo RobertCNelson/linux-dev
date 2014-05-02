@@ -1,0 +1,30 @@
+From dc9b116a054a8e6919dabeeb2875f401e47b61e2 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Sun, 27 Apr 2014 20:03:26 +0400
+Subject: [PATCH 109/110] ARM: i.MX: Fix eMMa PrP resource size
+
+Last address for eMMa PrP is 0x80...0x83, so increase resource size
+for eMMa to 256.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/devices/platform-mx2-emma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-imx/devices/platform-mx2-emma.c b/arch/arm/mach-imx/devices/platform-mx2-emma.c
+index 11bd01d..0dc0651 100644
+--- a/arch/arm/mach-imx/devices/platform-mx2-emma.c
++++ b/arch/arm/mach-imx/devices/platform-mx2-emma.c
+@@ -12,7 +12,7 @@
+ #define imx_mx2_emmaprp_data_entry_single(soc)				\
+ 	{								\
+ 		.iobase = soc ## _EMMAPRP_BASE_ADDR,			\
+-		.iosize = SZ_32,					\
++		.iosize = SZ_256,					\
+ 		.irq = soc ## _INT_EMMAPRP,				\
+ 	}
+ 
+-- 
+1.9.2
+

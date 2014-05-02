@@ -1,0 +1,65 @@
+From 2508fb158c4558c5dd28d71053f5accbcc1e127b Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Sat, 19 Apr 2014 11:15:06 +0800
+Subject: [PATCH 105/110] ARM: imx6q: add the missing esai_ahb clock
+
+The esai_ahb clock is derived from ahb and used to provide ESAI the
+capability of register accessing and FSYS clock source for I2S clocks
+dividing.  The gate bits of this esai_ahb clock are shared with the
+esai clock -- the baud clock, so we need to call imx_clk_gate2_shared()
+for these two clocks.
+
+Signed-off-by: Nicolin Chen <Guangyu.Chen@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ Documentation/devicetree/bindings/clock/imx6q-clock.txt | 1 +
+ arch/arm/mach-imx/clk-imx6q.c                           | 7 +++++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/clock/imx6q-clock.txt b/Documentation/devicetree/bindings/clock/imx6q-clock.txt
+index 6aab72b..90ec91f 100644
+--- a/Documentation/devicetree/bindings/clock/imx6q-clock.txt
++++ b/Documentation/devicetree/bindings/clock/imx6q-clock.txt
+@@ -220,6 +220,7 @@ clocks and IDs.
+ 	lvds2_sel		205
+ 	lvds1_gate		206
+ 	lvds2_gate		207
++	esai_ahb		208
+ 
+ Examples:
+ 
+diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+index 8440878..8e795de 100644
+--- a/arch/arm/mach-imx/clk-imx6q.c
++++ b/arch/arm/mach-imx/clk-imx6q.c
+@@ -107,7 +107,7 @@ enum mx6q_clks {
+ 	sata_ref, sata_ref_100m, pcie_ref, pcie_ref_125m, enet_ref, usbphy1_gate,
+ 	usbphy2_gate, pll4_post_div, pll5_post_div, pll5_video_div, eim_slow,
+ 	spdif, cko2_sel, cko2_podf, cko2, cko, vdoa, pll4_audio_div,
+-	lvds1_sel, lvds2_sel, lvds1_gate, lvds2_gate, clk_max
++	lvds1_sel, lvds2_sel, lvds1_gate, lvds2_gate, esai_ahb, clk_max
+ };
+ 
+ static struct clk *clk[clk_max];
+@@ -140,6 +140,8 @@ static struct clk_div_table video_div_table[] = {
+ 	{ /* sentinel */ }
+ };
+ 
++static unsigned int share_count_esai;
++
+ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ {
+ 	struct device_node *np;
+@@ -358,7 +360,8 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 	else
+ 		clk[ecspi5] = imx_clk_gate2("ecspi5",      "ecspi_root",        base + 0x6c, 8);
+ 	clk[enet]         = imx_clk_gate2("enet",          "ipg",               base + 0x6c, 10);
+-	clk[esai]         = imx_clk_gate2("esai",          "esai_podf",         base + 0x6c, 16);
++	clk[esai]         = imx_clk_gate2_shared("esai",   "esai_podf",         base + 0x6c, 16, &share_count_esai);
++	clk[esai_ahb]     = imx_clk_gate2_shared("esai_ahb", "ahb",             base + 0x6c, 16, &share_count_esai);
+ 	clk[gpt_ipg]      = imx_clk_gate2("gpt_ipg",       "ipg",               base + 0x6c, 20);
+ 	clk[gpt_ipg_per]  = imx_clk_gate2("gpt_ipg_per",   "ipg_per",           base + 0x6c, 22);
+ 	if (cpu_is_imx6dl())
+-- 
+1.9.2
+

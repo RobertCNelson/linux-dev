@@ -1,0 +1,43 @@
+From ecb46e3be51f8bbc5ce3b2a1e5f3363c512f57b1 Mon Sep 17 00:00:00 2001
+From: Xiubo Li <Li.Xiubo@freescale.com>
+Date: Mon, 24 Mar 2014 10:22:14 +0800
+Subject: [PATCH 027/110] ARM: dts: vf610: Add Freescale FTM PWM node.
+
+This adds devicetree node for VF610, and there are 8 channels
+supported.
+
+Signed-off-by: Xiubo Li <Li.Xiubo@freescale.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Reviewed-by: Yuan Yao <yao.yuan@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/vf610.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/arm/boot/dts/vf610.dtsi b/arch/arm/boot/dts/vf610.dtsi
+index 30286bc..73355dd 100644
+--- a/arch/arm/boot/dts/vf610.dtsi
++++ b/arch/arm/boot/dts/vf610.dtsi
+@@ -183,6 +183,19 @@
+ 				clock-names = "pit";
+ 			};
+ 
++			pwm0: pwm@40038000 {
++				compatible = "fsl,vf610-ftm-pwm";
++				#pwm-cells = <3>;
++				reg = <0x40038000 0x1000>;
++				clock-names = "ftm_sys", "ftm_ext",
++					      "ftm_fix", "ftm_cnt_clk_en";
++				clocks = <&clks VF610_CLK_FTM0>,
++					<&clks VF610_CLK_FTM0_EXT_SEL>,
++					<&clks VF610_CLK_FTM0_FIX_SEL>,
++					<&clks VF610_CLK_FTM0_EXT_FIX_EN>;
++				status = "disabled";
++			};
++
+ 			adc0: adc@4003b000 {
+ 				compatible = "fsl,vf610-adc";
+ 				reg = <0x4003b000 0x1000>;
+-- 
+1.9.2
+

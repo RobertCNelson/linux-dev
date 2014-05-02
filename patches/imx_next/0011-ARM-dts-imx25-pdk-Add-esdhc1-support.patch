@@ -1,0 +1,53 @@
+From d376940e79c4bbc0eebc0f0394850b4089ad058a Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Wed, 5 Mar 2014 17:30:40 -0300
+Subject: [PATCH 011/110] ARM: dts: imx25-pdk: Add esdhc1 support
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+---
+ arch/arm/boot/dts/imx25-pdk.dts | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx25-pdk.dts b/arch/arm/boot/dts/imx25-pdk.dts
+index 9d14fbc..7a6d21f 100644
+--- a/arch/arm/boot/dts/imx25-pdk.dts
++++ b/arch/arm/boot/dts/imx25-pdk.dts
+@@ -37,6 +37,14 @@
+ 	};
+ };
+ 
++&esdhc1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_esdhc1>;
++	cd-gpios = <&gpio2 1 0>;
++	wp-gpios = <&gpio2 0 0>;
++	status = "okay";
++};
++
+ &fec {
+ 	phy-mode = "rmii";
+ 	pinctrl-names = "default";
+@@ -48,6 +56,19 @@
+ 
+ &iomuxc {
+ 	imx25-pdk {
++		pinctrl_esdhc1: esdhc1grp {
++			fsl,pins = <
++				MX25_PAD_SD1_CMD__SD1_CMD		0x80000000
++				MX25_PAD_SD1_CLK__SD1_CLK		0x80000000
++				MX25_PAD_SD1_DATA0__SD1_DATA0		0x80000000
++				MX25_PAD_SD1_DATA1__SD1_DATA1		0x80000000
++				MX25_PAD_SD1_DATA2__SD1_DATA2		0x80000000
++				MX25_PAD_SD1_DATA3__SD1_DATA3		0x80000000
++				MX25_PAD_A14__GPIO_2_0			0x80000000
++				MX25_PAD_A15__GPIO_2_1			0x80000000
++			>;
++		};
++
+ 		pinctrl_fec: fecgrp {
+ 			fsl,pins = <
+ 				MX25_PAD_FEC_MDC__FEC_MDC		0x80000000
+-- 
+1.9.2
+

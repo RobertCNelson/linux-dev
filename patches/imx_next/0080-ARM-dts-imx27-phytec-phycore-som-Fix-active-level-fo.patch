@@ -1,0 +1,30 @@
+From df91c13d6efda85587c36eae67be746d62374763 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Sat, 26 Apr 2014 08:52:07 +0400
+Subject: [PATCH 080/110] ARM: dts: imx27-phytec-phycore-som: Fix active level
+ for FEC reset
+
+FEC reset GPIO is active low. Fix this typo.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi b/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
+index 32cc7dac9a..93482e9 100644
+--- a/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
++++ b/arch/arm/boot/dts/imx27-phytec-phycore-som.dtsi
+@@ -182,7 +182,7 @@
+ 
+ &fec {
+ 	phy-mode = "mii";
+-	phy-reset-gpios = <&gpio3 30 GPIO_ACTIVE_HIGH>;
++	phy-reset-gpios = <&gpio3 30 GPIO_ACTIVE_LOW>;
+ 	phy-supply = <&reg_3v3>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_fec1>;
+-- 
+1.9.2
+

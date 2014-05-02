@@ -1,0 +1,36 @@
+From a3f22f106b697eda1dcbd4709f19b7222192d044 Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Tue, 8 Apr 2014 18:22:42 +0200
+Subject: [PATCH 043/110] ARM: dts: cpuimx51 Add touchscreen support.
+
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
+index 9b3acf6..6316426 100644
+--- a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
++++ b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
+@@ -42,6 +42,17 @@
+ 		compatible = "nxp,pcf8563";
+ 		reg = <0x51>;
+ 	};
++
++	tsc2007: tsc2007@49 {
++		compatible = "ti,tsc2007";
++		gpios = <&gpio4 0 1>;
++		interrupt-parent = <&gpio4>;
++		interrupts = <0x0 0x8>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_tsc2007_1>;
++		reg = <0x49>;
++		ti,x-plate-ohms = <180>;
++	};
+ };
+ 
+ &iomuxc {
+-- 
+1.9.2
+

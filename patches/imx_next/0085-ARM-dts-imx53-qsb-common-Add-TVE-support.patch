@@ -1,0 +1,49 @@
+From 9fa04c18db0a35ee4a7178cc5d7c596bddc1b13a Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Tue, 29 Apr 2014 01:59:36 -0300
+Subject: [PATCH 085/110] ARM: dts: imx53-qsb-common: Add TVE support
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx53-qsb-common.dtsi | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx53-qsb-common.dtsi b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+index ede04fa..df9cd9d 100644
+--- a/arch/arm/boot/dts/imx53-qsb-common.dtsi
++++ b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+@@ -272,6 +272,14 @@
+ 			>;
+ 		};
+ 
++		pinctrl_vga_sync: vgasync-grp {
++			fsl,pins = <
++				/* VGA_HSYNC, VSYNC with max drive strength */
++				MX53_PAD_EIM_OE__IPU_DI1_PIN7 0xe6
++				MX53_PAD_EIM_RW__IPU_DI1_PIN8 0xe6
++			>;
++		};
++
+ 		pinctrl_uart1: uart1grp {
+ 			fsl,pins = <
+ 				MX53_PAD_CSI0_DAT10__UART1_TXD_MUX	0x1e4
+@@ -281,6 +289,15 @@
+ 	};
+ };
+ 
++&tve {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_vga_sync>;
++	fsl,tve-mode = "vga";
++	fsl,hsync-pin = <4>;
++	fsl,vsync-pin = <6>;
++	status = "okay";
++};
++
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart1>;
+-- 
+1.9.2
+
