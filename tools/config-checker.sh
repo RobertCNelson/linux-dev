@@ -96,7 +96,7 @@ check_config_value
 config="CONFIG_CHECKPOINT_RESTORE"
 check_config_disable
 config="CONFIG_CC_OPTIMIZE_FOR_SIZE"
-check_config_builtin
+check_config_disable
 config="CONFIG_SYSCTL_SYSCALL"
 check_config_builtin
 config="CONFIG_KALLSYMS_ALL"
@@ -2599,6 +2599,8 @@ check_config_builtin
 #
 config="CONFIG_BOOT_PRINTK_DELAY"
 check_config_disable
+config="CONFIG_DYNAMIC_DEBUG"
+check_config_builtin
 
 #
 # Compile-time checks and compiler options
