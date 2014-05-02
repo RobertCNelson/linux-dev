@@ -182,6 +182,25 @@ omap_next () {
 	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
 }
 
+omap_twl4030 () {
+	echo "dir: omap_twl4030"
+#	${git} "${DIR}/patches/omap_twl4030/0001-ARM-OMAP3-PM-remove-access-to-PRM_VOLTCTRL-register.patch"
+	${git} "${DIR}/patches/omap_twl4030/0002-mfd-twl-core-Fix-idle-mode-signaling-for-omaps-when-.patch"
+	${git} "${DIR}/patches/omap_twl4030/0003-ARM-OMAP3-Fix-idle-mode-signaling-for-sys_clkreq-and.patch"
+	${git} "${DIR}/patches/omap_twl4030/0004-ARM-OMAP3-Disable-broken-omap3_set_off_timings-funct.patch"
+	${git} "${DIR}/patches/omap_twl4030/0005-ARM-OMAP3-Fix-voltage-control-for-deeper-idle-states.patch"
+	${git} "${DIR}/patches/omap_twl4030/0006-ARM-dts-Configure-omap3-twl4030-I2C4-pins-by-default.patch"
+	${git} "${DIR}/patches/omap_twl4030/0007-ARM-OMAP2-Fix-voltage-scaling-init-for-device-tree.patch"
+	${git} "${DIR}/patches/omap_twl4030/0008-ARM-dts-Enable-N900-keyboard-sleep-leds-by-default.patch"
+	${git} "${DIR}/patches/omap_twl4030/0009-ARM-dts-Fix-omap-serial-wake-up-when-booted-with-dev.patch"
+	${git} "${DIR}/patches/omap_twl4030/0010-ARM-OMAP2-Enable-CPUidle-in-omap2plus_defconfig.patch"
+	${git} "${DIR}/patches/omap_twl4030/0011-mfd-twl4030-power-Add-generic-reset-configuration.patch"
+	${git} "${DIR}/patches/omap_twl4030/0012-mfd-twl4030-power-Add-recommended-idle-configuration.patch"
+	${git} "${DIR}/patches/omap_twl4030/0013-mfd-twl4030-power-Add-support-for-board-specific-con.patch"
+	${git} "${DIR}/patches/omap_twl4030/0014-mfd-twl4030power-Add-a-configuration-to-turn-off-osc.patch"
+	${git} "${DIR}/patches/omap_twl4030/0015-ARM-dts-Enable-twl4030-off-idle-configuration-for-se.patch"
+}
+
 dts () {
 	echo "dir: dts"
 	${git} "${DIR}/patches/dts/0001-ARM-dts-imx6qdl-wandboard-add-gpio-lines-to-wandboar.patch"
@@ -252,6 +271,7 @@ next () {
 drivers
 imx_next
 #omap_next
+omap_twl4030
 
 dts
 omap_sprz319_erratum

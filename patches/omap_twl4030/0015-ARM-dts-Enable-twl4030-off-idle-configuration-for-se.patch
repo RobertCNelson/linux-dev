@@ -1,0 +1,56 @@
+From 2b347f95f95079951dd4110e54fcb624896f9b7b Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Wed, 23 Apr 2014 15:30:26 -0700
+Subject: [PATCH 15/15] ARM: dts: Enable twl4030 off-idle configuration for
+ selected omaps
+
+At least N900 now seems to shut down the external oscillator
+when hitting off-idle.
+
+OMAP37XX EVM (TMDSEVM3730) does not seem to have twl4030 clken
+pin connected, so there is no point trying to enable shutting
+down of the oscillator on it for the extra latency it adds.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/boot/dts/omap3-evm-common.dtsi | 7 +++++++
+ arch/arm/boot/dts/omap3-n900.dts        | 5 +++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-evm-common.dtsi b/arch/arm/boot/dts/omap3-evm-common.dtsi
+index 3007e79..3d25340 100644
+--- a/arch/arm/boot/dts/omap3-evm-common.dtsi
++++ b/arch/arm/boot/dts/omap3-evm-common.dtsi
+@@ -45,6 +45,13 @@
+ #include "twl4030.dtsi"
+ #include "twl4030_omap3.dtsi"
+ 
++&twl {
++	twl_power: power {
++		compatible = "ti,twl4030-power-idle";
++		ti,use_poweroff;
++	};
++};
++
+ &i2c2 {
+ 	clock-frequency = <400000>;
+ };
+diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
+index 150ca09..6990e6c 100644
+--- a/arch/arm/boot/dts/omap3-n900.dts
++++ b/arch/arm/boot/dts/omap3-n900.dts
+@@ -297,6 +297,11 @@
+ 		compatible = "ti,twl4030-audio";
+ 		ti,enable-vibra = <1>;
+ 	};
++
++	twl_power: power {
++		compatible = "ti,twl4030-power-idle-osc-off";
++		ti,use_poweroff;
++	};
+ };
+ 
+ &twl_keypad {
+-- 
+1.9.2
+

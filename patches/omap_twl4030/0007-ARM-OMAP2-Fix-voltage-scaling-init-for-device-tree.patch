@@ -1,0 +1,64 @@
+From e2e244f1f3408d85065aa844db827cc4eb457924 Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Wed, 23 Apr 2014 13:59:23 -0700
+Subject: [PATCH 07/15] ARM: OMAP2+: Fix voltage scaling init for device tree
+
+We are currently disabling the init of voltage scaling
+for device tree. With the voltage scaling problems fixed
+for omap3 in general, there's no need to disable the voltage
+scaling init for device tree based booting.
+
+Cc: Kevin Hilman <khilman@linaro.org>
+Cc: Nishanth Menon <nm@ti.com>
+Cc: Paul Walmsley <paul@pwsan.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/pm.c | 28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index e1b4141..ccefd11 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -287,25 +287,21 @@ omap_postcore_initcall(omap2_common_pm_init);
+ 
+ int __init omap2_common_pm_late_init(void)
+ {
+-	/*
+-	 * In the case of DT, the PMIC and SR initialization will be done using
+-	 * a completely different mechanism.
+-	 * Disable this part if a DT blob is available.
+-	 */
+-	if (!of_have_populated_dt()) {
+-
+-		/* Init the voltage layer */
+-		omap_pmic_late_init();
+-		omap_voltage_late_init();
++	if (of_have_populated_dt()) {
++		omap3_twl_init();
++		omap4_twl_init();
++	}
+ 
+-		/* Initialize the voltages */
+-		omap3_init_voltages();
+-		omap4_init_voltages();
++	/* Init the voltage layer */
++	omap_pmic_late_init();
++	omap_voltage_late_init();
+ 
+-		/* Smartreflex device init */
+-		omap_devinit_smartreflex();
++	/* Initialize the voltages */
++	omap3_init_voltages();
++	omap4_init_voltages();
+ 
+-	}
++	/* Smartreflex device init */
++	omap_devinit_smartreflex();
+ 
+ 	/* cpufreq dummy device instantiation */
+ 	omap_init_cpufreq();
+-- 
+1.9.2
+
