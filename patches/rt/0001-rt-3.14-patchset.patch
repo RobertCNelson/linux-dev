@@ -1,6 +1,6 @@
-From ba625cf8ce85fa531e2c17a41eb4a7ce1544bc7c Mon Sep 17 00:00:00 2001
+From 213f26db8d21f6c5b1c0d940d3beb88b1e142f97 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 17 Apr 2014 12:32:00 -0500
+Date: Mon, 5 May 2014 16:31:19 -0500
 Subject: [PATCH] rt: 3.14: patchset
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -70,15 +70,15 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/x86/crypto/aesni-intel_glue.c                 |   24 +-
  arch/x86/crypto/cast5_avx_glue.c                   |   21 +-
  arch/x86/crypto/glue_helper.c                      |   31 +-
- arch/x86/include/asm/preempt.h                     |   12 +-
+ arch/x86/include/asm/preempt.h                     |   18 +-
  arch/x86/include/asm/signal.h                      |   13 +
  arch/x86/include/asm/stackprotector.h              |   10 +-
  arch/x86/include/asm/thread_info.h                 |    6 +
  arch/x86/kernel/apic/io_apic.c                     |    3 +-
- arch/x86/kernel/asm-offsets.c                      |    1 +
+ arch/x86/kernel/asm-offsets.c                      |    2 +
  arch/x86/kernel/cpu/mcheck/mce.c                   |  131 ++-
- arch/x86/kernel/entry_32.S                         |   17 +-
- arch/x86/kernel/entry_64.S                         |    2 +
+ arch/x86/kernel/entry_32.S                         |   20 +-
+ arch/x86/kernel/entry_64.S                         |   31 +-
  arch/x86/kernel/irq_32.c                           |    2 +
  arch/x86/kernel/irq_work.c                         |    2 +
  arch/x86/kernel/process_32.c                       |   32 +
@@ -92,7 +92,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  block/blk-core.c                                   |   14 +-
  block/blk-ioc.c                                    |    5 +-
  block/blk-iopoll.c                                 |    3 +
- block/blk-mq.c                                     |   14 +-
+ block/blk-mq-cpu.c                                 |   17 +-
+ block/blk-mq.c                                     |   22 +-
  block/blk-mq.h                                     |    1 +
  block/blk-softirq.c                                |    3 +
  crypto/algapi.c                                    |    4 +-
@@ -148,7 +149,6 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/tty/serial/8250/8250_core.c                |   27 +-
  drivers/tty/serial/amba-pl011.c                    |   15 +-
  drivers/tty/serial/omap-serial.c                   |   12 +-
- drivers/tty/tty_buffer.c                           |    4 +
  drivers/usb/core/hcd.c                             |    4 +-
  drivers/usb/gadget/f_fs.c                          |    2 +-
  drivers/usb/gadget/inode.c                         |    4 +-
@@ -185,7 +185,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  include/linux/jump_label.h                         |    3 +-
  include/linux/kdb.h                                |    3 +-
  include/linux/kernel.h                             |    1 +
- include/linux/lglock.h                             |   21 +-
+ include/linux/lglock.h                             |   27 +-
  include/linux/list_bl.h                            |   28 +-
  include/linux/locallock.h                          |  270 +++++
  include/linux/mm_types.h                           |    4 +
@@ -197,7 +197,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  include/linux/page_cgroup.h                        |   15 +
  include/linux/percpu.h                             |   25 +
  include/linux/pid.h                                |    1 +
- include/linux/preempt.h                            |   63 +-
+ include/linux/preempt.h                            |   60 +-
  include/linux/preempt_mask.h                       |   15 +-
  include/linux/printk.h                             |    3 +-
  include/linux/radix-tree.h                         |    7 +-
@@ -209,7 +209,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  include/linux/rwlock_types.h                       |    7 +-
  include/linux/rwlock_types_rt.h                    |   33 +
  include/linux/rwsem.h                              |    6 +
- include/linux/rwsem_rt.h                           |  134 +++
+ include/linux/rwsem_rt.h                           |  133 +++
  include/linux/sched.h                              |  199 +++-
  include/linux/sched/rt.h                           |    7 +
  include/linux/seqlock.h                            |   56 +-
@@ -218,7 +218,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  include/linux/smp.h                                |    3 +
  include/linux/spinlock.h                           |   12 +-
  include/linux/spinlock_api_smp.h                   |    4 +-
- include/linux/spinlock_rt.h                        |  166 +++
+ include/linux/spinlock_rt.h                        |  167 +++
  include/linux/spinlock_types.h                     |   79 +-
  include/linux/spinlock_types_nort.h                |   33 +
  include/linux/spinlock_types_raw.h                 |   56 +
@@ -245,7 +245,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  ipc/sem.c                                          |   10 +
  kernel/Kconfig.locks                               |    2 +-
  kernel/Kconfig.preempt                             |   33 +-
- kernel/cpu.c                                       |  329 +++++-
+ kernel/cpu.c                                       |  327 +++++-
  kernel/debug/kdb/kdb_io.c                          |    6 +-
  kernel/events/core.c                               |    1 +
  kernel/exit.c                                      |    2 +-
@@ -260,11 +260,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  kernel/itimer.c                                    |    1 +
  kernel/ksysfs.c                                    |   12 +
  kernel/locking/Makefile                            |    9 +-
- kernel/locking/lglock.c                            |   54 +-
+ kernel/locking/lglock.c                            |   79 +-
  kernel/locking/lockdep.c                           |    2 +
  kernel/locking/percpu-rwsem.c                      |    4 +
- kernel/locking/rt.c                                |  452 +++++++
- kernel/locking/rtmutex.c                           |  733 +++++++++++-
+ kernel/locking/rt.c                                |  436 +++++++
+ kernel/locking/rtmutex.c                           |  738 +++++++++++-
  kernel/locking/rtmutex_common.h                    |   14 +
  kernel/locking/spinlock.c                          |    7 +
  kernel/locking/spinlock_debug.c                    |    5 +
@@ -294,14 +294,14 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  kernel/sched/wait-simple.c                         |  115 ++
  kernel/signal.c                                    |  135 ++-
  kernel/softirq.c                                   |  733 +++++++++---
- kernel/stop_machine.c                              |   74 +-
+ kernel/stop_machine.c                              |   98 +-
  kernel/time/jiffies.c                              |    7 +-
  kernel/time/ntp.c                                  |   40 +
  kernel/time/tick-common.c                          |   10 +-
  kernel/time/tick-internal.h                        |    3 +-
  kernel/time/tick-sched.c                           |   27 +-
  kernel/time/timekeeping.c                          |    6 +-
- kernel/timer.c                                     |  141 ++-
+ kernel/timer.c                                     |  152 ++-
  kernel/trace/Kconfig                               |  104 ++
  kernel/trace/Makefile                              |    4 +
  kernel/trace/latency_hist.c                        | 1178 +++++++++++++++++++
@@ -344,14 +344,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/ipv4/icmp.c                                    |   30 +
  net/ipv4/ip_output.c                               |    8 +-
  net/ipv4/sysctl_net_ipv4.c                         |    7 +
- net/ipv6/icmp.c                                    |    2 +-
  net/mac80211/rx.c                                  |    2 +-
  net/netfilter/core.c                               |    6 +
  net/packet/af_packet.c                             |    5 +-
  net/rds/ib_rdma.c                                  |    3 +-
  net/sched/sch_generic.c                            |    2 +-
  scripts/mkcompile_h                                |    4 +-
- 346 files changed, 10762 insertions(+), 1627 deletions(-)
+ 345 files changed, 10850 insertions(+), 1647 deletions(-)
  create mode 100644 Documentation/hwlat_detector.txt
  create mode 100644 Documentation/trace/histograms.txt
  create mode 100644 drivers/misc/hwlat_detector.c
@@ -2390,10 +2389,10 @@ index 432f1d76..4a2bd21 100644
  }
  EXPORT_SYMBOL_GPL(glue_xts_crypt_128bit);
 diff --git a/arch/x86/include/asm/preempt.h b/arch/x86/include/asm/preempt.h
-index c8b0519..752fe56 100644
+index c8b0519..1e649c4 100644
 --- a/arch/x86/include/asm/preempt.h
 +++ b/arch/x86/include/asm/preempt.h
-@@ -85,17 +85,25 @@ static __always_inline void __preempt_count_sub(int val)
+@@ -85,17 +85,33 @@ static __always_inline void __preempt_count_sub(int val)
   * a decrement which hits zero means we have no preempt_count and should
   * reschedule.
   */
@@ -2407,7 +2406,11 @@ index c8b0519..752fe56 100644
 +{
 +	if (____preempt_count_dec_and_test())
 +		return true;
++#ifdef CONFIG_PREEMPT_LAZY
 +	return test_thread_flag(TIF_NEED_RESCHED_LAZY);
++#else
++	return false;
++#endif
 +}
 +
  /*
@@ -2415,9 +2418,12 @@ index c8b0519..752fe56 100644
   */
  static __always_inline bool should_resched(void)
  {
--	return unlikely(!__this_cpu_read_4(__preempt_count));
++#ifdef CONFIG_PREEMPT_LAZY
 +	return unlikely(!__this_cpu_read_4(__preempt_count) || \
 +			test_thread_flag(TIF_NEED_RESCHED_LAZY));
++#else
+ 	return unlikely(!__this_cpu_read_4(__preempt_count));
++#endif
  }
  
  #ifdef CONFIG_PREEMPT
@@ -2528,7 +2534,7 @@ index 6ad4658..af5efe7 100644
  		return true;
  	}
 diff --git a/arch/x86/kernel/asm-offsets.c b/arch/x86/kernel/asm-offsets.c
-index 9f6b934..7c8b356 100644
+index 9f6b934..5701b50 100644
 --- a/arch/x86/kernel/asm-offsets.c
 +++ b/arch/x86/kernel/asm-offsets.c
 @@ -32,6 +32,7 @@ void common(void) {
@@ -2539,6 +2545,12 @@ index 9f6b934..7c8b356 100644
  
  	BLANK();
  	OFFSET(crypto_tfm_ctx_offset, crypto_tfm, __crt_ctx);
+@@ -71,4 +72,5 @@ void common(void) {
+ 
+ 	BLANK();
+ 	DEFINE(PTREGS_SIZE, sizeof(struct pt_regs));
++	DEFINE(_PREEMPT_ENABLED, PREEMPT_ENABLED);
+ }
 diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
 index 4d5419b..d4867bd 100644
 --- a/arch/x86/kernel/cpu/mcheck/mce.c
@@ -2807,32 +2819,35 @@ index 4d5419b..d4867bd 100644
  }
  device_initcall_sync(mcheck_init_device);
 diff --git a/arch/x86/kernel/entry_32.S b/arch/x86/kernel/entry_32.S
-index a2a4f46..fd2d976 100644
+index a2a4f46..6157ed6 100644
 --- a/arch/x86/kernel/entry_32.S
 +++ b/arch/x86/kernel/entry_32.S
-@@ -363,8 +363,21 @@ END(ret_from_exception)
+@@ -363,8 +363,24 @@ END(ret_from_exception)
  ENTRY(resume_kernel)
  	DISABLE_INTERRUPTS(CLBR_ANY)
  need_resched:
 +	# preempt count == 0 + NEED_RS set?
  	cmpl $0,PER_CPU_VAR(__preempt_count)
++#ifndef CONFIG_PREEMPT_LAZY
+ 	jnz restore_all
++#else
 +	jz test_int_off
 +
 +	# atleast preempt count == 0 ?
-+	cmpl $_TIF_NEED_RESCHED,PER_CPU_VAR(__preempt_count)
++	cmpl $_PREEMPT_ENABLED,PER_CPU_VAR(__preempt_count)
 +	jne restore_all
 +
 +	cmpl $0,TI_preempt_lazy_count(%ebp)	# non-zero preempt_lazy_count ?
- 	jnz restore_all
++	jnz restore_all
 +
-+	testl $_TIF_NEED_RESCHED_LAZY, %ecx
++	testl $_TIF_NEED_RESCHED_LAZY, TI_flags(%ebp)
 +	jz restore_all
-+
 +test_int_off:
++#endif
  	testl $X86_EFLAGS_IF,PT_EFLAGS(%esp)	# interrupts off (exception path) ?
  	jz restore_all
  	call preempt_schedule_irq
-@@ -604,7 +617,7 @@ ENDPROC(system_call)
+@@ -604,7 +620,7 @@ ENDPROC(system_call)
  	ALIGN
  	RING0_PTREGS_FRAME		# can't unwind into user space anyway
  work_pending:
@@ -2841,7 +2856,7 @@ index a2a4f46..fd2d976 100644
  	jz work_notifysig
  work_resched:
  	call schedule
-@@ -617,7 +630,7 @@ work_resched:
+@@ -617,7 +633,7 @@ work_resched:
  	andl $_TIF_WORK_MASK, %ecx	# is there any work to be done other
  					# than syscall tracing?
  	jz restore_all
@@ -2851,10 +2866,66 @@ index a2a4f46..fd2d976 100644
  
  work_notifysig:				# deal with pending signals and
 diff --git a/arch/x86/kernel/entry_64.S b/arch/x86/kernel/entry_64.S
-index 1e96c36..b650b43 100644
+index 1e96c36..d893814 100644
 --- a/arch/x86/kernel/entry_64.S
 +++ b/arch/x86/kernel/entry_64.S
-@@ -1350,6 +1350,7 @@ bad_gs:
+@@ -658,8 +658,8 @@ sysret_check:
+ 	/* Handle reschedules */
+ 	/* edx:	work, edi: workmask */
+ sysret_careful:
+-	bt $TIF_NEED_RESCHED,%edx
+-	jnc sysret_signal
++	testl $_TIF_NEED_RESCHED_MASK,%edx
++	jz sysret_signal
+ 	TRACE_IRQS_ON
+ 	ENABLE_INTERRUPTS(CLBR_NONE)
+ 	pushq_cfi %rdi
+@@ -771,8 +771,8 @@ GLOBAL(int_with_check)
+ 	/* First do a reschedule test. */
+ 	/* edx:	work, edi: workmask */
+ int_careful:
+-	bt $TIF_NEED_RESCHED,%edx
+-	jnc  int_very_careful
++	testl $_TIF_NEED_RESCHED_MASK,%edx
++	jz  int_very_careful
+ 	TRACE_IRQS_ON
+ 	ENABLE_INTERRUPTS(CLBR_NONE)
+ 	pushq_cfi %rdi
+@@ -1071,8 +1071,8 @@ bad_iret:
+ 	/* edi: workmask, edx: work */
+ retint_careful:
+ 	CFI_RESTORE_STATE
+-	bt    $TIF_NEED_RESCHED,%edx
+-	jnc   retint_signal
++	testl $_TIF_NEED_RESCHED_MASK,%edx
++	jz   retint_signal
+ 	TRACE_IRQS_ON
+ 	ENABLE_INTERRUPTS(CLBR_NONE)
+ 	pushq_cfi %rdi
+@@ -1104,7 +1104,22 @@ retint_signal:
+ 	/* rcx:	 threadinfo. interrupts off. */
+ ENTRY(retint_kernel)
+ 	cmpl $0,PER_CPU_VAR(__preempt_count)
++#ifndef CONFIG_PREEMPT_LAZY
+ 	jnz  retint_restore_args
++#else
++	jz  check_int_off
++
++	# atleast preempt count == 0 ?
++	cmpl $_PREEMPT_ENABLED,PER_CPU_VAR(__preempt_count)
++	jnz retint_restore_args
++
++	cmpl $0, TI_preempt_lazy_count(%rcx)
++	jnz retint_restore_args
++
++	bt $TIF_NEED_RESCHED_LAZY,TI_flags(%rcx)
++	jnc  retint_restore_args
++check_int_off:
++#endif
+ 	bt   $9,EFLAGS-ARGOFFSET(%rsp)	/* interrupts off? */
+ 	jnc  retint_restore_args
+ 	call preempt_schedule_irq
+@@ -1350,6 +1365,7 @@ bad_gs:
  	jmp  2b
  	.previous
  
@@ -2862,7 +2933,7 @@ index 1e96c36..b650b43 100644
  /* Call softirq on interrupt stack. Interrupts are off. */
  ENTRY(do_softirq_own_stack)
  	CFI_STARTPROC
-@@ -1369,6 +1370,7 @@ ENTRY(do_softirq_own_stack)
+@@ -1369,6 +1385,7 @@ ENTRY(do_softirq_own_stack)
  	ret
  	CFI_ENDPROC
  END(do_softirq_own_stack)
@@ -2870,6 +2941,15 @@ index 1e96c36..b650b43 100644
  
  #ifdef CONFIG_XEN
  zeroentry xen_hypervisor_callback xen_do_hypervisor_callback
+@@ -1538,7 +1555,7 @@ paranoid_userspace:
+ 	movq %rsp,%rdi			/* &pt_regs */
+ 	call sync_regs
+ 	movq %rax,%rsp			/* switch stack for scheduling */
+-	testl $_TIF_NEED_RESCHED,%ebx
++	testl $_TIF_NEED_RESCHED_MASK,%ebx
+ 	jnz paranoid_schedule
+ 	movl %ebx,%edx			/* arg3: thread flags */
+ 	TRACE_IRQS_ON
 diff --git a/arch/x86/kernel/irq_32.c b/arch/x86/kernel/irq_32.c
 index d7fcbed..cec8682 100644
 --- a/arch/x86/kernel/irq_32.c
@@ -3305,8 +3385,60 @@ index 1855bf5..bdc839a 100644
  	}
  
  	return NOTIFY_OK;
+diff --git a/block/blk-mq-cpu.c b/block/blk-mq-cpu.c
+index 136ef86..37acc3a 100644
+--- a/block/blk-mq-cpu.c
++++ b/block/blk-mq-cpu.c
+@@ -11,7 +11,7 @@
+ #include "blk-mq.h"
+ 
+ static LIST_HEAD(blk_mq_cpu_notify_list);
+-static DEFINE_RAW_SPINLOCK(blk_mq_cpu_notify_lock);
++static DEFINE_SPINLOCK(blk_mq_cpu_notify_lock);
+ 
+ static int blk_mq_main_cpu_notify(struct notifier_block *self,
+ 				  unsigned long action, void *hcpu)
+@@ -19,12 +19,15 @@ static int blk_mq_main_cpu_notify(struct notifier_block *self,
+ 	unsigned int cpu = (unsigned long) hcpu;
+ 	struct blk_mq_cpu_notifier *notify;
+ 
+-	raw_spin_lock(&blk_mq_cpu_notify_lock);
++	if (action != CPU_POST_DEAD && action != CPU_POST_DEAD)
++		return NOTIFY_OK;
++
++	spin_lock(&blk_mq_cpu_notify_lock);
+ 
+ 	list_for_each_entry(notify, &blk_mq_cpu_notify_list, list)
+ 		notify->notify(notify->data, action, cpu);
+ 
+-	raw_spin_unlock(&blk_mq_cpu_notify_lock);
++	spin_unlock(&blk_mq_cpu_notify_lock);
+ 	return NOTIFY_OK;
+ }
+ 
+@@ -32,16 +35,16 @@ void blk_mq_register_cpu_notifier(struct blk_mq_cpu_notifier *notifier)
+ {
+ 	BUG_ON(!notifier->notify);
+ 
+-	raw_spin_lock(&blk_mq_cpu_notify_lock);
++	spin_lock(&blk_mq_cpu_notify_lock);
+ 	list_add_tail(&notifier->list, &blk_mq_cpu_notify_list);
+-	raw_spin_unlock(&blk_mq_cpu_notify_lock);
++	spin_unlock(&blk_mq_cpu_notify_lock);
+ }
+ 
+ void blk_mq_unregister_cpu_notifier(struct blk_mq_cpu_notifier *notifier)
+ {
+-	raw_spin_lock(&blk_mq_cpu_notify_lock);
++	spin_lock(&blk_mq_cpu_notify_lock);
+ 	list_del(&notifier->list);
+-	raw_spin_unlock(&blk_mq_cpu_notify_lock);
++	spin_unlock(&blk_mq_cpu_notify_lock);
+ }
+ 
+ void blk_mq_init_cpu_notifier(struct blk_mq_cpu_notifier *notifier,
 diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 883f720..a5f25f9 100644
+index 883f720..5fb26f7 100644
 --- a/block/blk-mq.c
 +++ b/block/blk-mq.c
 @@ -30,7 +30,11 @@ static void __blk_mq_run_hw_queue(struct blk_mq_hw_ctx *hctx);
@@ -3322,23 +3454,28 @@ index 883f720..a5f25f9 100644
  }
  
  /*
-@@ -41,12 +45,13 @@ static struct blk_mq_ctx *__blk_mq_get_ctx(struct request_queue *q,
+@@ -41,12 +45,18 @@ static struct blk_mq_ctx *__blk_mq_get_ctx(struct request_queue *q,
   */
  static struct blk_mq_ctx *blk_mq_get_ctx(struct request_queue *q)
  {
 -	return __blk_mq_get_ctx(q, get_cpu());
 +	return __blk_mq_get_ctx(q, get_cpu_light());
++}
++
++static void __blk_mq_put_ctx(struct blk_mq_ctx *ctx)
++{
++	spin_unlock(&ctx->cpu_lock);
  }
  
  static void blk_mq_put_ctx(struct blk_mq_ctx *ctx)
  {
 -	put_cpu();
-+	spin_unlock(&ctx->cpu_lock);
++	__blk_mq_put_ctx(ctx);
 +	put_cpu_light();
  }
  
  /*
-@@ -897,7 +902,9 @@ static void blk_mq_make_request(struct request_queue *q, struct bio *bio)
+@@ -897,7 +907,9 @@ static void blk_mq_make_request(struct request_queue *q, struct bio *bio)
  			if (list_empty(&plug->mq_list))
  				trace_block_plug(q);
  			else if (request_count >= BLK_MAX_REQUEST_COUNT) {
@@ -3348,7 +3485,24 @@ index 883f720..a5f25f9 100644
  				trace_block_plug(q);
  			}
  			list_add_tail(&rq->queuelist, &plug->mq_list);
-@@ -1212,6 +1219,7 @@ static void blk_mq_init_cpu_queues(struct request_queue *q,
+@@ -959,7 +971,7 @@ static void blk_mq_hctx_notify(void *data, unsigned long action,
+ 	struct blk_mq_ctx *ctx;
+ 	LIST_HEAD(tmp);
+ 
+-	if (action != CPU_DEAD && action != CPU_DEAD_FROZEN)
++	if (action != CPU_POST_DEAD && action != CPU_POST_DEAD)
+ 		return;
+ 
+ 	/*
+@@ -973,6 +985,7 @@ static void blk_mq_hctx_notify(void *data, unsigned long action,
+ 		clear_bit(ctx->index_hw, hctx->ctx_map);
+ 	}
+ 	spin_unlock(&ctx->lock);
++	__blk_mq_put_ctx(ctx);
+ 
+ 	if (list_empty(&tmp))
+ 		return;
+@@ -1212,6 +1225,7 @@ static void blk_mq_init_cpu_queues(struct request_queue *q,
  		memset(__ctx, 0, sizeof(*__ctx));
  		__ctx->cpu = i;
  		spin_lock_init(&__ctx->lock);
@@ -6245,25 +6399,6 @@ index 77f0351..de575b4 100644
  }
  
  static int __init
-diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
-index 765125d..202912a 100644
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -504,10 +504,14 @@ void tty_flip_buffer_push(struct tty_port *port)
- 
- 	buf->tail->commit = buf->tail->used;
- 
-+#ifndef CONFIG_PREEMPT_RT_FULL
- 	if (port->low_latency)
- 		flush_to_ldisc(&buf->work);
- 	else
- 		schedule_work(&buf->work);
-+#else
-+	schedule_work(&buf->work);
-+#endif
- }
- EXPORT_SYMBOL(tty_flip_buffer_push);
- 
 diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
 index 2518c32..51778a9 100644
 --- a/drivers/usb/core/hcd.c
@@ -7409,7 +7544,7 @@ index 196d1ea..7042256 100644
  
  #define TAINT_PROPRIETARY_MODULE	0
 diff --git a/include/linux/lglock.h b/include/linux/lglock.h
-index 96549ab..2b2204e 100644
+index 96549ab..534b16e 100644
 --- a/include/linux/lglock.h
 +++ b/include/linux/lglock.h
 @@ -32,22 +32,39 @@
@@ -7454,6 +7589,17 @@ index 96549ab..2b2204e 100644
  
  void lg_lock_init(struct lglock *lg, char *name);
  void lg_local_lock(struct lglock *lg);
+@@ -57,4 +74,10 @@ void lg_local_unlock_cpu(struct lglock *lg, int cpu);
+ void lg_global_lock(struct lglock *lg);
+ void lg_global_unlock(struct lglock *lg);
+ 
++#ifndef CONFIG_PREEMPT_RT_FULL
++#define lg_global_trylock_relax(name)	lg_global_lock(name)
++#else
++void lg_global_trylock_relax(struct lglock *lg);
++#endif
++
+ #endif
 diff --git a/include/linux/list_bl.h b/include/linux/list_bl.h
 index 2eb8855..d8876a0 100644
 --- a/include/linux/list_bl.h
@@ -8180,7 +8326,7 @@ index 23705a5..2cc64b7 100644
  enum pid_type
  {
 diff --git a/include/linux/preempt.h b/include/linux/preempt.h
-index de83b4e..116af6a 100644
+index de83b4e..5b2cdf4 100644
 --- a/include/linux/preempt.h
 +++ b/include/linux/preempt.h
 @@ -33,6 +33,20 @@ extern void preempt_count_sub(int val);
@@ -8245,17 +8391,7 @@ index de83b4e..116af6a 100644
  #else
  #define preempt_enable() \
  do { \
-@@ -93,7 +126,8 @@ do { \
- #define preempt_enable_notrace() \
- do { \
- 	barrier(); \
--	if (unlikely(__preempt_count_dec_and_test())) \
-+	if (unlikely(__preempt_count_dec_and_test() || \
-+				test_thread_flag(TIF_NEED_RESCHED_LAZY))) \
- 		__preempt_schedule_context(); \
- } while (0)
- #else
-@@ -116,11 +150,11 @@ do { \
+@@ -116,11 +149,11 @@ do { \
  #define sched_preempt_enable_no_resched()	barrier()
  #define preempt_enable_no_resched()		barrier()
  #define preempt_enable()			barrier()
@@ -8268,7 +8404,7 @@ index de83b4e..116af6a 100644
  
  #endif /* CONFIG_PREEMPT_COUNT */
  
-@@ -140,10 +174,31 @@ do { \
+@@ -140,10 +173,31 @@ do { \
  } while (0)
  #define preempt_fold_need_resched() \
  do { \
@@ -8816,10 +8952,10 @@ index 03f3b05..885192c 100644
  #endif /* _LINUX_RWSEM_H */
 diff --git a/include/linux/rwsem_rt.h b/include/linux/rwsem_rt.h
 new file mode 100644
-index 0000000..924c2d2
+index 0000000..0065b08
 --- /dev/null
 +++ b/include/linux/rwsem_rt.h
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,133 @@
 +#ifndef _LINUX_RWSEM_RT_H
 +#define _LINUX_RWSEM_RT_H
 +
@@ -8842,7 +8978,6 @@ index 0000000..924c2d2
 +
 +struct rw_semaphore {
 +	struct rt_mutex		lock;
-+	int			read_depth;
 +#ifdef CONFIG_DEBUG_LOCK_ALLOC
 +	struct lockdep_map	dep_map;
 +#endif
@@ -9611,10 +9746,10 @@ index 42dfab8..29d99ae 100644
  #endif /* __LINUX_SPINLOCK_API_SMP_H */
 diff --git a/include/linux/spinlock_rt.h b/include/linux/spinlock_rt.h
 new file mode 100644
-index 0000000..ac6f08b
+index 0000000..c0d1367
 --- /dev/null
 +++ b/include/linux/spinlock_rt.h
-@@ -0,0 +1,166 @@
+@@ -0,0 +1,167 @@
 +#ifndef __LINUX_SPINLOCK_RT_H
 +#define __LINUX_SPINLOCK_RT_H
 +
@@ -9652,6 +9787,7 @@ index 0000000..ac6f08b
 + */
 +extern void __lockfunc __rt_spin_lock(struct rt_mutex *lock);
 +extern void __lockfunc __rt_spin_unlock(struct rt_mutex *lock);
++extern int __lockfunc __rt_spin_trylock(struct rt_mutex *lock);
 +
 +#define spin_lock(lock)				\
 +	do {					\
@@ -10892,7 +11028,7 @@ index 3f9c974..11dbe26 100644
  
  config PREEMPT_COUNT
 diff --git a/kernel/cpu.c b/kernel/cpu.c
-index deff2e6..041fada 100644
+index deff2e6..ce00329 100644
 --- a/kernel/cpu.c
 +++ b/kernel/cpu.c
 @@ -63,6 +63,290 @@ static struct {
@@ -11268,15 +11404,6 @@ index deff2e6..041fada 100644
  	/*
  	 * So now all preempt/rcu users must observe !cpu_active().
  	 */
-@@ -333,7 +649,7 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen)
- 		/* CPU didn't die: tell everyone.  Can't complain. */
- 		smpboot_unpark_threads(cpu);
- 		cpu_notify_nofail(CPU_DOWN_FAILED | mod, hcpu);
--		goto out_release;
-+		goto out_cancel;
- 	}
- 	BUG_ON(cpu_online(cpu));
- 
 @@ -356,9 +672,14 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen)
  	check_for_tasks(cpu);
  
@@ -11346,7 +11473,7 @@ index fa0b2d4..4a737cc 100644
  	/*
  	 * Since hrtimers have a fixed rate, we can do a static freq->period
 diff --git a/kernel/exit.c b/kernel/exit.c
-index 1e77fc6..2ab90d2 100644
+index 81b3d67..3b93e6a 100644
 --- a/kernel/exit.c
 +++ b/kernel/exit.c
 @@ -146,7 +146,7 @@ static void __exit_signal(struct task_struct *tsk)
@@ -12649,7 +12776,7 @@ index baab8e5..ac0e239 100644
  obj-$(CONFIG_PERCPU_RWSEM) += percpu-rwsem.o
 +obj-$(CONFIG_PREEMPT_RT_FULL) += rt.o
 diff --git a/kernel/locking/lglock.c b/kernel/locking/lglock.c
-index 86ae2ae..f2356df 100644
+index 86ae2ae..9397974 100644
 --- a/kernel/locking/lglock.c
 +++ b/kernel/locking/lglock.c
 @@ -4,6 +4,15 @@
@@ -12757,7 +12884,7 @@ index 86ae2ae..f2356df 100644
  	}
  }
  EXPORT_SYMBOL(lg_global_lock);
-@@ -80,10 +98,10 @@ void lg_global_unlock(struct lglock *lg)
+@@ -80,10 +98,35 @@ void lg_global_unlock(struct lglock *lg)
  
  	lock_release(&lg->lock_dep_map, 1, _RET_IP_);
  	for_each_possible_cpu(i) {
@@ -12771,6 +12898,31 @@ index 86ae2ae..f2356df 100644
 +	preempt_enable_nort();
  }
  EXPORT_SYMBOL(lg_global_unlock);
++
++#ifdef CONFIG_PREEMPT_RT_FULL
++/*
++ * HACK: If you use this, you get to keep the pieces.
++ * Used in queue_stop_cpus_work() when stop machinery
++ * is called from inactive CPU, so we can't schedule.
++ */
++# define lg_do_trylock_relax(l)			\
++	do {					\
++		while (!__rt_spin_trylock(l))	\
++			cpu_relax();		\
++	} while (0)
++
++void lg_global_trylock_relax(struct lglock *lg)
++{
++	int i;
++
++	lock_acquire_exclusive(&lg->lock_dep_map, 0, 0, NULL, _RET_IP_);
++	for_each_possible_cpu(i) {
++		lg_lock_ptr *lock;
++		lock = per_cpu_ptr(lg->lock, i);
++		lg_do_trylock_relax(lock);
++	}
++}
++#endif
 diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
 index eb8a547..b602d9d 100644
 --- a/kernel/locking/lockdep.c
@@ -12810,10 +12962,10 @@ index 652a8ee..2db0f42 100644
  void percpu_up_read(struct percpu_rw_semaphore *brw)
 diff --git a/kernel/locking/rt.c b/kernel/locking/rt.c
 new file mode 100644
-index 0000000..5d17727
+index 0000000..055a3df
 --- /dev/null
 +++ b/kernel/locking/rt.c
-@@ -0,0 +1,452 @@
+@@ -0,0 +1,436 @@
 +/*
 + * kernel/rt.c
 + *
@@ -12996,12 +13148,14 @@ index 0000000..5d17727
 + */
 +int __lockfunc rt_write_trylock(rwlock_t *rwlock)
 +{
-+	int ret = rt_mutex_trylock(&rwlock->lock);
++	int ret;
 +
-+	if (ret) {
++	migrate_disable();
++	ret = rt_mutex_trylock(&rwlock->lock);
++	if (ret)
 +		rwlock_acquire(&rwlock->dep_map, 0, 1, _RET_IP_);
-+		migrate_disable();
-+	}
++	else
++		migrate_enable();
 +
 +	return ret;
 +}
@@ -13028,11 +13182,13 @@ index 0000000..5d17727
 +	 * write locked.
 +	 */
 +	if (rt_mutex_owner(lock) != current) {
++		migrate_disable();
 +		ret = rt_mutex_trylock(lock);
-+		if (ret) {
++		if (ret)
 +			rwlock_acquire(&rwlock->dep_map, 0, 1, _RET_IP_);
-+			migrate_disable();
-+		}
++		else
++			migrate_enable();
++
 +	} else if (!rwlock->read_depth) {
 +		ret = 0;
 +	}
@@ -13056,13 +13212,14 @@ index 0000000..5d17727
 +{
 +	struct rt_mutex *lock = &rwlock->lock;
 +
++
 +	/*
 +	 * recursive read locks succeed when current owns the lock
 +	 */
 +	if (rt_mutex_owner(lock) != current) {
-+		rwlock_acquire(&rwlock->dep_map, 0, 0, _RET_IP_);
-+		__rt_spin_lock(lock);
 +		migrate_disable();
++		rwlock_acquire_read(&rwlock->dep_map, 0, 0, _RET_IP_);
++		__rt_spin_lock(lock);
 +	}
 +	rwlock->read_depth++;
 +}
@@ -13132,10 +13289,8 @@ index 0000000..5d17727
 +
 +void  rt_up_read(struct rw_semaphore *rwsem)
 +{
-+	if (--rwsem->read_depth == 0) {
-+		rwsem_release(&rwsem->dep_map, 1, _RET_IP_);
-+		rt_mutex_unlock(&rwsem->lock);
-+	}
++	rwsem_release(&rwsem->dep_map, 1, _RET_IP_);
++	rt_mutex_unlock(&rwsem->lock);
 +}
 +EXPORT_SYMBOL(rt_up_read);
 +
@@ -13146,7 +13301,6 @@ index 0000000..5d17727
 +void  rt_downgrade_write(struct rw_semaphore *rwsem)
 +{
 +	BUG_ON(rt_mutex_owner(&rwsem->lock) != current);
-+	rwsem->read_depth = 1;
 +}
 +EXPORT_SYMBOL(rt_downgrade_write);
 +
@@ -13183,37 +13337,20 @@ index 0000000..5d17727
 +
 +int  rt_down_read_trylock(struct rw_semaphore *rwsem)
 +{
-+	struct rt_mutex *lock = &rwsem->lock;
-+	int ret = 1;
++	int ret;
 +
-+	/*
-+	 * recursive read locks succeed when current owns the rwsem,
-+	 * but not when read_depth == 0 which means that the rwsem is
-+	 * write locked.
-+	 */
-+	if (rt_mutex_owner(lock) != current) {
-+		ret = rt_mutex_trylock(&rwsem->lock);
-+		if (ret)
-+			rwsem_acquire(&rwsem->dep_map, 0, 1, _RET_IP_);
-+	} else if (!rwsem->read_depth) {
-+		ret = 0;
-+	}
-+
++	ret = rt_mutex_trylock(&rwsem->lock);
 +	if (ret)
-+		rwsem->read_depth++;
++		rwsem_acquire(&rwsem->dep_map, 0, 1, _RET_IP_);
++
 +	return ret;
 +}
 +EXPORT_SYMBOL(rt_down_read_trylock);
 +
 +static void __rt_down_read(struct rw_semaphore *rwsem, int subclass)
 +{
-+	struct rt_mutex *lock = &rwsem->lock;
-+
-+	if (rt_mutex_owner(lock) != current) {
-+		rwsem_acquire(&rwsem->dep_map, subclass, 0, _RET_IP_);
-+		rt_mutex_lock(&rwsem->lock);
-+	}
-+	rwsem->read_depth++;
++	rwsem_acquire(&rwsem->dep_map, subclass, 0, _RET_IP_);
++	rt_mutex_lock(&rwsem->lock);
 +}
 +
 +void  rt_down_read(struct rw_semaphore *rwsem)
@@ -13238,7 +13375,6 @@ index 0000000..5d17727
 +	debug_check_no_locks_freed((void *)rwsem, sizeof(*rwsem));
 +	lockdep_init_map(&rwsem->dep_map, name, key, 0);
 +#endif
-+	rwsem->read_depth = 0;
 +	rwsem->lock.save_state = 0;
 +}
 +EXPORT_SYMBOL(__rt_rwsem_init);
@@ -13267,7 +13403,7 @@ index 0000000..5d17727
 +}
 +EXPORT_SYMBOL(atomic_dec_and_mutex_lock);
 diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index 2e960a2..42f4f28 100644
+index 2e960a2..5c5cc76 100644
 --- a/kernel/locking/rtmutex.c
 +++ b/kernel/locking/rtmutex.c
 @@ -8,6 +8,12 @@
@@ -13496,7 +13632,7 @@ index 2e960a2..42f4f28 100644
  			chain_walk = 1;
  
  		raw_spin_unlock_irqrestore(&owner->pi_lock, flags);
-@@ -665,24 +745,370 @@ void rt_mutex_adjust_pi(struct task_struct *task)
+@@ -665,24 +745,375 @@ void rt_mutex_adjust_pi(struct task_struct *task)
  	raw_spin_lock_irqsave(&task->pi_lock, flags);
  
  	waiter = task->pi_blocked_on;
@@ -13759,6 +13895,11 @@ index 2e960a2..42f4f28 100644
 +}
 +EXPORT_SYMBOL(rt_spin_unlock_wait);
 +
++int __lockfunc __rt_spin_trylock(struct rt_mutex *lock)
++{
++	return rt_mutex_trylock(lock);
++}
++
 +int __lockfunc rt_spin_trylock(spinlock_t *lock)
 +{
 +	int ret = rt_mutex_trylock(&lock->lock);
@@ -13803,12 +13944,12 @@ index 2e960a2..42f4f28 100644
 +	/* Subtract 1 from counter unless that drops it to 0 (ie. it was 1) */
 +	if (atomic_add_unless(atomic, -1, 1))
 +		return 0;
++	migrate_disable();
 +	rt_spin_lock(lock);
-+	if (atomic_dec_and_test(atomic)){
-+		migrate_disable();
++	if (atomic_dec_and_test(atomic))
 +		return 1;
-+	}
 +	rt_spin_unlock(lock);
++	migrate_enable();
 +	return 0;
 +}
 +EXPORT_SYMBOL(atomic_dec_and_spin_lock);
@@ -13871,7 +14012,7 @@ index 2e960a2..42f4f28 100644
   * @timeout:		 the pre-initialized and started timer, or NULL for none
   * @waiter:		 the pre-initialized rt_mutex_waiter
   *
-@@ -691,7 +1117,8 @@ void rt_mutex_adjust_pi(struct task_struct *task)
+@@ -691,7 +1122,8 @@ void rt_mutex_adjust_pi(struct task_struct *task)
  static int __sched
  __rt_mutex_slowlock(struct rt_mutex *lock, int state,
  		    struct hrtimer_sleeper *timeout,
@@ -13881,7 +14022,7 @@ index 2e960a2..42f4f28 100644
  {
  	int ret = 0;
  
-@@ -714,6 +1141,12 @@ __rt_mutex_slowlock(struct rt_mutex *lock, int state,
+@@ -714,6 +1146,12 @@ __rt_mutex_slowlock(struct rt_mutex *lock, int state,
  				break;
  		}
  
@@ -13894,7 +14035,7 @@ index 2e960a2..42f4f28 100644
  		raw_spin_unlock(&lock->wait_lock);
  
  		debug_rt_mutex_print_deadlock(waiter);
-@@ -727,25 +1160,101 @@ __rt_mutex_slowlock(struct rt_mutex *lock, int state,
+@@ -727,25 +1165,101 @@ __rt_mutex_slowlock(struct rt_mutex *lock, int state,
  	return ret;
  }
  
@@ -14000,7 +14141,7 @@ index 2e960a2..42f4f28 100644
  		raw_spin_unlock(&lock->wait_lock);
  		return 0;
  	}
-@@ -762,12 +1271,14 @@ rt_mutex_slowlock(struct rt_mutex *lock, int state,
+@@ -762,12 +1276,14 @@ rt_mutex_slowlock(struct rt_mutex *lock, int state,
  	ret = task_blocks_on_rt_mutex(lock, &waiter, current, detect_deadlock);
  
  	if (likely(!ret))
@@ -14016,7 +14157,7 @@ index 2e960a2..42f4f28 100644
  
  	/*
  	 * try_to_take_rt_mutex() sets the waiter bit
-@@ -794,7 +1305,8 @@ rt_mutex_slowtrylock(struct rt_mutex *lock)
+@@ -794,7 +1310,8 @@ rt_mutex_slowtrylock(struct rt_mutex *lock)
  {
  	int ret = 0;
  
@@ -14026,7 +14167,7 @@ index 2e960a2..42f4f28 100644
  
  	if (likely(rt_mutex_owner(lock) != current)) {
  
-@@ -845,30 +1357,33 @@ rt_mutex_slowunlock(struct rt_mutex *lock)
+@@ -845,30 +1362,33 @@ rt_mutex_slowunlock(struct rt_mutex *lock)
   */
  static inline int
  rt_mutex_fastlock(struct rt_mutex *lock, int state,
@@ -14065,7 +14206,7 @@ index 2e960a2..42f4f28 100644
  }
  
  static inline int
-@@ -901,19 +1416,19 @@ void __sched rt_mutex_lock(struct rt_mutex *lock)
+@@ -901,19 +1421,19 @@ void __sched rt_mutex_lock(struct rt_mutex *lock)
  {
  	might_sleep();
  
@@ -14089,7 +14230,7 @@ index 2e960a2..42f4f28 100644
   * -EDEADLK	when the lock would deadlock (when deadlock detection is on)
   */
  int __sched rt_mutex_lock_interruptible(struct rt_mutex *lock,
-@@ -922,22 +1437,43 @@ int __sched rt_mutex_lock_interruptible(struct rt_mutex *lock,
+@@ -922,22 +1442,43 @@ int __sched rt_mutex_lock_interruptible(struct rt_mutex *lock,
  	might_sleep();
  
  	return rt_mutex_fastlock(lock, TASK_INTERRUPTIBLE,
@@ -14137,7 +14278,7 @@ index 2e960a2..42f4f28 100644
   * -ETIMEDOUT	when the timeout expired
   * -EDEADLK	when the lock would deadlock (when deadlock detection is on)
   */
-@@ -948,7 +1484,7 @@ rt_mutex_timed_lock(struct rt_mutex *lock, struct hrtimer_sleeper *timeout,
+@@ -948,7 +1489,7 @@ rt_mutex_timed_lock(struct rt_mutex *lock, struct hrtimer_sleeper *timeout,
  	might_sleep();
  
  	return rt_mutex_timed_fastlock(lock, TASK_INTERRUPTIBLE, timeout,
@@ -14146,7 +14287,7 @@ index 2e960a2..42f4f28 100644
  }
  EXPORT_SYMBOL_GPL(rt_mutex_timed_lock);
  
-@@ -1006,7 +1542,6 @@ EXPORT_SYMBOL_GPL(rt_mutex_destroy);
+@@ -1006,7 +1547,6 @@ EXPORT_SYMBOL_GPL(rt_mutex_destroy);
  void __rt_mutex_init(struct rt_mutex *lock, const char *name)
  {
  	lock->owner = NULL;
@@ -14154,7 +14295,7 @@ index 2e960a2..42f4f28 100644
  	lock->waiters = RB_ROOT;
  	lock->waiters_leftmost = NULL;
  
-@@ -1027,7 +1562,7 @@ EXPORT_SYMBOL_GPL(__rt_mutex_init);
+@@ -1027,7 +1567,7 @@ EXPORT_SYMBOL_GPL(__rt_mutex_init);
  void rt_mutex_init_proxy_locked(struct rt_mutex *lock,
  				struct task_struct *proxy_owner)
  {
@@ -14163,7 +14304,7 @@ index 2e960a2..42f4f28 100644
  	debug_rt_mutex_proxy_lock(lock, proxy_owner);
  	rt_mutex_set_owner(lock, proxy_owner);
  	rt_mutex_deadlock_account_lock(lock, proxy_owner);
-@@ -1076,6 +1611,35 @@ int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+@@ -1076,6 +1616,35 @@ int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
  		return 1;
  	}
  
@@ -14199,7 +14340,7 @@ index 2e960a2..42f4f28 100644
  	ret = task_blocks_on_rt_mutex(lock, waiter, task, detect_deadlock);
  
  	if (ret && !rt_mutex_owner(lock)) {
-@@ -1145,7 +1709,7 @@ int rt_mutex_finish_proxy_lock(struct rt_mutex *lock,
+@@ -1145,7 +1714,7 @@ int rt_mutex_finish_proxy_lock(struct rt_mutex *lock,
  
  	set_current_state(TASK_INTERRUPTIBLE);
  
@@ -14208,7 +14349,7 @@ index 2e960a2..42f4f28 100644
  
  	set_current_state(TASK_RUNNING);
  
-@@ -1162,3 +1726,88 @@ int rt_mutex_finish_proxy_lock(struct rt_mutex *lock,
+@@ -1162,3 +1731,88 @@ int rt_mutex_finish_proxy_lock(struct rt_mutex *lock,
  
  	return ret;
  }
@@ -18481,7 +18622,7 @@ index 490fcbb..ea86b08 100644
  	.thread_fn		= run_ksoftirqd,
  	.thread_comm		= "ksoftirqd/%u",
 diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
-index 01fbae5..aaae9f1 100644
+index 01fbae5..bcbae9c 100644
 --- a/kernel/stop_machine.c
 +++ b/kernel/stop_machine.c
 @@ -30,12 +30,12 @@ struct cpu_stop_done {
@@ -18564,25 +18705,75 @@ index 01fbae5..aaae9f1 100644
  	return done.executed ? done.ret : -ENOENT;
  }
  
-@@ -297,7 +315,7 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
+@@ -248,7 +266,7 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
+ 	struct irq_cpu_stop_queue_work_info call_args;
+ 	struct multi_stop_data msdata;
+ 
+-	preempt_disable();
++	preempt_disable_nort();
+ 	msdata = (struct multi_stop_data){
+ 		.fn = fn,
+ 		.data = arg,
+@@ -281,7 +299,7 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
+ 	 * This relies on the stopper workqueues to be FIFO.
+ 	 */
+ 	if (!cpu_active(cpu1) || !cpu_active(cpu2)) {
+-		preempt_enable();
++		preempt_enable_nort();
+ 		return -ENOENT;
+ 	}
+ 
+@@ -295,9 +313,9 @@ int stop_two_cpus(unsigned int cpu1, unsigned int cpu2, cpu_stop_fn_t fn, void *
+ 				 &irq_cpu_stop_queue_work,
+ 				 &call_args, 1);
  	lg_local_unlock(&stop_cpus_lock);
- 	preempt_enable();
+-	preempt_enable();
++	preempt_enable_nort();
  
 -	wait_for_completion(&done.completion);
 +	wait_for_stop_done(&done);
  
  	return done.executed ? done.ret : -ENOENT;
  }
-@@ -359,7 +377,7 @@ static int __stop_cpus(const struct cpumask *cpumask,
+@@ -328,7 +346,7 @@ static DEFINE_PER_CPU(struct cpu_stop_work, stop_cpus_work);
+ 
+ static void queue_stop_cpus_work(const struct cpumask *cpumask,
+ 				 cpu_stop_fn_t fn, void *arg,
+-				 struct cpu_stop_done *done)
++				 struct cpu_stop_done *done, bool inactive)
+ {
+ 	struct cpu_stop_work *work;
+ 	unsigned int cpu;
+@@ -342,11 +360,13 @@ static void queue_stop_cpus_work(const struct cpumask *cpumask,
+ 	}
+ 
+ 	/*
+-	 * Disable preemption while queueing to avoid getting
+-	 * preempted by a stopper which might wait for other stoppers
+-	 * to enter @fn which can lead to deadlock.
++	 * Make sure that all work is queued on all cpus before
++	 * any of the cpus can execute it.
+ 	 */
+-	lg_global_lock(&stop_cpus_lock);
++	if (!inactive)
++		lg_global_lock(&stop_cpus_lock);
++	else
++		lg_global_trylock_relax(&stop_cpus_lock);
+ 	for_each_cpu(cpu, cpumask)
+ 		cpu_stop_queue_work(cpu, &per_cpu(stop_cpus_work, cpu));
+ 	lg_global_unlock(&stop_cpus_lock);
+@@ -358,8 +378,8 @@ static int __stop_cpus(const struct cpumask *cpumask,
+ 	struct cpu_stop_done done;
  
  	cpu_stop_init_done(&done, cpumask_weight(cpumask));
- 	queue_stop_cpus_work(cpumask, fn, arg, &done);
+-	queue_stop_cpus_work(cpumask, fn, arg, &done);
 -	wait_for_completion(&done.completion);
++	queue_stop_cpus_work(cpumask, fn, arg, &done, false);
 +	wait_for_stop_done(&done);
  	return done.executed ? done.ret : -ENOENT;
  }
  
-@@ -438,9 +456,9 @@ static int cpu_stop_should_run(unsigned int cpu)
+@@ -438,9 +458,9 @@ static int cpu_stop_should_run(unsigned int cpu)
  	unsigned long flags;
  	int run;
  
@@ -18594,7 +18785,7 @@ index 01fbae5..aaae9f1 100644
  	return run;
  }
  
-@@ -452,13 +470,13 @@ static void cpu_stopper_thread(unsigned int cpu)
+@@ -452,13 +472,13 @@ static void cpu_stopper_thread(unsigned int cpu)
  
  repeat:
  	work = NULL;
@@ -18610,7 +18801,7 @@ index 01fbae5..aaae9f1 100644
  
  	if (work) {
  		cpu_stop_fn_t fn = work->fn;
-@@ -466,6 +484,16 @@ repeat:
+@@ -466,6 +486,16 @@ repeat:
  		struct cpu_stop_done *done = work->done;
  		char ksym_buf[KSYM_NAME_LEN] __maybe_unused;
  
@@ -18627,7 +18818,7 @@ index 01fbae5..aaae9f1 100644
  		/* cpu stop callbacks are not allowed to sleep */
  		preempt_disable();
  
-@@ -480,7 +508,13 @@ repeat:
+@@ -480,7 +510,13 @@ repeat:
  			  kallsyms_lookup((unsigned long)fn, NULL, NULL, NULL,
  					  ksym_buf), arg);
  
@@ -18641,7 +18832,7 @@ index 01fbae5..aaae9f1 100644
  		goto repeat;
  	}
  }
-@@ -499,20 +533,20 @@ static void cpu_stop_park(unsigned int cpu)
+@@ -499,20 +535,20 @@ static void cpu_stop_park(unsigned int cpu)
  	unsigned long flags;
  
  	/* drain remaining works */
@@ -18666,7 +18857,7 @@ index 01fbae5..aaae9f1 100644
  }
  
  static struct smp_hotplug_thread cpu_stop_threads = {
-@@ -534,7 +568,7 @@ static int __init cpu_stop_init(void)
+@@ -534,10 +570,12 @@ static int __init cpu_stop_init(void)
  	for_each_possible_cpu(cpu) {
  		struct cpu_stopper *stopper = &per_cpu(cpu_stopper, cpu);
  
@@ -18675,12 +18866,22 @@ index 01fbae5..aaae9f1 100644
  		INIT_LIST_HEAD(&stopper->works);
  	}
  
-@@ -637,7 +671,7 @@ int stop_machine_from_inactive_cpu(int (*fn)(void *), void *data,
++	lg_lock_init(&stop_cpus_lock, "stop_cpus_lock");
++
+ 	BUG_ON(smpboot_register_percpu_thread(&cpu_stop_threads));
+ 	stop_machine_initialized = true;
+ 	return 0;
+@@ -633,11 +671,11 @@ int stop_machine_from_inactive_cpu(int (*fn)(void *), void *data,
+ 	set_state(&msdata, MULTI_STOP_PREPARE);
+ 	cpu_stop_init_done(&done, num_active_cpus());
+ 	queue_stop_cpus_work(cpu_active_mask, multi_cpu_stop, &msdata,
+-			     &done);
++			     &done, true);
  	ret = multi_cpu_stop(&msdata);
  
  	/* Busy wait for completion. */
 -	while (!completion_done(&done.completion))
-+	while (!atomic_read(&done.nr_todo))
++	while (atomic_read(&done.nr_todo))
  		cpu_relax();
  
  	mutex_unlock(&stop_cpus_mutex);
@@ -18924,7 +19125,7 @@ index 5b40279..d0e8114 100644
  	update_wall_time();
  }
 diff --git a/kernel/timer.c b/kernel/timer.c
-index accfd24..54596b5 100644
+index accfd24..8750875 100644
 --- a/kernel/timer.c
 +++ b/kernel/timer.c
 @@ -78,6 +78,9 @@ struct tvec_root {
@@ -19134,20 +19335,32 @@ index accfd24..54596b5 100644
  
  	if (time_after_eq(jiffies, base->timer_jiffies))
  		__run_timers(base);
-@@ -1381,8 +1452,39 @@ static void run_timer_softirq(struct softirq_action *h)
+@@ -1381,8 +1452,52 @@ static void run_timer_softirq(struct softirq_action *h)
   */
  void run_local_timers(void)
  {
 +	struct tvec_base *base = __this_cpu_read(tvec_bases);
 +
  	hrtimer_run_queues();
--	raise_softirq(TIMER_SOFTIRQ);
 +	/*
 +	 * We can access this lockless as we are in the timer
 +	 * interrupt. If there are no timers queued, nothing to do in
 +	 * the timer softirq.
 +	 */
 +#ifdef CONFIG_PREEMPT_RT_FULL
++
++#ifndef CONFIG_SMP
++	/*
++	 * The spin_do_trylock() later may fail as the lock may be hold before
++	 * the interrupt arrived. The spin-lock debugging code will raise a
++	 * warning if the try_lock fails on UP. Since this is only an
++	 * optimization for the FULL_NO_HZ case (not to run the timer softirq on
++	 * an nohz_full CPU) we don't really care and shedule the softirq.
++	 */
+ 	raise_softirq(TIMER_SOFTIRQ);
++	return;
++#endif
++
 +	/* On RT, irq work runs from softirq */
 +	if (irq_work_needs_cpu()) {
 +		raise_softirq(TIMER_SOFTIRQ);
@@ -19175,7 +19388,7 @@ index accfd24..54596b5 100644
  }
  
  #ifdef __ARCH_WANT_SYS_ALARM
-@@ -1546,6 +1648,9 @@ static int init_timers_cpu(int cpu)
+@@ -1546,6 +1661,9 @@ static int init_timers_cpu(int cpu)
  		base = per_cpu(tvec_bases, cpu);
  	}
  
@@ -19185,7 +19398,7 @@ index accfd24..54596b5 100644
  
  	for (j = 0; j < TVN_SIZE; j++) {
  		INIT_LIST_HEAD(base->tv5.vec + j);
-@@ -1584,7 +1689,7 @@ static void migrate_timers(int cpu)
+@@ -1584,7 +1702,7 @@ static void migrate_timers(int cpu)
  
  	BUG_ON(cpu_online(cpu));
  	old_base = per_cpu(tvec_bases, cpu);
@@ -19194,7 +19407,7 @@ index accfd24..54596b5 100644
  	/*
  	 * The caller is globally serialized and nobody else
  	 * takes two locks at once, deadlock is not possible.
-@@ -1605,7 +1710,7 @@ static void migrate_timers(int cpu)
+@@ -1605,7 +1723,7 @@ static void migrate_timers(int cpu)
  
  	spin_unlock(&old_base->lock);
  	spin_unlock_irq(&new_base->lock);
@@ -21709,11 +21922,11 @@ index 04abe53..1154792 100644
  
 diff --git a/localversion-rt b/localversion-rt
 new file mode 100644
-index 0000000..6f206be
+index 0000000..1445cd6
 --- /dev/null
 +++ b/localversion-rt
 @@ -0,0 +1 @@
-+-rt1
++-rt3
 diff --git a/mm/Kconfig b/mm/Kconfig
 index 2888024..64007ac 100644
 --- a/mm/Kconfig
@@ -23344,19 +23557,6 @@ index 44eba05..dd69fa6 100644
  		.procname	= "icmp_ignore_bogus_error_responses",
  		.data		= &init_net.ipv4.sysctl_icmp_ignore_bogus_error_responses,
  		.maxlen		= sizeof(int),
-diff --git a/net/ipv6/icmp.c b/net/ipv6/icmp.c
-index 7b32652..c36071c 100644
---- a/net/ipv6/icmp.c
-+++ b/net/ipv6/icmp.c
-@@ -613,7 +613,7 @@ static void icmpv6_echo_reply(struct sk_buff *skb)
- 				np->dontfrag);
- 
- 	if (err) {
--		ICMP6_INC_STATS_BH(net, idev, ICMP6_MIB_OUTERRORS);
-+		ICMP6_INC_STATS(net, idev, ICMP6_MIB_OUTERRORS);
- 		ip6_flush_pending_frames(sk);
- 	} else {
- 		err = icmpv6_push_pending_frames(sk, &fl6, &tmp_hdr,
 diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
 index 3e57f96..212bcc2 100644
 --- a/net/mac80211/rx.c
@@ -23479,5 +23679,5 @@ index f221ddf..5f44009 100755
  
  # Truncate to maximum length
 -- 
-1.9.1
+2.0.0.rc0
 
