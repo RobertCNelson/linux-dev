@@ -1,0 +1,50 @@
+From 0f4f1a5e3dd35ba8252b774705cba68d3afb4c97 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 7 May 2014 09:45:17 -0500
+Subject: [PATCH 20/20] ARM: dts imx6dl-udoo Add HDMI support
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/imx6dl-udoo.dts | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6dl-udoo.dts b/arch/arm/boot/dts/imx6dl-udoo.dts
+index 20e0c49..1736f5e 100644
+--- a/arch/arm/boot/dts/imx6dl-udoo.dts
++++ b/arch/arm/boot/dts/imx6dl-udoo.dts
+@@ -28,6 +28,18 @@
+ 	status = "okay";
+ };
+ 
++&hdmi {
++	ddc-i2c-bus = <&i2c2>;
++	status = "okay";
++};
++
++&i2c2 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2>;
++	status = "okay";
++};
++
+ &iomuxc {
+ 	imx6q-udoo {
+ 		pinctrl_enet: enetgrp {
+@@ -51,6 +63,13 @@
+ 			>;
+ 		};
+ 
++		pinctrl_i2c2: i2c2grp {
++			fsl,pins = <
++				MX6QDL_PAD_KEY_COL3__I2C2_SCL		0x4001b8b1
++				MX6QDL_PAD_KEY_ROW3__I2C2_SDA		0x4001b8b1
++			>;
++		};
++
+ 		pinctrl_uart2: uart2grp {
+ 			fsl,pins = <
+ 				MX6QDL_PAD_EIM_D26__UART2_TX_DATA	0x1b0b1
+-- 
+2.0.0.rc0
+
