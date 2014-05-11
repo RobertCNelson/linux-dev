@@ -275,41 +275,42 @@ debian_regs () {
 			;;
 		esac
 
+		unset error_unknown_deb_distro
 		case "${deb_distro}" in
 		squeeze|wheezy|jessie|sid)
-			#Supported Debian:
-			unset error_unknown_deb_distro
 			unset warn_eol_distro
 			;;
-		trusty|utopic)
-			#lts: trusty -> xyz
-			unset error_unknown_deb_distro
+		utopic)
+			#14.10
 			unset warn_eol_distro
 			;;
-		precise|quantal|saucy)
-			#lts: precise -> trusty
-			unset error_unknown_deb_distro
+		trusty)
+			#14.04: lts: trusty -> xyz
+			unset warn_eol_distro
+			;;
+		quantal|saucy)
+			#12.10|13.10
 			unset warn_eol_distro
 			;;
 		raring)
-			#EOL Ubuntu: between lts: precise -> trusty
-			unset error_unknown_deb_distro
+			#13.04
 			warn_eol_distro=1
 			;;
-		lucid)
-			#lts: lucid -> precise
-			unset error_unknown_deb_distro
+		precise)
+			#12.04: lts: precise -> trusty
 			unset warn_eol_distro
 			;;
 		maverick|natty|oneiric)
-			#EOL Ubuntu: between lts: lucid -> precise
-			unset error_unknown_deb_distro
+			#10.04|10.10|11.04
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
+		lucid)
+			#10.04: lts: lucid -> precise
+			unset warn_eol_distro
+			;;
 		hardy)
-			#Old Ubuntu LTS: unsupported...
-			unset error_unknown_deb_distro
+			#8.04: lts: hardy -> lucid
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
