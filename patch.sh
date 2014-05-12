@@ -842,6 +842,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0029-Provides-a-sysfs-interface-to-the-eQEP-hardware-on-t.patch"
 	${git} "${DIR}/patches/capes/0030-capes-add-bone_eqep-from-https-github.com-Teknoman11.patch"
 	${git} "${DIR}/patches/capes/0031-Adding-Logibone-to-cape-support-list.patch"
+	${git} "${DIR}/patches/capes/0032-beaglebone-capes-Added-CBB-Relay-cape-dt-overlay.patch"
 
 	echo "dir: proto"
 	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
