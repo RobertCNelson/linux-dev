@@ -19,7 +19,6 @@ fi
 
 config="omap2plus_defconfig"
 
-#toolchain="gcc_arm_embedded_4_7"
 #toolchain="gcc_linaro_eabi_4_8"
 #toolchain="gcc_linaro_gnueabi_4_6"
 #toolchain="gcc_linaro_gnueabihf_4_7"
@@ -31,7 +30,7 @@ KERNEL_TAG=${KERNEL_REL}.3
 BUILD=bone3
 
 #v3.X-rcX + upto SHA
-#KERNEL_SHA="e6036c0b88962df82a8853971b86a55f09faef40"
+#KERNEL_SHA=""
 
 #git branch
 BRANCH="am33x-v3.14"
