@@ -54,20 +54,6 @@ dl_gcc_generic () {
 
 gcc_toolchain () {
 	case "${toolchain}" in
-	gcc_arm_embedded_4_7)
-		#https://launchpad.net/gcc-arm-embedded/+download
-		#https://launchpad.net/gcc-arm-embedded/4.7/4.7-2013-q3-update/+download/gcc-arm-none-eabi-4_7-2013q3-20130916-linux.tar.bz2
-
-		toolchain_name="gcc-arm-none-eabi"
-		site="https://launchpad.net/gcc-arm-embedded"
-		version="4.7/4.7-2013-q3-update/+download"
-		version_date="20130916"
-		directory="${toolchain_name}-4_7-2013q3"
-		filename="${directory}-${version_date}-linux.tar.bz2"
-		datestamp="${version_date}-${toolchain_name}"
-
-		binary="bin/arm-none-eabi-"
-		;;
 	gcc_linaro_eabi_4_8)
 		#https://releases.linaro.org/14.04/components/toolchain/binaries/gcc-linaro-arm-none-eabi-4.8-2014.04_linux.tar.xz
 		gcc_version="4.8"
