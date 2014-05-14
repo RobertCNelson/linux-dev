@@ -216,7 +216,7 @@ dts () {
 
 	${git} "${DIR}/patches/dts/0010-ARM-dts-omap3-beagle-add-i2c2.patch"
 
-	${git} "${DIR}/patches/dts/0011-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
+#	${git} "${DIR}/patches/dts/0011-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
 	${git} "${DIR}/patches/dts/0012-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0013-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
 #	${git} "${DIR}/patches/dts/0014-arch-omap3-add-xm-ab-variant.patch"
