@@ -110,6 +110,10 @@ git_kernel () {
 
 	cd ${DIR}/KERNEL/
 
+	#Debian Jessie: git version 2.0.0.rc0
+	#Disable git's default setting of running `git gc --auto` in the background as the patch.sh script can fail.
+	git config --local --list | grep gc.autodetach >/dev/null 2>&1 || git config --local gc.autodetach 0
+
 	if [ "${RUN_BISECT}" ] ; then
 		git bisect reset || true
 	fi
