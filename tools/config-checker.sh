@@ -201,10 +201,26 @@ config="CONFIG_MACH_TI8148EVM"
 check_config_disable
 config="CONFIG_ARCH_SOCFPGA"
 check_config_disable
+config="CONFIG_ARCH_TEGRA"
+check_config_builtin
+config="CONFIG_ARCH_TEGRA_124_SOC"
+check_config_builtin
+config="CONFIG_TEGRA_AHB"
+check_config_builtin
 config="CONFIG_ARCH_VEXPRESS"
 check_config_disable
 config="CONFIG_ARCH_WM8850"
 check_config_disable
+config="CONFIG_ARCH_SUPPORTS_FIRMWARE"
+check_config_builtin
+config="CONFIG_ARCH_SUPPORTS_TRUSTED_FOUNDATIONS"
+check_config_builtin
+
+#
+# Firmware options
+#
+config="CONFIG_TRUSTED_FOUNDATIONS"
+check_config_builtin
 
 #
 # Processor Features
@@ -277,6 +293,8 @@ check_config_builtin
 # ARM CPU frequency scaling drivers
 #
 config="CONFIG_ARM_IMX6Q_CPUFREQ"
+check_config_builtin
+config="CONFIG_ARM_TEGRA_CPUFREQ"
 check_config_builtin
 
 #
@@ -663,6 +681,8 @@ config="CONFIG_KEYBOARD_MPR121"
 check_config_module
 config="CONFIG_KEYBOARD_NEWTON"
 check_config_module
+config="CONFIG_KEYBOARD_TEGRA"
+check_config_module
 config="CONFIG_KEYBOARD_SAMSUNG"
 check_config_module
 config="CONFIG_KEYBOARD_SUNKBD"
@@ -855,6 +875,8 @@ check_config_builtin
 #
 # Non-8250 serial port support
 #
+config="CONFIG_SERIAL_TEGRA"
+check_config_builtin
 config="CONFIG_SERIAL_OF_PLATFORM"
 check_config_builtin
 config="CONFIG_SERIAL_ARC"
@@ -885,6 +907,8 @@ config="CONFIG_I2C_IMX"
 check_config_builtin
 config="CONFIG_I2C_MV64XXX"
 check_config_builtin
+config="CONFIG_I2C_TEGRA"
+check_config_builtin
 
 #
 # SPI Master Controller Drivers
@@ -897,10 +921,18 @@ config="CONFIG_SPI_SUN4I"
 check_config_builtin
 config="CONFIG_SPI_SUN6I"
 check_config_builtin
+config="CONFIG_SPI_TEGRA114"
+check_config_builtin
+config="CONFIG_SPI_TEGRA20_SFLASH"
+check_config_module
 
 #
 # Pin controllers
 #
+config="CONFIG_PINCTRL_TEGRA"
+check_config_builtin
+config="CONFIG_PINCTRL_TEGRA124"
+check_config_builtin
 config="CONFIG_PINCTRL_PALMAS"
 check_config_builtin
 config="CONFIG_GPIO_DA9052"
@@ -1153,6 +1185,8 @@ config="CONFIG_TWL4030_WATCHDOG"
 check_config_builtin
 config="CONFIG_IMX2_WDT"
 check_config_builtin
+config="CONFIG_TEGRA_WATCHDOG"
+check_config_builtin
 
 #
 # Multifunction device drivers
@@ -1401,6 +1435,20 @@ config="CONFIG_SND_SOC_IMX_WM8962"
 check_config_module
 config="CONFIG_SND_SOC_IMX_SPDIF"
 check_config_module
+config="CONFIG_SND_SOC_TEGRA"
+check_config_module
+config="CONFIG_SND_SOC_TEGRA_RT5640"
+check_config_module
+config="CONFIG_SND_SOC_TEGRA_WM8753"
+check_config_module
+config="CONFIG_SND_SOC_TEGRA_WM8903"
+check_config_module
+config="CONFIG_SND_SOC_TEGRA_TRIMSLICE"
+check_config_module
+config="CONFIG_SND_SOC_TEGRA_ALC5632"
+check_config_module
+config="CONFIG_SND_SOC_TEGRA_MAX98090"
+check_config_module
 
 #
 # HID support
@@ -1444,6 +1492,8 @@ check_config_builtin
 config="CONFIG_USB_EHCI_MXC"
 check_config_disable
 config="CONFIG_USB_EHCI_HCD_OMAP"
+check_config_builtin
+config="CONFIG_USB_EHCI_TEGRA"
 check_config_builtin
 config="CONFIG_USB_EHCI_HCD_PLATFORM"
 check_config_builtin
@@ -1548,6 +1598,8 @@ check_config_builtin
 config="CONFIG_MMC_SDHCI_PLTFM"
 check_config_builtin
 config="CONFIG_MMC_SDHCI_ESDHC_IMX"
+check_config_builtin
+config="CONFIG_MMC_SDHCI_TEGRA"
 check_config_builtin
 config="CONFIG_MMC_OMAP"
 check_config_builtin
@@ -1735,6 +1787,8 @@ check_config_module
 #
 # on-CPU RTC drivers
 #
+config="CONFIG_RTC_DRV_TEGRA"
+check_config_module
 config="CONFIG_RTC_DRV_SNVS"
 check_config_module
 config="CONFIG_RTC_DRV_MOXART"
@@ -1752,6 +1806,8 @@ check_config_module
 config="CONFIG_DW_DMAC_CORE"
 check_config_builtin
 config="CONFIG_DW_DMAC"
+check_config_builtin
+config="CONFIG_TEGRA20_APB_DMA"
 check_config_builtin
 config="CONFIG_TI_CPPI41"
 check_config_builtin
@@ -1917,6 +1973,12 @@ config="CONFIG_AD2S1210"
 check_config_module
 
 #
+# Speakup console speech
+#
+config="CONFIG_MFD_NVEC"
+check_config_builtin
+
+#
 # Android
 #
 config="CONFIG_ANDROID"
@@ -1973,6 +2035,8 @@ check_config_builtin
 config="CONFIG_HWSPINLOCK_OMAP"
 check_config_builtin
 config="CONFIG_OMAP_IOVMM"
+check_config_builtin
+config="CONFIG_TEGRA_IOMMU_SMMU"
 check_config_builtin
 
 #
@@ -2217,6 +2281,8 @@ check_config_module
 config="CONFIG_PWM_IMX"
 check_config_builtin
 config="CONFIG_PWM_PCA9685"
+check_config_builtin
+config="CONFIG_PWM_TEGRA"
 check_config_builtin
 config="CONFIG_PWM_TIECAP"
 check_config_builtin
