@@ -845,6 +845,7 @@ am33x_after () {
 	${git} "${DIR}/patches/capes/0032-beaglebone-capes-Added-CBB-Relay-cape-dt-overlay.patch"
 	${git} "${DIR}/patches/capes/0033-Firmware-Update-Replicape-device-tree-overlay-files-.patch"
 	${git} "${DIR}/patches/capes/0034-cape-add-BB-BONE-AUDI-02-00A0-from-http-elinux.org-C.patch"
+	${git} "${DIR}/patches/capes/0035-cape-universaln-remove-P9_31.patch"
 
 	echo "dir: proto"
 	${git} "${DIR}/patches/proto/0001-add-new-default-pinmux-based-on-Proto-Cape.patch"
