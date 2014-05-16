@@ -62,6 +62,11 @@ copy_defconfig () {
 	ref_config="tegra_defconfig"
 	config_reference
 
+	echo "Updating: defconfig-lpae"
+	cp -v ${DIR}/patches/defconfig-lpae .config
+	make ARCH=arm CROSS_COMPILE=${CC} menuconfig
+	cp -v .config ${DIR}/patches/defconfig-lpae
+
 	cp -v ${DIR}/patches/defconfig .config
 	cd ${DIR}/
 }
