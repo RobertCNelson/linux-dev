@@ -1,0 +1,43 @@
+From 5095aa23f80a668816f03a9cdd8dc1d4b391538a Mon Sep 17 00:00:00 2001
+From: Stephen Warren <swarren@nvidia.com>
+Date: Fri, 25 Apr 2014 10:12:42 -0600
+Subject: [PATCH 13/21] ARM: tegra: use correct audio CODEC on Jetson TK1
+
+Jetson TK1 contains an RT5639 not an RT5640. While the two are extremely
+similar and mostly compatible, we should still use the correct device
+name in the device tree. I had meant to fix this before applying the
+initial DT, but this issue slipped my mind.
+
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+---
+ arch/arm/boot/dts/tegra124-jetson-tk1.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/tegra124-jetson-tk1.dts b/arch/arm/boot/dts/tegra124-jetson-tk1.dts
+index e30a577..fbc3493 100644
+--- a/arch/arm/boot/dts/tegra124-jetson-tk1.dts
++++ b/arch/arm/boot/dts/tegra124-jetson-tk1.dts
+@@ -1360,8 +1360,8 @@
+ 		status = "okay";
+ 		clock-frequency = <100000>;
+ 
+-		rt5640: audio-codec@1c {
+-			compatible = "realtek,rt5640";
++		rt5639: audio-codec@1c {
++			compatible = "realtek,rt5639";
+ 			reg = <0x1c>;
+ 			interrupt-parent = <&gpio>;
+ 			interrupts = <TEGRA_GPIO(H, 4) GPIO_ACTIVE_HIGH>;
+@@ -1814,7 +1814,7 @@
+ 			"IN2P", "Mic Jack";
+ 
+ 		nvidia,i2s-controller = <&tegra_i2s1>;
+-		nvidia,audio-codec = <&rt5640>;
++		nvidia,audio-codec = <&rt5639>;
+ 
+ 		nvidia,hp-det-gpios = <&gpio TEGRA_GPIO(R, 7) GPIO_ACTIVE_LOW>;
+ 
+-- 
+2.0.0.rc0
+

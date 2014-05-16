@@ -1,0 +1,56 @@
+From 8394252f7c32d792ec94020103ea0130a56c0dc9 Mon Sep 17 00:00:00 2001
+From: Thierry Reding <treding@nvidia.com>
+Date: Fri, 25 Apr 2014 17:44:50 +0200
+Subject: [PATCH 11/21] ARM: tegra: dalmore - Add +5V HDMI supply
+
+This supply controls the +5V pin on the HDMI connector, which in turn is
+used by attached sinks to return the hotplug detect signal.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+---
+ arch/arm/boot/dts/tegra114-dalmore.dts | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/tegra114-dalmore.dts b/arch/arm/boot/dts/tegra114-dalmore.dts
+index a288a128..a95a751 100644
+--- a/arch/arm/boot/dts/tegra114-dalmore.dts
++++ b/arch/arm/boot/dts/tegra114-dalmore.dts
+@@ -25,6 +25,7 @@
+ 		hdmi@54280000 {
+ 			status = "okay";
+ 
++			hdmi-supply = <&vdd_5v0_hdmi>;
+ 			vdd-supply = <&vdd_hdmi_reg>;
+ 			pll-supply = <&palmas_smps3_reg>;
+ 
+@@ -1231,8 +1232,6 @@
+ 			regulator-name = "vdd_hdmi_5v0";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+-			enable-active-high;
+-			gpio = <&gpio TEGRA_GPIO(K, 1) GPIO_ACTIVE_HIGH>;
+ 			vin-supply = <&tps65090_dcdc1_reg>;
+ 		};
+ 
+@@ -1245,6 +1244,17 @@
+ 			enable-active-high;
+ 			gpio = <&palmas_gpio 6 0>;
+ 		};
++
++		vdd_5v0_hdmi: regulator@7 {
++			compatible = "regulator-fixed";
++			reg = <7>;
++			regulator-name = "VDD_5V0_HDMI_CON";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			gpio = <&gpio TEGRA_GPIO(K, 1) GPIO_ACTIVE_HIGH>;
++			enable-active-high;
++			vin-supply = <&tps65090_dcdc1_reg>;
++		};
+ 	};
+ 
+ 	sound {
+-- 
+2.0.0.rc0
+

@@ -1,0 +1,102 @@
+From 1f33537e9e6b979218dcaa422cab244cce89efbd Mon Sep 17 00:00:00 2001
+From: Stephen Warren <swarren@nvidia.com>
+Date: Wed, 19 Mar 2014 17:15:14 -0600
+Subject: [PATCH 20/21] ARM: tegra: tegra_defconfig updates
+
+AT24C EEPROM:
+
+This is used for the board ID EEPROM on Jetson TK1, as well as likely
+a whole slew of other NVIDIA reference boards; we simply haven't added
+enabled the EEPROM in the DT files until now.
+
+MTD_SPI_NOR:
+
+This defconfig contains the CONFIG_M25P80 symbol, which is now
+dependent on the MTD_SPI_NOR symbol. Add CONFIG_MTD_SPI_NOR to satisfy
+the new dependency.
+
+FRAMEBUFFER_CONSOLE_ROTATION:
+
+Needed for devices like Tegra Note 7 and NVIDIA SHIELD to get the boot
+console in the expected orientation.
+
+CAN*, RTC_DRV_DS1307:
+
+Toradex Colibri Evaluation Board uses the DS1307 RTC and the MCP251x CAN
+controller. The NVIDIA Tegra 3 based Colibri T30 module can be used on
+this carrier board.
+
+Furthermore the NVIDIA Tegra 3 based Apalis T30 module too contains two
+MCP251x CAN controllers.
+
+INPUT_JOYDEV:
+
+NVIDIA SHIELD embeds a USB joystick device.
+
+Signed-off-by: Brian Norris <computersforpeace@gmail.com>
+Signed-off-by: Alexandre Courbot <acourbot@nvidia.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+---
+ arch/arm/configs/tegra_defconfig | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/configs/tegra_defconfig b/arch/arm/configs/tegra_defconfig
+index 2926281..fb25e29 100644
+--- a/arch/arm/configs/tegra_defconfig
++++ b/arch/arm/configs/tegra_defconfig
+@@ -73,6 +73,11 @@ CONFIG_INET6_IPCOMP=y
+ CONFIG_IPV6_MIP6=y
+ CONFIG_IPV6_TUNNEL=y
+ CONFIG_IPV6_MULTIPLE_TABLES=y
++CONFIG_CAN=y
++CONFIG_CAN_RAW=y
++CONFIG_CAN_BCM=y
++CONFIG_CAN_DEV=y
++CONFIG_CAN_MCP251X=y
+ CONFIG_BT=y
+ CONFIG_BT_RFCOMM=y
+ CONFIG_BT_BNEP=y
+@@ -90,6 +95,7 @@ CONFIG_DMA_CMA=y
+ CONFIG_CMA_SIZE_MBYTES=64
+ CONFIG_MTD=y
+ CONFIG_MTD_M25P80=y
++CONFIG_MTD_SPI_NOR=y
+ CONFIG_PROC_DEVICETREE=y
+ CONFIG_BLK_DEV_LOOP=y
+ CONFIG_AD525X_DPOT=y
+@@ -97,6 +103,7 @@ CONFIG_AD525X_DPOT_I2C=y
+ CONFIG_ICS932S401=y
+ CONFIG_APDS9802ALS=y
+ CONFIG_ISL29003=y
++CONFIG_EEPROM_AT24=y
+ CONFIG_SCSI=y
+ CONFIG_BLK_DEV_SD=y
+ CONFIG_BLK_DEV_SR=y
+@@ -112,6 +119,7 @@ CONFIG_USB_NET_SMSC95XX=y
+ CONFIG_BRCMFMAC=m
+ CONFIG_RT2X00=y
+ CONFIG_RT2800USB=m
++CONFIG_INPUT_JOYDEV=y
+ CONFIG_INPUT_EVDEV=y
+ CONFIG_KEYBOARD_GPIO=y
+ CONFIG_KEYBOARD_TEGRA=y
+@@ -181,6 +189,7 @@ CONFIG_BACKLIGHT_CLASS_DEVICE=y
+ # CONFIG_BACKLIGHT_GENERIC is not set
+ CONFIG_BACKLIGHT_PWM=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
++CONFIG_FRAMEBUFFER_CONSOLE_ROTATION=y
+ CONFIG_LOGO=y
+ CONFIG_SOUND=y
+ CONFIG_SND=y
+@@ -222,6 +231,7 @@ CONFIG_LEDS_TRIGGER_TRANSIENT=y
+ CONFIG_LEDS_TRIGGER_CAMERA=y
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_AS3722=y
++CONFIG_RTC_DRV_DS1307=y
+ CONFIG_RTC_DRV_MAX8907=y
+ CONFIG_RTC_DRV_PALMAS=y
+ CONFIG_RTC_DRV_TPS6586X=y
+-- 
+2.0.0.rc0
+

@@ -1,0 +1,30 @@
+From d2fd5db07858c06e8a121dd8a9275e8e019fd30e Mon Sep 17 00:00:00 2001
+From: Andrew Bresticker <abrestic@chromium.org>
+Date: Wed, 16 Apr 2014 16:08:39 -0700
+Subject: [PATCH 05/21] ARM: tegra: fix Venice2 SD card VQMMC supply
+
+VDDIO_SDMMC3 is the VQMMC (I/O) supply, not the VMMC (core) supply,
+for the SD slot on Venice2.
+
+Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+---
+ arch/arm/boot/dts/tegra124-venice2.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/tegra124-venice2.dts b/arch/arm/boot/dts/tegra124-venice2.dts
+index 87537f4..6770e2b 100644
+--- a/arch/arm/boot/dts/tegra124-venice2.dts
++++ b/arch/arm/boot/dts/tegra124-venice2.dts
+@@ -933,7 +933,7 @@
+ 		power-gpios = <&gpio TEGRA_GPIO(R, 0) GPIO_ACTIVE_HIGH>;
+ 		status = "okay";
+ 		bus-width = <4>;
+-		vmmc-supply = <&vddio_sdmmc3>;
++		vqmmc-supply = <&vddio_sdmmc3>;
+ 	};
+ 
+ 	sdhci@0,700b0600 {
+-- 
+2.0.0.rc0
+

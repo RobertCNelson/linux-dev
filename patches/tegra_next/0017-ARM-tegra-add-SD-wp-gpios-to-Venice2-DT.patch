@@ -1,0 +1,30 @@
+From 5818f354fc880eb2505c8f132dd9c79a8ca92de2 Mon Sep 17 00:00:00 2001
+From: Stephen Warren <swarren@nvidia.com>
+Date: Mon, 28 Apr 2014 12:10:26 -0600
+Subject: [PATCH 17/21] ARM: tegra: add SD wp-gpios to Venice2 DT
+
+Venice2 can detect write-protect on the SD card. Add the required
+DT entries to allow this.
+
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+[swarren: fixed GPIO polarity per Thierry's testing]
+Tested-by: Thierry Reding <treding@nvidia.com>
+---
+ arch/arm/boot/dts/tegra124-venice2.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/tegra124-venice2.dts b/arch/arm/boot/dts/tegra124-venice2.dts
+index 84a6ec0..f0bb842 100644
+--- a/arch/arm/boot/dts/tegra124-venice2.dts
++++ b/arch/arm/boot/dts/tegra124-venice2.dts
+@@ -943,6 +943,7 @@
+ 	sdhci@0,700b0400 {
+ 		cd-gpios = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
+ 		power-gpios = <&gpio TEGRA_GPIO(R, 0) GPIO_ACTIVE_HIGH>;
++		wp-gpios = <&gpio TEGRA_GPIO(Q, 4) GPIO_ACTIVE_LOW>;
+ 		status = "okay";
+ 		bus-width = <4>;
+ 		vqmmc-supply = <&vddio_sdmmc3>;
+-- 
+2.0.0.rc0
+
