@@ -118,6 +118,12 @@ config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
 check_config_disable
 
 #
+# Android
+#
+config="CONFIG_DRM_IMX"
+check_config_disable
+
+#
 # Library routines
 #
 config="CONFIG_KVM"
