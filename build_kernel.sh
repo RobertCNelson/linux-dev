@@ -64,7 +64,7 @@ copy_defconfig () {
 
 	echo "Updating: defconfig-lpae"
 	cp -v ${DIR}/patches/defconfig-lpae .config
-	make ARCH=arm CROSS_COMPILE=${CC} menuconfig
+	make ARCH=arm CROSS_COMPILE=${CC} oldconfig
 	cp -v .config ${DIR}/patches/defconfig-lpae
 
 	cp -v ${DIR}/patches/defconfig .config
