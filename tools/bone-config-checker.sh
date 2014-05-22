@@ -300,7 +300,7 @@ config="CONFIG_USB_G_HID"
 check_config_module
 config="CONFIG_USB_G_DBGP"
 check_config_module
-config="CONFIG_USB_G_DBGP_PRINTK "
+config="CONFIG_USB_G_DBGP_PRINTK"
 check_config_disable
 config="CONFIG_USB_G_DBGP_SERIAL"
 check_config_builtin
