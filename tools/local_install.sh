@@ -34,23 +34,8 @@ mmc_write_rootfs () {
 		sudo rm -rf "${location}/lib/modules/${KERNEL_UTS}" || true
 	fi
 
-	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}/"
+	sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}/"
 	sync
-
-	echo "Installing ${KERNEL_UTS}-firmware.tar.gz"
-
-	if [ -d "${DIR}/deploy/tmp" ] ; then
-		rm -rf "${DIR}/deploy/tmp" || true
-	fi
-	mkdir -p "${DIR}/deploy/tmp/"
-
-	tar -xf "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/tmp/"
-	sync
-
-	sudo cp -v "${DIR}/deploy/tmp"/*.dtbo "${location}/lib/firmware/" 2>/dev/null || true
-	sync
-
-	rm -rf "${DIR}/deploy/tmp/" || true
 
 	if [ "${ZRELADDR}" ] ; then
 		if [ ! -f "${location}/boot/SOC.sh" ] ; then
@@ -116,7 +101,7 @@ mmc_write_boot () {
 		sudo mkdir -p "${location}/dtbs"
 
 		echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
-		sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
+		sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
 		sync
 	fi
 }

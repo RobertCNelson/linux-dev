@@ -40,21 +40,6 @@ mmc_write_rootfs () {
 	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}/"
 	sync
 
-	echo "Installing ${KERNEL_UTS}-firmware.tar.gz to ${partition}"
-
-	if [ -d "${DIR}/deploy/tmp" ] ; then
-		rm -rf "${DIR}/deploy/tmp" || true
-	fi
-	mkdir -p "${DIR}/deploy/tmp/"
-
-	tar -xf "${DIR}/deploy/${KERNEL_UTS}-firmware.tar.gz" -C "${DIR}/deploy/tmp/"
-	sync
-
-	sudo cp -v "${DIR}/deploy/tmp"/*.dtbo "${location}/lib/firmware/" 2>/dev/null || true
-	sync
-
-	rm -rf "${DIR}/deploy/tmp/" || true
-
 	if [ "${ZRELADDR}" ] ; then
 		if [ ! -f "${location}/boot/SOC.sh" ] ; then
 			if [ -f "${location}/boot/uImage" ] ; then
