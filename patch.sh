@@ -266,7 +266,7 @@ fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-imx6q-work-around-fec-tx-queue-timeouts-when-SATA-SD.patch"
 	${git} "${DIR}/patches/fixes/0002-saucy-error-variable-ilace-set-but-not-used-Werror-u.patch"
-	${git} "${DIR}/patches/fixes/0003-ARM-OMAP4-Fix-the-boot-regression-with-CPU_IDLE-enab.patch"
+#	${git} "${DIR}/patches/fixes/0003-ARM-OMAP4-Fix-the-boot-regression-with-CPU_IDLE-enab.patch"
 }
 
 vivante () {
