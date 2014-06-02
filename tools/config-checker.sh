@@ -485,10 +485,6 @@ config="CONFIG_CHR_DEV_ST"
 check_config_disable
 config="CONFIG_CHR_DEV_OSST"
 check_config_disable
-config="CONFIG_BLK_DEV_SR"
-check_config_disable
-config="CONFIG_CHR_DEV_SG"
-check_config_disable
 config="CONFIG_CHR_DEV_SCH"
 check_config_disable
 config="CONFIG_SCSI_ENCLOSURE"
