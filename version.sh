@@ -23,19 +23,19 @@ config="multi_v7_defconfig"
 #toolchain="gcc_linaro_eabi_4_9"
 #toolchain="gcc_linaro_gnueabi_4_6"
 #toolchain="gcc_linaro_gnueabihf_4_7"
-toolchain="gcc_linaro_gnueabihf_4_8"
-#toolchain="gcc_linaro_gnueabihf_4_9"
+#toolchain="gcc_linaro_gnueabihf_4_8"
+toolchain="gcc_linaro_gnueabihf_4_9"
 
 #Kernel/Build
 KERNEL_REL=3.15
 KERNEL_TAG=${KERNEL_REL}-rc8
-BUILD=armv7-devel-r60
+BUILD=armv7-devel-r1
 
 #v3.X-rcX + upto SHA
-#KERNEL_SHA="fe45736f4134b9656c656ac5e15b915192f2704a"
+KERNEL_SHA="425553209b387fa2125df09d01a2d1c1724bd205"
 
 #git branch
-#BRANCH="v3.15.x"
+#BRANCH="v3.16.x"
 
 BUILDREV=1.0
 DISTRO=cross

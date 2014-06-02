@@ -283,6 +283,9 @@ vivante () {
 
 	#fixes:
 	${git} "${DIR}/patches/vivante/0003-drm-vivante-build-fixes.patch"
+
+	#v3.14.x+
+	${git} "${DIR}/patches/vivante/0004-Fixed-vivante-driver-for-kernel-3.14.x.patch"
 }
 
 next () {

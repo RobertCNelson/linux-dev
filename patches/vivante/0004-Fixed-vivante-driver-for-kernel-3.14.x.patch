@@ -1,0 +1,123 @@
+From 8b364bd276d808236085c8b033098e0bb7a62432 Mon Sep 17 00:00:00 2001
+From: Michele Adduci <adduci.michele@gmail.com>
+Date: Mon, 2 Jun 2014 16:17:32 +0200
+Subject: [PATCH 4/4] Fixed vivante driver for kernel 3.14.x
+
+---
+ drivers/gpu/drm/vivante/vivante_drv.c | 46 ++---------------------------------
+ drivers/gpu/drm/vivante/vivante_drv.h | 30 ++++++++++++++++++++++-
+ 2 files changed, 31 insertions(+), 45 deletions(-)
+
+diff --git a/drivers/gpu/drm/vivante/vivante_drv.c b/drivers/gpu/drm/vivante/vivante_drv.c
+index 7679d9b..83c162c 100644
+--- a/drivers/gpu/drm/vivante/vivante_drv.c
++++ b/drivers/gpu/drm/vivante/vivante_drv.c
+@@ -47,63 +47,21 @@
+  *    Gareth Hughes <gareth@valinux.com>
+  */
+ 
+-#include <linux/version.h>
+-#include <linux/module.h>
+-
+ #include "drmP.h"
+ #include "vivante_drv.h"
+ 
+-#include "drm_pciids.h"
+-
+-static char platformdevicename[] = "Vivante GCCore:00";
+-static struct platform_device *pplatformdev;
+-
+-static const struct file_operations viv_driver_fops = {
+-	.owner = THIS_MODULE,
+-	.open = drm_open,
+-	.release = drm_release,
+-	.unlocked_ioctl = drm_ioctl,
+-	.mmap = drm_mmap,
+-	.poll = drm_poll,
+-	.llseek = noop_llseek,
+-};
+-
+-static struct drm_driver driver = {
+-	.driver_features = DRIVER_USE_MTRR,
+-	.fops = &viv_driver_fops,
+-	.name = DRIVER_NAME,
+-	.desc = DRIVER_DESC,
+-	.date = DRIVER_DATE,
+-	.major = DRIVER_MAJOR,
+-	.minor = DRIVER_MINOR,
+-	.patchlevel = DRIVER_PATCHLEVEL,
+-};
+-
+ static int __init vivante_init(void)
+ {
+-	int retcode;
+-
+ 	pplatformdev = platform_device_register_simple(platformdevicename,
+ 			-1, NULL, 0);
+ 	if (pplatformdev == NULL)
+ 		printk(KERN_ERR"Platform device is null\n");
+ 
+-	retcode = drm_platform_init(&driver, pplatformdev);
+-
+-	return retcode;
+-}
+-
+-static void __exit vivante_exit(void)
+-{
+-	if (pplatformdev) {
+-		drm_platform_exit(&driver, pplatformdev);
+-		platform_device_unregister(pplatformdev);
+-		pplatformdev = NULL;
+-	}
++   //return drm_platform_init(&driver, pplatformdev);
++   return drm_platform_init(&driver, pplatformdev);
+ }
+ 
+ module_init(vivante_init);
+-module_exit(vivante_exit);
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+diff --git a/drivers/gpu/drm/vivante/vivante_drv.h b/drivers/gpu/drm/vivante/vivante_drv.h
+index 03f5884..f038b45 100644
+--- a/drivers/gpu/drm/vivante/vivante_drv.h
++++ b/drivers/gpu/drm/vivante/vivante_drv.h
+@@ -61,6 +61,34 @@
+ 
+ #define DRIVER_MAJOR		1
+ #define DRIVER_MINOR		0
+-#define DRIVER_PATCHLEVEL	0
++#define DRIVER_PATCHLEVEL  4
+ 
++#include <linux/version.h>
++#include <linux/module.h>
++
++static char platformdevicename[] = "Vivante GCCore:00";
++static struct platform_device *pplatformdev;
++
++static const struct file_operations viv_driver_fops = {
++    .owner = THIS_MODULE,
++    .open = drm_open,
++    .release = drm_release,
++    .unlocked_ioctl = drm_ioctl,
++    .mmap = drm_mmap,
++    .poll = drm_poll,
++    .llseek = noop_llseek,
++};
++
++static struct drm_driver driver = {
++    .driver_features = DRIVER_USE_MTRR,
++    .fops = &viv_driver_fops,
++    .name = DRIVER_NAME,
++    .desc = DRIVER_DESC,
++    .date = DRIVER_DATE,
++    .major = DRIVER_MAJOR,
++    .minor = DRIVER_MINOR,
++    .patchlevel = DRIVER_PATCHLEVEL,
++};
++
++extern int drm_platform_init(struct drm_driver*, struct platform_device*);
+ #endif
+-- 
+2.0.0.rc2
+
