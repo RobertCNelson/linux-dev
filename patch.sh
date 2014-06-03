@@ -253,7 +253,7 @@ dts () {
 	${git} "${DIR}/patches/dts/0016-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
 	${git} "${DIR}/patches/dts/0017-arm-dts-add-imx6dl-udoo.patch"
 	${git} "${DIR}/patches/dts/0018-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
-	${git} "${DIR}/patches/dts/0019-ARM-dts-imx6q-udoo-Add-HDMI-support.patch"
+#	${git} "${DIR}/patches/dts/0019-ARM-dts-imx6q-udoo-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/dts/0020-ARM-dts-imx6dl-udoo-Add-HDMI-support.patch"
 }
 
@@ -304,16 +304,16 @@ next () {
 
 #revert
 drivers
-imx_next
+#imx_next
 #omap_next
-tegra_next
-omap_twl4030
+#tegra_next
+#omap_twl4030
 
 dts
 omap_sprz319_erratum
 
 fixes
 vivante
-next
+#next
 
 echo "patch.sh ran successful"
