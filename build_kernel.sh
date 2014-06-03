@@ -72,6 +72,11 @@ copy_defconfig () {
 	make ARCH=arm CROSS_COMPILE=${CC} oldconfig
 	cp -v .config ${DIR}/patches/defconfig-bone
 
+	echo "Updating: defconfig"
+	cp -v ${DIR}/patches/defconfig .config
+	make ARCH=arm CROSS_COMPILE=${CC} oldconfig
+	cp -v .config ${DIR}/patches/defconfig
+
 	cp -v ${DIR}/patches/defconfig .config
 	cd ${DIR}/
 }
