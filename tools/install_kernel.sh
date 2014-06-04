@@ -22,7 +22,6 @@
 
 unset KERNEL_UTS
 unset MMC
-unset ZRELADDR
 
 BOOT_PARITION="1"
 
@@ -40,21 +39,6 @@ mmc_write_rootfs () {
 	sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-modules.tar.gz" -C "${location}/"
 	sync
 
-	if [ "${ZRELADDR}" ] ; then
-		if [ ! -f "${location}/boot/SOC.sh" ] ; then
-			if [ -f "${location}/boot/uImage" ] ; then
-				#Possibly Angstrom: dump a newer uImage if one exists..
-				if [ -f "${location}/boot/uImage_bak" ] ; then
-					sudo rm -f "${location}/boot/uImage_bak" || true
-				fi
-
-				sudo mv "${location}/boot/uImage" "${location}/boot/uImage_bak"
-				sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/boot/uImage"
-				sync
-			fi
-		fi
-	fi
-
 	if [ -f "${DIR}/deploy/config-${KERNEL_UTS}" ] ; then
 		if [ -f "${location}/boot/config-${KERNEL_UTS}" ] ; then
 			sudo rm -f "${location}/boot/config-${KERNEL_UTS}" || true
@@ -66,23 +50,6 @@ mmc_write_rootfs () {
 
 mmc_write_boot () {
 	echo "Installing ${KERNEL_UTS} to ${partition}"
-
-	if [ -f "${location}/SOC.sh" ] ; then
-		. "${location}/SOC.sh"
-		ZRELADDR=${load_addr}
-	fi
-
-	if [ -f "${location}/uImage_bak" ] ; then
-		sudo rm -f "${location}/uImage_bak" || true
-	fi
-
-	if [ -f "${location}/uImage" ] ; then
-		sudo mv "${location}/uImage" "${location}/uImage_bak"
-	fi
-
-	if [ "${ZRELADDR}" ] ; then
-		sudo mkimage -A arm -O linux -T kernel -C none -a ${ZRELADDR} -e ${ZRELADDR} -n ${KERNEL_UTS} -d "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/uImage"
-	fi
 
 	if [ -f "${location}/zImage_bak" ] ; then
 		sudo rm -f "${location}/zImage_bak" || true
