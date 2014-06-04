@@ -255,6 +255,8 @@ dts () {
 	${git} "${DIR}/patches/dts/0018-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
 #	${git} "${DIR}/patches/dts/0019-ARM-dts-imx6q-udoo-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/dts/0020-ARM-dts-imx6dl-udoo-Add-HDMI-support.patch"
+	${git} "${DIR}/patches/dts/0021-ARM-dts-imx6q-udoo-Add-USB-Host-support.patch"
+	${git} "${DIR}/patches/dts/0022-ARM-dts-imx6dl-udoo-Add-USB-Host-support.patch"
 }
 
 omap_sprz319_erratum () {

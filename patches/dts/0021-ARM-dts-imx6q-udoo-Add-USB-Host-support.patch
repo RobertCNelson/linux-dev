@@ -1,0 +1,70 @@
+From 370878cc25520397dc2eb1207ec048f625b49e31 Mon Sep 17 00:00:00 2001
+From: Fabio Estevam <fabio.estevam@freescale.com>
+Date: Mon, 2 Jun 2014 19:56:21 -0300
+Subject: [PATCH 21/22] ARM: dts: imx6q-udoo: Add USB Host support
+
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ arch/arm/boot/dts/imx6q-udoo.dts | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6q-udoo.dts b/arch/arm/boot/dts/imx6q-udoo.dts
+index 5f2206a..0c7ad42 100644
+--- a/arch/arm/boot/dts/imx6q-udoo.dts
++++ b/arch/arm/boot/dts/imx6q-udoo.dts
+@@ -19,6 +19,23 @@
+ 	memory {
+ 		reg = <0x10000000 0x40000000>;
+ 	};
++
++	regulators {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		reg_usb_h1_vbus: regulator@0 {
++			compatible = "regulator-fixed";
++			reg = <0>;
++			regulator-name = "usb_h1_vbus";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			enable-active-high;
++			startup-delay-us = <2>; /* USB2415 requires a POR of 1 us minimum */
++			gpio = <&gpio7 12 0>;
++		};
++	};
+ };
+ 
+ &fec {
+@@ -77,6 +94,13 @@
+ 			>;
+ 		};
+ 
++		pinctrl_usbh: usbhgrp {
++			fsl,pins = <
++				MX6QDL_PAD_GPIO_17__GPIO7_IO12 0x80000000
++				MX6QDL_PAD_NANDF_CS2__CCM_CLKO2 0x130b0
++			>;
++		};
++
+ 		pinctrl_usdhc3: usdhc3grp {
+ 			fsl,pins = <
+ 				MX6QDL_PAD_SD3_CMD__SD3_CMD		0x17059
+@@ -100,6 +124,14 @@
+ 	status = "okay";
+ };
+ 
++&usbh1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usbh>;
++	vbus-supply = <&reg_usb_h1_vbus>;
++	clocks = <&clks 201>;
++	status = "okay";
++};
++
+ &usdhc3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_usdhc3>;
+-- 
+2.0.0.rc2
+
