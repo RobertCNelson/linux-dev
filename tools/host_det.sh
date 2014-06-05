@@ -43,6 +43,8 @@ redhat_reqs () {
 	check_rpm
 	pkg="gcc"
 	check_rpm
+	pkg="lzop"
+	check_rpm
 	pkg="ncurses-devel"
 	check_rpm
 	pkg="wget"
