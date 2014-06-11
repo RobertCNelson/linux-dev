@@ -27,12 +27,12 @@ config="multi_v7_defconfig"
 toolchain="gcc_linaro_gnueabihf_4_9"
 
 #Kernel/Build
-KERNEL_REL=3.16
+KERNEL_REL=3.15
 KERNEL_TAG=${KERNEL_REL}
-BUILD=armv7-devel-r11
+BUILD=armv7-devel-r12
 
 #v3.X-rcX + upto SHA
-KERNEL_SHA="963649d735c8b6eb0f97e82c54f02426ff3f1f45"
+KERNEL_SHA="dfb945473ae8528fd885607b6fa843c676745e0c"
 
 #git branch
 #BRANCH="v3.16.x"
