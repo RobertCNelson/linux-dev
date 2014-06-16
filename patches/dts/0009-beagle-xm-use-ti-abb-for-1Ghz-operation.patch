@@ -1,0 +1,47 @@
+From a80b3e48f49d55545c964766d6cc35e72bbc8705 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 30 Jan 2014 12:46:45 -0600
+Subject: [PATCH 09/17] beagle-xm use ti-abb for 1Ghz operation
+
+v3.14-rc0: sysclk -> dpll1_ck
+rebased with Nishanth Menon patchset
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/omap3-beagle-xm.dts | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
+index cf0be66..b3133ad 100644
+--- a/arch/arm/boot/dts/omap3-beagle-xm.dts
++++ b/arch/arm/boot/dts/omap3-beagle-xm.dts
+@@ -16,6 +16,26 @@
+ 	cpus {
+ 		cpu@0 {
+ 			cpu0-supply = <&vcc>;
++			operating-points = <
++				/* kHz    uV */
++				300000  1012500
++				600000  1200000
++				800000  1325000
++				1000000  1380000
++			>;
++		};
++	};
++
++	ocp {
++		abb_mpu_iva: regulator-abb-mpu {
++			clocks = <&dpll1_ck>;
++			ti,abb_info = <
++				/* uV           ABB     efuse   rbb_m   fbb_m   vset_m */
++				1012500         0       0       0       0       0 /* Bypass */
++				1200000         3       0       0       0       0 /* RBB mandatory */
++				1320000         1       0       0       0       0 /* FBB mandatory */
++				1380000         1       0       0       0       0
++				>;
+ 		};
+ 	};
+ 
+-- 
+2.0.0
+
