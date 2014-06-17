@@ -102,6 +102,14 @@ config="CONFIG_SOC_AM43XX"
 check_config_disable
 
 #
+# OMAP Legacy Platform Data Board Type
+#
+config="CONFIG_MACH_SUN4I"
+check_config_disable
+config="CONFIG_MACH_SUN5I"
+check_config_disable
+
+#
 # Processor Features
 #
 config="CONFIG_ARM_LPAE"

@@ -313,5 +313,4 @@ check_config_disable
 config="CONFIG_DRM_IMX"
 check_config_disable
 
-
 #
