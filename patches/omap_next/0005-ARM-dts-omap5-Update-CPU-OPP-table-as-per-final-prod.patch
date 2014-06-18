@@ -1,0 +1,41 @@
+From 27fef2d52ac0777f61a34c2451ba89e3086a5aa6 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 5 Jun 2014 20:09:46 -0500
+Subject: [PATCH 05/10] ARM: dts: omap5: Update CPU OPP table as per final
+ production Manual
+
+As per the Final production Data Manual for OMAP5432,
+SWPS050F(APRIL 2014)
+
+There are only two OPPs - 1GHz and 1.5GHz. the older OPP_LOW has been
+completely descoped. The Nominal voltages are still correct though.
+However, expectation for final production configuration is operation
+with Adaptive Body Bias (ABB) and Adaptive Voltage Scaling Class 0
+operation.
+
+There are no IDcode or version change information encoded to
+programmatically detect this and software is supposed to NOT use
+OPP_LOW(500MHz) anymore for all devices (legacy and production
+samples).
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/boot/dts/omap5.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 3bfda16..a4ed549 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -45,7 +45,6 @@
+ 
+ 			operating-points = <
+ 				/* kHz    uV */
+-				500000  880000
+ 				1000000 1060000
+ 				1500000 1250000
+ 			>;
+-- 
+2.0.0
+

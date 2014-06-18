@@ -1,0 +1,32 @@
+From 11859f203ae0653c8f449ba717ef664263fd1cf6 Mon Sep 17 00:00:00 2001
+From: Sourav Poddar <sourav.poddar@ti.com>
+Date: Tue, 17 Jun 2014 12:29:21 +0530
+Subject: [PATCH 10/10] ARM: dts: dra7-evm: remove interrupt binding
+
+The qspi node defines crossbar number as its interrupt number. But,
+the crossbar dts patches are not yet there, this causes a warning during
+boot.  So interrupts = < > property should be removed from DT and added
+later by crossbar series.
+
+Reported-by: Sricharan R <r.sricharan@ti.com>
+Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/boot/dts/dra7.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index dca96b9..8012763 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -773,7 +773,6 @@
+ 			clocks = <&qspi_gfclk_div>;
+ 			clock-names = "fck";
+ 			num-cs = <4>;
+-			interrupts = <0 343 0x4>;
+ 			status = "disabled";
+ 		};
+ 
+-- 
+2.0.0
+
