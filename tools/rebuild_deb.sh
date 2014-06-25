@@ -27,7 +27,7 @@ mkdir -p ${DIR}/deploy/
 patch_kernel () {
 	cd ${DIR}/KERNEL
 
-	export DIR GIT_OPTS
+	export DIR
 	/bin/sh -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
 
 	if [ ! "${RUN_BISECT}" ] ; then
@@ -156,11 +156,7 @@ make_dtbs_pkg () {
 /bin/sh -e ${DIR}/tools/host_det.sh || { exit 1 ; }
 
 if [ ! -f ${DIR}/system.sh ] ; then
-	cp ${DIR}/system.sh.sample ${DIR}/system.sh
-else
-	#fixes for bash -> sh conversion...
-	sed -i 's/bash/sh/g' ${DIR}/system.sh
-	sed -i 's/==/=/g' ${DIR}/system.sh
+	cp -v ${DIR}/system.sh.sample ${DIR}/system.sh
 fi
 
 unset CC
