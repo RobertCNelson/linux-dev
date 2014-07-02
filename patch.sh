@@ -168,4 +168,19 @@ omap_sprz319_erratum
 fixes
 vivante
 
+packaging_setup () {
+	cp -v "${DIR}/3rdparty/packaging/builddeb" "${DIR}/KERNEL/scripts/package"
+	git commit -a -m 'packaging: sync with mainline' -s
+
+	git format-patch -1 -o "${DIR}/patches/packaging"
+}
+
+packaging () {
+	echo "dir: packaging"
+	#${git} "${DIR}/patches/packaging/0001-packaging-sync-with-mainline.patch"
+	${git} "${DIR}/patches/packaging/0002-deb-pkg-install-dtbs-in-linux-image-package.patch"
+}
+
+#packaging_setup
+packaging
 echo "patch.sh ran successful"
