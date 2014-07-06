@@ -159,7 +159,7 @@ vivante () {
 #revert
 drivers
 #imx_next
-omap_next
+#omap_next
 #tegra_next
 
 dts
