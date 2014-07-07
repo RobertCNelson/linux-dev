@@ -45,6 +45,41 @@ mmc_write_rootfs () {
 	fi
 }
 
+mmc_write_boot_uname () {
+	echo "Installing ${KERNEL_UTS}"
+
+	if [ -f "${location}/vmlinuz-${KERNEL_UTS}_bak" ] ; then
+		sudo rm -f "${location}/vmlinuz-${KERNEL_UTS}_bak" || true
+	fi
+
+	if [ -f "${location}/vmlinuz-${KERNEL_UTS}" ] ; then
+		sudo mv "${location}/vmlinuz-${KERNEL_UTS}" "${location}/vmlinuz-${KERNEL_UTS}_bak"
+	fi
+
+	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/vmlinuz-${KERNEL_UTS}"
+
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
+		if [ -d "${location}/dtbs/${KERNEL_UTS}_bak/" ] ; then
+			sudo rm -rf "${location}/dtbs/${KERNEL_UTS}_bak/" || true
+		fi
+
+		if [ -d "${location}/dtbs/${KERNEL_UTS}/" ] ; then
+			sudo mv "${location}/dtbs/${KERNEL_UTS}/" "${location}/dtbs/${KERNEL_UTS}_bak/" || true
+		fi
+
+		sudo mkdir -p "${location}/dtbs/${KERNEL_UTS}/"
+
+		echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
+		sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/${KERNEL_UTS}/"
+		sync
+	fi
+
+	older_kernel=$(grep uname_r "${location}/uEnv.txt" | awk -F"=" '{print $2}')
+	sudo sed -i -e 's:'${older_kernel}':'${KERNEL_UTS}':g' "${location}/uEnv.txt"
+	echo "info: /boot/uEnv.txt: `grep uname_r ${location}/uEnv.txt`"
+	echo "info: [${KERNEL_UTS}] now installed..."
+}
+
 mmc_write_boot () {
 	echo "Installing ${KERNEL_UTS}"
 
@@ -78,7 +113,14 @@ if [ -f "${DIR}/system.sh" ] ; then
 
 	if [ -f "${DIR}/KERNEL/arch/arm/boot/zImage" ] ; then
 		KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
-		if [ -f "/boot/uboot/uEnv.txt" ] ; then
+		if [ -f "/boot/uEnv.txt" ] ; then
+			location="/boot/"
+			mmc_write_boot_uname
+			location=""
+			mmc_write_rootfs
+			sync
+
+		elif [ -f "/boot/uboot/uEnv.txt" ] ; then
 			location="/boot/uboot"
 			mmc_write_boot
 			location=""
