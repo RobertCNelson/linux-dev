@@ -157,6 +157,7 @@ dts () {
 	${git} "${DIR}/patches/dts/0015-ARM-dts-imx6dl-udoo-Add-HDMI-support.patch"
 	${git} "${DIR}/patches/dts/0016-ARM-dts-imx6q-udoo-Add-USB-Host-support.patch"
 	${git} "${DIR}/patches/dts/0017-ARM-dts-imx6dl-udoo-Add-USB-Host-support.patch"
+	${git} "${DIR}/patches/dts/0018-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
 }
 
 omap_sprz319_erratum () {
