@@ -1,0 +1,40 @@
+From 2f8460722e11b95e0ea6f998583a6d8054892024 Mon Sep 17 00:00:00 2001
+From: Keerthy <j-keerthy@ti.com>
+Date: Mon, 14 Jul 2014 16:12:16 +0530
+Subject: [PATCH 33/43] ARM: dts: dra7xx-clocks: Add divider table to
+ optfclk_pciephy_div clock
+
+Add divider table to optfclk_pciephy_div clock. The 8th bit of
+CM_CLKMODE_APLL_PCIE can be programmed to either 0x0 or 0x1
+based on if the divider value is 0x2 or 0x1.
+
+Figure 26-21. PCIe PHY Clock Generator Overview in vE of DRA7xx ES1.0 shows the
+block diagram of Clock Generator Subsystem of PCIe PHY module. The divider
+value if '1' should be programmed in order to get the correct
+PCIE_PHY_DIV_GCLK frequency (2.5GHz).
+
+Cc: Rajendra Nayak <rnayak@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Cc: Paul Walmsley <paul@pwsan.com>
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/boot/dts/dra7xx-clocks.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/dra7xx-clocks.dtsi b/arch/arm/boot/dts/dra7xx-clocks.dtsi
+index dc7a292..2c4a988 100644
+--- a/arch/arm/boot/dts/dra7xx-clocks.dtsi
++++ b/arch/arm/boot/dts/dra7xx-clocks.dtsi
+@@ -1172,6 +1172,7 @@
+ 		clocks = <&apll_pcie_ck>;
+ 		#clock-cells = <0>;
+ 		reg = <0x021c>;
++		ti,dividers = <2>, <1>;
+ 		ti,bit-shift = <8>;
+ 		ti,max-div = <2>;
+ 	};
+-- 
+2.0.1
+

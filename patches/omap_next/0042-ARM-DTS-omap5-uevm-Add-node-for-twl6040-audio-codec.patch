@@ -1,0 +1,56 @@
+From fb23152d5031d01f5c90dfcd3eef59aa7aede755 Mon Sep 17 00:00:00 2001
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Date: Thu, 10 Jul 2014 14:24:02 +0300
+Subject: [PATCH 42/43] ARM: DTS: omap5-uevm: Add node for twl6040 audio codec
+
+The board uses twl6040 as audio codec. Move the corresponding  pinctrl as
+well under the node.
+twl6040 needs 32k clock from palams.
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/boot/dts/omap5-uevm.dts | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap5-uevm.dts b/arch/arm/boot/dts/omap5-uevm.dts
+index 9166d479..c928616 100644
+--- a/arch/arm/boot/dts/omap5-uevm.dts
++++ b/arch/arm/boot/dts/omap5-uevm.dts
+@@ -105,7 +105,6 @@
+ &omap5_pmx_core {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <
+-			&twl6040_pins
+ 			&mcpdm_pins
+ 			&mcbsp1_pins
+ 			&mcbsp2_pins
+@@ -494,6 +493,25 @@
+ 			};
+ 		};
+ 	};
++
++	twl6040: twl@4b {
++		compatible = "ti,twl6040";
++		reg = <0x4b>;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&twl6040_pins>;
++
++		interrupts = <GIC_SPI 119 IRQ_TYPE_NONE>; /* IRQ_SYS_2N cascaded to gic */
++		interrupt-parent = <&gic>;
++		ti,audpwron-gpio = <&gpio5 13 0>;  /* gpio line 141 */
++
++		vio-supply = <&smps7_reg>;
++		v2v1-supply = <&smps9_reg>;
++		enable-active-high;
++
++		clocks = <&clk32kgaudio>;
++		clock-names = "clk32k";
++	};
+ };
+ 
+ &i2c5 {
+-- 
+2.0.1
+

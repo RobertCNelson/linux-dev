@@ -81,19 +81,51 @@ imx_next () {
 
 omap_next () {
 	echo "dir: omap_next"
-	#from: https://git.kernel.org/cgit/linux/kernel/git/bcousson/linux-omap-dt.git/log/?h=for_3.13/dts
-	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/bcousson/linux-omap-dt.git for_3.13/dts
+	#from: https://git.kernel.org/cgit/linux/kernel/git/tmlind/linux-omap.git/
 
-	${git} "${DIR}/patches/omap_next/0001-ARM-OMAP2-hwmod-Change-hardreset-soc_ops-for-AM43XX.patch"
-	${git} "${DIR}/patches/omap_next/0002-ARM-OMAP5-hwmod-Add-ocp2scp3-and-sata-hwmods.patch"
-	${git} "${DIR}/patches/omap_next/0003-ARM-dts-Enable-twl4030-off-idle-configuration-for-se.patch"
-	${git} "${DIR}/patches/omap_next/0004-ARM-DRA722-add-detection-of-SoC-information.patch"
-	${git} "${DIR}/patches/omap_next/0005-ARM-dts-omap5-Update-CPU-OPP-table-as-per-final-prod.patch"
-	${git} "${DIR}/patches/omap_next/0006-ARM-dts-am43x-epos-evm-Add-Missing-cpsw-phy-sel-for-.patch"
-	${git} "${DIR}/patches/omap_next/0007-ARM-OMAP2-drop-unused-function.patch"
-	${git} "${DIR}/patches/omap_next/0008-ARM-DTS-dra7-dra7xx-clocks-ATL-related-changes.patch"
-	${git} "${DIR}/patches/omap_next/0009-ARM-OMAP2-Fix-parser-bug-in-platform-muxing-code.patch"
-	${git} "${DIR}/patches/omap_next/0010-ARM-dts-dra7-evm-remove-interrupt-binding.patch"
+	${git} "${DIR}/patches/omap_next/0001-irqchip-crossbar-Dont-use-0-to-mark-reserved-interru.patch"
+	${git} "${DIR}/patches/omap_next/0002-irqchip-crossbar-Check-for-premapped-crossbar-before.patch"
+	${git} "${DIR}/patches/omap_next/0003-irqchip-crossbar-Introduce-ti-irqs-skip-to-skip-irqs.patch"
+	${git} "${DIR}/patches/omap_next/0004-irqchip-crossbar-Initialise-the-crossbar-with-a-safe.patch"
+	${git} "${DIR}/patches/omap_next/0005-irqchip-crossbar-Change-allocation-logic-by-reversin.patch"
+	${git} "${DIR}/patches/omap_next/0006-irqchip-crossbar-Remove-IS_ERR_VALUE-check.patch"
+	${git} "${DIR}/patches/omap_next/0007-irqchip-crossbar-Fix-sparse-and-checkpatch-warnings.patch"
+	${git} "${DIR}/patches/omap_next/0008-irqchip-crossbar-Fix-kerneldoc-warning.patch"
+	${git} "${DIR}/patches/omap_next/0009-irqchip-crossbar-Return-proper-error-value.patch"
+	${git} "${DIR}/patches/omap_next/0010-irqchip-crossbar-Change-the-goto-naming.patch"
+	${git} "${DIR}/patches/omap_next/0011-irqchip-crossbar-Set-cb-pointer-to-null-in-case-of-e.patch"
+	${git} "${DIR}/patches/omap_next/0012-irqchip-crossbar-Add-kerneldoc-for-crossbar_domain_u.patch"
+	${git} "${DIR}/patches/omap_next/0013-irqchip-crossbar-Introduce-ti-max-crossbar-sources-t.patch"
+	${git} "${DIR}/patches/omap_next/0014-irqchip-crossbar-Introduce-centralized-check-for-cro.patch"
+	${git} "${DIR}/patches/omap_next/0015-documentation-dt-omap-crossbar-Add-description-for-i.patch"
+	${git} "${DIR}/patches/omap_next/0016-irqchip-crossbar-Allow-for-quirky-hardware-with-dire.patch"
+	${git} "${DIR}/patches/omap_next/0017-ARM-dts-am4372-let-boards-access-all-nodes-through-l.patch"
+	${git} "${DIR}/patches/omap_next/0018-ARM-dts-add-support-for-AM437x-StarterKit.patch"
+	${git} "${DIR}/patches/omap_next/0019-ARM-OMAP2-convert-sys_ck-and-osc_ck-to-standard-cloc.patch"
+	${git} "${DIR}/patches/omap_next/0020-ARM-dts-am335x-evmsk-enable-display-and-lcd-panel-su.patch"
+	${git} "${DIR}/patches/omap_next/0021-ARM-OMAP2420-clock-get-rid-of-fixed-div-property-use.patch"
+	${git} "${DIR}/patches/omap_next/0022-ARM-OMAP2-PRM-add-support-for-OMAP2-specific-clock-p.patch"
+	${git} "${DIR}/patches/omap_next/0023-ARM-OMAP2-clock-use-DT-clock-boot-if-available.patch"
+	${git} "${DIR}/patches/omap_next/0024-ARM-OMAP24xx-clock-remove-legacy-clock-data.patch"
+	${git} "${DIR}/patches/omap_next/0025-ARM-dts-dra7-add-routable-irqs-property-for-gic-node.patch"
+	${git} "${DIR}/patches/omap_next/0026-ARM-dts-dra7-add-crossbar-device-binding.patch"
+	${git} "${DIR}/patches/omap_next/0027-ARM-dts-Add-devicetree-for-Gumstix-Pepper-board.patch"
+	${git} "${DIR}/patches/omap_next/0028-ARM-dts-AM43x-Add-TPS65218-device-tree-nodes.patch"
+	${git} "${DIR}/patches/omap_next/0029-ARM-dts-AM437x-Fix-i2c-nodes-indentation.patch"
+	${git} "${DIR}/patches/omap_next/0030-ARM-dts-AM437x-Add-TPS65218-device-tree-nodes.patch"
+	${git} "${DIR}/patches/omap_next/0031-ARM-omap2plus_defconfig-enable-TPS65218-configs.patch"
+	${git} "${DIR}/patches/omap_next/0032-ARM-dts-dra7-evm-Add-regulator-information-to-USB2-P.patch"
+	${git} "${DIR}/patches/omap_next/0033-ARM-dts-dra7xx-clocks-Add-divider-table-to-optfclk_p.patch"
+	${git} "${DIR}/patches/omap_next/0034-ARM-dts-dra7xx-clocks-Change-the-parent-of-apll_pcie.patch"
+	${git} "${DIR}/patches/omap_next/0035-ARM-dts-dra7xx-clocks-Add-missing-32KHz-clocks-used-.patch"
+	${git} "${DIR}/patches/omap_next/0036-ARM-dts-dra7xx-clocks-rename-pcie-clocks-to-accommod.patch"
+	${git} "${DIR}/patches/omap_next/0037-ARM-dts-dra7xx-clocks-Add-missing-clocks-for-second-.patch"
+	${git} "${DIR}/patches/omap_next/0038-ARM-dts-dra7-Add-dt-data-for-PCIe-PHY-control-module.patch"
+	${git} "${DIR}/patches/omap_next/0039-ARM-dts-dra7-Add-dt-data-for-PCIe-PHY.patch"
+	${git} "${DIR}/patches/omap_next/0040-ARM-dts-dra7-Add-dt-data-for-PCIe-controller.patch"
+	${git} "${DIR}/patches/omap_next/0041-ARM-DTS-omap5-uevm-Enable-palmas-clk32kgaudio-clock.patch"
+	${git} "${DIR}/patches/omap_next/0042-ARM-DTS-omap5-uevm-Add-node-for-twl6040-audio-codec.patch"
+	${git} "${DIR}/patches/omap_next/0043-ARM-DTS-omap5-uevm-Enable-basic-audio-McPDM-twl6040.patch"
 }
 
 tegra_next () {
@@ -159,7 +191,7 @@ vivante () {
 #revert
 drivers
 #imx_next
-#omap_next
+omap_next
 #tegra_next
 
 dts

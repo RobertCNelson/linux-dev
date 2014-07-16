@@ -1,0 +1,44 @@
+From fbd0f25ea847ffd44a78f0f71e839bb7c5a95df8 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 26 Jun 2014 12:40:24 +0530
+Subject: [PATCH 06/43] irqchip: crossbar: Remove IS_ERR_VALUE check
+
+IS_ERR_VALUE makes sense only *if* there could be valid values in
+negative error range. But in the cases that we do use it, there is no
+such case. Just remove the same.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Sricharan R <r.sricharan@ti.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Link: https://lkml.kernel.org/r/1403766634-18543-7-git-send-email-r.sricharan@ti.com
+Signed-off-by: Jason Cooper <jason@lakedaemon.net>
+---
+ drivers/irqchip/irq-crossbar.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/irqchip/irq-crossbar.c b/drivers/irqchip/irq-crossbar.c
+index a39cb31..88fbe0f 100644
+--- a/drivers/irqchip/irq-crossbar.c
++++ b/drivers/irqchip/irq-crossbar.c
+@@ -102,15 +102,15 @@ static int crossbar_domain_xlate(struct irq_domain *d,
+ 				 unsigned long *out_hwirq,
+ 				 unsigned int *out_type)
+ {
+-	unsigned long ret;
++	int ret;
+ 
+ 	ret = get_prev_map_irq(intspec[1]);
+-	if (!IS_ERR_VALUE(ret))
++	if (ret >= 0)
+ 		goto found;
+ 
+ 	ret = allocate_free_irq(intspec[1]);
+ 
+-	if (IS_ERR_VALUE(ret))
++	if (ret < 0)
+ 		return ret;
+ 
+ found:
+-- 
+2.0.1
+

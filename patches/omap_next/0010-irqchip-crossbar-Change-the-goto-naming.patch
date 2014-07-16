@@ -1,0 +1,108 @@
+From 0be42b57f6146a6e1bae2f390c45a4dc7976eb98 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 26 Jun 2014 12:40:28 +0530
+Subject: [PATCH 10/43] irqchip: crossbar: Change the goto naming
+
+Using err1,2,3,4 etc makes it hard to ensure a new exit path in the
+middle will not result in spurious changes, so rename the error paths
+as per the function it does.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Sricharan R <r.sricharan@ti.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Link: https://lkml.kernel.org/r/1403766634-18543-11-git-send-email-r.sricharan@ti.com
+Signed-off-by: Jason Cooper <jason@lakedaemon.net>
+---
+ drivers/irqchip/irq-crossbar.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/irqchip/irq-crossbar.c b/drivers/irqchip/irq-crossbar.c
+index 10d723d..afc35fd 100644
+--- a/drivers/irqchip/irq-crossbar.c
++++ b/drivers/irqchip/irq-crossbar.c
+@@ -140,17 +140,17 @@ static int __init crossbar_of_init(struct device_node *node)
+ 
+ 	cb->crossbar_base = of_iomap(node, 0);
+ 	if (!cb->crossbar_base)
+-		goto err1;
++		goto err_cb;
+ 
+ 	of_property_read_u32(node, "ti,max-irqs", &max);
+ 	if (!max) {
+ 		pr_err("missing 'ti,max-irqs' property\n");
+ 		ret = -EINVAL;
+-		goto err2;
++		goto err_base;
+ 	}
+ 	cb->irq_map = kcalloc(max, sizeof(int), GFP_KERNEL);
+ 	if (!cb->irq_map)
+-		goto err2;
++		goto err_base;
+ 
+ 	cb->int_max = max;
+ 
+@@ -169,7 +169,7 @@ static int __init crossbar_of_init(struct device_node *node)
+ 			if (entry > max) {
+ 				pr_err("Invalid reserved entry\n");
+ 				ret = -EINVAL;
+-				goto err3;
++				goto err_irq_map;
+ 			}
+ 			cb->irq_map[entry] = IRQ_RESERVED;
+ 		}
+@@ -187,7 +187,7 @@ static int __init crossbar_of_init(struct device_node *node)
+ 			if (entry > max) {
+ 				pr_err("Invalid skip entry\n");
+ 				ret = -EINVAL;
+-				goto err3;
++				goto err_irq_map;
+ 			}
+ 			cb->irq_map[entry] = IRQ_SKIP;
+ 		}
+@@ -196,7 +196,7 @@ static int __init crossbar_of_init(struct device_node *node)
+ 
+ 	cb->register_offsets = kcalloc(max, sizeof(int), GFP_KERNEL);
+ 	if (!cb->register_offsets)
+-		goto err3;
++		goto err_irq_map;
+ 
+ 	of_property_read_u32(node, "ti,reg-size", &size);
+ 
+@@ -213,7 +213,7 @@ static int __init crossbar_of_init(struct device_node *node)
+ 	default:
+ 		pr_err("Invalid reg-size property\n");
+ 		ret = -EINVAL;
+-		goto err4;
++		goto err_reg_offset;
+ 		break;
+ 	}
+ 
+@@ -230,7 +230,6 @@ static int __init crossbar_of_init(struct device_node *node)
+ 	}
+ 
+ 	of_property_read_u32(node, "ti,irqs-safe-map", &cb->safe_map);
+-
+ 	/* Initialize the crossbar with safe map to start with */
+ 	for (i = 0; i < max; i++) {
+ 		if (cb->irq_map[i] == IRQ_RESERVED ||
+@@ -243,13 +242,13 @@ static int __init crossbar_of_init(struct device_node *node)
+ 	register_routable_domain_ops(&routable_irq_domain_ops);
+ 	return 0;
+ 
+-err4:
++err_reg_offset:
+ 	kfree(cb->register_offsets);
+-err3:
++err_irq_map:
+ 	kfree(cb->irq_map);
+-err2:
++err_base:
+ 	iounmap(cb->crossbar_base);
+-err1:
++err_cb:
+ 	kfree(cb);
+ 	return ret;
+ }
+-- 
+2.0.1
+

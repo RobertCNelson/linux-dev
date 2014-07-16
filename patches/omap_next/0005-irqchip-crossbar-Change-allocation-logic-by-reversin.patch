@@ -1,0 +1,56 @@
+From 725f7ff2cc8ed6b1cf6ed564b55f341d2a61ba11 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 26 Jun 2014 12:40:23 +0530
+Subject: [PATCH 05/43] irqchip: crossbar: Change allocation logic by reversing
+ search for free irqs
+
+Reverse the search algorithm to ensure that address mapping and IRQ
+allocation logics are proper. This makes the below bugs visible sooner.
+
+class 1. address space errors -> example:
+reg = <a size_b>
+ti,max-irqs =  is a wrong parameter
+
+class 2: irq-reserved list - which decides which entries in the
+address space is not actually wired in
+
+class 3: wrong list of routable-irqs.
+
+In general allocating from max to min tends to have benefits in
+ensuring the different issues that may be present in dts is easily
+caught at definition time, rather than at a later point in time.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Sricharan R <r.sricharan@ti.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
+Link: https://lkml.kernel.org/r/1403766634-18543-6-git-send-email-r.sricharan@ti.com
+Signed-off-by: Jason Cooper <jason@lakedaemon.net>
+---
+ drivers/irqchip/irq-crossbar.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/irqchip/irq-crossbar.c b/drivers/irqchip/irq-crossbar.c
+index 4be30c0..a39cb31 100644
+--- a/drivers/irqchip/irq-crossbar.c
++++ b/drivers/irqchip/irq-crossbar.c
+@@ -58,7 +58,7 @@ static inline int get_prev_map_irq(int cb_no)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < cb->int_max; i++)
++	for (i = cb->int_max - 1; i >= 0; i--)
+ 		if (cb->irq_map[i] == cb_no)
+ 			return i;
+ 
+@@ -69,7 +69,7 @@ static inline int allocate_free_irq(int cb_no)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < cb->int_max; i++) {
++	for (i = cb->int_max - 1; i >= 0; i--) {
+ 		if (cb->irq_map[i] == IRQ_FREE) {
+ 			cb->irq_map[i] = cb_no;
+ 			return i;
+-- 
+2.0.1
+
