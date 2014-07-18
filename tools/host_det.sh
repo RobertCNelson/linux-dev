@@ -290,13 +290,14 @@ debian_regs () {
 			#14.04: lts: trusty -> xyz
 			unset warn_eol_distro
 			;;
-		quantal|saucy)
-			#12.10|13.10
+		saucy)
+			#13.10
 			unset warn_eol_distro
 			;;
-		raring)
-			#13.04
+		quantal|raring)
+			#12.10|13.04
 			warn_eol_distro=1
+			stop_pkg_search=1
 			;;
 		precise)
 			#12.04: lts: precise -> trusty
@@ -359,7 +360,7 @@ debian_regs () {
 				pkg="ia32-libs"
 				check_dpkg
 				;;
-			wheezy|jessie|sid|quantal|raring|saucy|trusty|utopic)
+			wheezy|jessie|sid|saucy|trusty|utopic)
 				pkg="libc6:i386"
 				check_dpkg
 				pkg="libncurses5:i386"
