@@ -275,6 +275,7 @@ export LINUX_GIT
 FULL_REBUILD=1
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
+	cp "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
 
 	if [ "${RUN_BISECT}" ] ; then
 		/bin/sh -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
