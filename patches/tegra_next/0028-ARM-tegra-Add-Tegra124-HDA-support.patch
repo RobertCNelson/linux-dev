@@ -1,0 +1,42 @@
+From e2155d6e4c3824191ecf1b8caab560c0cd587e66 Mon Sep 17 00:00:00 2001
+From: Dylan Reid <dgreid@chromium.org>
+Date: Mon, 19 May 2014 19:35:45 -0700
+Subject: [PATCH 28/45] ARM: tegra: Add Tegra124 HDA support
+
+Add a device node for the HDA controller found on Tegra124.
+
+Signed-off-by: Dylan Reid <dgreid@chromium.org>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+---
+ arch/arm/boot/dts/tegra124.dtsi | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/arch/arm/boot/dts/tegra124.dtsi b/arch/arm/boot/dts/tegra124.dtsi
+index 226941c..d675186 100644
+--- a/arch/arm/boot/dts/tegra124.dtsi
++++ b/arch/arm/boot/dts/tegra124.dtsi
+@@ -464,6 +464,21 @@
+ 		reset-names = "fuse";
+ 	};
+ 
++	hda@0,70030000 {
++		compatible = "nvidia,tegra124-hda", "nvidia,tegra30-hda";
++		reg = <0x0 0x70030000 0x0 0x10000>;
++		interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&tegra_car TEGRA124_CLK_HDA>,
++		         <&tegra_car TEGRA124_CLK_HDA2HDMI>,
++			 <&tegra_car TEGRA124_CLK_HDA2CODEC_2X>;
++		clock-names = "hda", "hda2hdmi", "hdacodec_2x";
++		resets = <&tegra_car 125>, /* hda */
++			 <&tegra_car 128>, /* hda2hdmi */
++			 <&tegra_car 111>; /* hda2codec_2x */
++		reset-names = "hda", "hda2hdmi", "hdacodec_2x";
++		status = "disabled";
++	};
++
+ 	sdhci@0,700b0000 {
+ 		compatible = "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0000 0x0 0x200>;
+-- 
+2.0.1
+

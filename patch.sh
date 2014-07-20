@@ -258,6 +258,52 @@ tegra_next () {
 	echo "dir: tegra_next"
 	#From: https://git.kernel.org/cgit/linux/kernel/git/tegra/linux.git/log/?h=for-next
 	#git pull --no-edit git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git for-next
+
+	${git} "${DIR}/patches/tegra_next/0001-ARM-tegra-rebuild-tegra_defconfig.patch"
+	${git} "${DIR}/patches/tegra_next/0002-ARM-dts-Create-a-cros-ec-keyboard-fragment.patch"
+	${git} "${DIR}/patches/tegra_next/0003-ARM-tegra-Use-the-cros-ec-keyboard-fragment-in-venic.patch"
+	${git} "${DIR}/patches/tegra_next/0004-ARM-dts-Use-the-cros-ec-keyboard-fragment-in-exynos5.patch"
+	${git} "${DIR}/patches/tegra_next/0005-PCI-tegra-Overhaul-regulator-usage.patch"
+	${git} "${DIR}/patches/tegra_next/0006-ARM-tegra-Add-new-PCIe-regulator-properties.patch"
+	${git} "${DIR}/patches/tegra_next/0007-kernel-add-calibration_delay_done.patch"
+	${git} "${DIR}/patches/tegra_next/0008-ARM-choose-highest-resolution-delay-timer.patch"
+	${git} "${DIR}/patches/tegra_next/0009-clocksource-tegra-Use-us-counter-as-delay-timer.patch"
+	${git} "${DIR}/patches/tegra_next/0010-ARM-tegra-enable-igb-stmpe-i2c-chardev-lm95245-pwm-l.patch"
+	${git} "${DIR}/patches/tegra_next/0011-of-Add-NVIDIA-Tegra-XUSB-pad-controller-binding.patch"
+	${git} "${DIR}/patches/tegra_next/0012-pinctrl-Add-NVIDIA-Tegra-XUSB-pad-controller-support.patch"
+	${git} "${DIR}/patches/tegra_next/0013-ARM-tegra-Move-includes-to-include-soc-tegra.patch"
+	${git} "${DIR}/patches/tegra_next/0014-ARM-tegra-Sort-includes-alphabetically.patch"
+	${git} "${DIR}/patches/tegra_next/0015-ARM-tegra-Use-a-function-to-get-the-chip-ID.patch"
+	${git} "${DIR}/patches/tegra_next/0016-ARM-tegra-export-apb-dma-readl-writel.patch"
+	${git} "${DIR}/patches/tegra_next/0017-ARM-tegra-move-fuse-exports-to-soc-tegra-fuse.h.patch"
+	${git} "${DIR}/patches/tegra_next/0018-soc-tegra-Add-efuse-driver-for-Tegra.patch"
+	${git} "${DIR}/patches/tegra_next/0019-soc-tegra-Add-efuse-and-apbmisc-bindings.patch"
+	${git} "${DIR}/patches/tegra_next/0020-soc-tegra-fuse-move-APB-DMA-into-Tegra20-fuse-driver.patch"
+	${git} "${DIR}/patches/tegra_next/0021-soc-tegra-fuse-fix-dummy-functions.patch"
+	${git} "${DIR}/patches/tegra_next/0022-soc-tegra-Implement-runtime-check-for-Tegra-SoCs.patch"
+	${git} "${DIR}/patches/tegra_next/0023-ARM-tegra-Setup-CPU-hotplug-in-a-pure-initcall.patch"
+	${git} "${DIR}/patches/tegra_next/0024-ARM-tegra-Always-lock-the-CPU-reset-vector.patch"
+	${git} "${DIR}/patches/tegra_next/0025-soc-tegra-fuse-Set-up-in-early-initcall.patch"
+	${git} "${DIR}/patches/tegra_next/0026-ARM-tegra-Convert-PMC-to-a-driver.patch"
+	${git} "${DIR}/patches/tegra_next/0027-ARM-tegra-Add-the-EC-i2c-tunnel-to-tegra124-venice2.patch"
+	${git} "${DIR}/patches/tegra_next/0028-ARM-tegra-Add-Tegra124-HDA-support.patch"
+	${git} "${DIR}/patches/tegra_next/0029-ARM-tegra-venice2-Enable-HDA.patch"
+	${git} "${DIR}/patches/tegra_next/0030-ARM-tegra-jetson-tk1-mark-eMMC-as-non-removable.patch"
+	${git} "${DIR}/patches/tegra_next/0031-ARM-tegra-initial-support-for-apalis-t30.patch"
+	${git} "${DIR}/patches/tegra_next/0032-ARM-tegra-tamonten-add-the-base-board-regulators.patch"
+	${git} "${DIR}/patches/tegra_next/0033-ARM-tegra-tamonten-add-the-display-to-the-Medcom-Wid.patch"
+	${git} "${DIR}/patches/tegra_next/0034-ARM-tegra-Migrate-Apalis-T30-PCIe-power-supply-schem.patch"
+	${git} "${DIR}/patches/tegra_next/0035-ARM-tegra-roth-fix-unsupported-pinmux-properties.patch"
+	${git} "${DIR}/patches/tegra_next/0036-ARM-tegra-roth-enable-input-on-mmc-clock-pins.patch"
+	${git} "${DIR}/patches/tegra_next/0037-ARM-tegra-of-add-GK20A-device-tree-binding.patch"
+	${git} "${DIR}/patches/tegra_next/0038-ARM-tegra-add-GK20A-GPU-to-Tegra124-DT.patch"
+	${git} "${DIR}/patches/tegra_next/0039-ARM-tegra-tegra124-Add-XUSB-pad-controller.patch"
+	${git} "${DIR}/patches/tegra_next/0040-ARM-tegra-jetson-tk1-Add-XUSB-pad-controller.patch"
+	${git} "${DIR}/patches/tegra_next/0041-ARM-tegra-Fix-typoed-ams-ext-control-properties.patch"
+	${git} "${DIR}/patches/tegra_next/0042-ARM-tegra-roth-add-display-DT-node.patch"
+	${git} "${DIR}/patches/tegra_next/0043-PCI-tegra-Implement-accurate-power-supply-scheme.patch"
+	${git} "${DIR}/patches/tegra_next/0044-PCI-tegra-Remove-deprecated-power-supply-properties.patch"
+	${git} "${DIR}/patches/tegra_next/0045-ARM-tegra-Remove-legacy-PCIe-power-supply-properties.patch"
 }
 
 dts () {
@@ -319,7 +365,7 @@ vivante () {
 drivers
 imx_next
 omap_next
-#tegra_next
+tegra_next
 
 dts
 omap_sprz319_erratum

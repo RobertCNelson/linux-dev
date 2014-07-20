@@ -1,0 +1,64 @@
+From ab5815cf260222dc5352e676a28eefbbfdc435f2 Mon Sep 17 00:00:00 2001
+From: Alban Bedel <alban.bedel@avionic-design.de>
+Date: Thu, 19 Jun 2014 15:25:50 +0200
+Subject: [PATCH 33/45] ARM: tegra: tamonten: add the display to the Medcom
+ Wide
+
+Enable the RGB output and add the panel definition to the Medcom Wide
+DTS. Also add a label to the backlight defintion to reference it in
+the panel definition.
+
+Signed-off-by: Alban Bedel <alban.bedel@avionic-design.de>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+---
+ arch/arm/boot/dts/tegra20-medcom-wide.dts | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/tegra20-medcom-wide.dts b/arch/arm/boot/dts/tegra20-medcom-wide.dts
+index 0318b84..1b7c56b 100644
+--- a/arch/arm/boot/dts/tegra20-medcom-wide.dts
++++ b/arch/arm/boot/dts/tegra20-medcom-wide.dts
+@@ -10,6 +10,15 @@
+ 		status = "okay";
+ 	};
+ 
++	host1x@50000000 {
++		dc@54200000 {
++			rgb {
++				status = "okay";
++				nvidia,panel = <&panel>;
++			};
++		};
++	};
++
+ 	i2c@7000c000 {
+ 		wm8903: wm8903@1a {
+ 			compatible = "wlf,wm8903";
+@@ -30,7 +39,7 @@
+ 		};
+ 	};
+ 
+-	backlight {
++	backlight: backlight {
+ 		compatible = "pwm-backlight";
+ 		pwms = <&pwm 0 5000000>;
+ 
+@@ -38,6 +47,15 @@
+ 		default-brightness-level = <6>;
+ 	};
+ 
++	panel: panel {
++		compatible = "innolux,n156bge-l21", "simple-panel";
++
++		power-supply =  <&vdd_1v8_reg>, <&vdd_3v3_reg>;
++		enable-gpios = <&gpio TEGRA_GPIO(B, 2) GPIO_ACTIVE_HIGH>;
++
++		backlight = <&backlight>;
++	};
++
+ 	sound {
+ 		compatible = "ad,tegra-audio-wm8903-medcom-wide",
+ 			     "nvidia,tegra-audio-wm8903";
+-- 
+2.0.1
+

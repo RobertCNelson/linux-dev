@@ -1,0 +1,52 @@
+From e496398b727848d11215ffb1f6ecc3c3a21ad5f7 Mon Sep 17 00:00:00 2001
+From: Alexandre Courbot <acourbot@nvidia.com>
+Date: Mon, 23 Jun 2014 16:32:58 +0900
+Subject: [PATCH 35/45] ARM: tegra: roth: fix unsupported pinmux properties
+
+The pinmux subsystem complained that the nvidia,low-power-mode property
+is not supported by the sdio1, sdio3 and gma drive groups. In addition
+gma also does not support nvidia,drive-type. Remove these properties so
+the pinmux configuration can properly be applied.
+
+Signed-off-by: Alexandre Courbot <acourbot@nvidia.com>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+---
+ arch/arm/boot/dts/tegra114-roth.dts | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/arch/arm/boot/dts/tegra114-roth.dts b/arch/arm/boot/dts/tegra114-roth.dts
+index 0b0e8e0..a678852 100644
+--- a/arch/arm/boot/dts/tegra114-roth.dts
++++ b/arch/arm/boot/dts/tegra114-roth.dts
+@@ -730,7 +730,6 @@
+ 				nvidia,pins = "drive_sdio1";
+ 				nvidia,high-speed-mode = <TEGRA_PIN_ENABLE>;
+ 				nvidia,schmitt = <TEGRA_PIN_DISABLE>;
+-				nvidia,low-power-mode = <TEGRA_PIN_LP_DRIVE_DIV_1>;
+ 				nvidia,pull-down-strength = <36>;
+ 				nvidia,pull-up-strength = <20>;
+ 				nvidia,slew-rate-rising = <TEGRA_PIN_SLEW_RATE_SLOW>;
+@@ -740,7 +739,6 @@
+ 				nvidia,pins = "drive_sdio3";
+ 				nvidia,high-speed-mode = <TEGRA_PIN_ENABLE>;
+ 				nvidia,schmitt = <TEGRA_PIN_DISABLE>;
+-				nvidia,low-power-mode = <TEGRA_PIN_LP_DRIVE_DIV_1>;
+ 				nvidia,pull-down-strength = <36>;
+ 				nvidia,pull-up-strength = <20>;
+ 				nvidia,slew-rate-rising = <TEGRA_PIN_SLEW_RATE_FASTEST>;
+@@ -750,12 +748,10 @@
+ 				nvidia,pins = "drive_gma";
+ 				nvidia,high-speed-mode = <TEGRA_PIN_ENABLE>;
+ 				nvidia,schmitt = <TEGRA_PIN_DISABLE>;
+-				nvidia,low-power-mode = <TEGRA_PIN_LP_DRIVE_DIV_1>;
+ 				nvidia,pull-down-strength = <2>;
+ 				nvidia,pull-up-strength = <2>;
+ 				nvidia,slew-rate-rising = <TEGRA_PIN_SLEW_RATE_FASTEST>;
+ 				nvidia,slew-rate-falling = <TEGRA_PIN_SLEW_RATE_FASTEST>;
+-				nvidia,drive-type = <1>;
+ 			};
+ 		};
+ 	};
+-- 
+2.0.1
+

@@ -1,0 +1,90 @@
+From 9da5512b26ac170e76b2d5f4a60a6998fe42e32a Mon Sep 17 00:00:00 2001
+From: Peter De Schrijver <pdeschrijver@nvidia.com>
+Date: Thu, 12 Jun 2014 18:58:28 +0300
+Subject: [PATCH 08/45] ARM: choose highest resolution delay timer
+
+In case there are several possible delay timers, choose the one with the
+highest resolution. This code relies on the fact secondary CPUs have not yet
+been brought online when register_current_timer_delay() is called. This is
+ensured by implementing calibration_delay_done(),
+
+Signed-off-by: Peter De Schrijver <pdeschrijver@nvidia.com>
+Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Signed-off-by: Stephen Warren <swarren@nvidia.com>
+---
+ arch/arm/lib/delay.c | 26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/lib/delay.c b/arch/arm/lib/delay.c
+index 5306de3..312d43e 100644
+--- a/arch/arm/lib/delay.c
++++ b/arch/arm/lib/delay.c
+@@ -19,6 +19,7 @@
+  * Author: Will Deacon <will.deacon@arm.com>
+  */
+ 
++#include <linux/clocksource.h>
+ #include <linux/delay.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+@@ -36,6 +37,7 @@ struct arm_delay_ops arm_delay_ops = {
+ 
+ static const struct delay_timer *delay_timer;
+ static bool delay_calibrated;
++static u64 delay_res;
+ 
+ int read_current_timer(unsigned long *timer_val)
+ {
+@@ -47,6 +49,11 @@ int read_current_timer(unsigned long *timer_val)
+ }
+ EXPORT_SYMBOL_GPL(read_current_timer);
+ 
++static inline u64 cyc_to_ns(u64 cyc, u32 mult, u32 shift)
++{
++	return (cyc * mult) >> shift;
++}
++
+ static void __timer_delay(unsigned long cycles)
+ {
+ 	cycles_t start = get_cycles();
+@@ -69,18 +76,24 @@ static void __timer_udelay(unsigned long usecs)
+ 
+ void __init register_current_timer_delay(const struct delay_timer *timer)
+ {
+-	if (!delay_calibrated) {
+-		pr_info("Switching to timer-based delay loop\n");
++	u32 new_mult, new_shift;
++	u64 res;
++
++	clocks_calc_mult_shift(&new_mult, &new_shift, timer->freq,
++			       NSEC_PER_SEC, 3600);
++	res = cyc_to_ns(1ULL, new_mult, new_shift);
++
++	if (!delay_calibrated && (!delay_res || (res < delay_res))) {
++		pr_info("Switching to timer-based delay loop, resolution %lluns\n", res);
+ 		delay_timer			= timer;
+ 		lpj_fine			= timer->freq / HZ;
++		delay_res			= res;
+ 
+ 		/* cpufreq may scale loops_per_jiffy, so keep a private copy */
+ 		arm_delay_ops.ticks_per_jiffy	= lpj_fine;
+ 		arm_delay_ops.delay		= __timer_delay;
+ 		arm_delay_ops.const_udelay	= __timer_const_udelay;
+ 		arm_delay_ops.udelay		= __timer_udelay;
+-
+-		delay_calibrated		= true;
+ 	} else {
+ 		pr_info("Ignoring duplicate/late registration of read_current_timer delay\n");
+ 	}
+@@ -91,3 +104,8 @@ unsigned long calibrate_delay_is_known(void)
+ 	delay_calibrated = true;
+ 	return lpj_fine;
+ }
++
++void calibration_delay_done(void)
++{
++	delay_calibrated = true;
++}
+-- 
+2.0.1
+

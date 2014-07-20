@@ -1,0 +1,38 @@
+From 5762d1124f26dd841b7eb9c292233b70f50022c2 Mon Sep 17 00:00:00 2001
+From: Thierry Reding <treding@nvidia.com>
+Date: Fri, 11 Jul 2014 11:06:20 +0200
+Subject: [PATCH 24/45] ARM: tegra: Always lock the CPU reset vector
+
+Currently the reset vector is not locked on Tegra20 because the hardware
+doesn't support it. However in order not to depend on the chip ID, which
+becomes available only later in the boot process, we set the bit anyway.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ arch/arm/mach-tegra/reset.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/mach-tegra/reset.c b/arch/arm/mach-tegra/reset.c
+index 5377495..894c5c4 100644
+--- a/arch/arm/mach-tegra/reset.c
++++ b/arch/arm/mach-tegra/reset.c
+@@ -54,12 +54,10 @@ static void __init tegra_cpu_reset_handler_set(const u32 reset_address)
+ 	 * Prevent further modifications to the physical reset vector.
+ 	 *  NOTE: Has no effect on chips prior to Tegra30.
+ 	 */
+-	if (tegra_get_chip_id() != TEGRA20) {
+-		reg = readl(sb_ctrl);
+-		reg |= 2;
+-		writel(reg, sb_ctrl);
+-		wmb();
+-	}
++	reg = readl(sb_ctrl);
++	reg |= 2;
++	writel(reg, sb_ctrl);
++	wmb();
+ }
+ 
+ static void __init tegra_cpu_reset_handler_enable(void)
+-- 
+2.0.1
+

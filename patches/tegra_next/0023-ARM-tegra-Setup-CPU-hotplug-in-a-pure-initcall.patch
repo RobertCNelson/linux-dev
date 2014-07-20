@@ -1,0 +1,97 @@
+From f68cfe2f84149ae45dda5fecdd4098a7c3f7f838 Mon Sep 17 00:00:00 2001
+From: Thierry Reding <treding@nvidia.com>
+Date: Fri, 11 Jul 2014 11:00:37 +0200
+Subject: [PATCH 23/45] ARM: tegra: Setup CPU hotplug in a pure initcall
+
+CPU hotplug support doesn't have to be set up until fairly late in the
+boot process, so it can be done in a regular initcall. To make sure that
+we don't miss any ordering problems in the future, output a warning if
+any of the functions are called before initialization has completed.
+
+This is part of untangling the boot order dependencies on Tegra so that
+more code can be shared between 32-bit and 64-bit ARM.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ arch/arm/mach-tegra/hotplug.c | 16 ++++++++++++++--
+ arch/arm/mach-tegra/sleep.h   |  3 ---
+ arch/arm/mach-tegra/tegra.c   |  1 -
+ 3 files changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/mach-tegra/hotplug.c b/arch/arm/mach-tegra/hotplug.c
+index d60339c..6fc71f1 100644
+--- a/arch/arm/mach-tegra/hotplug.c
++++ b/arch/arm/mach-tegra/hotplug.c
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/smp.h>
+ 
++#include <soc/tegra/common.h>
+ #include <soc/tegra/fuse.h>
+ 
+ #include <asm/smp_plat.h>
+@@ -38,6 +39,11 @@ int tegra_cpu_kill(unsigned cpu)
+  */
+ void __ref tegra_cpu_die(unsigned int cpu)
+ {
++	if (!tegra_hotplug_shutdown) {
++		WARN(1, "hotplug is not yet initialized\n");
++		return;
++	}
++
+ 	/* Clean L1 data cache */
+ 	tegra_disable_clean_inv_dcache(TEGRA_FLUSH_CACHE_LOUIS);
+ 
+@@ -48,10 +54,13 @@ void __ref tegra_cpu_die(unsigned int cpu)
+ 	BUG();
+ }
+ 
+-void __init tegra_hotplug_init(void)
++static int __init tegra_hotplug_init(void)
+ {
+ 	if (!IS_ENABLED(CONFIG_HOTPLUG_CPU))
+-		return;
++		return 0;
++
++	if (!soc_is_tegra())
++		return 0;
+ 
+ 	if (IS_ENABLED(CONFIG_ARCH_TEGRA_2x_SOC) && tegra_get_chip_id() == TEGRA20)
+ 		tegra_hotplug_shutdown = tegra20_hotplug_shutdown;
+@@ -61,4 +70,7 @@ void __init tegra_hotplug_init(void)
+ 		tegra_hotplug_shutdown = tegra30_hotplug_shutdown;
+ 	if (IS_ENABLED(CONFIG_ARCH_TEGRA_124_SOC) && tegra_get_chip_id() == TEGRA124)
+ 		tegra_hotplug_shutdown = tegra30_hotplug_shutdown;
++
++	return 0;
+ }
++pure_initcall(tegra_hotplug_init);
+diff --git a/arch/arm/mach-tegra/sleep.h b/arch/arm/mach-tegra/sleep.h
+index 339fe42..92d46ec 100644
+--- a/arch/arm/mach-tegra/sleep.h
++++ b/arch/arm/mach-tegra/sleep.h
+@@ -130,9 +130,6 @@ void tegra_disable_clean_inv_dcache(u32 flag);
+ #ifdef CONFIG_HOTPLUG_CPU
+ void tegra20_hotplug_shutdown(void);
+ void tegra30_hotplug_shutdown(void);
+-void tegra_hotplug_init(void);
+-#else
+-static inline void tegra_hotplug_init(void) {}
+ #endif
+ 
+ void tegra20_cpu_shutdown(int cpu);
+diff --git a/arch/arm/mach-tegra/tegra.c b/arch/arm/mach-tegra/tegra.c
+index 6ccbc8c..e5733fa 100644
+--- a/arch/arm/mach-tegra/tegra.c
++++ b/arch/arm/mach-tegra/tegra.c
+@@ -76,7 +76,6 @@ static void __init tegra_init_early(void)
+ 	tegra_init_fuse();
+ 	tegra_cpu_reset_handler_init();
+ 	tegra_powergate_init();
+-	tegra_hotplug_init();
+ }
+ 
+ static void __init tegra_dt_init_irq(void)
+-- 
+2.0.1
+

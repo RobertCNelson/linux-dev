@@ -1,0 +1,46 @@
+From decc336d9f1e3f39f0973f4090999c9eb47f999d Mon Sep 17 00:00:00 2001
+From: Thierry Reding <treding@nvidia.com>
+Date: Thu, 19 Jun 2014 13:37:09 +0200
+Subject: [PATCH 39/45] ARM: tegra: tegra124: Add XUSB pad controller
+
+The device tree node in the SoC file contains only the resources (such
+as registers, resets, ...) but none of the lane assignment information
+since that's board specific and belongs in the board file.
+
+Tested-by: Mikko Perttunen <mperttunen@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ arch/arm/boot/dts/tegra124.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/boot/dts/tegra124.dtsi b/arch/arm/boot/dts/tegra124.dtsi
+index cc9e750..3af46d3 100644
+--- a/arch/arm/boot/dts/tegra124.dtsi
++++ b/arch/arm/boot/dts/tegra124.dtsi
+@@ -1,6 +1,7 @@
+ #include <dt-bindings/clock/tegra124-car.h>
+ #include <dt-bindings/gpio/tegra-gpio.h>
+ #include <dt-bindings/pinctrl/pinctrl-tegra.h>
++#include <dt-bindings/pinctrl/pinctrl-tegra-xusb.h>
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
+ 
+ #include "skeleton.dtsi"
+@@ -494,6 +495,15 @@
+ 		status = "disabled";
+ 	};
+ 
++	padctl: padctl@0,7009f000 {
++		compatible = "nvidia,tegra124-xusb-padctl";
++		reg = <0x0 0x7009f000 0x0 0x1000>;
++		resets = <&tegra_car 142>;
++		reset-names = "padctl";
++
++		#phy-cells = <1>;
++	};
++
+ 	sdhci@0,700b0000 {
+ 		compatible = "nvidia,tegra124-sdhci";
+ 		reg = <0x0 0x700b0000 0x0 0x200>;
+-- 
+2.0.1
+
