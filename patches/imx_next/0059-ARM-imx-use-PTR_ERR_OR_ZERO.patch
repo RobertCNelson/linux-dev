@@ -1,0 +1,101 @@
+From b19abeb5357f3c7d73f94aaafff0bde8d5b5325e Mon Sep 17 00:00:00 2001
+From: Fabian Frederick <fabf@skynet.be>
+Date: Fri, 4 Jul 2014 21:03:10 +0200
+Subject: [PATCH 059/125] ARM: imx: use PTR_ERR_OR_ZERO
+
+replace IS_ERR/PTR_ERR
+
+Cc: Sascha Hauer <kernel@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/devices/platform-mxc_rnga.c | 5 +----
+ arch/arm/mach-imx/mach-mx31moboard.c          | 4 +---
+ arch/arm/mach-imx/mx31moboard-devboard.c      | 4 +---
+ arch/arm/mach-imx/mx31moboard-marxbot.c       | 4 +---
+ arch/arm/mach-imx/mx31moboard-smartbot.c      | 4 +---
+ 5 files changed, 5 insertions(+), 16 deletions(-)
+
+diff --git a/arch/arm/mach-imx/devices/platform-mxc_rnga.c b/arch/arm/mach-imx/devices/platform-mxc_rnga.c
+index c58404b..851fbc8a 100644
+--- a/arch/arm/mach-imx/devices/platform-mxc_rnga.c
++++ b/arch/arm/mach-imx/devices/platform-mxc_rnga.c
+@@ -48,9 +48,6 @@ static int __init imxXX_add_mxc_rnga(void)
+ #endif /* if defined(CONFIG_SOC_IMX31) */
+ 		ret = ERR_PTR(-ENODEV);
+ 
+-	if (IS_ERR(ret))
+-		return PTR_ERR(ret);
+-
+-	return 0;
++	return PTR_ERR_OR_ZERO(ret);
+ }
+ arch_initcall(imxXX_add_mxc_rnga);
+diff --git a/arch/arm/mach-imx/mach-mx31moboard.c b/arch/arm/mach-imx/mach-mx31moboard.c
+index 6bed570..bb6f8a5 100644
+--- a/arch/arm/mach-imx/mach-mx31moboard.c
++++ b/arch/arm/mach-imx/mach-mx31moboard.c
+@@ -435,10 +435,8 @@ static int __init moboard_usbh2_init(void)
+ 		return -ENODEV;
+ 
+ 	pdev = imx31_add_mxc_ehci_hs(2, &usbh2_pdata);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
+ 
+-	return 0;
++	return PTR_ERR_OR_ZERO(pdev);
+ }
+ 
+ static const struct gpio_led mx31moboard_leds[] __initconst = {
+diff --git a/arch/arm/mach-imx/mx31moboard-devboard.c b/arch/arm/mach-imx/mx31moboard-devboard.c
+index 1e4ea16..1e91a09 100644
+--- a/arch/arm/mach-imx/mx31moboard-devboard.c
++++ b/arch/arm/mach-imx/mx31moboard-devboard.c
+@@ -214,10 +214,8 @@ static int __init devboard_usbh1_init(void)
+ 	usbh1_pdata.otg = phy;
+ 
+ 	pdev = imx31_add_mxc_ehci_hs(1, &usbh1_pdata);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
+ 
+-	return 0;
++	return PTR_ERR_OR_ZERO(pdev);
+ }
+ 
+ 
+diff --git a/arch/arm/mach-imx/mx31moboard-marxbot.c b/arch/arm/mach-imx/mx31moboard-marxbot.c
+index 699d01a..2e895a8 100644
+--- a/arch/arm/mach-imx/mx31moboard-marxbot.c
++++ b/arch/arm/mach-imx/mx31moboard-marxbot.c
+@@ -328,10 +328,8 @@ static int __init marxbot_usbh1_init(void)
+ 	usbh1_pdata.otg = phy;
+ 
+ 	pdev = imx31_add_mxc_ehci_hs(1, &usbh1_pdata);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
+ 
+-	return 0;
++	return PTR_ERR_OR_ZERO(pdev);
+ }
+ 
+ static const struct fsl_usb2_platform_data usb_pdata __initconst = {
+diff --git a/arch/arm/mach-imx/mx31moboard-smartbot.c b/arch/arm/mach-imx/mx31moboard-smartbot.c
+index 4b3d66e..89fc35a 100644
+--- a/arch/arm/mach-imx/mx31moboard-smartbot.c
++++ b/arch/arm/mach-imx/mx31moboard-smartbot.c
+@@ -142,10 +142,8 @@ static int __init smartbot_otg_host_init(void)
+ 		return -ENODEV;
+ 
+ 	pdev = imx31_add_mxc_ehci_otg(&otg_host_pdata);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
+ 
+-	return 0;
++	return PTR_ERR_OR_ZERO(pdev);
+ }
+ #else
+ static inline int smartbot_otg_host_init(void) { return 0; }
+-- 
+2.0.1
+

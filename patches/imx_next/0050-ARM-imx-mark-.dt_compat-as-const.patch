@@ -1,0 +1,142 @@
+From c685701462306a111c0003c33038f6fe7f16bd40 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Tue, 1 Jul 2014 16:03:00 +0800
+Subject: [PATCH 050/125] ARM: imx: mark .dt_compat as const
+
+Otherwise GCC will mark the .init.rodata section R/W, which causes
+a compile error once we add other real R/O data.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/imx31-dt.c    | 2 +-
+ arch/arm/mach-imx/imx35-dt.c    | 2 +-
+ arch/arm/mach-imx/mach-imx50.c  | 2 +-
+ arch/arm/mach-imx/mach-imx51.c  | 2 +-
+ arch/arm/mach-imx/mach-imx53.c  | 2 +-
+ arch/arm/mach-imx/mach-imx6q.c  | 2 +-
+ arch/arm/mach-imx/mach-imx6sl.c | 2 +-
+ arch/arm/mach-imx/mach-imx6sx.c | 2 +-
+ arch/arm/mach-imx/mach-vf610.c  | 2 +-
+ 9 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm/mach-imx/imx31-dt.c b/arch/arm/mach-imx/imx31-dt.c
+index 581f4d6..418dbc8 100644
+--- a/arch/arm/mach-imx/imx31-dt.c
++++ b/arch/arm/mach-imx/imx31-dt.c
+@@ -25,7 +25,7 @@ static void __init imx31_dt_init(void)
+ 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+ }
+ 
+-static const char *imx31_dt_board_compat[] __initconst = {
++static const char * const imx31_dt_board_compat[] __initconst = {
+ 	"fsl,imx31",
+ 	NULL
+ };
+diff --git a/arch/arm/mach-imx/imx35-dt.c b/arch/arm/mach-imx/imx35-dt.c
+index a62854c..584fbe1 100644
+--- a/arch/arm/mach-imx/imx35-dt.c
++++ b/arch/arm/mach-imx/imx35-dt.c
+@@ -34,7 +34,7 @@ static void __init imx35_irq_init(void)
+ 	mx35_init_irq();
+ }
+ 
+-static const char *imx35_dt_board_compat[] __initconst = {
++static const char * const imx35_dt_board_compat[] __initconst = {
+ 	"fsl,imx35",
+ 	NULL
+ };
+diff --git a/arch/arm/mach-imx/mach-imx50.c b/arch/arm/mach-imx/mach-imx50.c
+index 62a4d45..b1e56a9 100644
+--- a/arch/arm/mach-imx/mach-imx50.c
++++ b/arch/arm/mach-imx/mach-imx50.c
+@@ -23,7 +23,7 @@ static void __init imx50_dt_init(void)
+ 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+ }
+ 
+-static const char *imx50_dt_board_compat[] __initconst = {
++static const char * const imx50_dt_board_compat[] __initconst = {
+ 	"fsl,imx50",
+ 	NULL
+ };
+diff --git a/arch/arm/mach-imx/mach-imx51.c b/arch/arm/mach-imx/mach-imx51.c
+index b6f42f8..c77deb3 100644
+--- a/arch/arm/mach-imx/mach-imx51.c
++++ b/arch/arm/mach-imx/mach-imx51.c
+@@ -67,7 +67,7 @@ static void __init imx51_init_late(void)
+ 	imx51_pm_init();
+ }
+ 
+-static const char *imx51_dt_board_compat[] __initconst = {
++static const char * const imx51_dt_board_compat[] __initconst = {
+ 	"fsl,imx51",
+ 	NULL
+ };
+diff --git a/arch/arm/mach-imx/mach-imx53.c b/arch/arm/mach-imx/mach-imx53.c
+index d8c3c08..03a0b40 100644
+--- a/arch/arm/mach-imx/mach-imx53.c
++++ b/arch/arm/mach-imx/mach-imx53.c
+@@ -41,7 +41,7 @@ static void __init imx53_init_late(void)
+ 	imx53_pm_init();
+ }
+ 
+-static const char *imx53_dt_board_compat[] __initconst = {
++static const char * const imx53_dt_board_compat[] __initconst = {
+ 	"fsl,imx53",
+ 	NULL
+ };
+diff --git a/arch/arm/mach-imx/mach-imx6q.c b/arch/arm/mach-imx/mach-imx6q.c
+index 9b3a233..d51c6e9 100644
+--- a/arch/arm/mach-imx/mach-imx6q.c
++++ b/arch/arm/mach-imx/mach-imx6q.c
+@@ -396,7 +396,7 @@ static void __init imx6q_init_irq(void)
+ 	irqchip_init();
+ }
+ 
+-static const char *imx6q_dt_compat[] __initconst = {
++static const char * const imx6q_dt_compat[] __initconst = {
+ 	"fsl,imx6dl",
+ 	"fsl,imx6q",
+ 	NULL,
+diff --git a/arch/arm/mach-imx/mach-imx6sl.c b/arch/arm/mach-imx/mach-imx6sl.c
+index ad32338..ed263a2 100644
+--- a/arch/arm/mach-imx/mach-imx6sl.c
++++ b/arch/arm/mach-imx/mach-imx6sl.c
+@@ -70,7 +70,7 @@ static void __init imx6sl_init_irq(void)
+ 	irqchip_init();
+ }
+ 
+-static const char *imx6sl_dt_compat[] __initconst = {
++static const char * const imx6sl_dt_compat[] __initconst = {
+ 	"fsl,imx6sl",
+ 	NULL,
+ };
+diff --git a/arch/arm/mach-imx/mach-imx6sx.c b/arch/arm/mach-imx/mach-imx6sx.c
+index 74ff7d6..673a734 100644
+--- a/arch/arm/mach-imx/mach-imx6sx.c
++++ b/arch/arm/mach-imx/mach-imx6sx.c
+@@ -44,7 +44,7 @@ static void __init imx6sx_init_late(void)
+ 	imx6q_cpuidle_init();
+ }
+ 
+-static const char *imx6sx_dt_compat[] __initconst = {
++static const char * const imx6sx_dt_compat[] __initconst = {
+ 	"fsl,imx6sx",
+ 	NULL,
+ };
+diff --git a/arch/arm/mach-imx/mach-vf610.c b/arch/arm/mach-imx/mach-vf610.c
+index c446027..ee7e57b 100644
+--- a/arch/arm/mach-imx/mach-vf610.c
++++ b/arch/arm/mach-imx/mach-vf610.c
+@@ -20,7 +20,7 @@ static void __init vf610_init_machine(void)
+ 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+ }
+ 
+-static const char *vf610_dt_compat[] __initconst = {
++static const char * const vf610_dt_compat[] __initconst = {
+ 	"fsl,vf610",
+ 	NULL,
+ };
+-- 
+2.0.1
+

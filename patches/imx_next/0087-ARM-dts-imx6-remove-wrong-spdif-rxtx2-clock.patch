@@ -1,0 +1,40 @@
+From b041a9c6eb560af6cc3c24fc978a6a76ae81a953 Mon Sep 17 00:00:00 2001
+From: Anssi Hannula <anssi.hannula@iki.fi>
+Date: Mon, 16 Jun 2014 02:39:44 +0300
+Subject: [PATCH 087/125] ARM: dts: imx6: remove wrong spdif rxtx2 clock
+
+The rxtx2 clock of i.MX6 S/PDIF is currently set to "asrc" clock.
+However, according to SoC documentation, rxtx2 is connected to
+ASRC_EXT_CLK, a different external clock.
+
+Testing on Cubox-i system seems to confirm that: when fsl_spdif is
+forced to select rxtx2 as input clock, audio playback fails with an I/O
+error.
+
+Set rxtx2 to the dummy clock by default to prevent fsl_spdif from
+selecting it.
+
+Signed-off-by: Anssi Hannula <anssi.hannula@iki.fi>
+Cc: Mark Brown <broonie@kernel.org>
+Acked-by: Nicolin Chen <Guangyu.Chen@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx6qdl.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index 2fe1287..94d1b13 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -181,7 +181,7 @@
+ 					       <&sdma 15 18 0>;
+ 					dma-names = "rx", "tx";
+ 					clocks = <&clks 197>, <&clks 3>,
+-						 <&clks 197>, <&clks 107>,
++						 <&clks 197>, <&clks 0>,
+ 						 <&clks 0>,   <&clks 118>,
+ 						 <&clks 0>,  <&clks 139>,
+ 						 <&clks 0>;
+-- 
+2.0.1
+

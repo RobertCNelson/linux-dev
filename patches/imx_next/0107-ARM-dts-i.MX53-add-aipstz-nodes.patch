@@ -1,0 +1,45 @@
+From 3cb402fe23947687298c319cdcbeb55ea16f471b Mon Sep 17 00:00:00 2001
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Date: Wed, 25 Jun 2014 13:01:30 +0200
+Subject: [PATCH 107/125] ARM: dts: i.MX53: add aipstz nodes
+
+The AHB to IP bridges (AIPSTZ) allow fine grained access rights management.
+Add both bridges to the DT.
+
+Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx53.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index d8d3f97..5fe8509 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -259,6 +259,11 @@
+ 				};
+ 			};
+ 
++			aipstz1: bridge@53f00000 {
++				compatible = "fsl,imx53-aipstz";
++				reg = <0x53f00000 0x60>;
++			};
++
+ 			usbphy0: usbphy@0 {
+ 				compatible = "usb-nop-xceiv";
+ 				clocks = <&clks IMX5_CLK_USB_PHY1_GATE>;
+@@ -571,6 +576,11 @@
+ 			reg = <0x60000000 0x10000000>;
+ 			ranges;
+ 
++			aipstz2: bridge@63f00000 {
++				compatible = "fsl,imx53-aipstz";
++				reg = <0x63f00000 0x60>;
++			};
++
+ 			iim: iim@63f98000 {
+ 				compatible = "fsl,imx53-iim", "fsl,imx27-iim";
+ 				reg = <0x63f98000 0x4000>;
+-- 
+2.0.1
+

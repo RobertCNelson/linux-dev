@@ -1,0 +1,617 @@
+From a2af867f3ea8b81ce750664f766bec87b90a7c9f Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Tue, 13 May 2014 18:48:15 +0400
+Subject: [PATCH 073/125] ARM: dts: Add support for the cpuimx27 board from
+ Eukrea and its baseboard
+
+This patch adds support for the cpuimx27 board from Eukrea and its
+baseboard. This change is intended to further remove non-DT support
+for this board.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/Makefile                         |   1 +
+ arch/arm/boot/dts/imx27-eukrea-cpuimx27.dtsi       | 296 +++++++++++++++++++++
+ .../boot/dts/imx27-eukrea-mbimxsd27-baseboard.dts  | 274 +++++++++++++++++++
+ 3 files changed, 571 insertions(+)
+ create mode 100644 arch/arm/boot/dts/imx27-eukrea-cpuimx27.dtsi
+ create mode 100644 arch/arm/boot/dts/imx27-eukrea-mbimxsd27-baseboard.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index cc776fc..6771541 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -161,6 +161,7 @@ dtb-$(CONFIG_ARCH_MXC) += \
+ 	imx25-pdk.dtb \
+ 	imx27-apf27.dtb \
+ 	imx27-apf27dev.dtb \
++	imx27-eukrea-mbimxsd27-baseboard.dtb \
+ 	imx27-pdk.dtb \
+ 	imx27-phytec-phycore-rdk.dtb \
+ 	imx27-phytec-phycard-s-rdk.dtb \
+diff --git a/arch/arm/boot/dts/imx27-eukrea-cpuimx27.dtsi b/arch/arm/boot/dts/imx27-eukrea-cpuimx27.dtsi
+new file mode 100644
+index 0000000..e224263
+--- /dev/null
++++ b/arch/arm/boot/dts/imx27-eukrea-cpuimx27.dtsi
+@@ -0,0 +1,296 @@
++/*
++ * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
++
++/dts-v1/;
++#include "imx27.dtsi"
++
++/ {
++	model = "Eukrea CPUIMX27";
++	compatible = "eukrea,cpuimx27", "fsl,imx27";
++
++	memory {
++		reg = <0xa0000000 0x04000000>;
++	};
++
++	clocks {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "simple-bus";
++
++		clk14745600: clock@0 {
++			#clock-cells = <0>;
++			compatible = "fixed-clock";
++			clock-frequency = <14745600>;
++			reg = <0>;
++		};
++	};
++};
++
++&fec {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_fec>;
++	status = "okay";
++};
++
++&i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c1>;
++	status = "okay";
++
++	pcf8563@51 {
++		compatible = "nxp,pcf8563";
++		reg = <0x51>;
++	};
++};
++
++&nfc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_nfc>;
++	nand-bus-width = <8>;
++	nand-ecc-mode = "hw";
++	nand-on-flash-bbt;
++	status = "okay";
++};
++
++&owire {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_owire>;
++	status = "okay";
++};
++
++&sdhci2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_sdhc2>;
++	bus-width = <4>;
++	non-removable;
++	status = "okay";
++};
++
++&uart4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart4>;
++	fsl,uart-has-rtscts;
++	status = "okay";
++};
++
++&usbh2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usbh2>;
++	dr_mode = "host";
++	phy_type = "ulpi";
++	disable-over-current;
++	status = "okay";
++};
++
++&usbotg {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usbotg>;
++	dr_mode = "otg";
++	phy_type = "ulpi";
++	disable-over-current;
++	status = "okay";
++};
++
++&weim {
++	status = "okay";
++
++	nor: nor@0,0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "cfi-flash";
++		reg = <0 0x00000000 0x04000000>;
++		bank-width = <2>;
++		linux,mtd-name = "physmap-flash.0";
++		fsl,weim-cs-timing = <0x00008f03 0xa0330d01 0x002208c0>;
++	};
++
++	uart8250@3,200000 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_uart8250_1>;
++		compatible = "ns8250";
++		clocks = <&clk14745600>;
++		fsl,weim-cs-timing = <0x0000d603 0x0d1d0d01 0x00d20000>;
++		interrupts = <&gpio2 23 IRQ_TYPE_LEVEL_LOW>;
++		reg = <3 0x200000 0x1000>;
++		reg-shift = <1>;
++		reg-io-width = <1>;
++		no-loopback-test;
++	};
++
++	uart8250@3,400000 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_uart8250_2>;
++		compatible = "ns8250";
++		clocks = <&clk14745600>;
++		fsl,weim-cs-timing = <0x0000d603 0x0d1d0d01 0x00d20000>;
++		interrupts = <&gpio2 22 IRQ_TYPE_LEVEL_LOW>;
++		reg = <3 0x400000 0x1000>;
++		reg-shift = <1>;
++		reg-io-width = <1>;
++		no-loopback-test;
++	};
++
++	uart8250@3,800000 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_uart8250_3>;
++		compatible = "ns8250";
++		clocks = <&clk14745600>;
++		fsl,weim-cs-timing = <0x0000d603 0x0d1d0d01 0x00d20000>;
++		interrupts = <&gpio2 27 IRQ_TYPE_LEVEL_LOW>;
++		reg = <3 0x800000 0x1000>;
++		reg-shift = <1>;
++		reg-io-width = <1>;
++		no-loopback-test;
++	};
++
++	uart8250@3,1000000 {
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_uart8250_4>;
++		compatible = "ns8250";
++		clocks = <&clk14745600>;
++		fsl,weim-cs-timing = <0x0000d603 0x0d1d0d01 0x00d20000>;
++		interrupts = <&gpio2 30 IRQ_TYPE_LEVEL_LOW>;
++		reg = <3 0x1000000 0x1000>;
++		reg-shift = <1>;
++		reg-io-width = <1>;
++		no-loopback-test;
++	};
++};
++
++&iomuxc {
++	imx27-eukrea-cpuimx27 {
++		pinctrl_fec: fecgrp {
++			fsl,pins = <
++				MX27_PAD_SD3_CMD__FEC_TXD0		0x0
++				MX27_PAD_SD3_CLK__FEC_TXD1		0x0
++				MX27_PAD_ATA_DATA0__FEC_TXD2		0x0
++				MX27_PAD_ATA_DATA1__FEC_TXD3		0x0
++				MX27_PAD_ATA_DATA2__FEC_RX_ER		0x0
++				MX27_PAD_ATA_DATA3__FEC_RXD1		0x0
++				MX27_PAD_ATA_DATA4__FEC_RXD2		0x0
++				MX27_PAD_ATA_DATA5__FEC_RXD3		0x0
++				MX27_PAD_ATA_DATA6__FEC_MDIO		0x0
++				MX27_PAD_ATA_DATA7__FEC_MDC		0x0
++				MX27_PAD_ATA_DATA8__FEC_CRS		0x0
++				MX27_PAD_ATA_DATA9__FEC_TX_CLK		0x0
++				MX27_PAD_ATA_DATA10__FEC_RXD0		0x0
++				MX27_PAD_ATA_DATA11__FEC_RX_DV		0x0
++				MX27_PAD_ATA_DATA12__FEC_RX_CLK		0x0
++				MX27_PAD_ATA_DATA13__FEC_COL		0x0
++				MX27_PAD_ATA_DATA14__FEC_TX_ER		0x0
++				MX27_PAD_ATA_DATA15__FEC_TX_EN		0x0
++			>;
++		};
++
++		pinctrl_i2c1: i2c1grp {
++			fsl,pins = <
++				MX27_PAD_I2C_DATA__I2C_DATA		0x0
++				MX27_PAD_I2C_CLK__I2C_CLK		0x0
++			>;
++		};
++
++		pinctrl_nfc: nfcgrp {
++			fsl,pins = <
++				MX27_PAD_NFRB__NFRB			0x0
++				MX27_PAD_NFCLE__NFCLE			0x0
++				MX27_PAD_NFWP_B__NFWP_B			0x0
++				MX27_PAD_NFCE_B__NFCE_B			0x0
++				MX27_PAD_NFALE__NFALE			0x0
++				MX27_PAD_NFRE_B__NFRE_B			0x0
++				MX27_PAD_NFWE_B__NFWE_B			0x0
++			>;
++		};
++
++		pinctrl_owire: owiregrp {
++			fsl,pins = <
++				MX27_PAD_RTCK__OWIRE			0x0
++			>;
++		};
++
++		pinctrl_sdhc2: sdhc2grp {
++			fsl,pins = <
++				MX27_PAD_SD2_CLK__SD2_CLK		0x0
++				MX27_PAD_SD2_CMD__SD2_CMD		0x0
++				MX27_PAD_SD2_D0__SD2_D0			0x0
++				MX27_PAD_SD2_D1__SD2_D1			0x0
++				MX27_PAD_SD2_D2__SD2_D2			0x0
++				MX27_PAD_SD2_D3__SD2_D3			0x0
++			>;
++		};
++
++		pinctrl_uart4: uart4grp {
++			fsl,pins = <
++				MX27_PAD_USBH1_TXDM__UART4_TXD		0x0
++				MX27_PAD_USBH1_RXDP__UART4_RXD		0x0
++				MX27_PAD_USBH1_TXDP__UART4_CTS		0x0
++				MX27_PAD_USBH1_FS__UART4_RTS		0x0
++			>;
++		};
++
++		pinctrl_uart8250_1: uart82501grp {
++			fsl,pins = <
++				MX27_PAD_USB_PWR__GPIO2_23		0x0
++			>;
++		};
++
++		pinctrl_uart8250_2: uart82502grp {
++			fsl,pins = <
++				MX27_PAD_USBH1_SUSP__GPIO2_22		0x0
++			>;
++		};
++
++		pinctrl_uart8250_3: uart82503grp {
++			fsl,pins = <
++				MX27_PAD_USBH1_OE_B__GPIO2_27		0x0
++			>;
++		};
++
++		pinctrl_uart8250_4: uart82504grp {
++			fsl,pins = <
++				MX27_PAD_USBH1_RXDM__GPIO2_30		0x0
++			>;
++		};
++
++		pinctrl_usbh2: usbh2grp {
++			fsl,pins = <
++				MX27_PAD_USBH2_CLK__USBH2_CLK		0x0
++				MX27_PAD_USBH2_DIR__USBH2_DIR		0x0
++				MX27_PAD_USBH2_NXT__USBH2_NXT		0x0
++				MX27_PAD_USBH2_STP__USBH2_STP		0x0
++				MX27_PAD_CSPI2_SCLK__USBH2_DATA0	0x0
++				MX27_PAD_CSPI2_MOSI__USBH2_DATA1	0x0
++				MX27_PAD_CSPI2_MISO__USBH2_DATA2	0x0
++				MX27_PAD_CSPI2_SS1__USBH2_DATA3		0x0
++				MX27_PAD_CSPI2_SS2__USBH2_DATA4		0x0
++				MX27_PAD_CSPI1_SS2__USBH2_DATA5		0x0
++				MX27_PAD_CSPI2_SS0__USBH2_DATA6		0x0
++				MX27_PAD_USBH2_DATA7__USBH2_DATA7	0x0
++			>;
++		};
++
++		pinctrl_usbotg: usbotggrp {
++			fsl,pins = <
++				MX27_PAD_USBOTG_CLK__USBOTG_CLK		0x0
++				MX27_PAD_USBOTG_DIR__USBOTG_DIR		0x0
++				MX27_PAD_USBOTG_NXT__USBOTG_NXT		0x0
++				MX27_PAD_USBOTG_STP__USBOTG_STP		0x0
++				MX27_PAD_USBOTG_DATA0__USBOTG_DATA0	0x0
++				MX27_PAD_USBOTG_DATA1__USBOTG_DATA1	0x0
++				MX27_PAD_USBOTG_DATA2__USBOTG_DATA2	0x0
++				MX27_PAD_USBOTG_DATA3__USBOTG_DATA3	0x0
++				MX27_PAD_USBOTG_DATA4__USBOTG_DATA4	0x0
++				MX27_PAD_USBOTG_DATA5__USBOTG_DATA5	0x0
++				MX27_PAD_USBOTG_DATA6__USBOTG_DATA6	0x0
++				MX27_PAD_USBOTG_DATA7__USBOTG_DATA7	0x0
++			>;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/imx27-eukrea-mbimxsd27-baseboard.dts b/arch/arm/boot/dts/imx27-eukrea-mbimxsd27-baseboard.dts
+new file mode 100644
+index 0000000..bb64ca1
+--- /dev/null
++++ b/arch/arm/boot/dts/imx27-eukrea-mbimxsd27-baseboard.dts
+@@ -0,0 +1,274 @@
++/*
++ * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
++
++#include "imx27-eukrea-cpuimx27.dtsi"
++
++/ {
++	model = "Eukrea MBIMXSD27";
++	compatible = "eukrea,mbimxsd27-baseboard", "eukrea,cpuimx27", "fsl,imx27";
++
++	display0: CMO-QVGA {
++		model = "CMO-QVGA";
++		native-mode = <&timing0>;
++		bits-per-pixel = <16>;
++		fsl,pcr = <0xfad08b80>;
++
++		display-timings {
++			timing0: 320x240 {
++				clock-frequency = <6500000>;
++				hactive = <320>;
++				vactive = <240>;
++				hback-porch = <20>;
++				hsync-len = <30>;
++				hfront-porch = <38>;
++				vback-porch = <4>;
++				vsync-len = <3>;
++				vfront-porch = <15>;
++			};
++		};
++	};
++
++	backlight {
++		compatible = "gpio-backlight";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_backlight>;
++		gpios = <&gpio5 5 GPIO_ACTIVE_HIGH>;
++	};
++
++	leds {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_gpioleds>;
++
++		led1 {
++			label = "system::live";
++			gpios = <&gpio6 16 GPIO_ACTIVE_LOW>;
++			linux,default-trigger = "heartbeat";
++		};
++
++		led2 {
++			label = "system::user";
++			gpios = <&gpio6 19 GPIO_ACTIVE_LOW>;
++		};
++	};
++
++	regulators {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "simple-bus";
++
++		reg_lcd: regulator@0 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_lcdreg>;
++			compatible = "regulator-fixed";
++			reg = <0>;
++			regulator-name = "LCD";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			gpio = <&gpio1 25 GPIO_ACTIVE_HIGH>;
++			enable-active-high;
++		};
++	};
++};
++
++&cspi1 {
++	pinctrl-0 = <&pinctrl_cspi1>;
++	fsl,spi-num-chipselects = <1>;
++	cs-gpios = <&gpio4 28 GPIO_ACTIVE_LOW>;
++	status = "okay";
++
++	ads7846 {
++		compatible = "ti,ads7846";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_touch>;
++		reg = <0>;
++		interrupts = <&gpio4 25 IRQ_TYPE_LEVEL_LOW>;
++		spi-cpol;
++		spi-max-frequency = <1500000>;
++		ti,keep-vref-on;
++	};
++};
++
++&fb {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_imxfb>;
++	display = <&display0>;
++	lcd-supply = <&reg_lcd>;
++	fsl,dmacr = <0x00040060>;
++	fsl,lscr1 = <0x00120300>;
++	fsl,lpccr = <0x00a903ff>;
++	status = "okay";
++};
++
++&i2c1 {
++	codec: codec@1a {
++		compatible = "ti,tlv320aic23";
++		reg = <0x1a>;
++	};
++};
++
++&kpp {
++	linux,keymap = <
++		MATRIX_KEY(0, 0, KEY_UP)
++		MATRIX_KEY(0, 1, KEY_DOWN)
++		MATRIX_KEY(1, 0, KEY_RIGHT)
++		MATRIX_KEY(1, 1, KEY_LEFT)
++	>;
++	status = "okay";
++};
++
++&sdhci1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_sdhc1>;
++	bus-width = <4>;
++	status = "okay";
++};
++
++&ssi1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_ssi1>;
++	fsl,mode = "i2s-slave";
++	codec-handle = <&codec>;
++	status = "okay";
++};
++
++&uart1 {
++	fsl,uart-has-rtscts;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart1>;
++	status = "okay";
++};
++
++&uart2 {
++	fsl,uart-has-rtscts;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart2>;
++	status = "okay";
++};
++
++&uart3 {
++	fsl,uart-has-rtscts;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart3>;
++	status = "okay";
++};
++
++&iomuxc {
++	imx27-eukrea-cpuimx27-baseboard {
++		pinctrl_cspi1: cspi1grp {
++			fsl,pins = <
++				MX27_PAD_CSPI1_MISO__CSPI1_MISO	0x0
++				MX27_PAD_CSPI1_MOSI__CSPI1_MOSI	0x0
++				MX27_PAD_CSPI1_SCLK__CSPI1_SCLK	0x0
++				MX27_PAD_CSPI1_SS0__GPIO4_28	0x0 /* CS0 */
++			>;
++		};
++
++		pinctrl_backlight: backlightgrp {
++			fsl,pins = <
++				MX27_PAD_PWMO__GPIO5_5		0x0
++			>;
++		};
++
++		pinctrl_gpioleds: gpioledsgrp {
++			fsl,pins = <
++				MX27_PAD_PC_PWRON__GPIO6_16	0x0
++				MX27_PAD_PC_CD2_B__GPIO6_19	0x0
++			>;
++		};
++
++		pinctrl_imxfb: imxfbgrp {
++			fsl,pins = <
++				MX27_PAD_LD0__LD0		0x0
++				MX27_PAD_LD1__LD1		0x0
++				MX27_PAD_LD2__LD2		0x0
++				MX27_PAD_LD3__LD3		0x0
++				MX27_PAD_LD4__LD4		0x0
++				MX27_PAD_LD5__LD5		0x0
++				MX27_PAD_LD6__LD6		0x0
++				MX27_PAD_LD7__LD7		0x0
++				MX27_PAD_LD8__LD8		0x0
++				MX27_PAD_LD9__LD9		0x0
++				MX27_PAD_LD10__LD10		0x0
++				MX27_PAD_LD11__LD11		0x0
++				MX27_PAD_LD12__LD12		0x0
++				MX27_PAD_LD13__LD13		0x0
++				MX27_PAD_LD14__LD14		0x0
++				MX27_PAD_LD15__LD15		0x0
++				MX27_PAD_LD16__LD16		0x0
++				MX27_PAD_LD17__LD17		0x0
++				MX27_PAD_CONTRAST__CONTRAST	0x0
++				MX27_PAD_OE_ACD__OE_ACD		0x0
++				MX27_PAD_HSYNC__HSYNC		0x0
++				MX27_PAD_VSYNC__VSYNC		0x0
++			>;
++		};
++
++		pinctrl_lcdreg: lcdreggrp {
++			fsl,pins = <
++				MX27_PAD_CLS__GPIO1_25		0x0
++			>;
++		};
++
++		pinctrl_sdhc1: sdhc1grp {
++			fsl,pins = <
++				MX27_PAD_SD1_CLK__SD1_CLK	0x0
++				MX27_PAD_SD1_CMD__SD1_CMD	0x0
++				MX27_PAD_SD1_D0__SD1_D0		0x0
++				MX27_PAD_SD1_D1__SD1_D1		0x0
++				MX27_PAD_SD1_D2__SD1_D2		0x0
++				MX27_PAD_SD1_D3__SD1_D3		0x0
++			>;
++		};
++
++		pinctrl_ssi1: ssi1grp {
++			fsl,pins = <
++				MX27_PAD_SSI4_CLK__SSI4_CLK	0x0
++				MX27_PAD_SSI4_FS__SSI4_FS	0x0
++				MX27_PAD_SSI4_RXDAT__SSI4_RXDAT	0x1
++				MX27_PAD_SSI4_TXDAT__SSI4_TXDAT	0x1
++			>;
++		};
++
++		pinctrl_touch: touchgrp {
++			fsl,pins = <
++				MX27_PAD_CSPI1_RDY__GPIO4_25	0x0 /* IRQ */
++			>;
++		};
++
++		pinctrl_uart1: uart1grp {
++			fsl,pins = <
++				MX27_PAD_UART1_TXD__UART1_TXD	0x0
++				MX27_PAD_UART1_RXD__UART1_RXD	0x0
++				MX27_PAD_UART1_CTS__UART1_CTS	0x0
++				MX27_PAD_UART1_RTS__UART1_RTS	0x0
++			>;
++		};
++
++		pinctrl_uart2: uart2grp {
++			fsl,pins = <
++				MX27_PAD_UART2_TXD__UART2_TXD	0x0
++				MX27_PAD_UART2_RXD__UART2_RXD	0x0
++				MX27_PAD_UART2_CTS__UART2_CTS	0x0
++				MX27_PAD_UART2_RTS__UART2_RTS	0x0
++			>;
++		};
++
++		pinctrl_uart3: uart3grp {
++			fsl,pins = <
++				MX27_PAD_UART3_TXD__UART3_TXD	0x0
++				MX27_PAD_UART3_RXD__UART3_RXD	0x0
++				MX27_PAD_UART3_CTS__UART3_CTS	0x0
++				MX27_PAD_UART3_RTS__UART3_RTS	0x0
++			>;
++		};
++	};
++};
+-- 
+2.0.1
+

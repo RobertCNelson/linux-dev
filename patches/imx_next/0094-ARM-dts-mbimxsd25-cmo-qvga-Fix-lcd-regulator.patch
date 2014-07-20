@@ -1,0 +1,32 @@
+From 29195008eefa1602e243f3baa176b0dc2a489c93 Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Tue, 17 Jun 2014 12:46:37 +0200
+Subject: [PATCH 094/125] ARM: dts: mbimxsd25: cmo-qvga: Fix lcd regulator
+
+The fixed-regulator's enable-active-high property
+is needed to indicate that the GPIO regulator is
+active high.
+
+Before that the regulator state was inverted.
+
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
+index 9797280..68d0834 100644
+--- a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
++++ b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
+@@ -52,6 +52,7 @@
+ 			regulator-min-microvolt = <3300000>;
+ 			regulator-max-microvolt = <3300000>;
+ 			gpio = <&gpio1 26 GPIO_ACTIVE_HIGH>;
++			enable-active-high;
+ 		};
+ 	};
+ };
+-- 
+2.0.1
+

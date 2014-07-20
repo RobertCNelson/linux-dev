@@ -1,0 +1,36 @@
+From 819c44c8901e520a973cf9d9f2b275e35ab2bc9e Mon Sep 17 00:00:00 2001
+From: Anson Huang <b20788@freescale.com>
+Date: Mon, 23 Jun 2014 14:04:01 +0800
+Subject: [PATCH 098/125] ARM: dts: imx6sx: iomux-gpr syscon is compatible to
+ imx6q
+
+The imx6sx iomuxc-gpr syscon is compatible to imx6q, so let's add
+compatible string 'fsl,imx6q-iomuxc-gpr' for imx6sx iomuxc-gpr syscon node.
+
+This is necessary to enable SW workaround for ERR007265,
+please refer to imx6_pm_common_init of arch/arm/mach-imx/pm-imx6.c
+for detail.
+
+Signed-off-by: Anson Huang <b20788@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx6sx.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
+index 78ccf61..7b41194 100644
+--- a/arch/arm/boot/dts/imx6sx.dtsi
++++ b/arch/arm/boot/dts/imx6sx.dtsi
+@@ -697,7 +697,8 @@
+ 			};
+ 
+ 			gpr: iomuxc-gpr@020e4000 {
+-				compatible = "fsl,imx6sx-iomuxc-gpr", "syscon";
++				compatible = "fsl,imx6sx-iomuxc-gpr",
++					     "fsl,imx6q-iomuxc-gpr", "syscon";
+ 				reg = <0x020e4000 0x4000>;
+ 			};
+ 
+-- 
+2.0.1
+

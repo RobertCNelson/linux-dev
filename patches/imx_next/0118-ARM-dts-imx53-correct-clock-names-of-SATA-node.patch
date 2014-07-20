@@ -1,0 +1,31 @@
+From c9abafe262ed309d2cf6b4fcec1d02cba7d6289e Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Tue, 8 Jul 2014 16:14:47 +0800
+Subject: [PATCH 118/125] ARM: dts: imx53: correct clock-names of SATA node
+
+Per the binding doc imx-sata.txt, the first entry of clock-names should
+be "sata" than anything else.  Correct it for imx53 SATA node.
+
+It works for now only because SATA driver gets clock by index so far.
+
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx53.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index 5fe8509..64fa27b 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -108,7 +108,7 @@
+ 			clocks = <&clks IMX5_CLK_SATA_GATE>,
+ 				 <&clks IMX5_CLK_SATA_REF>,
+ 				 <&clks IMX5_CLK_AHB>;
+-			clock-names = "sata_gate", "sata_ref", "ahb";
++			clock-names = "sata", "sata_ref", "ahb";
+ 			status = "disabled";
+ 		};
+ 
+-- 
+2.0.1
+

@@ -1,0 +1,31 @@
+From 3cb95428b91911805c5705ff5bfe1c8901501a5e Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Wed, 25 Jun 2014 14:41:34 +0200
+Subject: [PATCH 046/125] ARM i.MX25 clk: Fix gpt timer clock.
+
+The gpt0 timer clock has been wrong since:
+  6bbaec5 ARM i.MX25: implement clocks using common clock framework
+
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/clk-imx25.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-imx/clk-imx25.c b/arch/arm/mach-imx/clk-imx25.c
+index 887b508..e759a6d 100644
+--- a/arch/arm/mach-imx/clk-imx25.c
++++ b/arch/arm/mach-imx/clk-imx25.c
+@@ -242,7 +242,7 @@ int __init mx25_clocks_init(void)
+ {
+ 	__mx25_clocks_init(24000000);
+ 
+-	clk_register_clkdev(clk[ipg], "ipg", "imx-gpt.0");
++	clk_register_clkdev(clk[gpt1_ipg], "ipg", "imx-gpt.0");
+ 	clk_register_clkdev(clk[gpt_ipg_per], "per", "imx-gpt.0");
+ 	/* i.mx25 has the i.mx21 type uart */
+ 	clk_register_clkdev(clk[uart1_ipg], "ipg", "imx21-uart.0");
+-- 
+2.0.1
+

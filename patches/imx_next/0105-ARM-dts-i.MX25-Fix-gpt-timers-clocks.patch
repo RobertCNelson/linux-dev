@@ -1,0 +1,61 @@
+From e0a0e9b28555ef16d454baa45e9b3f5d0bcac8cd Mon Sep 17 00:00:00 2001
+From: Denis Carikli <denis@eukrea.com>
+Date: Wed, 25 Jun 2014 14:41:35 +0200
+Subject: [PATCH 105/125] ARM: dts: i.MX25: Fix gpt timers clocks.
+
+Without that fix, the board freeze during boot.
+
+This appeared after the following commit:
+  496f065 ARM: i.MX: Use of_clk_get_by_name() for timer clocks for DT case.
+
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+Tested-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/boot/dts/imx25.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
+index bb74d95..c174039 100644
+--- a/arch/arm/boot/dts/imx25.dtsi
++++ b/arch/arm/boot/dts/imx25.dtsi
+@@ -312,7 +312,7 @@
+ 			gpt4: timer@53f84000 {
+ 				compatible = "fsl,imx25-gpt", "fsl,imx31-gpt";
+ 				reg = <0x53f84000 0x4000>;
+-				clocks = <&clks 9>, <&clks 45>;
++				clocks = <&clks 95>, <&clks 47>;
+ 				clock-names = "ipg", "per";
+ 				interrupts = <1>;
+ 			};
+@@ -320,7 +320,7 @@
+ 			gpt3: timer@53f88000 {
+ 				compatible = "fsl,imx25-gpt", "fsl,imx31-gpt";
+ 				reg = <0x53f88000 0x4000>;
+-				clocks = <&clks 9>, <&clks 47>;
++				clocks = <&clks 94>, <&clks 47>;
+ 				clock-names = "ipg", "per";
+ 				interrupts = <29>;
+ 			};
+@@ -328,7 +328,7 @@
+ 			gpt2: timer@53f8c000 {
+ 				compatible = "fsl,imx25-gpt", "fsl,imx31-gpt";
+ 				reg = <0x53f8c000 0x4000>;
+-				clocks = <&clks 9>, <&clks 47>;
++				clocks = <&clks 93>, <&clks 47>;
+ 				clock-names = "ipg", "per";
+ 				interrupts = <53>;
+ 			};
+@@ -336,7 +336,7 @@
+ 			gpt1: timer@53f90000 {
+ 				compatible = "fsl,imx25-gpt", "fsl,imx31-gpt";
+ 				reg = <0x53f90000 0x4000>;
+-				clocks = <&clks 9>, <&clks 47>;
++				clocks = <&clks 92>, <&clks 47>;
+ 				clock-names = "ipg", "per";
+ 				interrupts = <54>;
+ 			};
+-- 
+2.0.1
+

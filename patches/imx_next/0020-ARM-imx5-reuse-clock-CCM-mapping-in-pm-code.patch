@@ -1,0 +1,103 @@
+From 012f2f861804d281e3aaab354a6e9bfb2c2ac0a6 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Tue, 20 May 2014 13:41:36 +0800
+Subject: [PATCH 020/125] ARM: imx5: reuse clock CCM mapping in pm code
+
+The imx5 pm code needs to access CCM registers.  Let's remove the use
+of CCM static mapping in pm code by reusing the dynamic mapping created
+in clock code.
+
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/clk-imx51-imx53.c |  2 ++
+ arch/arm/mach-imx/common.h          |  2 ++
+ arch/arm/mach-imx/pm-imx5.c         | 17 +++++++++++++----
+ 3 files changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-imx/clk-imx51-imx53.c b/arch/arm/mach-imx/clk-imx51-imx53.c
+index 4b69183..4e95865 100644
+--- a/arch/arm/mach-imx/clk-imx51-imx53.c
++++ b/arch/arm/mach-imx/clk-imx51-imx53.c
+@@ -133,6 +133,8 @@ static void __init mx5_clocks_common_init(void __iomem *ccm_base)
+ {
+ 	int i;
+ 
++	imx5_pm_set_ccm_base(ccm_base);
++
+ 	clk[IMX5_CLK_DUMMY]		= imx_clk_fixed("dummy", 0);
+ 	clk[IMX5_CLK_CKIL]		= imx_obtain_fixed_clock("ckil", 0);
+ 	clk[IMX5_CLK_OSC]		= imx_obtain_fixed_clock("osc", 0);
+diff --git a/arch/arm/mach-imx/common.h b/arch/arm/mach-imx/common.h
+index 1d6cf4d..8aa198c 100644
+--- a/arch/arm/mach-imx/common.h
++++ b/arch/arm/mach-imx/common.h
+@@ -143,8 +143,10 @@ void imx6q_pm_set_ccm_base(void __iomem *base);
+ 
+ #ifdef CONFIG_PM
+ void imx5_pm_init(void);
++void imx5_pm_set_ccm_base(void __iomem *base);
+ #else
+ static inline void imx5_pm_init(void) {}
++static inline void imx5_pm_set_ccm_base(void __iomem *base) {}
+ #endif
+ 
+ #ifdef CONFIG_NEON
+diff --git a/arch/arm/mach-imx/pm-imx5.c b/arch/arm/mach-imx/pm-imx5.c
+index 7dfd005..3544c25 100644
+--- a/arch/arm/mach-imx/pm-imx5.c
++++ b/arch/arm/mach-imx/pm-imx5.c
+@@ -21,8 +21,7 @@
+ #include "cpuidle.h"
+ #include "hardware.h"
+ 
+-#define MX51_CCM_BASE			MX51_IO_ADDRESS(MX51_CCM_BASE_ADDR)
+-#define MXC_CCM_CLPCR			(MX51_CCM_BASE + 0x54)
++#define MXC_CCM_CLPCR			0x54
+ #define MXC_CCM_CLPCR_LPM_OFFSET	0
+ #define MXC_CCM_CLPCR_LPM_MASK		0x3
+ #define MXC_CCM_CLPCR_STBY_COUNT_OFFSET	9
+@@ -57,6 +56,13 @@
+  */
+ #define IMX5_DEFAULT_CPU_IDLE_STATE WAIT_UNCLOCKED_POWER_OFF
+ 
++static void __iomem *ccm_base;
++
++void __init imx5_pm_set_ccm_base(void __iomem *base)
++{
++	ccm_base = base;
++}
++
+ /*
+  * set cpu low power mode before WFI instruction. This function is called
+  * mx5 because it can be used for mx51, and mx53.
+@@ -70,7 +76,8 @@ static void mx5_cpu_lp_set(enum mxc_cpu_pwr_mode mode)
+ 	/* always allow platform to issue a deep sleep mode request */
+ 	plat_lpc = __raw_readl(MXC_CORTEXA8_PLAT_LPC) &
+ 	    ~(MXC_CORTEXA8_PLAT_LPC_DSM);
+-	ccm_clpcr = __raw_readl(MXC_CCM_CLPCR) & ~(MXC_CCM_CLPCR_LPM_MASK);
++	ccm_clpcr = __raw_readl(ccm_base + MXC_CCM_CLPCR) &
++		    ~(MXC_CCM_CLPCR_LPM_MASK);
+ 	arm_srpgcr = __raw_readl(MXC_SRPG_ARM_SRPGCR) & ~(MXC_SRPGCR_PCR);
+ 	empgc0 = __raw_readl(MXC_SRPG_EMPGC0_SRPGCR) & ~(MXC_SRPGCR_PCR);
+ 	empgc1 = __raw_readl(MXC_SRPG_EMPGC1_SRPGCR) & ~(MXC_SRPGCR_PCR);
+@@ -108,7 +115,7 @@ static void mx5_cpu_lp_set(enum mxc_cpu_pwr_mode mode)
+ 	}
+ 
+ 	__raw_writel(plat_lpc, MXC_CORTEXA8_PLAT_LPC);
+-	__raw_writel(ccm_clpcr, MXC_CCM_CLPCR);
++	__raw_writel(ccm_clpcr, ccm_base + MXC_CCM_CLPCR);
+ 	__raw_writel(arm_srpgcr, MXC_SRPG_ARM_SRPGCR);
+ 	__raw_writel(arm_srpgcr, MXC_SRPG_NEON_SRPGCR);
+ 
+@@ -188,6 +195,8 @@ static int __init imx5_pm_common_init(void)
+ 
+ 	arm_pm_idle = imx5_pm_idle;
+ 
++	WARN_ON(!ccm_base);
++
+ 	/* Set the registers to the default cpu idle state. */
+ 	mx5_cpu_lp_set(IMX5_DEFAULT_CPU_IDLE_STATE);
+ 
+-- 
+2.0.1
+

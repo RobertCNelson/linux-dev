@@ -1,0 +1,41 @@
+From dc4c64670d013dbcfd5f2f7d0ba418d2aa103786 Mon Sep 17 00:00:00 2001
+From: Alexander Shiyan <shc_work@mail.ru>
+Date: Fri, 13 Jun 2014 11:26:13 +0400
+Subject: [PATCH 034/125] ARM: i.MX system: Add a reset fallback if base
+ address of watchdog is not set
+
+This patch adds a reset fallback if base address of watchdog is not set.
+This is intended for a targets not compatible with imx-21 watchdog,
+i.MX1 for example.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/system.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/mach-imx/system.c b/arch/arm/mach-imx/system.c
+index 92d11c2..d14c33f 100644
+--- a/arch/arm/mach-imx/system.c
++++ b/arch/arm/mach-imx/system.c
+@@ -42,6 +42,9 @@ void mxc_restart(enum reboot_mode mode, const char *cmd)
+ {
+ 	unsigned int wcr_enable;
+ 
++	if (!wdog_base)
++		goto reset_fallback;
++
+ 	if (!IS_ERR(wdog_clk))
+ 		clk_enable(wdog_clk);
+ 
+@@ -70,6 +73,7 @@ void mxc_restart(enum reboot_mode mode, const char *cmd)
+ 	/* delay to allow the serial port to show the message */
+ 	mdelay(50);
+ 
++reset_fallback:
+ 	/* we'll take a jump through zero as a poor second */
+ 	soft_restart(0);
+ }
+-- 
+2.0.1
+

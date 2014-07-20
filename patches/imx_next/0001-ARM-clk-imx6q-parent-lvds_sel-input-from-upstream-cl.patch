@@ -1,0 +1,52 @@
+From eda97fe9021b467c65f68b1e115097236f4ac7e4 Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Thu, 17 Jul 2014 12:20:14 +0200
+Subject: [PATCH 001/125] ARM: clk-imx6q: parent lvds_sel input from upstream
+ clock gates
+
+The i.MX6 reference manual doesn't make a clear distinction
+between the fixed clock divider and the enable gate for the
+pcie and sata reference clocks. This lead to the lvds mux
+inputs in the imx6q clk driver to be parented from the
+ref clock (which is the divider) instead of the actual gate,
+which in turn prevents the upstream clock to actually be
+enabled when lvds clk out is active.
+
+This fixes a hard machine hang regression in kernel 3.16 for
+boards where only pcie is active but no sata, as with this
+kernel version the imx6-pcie driver is no longer enabling
+the upstream clock directly but only lvds clk out.
+
+Reported-by: Arne Ruhnau <arne.ruhnau@target-sg.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Tested-by: Arne Ruhnau <arne.ruhnau@target-sg.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/clk-imx6q.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+index 8e795de..8556c78 100644
+--- a/arch/arm/mach-imx/clk-imx6q.c
++++ b/arch/arm/mach-imx/clk-imx6q.c
+@@ -70,7 +70,7 @@ static const char *cko_sels[] = { "cko1", "cko2", };
+ static const char *lvds_sels[] = {
+ 	"dummy", "dummy", "dummy", "dummy", "dummy", "dummy",
+ 	"pll4_audio", "pll5_video", "pll8_mlb", "enet_ref",
+-	"pcie_ref", "sata_ref",
++	"pcie_ref_125m", "sata_ref_100m",
+ };
+ 
+ enum mx6q_clks {
+@@ -491,7 +491,7 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 
+ 	/* All existing boards with PCIe use LVDS1 */
+ 	if (IS_ENABLED(CONFIG_PCI_IMX6))
+-		clk_set_parent(clk[lvds1_sel], clk[sata_ref]);
++		clk_set_parent(clk[lvds1_sel], clk[sata_ref_100m]);
+ 
+ 	/* Set initial power mode */
+ 	imx6q_set_lpm(WAIT_CLOCKED);
+-- 
+2.0.1
+

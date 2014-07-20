@@ -1,0 +1,37 @@
+From 25af62bc39b4d2ae8f3a49dac5cf270ceb17400f Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 3 Jul 2014 16:16:06 +0200
+Subject: [PATCH 056/125] ARM: imx: imx6sx uses imx6q cpuidle code
+
+Building a kernel for imx6sx but without imx6q support results in
+this link error because of the missing cpuidle driver:
+
+arch/arm/mach-imx/built-in.o: In function `imx6sx_init_late'::(.init.text+0xc228):
+ undefined reference to `imx6q_cpuidle_init'
+
+This patch adds a Makefile entry so we always build support for
+the imx6q_cpuidle code when at least one of the 6sx or 6q variants
+are enabled.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/mach-imx/Makefile b/arch/arm/mach-imx/Makefile
+index a364e20..a3d9712 100644
+--- a/arch/arm/mach-imx/Makefile
++++ b/arch/arm/mach-imx/Makefile
+@@ -31,6 +31,8 @@ ifeq ($(CONFIG_CPU_IDLE),y)
+ obj-$(CONFIG_SOC_IMX5) += cpuidle-imx5.o
+ obj-$(CONFIG_SOC_IMX6Q) += cpuidle-imx6q.o
+ obj-$(CONFIG_SOC_IMX6SL) += cpuidle-imx6sl.o
++# i.MX6SX reuses i.MX6Q cpuidle driver
++obj-$(CONFIG_SOC_IMX6SX) += cpuidle-imx6q.o
+ endif
+ 
+ ifdef CONFIG_SND_IMX_SOC
+-- 
+2.0.1
+

@@ -1,0 +1,150 @@
+From a786d6e9cdbccc40a9b3ae66937b2663ee34416d Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Mon, 19 May 2014 20:19:06 +0800
+Subject: [PATCH 013/125] ARM: imx5: tzic_init_irq() can directly be .init_irq
+ hook
+
+After i.MX51 supports DT only, tzic_init_irq() can figure out the
+tzic_base on its own.  Thus, it can directly be .init_irq hook, and
+mx51[53]_init_irq() can be saved.
+
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/common.h     |  4 +---
+ arch/arm/mach-imx/mach-imx50.c |  2 +-
+ arch/arm/mach-imx/mach-imx51.c |  2 +-
+ arch/arm/mach-imx/mach-imx53.c |  2 +-
+ arch/arm/mach-imx/mm-imx5.c    | 17 -----------------
+ arch/arm/mach-imx/tzic.c       |  9 ++++++---
+ 6 files changed, 10 insertions(+), 26 deletions(-)
+
+diff --git a/arch/arm/mach-imx/common.h b/arch/arm/mach-imx/common.h
+index cf9e9c2..6d018c0 100644
+--- a/arch/arm/mach-imx/common.h
++++ b/arch/arm/mach-imx/common.h
+@@ -37,15 +37,13 @@ void imx35_init_early(void);
+ void imx51_init_early(void);
+ void imx53_init_early(void);
+ void mxc_init_irq(void __iomem *);
+-void tzic_init_irq(void __iomem *);
++void tzic_init_irq(void);
+ void mx1_init_irq(void);
+ void mx21_init_irq(void);
+ void mx25_init_irq(void);
+ void mx27_init_irq(void);
+ void mx31_init_irq(void);
+ void mx35_init_irq(void);
+-void mx51_init_irq(void);
+-void mx53_init_irq(void);
+ void imx1_soc_init(void);
+ void imx21_soc_init(void);
+ void imx25_soc_init(void);
+diff --git a/arch/arm/mach-imx/mach-imx50.c b/arch/arm/mach-imx/mach-imx50.c
+index b899c0b..66e537b 100644
+--- a/arch/arm/mach-imx/mach-imx50.c
++++ b/arch/arm/mach-imx/mach-imx50.c
+@@ -30,7 +30,7 @@ static const char *imx50_dt_board_compat[] __initconst = {
+ 
+ DT_MACHINE_START(IMX50_DT, "Freescale i.MX50 (Device Tree Support)")
+ 	.map_io		= mx53_map_io,
+-	.init_irq	= mx53_init_irq,
++	.init_irq	= tzic_init_irq,
+ 	.init_machine	= imx50_dt_init,
+ 	.dt_compat	= imx50_dt_board_compat,
+ 	.restart	= mxc_restart,
+diff --git a/arch/arm/mach-imx/mach-imx51.c b/arch/arm/mach-imx/mach-imx51.c
+index b8cd968..a849d43 100644
+--- a/arch/arm/mach-imx/mach-imx51.c
++++ b/arch/arm/mach-imx/mach-imx51.c
+@@ -37,7 +37,7 @@ static const char *imx51_dt_board_compat[] __initconst = {
+ DT_MACHINE_START(IMX51_DT, "Freescale i.MX51 (Device Tree Support)")
+ 	.map_io		= mx51_map_io,
+ 	.init_early	= imx51_init_early,
+-	.init_irq	= mx51_init_irq,
++	.init_irq	= tzic_init_irq,
+ 	.init_machine	= imx51_dt_init,
+ 	.init_late	= imx51_init_late,
+ 	.dt_compat	= imx51_dt_board_compat,
+diff --git a/arch/arm/mach-imx/mach-imx53.c b/arch/arm/mach-imx/mach-imx53.c
+index 2bad387..9a066af 100644
+--- a/arch/arm/mach-imx/mach-imx53.c
++++ b/arch/arm/mach-imx/mach-imx53.c
+@@ -39,7 +39,7 @@ static const char *imx53_dt_board_compat[] __initconst = {
+ DT_MACHINE_START(IMX53_DT, "Freescale i.MX53 (Device Tree Support)")
+ 	.map_io		= mx53_map_io,
+ 	.init_early	= imx53_init_early,
+-	.init_irq	= mx53_init_irq,
++	.init_irq	= tzic_init_irq,
+ 	.init_machine	= imx53_dt_init,
+ 	.init_late	= imx53_init_late,
+ 	.dt_compat	= imx53_dt_board_compat,
+diff --git a/arch/arm/mach-imx/mm-imx5.c b/arch/arm/mach-imx/mm-imx5.c
+index 4c11202..d5dbf80 100644
+--- a/arch/arm/mach-imx/mm-imx5.c
++++ b/arch/arm/mach-imx/mm-imx5.c
+@@ -93,23 +93,6 @@ void __init imx53_init_early(void)
+ 	imx_src_init();
+ }
+ 
+-void __init mx51_init_irq(void)
+-{
+-	tzic_init_irq(MX51_IO_ADDRESS(MX51_TZIC_BASE_ADDR));
+-}
+-
+-void __init mx53_init_irq(void)
+-{
+-	struct device_node *np;
+-	void __iomem *base;
+-
+-	np = of_find_compatible_node(NULL, NULL, "fsl,imx53-tzic");
+-	base = of_iomap(np, 0);
+-	WARN_ON(!base);
+-
+-	tzic_init_irq(base);
+-}
+-
+ static struct sdma_platform_data imx51_sdma_pdata __initdata = {
+ 	.fw_name = "sdma-imx51.bin",
+ };
+diff --git a/arch/arm/mach-imx/tzic.c b/arch/arm/mach-imx/tzic.c
+index 7828af4..1d4f384 100644
+--- a/arch/arm/mach-imx/tzic.c
++++ b/arch/arm/mach-imx/tzic.c
+@@ -17,6 +17,7 @@
+ #include <linux/io.h>
+ #include <linux/irqdomain.h>
+ #include <linux/of.h>
++#include <linux/of_address.h>
+ 
+ #include <asm/mach/irq.h>
+ #include <asm/exception.h>
+@@ -153,13 +154,16 @@ static void __exception_irq_entry tzic_handle_irq(struct pt_regs *regs)
+  * interrupts. It registers the interrupt enable and disable functions
+  * to the kernel for each interrupt source.
+  */
+-void __init tzic_init_irq(void __iomem *irqbase)
++void __init tzic_init_irq(void)
+ {
+ 	struct device_node *np;
+ 	int irq_base;
+ 	int i;
+ 
+-	tzic_base = irqbase;
++	np = of_find_compatible_node(NULL, NULL, "fsl,tzic");
++	tzic_base = of_iomap(np, 0);
++	WARN_ON(!tzic_base);
++
+ 	/* put the TZIC into the reset value with
+ 	 * all interrupts disabled
+ 	 */
+@@ -181,7 +185,6 @@ void __init tzic_init_irq(void __iomem *irqbase)
+ 	irq_base = irq_alloc_descs(-1, 0, TZIC_NUM_IRQS, numa_node_id());
+ 	WARN_ON(irq_base < 0);
+ 
+-	np = of_find_compatible_node(NULL, NULL, "fsl,tzic");
+ 	domain = irq_domain_add_legacy(np, TZIC_NUM_IRQS, irq_base, 0,
+ 				       &irq_domain_simple_ops, NULL);
+ 	WARN_ON(!domain);
+-- 
+2.0.1
+

@@ -1,0 +1,43 @@
+From 46ea496c64d1cf6791f4a6f0e8070977361679a3 Mon Sep 17 00:00:00 2001
+From: Shawn Guo <shawn.guo@freescale.com>
+Date: Tue, 20 May 2014 15:09:42 +0800
+Subject: [PATCH 024/125] ARM: imx5: clean function declarations in mx51.h
+
+The mx51_display_revision() is a dead declaration.  Remove it.  Also,
+move mx51_revision() into common.h.
+
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ arch/arm/mach-imx/common.h | 1 +
+ arch/arm/mach-imx/mx51.h   | 5 -----
+ 2 files changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/arch/arm/mach-imx/common.h b/arch/arm/mach-imx/common.h
+index 53ee569..5aaea2b 100644
+--- a/arch/arm/mach-imx/common.h
++++ b/arch/arm/mach-imx/common.h
+@@ -64,6 +64,7 @@ void mxc_set_cpu_type(unsigned int type);
+ void mxc_restart(enum reboot_mode, const char *);
+ void mxc_arch_reset_init(void __iomem *);
+ void mxc_arch_reset_init_dt(void);
++int mx51_revision(void);
+ int mx53_revision(void);
+ void imx_set_aips(void __iomem *);
+ int mxc_device_init(void);
+diff --git a/arch/arm/mach-imx/mx51.h b/arch/arm/mach-imx/mx51.h
+index 3f6d4a6..a569528 100644
+--- a/arch/arm/mach-imx/mx51.h
++++ b/arch/arm/mach-imx/mx51.h
+@@ -305,9 +305,4 @@
+ #define MX51_INT_EMI_NFC		(NR_IRQS_LEGACY + 101)
+ #define MX51_INT_GPU_IDLE		(NR_IRQS_LEGACY + 102)
+ 
+-#if !defined(__ASSEMBLY__) && !defined(__MXC_BOOT_UNCOMPRESS)
+-extern int mx51_revision(void);
+-extern void mx51_display_revision(void);
+-#endif
+-
+ #endif	/* ifndef __MACH_MX51_H__ */
+-- 
+2.0.1
+

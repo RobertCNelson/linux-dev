@@ -1,0 +1,41 @@
+From 60f474c1573de20d8f9138916092dd4767f9a9e6 Mon Sep 17 00:00:00 2001
+From: Liu Ying <Ying.Liu@freescale.com>
+Date: Fri, 4 Jul 2014 17:00:41 +0800
+Subject: [PATCH 058/125] bus: imx-weim: populate devices on a simple bus
+
+There could be some memory map devices located in
+a certain chip select region of the i.MX WEIM.
+The devices could be attached to a simple bus(for
+example, a AXI bus) whose root node is one child
+device tree node of the i.MX WEIM device tree node.
+There should be a bridge(very likely, software
+transparent) bewteen the i.MX WEIM and the simple bus.
+This patch makes the i.MX WEIM driver possible to
+populate devices on a simple bus.  In this way, people
+may try various IPs(in a FPGA, maybe) outside of i.MX
+chips with the i.MX WEIM embedded.
+
+Signed-off-by: Liu Ying <Ying.Liu@freescale.com>
+Signed-off-by: Shawn Guo <shawn.guo@freescale.com>
+---
+ drivers/bus/imx-weim.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/bus/imx-weim.c b/drivers/bus/imx-weim.c
+index f8ee13c..75c9681 100644
+--- a/drivers/bus/imx-weim.c
++++ b/drivers/bus/imx-weim.c
+@@ -162,7 +162,9 @@ static int __init weim_parse_dt(struct platform_device *pdev,
+ 		}
+ 	}
+ 
+-	ret = of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
++	ret = of_platform_populate(pdev->dev.of_node,
++				   of_default_bus_match_table,
++				   NULL, &pdev->dev);
+ 	if (ret)
+ 		dev_err(&pdev->dev, "%s fail to create devices.\n",
+ 			pdev->dev.of_node->full_name);
+-- 
+2.0.1
+
