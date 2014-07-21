@@ -310,6 +310,8 @@ check_config_builtin
 #
 config="CONFIG_NETLABEL"
 check_config_builtin
+config="CONFIG_IP_PNP"
+check_config_builtin
 
 #
 # IP: Netfilter Configuration
@@ -547,6 +549,12 @@ config="CONFIG_TI_CPSW"
 check_config_builtin
 config="CONFIG_VIA_VELOCITY"
 check_config_disable
+
+#
+# MII PHY device drivers
+#
+config="CONFIG_SMSC_PHY"
+check_config_builtin
 
 #
 # USB Network Adapters
@@ -844,6 +852,8 @@ check_config_builtin
 config="CONFIG_I2C_IMX"
 check_config_builtin
 config="CONFIG_I2C_MV64XXX"
+check_config_builtin
+config="CONFIG_I2C_SUN6I_P2WI"
 check_config_builtin
 config="CONFIG_I2C_TEGRA"
 check_config_builtin
@@ -1153,6 +1163,8 @@ config="CONFIG_MFD_PALMAS"
 check_config_builtin
 config="CONFIG_MFD_TPS65217"
 check_config_builtin
+config="CONFIG_MFD_TPS65218"
+check_config_builtin
 config="CONFIG_MFD_TPS65910"
 check_config_builtin
 config="CONFIG_MFD_WL1273_CORE"
@@ -1194,6 +1206,8 @@ check_config_builtin
 config="CONFIG_REGULATOR_TPS6507X"
 check_config_builtin
 config="CONFIG_REGULATOR_TPS65217"
+check_config_builtin
+config="CONFIG_REGULATOR_TPS65218"
 check_config_builtin
 config="CONFIG_REGULATOR_TPS65910"
 check_config_builtin
@@ -2319,6 +2333,8 @@ check_config_builtin
 config="CONFIG_NFS_V3"
 check_config_builtin
 config="CONFIG_NFS_V4"
+check_config_builtin
+config="CONFIG_ROOT_NFS"
 check_config_builtin
 config="CONFIG_NLS_DEFAULT"
 value=\"iso8859-1\"
