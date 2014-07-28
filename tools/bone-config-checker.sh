@@ -308,6 +308,12 @@ config="CONFIG_USB_G_WEBCAM"
 check_config_disable
 
 #
+# on-CPU RTC drivers
+#
+config="CONFIG_RTC_DRV_OMAP"
+check_config_builtin
+
+#
 # Android
 #
 config="CONFIG_DRM_IMX"
