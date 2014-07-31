@@ -40,14 +40,14 @@ patch_kernel () {
 
 config_reference () {
 	echo "Updating reference config: ${ref_config}"
-	make ARCH=arm CROSS_COMPILE=${CC} ${ref_config}
+	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" ${ref_config}
 	cp -v .config ${DIR}/patches/example_${ref_config}
 }
 
 copy_defconfig () {
 	cd ${DIR}/KERNEL/
-	make ARCH=arm CROSS_COMPILE=${CC} distclean
-	make ARCH=arm CROSS_COMPILE=${CC} ${config}
+	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" distclean
+	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" ${config}
 	cp -v .config ${DIR}/patches/ref_${config}
 
 	ref_config="imx_v6_v7_defconfig"
@@ -64,17 +64,17 @@ copy_defconfig () {
 
 	echo "Updating: defconfig-lpae"
 	cp -v ${DIR}/patches/defconfig-lpae .config
-	make ARCH=arm CROSS_COMPILE=${CC} oldconfig
+	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" oldconfig
 	cp -v .config ${DIR}/patches/defconfig-lpae
 
 	echo "Updating: defconfig-bone"
 	cp -v ${DIR}/patches/defconfig-bone .config
-	make ARCH=arm CROSS_COMPILE=${CC} oldconfig
+	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" oldconfig
 	cp -v .config ${DIR}/patches/defconfig-bone
 
 	echo "Updating: defconfig"
 	cp -v ${DIR}/patches/defconfig .config
-	make ARCH=arm CROSS_COMPILE=${CC} oldconfig
+	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" oldconfig
 	cp -v .config ${DIR}/patches/defconfig
 
 	cp -v ${DIR}/patches/defconfig .config
@@ -83,7 +83,7 @@ copy_defconfig () {
 
 make_menuconfig () {
 	cd ${DIR}/KERNEL/
-	make ARCH=arm CROSS_COMPILE=${CC} menuconfig
+	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" menuconfig
 	cp -v .config ${DIR}/patches/defconfig
 	cd ${DIR}/
 }
@@ -98,9 +98,9 @@ make_kernel () {
 
 	cd ${DIR}/KERNEL/
 	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} ${address} ${image} modules"
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${address} ${image} modules"
 	echo "-----------------------------"
-	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} ${address} ${image} modules
+	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" ${address} ${image} modules
 
 	unset DTBS
 	cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:" >/dev/null 2>&1 && DTBS=enable
@@ -116,9 +116,9 @@ make_kernel () {
 
 	if [ "x${DTBS}" = "xenable" ] ; then
 		echo "-----------------------------"
-		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs"
+		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" dtbs"
 		echo "-----------------------------"
-		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs
+		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" dtbs
 		ls arch/arm/boot/* | grep dtb >/dev/null 2>&1 || unset DTBS
 	fi
 
@@ -179,14 +179,14 @@ make_pkg () {
 
 	case "${pkg}" in
 	modules)
-		make -s ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
 		;;
 	firmware)
-		make -s ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
 		;;
 	dtbs)
 		if [ "x${has_dtbs_install}" = "xenable" ] ; then
-			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
+			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CCACHE} ${CC}" dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
 		else
 			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
 		fi
@@ -284,8 +284,13 @@ if [ "${FULL_REBUILD}" ] ; then
 	patch_kernel
 	copy_defconfig
 fi
+unset CCACHE
 if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
+else
+	if [ -f /usr/bin/ccache ] ; then
+		CCACHE=ccache
+	fi
 fi
 make_kernel
 make_modules_pkg
