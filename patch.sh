@@ -324,7 +324,7 @@ dts () {
 	${git} "${DIR}/patches/dts/0011-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
 
 	${git} "${DIR}/patches/dts/0012-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
-	${git} "${DIR}/patches/dts/0013-arm-dts-add-imx6dl-udoo.patch"
+#	${git} "${DIR}/patches/dts/0013-arm-dts-add-imx6dl-udoo.patch"
 	${git} "${DIR}/patches/dts/0014-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
 #	${git} "${DIR}/patches/dts/0015-ARM-dts-imx6dl-udoo-Add-HDMI-support.patch"
 #	${git} "${DIR}/patches/dts/0016-ARM-dts-imx6q-udoo-Add-USB-Host-support.patch"
@@ -363,9 +363,9 @@ vivante () {
 
 #revert
 drivers
-imx_next
-omap_next
-tegra_next
+#imx_next
+#omap_next
+#tegra_next
 
 dts
 omap_sprz319_erratum
