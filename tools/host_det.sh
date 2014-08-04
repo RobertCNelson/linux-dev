@@ -193,7 +193,6 @@ debian_regs () {
 
 			#http://docs.kali.org/kali-policy/kali-linux-relationship-with-debian
 			#lsb_release -a
-			#No LSB modules are available.
 			#Distributor ID:    Debian
 			#Description:    Debian GNU/Linux Kali Linux 1.0
 			#Release:    Kali Linux 1.0
@@ -204,7 +203,6 @@ debian_regs () {
 
 			#Debian "testing"
 			#lsb_release -a
-			#No LSB modules are available.
 			#Distributor ID: Debian
 			#Description:    Debian GNU/Linux testing/unstable
 			#Release:        testing/unstable
@@ -220,7 +218,6 @@ debian_regs () {
 
 			#http://solydxk.com/about/solydxk/
 			#lsb_release -a
-			#No LSB modules are available.
 			#Distributor ID: SolydXK
 			#Description:    SolydXK
 			#Release:        1
@@ -233,11 +230,20 @@ debian_regs () {
 		if [ "x${deb_distro}" = "xluna" ] ; then
 			#http://distrowatch.com/table.php?distribution=elementary
 			#lsb_release -a
-			#No LSB modules are available.
 			#Distributor ID:    elementary OS
 			#Description:    elementary OS Luna
 			#Release:    0.2
 			#Codename:    luna
+			deb_distro="precise"
+		fi
+
+		if [ "x${deb_distro}" = "xtoutatis" ] ; then
+			#http://listas.trisquel.info/pipermail/trisquel-announce/2013-March/000014.html
+			#lsb_release -a
+			#Distributor ID:    Trisquel
+			#Description:    Trisquel GNU/Linux 6.0.1, Toutatis
+			#Release:    6.0.1
+			#Codename:    toutatis
 			deb_distro="precise"
 		fi
 
