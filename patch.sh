@@ -308,9 +308,9 @@ tegra_next () {
 
 dts () {
 	echo "dir: dts"
-	${git} "${DIR}/patches/dts/0001-ARM-dts-imx6qdl-wandboard-add-gpio-lines-to-wandboar.patch"
-	${git} "${DIR}/patches/dts/0002-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
-	${git} "${DIR}/patches/dts/0003-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
+#	${git} "${DIR}/patches/dts/0001-ARM-dts-imx6qdl-wandboard-add-gpio-lines-to-wandboar.patch"
+#	${git} "${DIR}/patches/dts/0002-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
+#	${git} "${DIR}/patches/dts/0003-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
 
 	${git} "${DIR}/patches/dts/0004-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
 	${git} "${DIR}/patches/dts/0005-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
@@ -362,15 +362,15 @@ vivante () {
 }
 
 #revert
-drivers
+#drivers
 #imx_next
 #omap_next
 #tegra_next
 
 dts
-omap_sprz319_erratum
+#omap_sprz319_erratum
 
-fixes
+#fixes
 vivante
 
 packaging_setup () {
