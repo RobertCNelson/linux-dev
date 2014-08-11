@@ -64,6 +64,9 @@ local_patch () {
 	${git} "${DIR}/patches/dir/0001-patch.patch"
 }
 
+#external_git
+#local_patch
+
 revert () {
 	echo "dir: revert"
 }

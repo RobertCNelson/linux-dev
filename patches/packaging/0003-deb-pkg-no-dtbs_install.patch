@@ -1,0 +1,27 @@
+From f2714abb87709353ddee75e95de26a7abe282aab Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 2 Jul 2014 15:31:55 -0500
+Subject: [PATCH 3/3] deb-pkg: no dtbs_install
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ scripts/package/builddeb | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/package/builddeb b/scripts/package/builddeb
+index 49b11f1..f271a42 100644
+--- a/scripts/package/builddeb
++++ b/scripts/package/builddeb
+@@ -169,7 +169,8 @@ fi
+ 
+ if grep -q '^CONFIG_OF=y' $KCONFIG_CONFIG ; then
+ 	mkdir -p "$tmpdir/boot/dtbs/$version"
+-	INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" $MAKE KBUILD_SRC= dtbs_install
++	$MAKE KBUILD_SRC= dtbs
++	find arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' "$tmpdir/boot/dtbs/$version" \;
+ 
+ 	#make dtbs_install seems to add an .old directory
+ 	if [ -d "$tmpdir/boot/dtbs/$version.old" ] ; then
+-- 
+2.0.0
+
