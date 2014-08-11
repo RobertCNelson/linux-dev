@@ -114,6 +114,14 @@ git_kernel () {
 	#Disable git's default setting of running `git gc --auto` in the background as the patch.sh script can fail.
 	git config --local --list | grep gc.autodetach >/dev/null 2>&1 || git config --local gc.autodetach 0
 
+	if [ ! "${git_config_user_email}" ] ; then
+		git config --local user.email you@example.com
+	fi
+
+	if [ ! "${git_config_user_name}" ] ; then
+		git config --local user.name "Your Name"
+	fi
+
 	if [ "${RUN_BISECT}" ] ; then
 		git bisect reset || true
 	fi
@@ -166,26 +174,15 @@ git_kernel () {
 . ${DIR}/system.sh
 
 unset git_config_user_email
-git_config_user_email=$(git config --get user.email || true)
+git_config_user_email=$(git config --global --get user.email || true)
+if [ ! "${git_config_user_email}" ] ; then
+	git config --local user.email you@example.com
+fi
 
 unset git_config_user_name
-git_config_user_name=$(git config --get user.name || true)
-
-if [ ! "${git_config_user_email}" ] || [ ! "${git_config_user_name}" ] ; then
-	echo "-----------------------------"
-	echo "Error: git user.name/user.email not set:"
-	echo ""
-	echo "For help please read:"
-	echo "https://help.github.com/articles/setting-your-username-in-git"
-	echo "https://help.github.com/articles/setting-your-email-in-git"
-	echo ""
-	echo "For example, if your real name and email was: Billy Everteen & me@here.com"
-	echo "you would type the following into the terminal window to set it up:"
-	echo "-----------------------------"
-	echo "git config --global user.name \"Billy Everyteen\""
-	echo "git config --global user.email \"me@here.com\""
-	echo "-----------------------------"
-	exit 1
+git_config_user_name=$(git config --global --get user.name || true)
+if [ ! "${git_config_user_name}" ] ; then
+	git config --local user.name "Your Name"
 fi
 
 torvalds_linux="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
