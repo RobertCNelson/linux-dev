@@ -35,6 +35,7 @@ if [ -e ${DIR}/version.sh ]; then
 	git push origin ${BRANCH} --tags
 
 	cd ${DIR}/KERNEL/
+	make ARCH=arm distclean
 	git push -f git@github.com:RobertCNelson/linux-stable-rcn-ee.git "v${KERNEL_TAG}-${BUILD}"
 	cd ${DIR}/
 fi

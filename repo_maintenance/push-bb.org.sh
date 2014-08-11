@@ -31,6 +31,7 @@ if [ -e ${DIR}/version.sh ]; then
 	. ${DIR}/version.sh
 
 	cd ${DIR}/KERNEL/
+	make ARCH=arm distclean
 
 	cp ${DIR}/patches/defconfig ${DIR}/KERNEL/arch/arm/configs/bb.org_defconfig
 	git add arch/arm/configs/bb.org_defconfig
