@@ -349,12 +349,12 @@ debian_regs () {
 
 		#Libs; starting with jessie/sid, lib<pkg_name>-dev:<arch>
 		case "${deb_distro}" in
-		jessie|sid|trusty|utopic)
-			pkg="libncurses5-dev:${deb_arch}"
+		squeeze|wheezy|lucid|precise)
+			pkg="libncurses5-dev"
 			check_dpkg
 			;;
 		*)
-			pkg="libncurses5-dev"
+			pkg="libncurses5-dev:${deb_arch}"
 			check_dpkg
 			;;
 		esac
@@ -367,7 +367,7 @@ debian_regs () {
 				pkg="ia32-libs"
 				check_dpkg
 				;;
-			wheezy|jessie|sid|trusty|utopic)
+			*)
 				pkg="libc6:i386"
 				check_dpkg
 				pkg="libncurses5:i386"
@@ -406,10 +406,10 @@ debian_regs () {
 		echo "-----------------------------"
 		echo "Please cut, paste and email to: bugs@rcn-ee.com"
 		echo "-----------------------------"
-		echo "git: `git rev-parse HEAD`"
-		echo "uname -m"
-		uname -m
-		echo "lsb_release -a"
+		echo "git: [`git rev-parse HEAD`]"
+		echo "git: [`cat .git/config | grep url | sed 's/\t//g' | sed 's/ //g'`]"
+		echo "uname -m: [`uname -m`]"
+		echo "lsb_release -a:"
 		lsb_release -a
 		echo "-----------------------------"
 		return 1
