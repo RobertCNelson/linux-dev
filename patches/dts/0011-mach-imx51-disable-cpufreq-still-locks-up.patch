@@ -1,0 +1,34 @@
+From 09d99378374f58d2c3475aa98e2798349f626797 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 5 Aug 2014 09:52:42 -0500
+Subject: [PATCH 11/13] mach-imx51: disable cpufreq, still locks up
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-imx/mach-imx51.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-imx/mach-imx51.c b/arch/arm/mach-imx/mach-imx51.c
+index c77deb3..43d2180 100644
+--- a/arch/arm/mach-imx/mach-imx51.c
++++ b/arch/arm/mach-imx/mach-imx51.c
+@@ -51,14 +51,14 @@ static void __init imx51_ipu_mipi_setup(void)
+ 
+ static void __init imx51_dt_init(void)
+ {
+-	struct platform_device_info devinfo = { .name = "cpufreq-cpu0", };
++	//struct platform_device_info devinfo = { .name = "cpufreq-cpu0", };
+ 
+ 	mxc_arch_reset_init_dt();
+ 	imx51_ipu_mipi_setup();
+ 	imx_src_init();
+ 
+ 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+-	platform_device_register_full(&devinfo);
++	//platform_device_register_full(&devinfo);
+ }
+ 
+ static void __init imx51_init_late(void)
+-- 
+2.1.0.rc1
+

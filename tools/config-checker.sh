@@ -2470,5 +2470,7 @@ check_config_module
 echo "#Bugs:"
 config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS"
 check_config_builtin
+config="CONFIG_AHCI_TEGRA"
+check_config_disable
 
 #

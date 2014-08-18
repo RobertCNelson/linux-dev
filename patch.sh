@@ -90,15 +90,16 @@ dts () {
 	${git} "${DIR}/patches/dts/0002-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/dts/0003-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
 	${git} "${DIR}/patches/dts/0004-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
-
 	${git} "${DIR}/patches/dts/0005-ARM-dts-omap3-beagle-add-i2c2.patch"
-
 	${git} "${DIR}/patches/dts/0006-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0007-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-
 	${git} "${DIR}/patches/dts/0008-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
 	${git} "${DIR}/patches/dts/0009-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
 	${git} "${DIR}/patches/dts/0010-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
+	${git} "${DIR}/patches/dts/0011-mach-imx51-disable-cpufreq-still-locks-up.patch"
+	${git} "${DIR}/patches/dts/0012-omap3-beagle-xm-ehci-works-again.patch"
+	${git} "${DIR}/patches/dts/0013-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
+	${git} "${DIR}/patches/dts/0014-imx-add-udoo.patch"
 }
 
 omap_sprz319_erratum () {
