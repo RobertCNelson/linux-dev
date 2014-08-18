@@ -110,16 +110,18 @@ git_kernel () {
 
 	cd ${DIR}/KERNEL/
 
-	#Debian Jessie: git version 2.0.0.rc0
-	#Disable git's default setting of running `git gc --auto` in the background as the patch.sh script can fail.
-	git config --local --list | grep gc.autodetach >/dev/null 2>&1 || git config --local gc.autodetach 0
+	if [ "x${git_has_local}" = "xenable" ] ; then
+		#Debian Jessie: git version 2.0.0.rc0
+		#Disable git's default setting of running `git gc --auto` in the background as the patch.sh script can fail.
+		git config --local --list | grep gc.autodetach >/dev/null 2>&1 || git config --local gc.autodetach 0
 
-	if [ ! "${git_config_user_email}" ] ; then
-		git config --local user.email you@example.com
-	fi
+		if [ ! "${git_config_user_email}" ] ; then
+			git config --local user.email you@example.com
+		fi
 
-	if [ ! "${git_config_user_name}" ] ; then
-		git config --local user.name "Your Name"
+		if [ ! "${git_config_user_name}" ] ; then
+			git config --local user.name "Your Name"
+		fi
 	fi
 
 	if [ "${RUN_BISECT}" ] ; then
@@ -143,8 +145,8 @@ git_kernel () {
 
 	#CentOS 6.4: git version 1.7.1 (no --list option)
 	unset git_branch_has_list
-	LC_ALL=C git help branch | grep -m 1 -e "--list" >/dev/null 2>&1 && git_branch_has_list=1
-	if [ "${git_branch_has_list}" ] ; then
+	LC_ALL=C git help branch | grep -m 1 -e "--list" >/dev/null 2>&1 && git_branch_has_list=enable
+	if [ "x${git_branch_has_list}" = "xenable" ] ; then
 		test_for_branch=$(git branch --list v${KERNEL_TAG}-${BUILD})
 		if [ "x${test_for_branch}" != "x" ] ; then
 			git branch v${KERNEL_TAG}-${BUILD} -D
@@ -173,16 +175,23 @@ git_kernel () {
 . ${DIR}/version.sh
 . ${DIR}/system.sh
 
-unset git_config_user_email
-git_config_user_email=$(git config --global --get user.email || true)
-if [ ! "${git_config_user_email}" ] ; then
-	git config --local user.email you@example.com
-fi
+#CentOS 6.4: git version 1.7.1 (no --local option)
+unset git_has_local
+LC_ALL=C git help | grep -m 1 -e "--local" >/dev/null 2>&1 && git_has_local=enable
 
-unset git_config_user_name
-git_config_user_name=$(git config --global --get user.name || true)
-if [ ! "${git_config_user_name}" ] ; then
-	git config --local user.name "Your Name"
+#git 1.7.1 doesnt care if email/user is not set...
+if [ "x${git_has_local}" = "xenable" ] ; then
+	unset git_config_user_email
+	git_config_user_email=$(git config --global --get user.email || true)
+	if [ ! "${git_config_user_email}" ] ; then
+		git config --local user.email you@example.com
+	fi
+
+	unset git_config_user_name
+	git_config_user_name=$(git config --global --get user.name || true)
+	if [ ! "${git_config_user_name}" ] ; then
+		git config --local user.name "Your Name"
+	fi
 fi
 
 torvalds_linux="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
