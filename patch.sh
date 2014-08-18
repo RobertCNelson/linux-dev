@@ -86,28 +86,19 @@ tegra_next () {
 
 dts () {
 	echo "dir: dts"
-#	${git} "${DIR}/patches/dts/0001-ARM-dts-imx6qdl-wandboard-add-gpio-lines-to-wandboar.patch"
-#	${git} "${DIR}/patches/dts/0002-ARM-dts-imx6qdl-wandboard-add-bluetooth-control-line.patch"
-#	${git} "${DIR}/patches/dts/0003-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
+	${git} "${DIR}/patches/dts/0001-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
+	${git} "${DIR}/patches/dts/0002-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
+	${git} "${DIR}/patches/dts/0003-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
+	${git} "${DIR}/patches/dts/0004-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
 
-	${git} "${DIR}/patches/dts/0004-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
-	${git} "${DIR}/patches/dts/0005-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
-	${git} "${DIR}/patches/dts/0006-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
-	${git} "${DIR}/patches/dts/0007-arm-dts-am335x-bone-common-setup-default-pinmux-http.patch"
+	${git} "${DIR}/patches/dts/0005-ARM-dts-omap3-beagle-add-i2c2.patch"
 
-	${git} "${DIR}/patches/dts/0008-ARM-dts-omap3-beagle-add-i2c2.patch"
+	${git} "${DIR}/patches/dts/0006-ARM-dts-omap3-beagle-xm-spidev.patch"
+	${git} "${DIR}/patches/dts/0007-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
 
-#	${git} "${DIR}/patches/dts/0009-beagle-xm-use-ti-abb-for-1Ghz-operation.patch"
-	${git} "${DIR}/patches/dts/0010-ARM-dts-omap3-beagle-xm-spidev.patch"
-	${git} "${DIR}/patches/dts/0011-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-
-	${git} "${DIR}/patches/dts/0012-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
-#	${git} "${DIR}/patches/dts/0013-arm-dts-add-imx6dl-udoo.patch"
-	${git} "${DIR}/patches/dts/0014-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
-#	${git} "${DIR}/patches/dts/0015-ARM-dts-imx6dl-udoo-Add-HDMI-support.patch"
-#	${git} "${DIR}/patches/dts/0016-ARM-dts-imx6q-udoo-Add-USB-Host-support.patch"
-#	${git} "${DIR}/patches/dts/0017-ARM-dts-imx6dl-udoo-Add-USB-Host-support.patch"
-	${git} "${DIR}/patches/dts/0018-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
+	${git} "${DIR}/patches/dts/0008-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
+	${git} "${DIR}/patches/dts/0009-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
+	${git} "${DIR}/patches/dts/0010-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
 }
 
 omap_sprz319_erratum () {
