@@ -1,0 +1,29 @@
+From 0450faa94f3a46834a3bbc3f52fe13bb26893d73 Mon Sep 17 00:00:00 2001
+From: Dave Taht <dave.taht@bufferbloat.net>
+Date: Wed, 11 Jun 2014 21:27:00 -0700
+Subject: [PATCH 2/3] cpsw: napi polling of 64 is good for gigE - less good for
+ 100mbit
+
+The cpsw device runs at 100/10mbits. Deferring a read for 96k
+wipes out the dcache thrice over. It is better to take more interrupts
+as they come, at 100mbit.
+---
+ drivers/net/ethernet/ti/cpsw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index cd2b6d6..892d065 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -116,7 +116,7 @@ do {								\
+ #define CPDMA_TXCP		0x40
+ #define CPDMA_RXCP		0x60
+ 
+-#define CPSW_POLL_WEIGHT	64
++#define CPSW_POLL_WEIGHT	16
+ #define CPSW_MIN_PACKET_SIZE	60
+ #define CPSW_MAX_PACKET_SIZE	(1500 + 14 + 4 + 4)
+ 
+-- 
+2.1.0.rc1
+

@@ -1,0 +1,145 @@
+From cb99e4bcd64ffff255a15978e7a5dd09685de5c5 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 19 Aug 2014 12:41:51 -0500
+Subject: [PATCH 2/3] auto generated: cape: audio
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-audio.dts      | 57 ++++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-audio.dts | 60 ++++++++++++++++++++++++++++
+ 2 files changed, 117 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-audio.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-audio.dts
+
+diff --git a/arch/arm/boot/dts/am335x-bone-audio.dts b/arch/arm/boot/dts/am335x-bone-audio.dts
+new file mode 100644
+index 0000000..23e83c5
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-audio.dts
+@@ -0,0 +1,57 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-pinmux.dtsi"
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++};
++
++&sham {
++	status = "okay";
++};
++
++&aes {
++	status = "okay";
++};
++
++/* spi0: P9.17, P9.18, P9.21, P9.22 */
++/* #include "am335x-bone-spi0-spidev.dtsi" */
++
++/* uart1: P9.24, P9.26 */
++/* #include "am335x-bone-ttyO1.dtsi" */
++/* uart2: P9.21, P9.22 */
++/* #include "am335x-bone-ttyO2.dtsi" */
++/* uart4: P9.11, P9.13 */
++/* #include "am335x-bone-ttyO4.dtsi" */
++/* uart5: P8.37, P8.38 */
++/* #include "am335x-bone-ttyO5.dtsi" */
++
++/* Capes */
++/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
++/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
++/* #include "am335x-bone-audio.dtsi" */
++
++/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
++/* #include "am335x-bone-lcd.dtsi" */
++
++#include "am335x-bone-audio.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-boneblack-audio.dts b/arch/arm/boot/dts/am335x-boneblack-audio.dts
+new file mode 100644
+index 0000000..7702d65
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-audio.dts
+@@ -0,0 +1,60 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-pinmux.dtsi"
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&vmmcsd_fixed>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++};
++
++/* Max Core Speed */
++#include "am335x-boneblack-1ghz.dtsi"
++/* #include "am335x-boneblack-800mhz.dtsi" */
++/* #include "am335x-boneblack-600mhz.dtsi" */
++/* #include "am335x-boneblack-300mhz.dtsi" */
++
++/* spi0: P9.17, P9.18, P9.21, P9.22 */
++/* #include "am335x-bone-spi0-spidev.dtsi" */
++
++/* uart1: P9.24, P9.26 */
++/* #include "am335x-bone-ttyO1.dtsi" */
++/* uart2: P9.21, P9.22 */
++/* #include "am335x-bone-ttyO2.dtsi" */
++/* uart4: P9.11, P9.13 */
++/* #include "am335x-bone-ttyO4.dtsi" */
++/* uart5: P8.37, P8.38 am335x-boneblack: hdmi has to be disabled for ttyO5 */
++/* #include "am335x-bone-ttyO5.dtsi" */
++
++#include "am335x-boneblack-emmc.dtsi"
++
++/* Display */
++#include "am335x-boneblack-nxp-hdmi.dtsi"
++
++/* Capes */
++/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
++/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
++/* #include "am335x-bone-audio.dtsi" */
++
++/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
++/* #include "am335x-bone-lcd.dtsi" */
++
++#include "am335x-bone-audio.dtsi"
+-- 
+2.1.0.rc1
+

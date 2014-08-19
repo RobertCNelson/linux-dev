@@ -1,0 +1,28 @@
+From 6d78bcfe5ad126aba099db1267c83344ecdee4e5 Mon Sep 17 00:00:00 2001
+From: Markus Pargmann <mpa@pengutronix.de>
+Date: Sat, 16 Aug 2014 17:18:35 +0200
+Subject: [PATCH 7/7] arm: dts: am33xx, Add syscon phandle to cpsw node
+
+There are 2 MACIDs stored in the control module of the am33xx. These are
+read by the cpsw driver if no valid MACID was found in the devicetree.
+
+Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
+---
+ arch/arm/boot/dts/am33xx.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index cb1113b..5e9bfb3 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -692,6 +692,7 @@
+ 			 */
+ 			interrupts = <40 41 42 43>;
+ 			ranges;
++			syscon = <&cm>;
+ 			status = "disabled";
+ 
+ 			davinci_mdio: mdio@4a101000 {
+-- 
+2.1.0.rc1
+

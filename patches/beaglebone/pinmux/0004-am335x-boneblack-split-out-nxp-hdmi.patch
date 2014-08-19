@@ -1,0 +1,67 @@
+From 6b3110d6d456c3a0e0b5d07f1438994875a48c21 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 19 Aug 2014 11:55:43 -0500
+Subject: [PATCH 4/9] am335x-boneblack: split out nxp hdmi
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi | 22 ++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack.dts           | 16 ++--------------
+ 2 files changed, 24 insertions(+), 14 deletions(-)
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi b/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi
+new file mode 100644
+index 0000000..3eafd75
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi
+@@ -0,0 +1,22 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&lcdc {
++	status = "okay";
++};
++
++/ {
++	hdmi {
++		compatible = "ti,tilcdc,slave";
++		i2c = <&i2c0>;
++		pinctrl-names = "default", "off";
++		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
++		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
++		status = "okay";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 3b1ed82..11c922b 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -28,17 +28,5 @@
+ 
+ #include "am335x-boneblack-emmc.dtsi"
+ 
+-&lcdc {
+-	status = "okay";
+-};
+-
+-/ {
+-	hdmi {
+-		compatible = "ti,tilcdc,slave";
+-		i2c = <&i2c0>;
+-		pinctrl-names = "default", "off";
+-		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
+-		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
+-		status = "okay";
+-	};
+-};
++/* Display */
++#include "am335x-boneblack-nxp-hdmi.dtsi"
+-- 
+2.1.0.rc1
+

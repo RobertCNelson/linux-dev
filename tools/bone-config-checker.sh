@@ -319,4 +319,14 @@ check_config_builtin
 config="CONFIG_DRM_IMX"
 check_config_disable
 
+#capes:
+config="CONFIG_CAPE_BONE_ARGUS"
+check_config_builtin
+
+#Reset Controller:
+config="CONFIG_STMMAC_ETH"
+check_config_disable
+config="CONFIG_RESET_CONTROLLER"
+check_config_disable
+
 #

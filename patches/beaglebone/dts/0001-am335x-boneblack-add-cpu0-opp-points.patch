@@ -1,0 +1,164 @@
+From 15a0a0acfbf7e68ac65483e861ad95e924d0091c Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 19 Aug 2014 12:39:28 -0500
+Subject: [PATCH] am335x-boneblack: add cpu0 opp points
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-boneblack-1ghz.dtsi   | 27 ++++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-300mhz.dtsi | 24 +++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-600mhz.dtsi | 25 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-800mhz.dtsi | 26 +++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack.dts         |  6 ++++++
+ 5 files changed, 108 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-1ghz.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-300mhz.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-600mhz.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-800mhz.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-boneblack-1ghz.dtsi b/arch/arm/boot/dts/am335x-boneblack-1ghz.dtsi
+new file mode 100644
+index 0000000..1fb10a0
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-1ghz.dtsi
+@@ -0,0 +1,27 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	cpus {
++		cpu@0 {
++			cpu0-supply = <&dcdc2_reg>;
++			/*
++			 * To consider voltage drop between PMIC and SoC,
++			 * tolerance value is reduced to 2% from 4% and
++			 * voltage value is increased as a precaution.
++			 */
++			operating-points = <
++				/* kHz    uV */
++				1000000	1325000
++				800000	1300000
++				600000	1112000
++				300000	969000
++			>;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-300mhz.dtsi b/arch/arm/boot/dts/am335x-boneblack-300mhz.dtsi
+new file mode 100644
+index 0000000..54cffe5
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-300mhz.dtsi
+@@ -0,0 +1,24 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	cpus {
++		cpu@0 {
++			cpu0-supply = <&dcdc2_reg>;
++			/*
++			 * To consider voltage drop between PMIC and SoC,
++			 * tolerance value is reduced to 2% from 4% and
++			 * voltage value is increased as a precaution.
++			 */
++			operating-points = <
++				/* kHz    uV */
++				300000	969000
++			>;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-600mhz.dtsi b/arch/arm/boot/dts/am335x-boneblack-600mhz.dtsi
+new file mode 100644
+index 0000000..4e04595
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-600mhz.dtsi
+@@ -0,0 +1,25 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	cpus {
++		cpu@0 {
++			cpu0-supply = <&dcdc2_reg>;
++			/*
++			 * To consider voltage drop between PMIC and SoC,
++			 * tolerance value is reduced to 2% from 4% and
++			 * voltage value is increased as a precaution.
++			 */
++			operating-points = <
++				/* kHz    uV */
++				600000	1112000
++				300000	969000
++			>;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-800mhz.dtsi b/arch/arm/boot/dts/am335x-boneblack-800mhz.dtsi
+new file mode 100644
+index 0000000..6d57fd1
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-800mhz.dtsi
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	cpus {
++		cpu@0 {
++			cpu0-supply = <&dcdc2_reg>;
++			/*
++			 * To consider voltage drop between PMIC and SoC,
++			 * tolerance value is reduced to 2% from 4% and
++			 * voltage value is increased as a precaution.
++			 */
++			operating-points = <
++				/* kHz    uV */
++				800000	1300000
++				600000	1112000
++				300000	969000
++			>;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 6098cbd..21c2034 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -26,6 +26,12 @@
+ 	pinctrl-0 = <&clkout2_pin>;
+ };
+ 
++/* Max Core Speed */
++#include "am335x-boneblack-1ghz.dtsi"
++/* #include "am335x-boneblack-800mhz.dtsi" */
++/* #include "am335x-boneblack-600mhz.dtsi" */
++/* #include "am335x-boneblack-300mhz.dtsi" */
++
+ /* spi0: P9.17, P9.18, P9.21, P9.22 */
+ /* #include "am335x-bone-spi0-spidev.dtsi" */
+ 
+-- 
+2.1.0.rc1
+

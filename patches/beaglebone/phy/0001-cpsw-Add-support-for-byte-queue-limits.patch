@@ -1,0 +1,68 @@
+From b03a18948e4aff937999b96c179b7fb54c519c7e Mon Sep 17 00:00:00 2001
+From: Dave Taht <dave.taht@bufferbloat.net>
+Date: Wed, 11 Jun 2014 12:47:07 -0700
+Subject: [PATCH 1/3] cpsw: Add support for byte queue limits
+
+IoT devices such as the beaglebone black come with a default PHY
+that can only do 100Mbit, and a fairly large tx ring. BQL moderates
+the effect of that considerably when saturating the network at that
+speed.
+
+Tested on a beaglebone black.
+---
+ drivers/net/ethernet/ti/cpsw.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index b988d16..cd2b6d6 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -685,6 +685,7 @@ static void cpsw_tx_handler(void *token, int len, int status)
+ 	cpts_tx_timestamp(priv->cpts, skb);
+ 	ndev->stats.tx_packets++;
+ 	ndev->stats.tx_bytes += len;
++	netdev_completed_queue(ndev,1,len);
+ 	dev_kfree_skb_any(skb);
+ }
+ 
+@@ -1268,6 +1269,8 @@ static int cpsw_ndo_open(struct net_device *ndev)
+ 		cpsw_set_coalesce(ndev, &coal);
+ 	}
+ 
++	netdev_reset_queue(ndev);
++	dev_info(priv->dev, "BQL enabled\n");
+ 	napi_enable(&priv->napi);
+ 	cpdma_ctlr_start(priv->dma);
+ 	cpsw_intr_enable(priv);
+@@ -1302,6 +1305,7 @@ static int cpsw_ndo_stop(struct net_device *ndev)
+ 	netif_stop_queue(priv->ndev);
+ 	napi_disable(&priv->napi);
+ 	netif_carrier_off(priv->ndev);
++	netdev_reset_queue(priv->ndev);
+ 
+ 	if (cpsw_common_res_usage_state(priv) <= 1) {
+ 		cpts_unregister(priv->cpts);
+@@ -1322,6 +1326,7 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
+ {
+ 	struct cpsw_priv *priv = netdev_priv(ndev);
+ 	int ret;
++	int len;
+ 
+ 	ndev->trans_start = jiffies;
+ 
+@@ -1336,9 +1341,11 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
+ 		skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+ 
+ 	skb_tx_timestamp(skb);
+-
++	len = max(skb->len, CPSW_MIN_PACKET_SIZE);
++	netdev_sent_queue(ndev,len);
+ 	ret = cpsw_tx_packet_submit(ndev, priv, skb);
+ 	if (unlikely(ret != 0)) {
++		netdev_completed_queue(ndev,1,len);
+ 		cpsw_err(priv, tx_err, "desc submit failed\n");
+ 		goto fail;
+ 	}
+-- 
+2.1.0.rc1
+
