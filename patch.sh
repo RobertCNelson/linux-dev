@@ -86,6 +86,7 @@ tegra_next () {
 
 dts () {
 	echo "dir: dts"
+#start_cleanup
 	${git} "${DIR}/patches/dts/0001-arm-dts-am335x-boneblack-lcdc-add-panel-info.patch"
 	${git} "${DIR}/patches/dts/0002-arm-dts-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/dts/0003-arm-dts-am335x-bone-common-enable-and-use-i2c2.patch"
@@ -100,6 +101,14 @@ dts () {
 	${git} "${DIR}/patches/dts/0012-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0013-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
 	${git} "${DIR}/patches/dts/0014-imx-add-udoo.patch"
+#number=14
+#cleanup
+}
+
+wand () {
+	echo "dir: wand"
+	${git} "${DIR}/patches/wand/0001-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
+	${git} "${DIR}/patches/wand/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
 }
 
 omap_sprz319_erratum () {
@@ -131,6 +140,7 @@ vivante () {
 #tegra_next
 
 dts
+wand
 #omap_sprz319_erratum
 
 vivante
