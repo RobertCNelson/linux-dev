@@ -3,7 +3,7 @@ From: Teknoman117 <linux.robotdude@gmail.com>
 Date: Wed, 24 Jul 2013 17:25:46 -0700
 Subject: [PATCH] hack: omap: clockk: dpll5: apply sprz319e 2.1 erratum
 
-Rebased on v3.15-rc1
+Rebased on v3.17-rc1 by rcn-ee
 
 Signed-off-by: Teknoman117 <linux.robotdude@gmail.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -15,7 +15,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  4 files changed, 97 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/cclock3xxx_data.c b/arch/arm/mach-omap2/cclock3xxx_data.c
-index 8f5121b..39fdf3c 100644
+index eb8c75e..7e17f9e 100644
 --- a/arch/arm/mach-omap2/cclock3xxx_data.c
 +++ b/arch/arm/mach-omap2/cclock3xxx_data.c
 @@ -250,7 +250,9 @@ static struct dpll_data dpll1_dd = {
@@ -46,7 +46,7 @@ index 8f5121b..39fdf3c 100644
  static struct clk_hw_omap dpll1_ck_hw = {
  	.hw = {
  		.clk = &dpll1_ck,
-@@ -3599,6 +3611,11 @@ int __init omap3xxx_clk_init(void)
+@@ -3600,6 +3612,11 @@ int __init omap3xxx_clk_init(void)
  	else
  		dpll4_dd = dpll4_dd_34xx;
  
@@ -59,10 +59,10 @@ index 8f5121b..39fdf3c 100644
  	/*
  	 * 3505 must be tested before 3517, since 3517 returns true
 diff --git a/arch/arm/mach-omap2/clkt_dpll.c b/arch/arm/mach-omap2/clkt_dpll.c
-index 2649ce4..98e8c26 100644
+index f251a14..177bf47 100644
 --- a/arch/arm/mach-omap2/clkt_dpll.c
 +++ b/arch/arm/mach-omap2/clkt_dpll.c
-@@ -63,6 +63,15 @@
+@@ -52,6 +52,15 @@
  #define DPLL_FINT_UNDERFLOW		-1
  #define DPLL_FINT_INVALID		-2
  
@@ -78,8 +78,8 @@ index 2649ce4..98e8c26 100644
  /* Private functions */
  
  /*
-@@ -362,3 +371,62 @@ long omap2_dpll_round_rate(struct clk_hw *hw, unsigned long target_rate,
- 	return target_rate;
+@@ -368,3 +377,62 @@ long omap2_dpll_round_rate(struct clk_hw *hw, unsigned long target_rate,
+ 	return dd->last_rounded_rate;
  }
  
 +struct sprz319e_2_1_values {
@@ -142,10 +142,10 @@ index 2649ce4..98e8c26 100644
 +	return target_rate;
 +}
 diff --git a/arch/arm/mach-omap2/clock.h b/arch/arm/mach-omap2/clock.h
-index bda767a..7fc9ed5 100644
+index 4592a27..5fccf92 100644
 --- a/arch/arm/mach-omap2/clock.h
 +++ b/arch/arm/mach-omap2/clock.h
-@@ -257,6 +257,9 @@ void omap2_clk_print_new_rates(const char *hfclkin_ck_name,
+@@ -218,6 +218,9 @@ void omap2_clk_print_new_rates(const char *hfclkin_ck_name,
  u32 omap2_clk_readl(struct clk_hw_omap *clk, void __iomem *reg);
  void omap2_clk_writel(u32 val, struct clk_hw_omap *clk, void __iomem *reg);
  
@@ -154,7 +154,7 @@ index bda767a..7fc9ed5 100644
 +
  extern u16 cpu_mask;
  
- extern const struct clkops clkops_omap2_dflt_wait;
+ /*
 diff --git a/arch/arm/mach-omap2/clock3xxx.c b/arch/arm/mach-omap2/clock3xxx.c
 index 0b02b41..8ccf7c6 100644
 --- a/arch/arm/mach-omap2/clock3xxx.c
@@ -176,5 +176,5 @@ index 0b02b41..8ccf7c6 100644
  
  	/* Program dpll5_m2_clk divider for no division */
 -- 
-1.9.1
+2.1.0.rc1
 
