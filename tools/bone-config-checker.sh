@@ -323,6 +323,10 @@ check_config_disable
 config="CONFIG_CAPE_BONE_ARGUS"
 check_config_builtin
 
+#lcd4:
+config="CONFIG_BACKLIGHT_GPIO"
+check_config_builtin
+
 #Reset Controller:
 config="CONFIG_STMMAC_ETH"
 check_config_disable
