@@ -1,0 +1,73 @@
+From 0c47bafad4ef6e56c897a8c1542ee21b0f5ea1ee Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 19 Aug 2014 17:29:46 -0500
+Subject: [PATCH] ts: add 4-wire for lcd
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-lcd4.dts              |  1 +
+ arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi | 21 +++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-lcd4.dts         |  5 ++++-
+ 3 files changed, 26 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd4.dts b/arch/arm/boot/dts/am335x-bone-lcd4.dts
+index 2e6c32f..32340e2 100644
+--- a/arch/arm/boot/dts/am335x-bone-lcd4.dts
++++ b/arch/arm/boot/dts/am335x-bone-lcd4.dts
+@@ -54,4 +54,5 @@
+ /* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
+ /* #include "am335x-bone-lcd.dtsi" */
+ 
++#include "am335x-bone-ti-tscadc-4-wire.dtsi"
+ #include "am335x-bone-lcd.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi b/arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi
+new file mode 100644
+index 0000000..0974a91
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi
+@@ -0,0 +1,21 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&tscadc {
++	status = "okay";
++	tsc {
++		ti,wires = <4>;
++		ti,x-plate-resistance = <200>;
++		ti,coordinate-readouts = <5>;
++		ti,wire-config = <0x00 0x11 0x22 0x33>;
++	};
++
++	adc {
++		ti,adc-channels = <4 5 6 7>;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-lcd4.dts b/arch/arm/boot/dts/am335x-boneblack-lcd4.dts
+index fc1b715..c6c4bcc 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-lcd4.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-lcd4.dts
+@@ -47,7 +47,7 @@
+ #include "am335x-boneblack-emmc.dtsi"
+ 
+ /* Display */
+-#include "am335x-bone-lcd.dtsi"
++/* #include "am335x-bone-lcd.dtsi" */
+ 
+ /* Capes */
+ /* http://elinux.org/CircuitCo:Audio_Cape_RevB */
+@@ -56,3 +56,6 @@
+ 
+ /* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
+ /* #include "am335x-bone-lcd.dtsi" */
++
++#include "am335x-bone-ti-tscadc-4-wire.dtsi"
++#include "am335x-bone-lcd.dtsi"
+-- 
+2.1.0.rc1
+
