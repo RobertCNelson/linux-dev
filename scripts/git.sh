@@ -38,9 +38,6 @@ git_kernel_torvalds () {
 check_and_or_clone () {
 	#For Legacy: moving to "${DIR}/ignore/linux-src/" for all new installs
 	if [ ! "${LINUX_GIT}" ] && [ -f "${HOME}/linux-src/.git/config" ] ; then
-		echo "-----------------------------"
-		echo "scripts/git: Warning: LINUX_GIT not defined in system.sh"
-		echo "using legacy location: ${HOME}/linux-src"
 		LINUX_GIT="${HOME}/linux-src"
 	fi
 
@@ -88,14 +85,11 @@ git_kernel () {
 
 	cd ${LINUX_GIT}/
 	echo "-----------------------------"
-	echo "scripts/git: Debug: LINUX_GIT is setup as..."
-	pwd
-	echo "-----------------------------"
-	cat .git/config
-	echo "-----------------------------"
-	echo "scripts/git: Updating LINUX_GIT tree via: git fetch"
+	echo "scripts/git: Debug: LINUX_GIT is setup as: [${LINUX_GIT}]."
+	echo "scripts/git: [`cat .git/config | grep url | sed 's/\t//g' | sed 's/ //g'`]"
 	git fetch || true
-	cd -
+	echo "-----------------------------"
+	cd ${DIR}/
 
 	if [ ! -f "${DIR}/KERNEL/.git/config" ] ; then
 		rm -rf ${DIR}/KERNEL/ || true

@@ -192,7 +192,7 @@ unset LINUX_GIT
 . ${DIR}/system.sh
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 . ${DIR}/.CC
-echo "debug: CC=${CC}"
+echo "CROSS_COMPILE=${CC}"
 
 . ${DIR}/version.sh
 export LINUX_GIT
