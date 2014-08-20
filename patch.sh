@@ -155,7 +155,10 @@ dtsi_drop_emmc () {
 
 beaglebone () {
 	echo "dir: beaglebone/pinmux"
-	#start_cleanup
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
 	# cp arch/arm/boot/dts/am335x-bone-common.dtsi arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 	# gedit arch/arm/boot/dts/am335x-bone-common.dtsi arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi &
 	# gedit arch/arm/boot/dts/am335x-boneblack.dts arch/arm/boot/dts/am335x-bone.dts &
@@ -189,14 +192,13 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0008-am335x-bone-common-pinmux-mcasp0.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0009-am335x-bone-common-pinmux-lcd.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0010-am335x-bone-common-pinmux-tscadc-4-wire.patch"
-	#number=10
-	#cleanup
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=10
+		cleanup
+	fi
 
 	echo "dir: beaglebone/dts"
-	#start_cleanup
 	${git} "${DIR}/patches/beaglebone/dts/0001-am335x-boneblack-add-cpu0-opp-points.patch"
-	#number=1
-	#cleanup
 
 	echo "dir: beaglebone/capes"
 
@@ -231,12 +233,10 @@ beaglebone () {
 
 		git commit -a -m 'auto generated: cape: uarts' -s
 		git format-patch -1 -o ../patches/beaglebone/capes/
-		exit
+	else
+		${git} "${DIR}/patches/beaglebone/capes/0001-auto-generated-cape-uarts.patch"
 	fi
 
-	${git} "${DIR}/patches/beaglebone/capes/0001-auto-generated-cape-uarts.patch"
-
-	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		base_dts="am335x-bone"
 		cape="audio"
@@ -248,12 +248,10 @@ beaglebone () {
 
 		git commit -a -m 'auto generated: cape: audio' -s
 		git format-patch -2 -o ../patches/beaglebone/capes/
-		exit
+	else
+		${git} "${DIR}/patches/beaglebone/capes/0002-auto-generated-cape-audio.patch"
 	fi
 
-	${git} "${DIR}/patches/beaglebone/capes/0002-auto-generated-cape-audio.patch"
-
-	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		base_dts="am335x-bone"
 		cape="lcd3-01-00a2"
@@ -298,17 +296,11 @@ beaglebone () {
 
 		git commit -a -m 'auto generated: cape: lcd' -s
 		git format-patch -3 -o ../patches/beaglebone/capes/
-		exit
+	else
+		${git} "${DIR}/patches/beaglebone/capes/0003-auto-generated-cape-lcd.patch"
 	fi
 
-	${git} "${DIR}/patches/beaglebone/capes/0003-auto-generated-cape-lcd.patch"
-
-	#must be last..
-	${git} "${DIR}/patches/beaglebone/capes/000x-cape-basic-proto-cape.patch"
-
-	echo "dir: beaglebone/dtb_makefile"
-
-	#regenerate="enable"
+	#last...
 	if [ "x${regenerate}" = "xenable" ] ; then
 		device="am335x-bone-audio.dtb"
 		dtb_makefile_append
@@ -382,9 +374,13 @@ beaglebone () {
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/dtb_makefile/
 		exit
+	else
+		echo "dir: beaglebone/dtb_makefile"
+		${git} "${DIR}/patches/beaglebone/dtb_makefile/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
 
-	${git} "${DIR}/patches/beaglebone/dtb_makefile/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
+	#must be last..
+	${git} "${DIR}/patches/beaglebone/capes/000x-cape-basic-proto-cape.patch"
 
 	echo "dir: beaglebone/driver_n_cape"
 	${git} "${DIR}/patches/beaglebone/driver_n_cape/0001-driver_n_cape-Argus-UPS-cape-support.patch"
