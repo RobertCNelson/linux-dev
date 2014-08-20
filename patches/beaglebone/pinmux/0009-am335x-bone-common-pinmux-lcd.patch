@@ -1,22 +1,38 @@
-From d296aa69f8a2f74ad6b1238d59f6025946789858 Mon Sep 17 00:00:00 2001
+From f3b83d5c9d61e0598a44d7e1610e7c269107d55b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Tue, 19 Aug 2014 12:36:48 -0500
-Subject: [PATCH 9/9] am335x-bone-common: pinmux lcd
+Subject: [PATCH 09/10] am335x-bone-common: pinmux lcd
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 32 +++++++++++++
- arch/arm/boot/dts/am335x-bone-lcd.dtsi           | 59 ++++++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone.dts                |  3 ++
- arch/arm/boot/dts/am335x-boneblack.dts           |  3 ++
- 4 files changed, 97 insertions(+)
- create mode 100644 arch/arm/boot/dts/am335x-bone-lcd.dtsi
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 37 +++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi  | 20 ++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd3.dtsi          | 51 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi  | 20 ++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi  | 20 ++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd4.dtsi          | 50 +++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi  | 20 ++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi  | 20 ++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi  | 20 ++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd7.dtsi          | 50 +++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone.dts                | 12 ++++++
+ arch/arm/boot/dts/am335x-boneblack.dts           | 12 ++++++
+ 12 files changed, 332 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd3.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd4.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-index 1f9dd15..c2535b8 100644
+index 1f9dd15..fcc046c 100644
 --- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-@@ -16,6 +16,38 @@
+@@ -16,6 +16,43 @@
  		>;
  	};
  
@@ -48,6 +64,11 @@ index 1f9dd15..c2535b8 100644
 +			0xe4 (PIN_OUTPUT | MUX_MODE0)	/* lcd_hsync.lcd_hsync */
 +			0xe8 (PIN_OUTPUT | MUX_MODE0)	/* lcd_pclk.lcd_pclk */
 +			0xec (PIN_OUTPUT | MUX_MODE0)	/* lcd_ac_bias_en.lcd_ac_bias_en (lcd_en) */
++		>;
++	};
++
++	bbcape_lcd4_disen_pins: bbcape_lcd4_disen_pins {
++		pinctrl-single,pins = <
 +			0x1a4 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* mcasp0_fsr.gpio3[19] (lcd_disen) */
 +		>;
 +	};
@@ -55,12 +76,39 @@ index 1f9dd15..c2535b8 100644
  	clkout2_pin: pinmux_clkout2_pin {
  		pinctrl-single,pins = <
  			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
-diff --git a/arch/arm/boot/dts/am335x-bone-lcd.dtsi b/arch/arm/boot/dts/am335x-bone-lcd.dtsi
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi b/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
 new file mode 100644
-index 0000000..fc456e2
+index 0000000..34e2673
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-lcd.dtsi
-@@ -0,0 +1,59 @@
++++ b/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	backlight {
++		status = "okay";
++		compatible = "gpio-backlight";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_backlight_pins>;
++		gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
++		default-on;
++	};
++};
++
++#include "am335x-bone-lcd3.dtsi"
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd3.dtsi b/arch/arm/boot/dts/am335x-bone-lcd3.dtsi
+new file mode 100644
+index 0000000..e262e1c
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd3.dtsi
+@@ -0,0 +1,51 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -74,6 +122,86 @@ index 0000000..fc456e2
 +};
 +
 +/ {
++	panel {
++		status = "okay";
++		compatible = "ti,tilcdc,panel";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_lcd_pins>;
++		panel-info {
++			ac-bias           = <255>;
++			ac-bias-intrpt    = <0>;
++			dma-burst-sz      = <16>;
++			bpp               = <16>;
++			fdd               = <0x80>;
++			sync-edge         = <0>;
++			sync-ctrl         = <1>;
++			raster-order      = <0>;
++			fifo-th           = <0>;
++			invert-pxl-clk;
++		};
++		display-timings {
++			/* Settings for CDTech_S035Q01 / LCD3 cape: */
++			native-mode = <&timing0>;
++			timing0: 320x240 {
++				clock-frequency = <8000000>;
++				hactive = <320>;
++				vactive = <240>;
++				hfront-porch = <59>;
++				hback-porch = <22>;
++				hsync-len = <48>;
++				vback-porch = <12>;
++				vfront-porch = <23>;
++				vsync-len = <2>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				de-active = <1>;
++				pixelclk-active = <0>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi
+new file mode 100644
+index 0000000..7a0e568
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/*/ { */
++/* Untested */
++/*	backlight { */
++/*		compatible = "not-tps65217-backlight"; */
++/*		isel = <1>; */
++/*		fdim = <200>; */
++/*		brightness = <100>; */
++/*		tps = <&tps>; */
++/*	}; */
++/*} */
++
++#include "am335x-bone-lcd4.dtsi"
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi
+new file mode 100644
+index 0000000..00566a2
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
 +	backlight {
 +		status = "okay";
 +		compatible = "gpio-backlight";
@@ -82,12 +210,34 @@ index 0000000..fc456e2
 +		gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
 +		default-on;
 +	};
++};
 +
++#include "am335x-bone-lcd4.dtsi"
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd4.dtsi b/arch/arm/boot/dts/am335x-bone-lcd4.dtsi
+new file mode 100644
+index 0000000..2df34ce
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd4.dtsi
+@@ -0,0 +1,50 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&lcdc {
++	status = "okay";
++};
++
++/ {
 +	panel {
 +		status = "okay";
 +		compatible = "ti,tilcdc,panel";
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&bbcape_lcd_pins>;
++		pinctrl-0 = <&bbcape_lcd_pins &bbcape_lcd4_disen_pins>;
 +		panel-info {
 +			ac-bias           = <255>;
 +			ac-bias-intrpt    = <0>;
@@ -120,28 +270,183 @@ index 0000000..fc456e2
 +		};
 +	};
 +};
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi
+new file mode 100644
+index 0000000..8eb2620
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	backlight {
++		status = "okay";
++		compatible = "gpio-backlight";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_backlight_pins>;
++		gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
++		default-on;
++	};
++};
++
++#include "am335x-bone-lcd7.dtsi"
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi
+new file mode 100644
+index 0000000..8eb2620
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	backlight {
++		status = "okay";
++		compatible = "gpio-backlight";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_backlight_pins>;
++		gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
++		default-on;
++	};
++};
++
++#include "am335x-bone-lcd7.dtsi"
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi
+new file mode 100644
+index 0000000..8eb2620
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	backlight {
++		status = "okay";
++		compatible = "gpio-backlight";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_backlight_pins>;
++		gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
++		default-on;
++	};
++};
++
++#include "am335x-bone-lcd7.dtsi"
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd7.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7.dtsi
+new file mode 100644
+index 0000000..cbc5e66
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd7.dtsi
+@@ -0,0 +1,50 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&lcdc {
++	status = "okay";
++};
++
++/ {
++	panel {
++		status = "okay";
++		compatible = "ti,tilcdc,panel";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_lcd_pins>;
++		panel-info {
++			ac-bias           = <255>;
++			ac-bias-intrpt    = <0>;
++			dma-burst-sz      = <16>;
++			bpp               = <16>;
++			fdd               = <0x80>;
++			sync-edge         = <0>;
++			sync-ctrl         = <1>;
++			raster-order      = <0>;
++			fifo-th           = <0>;
++		};
++		display-timings {
++			native-mode = <&timing0>;
++			/* Settings for ThreeFive S9700RTWV35TR / LCD7 cape: */
++			timing0: 800x480 {
++				clock-frequency = <30000000>;
++				hactive = <800>;
++				vactive = <480>;
++				hfront-porch = <40>;
++				hback-porch = <40>;
++				hsync-len = <48>;
++				vback-porch = <30>;
++				vfront-porch = <13>;
++				vsync-len = <3>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				de-active = <1>;
++				pixelclk-active = <0>;
++			};
++		};
++	};
++};
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 95d7ab9..a1649f1 100644
+index 95d7ab9..e1a90b4 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
-@@ -50,3 +50,6 @@
+@@ -50,3 +50,15 @@
  /* http://elinux.org/CircuitCo:Audio_Cape_RevB */
  /* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
  /* #include "am335x-bone-audio.dtsi" */
 +
++/* http://elinux.org/CircuitCo:BeagleBone_LCD3 */
++/* #include "am335x-bone-lcd3-01-00a2.dtsi" */
++
 +/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd.dtsi" */
++/* #include "am335x-bone-lcd4-01-00a0.dtsi" */
++/* #include "am335x-bone-lcd4-01-00a1.dtsi" */
++
++/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
++/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
++/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
++/* #include "am335x-bone-lcd7-01-00a4.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 034f3ce..6098cbd 100644
+index 034f3ce..46da88c 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -47,3 +47,6 @@
+@@ -47,3 +47,15 @@
  /* http://elinux.org/CircuitCo:Audio_Cape_RevB */
  /* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
  /* #include "am335x-bone-audio.dtsi" */
 +
++/* http://elinux.org/CircuitCo:BeagleBone_LCD3 */
++/* #include "am335x-bone-lcd3-01-00a2.dtsi" */
++
 +/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd.dtsi" */
++/* #include "am335x-bone-lcd4-01-00a0.dtsi" */
++/* #include "am335x-bone-lcd4-01-00a1.dtsi" */
++
++/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
++/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
++/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
++/* #include "am335x-bone-lcd7-01-00a4.dtsi" */
 -- 
 2.1.0.rc1
 

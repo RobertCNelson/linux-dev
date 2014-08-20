@@ -1,0 +1,106 @@
+From ee9a190617f9a1ff270c3bc443eef48d86d030b4 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 19 Aug 2014 19:53:29 -0500
+Subject: [PATCH 10/10] am335x-bone-common: pinmux tscadc 4 wire
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi     |  3 ++-
+ arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi     |  3 ++-
+ arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi     |  3 ++-
+ arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi     |  3 ++-
+ arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi     |  3 ++-
+ arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi | 21 +++++++++++++++++++++
+ 6 files changed, 31 insertions(+), 5 deletions(-)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi b/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
+index 34e2673..6bd406d 100644
+--- a/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
+@@ -17,4 +17,5 @@
+ 	};
+ };
+ 
+-#include "am335x-bone-lcd3.dtsi"
+\ No newline at end of file
++#include "am335x-bone-ti-tscadc-4-wire.dtsi"
++#include "am335x-bone-lcd3.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi
+index 7a0e568..a810f6bed 100644
+--- a/arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi
+@@ -17,4 +17,5 @@
+ /*	}; */
+ /*} */
+ 
+-#include "am335x-bone-lcd4.dtsi"
+\ No newline at end of file
++#include "am335x-bone-ti-tscadc-4-wire.dtsi"
++#include "am335x-bone-lcd4.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi
+index 00566a2..f8d8191 100644
+--- a/arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-lcd4-01-00a1.dtsi
+@@ -17,4 +17,5 @@
+ 	};
+ };
+ 
+-#include "am335x-bone-lcd4.dtsi"
+\ No newline at end of file
++#include "am335x-bone-ti-tscadc-4-wire.dtsi"
++#include "am335x-bone-lcd4.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi
+index 8eb2620..d37339e 100644
+--- a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi
+@@ -17,4 +17,5 @@
+ 	};
+ };
+ 
+-#include "am335x-bone-lcd7.dtsi"
+\ No newline at end of file
++#include "am335x-bone-ti-tscadc-4-wire.dtsi"
++#include "am335x-bone-lcd7.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi
+index 8eb2620..d37339e 100644
+--- a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi
+@@ -17,4 +17,5 @@
+ 	};
+ };
+ 
+-#include "am335x-bone-lcd7.dtsi"
+\ No newline at end of file
++#include "am335x-bone-ti-tscadc-4-wire.dtsi"
++#include "am335x-bone-lcd7.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi b/arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi
+new file mode 100644
+index 0000000..0974a91
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-ti-tscadc-4-wire.dtsi
+@@ -0,0 +1,21 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&tscadc {
++	status = "okay";
++	tsc {
++		ti,wires = <4>;
++		ti,x-plate-resistance = <200>;
++		ti,coordinate-readouts = <5>;
++		ti,wire-config = <0x00 0x11 0x22 0x33>;
++	};
++
++	adc {
++		ti,adc-channels = <4 5 6 7>;
++	};
++};
+-- 
+2.1.0.rc1
+

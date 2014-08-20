@@ -135,6 +135,21 @@ dtb_makefile_append () {
 	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
 
+dtsi_append () {
+	wfile="arch/arm/boot/dts/${base_dts}-${cape}.dts"
+	cp arch/arm/boot/dts/${base_dts}.dts ${wfile}
+	echo "" >> ${wfile}
+	echo "#include \"am335x-bone-${cape}.dtsi\"" >> ${wfile}
+	git add ${wfile}
+}
+
+dtsi_replace () {
+	wfile="arch/arm/boot/dts/${base_dts}-${cape}.dts"
+	cp arch/arm/boot/dts/${base_dts}.dts ${wfile}
+	sed -i -e 's:am335x-boneblack-nxp-hdmi.dtsi:am335x-bone-'$cape'.dtsi:g' ${wfile}
+	git add ${wfile}
+}
+
 beaglebone () {
 	echo "dir: beaglebone/pinmux"
 	#start_cleanup
@@ -170,7 +185,8 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0007-am335x-bone-common-pinmux-spi0-spidev.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0008-am335x-bone-common-pinmux-mcasp0.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0009-am335x-bone-common-pinmux-lcd.patch"
-	#number=9
+	${git} "${DIR}/patches/beaglebone/pinmux/0010-am335x-bone-common-pinmux-tscadc-4-wire.patch"
+	#number=10
 	#cleanup
 
 	echo "dir: beaglebone/dts"
@@ -183,47 +199,29 @@ beaglebone () {
 
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		wfile="arch/arm/boot/dts/am335x-bone-ttyO1.dts"
-		cp arch/arm/boot/dts/am335x-bone.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-ttyO1.dtsi"' >> ${wfile}
-		git add ${wfile}
+		base_dts="am335x-bone"
+		cape="ttyO1"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-bone-ttyO2.dts"
-		cp arch/arm/boot/dts/am335x-bone.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-ttyO2.dtsi"' >> ${wfile}
-		git add ${wfile}
+		cape="ttyO2"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-bone-ttyO4.dts"
-		cp arch/arm/boot/dts/am335x-bone.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-ttyO4.dtsi"' >> ${wfile}
-		git add ${wfile}
+		cape="ttyO4"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-bone-ttyO5.dts"
-		cp arch/arm/boot/dts/am335x-bone.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-ttyO5.dtsi"' >> ${wfile}
-		git add ${wfile}
+		cape="ttyO5"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-boneblack-ttyO1.dts"
-		cp arch/arm/boot/dts/am335x-boneblack.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-ttyO1.dtsi"' >> ${wfile}
-		git add ${wfile}
+		base_dts="am335x-boneblack"
+		cape="ttyO1"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-boneblack-ttyO2.dts"
-		cp arch/arm/boot/dts/am335x-boneblack.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-ttyO2.dtsi"' >> ${wfile}
-		git add ${wfile}
+		cape="ttyO2"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-boneblack-ttyO4.dts"
-		cp arch/arm/boot/dts/am335x-boneblack.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-ttyO4.dtsi"' >> ${wfile}
-		git add ${wfile}
+		cape="ttyO4"
+		dtsi_append
+
 		git commit -a -m 'auto generated: cape: uarts' -s
 		git format-patch -1 -o ../patches/beaglebone/capes/
 		exit
@@ -233,17 +231,13 @@ beaglebone () {
 
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		wfile="arch/arm/boot/dts/am335x-bone-audio.dts"
-		cp arch/arm/boot/dts/am335x-bone.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-audio.dtsi"' >> ${wfile}
-		git add ${wfile}
+		base_dts="am335x-bone"
+		cape="audio"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-boneblack-audio.dts"
-		cp arch/arm/boot/dts/am335x-boneblack.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-audio.dtsi"' >> ${wfile}
-		git add ${wfile}
+		base_dts="am335x-boneblack"
+		cape="audio"
+		dtsi_append
 
 		git commit -a -m 'auto generated: cape: audio' -s
 		git format-patch -2 -o ../patches/beaglebone/capes/
@@ -254,23 +248,44 @@ beaglebone () {
 
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		wfile="arch/arm/boot/dts/am335x-bone-lcd4.dts"
-		cp arch/arm/boot/dts/am335x-bone.dts ${wfile}
-		echo "" >> ${wfile}
-		echo '#include "am335x-bone-lcd.dtsi"' >> ${wfile}
-		git add ${wfile}
+		base_dts="am335x-bone"
+		cape="lcd3-01-00a2"
+		dtsi_append
 
-		wfile="arch/arm/boot/dts/am335x-boneblack-lcd4.dts"
-		cp arch/arm/boot/dts/am335x-boneblack.dts ${wfile}
-		sed -i -e 's:am335x-boneblack-nxp-hdmi.dtsi:am335x-bone-lcd.dtsi:g' ${wfile}
-		git add ${wfile}
+		cape="lcd4-01-00a0"
+		dtsi_append
+		cape="lcd4-01-00a1"
+		dtsi_append
 
-		git commit -a -m 'auto generated: cape: lcd4' -s
+		cape="lcd7-01-00a2"
+		dtsi_append
+		cape="lcd7-01-00a3"
+		dtsi_append
+		cape="lcd7-01-00a4"
+		dtsi_append
+
+		base_dts="am335x-boneblack"
+		cape="lcd3-01-00a2"
+		dtsi_replace
+
+		cape="lcd4-01-00a0"
+		dtsi_replace
+		cape="lcd4-01-00a1"
+		dtsi_replace
+
+		cape="lcd7-01-00a2"
+		dtsi_replace
+		cape="lcd7-01-00a3"
+		dtsi_replace
+		cape="lcd7-01-00a4"
+		dtsi_replace
+
+		git commit -a -m 'auto generated: cape: lcd' -s
 		git format-patch -3 -o ../patches/beaglebone/capes/
 		exit
 	fi
 
-	${git} "${DIR}/patches/beaglebone/capes/0003-auto-generated-cape-lcd4.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0003-auto-generated-cape-lcd.patch"
 
 	#must be last..
 	${git} "${DIR}/patches/beaglebone/capes/000x-cape-basic-proto-cape.patch"
@@ -285,7 +300,22 @@ beaglebone () {
 		device="am335x-bone-cape-bone-argus.dtb"
 		dtb_makefile_append
 
-		device="am335x-bone-lcd4.dtb"
+		device="am335x-bone-lcd3-01-00a2.dtb"
+		dtb_makefile_append
+
+		device="am335x-bone-lcd4-01-00a0.dtb"
+		dtb_makefile_append
+
+		device="am335x-bone-lcd4-01-00a1.dtb"
+		dtb_makefile_append
+
+		device="am335x-bone-lcd7-01-00a2.dtb"
+		dtb_makefile_append
+
+		device="am335x-bone-lcd7-01-00a3.dtb"
+		dtb_makefile_append
+
+		device="am335x-bone-lcd7-01-00a4.dtb"
 		dtb_makefile_append
 
 		device="am335x-bone-ttyO1.dtb"
@@ -306,7 +336,22 @@ beaglebone () {
 		device="am335x-boneblack-cape-bone-argus.dtb"
 		dtb_makefile_append
 
-		device="am335x-boneblack-lcd4.dtb"
+		device="am335x-boneblack-lcd3-01-00a2.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-lcd4-01-00a0.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-lcd4-01-00a1.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-lcd7-01-00a2.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-lcd7-01-00a3.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-lcd7-01-00a4.dtb"
 		dtb_makefile_append
 
 		device="am335x-boneblack-ttyO1.dtb"
@@ -328,17 +373,17 @@ beaglebone () {
 	echo "dir: beaglebone/driver_n_cape"
 	${git} "${DIR}/patches/beaglebone/driver_n_cape/0001-driver_n_cape-Argus-UPS-cape-support.patch"
 
-	echo "dir: beaglebone/power/"
+	echo "dir: beaglebone/power"
 	${git} "${DIR}/patches/beaglebone/power/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
 	${git} "${DIR}/patches/beaglebone/power/0002-am335x-bone-common-enable-ti-pmic-shutdown-controlle.patch"
 	${git} "${DIR}/patches/beaglebone/power/0003-dt-bone-common-Add-interrupt-for-PMIC.patch"
 
-	echo "dir: beaglebone/phy/"
+	echo "dir: beaglebone/phy"
 	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
 	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
 	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
 
-	echo "dir: beaglebone/mac/"
+	echo "dir: beaglebone/mac"
 	${git} "${DIR}/patches/beaglebone/mac/0001-DT-doc-net-cpsw-mac-address-is-optional.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0002-net-cpsw-Add-missing-return-value.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0003-net-cpsw-header-Add-missing-include.patch"
