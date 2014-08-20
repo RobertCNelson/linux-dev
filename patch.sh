@@ -143,10 +143,13 @@ dtsi_append () {
 	git add ${wfile}
 }
 
-dtsi_replace () {
-	wfile="arch/arm/boot/dts/${base_dts}-${cape}.dts"
-	cp arch/arm/boot/dts/${base_dts}.dts ${wfile}
-	sed -i -e 's:am335x-boneblack-nxp-hdmi.dtsi:am335x-bone-'$cape'.dtsi:g' ${wfile}
+dtsi_drop_nxp_hdmi () {
+	sed -i -e 's:#include "am335x-boneblack-nxp-hdmi.dtsi":/* #include "am335x-boneblack-nxp-hdmi.dtsi" */:g' ${wfile}
+	git add ${wfile}
+}
+
+dtsi_drop_emmc () {
+	sed -i -e 's:#include "am335x-boneblack-emmc.dtsi":/* #include "am335x-boneblack-emmc.dtsi" */:g' ${wfile}
 	git add ${wfile}
 }
 
@@ -222,6 +225,10 @@ beaglebone () {
 		cape="ttyO4"
 		dtsi_append
 
+		cape="ttyO5"
+		dtsi_append
+		dtsi_drop_nxp_hdmi
+
 		git commit -a -m 'auto generated: cape: uarts' -s
 		git format-patch -1 -o ../patches/beaglebone/capes/
 		exit
@@ -265,20 +272,29 @@ beaglebone () {
 		dtsi_append
 
 		base_dts="am335x-boneblack"
+		#lcd3 a2+
 		cape="lcd3-01-00a2"
-		dtsi_replace
+		dtsi_append
+		dtsi_drop_nxp_hdmi
 
-		cape="lcd4-01-00a0"
-		dtsi_replace
+		#lcd4 a1+
 		cape="lcd4-01-00a1"
-		dtsi_replace
+		dtsi_append
+		dtsi_drop_nxp_hdmi
 
+		#drop emmc:
 		cape="lcd7-01-00a2"
-		dtsi_replace
+		dtsi_append
+		dtsi_drop_nxp_hdmi
+		dtsi_drop_emmc
+
+		#lcd4 a3+
 		cape="lcd7-01-00a3"
-		dtsi_replace
+		dtsi_append
+		dtsi_drop_nxp_hdmi
 		cape="lcd7-01-00a4"
-		dtsi_replace
+		dtsi_append
+		dtsi_drop_nxp_hdmi
 
 		git commit -a -m 'auto generated: cape: lcd' -s
 		git format-patch -3 -o ../patches/beaglebone/capes/
@@ -339,9 +355,6 @@ beaglebone () {
 		device="am335x-boneblack-lcd3-01-00a2.dtb"
 		dtb_makefile_append
 
-		device="am335x-boneblack-lcd4-01-00a0.dtb"
-		dtb_makefile_append
-
 		device="am335x-boneblack-lcd4-01-00a1.dtb"
 		dtb_makefile_append
 
@@ -361,6 +374,9 @@ beaglebone () {
 		dtb_makefile_append
 
 		device="am335x-boneblack-ttyO4.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-ttyO5.dtb"
 		dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
