@@ -1,35 +1,28 @@
-From 56b62dbef09941c57d1ca6b7bf73143b8a98726e Mon Sep 17 00:00:00 2001
-From: Dave Lambert <dave@lambsys.com>
-Date: Mon, 16 Jun 2014 14:19:17 -0500
-Subject: [PATCH 2/2] driver_n_cape: Argus UPS cape support
+From 4eb9f30e918264169d41b54e25c56b64dfd59065 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 21 Aug 2014 14:49:33 -0500
+Subject: [PATCH 2/2] cape: Argus UPS cape support
 
-Rewritten using includes, v3.16.1
-
-Signed-off-by: Dave Lambert <dave@lambsys.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-argus.dtsi           |  49 +++
- arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts  |  57 +++
- .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  60 +++
- drivers/misc/Kconfig                               |   1 +
- drivers/misc/Makefile                              |   1 +
- drivers/misc/cape_bone_argus/Kconfig               |   7 +
- drivers/misc/cape_bone_argus/Makefile              |   5 +
- drivers/misc/cape_bone_argus/cape_bone_argus.c     | 415 +++++++++++++++++++++
- 8 files changed, 595 insertions(+)
+ arch/arm/boot/dts/am335x-bone-argus.dtsi       |  46 +++
+ drivers/misc/Kconfig                           |   1 +
+ drivers/misc/Makefile                          |   1 +
+ drivers/misc/cape_bone_argus/Kconfig           |   7 +
+ drivers/misc/cape_bone_argus/Makefile          |   5 +
+ drivers/misc/cape_bone_argus/cape_bone_argus.c | 415 +++++++++++++++++++++++++
+ 6 files changed, 475 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-argus.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
  create mode 100644 drivers/misc/cape_bone_argus/Kconfig
  create mode 100644 drivers/misc/cape_bone_argus/Makefile
  create mode 100644 drivers/misc/cape_bone_argus/cape_bone_argus.c
 
 diff --git a/arch/arm/boot/dts/am335x-bone-argus.dtsi b/arch/arm/boot/dts/am335x-bone-argus.dtsi
 new file mode 100644
-index 0000000..1784a3c
+index 0000000..c6f9ea5
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-argus.dtsi
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,46 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -62,9 +55,6 @@ index 0000000..1784a3c
 +};
 +
 +&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	/* pinctrl-0 = <&clkout2_pin>; clash with argus-ups */
-+
 +	argus_ups_pins: pinmux_argus_ups_pins { /* Set up pinmux */
 +		pinctrl-single,pins = <
 +			0x070 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpmc_wait0.gpio0_30 */
@@ -79,135 +69,6 @@ index 0000000..1784a3c
 +		>;
 +	};
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
-new file mode 100644
-index 0000000..821f9fc
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
-@@ -0,0 +1,57 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+#include "am335x-bone-common-pinmux.dtsi"
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&ldo3_reg>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	/* pinctrl-0 = <&clkout2_pin>; clash with argus-ups */
-+};
-+
-+&sham {
-+	status = "okay";
-+};
-+
-+&aes {
-+	status = "okay";
-+};
-+
-+/* spi0: P9.17, P9.18, P9.21, P9.22 */
-+/* #include "am335x-bone-spi0-spidev.dtsi" */
-+
-+/* uart1: P9.24, P9.26 */
-+/* #include "am335x-bone-ttyO1.dtsi" */
-+/* uart2: P9.21, P9.22 */
-+/* #include "am335x-bone-ttyO2.dtsi" */
-+/* uart4: P9.11, P9.13 */
-+/* #include "am335x-bone-ttyO4.dtsi" */
-+/* uart5: P8.37, P8.38 */
-+/* #include "am335x-bone-ttyO5.dtsi" */
-+
-+/* Capes */
-+/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
-+/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd.dtsi" */
-+
-+#include "am335x-bone-argus.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
-new file mode 100644
-index 0000000..55d665b
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
-@@ -0,0 +1,60 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+#include "am335x-bone-common-pinmux.dtsi"
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&vmmcsd_fixed>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	/* pinctrl-0 = <&clkout2_pin>; clash with argus-ups */
-+};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
-+/* #include "am335x-boneblack-600mhz.dtsi" */
-+/* #include "am335x-boneblack-300mhz.dtsi" */
-+
-+/* spi0: P9.17, P9.18, P9.21, P9.22 */
-+/* #include "am335x-bone-spi0-spidev.dtsi" */
-+
-+/* uart1: P9.24, P9.26 */
-+/* #include "am335x-bone-ttyO1.dtsi" */
-+/* uart2: P9.21, P9.22 */
-+/* #include "am335x-bone-ttyO2.dtsi" */
-+/* uart4: P9.11, P9.13 */
-+/* #include "am335x-bone-ttyO4.dtsi" */
-+/* uart5: P8.37, P8.38 am335x-boneblack: hdmi has to be disabled for ttyO5 */
-+/* #include "am335x-bone-ttyO5.dtsi" */
-+
-+#include "am335x-boneblack-emmc.dtsi"
-+
-+/* Display */
-+#include "am335x-boneblack-nxp-hdmi.dtsi"
-+
-+/* Capes */
-+/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
-+/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd.dtsi" */
-+
-+#include "am335x-bone-argus.dtsi"
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
 index b841180..e92fc96 100644
 --- a/drivers/misc/Kconfig

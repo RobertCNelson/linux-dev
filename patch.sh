@@ -143,6 +143,14 @@ dtsi_append () {
 	git add ${wfile}
 }
 
+dtsi_append_custom () {
+	wfile="arch/arm/boot/dts/${dtb_name}.dts"
+	cp arch/arm/boot/dts/${base_dts}.dts ${wfile}
+	echo "" >> ${wfile}
+	echo "#include \"am335x-bone-${cape}.dtsi\"" >> ${wfile}
+	git add ${wfile}
+}
+
 dtsi_append_hdmi_no_audio () {
 	dtsi_append
 	echo "#include \"am335x-boneblack-nxp-hdmi-no-audio.dtsi\"" >> ${wfile}
@@ -156,6 +164,11 @@ dtsi_drop_nxp_hdmi_audio () {
 
 dtsi_drop_emmc () {
 	sed -i -e 's:#include "am335x-boneblack-emmc.dtsi":/* #include "am335x-boneblack-emmc.dtsi" */:g' ${wfile}
+	git add ${wfile}
+}
+
+dts_drop_clkout2_pin () {
+	sed -i -e 's:pinctrl-0 = <\&clkout2_pin>;:/* pinctrl-0 = <\&clkout2_pin>; */:g' ${wfile}
 	git add ${wfile}
 }
 
@@ -210,7 +223,7 @@ beaglebone () {
 
 	echo "dir: beaglebone/capes"
 	${git} "${DIR}/patches/beaglebone/capes/0001-cape-basic-proto-cape.patch"
-	${git} "${DIR}/patches/beaglebone/capes/0002-driver_n_cape-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0002-cape-Argus-UPS-cape-support.patch"
 
 	#regenerate="enable"
 	echo "dir: beaglebone/generated"
@@ -307,6 +320,25 @@ beaglebone () {
 		${git} "${DIR}/patches/beaglebone/generated/0003-auto-generated-cape-lcd.patch"
 	fi
 
+	if [ "x${regenerate}" = "xenable" ] ; then
+		cape="argus"
+
+		base_dts="am335x-bone"
+		dtb_name="${base_dts}-cape-bone-${cape}"
+		dtsi_append_custom
+		dts_drop_clkout2_pin
+
+		base_dts="am335x-boneblack"
+		dtb_name="${base_dts}-cape-bone-${cape}"
+		dtsi_append_custom
+		dts_drop_clkout2_pin
+
+		git commit -a -m 'auto generated: cape: argus' -s
+		git format-patch -4 -o ../patches/beaglebone/generated/
+	else
+		${git} "${DIR}/patches/beaglebone/generated/0004-auto-generated-cape-argus.patch"
+	fi
+
 	#last beaglebone/beaglebone black default
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wfile="arch/arm/boot/dts/am335x-bone.dts"
@@ -320,9 +352,9 @@ beaglebone () {
 		echo "#include \"am335x-bone-basic-proto-cape.dtsi\"" >> ${wfile}
 
 		git commit -a -m 'auto generated: cape: basic-proto-cape' -s
-		git format-patch -4 -o ../patches/beaglebone/generated/
+		git format-patch -5 -o ../patches/beaglebone/generated/
 	else
-		${git} "${DIR}/patches/beaglebone/generated/0004-auto-generated-cape-basic-proto-cape.patch"
+		${git} "${DIR}/patches/beaglebone/generated/0005-auto-generated-cape-basic-proto-cape.patch"
 	fi
 
 	#dtb makefile
@@ -391,10 +423,10 @@ beaglebone () {
 		dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
-		git format-patch -5 -o ../patches/beaglebone/generated/
+		git format-patch -6 -o ../patches/beaglebone/generated/
 		exit
 	else
-		${git} "${DIR}/patches/beaglebone/generated/0005-auto-generated-capes-add-dtbs-to-makefile.patch"
+		${git} "${DIR}/patches/beaglebone/generated/0006-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
 
 	echo "dir: beaglebone/power"
