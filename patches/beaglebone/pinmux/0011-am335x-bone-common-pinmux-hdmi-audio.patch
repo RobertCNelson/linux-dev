@@ -1,38 +1,26 @@
-From fde4745df6605c540bf12aa5d32b00582d976992 Mon Sep 17 00:00:00 2001
+From d453917494489a6b2e8225f3cf7fa475cb2434dd Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 21 Aug 2014 10:20:26 -0500
 Subject: [PATCH 11/11] am335x-bone-common: pinmux hdmi audio
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-audio.dtsi           |  2 +-
- arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi   | 12 +++-
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi   | 10 ++++
  .../boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi  | 66 ++++++++++++++++++++++
- arch/arm/boot/dts/am335x-boneblack.dts             |  6 +-
- 4 files changed, 82 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/am335x-boneblack.dts             |  4 +-
+ 3 files changed, 79 insertions(+), 1 deletion(-)
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi
 
-diff --git a/arch/arm/boot/dts/am335x-bone-audio.dtsi b/arch/arm/boot/dts/am335x-bone-audio.dtsi
-index dd43fe4..f21b269 100644
---- a/arch/arm/boot/dts/am335x-bone-audio.dtsi
-+++ b/arch/arm/boot/dts/am335x-bone-audio.dtsi
-@@ -23,7 +23,7 @@
- 
- &mcasp0 {
- 	pinctrl-names = "default";
--	pinctrl-0 = <&mcasp0_pins>;
-+	pinctrl-0 = <&mcasp0_pins_audio>;
- 	status = "okay";
- 	op-mode = <0>;          /* MCASP_IIS_MODE */
- 	tdm-slots = <2>;
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-index fcc046c..a1bd94c 100644
+index b298f2d..e0d4fba 100644
 --- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-@@ -144,11 +144,21 @@
+@@ -142,6 +142,16 @@
+ 		>;
+ 	};
  
- 	mcasp0_pins: mcasp0_pins {
- 		pinctrl-single,pins = <
++	mcasp0_pins: mcasp0_pins {
++		pinctrl-single,pins = <
 +			0x1ac (PIN_INPUT_PULLUP | MUX_MODE0)    /* mcasp0_ahclkx.mcasp0_ahclkx */
 +			0x19c (PIN_OUTPUT_PULLDOWN | MUX_MODE2) /* mcasp0_ahclkr.mcasp0_axr2 */
 +			0x194 (PIN_OUTPUT_PULLUP | MUX_MODE0)   /* mcasp0_fsx.mcasp0_fsx */
@@ -41,17 +29,9 @@ index fcc046c..a1bd94c 100644
 +		>;
 +	};
 +
-+	mcasp0_pins_audio: mcasp0_pins_audio {
-+		pinctrl-single,pins = <
+ 	mcasp0_pins_audio: mcasp0_pins_audio {
+ 		pinctrl-single,pins = <
  			0x1ac 0x00	/* mcasp0_ahclkx, OUTPUT | MODE0, Codec MCLK */
-+			0x19c 0x22	/* mcasp0_axr2, INPUT | MODE2, Codec DIN */
- 			0x194 0x20	/* mcasp0_fsx, INPUT | MODE0, Codec WCLK */
- 			0x190 0x20	/* mcasp0_aclkx, INPUT | MODE0, Codec BCLK */
- 			0x198 0x20	/* mcasp0_axr0, INPUT | MODE0, Codec DOUT */
--			0x19c 0x22	/* mcasp0_axr2, INPUT | MODE2, Codec DIN */
- 		>;
- 	};
- 
 diff --git a/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi b/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi
 new file mode 100644
 index 0000000..9a3c163
@@ -125,18 +105,16 @@ index 0000000..9a3c163
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 2c93e87..cd16331 100644
+index 533741e..ee76d68 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -40,8 +40,10 @@
- 
+@@ -41,7 +41,9 @@
  #include "am335x-boneblack-emmc.dtsi"
  
--/* Display */
--#include "am335x-boneblack-nxp-hdmi.dtsi"
-+/* hdmi: Display */
-+/* #include "am335x-boneblack-nxp-hdmi.dtsi" */
-+/* hdmi: Display + Audio */
+ /* Display */
+-#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
++/* #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi" */
++/* Pins: audio: P9.25, P9.28, P9.29, P9.30, P9.31 */
 +#include "am335x-boneblack-nxp-hdmi-audio.dtsi"
  
  /* Capes */

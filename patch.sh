@@ -143,6 +143,12 @@ dtsi_append () {
 	git add ${wfile}
 }
 
+dtsi_append_hdmi_no_audio () {
+	dtsi_append
+	echo "#include \"am335x-boneblack-nxp-hdmi-no-audio.dtsi\"" >> ${wfile}
+	git add ${wfile}
+}
+
 dtsi_drop_nxp_hdmi_audio () {
 	sed -i -e 's:#include "am335x-boneblack-nxp-hdmi-audio.dtsi":/* #include "am335x-boneblack-nxp-hdmi-audio.dtsi" */:g' ${wfile}
 	git add ${wfile}
@@ -179,13 +185,12 @@ beaglebone () {
 
 	${git} "${DIR}/patches/beaglebone/pinmux/0003-am335x-boneblack-split-out-emmc.patch"
 
-	# cp arch/arm/boot/dts/am335x-boneblack.dts arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi
-	# gedit arch/arm/boot/dts/am335x-boneblack.dts arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi &
-	# git add arch/arm/boot/dts/am335x-boneblack-nxp-hdmi.dtsi
-	# git commit -a -m 'am335x-boneblack: split out nxp hdmi' -s
+	# cp arch/arm/boot/dts/am335x-boneblack.dts arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi
+	# gedit arch/arm/boot/dts/am335x-boneblack.dts arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi &
+	# git add arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi
+	# git commit -a -m 'am335x-boneblack: split out nxp hdmi no audio' -s
 
-	${git} "${DIR}/patches/beaglebone/pinmux/0004-am335x-boneblack-split-out-nxp-hdmi.patch"
-
+	${git} "${DIR}/patches/beaglebone/pinmux/0004-am335x-boneblack-split-out-nxp-hdmi-no-audio.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0005-am335x-bone-common-pinmux-i2c2.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0006-am335x-bone-common-pinmux-uart.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0007-am335x-bone-common-pinmux-spi0-spidev.patch"
@@ -245,7 +250,8 @@ beaglebone () {
 
 		base_dts="am335x-boneblack"
 		cape="audio"
-		dtsi_append
+		dtsi_append_hdmi_no_audio
+		dtsi_drop_nxp_hdmi_audio
 
 		git commit -a -m 'auto generated: cape: audio' -s
 		git format-patch -2 -o ../patches/beaglebone/capes/
@@ -294,18 +300,6 @@ beaglebone () {
 		git format-patch -3 -o ../patches/beaglebone/capes/
 	else
 		${git} "${DIR}/patches/beaglebone/capes/0003-auto-generated-cape-lcd.patch"
-	fi
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		base_dts="am335x-boneblack"
-		cape="nxp-hdmi"
-		dtsi_append
-		dtsi_drop_nxp_hdmi_audio
-
-		git commit -a -m 'auto generated: cape: hdmi: no audio' -s
-		git format-patch -4 -o ../patches/beaglebone/capes/
-	else
-		${git} "${DIR}/patches/beaglebone/capes/0004-auto-generated-cape-hdmi-no-audio.patch"
 	fi
 
 	#last...
