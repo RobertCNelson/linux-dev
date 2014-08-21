@@ -213,6 +213,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/capes/0002-driver_n_cape-Argus-UPS-cape-support.patch"
 
 	#regenerate="enable"
+	echo "dir: beaglebone/generated"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		base_dts="am335x-bone"
 		cape="ttyO1"
@@ -393,7 +394,6 @@ beaglebone () {
 		git format-patch -5 -o ../patches/beaglebone/generated/
 		exit
 	else
-		echo "dir: beaglebone/dtb_makefile"
 		${git} "${DIR}/patches/beaglebone/generated/0005-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
 
