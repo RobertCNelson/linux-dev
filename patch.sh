@@ -97,7 +97,8 @@ dts () {
 	${git} "${DIR}/patches/dts/0008-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0009-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
 	${git} "${DIR}/patches/dts/0010-imx-add-udoo.patch"
-#number=10
+	${git} "${DIR}/patches/dts/0011-ARM-sun7i-Add-support-for-Olimex-A20-OLinuXino-LIME.patch"
+#number=11
 #cleanup
 }
 
