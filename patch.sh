@@ -143,8 +143,8 @@ dtsi_append () {
 	git add ${wfile}
 }
 
-dtsi_drop_nxp_hdmi () {
-	sed -i -e 's:#include "am335x-boneblack-nxp-hdmi.dtsi":/* #include "am335x-boneblack-nxp-hdmi.dtsi" */:g' ${wfile}
+dtsi_drop_nxp_hdmi_audio () {
+	sed -i -e 's:#include "am335x-boneblack-nxp-hdmi-audio.dtsi":/* #include "am335x-boneblack-nxp-hdmi-audio.dtsi" */:g' ${wfile}
 	git add ${wfile}
 }
 
@@ -192,8 +192,9 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0008-am335x-bone-common-pinmux-mcasp0.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0009-am335x-bone-common-pinmux-lcd.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0010-am335x-bone-common-pinmux-tscadc-4-wire.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux/0011-am335x-bone-common-pinmux-hdmi-audio.patch"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=10
+		number=11
 		cleanup
 	fi
 
@@ -229,7 +230,7 @@ beaglebone () {
 
 		cape="ttyO5"
 		dtsi_append
-		dtsi_drop_nxp_hdmi
+		dtsi_drop_nxp_hdmi_audio
 
 		git commit -a -m 'auto generated: cape: uarts' -s
 		git format-patch -1 -o ../patches/beaglebone/capes/
@@ -271,28 +272,40 @@ beaglebone () {
 		#lcd3 a2+
 		cape="lcd3-01-00a2"
 		dtsi_append
-		dtsi_drop_nxp_hdmi
+		dtsi_drop_nxp_hdmi_audio
 
 		#lcd4 a1+
 		cape="lcd4-01-00a1"
 		dtsi_append
-		dtsi_drop_nxp_hdmi
+		dtsi_drop_nxp_hdmi_audio
 
 		#drop emmc:
 		cape="lcd7-01-00a2"
 		dtsi_append
-		dtsi_drop_nxp_hdmi
+		dtsi_drop_nxp_hdmi_audio
 		dtsi_drop_emmc
 
 		#lcd4 a3+
 		cape="lcd7-01-00a3"
 		dtsi_append
-		dtsi_drop_nxp_hdmi
+		dtsi_drop_nxp_hdmi_audio
 
 		git commit -a -m 'auto generated: cape: lcd' -s
 		git format-patch -3 -o ../patches/beaglebone/capes/
 	else
 		${git} "${DIR}/patches/beaglebone/capes/0003-auto-generated-cape-lcd.patch"
+	fi
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		base_dts="am335x-boneblack"
+		cape="nxp-hdmi"
+		dtsi_append
+		dtsi_drop_nxp_hdmi_audio
+
+		git commit -a -m 'auto generated: cape: hdmi: no audio' -s
+		git format-patch -4 -o ../patches/beaglebone/capes/
+	else
+		${git} "${DIR}/patches/beaglebone/capes/0004-auto-generated-cape-hdmi-no-audio.patch"
 	fi
 
 	#last...
@@ -385,6 +398,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
 
 	echo "dir: beaglebone/mac"
+	#[PATCH v4 0/7] net: cpsw: Support for am335x chip MACIDs
 	${git} "${DIR}/patches/beaglebone/mac/0001-DT-doc-net-cpsw-mac-address-is-optional.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0002-net-cpsw-Add-missing-return-value.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0003-net-cpsw-header-Add-missing-include.patch"
@@ -392,6 +406,14 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/mac/0005-net-cpsw-Add-am33xx-MACID-readout.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0006-am33xx-define-syscon-control-module-device-node.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0007-arm-dts-am33xx-Add-syscon-phandle-to-cpsw-node.patch"
+
+	echo "dir: beaglebone/hdmi_audio"
+	#[PATCH v2 0/8] Beaglebone-Black HDMI audio
+	${git} "${DIR}/patches/beaglebone/hdmi_audio/0001-clk-ti-add-gpio-controlled-clock.patch"
+	${git} "${DIR}/patches/beaglebone/hdmi_audio/0002-drm-tilcdc-Add-I2S-HDMI-audio-config-for-tda998x.patch"
+	${git} "${DIR}/patches/beaglebone/hdmi_audio/0003-ASoC-davinci-evm-HDMI-audio-support-for-TDA998x-trou.patch"
+	${git} "${DIR}/patches/beaglebone/hdmi_audio/0004-ASoC-davinci-HDMI-audio-build-for-AM33XX-and-TDA998x.patch"
+	${git} "${DIR}/patches/beaglebone/hdmi_audio/0005-ARM-dts-am33xx-Add-external-clock-provider.patch"
 }
 
 #imx_next

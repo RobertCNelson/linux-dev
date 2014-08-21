@@ -1,0 +1,40 @@
+From b4bd13b0c97a8aa2144d9d5fe7525ab139292fed Mon Sep 17 00:00:00 2001
+From: Jyri Sarha <jsarha@ti.com>
+Date: Tue, 19 Aug 2014 00:46:42 +0300
+Subject: [PATCH 4/5] ASoC: davinci: HDMI audio build for AM33XX and TDA998x
+
+Adds configuration option for HDMI audio support for AM33XX based
+boards with NXP TDA998x HDMI transmitter. The audio is connected to
+NXP TDA998x trough McASP running in i2s mode.
+
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ sound/soc/davinci/Kconfig | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/sound/soc/davinci/Kconfig b/sound/soc/davinci/Kconfig
+index d69510c..0c8f143 100644
+--- a/sound/soc/davinci/Kconfig
++++ b/sound/soc/davinci/Kconfig
+@@ -43,6 +43,18 @@ config SND_AM33XX_SOC_EVM
+ 	  AM335X-EVMSK, and BeagelBone with AudioCape boards have this
+ 	  setup.
+ 
++config SND_AM335X_SOC_NXPTDA_EVM
++	tristate "HDMI Audio for the AM33XX chip based boards with TDA998x"
++	depends on SND_EDMA_SOC && SOC_AM33XX && DRM_I2C_NXP_TDA998X
++	select SND_SOC_HDMI_CODEC
++	select SND_DAVINCI_SOC_MCASP
++	select SND_DAVINCI_SOC_GENERIC_EVM
++	help
++	  Say Y or M if you want to add support for HDMI SoC audio on
++	  AM33XX boards with NXP TDA998x HDMI transmitter. For example
++	  BeagleBoneBack. The audio is connected to NXP TDA998x trough
++	  McASP running in i2s mode.
++
+ config SND_DAVINCI_SOC_EVM
+ 	tristate "SoC Audio support for DaVinci DM6446, DM355 or DM365 EVM"
+ 	depends on SND_DAVINCI_SOC && I2C
+-- 
+2.1.0.rc1
+
