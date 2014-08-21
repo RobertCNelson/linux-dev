@@ -1,4 +1,4 @@
-From f3b83d5c9d61e0598a44d7e1610e7c269107d55b Mon Sep 17 00:00:00 2001
+From 638e70e442a32a5c2e0f94fb22673fd2ef28f29e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Tue, 19 Aug 2014 12:36:48 -0500
 Subject: [PATCH 09/10] am335x-bone-common: pinmux lcd
@@ -13,11 +13,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone-lcd4.dtsi          | 50 +++++++++++++++++++++++
  arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi  | 20 ++++++++++
  arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi  | 20 ++++++++++
- arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi  | 20 ++++++++++
  arch/arm/boot/dts/am335x-bone-lcd7.dtsi          | 50 +++++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone.dts                | 12 ++++++
- arch/arm/boot/dts/am335x-boneblack.dts           | 12 ++++++
- 12 files changed, 332 insertions(+)
+ arch/arm/boot/dts/am335x-bone.dts                | 11 +++++
+ arch/arm/boot/dts/am335x-boneblack.dts           | 11 +++++
+ 11 files changed, 310 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-lcd3.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-lcd4-01-00a0.dtsi
@@ -25,7 +24,6 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-bone-lcd4.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7-01-00a2.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7-01-00a3.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-lcd7.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
@@ -324,33 +322,6 @@ index 0000000..8eb2620
 +
 +#include "am335x-bone-lcd7.dtsi"
 \ No newline at end of file
-diff --git a/arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi
-new file mode 100644
-index 0000000..8eb2620
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-lcd7-01-00a4.dtsi
-@@ -0,0 +1,20 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+/ {
-+	backlight {
-+		status = "okay";
-+		compatible = "gpio-backlight";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&bbcape_backlight_pins>;
-+		gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
-+		default-on;
-+	};
-+};
-+
-+#include "am335x-bone-lcd7.dtsi"
-\ No newline at end of file
 diff --git a/arch/arm/boot/dts/am335x-bone-lcd7.dtsi b/arch/arm/boot/dts/am335x-bone-lcd7.dtsi
 new file mode 100644
 index 0000000..cbc5e66
@@ -408,10 +379,10 @@ index 0000000..cbc5e66
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 95d7ab9..e1a90b4 100644
+index 95d7ab9..f7d5132 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
-@@ -50,3 +50,15 @@
+@@ -50,3 +50,14 @@
  /* http://elinux.org/CircuitCo:Audio_Cape_RevB */
  /* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
  /* #include "am335x-bone-audio.dtsi" */
@@ -426,12 +397,11 @@ index 95d7ab9..e1a90b4 100644
 +/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
 +/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
 +/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
-+/* #include "am335x-bone-lcd7-01-00a4.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 034f3ce..3c9796c 100644
+index 034f3ce..2c93e87 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -47,3 +47,15 @@
+@@ -47,3 +47,14 @@
  /* http://elinux.org/CircuitCo:Audio_Cape_RevB */
  /* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
  /* #include "am335x-bone-audio.dtsi" */
@@ -446,7 +416,6 @@ index 034f3ce..3c9796c 100644
 +/* am335x-boneblack: emmc has to be disabled for lcd7-01-00a2 */
 +/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
 +/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
-+/* #include "am335x-bone-lcd7-01-00a4.dtsi" */
 -- 
 2.1.0.rc1
 

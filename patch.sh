@@ -266,8 +266,6 @@ beaglebone () {
 		dtsi_append
 		cape="lcd7-01-00a3"
 		dtsi_append
-		cape="lcd7-01-00a4"
-		dtsi_append
 
 		base_dts="am335x-boneblack"
 		#lcd3 a2+
@@ -288,9 +286,6 @@ beaglebone () {
 
 		#lcd4 a3+
 		cape="lcd7-01-00a3"
-		dtsi_append
-		dtsi_drop_nxp_hdmi
-		cape="lcd7-01-00a4"
 		dtsi_append
 		dtsi_drop_nxp_hdmi
 
@@ -323,9 +318,6 @@ beaglebone () {
 		device="am335x-bone-lcd7-01-00a3.dtb"
 		dtb_makefile_append
 
-		device="am335x-bone-lcd7-01-00a4.dtb"
-		dtb_makefile_append
-
 		device="am335x-bone-ttyO1.dtb"
 		dtb_makefile_append
 
@@ -354,9 +346,6 @@ beaglebone () {
 		dtb_makefile_append
 
 		device="am335x-boneblack-lcd7-01-00a3.dtb"
-		dtb_makefile_append
-
-		device="am335x-boneblack-lcd7-01-00a4.dtb"
 		dtb_makefile_append
 
 		device="am335x-boneblack-ttyO1.dtb"
