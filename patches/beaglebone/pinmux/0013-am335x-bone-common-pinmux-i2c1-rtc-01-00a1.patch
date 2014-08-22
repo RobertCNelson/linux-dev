@@ -1,0 +1,121 @@
+From 37bae5b157353b1a8ef1ee61a9f172f4cfaa79d0 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 22 Aug 2014 14:30:46 -0500
+Subject: [PATCH 13/13] am335x-bone-common: pinmux i2c1: rtc-01-00a1
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 13 ++++++++
+ arch/arm/boot/dts/am335x-bone-rtc-01-00a1.dtsi   | 39 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone.dts                |  5 +++
+ arch/arm/boot/dts/am335x-boneblack.dts           |  5 +++
+ 4 files changed, 62 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-rtc-01-00a1.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+index 1a7d71b..729cc0d 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+@@ -135,6 +135,13 @@
+ 		>;
+ 	};
+ 
++	i2c1_pins: pinmux_i2c1_pins {
++		pinctrl-single,pins = <
++			0x158 0x72	/* spi0_d1.i2c1_sda, SLEWCTRL_SLOW | INPUT_PULLUP | MODE2 */
++			0x15c 0x72	/* spi0_cs0.i2c1_scl, SLEWCTRL_SLOW | INPUT_PULLUP | MODE2 */
++		>;
++	};
++
+ 	i2c2_pins: pinmux_i2c2_pins {
+ 		pinctrl-single,pins = <
+ 			0x178 0x73 /* (SLEWCTRL_SLOW | PIN_INPUT_PULLUP | MUX_MODE3) uart1_ctsn.i2c2_sda */
+@@ -226,6 +233,12 @@
+ 		>;
+ 	};
+ 
++	rtc_gpio1_29_pins: pinmux_rtc_gpio1_29_pins {
++		pinctrl-single,pins = <
++			0x07c 0x3f	/* gpmc_csn0.gpio1_29, INPUT | PULLDIS | MODE 7 */
++		>;
++	};
++
+ 	spi0_pins: pinmux_spi0_pins {
+ 		pinctrl-single,pins = <
+ 			0x150 (PIN_INPUT_PULLUP | MUX_MODE0)	/* spi0_sclk.spi0_sclk */
+diff --git a/arch/arm/boot/dts/am335x-bone-rtc-01-00a1.dtsi b/arch/arm/boot/dts/am335x-bone-rtc-01-00a1.dtsi
+new file mode 100644
+index 0000000..8374583
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-rtc-01-00a1.dtsi
+@@ -0,0 +1,39 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	gpio_keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&rtc_gpio1_29_pins>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		rtc_mfp@1 {
++			label = "rtc_mfp";
++			gpios = <&gpio1 29 GPIO_ACTIVE_HIGH>;
++			linux,code = <143>; /* System Wake Up */
++			gpio-key,wakeup;
++		};
++	};
++};
++
++&i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c1_pins>;
++
++	status = "okay";
++	clock-frequency = <100000>;
++
++	/* MCP79410 RTC module */
++	rtc@68 {
++		compatible = "maxim,ds1338";
++		reg = <0x68>;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index f7d5132..f8f869b 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -61,3 +61,8 @@
+ /* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
+ /* #include "am335x-bone-lcd7-01-00a2.dtsi" */
+ /* #include "am335x-bone-lcd7-01-00a3.dtsi" */
++
++/* http://elinux.org/CircuitCo:RTC_Cape */
++/* i2c1: P9.17, P9.18 */
++/* gpio: P8.26 (mfp: wakeup) */
++/* #include "am335x-bone-rtc-01-00a1.dtsi" */
+\ No newline at end of file
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index ee76d68..72db8f9 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -60,3 +60,8 @@
+ /* am335x-boneblack: emmc has to be disabled for lcd7-01-00a2 */
+ /* #include "am335x-bone-lcd7-01-00a2.dtsi" */
+ /* #include "am335x-bone-lcd7-01-00a3.dtsi" */
++
++/* http://elinux.org/CircuitCo:RTC_Cape */
++/* i2c1: P9.17, P9.18 */
++/* gpio: P8.26 (mfp: wakeup) */
++/* #include "am335x-bone-rtc-01-00a1.dtsi" */
+\ No newline at end of file
+-- 
+2.1.0.rc1
+
