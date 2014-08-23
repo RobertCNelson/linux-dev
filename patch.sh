@@ -215,9 +215,10 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0011-am335x-bone-common-pinmux-hdmi-audio.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0012-am335x-bone-common-pinmux-led-keys-lcd4-01-00a1-lcd7.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0013-am335x-bone-common-pinmux-i2c1-rtc-01-00a1.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux/0014-am335x-bone-common-pinmux-led-keys-lcd7-01-00a2.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=13
+		number=14
 		cleanup
 	fi
 
