@@ -216,9 +216,10 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0012-am335x-bone-common-pinmux-led-keys-lcd4-01-00a1-lcd7.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0013-am335x-bone-common-pinmux-i2c1-rtc-01-00a1.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0014-am335x-bone-common-pinmux-led-keys-lcd7-01-00a2.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux/0015-am335x-bone-common-pinmux-cryptocape.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=14
+		number=15
 		cleanup
 	fi
 
@@ -358,6 +359,21 @@ beaglebone () {
 		${git} "${DIR}/patches/beaglebone/generated/0005-auto-generated-cape-rtc-01-00a1.patch"
 	fi
 
+	if [ "x${regenerate}" = "xenable" ] ; then
+		base_dts="am335x-bone"
+		cape="crypto-00a0"
+		dtsi_append
+
+		base_dts="am335x-boneblack"
+		cape="crypto-00a0"
+		dtsi_append
+
+		git commit -a -m 'auto generated: cape: crypto-00a0' -s
+		git format-patch -6 -o ../patches/beaglebone/generated/
+	else
+		${git} "${DIR}/patches/beaglebone/generated/0006-auto-generated-cape-crypto-00a0.patch"
+	fi
+
 	####
 	#last beaglebone/beaglebone black default
 	echo "dir: beaglebone/generated/last"
@@ -384,6 +400,9 @@ beaglebone () {
 		dtb_makefile_append
 
 		device="am335x-bone-cape-bone-argus.dtb"
+		dtb_makefile_append
+
+		device="am335x-bone-crypto-00a0.dtb"
 		dtb_makefile_append
 
 		device="am335x-bone-lcd3-01-00a2.dtb"
@@ -420,6 +439,9 @@ beaglebone () {
 		dtb_makefile_append
 
 		device="am335x-boneblack-cape-bone-argus.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-crypto-00a0.dtb"
 		dtb_makefile_append
 
 		device="am335x-boneblack-lcd3-01-00a2.dtb"

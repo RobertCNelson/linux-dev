@@ -2471,4 +2471,12 @@ echo "#Bugs:"
 config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS"
 check_config_builtin
 
+#capes..
+config="CONFIG_CAPE_BONE_ARGUS"
+check_config_builtin
+config="CONFIG_TCG_TPM"
+check_config_module
+config="CONFIG_TCG_TIS_I2C_ATMEL"
+check_config_module
+
 #
