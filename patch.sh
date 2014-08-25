@@ -463,10 +463,10 @@ beaglebone () {
 		device="am335x-boneblack-crypto-00a0.dtb"
 		dtb_makefile_append
 
-		device="am335x-boneblack-4dcape-43.dtb"
+		device="am335x-boneblack-lcd-4dcape-43.dtb"
 		dtb_makefile_append
 
-		device="am335x-boneblack-4dcape-43t.dtb"
+		device="am335x-boneblack-lcd-4dcape-43t.dtb"
 		dtb_makefile_append
 
 		device="am335x-boneblack-lcd3-01-00a2.dtb"
