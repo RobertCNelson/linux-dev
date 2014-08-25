@@ -1,0 +1,125 @@
+From bba58219ee6fd65688bd8f2316fe79453092640c Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Mon, 25 Aug 2014 16:03:39 -0500
+Subject: [PATCH 17/17] cape: lcd3-01-00a2 backlight/keys/led
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi   |  6 +++
+ .../arm/boot/dts/am335x-bone-lcd-led-gpio3-19.dtsi | 23 ++++++++++
+ arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi    | 52 ++++++++++++++++++++++
+ 3 files changed, 81 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-lcd-led-gpio3-19.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+index 2b53839..9e93fef 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+@@ -162,6 +162,12 @@
+ 		>;
+ 	};
+ 
++	lcd_gpio3_19_led_pins: pinmux_lcd_gpio3_19_led_pins {
++		pinctrl-single,pins = <
++			0x1a4 0x07	/* mcasp0_fsr.gpio3_19, OUTPUT | MODE7 */
++		>;
++	};
++
+ 	lcd4_01_00a2_keymap_pins: pinmux_lcd4_01_00a2_keymap_pins {
+ 		pinctrl-single,pins = <
+ 			0x040 0x2f	/* KEY_LEFT gpmc_a0.gpio1_16, INPUT | PULLDIS | MODE7 */
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd-led-gpio3-19.dtsi b/arch/arm/boot/dts/am335x-bone-lcd-led-gpio3-19.dtsi
+new file mode 100644
+index 0000000..4f1f81d
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-lcd-led-gpio3-19.dtsi
+@@ -0,0 +1,23 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	gpio-leds-cape-lcd {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++
++		pinctrl-0 = <&lcd_gpio3_19_led_pins>;
++
++		lcd-led0 {
++			label = "lcd:green:usr0";
++			gpios = <&gpio3 19 0>;
++			linux,default-trigger = "heartbeat";
++			default-state = "off";
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi b/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
+index ef70668..6358a83 100644
+--- a/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-lcd3-01-00a2.dtsi
+@@ -6,6 +6,58 @@
+  * published by the Free Software Foundation.
+  */
+ 
++/ {
++	gpio_keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&lcd7_01_00a3_keymap_pins>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		button@1 {
++			debounce_interval = <50>;
++			linux,code = <105>;
++			label = "left";
++			gpios = <&gpio1 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@2 {
++			debounce_interval = <50>;
++			linux,code = <106>;
++			label = "right";
++			gpios = <&gpio1 17 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@3 {
++			debounce_interval = <50>;
++			linux,code = <103>;
++			label = "up";
++			gpios = <&gpio1 19 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@4 {
++			debounce_interval = <50>;
++			linux,code = <108>;
++			label = "down";
++			gpios = <&gpio3 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@5 {
++			debounce_interval = <50>;
++			linux,code = <28>;
++			label = "enter";
++			gpios = <&gpio0 3 0x1>;
++			gpio-key,wakeup;
++		};
++	};
++};
++
++#include "am335x-bone-lcd-led-gpio3-19.dtsi"
+ #include "am335x-bone-lcd-gpio-backlight-gpio1-18.dtsi"
+ #include "am335x-bone-ti-tscadc-4-wire.dtsi"
+ #include "am335x-bone-lcd3.dtsi"
+-- 
+2.1.0.rc1
+

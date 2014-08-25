@@ -218,9 +218,10 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0014-am335x-bone-common-pinmux-led-keys-lcd7-01-00a2.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0015-am335x-bone-common-pinmux-cryptocape.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0016-cape-lcd-4dcape-43-lcd-4dcape-43t.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux/0017-cape-lcd3-01-00a2-backlight-keys-led.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=16
+		number=17
 		cleanup
 	fi
 
