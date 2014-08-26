@@ -1,22 +1,29 @@
-From 3e696fc2fe9153a843b3e958524c668c7356aab6 Mon Sep 17 00:00:00 2001
+From 824984e70c7a5be3b795b37631f6765206bcee5b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 19 Aug 2014 11:58:17 -0500
-Subject: [PATCH 05/17] am335x-bone-common: pinmux i2c2
+Date: Tue, 26 Aug 2014 10:15:07 -0500
+Subject: [PATCH 05/17] am335x-bone-common: pinmux i2c1/i2c2
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi |  7 ++++++
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 14 +++++++++++
  arch/arm/boot/dts/am335x-bone-common.dtsi        | 32 ++++++++++++++++++++++++
- 2 files changed, 39 insertions(+)
+ 2 files changed, 46 insertions(+)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-index 793d94b..ba9c3fa 100644
+index 793d94b..04beb88 100644
 --- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-@@ -98,6 +98,13 @@
+@@ -98,6 +98,20 @@
  		>;
  	};
  
++	i2c1_pins: pinmux_i2c1_pins {
++		pinctrl-single,pins = <
++			0x158 0x72	/* spi0_d1.i2c1_sda, SLEWCTRL_SLOW | INPUT_PULLUP | MODE2 */
++			0x15c 0x72	/* spi0_cs0.i2c1_scl, SLEWCTRL_SLOW | INPUT_PULLUP | MODE2 */
++		>;
++	};
++
 +	i2c2_pins: pinmux_i2c2_pins {
 +		pinctrl-single,pins = <
 +			0x178 0x73 /* (SLEWCTRL_SLOW | PIN_INPUT_PULLUP | MUX_MODE3) uart1_ctsn.i2c2_sda */
@@ -71,5 +78,5 @@ index 7ca7df6..6ef4bab 100644
  
  /include/ "tps65217.dtsi"
 -- 
-2.1.0.rc1
+2.1.0
 

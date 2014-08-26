@@ -1,0 +1,56 @@
+From cef81788c8f0d1403c8f5418964afc26bbb1be6e Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 26 Aug 2014 11:14:27 -0500
+Subject: [PATCH 11/17] am335x-bone-common: pinmux gpio-backlight (gpio1_18)
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi   | 18 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi |  6 ++++++
+ 2 files changed, 24 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi b/arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi
+new file mode 100644
+index 0000000..a8dae4a
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	backlight {
++		status = "okay";
++		compatible = "gpio-backlight";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_backlight_pins>;
++		gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
++		default-on;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+index 83d824b..2e6f158 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+@@ -16,6 +16,12 @@
+ 		>;
+ 	};
+ 
++	bbcape_backlight_pins: bbcape_backlight_pins {
++		pinctrl-single,pins = <
++			0x48  (PIN_OUTPUT | MUX_MODE7)	/* gpmc_a[2].GPIO1[18] (backlight control) */
++		>;
++	};
++
+ 	clkout2_pin: pinmux_clkout2_pin {
+ 		pinctrl-single,pins = <
+ 			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+-- 
+2.1.0
+
