@@ -216,7 +216,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0011-am335x-bone-common-pinmux-gpio-backlight-gpio1_18.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0012-am335x-bone-common-pinmux-keymaps.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0013-am335x-bone-common-pinmux-lcd-panels.patch"
-	${git} "${DIR}/patches/beaglebone/pinmux/0014-am335x-bone-capes-lcd3-lcd4-lcd7-4dcape-43-t.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux/0014-am335x-bone-capes-lcd3-lcd4-lcd7-4dcape-43-t-4dcape-.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0015-am335x-bone-cape-rtc-01-00a1.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0016-am335x-bone-cape-crypto-00a0.patch"
 
@@ -292,13 +292,12 @@ beaglebone () {
 		cape="lcd3-01-00a2"
 		dtsi_append
 
-		cape="lcd4-01-00a0"
-		dtsi_append
 		cape="lcd4-01-00a1"
 		dtsi_append
 
 		cape="lcd7-01-00a2"
 		dtsi_append
+
 		cape="lcd7-01-00a3"
 		dtsi_append
 
@@ -390,10 +389,20 @@ beaglebone () {
 		dtsi_append
 		dtsi_drop_nxp_hdmi_audio
 
-		git commit -a -m 'auto generated: cape: 4dcape-43' -s
+		base_dts="am335x-boneblack"
+		cape="4dcape-70"
+		dtsi_append
+		dtsi_drop_nxp_hdmi_audio
+
+		base_dts="am335x-boneblack"
+		cape="4dcape-70t"
+		dtsi_append
+		dtsi_drop_nxp_hdmi_audio
+
+		git commit -a -m 'auto generated: cape: 4dcape' -s
 		git format-patch -7 -o ../patches/beaglebone/generated/
 	else
-		${git} "${DIR}/patches/beaglebone/generated/0007-auto-generated-cape-4dcape-43.patch"
+		${git} "${DIR}/patches/beaglebone/generated/0007-auto-generated-cape-4dcape.patch"
 	fi
 
 	####
@@ -428,9 +437,6 @@ beaglebone () {
 		dtb_makefile_append
 
 		device="am335x-bone-lcd3-01-00a2.dtb"
-		dtb_makefile_append
-
-		device="am335x-bone-lcd4-01-00a0.dtb"
 		dtb_makefile_append
 
 		device="am335x-bone-lcd4-01-00a1.dtb"
@@ -470,6 +476,12 @@ beaglebone () {
 		dtb_makefile_append
 
 		device="am335x-boneblack-4dcape-43t.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-4dcape-70.dtb"
+		dtb_makefile_append
+
+		device="am335x-boneblack-4dcape-70t.dtb"
 		dtb_makefile_append
 
 		device="am335x-boneblack-lcd3-01-00a2.dtb"
