@@ -24,6 +24,9 @@
 
 DIR=$PWD
 
+repo="git@github.com:RobertCNelson/linux-stable-rcn-ee.git"
+config="rcn-ee"
+
 if [ -e ${DIR}/version.sh ]; then
 	unset BRANCH
 	. ${DIR}/version.sh
@@ -36,7 +39,16 @@ if [ -e ${DIR}/version.sh ]; then
 
 	cd ${DIR}/KERNEL/
 	make ARCH=arm distclean
-	git push -f git@github.com:RobertCNelson/linux-stable-rcn-ee.git "v${KERNEL_TAG}-${BUILD}"
+
+	cp ${DIR}/patches/defconfig ${DIR}/KERNEL/arch/arm/configs/${config}_defconfig
+	git add arch/arm/configs/${config}_defconfig
+
+	git commit -a -m "${KERNEL_TAG}-${BUILD} ${config}_defconfig" -s
+	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}"
+
+	#push tag
+	git push -f ${repo} "${KERNEL_TAG}-${BUILD}"
+
 	cd ${DIR}/
 fi
 
