@@ -40,15 +40,15 @@ patch_kernel () {
 
 copy_defconfig () {
 	cd ${DIR}/KERNEL/
-	make ARCH=arm CROSS_COMPILE=${CC} distclean
-	make ARCH=arm CROSS_COMPILE=${CC} ${config}
+	make ARCH=arm CROSS_COMPILE="${CC}" distclean
+	make ARCH=arm CROSS_COMPILE="${CC}" ${config}
 	cp -v .config ${DIR}/patches/HEAD_${config}
 	cd ${DIR}/
 }
 
 make_menuconfig () {
 	cd ${DIR}/KERNEL/
-	make ARCH=arm CROSS_COMPILE=${CC} menuconfig
+	make ARCH=arm CROSS_COMPILE="${CC}" menuconfig
 	cp -v .config ${DIR}/patches/MOD_${config}
 	cd ${DIR}/
 }
@@ -63,9 +63,9 @@ make_kernel () {
 
 	cd ${DIR}/KERNEL/
 	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} ${address} ${image} modules"
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules"
 	echo "-----------------------------"
-	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} ${address} ${image} modules
+	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules
 
 	unset DTBS
 	cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:" >/dev/null 2>&1 && DTBS=enable
@@ -81,9 +81,9 @@ make_kernel () {
 
 	if [ "x${DTBS}" = "xenable" ] ; then
 		echo "-----------------------------"
-		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs"
+		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
 		echo "-----------------------------"
-		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs
+		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
 		ls arch/arm/boot/* | grep dtb >/dev/null 2>&1 || unset DTBS
 	fi
 
@@ -136,14 +136,14 @@ make_pkg () {
 
 	case "${pkg}" in
 	modules)
-		make -s ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
 		;;
 	firmware)
-		make -s ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
 		;;
 	dtbs)
 		if [ "x${has_dtbs_install}" = "xenable" ] ; then
-			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
+			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
 		else
 			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
 		fi
@@ -212,7 +212,12 @@ unset LINUX_GIT
 . ${DIR}/system.sh
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 . ${DIR}/.CC
-echo "debug: CC=${CC}"
+if [ ${AUTO_BUILD} ] ; then
+	if [ -f /usr/bin/ccache ] ; then
+		CC="ccache ${CC}"
+	fi
+fi
+echo "CROSS_COMPILE=${CC}"
 
 . ${DIR}/version.sh
 export LINUX_GIT
