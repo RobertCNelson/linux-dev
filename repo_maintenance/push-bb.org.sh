@@ -38,7 +38,7 @@ if [ -e ${DIR}/version.sh ]; then
 	git add arch/arm/configs/${example}_defconfig
 
 	git commit -a -m "${KERNEL_TAG}-${BUILD} ${example}_defconfig" -s
-	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}"
+	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}" -f
 
 	#push tag
 	git push -f ${repo} "${KERNEL_TAG}-${BUILD}"
