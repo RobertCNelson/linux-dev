@@ -219,12 +219,13 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux/0014-am335x-bone-capes-lcd3-lcd4-lcd7-4dcape-43-t-4dcape-.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0015-am335x-bone-cape-rtc-01-00a1.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux/0016-am335x-bone-cape-crypto-00a0.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux/0017-am335x-bone-common-pinmux-spi1-spidev.patch"
 
 	#last: (hdmi audio needs to be backported..)
-	${git} "${DIR}/patches/beaglebone/pinmux/0017-am335x-bone-common-pinmux-hdmi-audio.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux/0018-am335x-bone-common-pinmux-hdmi-audio.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=17
+		number=18
 		cleanup
 	fi
 

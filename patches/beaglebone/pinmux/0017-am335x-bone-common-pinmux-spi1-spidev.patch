@@ -1,0 +1,181 @@
+From 857af4e53ba03b2363cd6415182f6ef7fed52dc5 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 28 Aug 2014 10:01:06 -0500
+Subject: [PATCH 17/18] am335x-bone-common: pinmux spi1-spidev
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 21 +++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-spi1-spidev.dtsi   | 26 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-spi1a-spidev.dtsi  | 26 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone.dts                | 20 +++++++++++++++++-
+ arch/arm/boot/dts/am335x-boneblack.dts           | 20 +++++++++++++++++-
+ 5 files changed, 111 insertions(+), 2 deletions(-)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-spi1-spidev.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-spi1a-spidev.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+index 827a9f2..0503b70 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+@@ -274,6 +274,27 @@
+ 		>;
+ 	};
+ 
++	spi1_pins: pinmux_spi1_pins {
++		pinctrl-single,pins = <
++			0x190 0x33	/* mcasp0_aclkx.spi1_sclk, INPUT_PULLUP | MODE3 */
++			0x194 0x33	/* mcasp0_fsx.spi1_d0, INPUT_PULLUP | MODE3 */
++			0x198 0x13	/* mcasp0_axr0.spi1_d1, OUTPUT_PULLUP | MODE3 */
++			0x19c 0x13	/* mcasp0_ahclkr.spi1_cs0, OUTPUT_PULLUP | MODE3 */
++			// 0x164 0x12	/* eCAP0_in_PWM0_out.spi1_cs1 OUTPUT_PULLUP | MODE2 */
++		>;
++	};
++
++	spi1a_pins: pinmux_spi1a_pins {
++		pinctrl-single,pins = <
++			0x164 0x34	/* eCAP0_in_PWM0_out.spi1_sclk, INPUT_PULLUP | MODE4 */
++					/* NOTE: P9.42 is connected to two pads */
++			// 0x1A0 0x27	/* set the other pad to gpio input */
++			0x194 0x33	/* mcasp0_fsx.spi1_d0, INPUT_PULLUP | MODE3 */
++			0x198 0x13	/* mcasp0_axr0.spi1_d1, OUTPUT_PULLUP | MODE3 */
++			0x178 0x14	/* uart1_ctsn.spi1_cs0, OUTPUT_PULLUP | MODE4 */
++		>;
++	};
++
+ 	uart0_pins: pinmux_uart0_pins {
+ 		pinctrl-single,pins = <
+ 			0x170 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
+diff --git a/arch/arm/boot/dts/am335x-bone-spi1-spidev.dtsi b/arch/arm/boot/dts/am335x-bone-spi1-spidev.dtsi
+new file mode 100644
+index 0000000..5bc03e8
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-spi1-spidev.dtsi
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&spi1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi1_pins>;
++	status = "okay";
++
++	spidev2: spi@0 {
++		compatible = "spidev";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++		spi-cpha;
++	};
++
++	spidev3: spi@1 {
++		compatible = "spidev";
++		reg = <1>;
++		spi-max-frequency = <16000000>;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-spi1a-spidev.dtsi b/arch/arm/boot/dts/am335x-bone-spi1a-spidev.dtsi
+new file mode 100644
+index 0000000..3aded7b
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-spi1a-spidev.dtsi
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&spi1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi1a_pins>;
++	status = "okay";
++
++	spidev2: spi@0 {
++		compatible = "spidev";
++		reg = <0>;
++		spi-max-frequency = <16000000>;
++		spi-cpha;
++	};
++
++	spidev3: spi@1 {
++		compatible = "spidev";
++		reg = <1>;
++		spi-max-frequency = <16000000>;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index 8c049a0..73d834e 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -34,9 +34,27 @@
+ 	status = "okay";
+ };
+ 
+-/* spi0: P9.17, P9.18, P9.21, P9.22 */
++/* spi0: */
++/* P9.17 spi0_cs0 */
++/* P9.18 spi0_d1 */
++/* P9.21 spi0_d0 */
++/* P9.22 spi0_sclk */
+ /* #include "am335x-bone-spi0-spidev.dtsi" */
+ 
++/* spi1: */
++/* P9.31 spi1_sclk */
++/* P9.29 spi1_d0 */
++/* P9.30 spi1_d1 */
++/* P9.28 spi1_cs0 */
++/* #include "am335x-bone-spi1-spidev.dtsi" */
++
++/* spi1a: */
++/* P9.42 spi1_sclk */
++/* P9.29 spi1_d0 */
++/* P9.30 spi1_d1 */
++/* P9.20 spi1_cs0 */
++/* #include "am335x-bone-spi1a-spidev.dtsi" */
++
+ /* uart1: P9.24, P9.26 */
+ /* #include "am335x-bone-ttyO1.dtsi" */
+ /* uart2: P9.21, P9.22 */
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 3b7dbdb..86c9b31 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -28,9 +28,27 @@
+ 
+ #include "am335x-boneblack-emmc.dtsi"
+ 
+-/* spi0: P9.17, P9.18, P9.21, P9.22 */
++/* spi0: */
++/* P9.17 spi0_cs0 */
++/* P9.18 spi0_d1 */
++/* P9.21 spi0_d0 */
++/* P9.22 spi0_sclk */
+ /* #include "am335x-bone-spi0-spidev.dtsi" */
+ 
++/* spi1: */
++/* P9.31 spi1_sclk */
++/* P9.29 spi1_d0 */
++/* P9.30 spi1_d1 */
++/* P9.28 spi1_cs0 */
++/* #include "am335x-bone-spi1-spidev.dtsi" */
++
++/* spi1a: */
++/* P9.42 spi1_sclk */
++/* P9.29 spi1_d0 */
++/* P9.30 spi1_d1 */
++/* P9.20 spi1_cs0 */
++/* #include "am335x-bone-spi1a-spidev.dtsi" */
++
+ /* uart1: P9.24, P9.26 */
+ /* #include "am335x-bone-ttyO1.dtsi" */
+ /* uart2: P9.21, P9.22 */
+-- 
+2.1.0
+
