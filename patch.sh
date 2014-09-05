@@ -106,6 +106,7 @@ wand () {
 	echo "dir: wand"
 	${git} "${DIR}/patches/wand/0001-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
 	${git} "${DIR}/patches/wand/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
+	${git} "${DIR}/patches/wand/0003-Vivante-v4-driver.patch"
 }
 
 errata () {
@@ -607,4 +608,4 @@ packaging () {
 
 #packaging_setup
 packaging
-echo "patch.sh ran successful"
+echo "patch.sh ran successfully"
