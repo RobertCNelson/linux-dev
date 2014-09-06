@@ -428,8 +428,6 @@ check_config_builtin
 #
 # Bus devices
 #
-config="CONFIG_IMX_WEIM"
-check_config_builtin
 config="CONFIG_OMAP_OCP2SCP"
 check_config_builtin
 config="CONFIG_VEXPRESS_CONFIG"
