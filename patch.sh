@@ -531,7 +531,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
 
 	echo "dir: beaglebone/mac"
-	#[PATCH v5 0/7] net: cpsw: Support for am335x chip MACIDs
+	#[PATCH v6 0/7] net: cpsw: Support for am335x chip MACIDs
 	${git} "${DIR}/patches/beaglebone/mac/0001-DT-doc-net-cpsw-mac-address-is-optional.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0002-net-cpsw-Add-missing-return-value.patch"
 	${git} "${DIR}/patches/beaglebone/mac/0003-net-cpsw-header-Add-missing-include.patch"
