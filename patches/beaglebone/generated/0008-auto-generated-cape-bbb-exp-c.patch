@@ -1,120 +1,20 @@
-From 2b388880e7add214ee8073601e5931b0d542757b Mon Sep 17 00:00:00 2001
+From ccc19dddce601cbb770172771364d31cee9910ac Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 10 Sep 2014 15:30:22 -0500
-Subject: [PATCH 2/8] auto generated: cape: audio
+Date: Wed, 10 Sep 2014 15:30:25 -0500
+Subject: [PATCH 8/8] auto generated: cape: bbb-exp-c
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-audio.dts      |  92 ++++++++++++++++++++++
- arch/arm/boot/dts/am335x-boneblack-audio.dts | 112 +++++++++++++++++++++++++++
- 2 files changed, 204 insertions(+)
- create mode 100644 arch/arm/boot/dts/am335x-bone-audio.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-audio.dts
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts | 111 +++++++++++++++++++++++
+ 1 file changed, 111 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 
-diff --git a/arch/arm/boot/dts/am335x-bone-audio.dts b/arch/arm/boot/dts/am335x-bone-audio.dts
+diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 new file mode 100644
-index 0000000..880d109
+index 0000000..75a762e
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-audio.dts
-@@ -0,0 +1,92 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+#include "am335x-bone-common-pinmux.dtsi"
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&ldo3_reg>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+&sham {
-+	status = "okay";
-+};
-+
-+&aes {
-+	status = "okay";
-+};
-+
-+/* spi0: */
-+/* P9.17 spi0_cs0 */
-+/* P9.18 spi0_d1 */
-+/* P9.21 spi0_d0 */
-+/* P9.22 spi0_sclk */
-+/* #include "am335x-bone-spi0-spidev.dtsi" */
-+
-+/* spi1: */
-+/* P9.31 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.28 spi1_cs0 */
-+/* #include "am335x-bone-spi1-spidev.dtsi" */
-+
-+/* spi1a: */
-+/* P9.42 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.20 spi1_cs0 */
-+/* #include "am335x-bone-spi1a-spidev.dtsi" */
-+
-+/* uart1: P9.24, P9.26 */
-+/* #include "am335x-bone-ttyO1.dtsi" */
-+/* uart2: P9.21, P9.22 */
-+/* #include "am335x-bone-ttyO2.dtsi" */
-+/* uart4: P9.11, P9.13 */
-+/* #include "am335x-bone-ttyO4.dtsi" */
-+/* uart5: P8.37, P8.38 */
-+/* #include "am335x-bone-ttyO5.dtsi" */
-+
-+/* Capes */
-+/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
-+/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD3 */
-+/* #include "am335x-bone-lcd3-01-00a2.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd4-01-00a1.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
-+/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
-+/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:RTC_Cape */
-+/* i2c1: P9.17, P9.18 */
-+/* gpio: P8.26 (mfp: wakeup) */
-+/* #include "am335x-bone-rtc-01-00a1.dtsi" */
-+
-+/* http://elinux.org/Cryptotronix:CryptoCape */
-+/* uart4: P9.11, P9.13 */
-+/* gpio: gpio1 13 gpio1 17 (gpio NOT IMPLEMENTED YET) */
-+/* #include "am335x-bone-crypto-00a0.dtsi" */
-+
-+#include "am335x-bone-audio.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-boneblack-audio.dts b/arch/arm/boot/dts/am335x-boneblack-audio.dts
-new file mode 100644
-index 0000000..5fbcc4d
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-audio.dts
-@@ -0,0 +1,112 @@
++++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
+@@ -0,0 +1,111 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -225,8 +125,7 @@ index 0000000..5fbcc4d
 +/* gpio: gpio1 13 gpio1 17 (gpio NOT IMPLEMENTED YET) */
 +/* #include "am335x-bone-crypto-00a0.dtsi" */
 +
-+#include "am335x-bone-audio.dtsi"
-+#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
++#include "am335x-bone-bbb-exp-c.dtsi"
 -- 
 2.1.0
 
