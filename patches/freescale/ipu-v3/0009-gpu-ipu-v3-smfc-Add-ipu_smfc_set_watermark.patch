@@ -1,0 +1,61 @@
+From cbb6266f81162b2ef256516c1e41b41358e4b988 Mon Sep 17 00:00:00 2001
+From: Steve Longerbeam <slongerbeam@gmail.com>
+Date: Wed, 25 Jun 2014 18:05:35 -0700
+Subject: [PATCH 09/26] gpu: ipu-v3: smfc: Add ipu_smfc_set_watermark()
+
+Adds ipu_smfc_set_watermark() which programs a channel's SMFC FIFO
+levels at which the watermark signal is set and cleared.
+
+Signed-off-by: Steve Longerbeam <steve_longerbeam@mentor.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/gpu/ipu-v3/ipu-smfc.c | 20 ++++++++++++++++++++
+ include/video/imx-ipu-v3.h    |  1 +
+ 2 files changed, 21 insertions(+)
+
+diff --git a/drivers/gpu/ipu-v3/ipu-smfc.c b/drivers/gpu/ipu-v3/ipu-smfc.c
+index a6429ca..6ca9b43 100644
+--- a/drivers/gpu/ipu-v3/ipu-smfc.c
++++ b/drivers/gpu/ipu-v3/ipu-smfc.c
+@@ -80,6 +80,26 @@ int ipu_smfc_map_channel(struct ipu_smfc *smfc, int csi_id, int mipi_id)
+ }
+ EXPORT_SYMBOL_GPL(ipu_smfc_map_channel);
+ 
++int ipu_smfc_set_watermark(struct ipu_smfc *smfc, u32 set_level, u32 clr_level)
++{
++	struct ipu_smfc_priv *priv = smfc->priv;
++	unsigned long flags;
++	u32 val, shift;
++
++	spin_lock_irqsave(&priv->lock, flags);
++
++	shift = smfc->chno * 6 + (smfc->chno > 1 ? 4 : 0);
++	val = readl(priv->base + SMFC_WMC);
++	val &= ~(0x3f << shift);
++	val |= ((clr_level << 3) | set_level) << shift;
++	writel(val, priv->base + SMFC_WMC);
++
++	spin_unlock_irqrestore(&priv->lock, flags);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(ipu_smfc_set_watermark);
++
+ int ipu_smfc_enable(struct ipu_smfc *smfc)
+ {
+ 	struct ipu_smfc_priv *priv = smfc->priv;
+diff --git a/include/video/imx-ipu-v3.h b/include/video/imx-ipu-v3.h
+index a695ee8..49e5954 100644
+--- a/include/video/imx-ipu-v3.h
++++ b/include/video/imx-ipu-v3.h
+@@ -296,6 +296,7 @@ int ipu_smfc_enable(struct ipu_smfc *smfc);
+ int ipu_smfc_disable(struct ipu_smfc *smfc);
+ int ipu_smfc_map_channel(struct ipu_smfc *smfc, int csi_id, int mipi_id);
+ int ipu_smfc_set_burstsize(struct ipu_smfc *smfc, int burstsize);
++int ipu_smfc_set_watermark(struct ipu_smfc *smfc, u32 set_level, u32 clr_level);
+ 
+ enum ipu_color_space ipu_drm_fourcc_to_colorspace(u32 drm_fourcc);
+ enum ipu_color_space ipu_pixelformat_to_colorspace(u32 pixelformat);
+-- 
+2.1.0
+

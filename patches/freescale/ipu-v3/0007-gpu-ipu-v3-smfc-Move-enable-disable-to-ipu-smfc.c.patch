@@ -1,0 +1,63 @@
+From 6595dbd4029d5c1445384859f0c950f351f1d540 Mon Sep 17 00:00:00 2001
+From: Steve Longerbeam <slongerbeam@gmail.com>
+Date: Wed, 25 Jun 2014 18:05:33 -0700
+Subject: [PATCH 07/26] gpu: ipu-v3: smfc: Move enable/disable to ipu-smfc.c
+
+Move the SMFC module enable/disable helpers into the ipu-smfc submodule.
+
+Signed-off-by: Steve Longerbeam <steve_longerbeam@mentor.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/gpu/ipu-v3/ipu-common.c | 12 ------------
+ drivers/gpu/ipu-v3/ipu-smfc.c   | 12 ++++++++++++
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/gpu/ipu-v3/ipu-common.c b/drivers/gpu/ipu-v3/ipu-common.c
+index 312eef6..f5a4e1a 100644
+--- a/drivers/gpu/ipu-v3/ipu-common.c
++++ b/drivers/gpu/ipu-v3/ipu-common.c
+@@ -217,18 +217,6 @@ int ipu_module_disable(struct ipu_soc *ipu, u32 mask)
+ }
+ EXPORT_SYMBOL_GPL(ipu_module_disable);
+ 
+-int ipu_smfc_enable(struct ipu_soc *ipu)
+-{
+-	return ipu_module_enable(ipu, IPU_CONF_SMFC_EN);
+-}
+-EXPORT_SYMBOL_GPL(ipu_smfc_enable);
+-
+-int ipu_smfc_disable(struct ipu_soc *ipu)
+-{
+-	return ipu_module_disable(ipu, IPU_CONF_SMFC_EN);
+-}
+-EXPORT_SYMBOL_GPL(ipu_smfc_disable);
+-
+ int ipu_idmac_get_current_buffer(struct ipuv3_channel *channel)
+ {
+ 	struct ipu_soc *ipu = channel->ipu;
+diff --git a/drivers/gpu/ipu-v3/ipu-smfc.c b/drivers/gpu/ipu-v3/ipu-smfc.c
+index e4f85ad..87ac624d 100644
+--- a/drivers/gpu/ipu-v3/ipu-smfc.c
++++ b/drivers/gpu/ipu-v3/ipu-smfc.c
+@@ -71,6 +71,18 @@ int ipu_smfc_map_channel(struct ipu_soc *ipu, int channel, int csi_id, int mipi_
+ }
+ EXPORT_SYMBOL_GPL(ipu_smfc_map_channel);
+ 
++int ipu_smfc_enable(struct ipu_soc *ipu)
++{
++	return ipu_module_enable(ipu, IPU_CONF_SMFC_EN);
++}
++EXPORT_SYMBOL_GPL(ipu_smfc_enable);
++
++int ipu_smfc_disable(struct ipu_soc *ipu)
++{
++	return ipu_module_disable(ipu, IPU_CONF_SMFC_EN);
++}
++EXPORT_SYMBOL_GPL(ipu_smfc_disable);
++
+ int ipu_smfc_init(struct ipu_soc *ipu, struct device *dev,
+ 		  unsigned long base)
+ {
+-- 
+2.1.0
+

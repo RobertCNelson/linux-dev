@@ -1,0 +1,55 @@
+From 2781f7fe45428e3b3093f37f45778a499ea7a11f Mon Sep 17 00:00:00 2001
+From: Steve Longerbeam <slongerbeam@gmail.com>
+Date: Wed, 25 Jun 2014 18:05:31 -0700
+Subject: [PATCH 04/26] gpu: ipu-v3: Rename and add IDMAC channels
+
+Rename the ENC/VF/PP rotation channel names, to be more consistent
+with the convention that *_MEM is write-to-memory channels and
+MEM_* is read-from-memory channels. Also add the channels who's
+source and destination is the IC.
+
+Signed-off-by: Steve Longerbeam <steve_longerbeam@mentor.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/gpu/ipu-v3/ipu-prv.h | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/ipu-v3/ipu-prv.h b/drivers/gpu/ipu-v3/ipu-prv.h
+index 0a7b2ad..1a5c55c 100644
+--- a/drivers/gpu/ipu-v3/ipu-prv.h
++++ b/drivers/gpu/ipu-v3/ipu-prv.h
+@@ -28,17 +28,25 @@ struct ipu_soc;
+ #define IPUV3_CHANNEL_CSI1			 1
+ #define IPUV3_CHANNEL_CSI2			 2
+ #define IPUV3_CHANNEL_CSI3			 3
++#define IPUV3_CHANNEL_VDI_MEM_IC_VF              5
++#define IPUV3_CHANNEL_MEM_IC_PP                 11
++#define IPUV3_CHANNEL_MEM_IC_PRP_VF             12
++#define IPUV3_CHANNEL_G_MEM_IC_PRP_VF           14
++#define IPUV3_CHANNEL_G_MEM_IC_PP               15
++#define IPUV3_CHANNEL_IC_PRP_ENC_MEM            20
++#define IPUV3_CHANNEL_IC_PRP_VF_MEM             21
++#define IPUV3_CHANNEL_IC_PP_MEM                 22
+ #define IPUV3_CHANNEL_MEM_BG_SYNC		23
+ #define IPUV3_CHANNEL_MEM_FG_SYNC		27
+ #define IPUV3_CHANNEL_MEM_DC_SYNC		28
+ #define IPUV3_CHANNEL_MEM_FG_SYNC_ALPHA		31
+ #define IPUV3_CHANNEL_MEM_DC_ASYNC		41
+-#define IPUV3_CHANNEL_ROT_ENC_MEM		45
+-#define IPUV3_CHANNEL_ROT_VF_MEM		46
+-#define IPUV3_CHANNEL_ROT_PP_MEM		47
+-#define IPUV3_CHANNEL_ROT_ENC_MEM_OUT		48
+-#define IPUV3_CHANNEL_ROT_VF_MEM_OUT		49
+-#define IPUV3_CHANNEL_ROT_PP_MEM_OUT		50
++#define IPUV3_CHANNEL_MEM_ROT_ENC		45
++#define IPUV3_CHANNEL_MEM_ROT_VF		46
++#define IPUV3_CHANNEL_MEM_ROT_PP		47
++#define IPUV3_CHANNEL_ROT_ENC_MEM		48
++#define IPUV3_CHANNEL_ROT_VF_MEM		49
++#define IPUV3_CHANNEL_ROT_PP_MEM		50
+ #define IPUV3_CHANNEL_MEM_BG_SYNC_ALPHA		51
+ 
+ #define IPU_MCU_T_DEFAULT	8
+-- 
+2.1.0
+

@@ -132,6 +132,36 @@ vivante () {
 	${git} "${DIR}/patches/vivante/0004-Fixed-vivante-driver-for-kernel-3.14.x.patch"
 }
 
+freescale () {
+	echo "dir: freescale/ipu-v3"
+	${git} "${DIR}/patches/freescale/ipu-v3/0001-gpu-ipu-v3-Add-ipu-cpmem-unit.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0002-staging-imx-drm-Convert-to-new-ipu_cpmem-API.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0003-gpu-ipu-v3-Add-functions-to-set-CSI-IC-source-muxes.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0004-gpu-ipu-v3-Rename-and-add-IDMAC-channels.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0005-gpu-ipu-v3-Add-Camera-Sensor-Interface-unit.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0006-gpu-ipu-v3-Add-Image-Converter-unit.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0007-gpu-ipu-v3-smfc-Move-enable-disable-to-ipu-smfc.c.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0008-gpu-ipu-v3-smfc-Convert-to-per-channel.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0009-gpu-ipu-v3-smfc-Add-ipu_smfc_set_watermark.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0010-gpu-ipu-v3-Add-ipu_mbus_code_to_colorspace.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0011-gpu-ipu-v3-Add-rotation-mode-conversion-utilities.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0012-gpu-ipu-v3-Add-helper-function-checking-if-pixfmt-is.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0013-gpu-ipu-v3-Move-IDMAC-channel-names-to-imx-ipu-v3.h.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0014-gpu-ipu-v3-Add-ipu_idmac_buffer_is_ready.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0015-gpu-ipu-v3-Add-ipu_idmac_clear_buffer.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0016-gpu-ipu-v3-Add-__ipu_idmac_reset_current_buffer.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0017-gpu-ipu-v3-Add-ipu_stride_to_bytes.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0018-gpu-ipu-v3-Add-ipu_idmac_enable_watermark.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0019-gpu-ipu-v3-Add-ipu_idmac_lock_enable.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0020-gpu-ipu-cpmem-Add-ipu_cpmem_set_block_mode.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0021-gpu-ipu-cpmem-Add-ipu_cpmem_set_axi_id.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0022-gpu-ipu-cpmem-Add-ipu_cpmem_set_rotation.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0023-gpu-ipu-cpmem-Add-second-buffer-support-to-ipu_cpmem.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0024-gpu-ipu-v3-Add-more-planar-formats-support.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0025-gpu-ipu-cpmem-Add-ipu_cpmem_dump.patch"
+	${git} "${DIR}/patches/freescale/ipu-v3/0026-gpu-ipu-v3-Add-ipu_dump.patch"
+}
+
 dtb_makefile_append () {
 	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
@@ -557,6 +587,7 @@ dts
 wand
 errata
 vivante
+freescale
 
 beaglebone
 

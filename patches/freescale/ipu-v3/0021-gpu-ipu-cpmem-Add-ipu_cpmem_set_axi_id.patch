@@ -1,0 +1,48 @@
+From 2e1b4ce8fb9f853b41df329d888dbcdafc0ee5d9 Mon Sep 17 00:00:00 2001
+From: Steve Longerbeam <slongerbeam@gmail.com>
+Date: Wed, 25 Jun 2014 18:05:50 -0700
+Subject: [PATCH 21/26] gpu: ipu-cpmem: Add ipu_cpmem_set_axi_id()
+
+Adds ipu_cpmem_set_axi_id() to set which AXI bus master the channel
+will use to transfer data onto AXI bus.
+
+Signed-off-by: Steve Longerbeam <steve_longerbeam@mentor.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/gpu/ipu-v3/ipu-cpmem.c | 7 +++++++
+ include/video/imx-ipu-v3.h     | 1 +
+ 2 files changed, 8 insertions(+)
+
+diff --git a/drivers/gpu/ipu-v3/ipu-cpmem.c b/drivers/gpu/ipu-v3/ipu-cpmem.c
+index 28adf39..2d1b376 100644
+--- a/drivers/gpu/ipu-v3/ipu-cpmem.c
++++ b/drivers/gpu/ipu-v3/ipu-cpmem.c
+@@ -254,6 +254,13 @@ void ipu_cpmem_interlaced_scan(struct ipuv3_channel *ch, int stride)
+ };
+ EXPORT_SYMBOL_GPL(ipu_cpmem_interlaced_scan);
+ 
++void ipu_cpmem_set_axi_id(struct ipuv3_channel *ch, u32 id)
++{
++	id &= 0x3;
++	ipu_ch_param_write_field(ch, IPU_FIELD_ID, id);
++}
++EXPORT_SYMBOL_GPL(ipu_cpmem_set_axi_id);
++
+ void ipu_cpmem_set_burstsize(struct ipuv3_channel *ch, int burstsize)
+ {
+ 	ipu_ch_param_write_field(ch, IPU_FIELD_NPB, burstsize - 1);
+diff --git a/include/video/imx-ipu-v3.h b/include/video/imx-ipu-v3.h
+index d2cc207..f30c068 100644
+--- a/include/video/imx-ipu-v3.h
++++ b/include/video/imx-ipu-v3.h
+@@ -194,6 +194,7 @@ void ipu_cpmem_set_stride(struct ipuv3_channel *ch, int stride);
+ void ipu_cpmem_set_high_priority(struct ipuv3_channel *ch);
+ void ipu_cpmem_set_buffer(struct ipuv3_channel *ch, int bufnum, dma_addr_t buf);
+ void ipu_cpmem_interlaced_scan(struct ipuv3_channel *ch, int stride);
++void ipu_cpmem_set_axi_id(struct ipuv3_channel *ch, u32 id);
+ void ipu_cpmem_set_burstsize(struct ipuv3_channel *ch, int burstsize);
+ void ipu_cpmem_set_block_mode(struct ipuv3_channel *ch);
+ int ipu_cpmem_set_format_rgb(struct ipuv3_channel *ch,
+-- 
+2.1.0
+

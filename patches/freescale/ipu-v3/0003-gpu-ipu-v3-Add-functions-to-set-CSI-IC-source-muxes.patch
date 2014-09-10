@@ -1,0 +1,98 @@
+From ab32c3555eb7698e30a70fe59a0906de56cf074b Mon Sep 17 00:00:00 2001
+From: Steve Longerbeam <slongerbeam@gmail.com>
+Date: Wed, 25 Jun 2014 18:05:30 -0700
+Subject: [PATCH 03/26] gpu: ipu-v3: Add functions to set CSI/IC source muxes
+
+Adds two new functions, ipu_set_csi_src_mux() and ipu_set_ic_src_mux(),
+that select the inputs to the CSI and IC respectively. Both muxes are
+programmed in the IPU_CONF register.
+
+Signed-off-by: Steve Longerbeam <steve_longerbeam@mentor.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/gpu/ipu-v3/ipu-common.c | 51 +++++++++++++++++++++++++++++++++++++++++
+ include/video/imx-ipu-v3.h      |  6 +++++
+ 2 files changed, 57 insertions(+)
+
+diff --git a/drivers/gpu/ipu-v3/ipu-common.c b/drivers/gpu/ipu-v3/ipu-common.c
+index 5978e7a..cae5431 100644
+--- a/drivers/gpu/ipu-v3/ipu-common.c
++++ b/drivers/gpu/ipu-v3/ipu-common.c
+@@ -382,6 +382,57 @@ static int ipu_memory_reset(struct ipu_soc *ipu)
+ 	return 0;
+ }
+ 
++/*
++ * Set the source mux for the given CSI. Selects either parallel or
++ * MIPI CSI2 sources.
++ */
++void ipu_set_csi_src_mux(struct ipu_soc *ipu, int csi_id, bool mipi_csi2)
++{
++	unsigned long flags;
++	u32 val, mask;
++
++	mask = (csi_id == 1) ? IPU_CONF_CSI1_DATA_SOURCE :
++		IPU_CONF_CSI0_DATA_SOURCE;
++
++	spin_lock_irqsave(&ipu->lock, flags);
++
++	val = ipu_cm_read(ipu, IPU_CONF);
++	if (mipi_csi2)
++		val |= mask;
++	else
++		val &= ~mask;
++	ipu_cm_write(ipu, val, IPU_CONF);
++
++	spin_unlock_irqrestore(&ipu->lock, flags);
++}
++EXPORT_SYMBOL_GPL(ipu_set_csi_src_mux);
++
++/*
++ * Set the source mux for the IC. Selects either CSI[01] or the VDI.
++ */
++void ipu_set_ic_src_mux(struct ipu_soc *ipu, int csi_id, bool vdi)
++{
++	unsigned long flags;
++	u32 val;
++
++	spin_lock_irqsave(&ipu->lock, flags);
++
++	val = ipu_cm_read(ipu, IPU_CONF);
++	if (vdi) {
++		val |= IPU_CONF_IC_INPUT;
++	} else {
++		val &= ~IPU_CONF_IC_INPUT;
++		if (csi_id == 1)
++			val |= IPU_CONF_CSI_SEL;
++		else
++			val &= ~IPU_CONF_CSI_SEL;
++	}
++	ipu_cm_write(ipu, val, IPU_CONF);
++
++	spin_unlock_irqrestore(&ipu->lock, flags);
++}
++EXPORT_SYMBOL_GPL(ipu_set_ic_src_mux);
++
+ struct ipu_devtype {
+ 	const char *name;
+ 	unsigned long cm_ofs;
+diff --git a/include/video/imx-ipu-v3.h b/include/video/imx-ipu-v3.h
+index ef64b66..f80fe13 100644
+--- a/include/video/imx-ipu-v3.h
++++ b/include/video/imx-ipu-v3.h
+@@ -93,6 +93,12 @@ int ipu_idmac_channel_irq(struct ipu_soc *ipu, struct ipuv3_channel *channel,
+ #define IPU_IRQ_VSYNC_PRE_1		(448 + 15)
+ 
+ /*
++ * IPU Common functions
++ */
++void ipu_set_csi_src_mux(struct ipu_soc *ipu, int csi_id, bool mipi_csi2);
++void ipu_set_ic_src_mux(struct ipu_soc *ipu, int csi_id, bool vdi);
++
++/*
+  * IPU Image DMA Controller (idmac) functions
+  */
+ struct ipuv3_channel *ipu_idmac_get(struct ipu_soc *ipu, unsigned channel);
+-- 
+2.1.0
+
