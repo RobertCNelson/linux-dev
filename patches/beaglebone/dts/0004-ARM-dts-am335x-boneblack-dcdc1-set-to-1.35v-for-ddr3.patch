@@ -1,0 +1,33 @@
+From 2c60f723911ac2fd49e8fb32929f16b4c116c126 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 11 Sep 2014 16:15:07 -0500
+Subject: [PATCH 4/4] ARM: dts: am335x-boneblack: dcdc1 set to 1.35v for ddr3
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-boneblack.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index e10740a..a31614a 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -16,6 +16,15 @@
+ 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ };
+ 
++&dcdc1_reg {
++	/* VDD_DDR3 voltage 1.35V */
++	regulator-name = "vdd_ddr3";
++	regulator-min-microvolt = <1350000>;
++	regulator-max-microvolt = <1350000>;
++	regulator-boot-on;
++	regulator-always-on;
++};
++
+ &ldo3_reg {
+ 	regulator-min-microvolt = <1800000>;
+ 	regulator-max-microvolt = <1800000>;
+-- 
+2.1.0
+

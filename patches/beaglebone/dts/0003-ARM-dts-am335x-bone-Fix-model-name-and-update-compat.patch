@@ -1,0 +1,73 @@
+From 9bb158edffe7f7a2801a4fee8ffb5e4ad3c5de49 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Wed, 3 Sep 2014 11:03:10 -0500
+Subject: [PATCH 3/3] ARM: dts: am335x-bone*: Fix model name and update
+ compatibility information
+
+Beaglebone white and beaglebone black differ in tiny little aspects.
+This is the reason why we maintain seperate dts for these platforms.
+However, there is no real way to decode from dtb which platform it is
+since compatible and model name are the same for both platforms.
+
+Fix this so that beaglebone black and beaglebone are identifiable,
+while maintaining compatibility for older zImages which might use old
+beaglebone compatible flag for black as well.
+
+Reported-by: Tom Rini <trini@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 3 ---
+ arch/arm/boot/dts/am335x-bone.dts         | 5 +++++
+ arch/arm/boot/dts/am335x-boneblack.dts    | 5 +++++
+ 3 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 0ba30ed..989f608 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -7,9 +7,6 @@
+  */
+ 
+ / {
+-	model = "TI AM335x BeagleBone";
+-	compatible = "ti,am335x-bone", "ti,am33xx";
+-
+ 	cpus {
+ 		cpu@0 {
+ 			cpu0-supply = <&dcdc2_reg>;
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index 73d834e..9a162e6 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -11,6 +11,11 @@
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-bone-common-pinmux.dtsi"
+ 
++/ {
++	model = "TI AM335x BeagleBone";
++	compatible = "ti,am335x-bone", "ti,am33xx";
++};
++
+ &ldo3_reg {
+ 	regulator-min-microvolt = <1800000>;
+ 	regulator-max-microvolt = <3300000>;
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 22aadac..e10740a 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -11,6 +11,11 @@
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-bone-common-pinmux.dtsi"
+ 
++/ {
++	model = "TI AM335x BeagleBone Black";
++	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++};
++
+ &ldo3_reg {
+ 	regulator-min-microvolt = <1800000>;
+ 	regulator-max-microvolt = <1800000>;
+-- 
+2.1.0
+

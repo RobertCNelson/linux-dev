@@ -6,12 +6,12 @@ Subject: [PATCH 18/19] am335x-bone: cape: chipsee bbb-exp-c
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/am335x-bone-bbb-exp-c.dtsi       | 97 ++++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi   | 80 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi   | 70 ++++++++++++++++
  arch/arm/boot/dts/am335x-bone-keymap3.dtsi         | 58 +++++++++++++
  .../boot/dts/am335x-bone-led-gpio2-4-gpio2-5.dtsi  | 30 +++++++
  .../boot/dts/am335x-bone-panel-1240x600-24bit.dtsi | 49 +++++++++++
  arch/arm/boot/dts/am335x-boneblack.dts             |  3 +
- 6 files changed, 317 insertions(+)
+ 6 files changed, 307 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-bbb-exp-c.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-keymap3.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-led-gpio2-4-gpio2-5.dtsi
@@ -121,7 +121,7 @@ index 0000000..c17a240
 +/* #include "am335x-bone-panel-800x480.dtsi" */
 +#include "am335x-bone-panel-1240x600-24bit.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-index 0503b70..2dc5d5f 100644
+index 0503b70..0c0a64d 100644
 --- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 @@ -16,6 +16,14 @@
@@ -194,7 +194,7 @@ index 0503b70..2dc5d5f 100644
  	/* lcd4-01-00a0 */
  	gpio1_18_led_pins: pinmux_gpio1_18_led_pins {
  		pinctrl-single,pins = <
-@@ -217,6 +266,27 @@
+@@ -217,6 +266,17 @@
  		>;
  	};
  
@@ -209,20 +209,10 @@ index 0503b70..2dc5d5f 100644
 +		>;
 +	};
 +
-+	mcasp0_pins: mcasp0_pins {
-+		pinctrl-single,pins = <
-+			0x1ac (PIN_INPUT_PULLUP | MUX_MODE0)    /* mcasp0_ahclkx.mcasp0_ahclkx */
-+			0x19c (PIN_OUTPUT_PULLDOWN | MUX_MODE2) /* mcasp0_ahclkr.mcasp0_axr2 */
-+			0x194 (PIN_OUTPUT_PULLUP | MUX_MODE0)   /* mcasp0_fsx.mcasp0_fsx */
-+			0x190 (PIN_OUTPUT_PULLDOWN | MUX_MODE0) /* mcasp0_aclkx.mcasp0_aclkx */
-+			0x06c (PIN_OUTPUT_PULLDOWN | MUX_MODE7) /* gpmc_a11.GPIO1_27 */
-+		>;
-+	};
-+
  	mcasp0_pins_audio: mcasp0_pins_audio {
  		pinctrl-single,pins = <
  			0x1ac 0x00	/* mcasp0_ahclkx, OUTPUT | MODE0, Codec MCLK */
-@@ -227,6 +297,16 @@
+@@ -227,6 +287,16 @@
  		>;
  	};
  
