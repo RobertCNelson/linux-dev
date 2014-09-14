@@ -126,6 +126,20 @@ config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
 check_config_disable
 
 #
+# Argus cape driver for beaglebone black
+#
+config="CONFIG_CAPE_BONE_ARGUS"
+check_config_disable
+
+#
+# Graphics support
+#
+config="CONFIG_GPU_VIVANTE_V4"
+check_config_disable
+config="CONFIG_IMX_IPUV3_CORE"
+check_config_disable
+
+#
 # Android
 #
 config="CONFIG_DRM_IMX"
