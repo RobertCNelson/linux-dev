@@ -84,6 +84,12 @@ check_if_set_then_disable () {
 }
 
 #
+# General setup
+#
+config="CONFIG_USELIB"
+check_config_builtin
+
+#
 # RCU Subsystem
 #
 config="CONFIG_IKCONFIG"
@@ -93,6 +99,8 @@ check_config_builtin
 config="CONFIG_LOG_BUF_SHIFT"
 value="18"
 check_config_value
+config="CONFIG_SYSFS_SYSCALL"
+check_config_builtin
 config="CONFIG_SYSCTL_SYSCALL"
 check_config_builtin
 config="CONFIG_KALLSYMS_ALL"
@@ -107,14 +115,6 @@ config="CONFIG_OPROFILE"
 check_config_builtin
 config="CONFIG_SECCOMP_FILTER"
 check_config_builtin
-config="CONFIG_CC_STACKPROTECTOR"
-check_config_builtin
-config="CONFIG_CC_STACKPROTECTOR_NONE"
-check_config_disable
-config="CONFIG_CC_STACKPROTECTOR_REGULAR"
-check_config_builtin
-config="CONFIG_CC_STACKPROTECTOR_STRONG"
-check_config_disable
 
 #
 # CPU Core family selection
@@ -136,6 +136,8 @@ check_config_builtin
 config="CONFIG_SOC_IMX6SX"
 check_config_builtin
 config="CONFIG_SOC_VF610"
+check_config_builtin
+config="CONFIG_WAND_RFKILL"
 check_config_builtin
 
 #
@@ -199,10 +201,6 @@ config="CONFIG_ARCH_VEXPRESS"
 check_config_disable
 config="CONFIG_ARCH_WM8850"
 check_config_disable
-config="CONFIG_ARCH_SUPPORTS_FIRMWARE"
-check_config_builtin
-config="CONFIG_ARCH_SUPPORTS_TRUSTED_FOUNDATIONS"
-check_config_builtin
 
 #
 # Processor Features
@@ -226,10 +224,6 @@ check_config_disable
 #
 # Kernel Features
 #
-config="CONFIG_PREEMPT_NONE"
-check_config_builtin
-config="CONFIG_PREEMPT_VOLUNTARY"
-check_config_disable
 config="CONFIG_HZ_100"
 check_config_builtin
 config="CONFIG_HZ_250"
@@ -306,15 +300,22 @@ check_config_builtin
 #
 # Networking options
 #
-config="CONFIG_NETLABEL"
-check_config_builtin
 config="CONFIG_IP_PNP"
+check_config_builtin
+config="CONFIG_NETLABEL"
 check_config_builtin
 
 #
 # Xtables targets
 #
-config="CONFIG_NETFILTER_XT_TARGET_LOG"
+config="CONFIG_NETFILTER_XT_NAT"
+check_config_module
+
+#
+# Xtables matches
+#
+
+config="CONFIG_IP_SET_HASH_IPMARK"
 check_config_module
 
 #
@@ -322,29 +323,23 @@ check_config_module
 #
 config="CONFIG_NF_LOG_ARP"
 check_config_module
-config="CONFIG_NF_LOG_IPV4"
+config="CONFIG_IP_NF_NAT"
 check_config_module
-config="CONFIG_IP_NF_MATCH_ECN"
-check_config_module
-config="CONFIG_IP_NF_MATCH_TTL"
+config="CONFIG_IP_NF_TARGET_MASQUERADE"
 check_config_module
 config="CONFIG_IP_NF_TARGET_NETMAP"
 check_config_module
 config="CONFIG_IP_NF_TARGET_REDIRECT"
 check_config_module
-config="CONFIG_IP_NF_TARGET_TTL"
-check_config_module
 
 #
 # IPv6: Netfilter Configuration
 #
-config="CONFIG_NF_LOG_IPV6"
+config="CONFIG_IP6_NF_NAT"
 check_config_module
-config="CONFIG_IP6_NF_MATCH_HL"
+config="CONFIG_IP6_NF_TARGET_MASQUERADE"
 check_config_module
-config="CONFIG_IP6_NF_TARGET_HL"
-check_config_module
-config="CONFIG_NFT_BRIDGE_META"
+config="CONFIG_IP6_NF_TARGET_NPT"
 check_config_module
 config="CONFIG_NFT_BRIDGE_REJECT"
 check_config_module
@@ -364,15 +359,13 @@ check_config_module
 #
 # Classification
 #
-config="CONFIG_DNS_RESOLVER"
-check_config_builtin
 config="CONFIG_HSR"
 check_config_module
 
 #
 # CAN USB interfaces
 #
-config="CONFIG_CAN_GS_USB"
+config="CONFIG_BT_6LOWPAN"
 check_config_module
 
 #
@@ -434,17 +427,9 @@ config="CONFIG_VEXPRESS_CONFIG"
 check_config_disable
 
 #
-# Self-contained MTD device drivers
-#
-config="CONFIG_MTD_M25P80"
-check_config_module
-
-#
 # LPDDR & LPDDR2 PCM memory drivers
 #
 config="CONFIG_MTD_LPDDR2_NVM"
-check_config_module
-config="CONFIG_MTD_SPI_NOR"
 check_config_module
 config="CONFIG_SPI_FSL_QUADSPI"
 check_config_module
@@ -465,10 +450,6 @@ check_config_value
 #
 config="CONFIG_EEPROM_AT24"
 check_config_builtin
-config="CONFIG_EEPROM_AT25"
-check_config_builtin
-config="CONFIG_EEPROM_93CX6"
-check_config_builtin
 config="CONFIG_EEPROM_93XX46"
 check_config_module
 config="CONFIG_EEPROM_SUNXI_SID"
@@ -479,6 +460,12 @@ check_config_builtin
 #
 config="CONFIG_SENSORS_LIS3_SPI"
 check_config_module
+
+#
+# Argus cape driver for beaglebone black
+#
+config="CONFIG_CAPE_BONE_ARGUS"
+check_config_builtin
 
 #
 # SCSI device support
@@ -555,8 +542,6 @@ config="CONFIG_STMMAC_ETH"
 check_config_builtin
 config="CONFIG_STMMAC_PLATFORM"
 check_config_builtin
-config="CONFIG_DWMAC_SUNXI"
-check_config_builtin
 config="CONFIG_TI_DAVINCI_EMAC"
 check_config_builtin
 config="CONFIG_TI_DAVINCI_MDIO"
@@ -587,10 +572,6 @@ config="CONFIG_BRCMDBG"
 check_config_builtin
 config="CONFIG_LIBERTAS_SPI"
 check_config_module
-config="CONFIG_P54_SPI"
-check_config_module
-config="CONFIG_P54_SPI_DEFAULT_EEPROM"
-check_config_disable
 config="CONFIG_MWIFIEX"
 check_config_module
 config="CONFIG_MWIFIEX_SDIO"
@@ -768,8 +749,6 @@ config="CONFIG_TOUCHSCREEN_TSC_SERIO"
 check_config_module
 config="CONFIG_TOUCHSCREEN_ST1232"
 check_config_module
-config="CONFIG_TOUCHSCREEN_SUN4I"
-check_config_module
 config="CONFIG_TOUCHSCREEN_ZFORCE"
 check_config_module
 
@@ -835,8 +814,6 @@ check_config_builtin
 #
 config="CONFIG_SERIAL_TEGRA"
 check_config_builtin
-config="CONFIG_SERIAL_OF_PLATFORM"
-check_config_builtin
 config="CONFIG_SERIAL_ARC"
 check_config_disable
 config="CONFIG_SERIAL_FSL_LPUART"
@@ -849,6 +826,12 @@ config="CONFIG_HW_RANDOM_OMAP"
 check_config_builtin
 config="CONFIG_HW_RANDOM_OMAP3_ROM"
 check_config_builtin
+config="CONFIG_HW_RANDOM_TPM"
+check_config_module
+config="CONFIG_TCG_TPM"
+check_config_module
+config="CONFIG_TCG_TIS_I2C_ATMEL"
+check_config_module
 
 #
 # I2C support
@@ -888,6 +871,8 @@ check_config_builtin
 config="CONFIG_SPI_TEGRA114"
 check_config_builtin
 config="CONFIG_SPI_TEGRA20_SFLASH"
+check_config_module
+config="CONFIG_SPI_TEGRA20_SLINK"
 check_config_module
 
 #
@@ -975,7 +960,6 @@ config="CONFIG_W1_SLAVE_DS2781"
 check_config_module
 config="CONFIG_W1_SLAVE_DS28E04"
 check_config_module
-
 config="CONFIG_GENERIC_ADC_BATTERY"
 check_config_module
 config="CONFIG_BATTERY_DA9052"
@@ -1074,6 +1058,8 @@ config="CONFIG_SENSORS_NCT6683"
 check_config_module
 config="CONFIG_SENSORS_PCF8591"
 check_config_module
+
+#exit
 
 config="CONFIG_PMBUS"
 check_config_module
@@ -1193,8 +1179,6 @@ config="CONFIG_MFD_WL1273_CORE"
 check_config_module
 config="CONFIG_VEXPRESS_CONFIG"
 check_config_disable
-config="CONFIG_REGULATOR_VIRTUAL_CONSUMER"
-check_config_builtin
 config="CONFIG_REGULATOR_USERSPACE_CONSUMER"
 check_config_builtin
 config="CONFIG_REGULATOR_ANATOP"
@@ -1254,6 +1238,12 @@ check_config_builtin
 # Media drivers
 #
 config="CONFIG_IR_SUNXI"
+check_config_module
+
+#
+# Webcam devices
+#
+config="CONFIG_USB_GSPCA_DTCS033"
 check_config_module
 
 #
@@ -1353,6 +1343,10 @@ check_config_module
 # Graphics support
 #
 # CONFIG_TEGRA_HOST1X is not set
+config="CONFIG_GPU_VIVANTE_V4"
+check_config_builtin
+config="CONFIG_GPU_VIVANTE_PROFILER"
+check_config_builtin
 config="CONFIG_IMX_IPUV3_CORE"
 check_config_builtin
 
@@ -1377,8 +1371,6 @@ check_config_builtin
 #
 config="CONFIG_DRM_I2C_NXP_TDA998X"
 check_config_builtin
-config="CONFIG_DRM_VIVANTE"
-check_config_module
 config="CONFIG_DRM_OMAP"
 check_config_builtin
 
@@ -1416,6 +1408,8 @@ check_config_builtin
 
 config="CONFIG_FB_SSD1307"
 check_config_builtin
+config="CONFIG_BACKLIGHT_GPIO"
+check_config_builtin
 
 #
 # Console display driver support
@@ -1450,7 +1444,13 @@ config="CONFIG_SND_BCD2000"
 check_config_module
 config="CONFIG_SND_EDMA_SOC"
 check_config_module
+config="CONFIG_SND_DAVINCI_SOC_MCASP"
+check_config_module
+config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM"
+check_config_module
 config="CONFIG_SND_AM33XX_SOC_EVM"
+check_config_module
+config="CONFIG_SND_AM335X_SOC_NXPTDA_EVM"
 check_config_module
 
 #
@@ -1460,8 +1460,6 @@ config="CONFIG_SND_SOC_FSL_ASRC"
 check_config_module
 config="CONFIG_SND_SOC_FSL_SAI"
 check_config_module
-config="CONFIG_SND_SOC_FSL_SPDIF"
-check_config_module
 config="CONFIG_SND_SOC_FSL_ESAI"
 check_config_module
 
@@ -1469,8 +1467,6 @@ check_config_module
 # SoC Audio support for Freescale i.MX boards:
 #
 config="CONFIG_SND_SOC_IMX_WM8962"
-check_config_module
-config="CONFIG_SND_SOC_IMX_SPDIF"
 check_config_module
 config="CONFIG_SND_SOC_TEGRA"
 check_config_module
@@ -1520,10 +1516,6 @@ config="CONFIG_HID_GT683R"
 check_config_module
 config="CONFIG_HID_LENOVO"
 check_config_module
-config="CONFIG_SONY_FF"
-check_config_builtin
-config="CONFIG_HID_RMI"
-check_config_module
 
 #
 # I2C HID support
@@ -1566,6 +1558,14 @@ check_config_builtin
 #
 # USB Imaging devices
 #
+config="CONFIG_USBIP_CORE"
+check_config_module
+config="CONFIG_USBIP_VHCI_HCD"
+check_config_module
+config="CONFIG_USBIP_HOST"
+check_config_module
+config="CONFIG_USBIP_DEBUG"
+check_config_disable
 
 config="CONFIG_USB_MUSB_TUSB6010"
 check_config_disable
@@ -1577,18 +1577,8 @@ config="CONFIG_USB_MUSB_DSPS"
 check_config_disable
 config="CONFIG_USB_CHIPIDEA"
 check_config_builtin
-config="CONFIG_USB_CHIPIDEA_UDC"
-check_config_disable
 config="CONFIG_USB_CHIPIDEA_DEBUG"
 check_config_disable
-
-#
-# USB port drivers
-#
-config="CONFIG_USB_SERIAL_SIMPLE"
-check_config_module
-config="CONFIG_USB_SERIAL_SAFE_PADDED"
-check_config_builtin
 
 #
 # USB Physical Layer drivers
@@ -1854,14 +1844,6 @@ check_config_builtin
 #
 # Microsoft Hyper-V guest support
 #
-config="CONFIG_USBIP_CORE"
-check_config_module
-config="CONFIG_USBIP_VHCI_HCD"
-check_config_module
-config="CONFIG_USBIP_HOST"
-check_config_module
-config="CONFIG_USBIP_DEBUG"
-check_config_disable
 config="CONFIG_RTLLIB"
 check_config_module
 config="CONFIG_RTLLIB_CRYPTO_CCMP"
@@ -1870,12 +1852,6 @@ config="CONFIG_RTLLIB_CRYPTO_TKIP"
 check_config_module
 config="CONFIG_RTLLIB_CRYPTO_WEP"
 check_config_module
-config="CONFIG_R8712U"
-check_config_module
-config="CONFIG_R8188EU"
-check_config_module
-config="CONFIG_88EU_AP_MODE"
-check_config_disable
 
 #
 # Accelerometers
@@ -2468,13 +2444,5 @@ check_config_module
 echo "#Bugs:"
 config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS"
 check_config_builtin
-
-#capes..
-config="CONFIG_CAPE_BONE_ARGUS"
-check_config_builtin
-config="CONFIG_TCG_TPM"
-check_config_module
-config="CONFIG_TCG_TIS_I2C_ATMEL"
-check_config_module
 
 #

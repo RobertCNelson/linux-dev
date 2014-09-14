@@ -114,25 +114,6 @@ errata () {
 	${git} "${DIR}/patches/errata/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
 }
 
-vivante () {
-	echo "dir: vivante"
-	#http://git.freescale.com/git/cgit.cgi/imx/linux-2.6-imx.git/
-	#git checkout v3.10.17 -b freescale
-	#git pull --no-edit git://git.freescale.com/imx/linux-2.6-imx.git imx_3.10.17_1.0.0_beta
-	#git format-patch -1 -o /opt/github/linux-dev/patches/vivante/ 3b934d57da5637f4edabb5504bd668debdbb03b3
-	#git format-patch -1 -o /opt/github/linux-dev/patches/vivante/ 2d570481f146218b5148930b573401070526cc1a
-	#git checkout master -f ; git branch -D freescale
-
-	${git} "${DIR}/patches/vivante/0001-ENGR00240988-drm-copy-vivante-driver-from-3.5.7-kern.patch"
-	${git} "${DIR}/patches/vivante/0002-ENGR00240988-drm-vivante-remove-reclaim_buffers-call.patch"
-
-	#fixes:
-	${git} "${DIR}/patches/vivante/0003-drm-vivante-build-fixes.patch"
-
-	#v3.14.x+
-	${git} "${DIR}/patches/vivante/0004-Fixed-vivante-driver-for-kernel-3.14.x.patch"
-}
-
 freescale () {
 	echo "dir: freescale/ipu-v3"
 	${git} "${DIR}/patches/freescale/ipu-v3/0001-gpu-ipu-v3-Add-ipu-cpmem-unit.patch"
@@ -605,7 +586,6 @@ beaglebone () {
 dts
 wand
 errata
-vivante
 freescale
 
 beaglebone
