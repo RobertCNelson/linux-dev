@@ -171,7 +171,7 @@ dtsi_append_hdmi_no_audio () {
 }
 
 dtsi_drop_nxp_hdmi_audio () {
-	sed -i -e 's:#include "am335x-boneblack-nxp-hdmi-audio.dtsi":/* #include "am335x-boneblack-nxp-hdmi-audio.dtsi" */:g' ${wfile}
+	sed -i -e 's:#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi":/* #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi" */:g' ${wfile}
 	git add ${wfile}
 }
 
@@ -328,8 +328,9 @@ beaglebone () {
 
 		base_dts="am335x-boneblack"
 		cape="audio-reva"
-		dtsi_append_hdmi_no_audio
-		dtsi_drop_nxp_hdmi_audio
+		dtsi_append
+#		dtsi_append_hdmi_no_audio
+#		dtsi_drop_nxp_hdmi_audio
 
 		base_dts="am335x-bone"
 		cape="audio-revb"
@@ -337,8 +338,9 @@ beaglebone () {
 
 		base_dts="am335x-boneblack"
 		cape="audio-revb"
-		dtsi_append_hdmi_no_audio
-		dtsi_drop_nxp_hdmi_audio
+		dtsi_append
+#		dtsi_append_hdmi_no_audio
+#		dtsi_drop_nxp_hdmi_audio
 
 		git commit -a -m 'auto generated: cape: audio' -s
 		git format-patch -2 -o ../patches/beaglebone/generated/
