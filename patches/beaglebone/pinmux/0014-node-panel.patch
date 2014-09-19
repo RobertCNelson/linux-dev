@@ -1,0 +1,461 @@
+From f800f21d1b9ab771ae48d21f7c499873aea5f771 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 19 Sep 2014 09:26:21 -0500
+Subject: [PATCH 14/20] node: panel
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi   | 71 +++++++++++++++++++
+ .../boot/dts/am335x-bone-panel-1240x600-24bit.dtsi | 82 ++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-panel-320x240.dtsi   | 61 ++++++++++++++++
+ .../dts/am335x-bone-panel-480x272-bgrx_16bpp.dtsi  | 59 ++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-panel-480x272.dtsi   | 62 ++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-panel-800x480.dtsi   | 62 ++++++++++++++++
+ 6 files changed, 397 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-panel-1240x600-24bit.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-panel-320x240.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-panel-480x272-bgrx_16bpp.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-panel-480x272.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-panel-800x480.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+index 406f778..f845c67 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+@@ -118,6 +118,77 @@
+ 		>;
+ 	};
+ 
++	bbcape_lcd_pins: bbcape_lcd_pins {
++		pinctrl-single,pins = <
++			0xa0 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data0.lcd_data0 */
++			0xa4 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data1.lcd_data1 */
++			0xa8 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data2.lcd_data2 */
++			0xac (PIN_OUTPUT | MUX_MODE0)	/* lcd_data3.lcd_data3 */
++			0xb0 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data4.lcd_data4 */
++			0xb4 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data5.lcd_data5 */
++			0xb8 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data6.lcd_data6 */
++			0xbc (PIN_OUTPUT | MUX_MODE0)	/* lcd_data7.lcd_data7 */
++			0xc0 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data8.lcd_data8 */
++			0xc4 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data9.lcd_data9 */
++			0xc8 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data10.lcd_data10 */
++			0xcc (PIN_OUTPUT | MUX_MODE0)	/* lcd_data11.lcd_data11 */
++			0xd0 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data12.lcd_data12 */
++			0xd4 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data13.lcd_data13 */
++			0xd8 (PIN_OUTPUT | MUX_MODE0)	/* lcd_data14.lcd_data14 */
++			0xdc (PIN_OUTPUT | MUX_MODE0)	/* lcd_data15.lcd_data15 */
++			0xe0 (PIN_OUTPUT | MUX_MODE0)	/* lcd_vsync.lcd_vsync */
++			0xe4 (PIN_OUTPUT | MUX_MODE0)	/* lcd_hsync.lcd_hsync */
++			0xe8 (PIN_OUTPUT | MUX_MODE0)	/* lcd_pclk.lcd_pclk */
++			0xec (PIN_OUTPUT | MUX_MODE0)	/* lcd_ac_bias_en.lcd_ac_bias_en (lcd_en) */
++		>;
++	};
++
++	/* bbb-exp-c */
++	bbcape_lcd_24bit_pins: bbcape_lcd_24bit_pins {
++		pinctrl-single,pins = <
++			0xa0 0x00       /* lcd_data0.lcd_data0, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xa4 0x00       /* lcd_data1.lcd_data1, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xa8 0x00       /* lcd_data2.lcd_data2, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xac 0x00       /* lcd_data3.lcd_data3, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xb0 0x00       /* lcd_data4.lcd_data4, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xb4 0x00       /* lcd_data5.lcd_data5, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xb8 0x00       /* lcd_data6.lcd_data6, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xbc 0x00       /* lcd_data7.lcd_data7, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xc0 0x00       /* lcd_data8.lcd_data8, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xc4 0x00       /* lcd_data9.lcd_data9, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xc8 0x00       /* lcd_data10.lcd_data10, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xcc 0x00       /* lcd_data11.lcd_data11, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xd0 0x00       /* lcd_data12.lcd_data12, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xd4 0x00       /* lcd_data13.lcd_data13, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xd8 0x00       /* lcd_data14.lcd_data14, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xdc 0x00       /* lcd_data15.lcd_data15, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0x3c 0x11       /* gpmc_ad15.lcd_data16, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0x38 0x11       /* gpmc_ad14.lcd_data17, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0x34 0x11       /* gpmc_ad13.lcd_data18, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0x30 0x11       /* gpmc_ad12.lcd_data19, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0x2c 0x11       /* gpmc_ad11.lcd_data20, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0x28 0x11       /* gpmc_ad10.lcd_data21, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0x24 0x11       /* gpmc_ad9.lcd_data22, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0x20 0x11       /* gpmc_ad8.lcd_data23, OMAP_MUX_MODE1 | AM33XX_PIN_OUTPUT */
++			0xe0 0x00       /* lcd_vsync.lcd_vsync, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xe4 0x00       /* lcd_hsync.lcd_hsync, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xe8 0x00       /* lcd_pclk.lcd_pclk, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++			0xec 0x00       /* lcd_ac_bias_en.lcd_ac_bias_en, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
++		>;
++	};
++
++	bbcape_lcd7_avdd_en_pins: bbcape_lcd7_avdd_en {
++		pinctrl-single,pins = <
++			0x150 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* spi0_sclk.gpio0_2, OUTPUT | MODE7 - AVDD_EN */
++		>;
++	};
++
++	bbcape_lcd4_disen_pins: bbcape_lcd4_disen_pins {
++		pinctrl-single,pins = <
++			0x1a4 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* mcasp0_fsr.gpio3[19] (lcd_disen) */
++		>;
++	};
++
+ 	clkout2_pin: pinmux_clkout2_pin {
+ 		pinctrl-single,pins = <
+ 			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+diff --git a/arch/arm/boot/dts/am335x-bone-panel-1240x600-24bit.dtsi b/arch/arm/boot/dts/am335x-bone-panel-1240x600-24bit.dtsi
+new file mode 100644
+index 0000000..2fd366c
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-panel-1240x600-24bit.dtsi
+@@ -0,0 +1,82 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P8_11_pinmux {
++		status = "disabled";
++	};
++	P8_12_pinmux {
++		status = "disabled";
++	};
++	P8_13_pinmux {
++		status = "disabled";
++	};
++	P8_14_pinmux {
++		status = "disabled";
++	};
++	P8_15_pinmux {
++		status = "disabled";
++	};
++	P8_16_pinmux {
++		status = "disabled";
++	};
++	P8_17_pinmux {
++		status = "disabled";
++	};
++	P8_19_pinmux {
++		status = "disabled";
++	};
++	P8_37_pinmux {
++		status = "disabled";
++	};
++	P8_38_pinmux {
++		status = "disabled";
++	};
++};
++
++&lcdc {
++	status = "okay";
++};
++
++/ {
++	panel {
++		status = "okay";
++		compatible = "ti,tilcdc,panel";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_lcd_24bit_pins>;
++		panel-info {
++			ac-bias           = <255>;
++			ac-bias-intrpt    = <0>;
++			dma-burst-sz      = <16>;
++			bpp               = <32>;
++			fdd               = <0x80>;
++			sync-edge         = <0>;
++			sync-ctrl         = <0>;
++			raster-order      = <1>;
++			fifo-th           = <0>;
++		};
++		display-timings {
++			native-mode = <&timing0>;
++			timing0: 1024x600 {
++				clock-frequency = <36000000>;
++				hactive = <1024>;
++				vactive = <600>;
++				hfront-porch = <1>;
++				hback-porch = <45>;
++				hsync-len = <30>;
++				vback-porch = <22>;
++				vfront-porch = <12>;
++				vsync-len = <2>;
++				hsync-active = <1>;
++				vsync-active = <1>;
++				de-active = <1>;
++				pixelclk-active = <0>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-panel-320x240.dtsi b/arch/arm/boot/dts/am335x-bone-panel-320x240.dtsi
+new file mode 100644
+index 0000000..9643f0e
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-panel-320x240.dtsi
+@@ -0,0 +1,61 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	/* hdmi */
++	P8_37_pinmux {
++		status = "disabled";
++	};
++	P8_38_pinmux {
++		status = "disabled";
++	};
++};
++
++&lcdc {
++	status = "okay";
++};
++
++/ {
++	panel {
++		status = "okay";
++		compatible = "ti,tilcdc,panel";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_lcd_pins>;
++		panel-info {
++			ac-bias           = <255>;
++			ac-bias-intrpt    = <0>;
++			dma-burst-sz      = <16>;
++			bpp               = <16>;
++			fdd               = <0x80>;
++			sync-edge         = <0>;
++			sync-ctrl         = <1>;
++			raster-order      = <0>;
++			fifo-th           = <0>;
++			invert-pxl-clk;
++		};
++		display-timings {
++			/* Settings for CDTech_S035Q01 / LCD3 cape: */
++			native-mode = <&timing0>;
++			timing0: 320x240 {
++				clock-frequency = <8000000>;
++				hactive = <320>;
++				vactive = <240>;
++				hfront-porch = <59>;
++				hback-porch = <22>;
++				hsync-len = <48>;
++				vback-porch = <12>;
++				vfront-porch = <23>;
++				vsync-len = <2>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				de-active = <1>;
++				pixelclk-active = <0>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-panel-480x272-bgrx_16bpp.dtsi b/arch/arm/boot/dts/am335x-bone-panel-480x272-bgrx_16bpp.dtsi
+new file mode 100644
+index 0000000..bdd05af
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-panel-480x272-bgrx_16bpp.dtsi
+@@ -0,0 +1,59 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P8_37_pinmux {
++		status = "disabled";
++	};
++	P8_38_pinmux {
++		status = "disabled";
++	};
++};
++
++&lcdc {
++	bgrx_16bpp = <1>;
++	status = "okay";
++};
++
++/ {
++	panel {
++		status = "okay";
++		compatible = "ti,tilcdc,panel";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_lcd_pins>;
++		panel-info {
++			ac-bias           = <255>;
++			ac-bias-intrpt    = <0>;
++			dma-burst-sz      = <16>;
++			bpp               = <16>;
++			fdd               = <0x80>;
++			sync-edge         = <0>;
++			sync-ctrl         = <1>;
++			raster-order      = <0>;
++			fifo-th           = <0>;
++		};
++		display-timings {
++			native-mode = <&timing0>;
++			timing0: 480x272 {
++				clock-frequency = <9000000>;
++				hactive = <480>;
++				vactive = <272>;
++				hfront-porch = <9>;
++				hback-porch = <44>;
++				hsync-len = <5>;
++				vback-porch = <13>;
++				vfront-porch = <4>;
++				vsync-len = <10>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				de-active = <0>;
++				pixelclk-active = <0>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-panel-480x272.dtsi b/arch/arm/boot/dts/am335x-bone-panel-480x272.dtsi
+new file mode 100644
+index 0000000..aa02625
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-panel-480x272.dtsi
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P8_37_pinmux {
++		status = "disabled";
++	};
++	P8_38_pinmux {
++		status = "disabled";
++	};
++	P9_27_pinmux {
++		status = "disabled";
++	};
++};
++
++&lcdc {
++	status = "okay";
++};
++
++/ {
++	panel {
++		status = "okay";
++		compatible = "ti,tilcdc,panel";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_lcd_pins &bbcape_lcd4_disen_pins>;
++		panel-info {
++			ac-bias           = <255>;
++			ac-bias-intrpt    = <0>;
++			dma-burst-sz      = <16>;
++			bpp               = <16>;
++			fdd               = <0x80>;
++			sync-edge         = <0>;
++			sync-ctrl         = <1>;
++			raster-order      = <0>;
++			fifo-th           = <0>;
++		};
++		display-timings {
++			native-mode = <&timing0>;
++			/* www.newhavendisplay.com/app_notes/OTA5180A.pdf */
++			timing0: 480x272 {
++				clock-frequency = <9200000>;
++				hactive = <480>;
++				vactive = <272>;
++				hfront-porch = <8>;
++				hback-porch = <47>;
++				hsync-len = <41>;
++				vback-porch = <2>;
++				vfront-porch = <3>;
++				vsync-len = <10>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				de-active = <1>;
++				pixelclk-active = <0>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-panel-800x480.dtsi b/arch/arm/boot/dts/am335x-bone-panel-800x480.dtsi
+new file mode 100644
+index 0000000..7b8c053
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-panel-800x480.dtsi
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P8_37_pinmux {
++		status = "disabled";
++	};
++	P8_38_pinmux {
++		status = "disabled";
++	};
++	P9_22_pinmux {
++		status = "disabled";
++	};
++};
++
++&lcdc {
++	status = "okay";
++};
++
++/ {
++	panel {
++		status = "okay";
++		compatible = "ti,tilcdc,panel";
++		pinctrl-names = "default";
++		pinctrl-0 = <&bbcape_lcd_pins &bbcape_lcd7_avdd_en_pins>;
++		panel-info {
++			ac-bias           = <255>;
++			ac-bias-intrpt    = <0>;
++			dma-burst-sz      = <16>;
++			bpp               = <16>;
++			fdd               = <0x80>;
++			sync-edge         = <0>;
++			sync-ctrl         = <1>;
++			raster-order      = <0>;
++			fifo-th           = <0>;
++		};
++		display-timings {
++			native-mode = <&timing0>;
++			/* Settings for ThreeFive S9700RTWV35TR / LCD7 cape: */
++			timing0: 800x480 {
++				clock-frequency = <30000000>;
++				hactive = <800>;
++				vactive = <480>;
++				hfront-porch = <40>;
++				hback-porch = <40>;
++				hsync-len = <48>;
++				vback-porch = <30>;
++				vfront-porch = <13>;
++				vsync-len = <3>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				de-active = <1>;
++				pixelclk-active = <0>;
++			};
++		};
++	};
++};
+-- 
+2.1.0
+

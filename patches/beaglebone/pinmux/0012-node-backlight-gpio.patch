@@ -1,21 +1,21 @@
-From be3202df9a20564765647c5acc602b3df355c910 Mon Sep 17 00:00:00 2001
+From 437bbb51396bf97eefc26114cb7d915927904280 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 26 Aug 2014 11:14:27 -0500
-Subject: [PATCH 11/19] am335x-bone-common: pinmux gpio-backlight (gpio1_18)
+Date: Fri, 19 Sep 2014 09:13:08 -0500
+Subject: [PATCH 12/20] node: backlight-gpio
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi   | 18 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi   | 25 ++++++++++++++++++++++++
  arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi |  6 ++++++
- 2 files changed, 24 insertions(+)
+ 2 files changed, 31 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi b/arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi
 new file mode 100644
-index 0000000..a8dae4a
+index 0000000..d66301c
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-bl-gpio1-18.dtsi
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,25 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -23,6 +23,13 @@ index 0000000..a8dae4a
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
++
++&ocp {
++	P9_14_pinmux {
++		/* gpio1[18] */
++		status = "disabled";
++	};
++};
 +
 +/ {
 +	backlight {
@@ -35,10 +42,10 @@ index 0000000..a8dae4a
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-index 83d824b..2e6f158 100644
+index 8276c83..1a116b8 100644
 --- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-@@ -16,6 +16,12 @@
+@@ -54,6 +54,12 @@
  		>;
  	};
  
@@ -48,9 +55,9 @@ index 83d824b..2e6f158 100644
 +		>;
 +	};
 +
- 	clkout2_pin: pinmux_clkout2_pin {
+ 	i2c0_pins: pinmux_i2c0_pins {
  		pinctrl-single,pins = <
- 			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+ 			0x188 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
 -- 
 2.1.0
 

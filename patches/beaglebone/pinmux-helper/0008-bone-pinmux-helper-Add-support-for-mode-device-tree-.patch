@@ -1,0 +1,117 @@
+From e0e0f1da3f2df4bc4ee2b27a65ee99734bd3fb77 Mon Sep 17 00:00:00 2001
+From: Charles Steinkuehler <charles@steinkuehler.net>
+Date: Tue, 16 Sep 2014 20:42:56 +0000
+Subject: [PATCH 8/8] bone-pinmux-helper: Add support for "mode" device-tree
+ parameter The new mode parameter is used to set the initial pinmux mode to
+ something other than "default" or NULL, which is what happens currently. 
+ This allows enabling SoC hardware via device-tree which requires specific
+ pinmux settings to function on boot, but still leaves the pinmux register
+ under control of the bone-pinmux- helper driver meaning the pinmux setting
+ can be changed at run time via user-mode access to sysfs.
+
+Signed-off-by: Charles Steinkuehler <charles@steinkuehler.net>
+---
+ drivers/misc/cape/beaglebone/bone-pinmux-helper.c | 58 ++++++++++++++++++-----
+ 1 file changed, 47 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/misc/cape/beaglebone/bone-pinmux-helper.c b/drivers/misc/cape/beaglebone/bone-pinmux-helper.c
+index 5074365..d81363a 100644
+--- a/drivers/misc/cape/beaglebone/bone-pinmux-helper.c
++++ b/drivers/misc/cape/beaglebone/bone-pinmux-helper.c
+@@ -117,6 +117,8 @@ static int bone_pinmux_helper_probe(struct platform_device *pdev)
+ 	struct pinmux_helper_data *data;
+ 	struct pinctrl_state *state;
+ 	char *state_name;
++	const char *mode_name;
++	int mode_len;
+ 	int err;
+ 
+ 	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+@@ -125,12 +127,13 @@ static int bone_pinmux_helper_probe(struct platform_device *pdev)
+ 		err = -ENOMEM;
+ 		goto err_no_mem;
+ 	}
++
+ 	state_name = kmalloc(strlen(PINCTRL_STATE_DEFAULT) + 1,
+ 			GFP_KERNEL);
+ 	if (state_name == NULL) {
+ 		dev_err(dev, "Failed to allocate state name\n");
+ 		err = -ENOMEM;
+-		goto err_no_mem;
++		goto err_no_state_mem;
+ 	}
+ 	data->selected_state_name = state_name;
+ 	strcpy(data->selected_state_name, PINCTRL_STATE_DEFAULT);
+@@ -144,17 +147,47 @@ static int bone_pinmux_helper_probe(struct platform_device *pdev)
+ 		goto err_no_pinctrl;
+ 	}
+ 
+-	/* try to select default state at first (if it exists) */
+-	state = pinctrl_lookup_state(data->pinctrl,
+-			data->selected_state_name);
+-	if (!IS_ERR(state)) {
+-		err = pinctrl_select_state(data->pinctrl, state);
+-		if (err != 0) {
+-			dev_err(dev, "Failed to select default state\n");
+-			goto err_no_state;
++	/* See if an initial mode is specified in the device tree */
++	mode_name = of_get_property(dev->of_node, "mode", &mode_len);
++
++	err = -1;
++	if (mode_name != NULL ) {
++		state_name = kmalloc(mode_len + 1, GFP_KERNEL);
++		if (state_name == NULL) {
++			dev_err(dev, "Failed to allocate state name\n");
++			err = -ENOMEM;
++			goto err_no_mode_mem;
++		}
++		strncpy(state_name, mode_name, mode_len);
++
++		/* try to select requested mode */
++		state = pinctrl_lookup_state(data->pinctrl, state_name);
++		if (!IS_ERR(state)) {
++			err = pinctrl_select_state(data->pinctrl, state);
++			if (err != 0) {
++				dev_warn(dev, "Unable to select requested mode %s\n", state_name);
++				kfree(state_name);
++			} else {
++				kfree(data->selected_state_name);
++				data->selected_state_name = state_name;
++				dev_notice(dev, "Set initial pinmux mode to %s\n", state_name);
++			}
++		}
++	}
++
++	/* try to select default state if mode_name failed */
++	if ( err != 0) {
++		state = pinctrl_lookup_state(data->pinctrl,
++				data->selected_state_name);
++		if (!IS_ERR(state)) {
++			err = pinctrl_select_state(data->pinctrl, state);
++			if (err != 0) {
++				dev_err(dev, "Failed to select default state\n");
++				goto err_no_state;
++			}
++		} else {
++			data->selected_state_name = '\0';
+ 		}
+-	} else {
+-		data->selected_state_name = '\0';
+ 	}
+ 
+ 	/* Register sysfs hooks */
+@@ -168,8 +201,11 @@ static int bone_pinmux_helper_probe(struct platform_device *pdev)
+ 
+ err_no_sysfs:
+ err_no_state:
++err_no_mode_mem:
+ 	devm_pinctrl_put(data->pinctrl);
+ err_no_pinctrl:
++	devm_kfree(dev, data->selected_state_name);
++err_no_state_mem:
+ 	devm_kfree(dev, data);
+ err_no_mem:
+ 	return err;
+-- 
+2.1.0
+

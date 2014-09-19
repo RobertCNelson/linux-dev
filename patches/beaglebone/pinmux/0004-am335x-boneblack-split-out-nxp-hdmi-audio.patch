@@ -1,0 +1,152 @@
+From a41d8b66ff63eb5a1468787a2c2fa9022b33fafd Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Mon, 15 Sep 2014 21:02:57 -0500
+Subject: [PATCH 04/20] am335x-boneblack: split out nxp hdmi audio
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi  | 64 ++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack.dts             | 59 +-------------------
+ 2 files changed, 66 insertions(+), 57 deletions(-)
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi b/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi
+new file mode 100644
+index 0000000..915dd3b
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-audio.dtsi
+@@ -0,0 +1,64 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&lcdc {
++	status = "okay";
++};
++
++&mcasp0	{
++	pinctrl-names = "default";
++	pinctrl-0 = <&mcasp0_pins>;
++	status = "okay";
++	op-mode = <0>;	/* MCASP_IIS_MODE */
++	tdm-slots = <2>;
++	serial-dir = <	/* 0: INACTIVE, 1: TX, 2: RX */
++			0 0 1 0
++		>;
++	tx-num-evt = <1>;
++	rx-num-evt = <1>;
++};
++
++/ {
++	hdmi {
++		compatible = "ti,tilcdc,slave";
++		i2c = <&i2c0>;
++		pinctrl-names = "default", "off";
++		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
++		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
++		status = "okay";
++	};
++
++	clk_mcasp0_fixed: clk_mcasp0_fixed {
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <24576000>;
++	};
++
++	clk_mcasp0: clk_mcasp0 {
++		#clock-cells = <0>;
++		compatible = "ti,gpio-gate-clock";
++		clocks = <&clk_mcasp0_fixed>;
++		enable-gpios = <&gpio1 27 0>; /* BeagleBone Black Clk enable on GPIO1_27 */
++	};
++
++	hdmi_audio: hdmi_audio@0 {
++		compatible = "linux,hdmi-audio";
++		status = "okay";
++	};
++
++	sound {
++		compatible = "ti,beaglebone-black-audio";
++		ti,model = "TI BeagleBone Black";
++		ti,audio-codec = <&hdmi_audio>;
++		ti,mcasp-controller = <&mcasp0>;
++		ti,audio-routing =
++			"HDMI Out",	"TX";
++		clocks = <&clk_mcasp0>;
++		clock-names = "mclk";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 2f23a55..46f3e8a 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -27,60 +27,5 @@
+ };
+ 
+ #include "am335x-boneblack-emmc.dtsi"
+-
+-&lcdc {
+-	status = "okay";
+-};
+-
+-&mcasp0	{
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&mcasp0_pins>;
+-	status = "okay";
+-	op-mode = <0>;	/* MCASP_IIS_MODE */
+-	tdm-slots = <2>;
+-	serial-dir = <	/* 0: INACTIVE, 1: TX, 2: RX */
+-			0 0 1 0
+-		>;
+-	tx-num-evt = <1>;
+-	rx-num-evt = <1>;
+-};
+-
+-/ {
+-	hdmi {
+-		compatible = "ti,tilcdc,slave";
+-		i2c = <&i2c0>;
+-		pinctrl-names = "default", "off";
+-		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
+-		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
+-		status = "okay";
+-	};
+-
+-	clk_mcasp0_fixed: clk_mcasp0_fixed {
+-	      #clock-cells = <0>;
+-	      compatible = "fixed-clock";
+-	      clock-frequency = <24576000>;
+-	};
+-
+-	clk_mcasp0: clk_mcasp0 {
+-	      #clock-cells = <0>;
+-	      compatible = "ti,gpio-gate-clock";
+-	      clocks = <&clk_mcasp0_fixed>;
+-	      enable-gpios = <&gpio1 27 0>; /* BeagleBone Black Clk enable on GPIO1_27 */
+-	};
+-
+-	hdmi_audio: hdmi_audio@0 {
+-	       compatible = "linux,hdmi-audio";
+-	       status = "okay";
+-	};
+-
+-	sound {
+-		compatible = "ti,beaglebone-black-audio";
+-		ti,model = "TI BeagleBone Black";
+-		ti,audio-codec = <&hdmi_audio>;
+-		ti,mcasp-controller = <&mcasp0>;
+-		ti,audio-routing =
+-			"HDMI Out",	"TX";
+-		clocks = <&clk_mcasp0>;
+-		clock-names = "mclk";
+-	};
+-};
++/* HDMI: with audio */
++#include "am335x-boneblack-nxp-hdmi-audio.dtsi"
+-- 
+2.1.0
+

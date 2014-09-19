@@ -1,0 +1,81 @@
+From f4bcdd1477f46e4c46708c063cedbd0fb075f373 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 19 Sep 2014 08:53:54 -0500
+Subject: [PATCH 06/20] pinmux: bone/black disable pins for
+ hdmi/audio/clkout2/mmc1
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone.dts                         | 11 +++++++++++
+ arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi | 10 ++++++++++
+ arch/arm/boot/dts/am335x-boneblack.dts                    | 11 +++++++++++
+ 3 files changed, 32 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index 7dbfe07..6c70507 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -17,6 +17,17 @@
+ 	regulator-always-on;
+ };
+ 
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
+ &mmc1 {
+ 	vmmc-supply = <&ldo3_reg>;
+ };
+diff --git a/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi b/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi
+index 3eafd75..63d0214 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi
++++ b/arch/arm/boot/dts/am335x-boneblack-nxp-hdmi-no-audio.dtsi
+@@ -6,6 +6,16 @@
+  * published by the Free Software Foundation.
+  */
+ 
++&ocp {
++	/* hdmi */
++	P8_37_pinmux {
++		status = "disabled";
++	};
++	P8_38_pinmux {
++		status = "disabled";
++	};
++};
++
+ &lcdc {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 2bb6918..55326d9 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -17,6 +17,17 @@
+ 	regulator-always-on;
+ };
+ 
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
+ &mmc1 {
+ 	vmmc-supply = <&vmmcsd_fixed>;
+ };
+-- 
+2.1.0
+

@@ -1,0 +1,508 @@
+From 2f62dc7596ceea0254cf64c8861bc6d94ec6b649 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 19 Sep 2014 09:23:42 -0500
+Subject: [PATCH 13/20] node: keymap
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 54 ++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-keymap0.dtsi       | 81 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-keymap1.dtsi       | 81 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-keymap2.dtsi       | 81 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-keymap3.dtsi       | 79 +++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-keymap4.dtsi       | 68 ++++++++++++++++++++
+ 6 files changed, 444 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-keymap0.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-keymap1.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-keymap2.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-keymap3.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-keymap4.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+index 9941568..08129d9 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+@@ -222,6 +222,60 @@
+ 		>;
+ 	};
+ 
++	/* lcd3-01-00a2/lcd7-01-00a3/4dcape-70(t) */
++	keymap0_pins: pinmux_keymap0_pins {
++		pinctrl-single,pins = <
++			0x040 0x2f	/* KEY_LEFT gpmc_a0.gpio1_16, INPUT | PULLDIS | MODE7 */
++			0x044 0x2f	/* KEY_RIGHT gpmc_a1.gpio1_17, INPUT | PULLDIS | MODE7 */
++			0x04c 0x2f 	/* KEY_UP gpmc_a3.gpio1_19, INPUT | PULLDIS | MODE7 */
++			0x198 0x2f	/* KEY_DOWN mcasp0_axr0.gpio3_16, INPUT | PULLDIS | MODE7 */
++			0x154 0x2f	/* KEY_ENTER spi0_d0.gpio0_3, INPUT | PULLDIS | MODE7 */
++		>;
++	};
++
++	/* lcd4-01-00a1/4dcape-43(t) */
++	keymap1_pins: pinmux_keymap1_pins {
++		pinctrl-single,pins = <
++			0x040 0x2f	/* KEY_LEFT gpmc_a0.gpio1_16, INPUT | PULLDIS | MODE7 */
++			0x044 0x2f	/* KEY_RIGHT gpmc_a1.gpio1_17, INPUT | PULLDIS | MODE7 */
++			0x04c 0x2f 	/* KEY_UP gpmc_a3.gpio1_19, INPUT | PULLDIS | MODE7 */
++			0x198 0x2f	/* KEY_DOWN mcasp0_axr0.gpio3_16, INPUT | PULLDIS | MODE7 */
++			0x184 0x2f	/* KEY_ENTER uart1_txd.gpio0_15, INPUT | PULLDIS | MODE7 */
++		>;
++	};
++
++	/* lcd7-01-00a2 */
++	keymap2_pins: pinmux_keymap2_pins {
++		pinctrl-single,pins = <
++			0x040 0x2f	/* KEY_LEFT gpmc_a0.gpio1_16, INPUT | PULLDIS | MODE7 */
++			0x044 0x2f	/* KEY_RIGHT gpmc_a1.gpio1_17, INPUT | PULLDIS | MODE7 */
++			0x04c 0x2f 	/* KEY_UP gpmc_a3.gpio1_19, INPUT | PULLDIS | MODE7 */
++			0x198 0x2f	/* KEY_DOWN mcasp0_axr0.gpio3_16, INPUT | PULLDIS | MODE7 */
++			0x1a4 0x2f	/* KEY_ENTER mcasp0_fsr.gpio3_19, INPUT | PULLDIS | MODE7 */
++		>;
++	};
++
++	/* bbb-exp-c */
++	keymap3_pins: pinmux_keymap3_pins {
++		pinctrl-single,pins = <
++			0x040 0x2f	/* KEY_UP gpmc_a0.gpio1_16, INPUT | PULLDIS | MODE7 */
++			0x04c 0x2f	/* KEY_DOWN gpmc_a3.gpio1_19, INPUT | PULLDIS | MODE7 */
++			0x078 0x2f	/* KEY_RIGHT gpmc_ben1.gpio1_28, INPUT | PULLDIS | MODE7 */
++			0x164 0x2f	/* KEY_LEFT ecap0_in_pwm0_out.gpio0_7, INPUT | PULLDIS | MODE7 */
++			0x1a4 0x2f	/* KEY_ENTER mcasp0_fxr.gpio3_19, INPUT | PULLDIS | MODE7 */
++		>;
++	};
++
++	/* bb-view */
++	keymap4_pins: pinmux_keymap4_pins {
++		pinctrl-single,pins = <
++			0x044 0x2f	/* usr2 gpmc_a1.gpio1_17, INPUT | PULLDIS | MODE7 */
++			0x04c 0x2f	/* usr0 gpmc_a3.gpio1_19, INPUT | PULLDIS | MODE7 */
++			0x070 0x2f	/* usr3 gpmc_wait0.gpio0_30, INPUT | PULLDIS | MODE7 */
++			0x184 0x2f	/* usr1 uart1_txd.gpio0_15, INPUT | PULLDIS | MODE7 */
++		>;
++	};
++
+ 	/************************/
+ 	/* P8 Header            */
+ 	/************************/
+diff --git a/arch/arm/boot/dts/am335x-bone-keymap0.dtsi b/arch/arm/boot/dts/am335x-bone-keymap0.dtsi
+new file mode 100644
+index 0000000..8f00096
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-keymap0.dtsi
+@@ -0,0 +1,81 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P9_15_pinmux {
++		/* gpio1[16] */
++		status = "disabled";
++	};
++	P9_16_pinmux {
++		/* gpio1[19] */
++		status = "disabled";
++	};
++	P9_21_pinmux {
++		/* gpio0[3] */
++		status = "disabled";
++	};
++	P9_23_pinmux {
++		/* gpio1[17] */
++		status = "disabled";
++	};
++	P9_30_pinmux {
++		/* gpio3[16] */
++		status = "disabled";
++	};
++};
++
++/ {
++	gpio_keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&keymap0_pins>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		button@1 {
++			debounce_interval = <50>;
++			linux,code = <105>;
++			label = "left";
++			gpios = <&gpio1 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@2 {
++			debounce_interval = <50>;
++			linux,code = <106>;
++			label = "right";
++			gpios = <&gpio1 17 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@3 {
++			debounce_interval = <50>;
++			linux,code = <103>;
++			label = "up";
++			gpios = <&gpio1 19 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@4 {
++			debounce_interval = <50>;
++			linux,code = <108>;
++			label = "down";
++			gpios = <&gpio3 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@5 {
++			debounce_interval = <50>;
++			linux,code = <28>;
++			label = "enter";
++			gpios = <&gpio0 3 0x1>;
++			gpio-key,wakeup;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-keymap1.dtsi b/arch/arm/boot/dts/am335x-bone-keymap1.dtsi
+new file mode 100644
+index 0000000..58586bc
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-keymap1.dtsi
+@@ -0,0 +1,81 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P9_15_pinmux {
++		/* gpio1[16] */
++		status = "disabled";
++	};
++	P9_16_pinmux {
++		/* gpio1[19] */
++		status = "disabled";
++	};
++	P9_23_pinmux {
++		/* gpio1[17] */
++		status = "disabled";
++	};
++	P9_24_pinmux {
++		/* gpio0[15] */
++		status = "disabled";
++	};
++	P9_30_pinmux {
++		/* gpio3[16] */
++		status = "disabled";
++	};
++};
++
++/ {
++	gpio_keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&keymap1_pins>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		button@1 {
++			debounce_interval = <50>;
++			linux,code = <105>;
++			label = "left";
++			gpios = <&gpio1 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@2 {
++			debounce_interval = <50>;
++			linux,code = <106>;
++			label = "right";
++			gpios = <&gpio1 17 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@3 {
++			debounce_interval = <50>;
++			linux,code = <103>;
++			label = "up";
++			gpios = <&gpio1 19 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@4 {
++			debounce_interval = <50>;
++			linux,code = <108>;
++			label = "down";
++			gpios = <&gpio3 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@5 {
++			debounce_interval = <50>;
++			linux,code = <28>;
++			label = "enter";
++			gpios = <&gpio0 15 0x1>;
++			gpio-key,wakeup;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-keymap2.dtsi b/arch/arm/boot/dts/am335x-bone-keymap2.dtsi
+new file mode 100644
+index 0000000..944d1bb
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-keymap2.dtsi
+@@ -0,0 +1,81 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P9_15_pinmux {
++		/* gpio1[16] */
++		status = "disabled";
++	};
++	P9_16_pinmux {
++		/* gpio1[19] */
++		status = "disabled";
++	};
++	P9_23_pinmux {
++		/* gpio1[17] */
++		status = "disabled";
++	};
++	P9_27_pinmux {
++		/* gpio3[19] */
++		status = "disabled";
++	};
++	P9_30_pinmux {
++		/* gpio3[16] */
++		status = "disabled";
++	};
++};
++
++/ {
++	gpio_keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&keymap2_pins>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		button@1 {
++			debounce_interval = <50>;
++			linux,code = <105>;
++			label = "left";
++			gpios = <&gpio1 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@2 {
++			debounce_interval = <50>;
++			linux,code = <106>;
++			label = "right";
++			gpios = <&gpio1 17 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@3 {
++			debounce_interval = <50>;
++			linux,code = <103>;
++			label = "up";
++			gpios = <&gpio1 19 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@4 {
++			debounce_interval = <50>;
++			linux,code = <108>;
++			label = "down";
++			gpios = <&gpio3 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@5 {
++			debounce_interval = <50>;
++			linux,code = <28>;
++			label = "enter";
++			gpios = <&gpio3 19 0x1>;
++			gpio-key,wakeup;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-keymap3.dtsi b/arch/arm/boot/dts/am335x-bone-keymap3.dtsi
+new file mode 100644
+index 0000000..cbedf50
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-keymap3.dtsi
+@@ -0,0 +1,79 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P9_12_pinmux {
++		status = "disabled";
++	};
++	P9_15_pinmux {
++		/* gpio1[16] */
++		status = "disabled";
++	};
++	P9_16_pinmux {
++		/* gpio1[19] */
++		status = "disabled";
++	};
++	P9_27_pinmux {
++		/* gpio3[19] */
++		status = "disabled";
++	};
++	P9_42_pinmux {
++		status = "disabled";
++	};
++};
++
++/ {
++	gpio_keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&keymap3_pins>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		button@1 {
++			debounce_interval = <50>;
++			linux,code = <105>;
++			label = "left";
++			gpios = <&gpio0 7 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@2 {
++			debounce_interval = <50>;
++			linux,code = <106>;
++			label = "right";
++			gpios = <&gpio1 28 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@3 {
++			debounce_interval = <50>;
++			linux,code = <103>;
++			label = "up";
++			gpios = <&gpio1 16 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@4 {
++			debounce_interval = <50>;
++			linux,code = <108>;
++			label = "down";
++			gpios = <&gpio1 19 0x1>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@5 {
++			debounce_interval = <50>;
++			linux,code = <28>;
++			label = "enter";
++			gpios = <&gpio3 19 0x1>;
++			gpio-key,wakeup;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-keymap4.dtsi b/arch/arm/boot/dts/am335x-bone-keymap4.dtsi
+new file mode 100644
+index 0000000..e18e4c3
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-keymap4.dtsi
+@@ -0,0 +1,68 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P9_11_pinmux {
++		status = "disabled";
++	};
++	P9_16_pinmux {
++		/* gpio1[19] */
++		status = "disabled";
++	};
++	P9_23_pinmux {
++		/* gpio1[17] */
++		status = "disabled";
++	};
++	P9_24_pinmux {
++		status = "disabled";
++	};
++};
++
++/ {
++	gpio_keys {
++		compatible = "gpio-keys";
++		pinctrl-names = "default";
++		pinctrl-0 = <&keymap4_pins>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		button@1 {
++			debounce_interval = <50>;
++			label = "bb-view:usr0";
++			linux,code = <0x100>;
++			gpios = <&gpio1 19 0x0>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@2 {
++			debounce_interval = <50>;
++			label = "bb-view:usr1";
++			linux,code = <0x101>;
++			gpios = <&gpio0 15 0x0>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@3 {
++			debounce_interval = <50>;
++			label = "bb-view:usr2";
++			linux,code = <0x102>;
++			gpios = <&gpio1 17 0x0>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++		button@4 {
++			debounce_interval = <50>;
++			label = "bb-view:usr3";
++			linux,code = <0x103>;
++			gpios = <&gpio0 30 0x0>;
++			gpio-key,wakeup;
++			autorepeat;
++		};
++	};
++};
+-- 
+2.1.0
+

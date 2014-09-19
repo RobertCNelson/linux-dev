@@ -1,27 +1,27 @@
-From c6e0b8228a96264b5d7ad1ea2b6f8434542a83e7 Mon Sep 17 00:00:00 2001
+From c79210a98d97fe4e5867e82dc1609b38e7fc9e8f Mon Sep 17 00:00:00 2001
 From: John Syn <john3909@gmail.com>
 Date: Tue, 15 Jul 2014 19:14:24 -0500
-Subject: [PATCH 08/19] am335x-bone-common: pinmux mcasp (audio cape revb)
+Subject: [PATCH 15/20] cape: audio-revb
 
 (split into pinmux and cape patches rcn-ee)
 
 Signed-off-by: John Syn <john3909@gmail.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-audio.dtsi         | 60 ++++++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 10 ++++
- arch/arm/boot/dts/am335x-bone-common.dtsi        | 10 +++-
- arch/arm/boot/dts/am335x-bone.dts                |  5 ++
- arch/arm/boot/dts/am335x-boneblack.dts           |  5 ++
- 5 files changed, 89 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm/boot/dts/am335x-bone-audio.dtsi
+ arch/arm/boot/dts/am335x-bone-audio-revb.dtsi    | 83 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 11 ++++
+ arch/arm/boot/dts/am335x-bone-common.dtsi        | 10 ++-
+ arch/arm/boot/dts/am335x-bone.dts                |  6 ++
+ arch/arm/boot/dts/am335x-boneblack.dts           |  6 ++
+ 5 files changed, 115 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-audio-revb.dtsi
 
-diff --git a/arch/arm/boot/dts/am335x-bone-audio.dtsi b/arch/arm/boot/dts/am335x-bone-audio.dtsi
+diff --git a/arch/arm/boot/dts/am335x-bone-audio-revb.dtsi b/arch/arm/boot/dts/am335x-bone-audio-revb.dtsi
 new file mode 100644
-index 0000000..f21b269
+index 0000000..b54549e
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-audio.dtsi
-@@ -0,0 +1,60 @@
++++ b/arch/arm/boot/dts/am335x-bone-audio-revb.dtsi
+@@ -0,0 +1,83 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -29,6 +29,29 @@ index 0000000..f21b269
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
++
++&ocp {
++	P9_25_pinmux {
++		/* mcasp0_ahclkx, OUTPUT | MODE0, Codec MCLK */
++		status = "disabled";
++	};
++	P9_28_pinmux {
++		/* mcasp0_axr2, INPUT | MODE2, Codec DIN */
++		status = "disabled";
++	};
++	P9_29_pinmux {
++		/* mcasp0_fsx, INPUT | MODE0, Codec WCLK */
++		status = "disabled";
++	};
++	P9_30_pinmux {
++		/* mcasp0_axr0, INPUT | MODE0, Codec DOUT */
++		status = "disabled";
++	};
++	P9_31_pinmux {
++		/* mcasp0_aclkx, INPUT | MODE0, Codec BCLK */
++		status = "disabled";
++	};
++};
 +
 +&i2c2 {
 +	tlv320aic3x: tlv320aic3x@18 {
@@ -47,7 +70,7 @@ index 0000000..f21b269
 +
 +&mcasp0 {
 +	pinctrl-names = "default";
-+	pinctrl-0 = <&mcasp0_pins_audio>;
++	pinctrl-0 = <&mcasp0_pins_audio_revb>;
 +	status = "okay";
 +	op-mode = <0>;          /* MCASP_IIS_MODE */
 +	tdm-slots = <2>;
@@ -83,14 +106,15 @@ index 0000000..f21b269
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-index b9da76b..0f22048 100644
+index f845c67..2c90709 100644
 --- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-@@ -112,6 +112,16 @@
+@@ -385,6 +385,17 @@
  		>;
  	};
  
-+	mcasp0_pins_audio: mcasp0_pins_audio {
++	/* audio rev b */
++	mcasp0_pins_audio_revb: mcasp0_pins_audio_revb {
 +		pinctrl-single,pins = <
 +			0x1ac 0x00	/* mcasp0_ahclkx, OUTPUT | MODE0, Codec MCLK */
 +			0x190 0x20	/* mcasp0_aclkx, INPUT | MODE0, Codec BCLK */
@@ -100,14 +124,14 @@ index b9da76b..0f22048 100644
 +		>;
 +	};
 +
- 	mmc1_pins: pinmux_mmc1_pins {
- 		pinctrl-single,pins = <
- 			0x160 (PIN_INPUT | MUX_MODE7) /* GPIO0_6 */
+ 	/************************/
+ 	/* P8 Header            */
+ 	/************************/
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 6ef4bab..c8eefbc 100644
+index 32540b9..00fbb94 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -56,7 +56,15 @@
+@@ -57,7 +57,15 @@
  		};
  	};
  
@@ -125,32 +149,33 @@ index 6ef4bab..c8eefbc 100644
  		regulator-name = "vmmcsd_fixed";
  		regulator-min-microvolt = <3300000>;
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 175051f..95d7ab9 100644
+index c29901f..cc12e62 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
-@@ -45,3 +45,8 @@
- /* #include "am335x-bone-ttyO4.dtsi" */
+@@ -78,3 +78,9 @@
  /* uart5: P8.37, P8.38 */
+ #include "am335x-ttyO5.dtsi"
  /* #include "am335x-bone-ttyO5.dtsi" */
 +
 +/* Capes */
++
 +/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
 +/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
++/* #include "am335x-bone-audio-revb.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 2338611..3fddf48 100644
+index b6c8182..9432f7a 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -42,3 +42,8 @@
- 
- /* Display */
- #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
+@@ -76,3 +76,9 @@
+ /* uart5: P8.37, P8.38 boneblack: hdmi has to be disabled for ttyO5 */
+ #include "am335x-ttyO5.dtsi"
+ /* #include "am335x-bone-ttyO5.dtsi" */
 +
 +/* Capes */
++
 +/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
 +/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-\ No newline at end of file
++/* #include "am335x-bone-audio-revb.dtsi" */
 -- 
 2.1.0
 

@@ -1,38 +1,44 @@
-From 320230cce3855cc1f09cc7105fd3ce0a18261c55 Mon Sep 17 00:00:00 2001
+From bf5cb595e98a89ed843ab3e124bdd6adc3a2d132 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 19 Aug 2014 11:43:01 -0500
-Subject: [PATCH 01/19] am335x-bone-common: split out am33xx_pinmux
+Date: Mon, 15 Sep 2014 20:56:49 -0500
+Subject: [PATCH 01/20] am335x-bone-common: split out am33xx_pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 113 +++++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone-common.dtsi        | 109 ----------------------
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 104 +++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-common.dtsi        | 109 -----------------------
  arch/arm/boot/dts/am335x-bone.dts                |   6 ++
  arch/arm/boot/dts/am335x-boneblack.dts           |   4 +
- 4 files changed, 123 insertions(+), 109 deletions(-)
- create mode 100644 arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+ 4 files changed, 114 insertions(+), 109 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-new file mode 100644
-index 0000000..316122e
---- /dev/null
+index e00bab9..d95303d 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-@@ -0,0 +1,113 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+&am33xx_pinmux {
+@@ -7,6 +7,110 @@
+  */
+ 
+ &am33xx_pinmux {
 +	user_leds_s0: user_leds_s0 {
 +		pinctrl-single,pins = <
 +			0x54 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
 +			0x58 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_a6.gpio1_22 */
 +			0x5c (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a7.gpio1_23 */
 +			0x60 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_a8.gpio1_24 */
++		>;
++	};
++
++	i2c0_pins: pinmux_i2c0_pins {
++		pinctrl-single,pins = <
++			0x188 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
++			0x18c (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_scl.i2c0_scl */
++		>;
++	};
++
++	uart0_pins: pinmux_uart0_pins {
++		pinctrl-single,pins = <
++			0x170 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
++			0x174 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* uart0_txd.uart0_txd */
 +		>;
 +	};
 +
@@ -96,6 +102,12 @@ index 0000000..316122e
 +		>;
 +	};
 +
++	mmc1_pins: pinmux_mmc1_pins {
++		pinctrl-single,pins = <
++			0x160 (PIN_INPUT | MUX_MODE7) /* GPIO0_6 */
++		>;
++	};
++
 +	emmc_pins: pinmux_emmc_pins {
 +		pinctrl-single,pins = <
 +			0x80 (PIN_INPUT_PULLUP | MUX_MODE2) /* gpmc_csn1.mmc1_clk */
@@ -111,26 +123,9 @@ index 0000000..316122e
 +		>;
 +	};
 +
-+	i2c0_pins: pinmux_i2c0_pins {
-+		pinctrl-single,pins = <
-+			0x188 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
-+			0x18c (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_scl.i2c0_scl */
-+		>;
-+	};
-+
-+	mmc1_pins: pinmux_mmc1_pins {
-+		pinctrl-single,pins = <
-+			0x160 (PIN_INPUT | MUX_MODE7) /* GPIO0_6 */
-+		>;
-+	};
-+
-+	uart0_pins: pinmux_uart0_pins {
-+		pinctrl-single,pins = <
-+			0x170 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
-+			0x174 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* uart0_txd.uart0_txd */
-+		>;
-+	};
-+};
+ 	/************************/
+ 	/* P8 Header            */
+ 	/************************/
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
 index bde1777..7ca7df6 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi

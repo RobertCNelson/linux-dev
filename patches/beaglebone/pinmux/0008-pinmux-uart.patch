@@ -1,0 +1,248 @@
+From 7b86dd6fb6ceae66bb07eefd63e9d44c1c7e8173 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 19 Sep 2014 08:58:59 -0500
+Subject: [PATCH 08/20] pinmux: uart
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-ttyO1.dtsi | 18 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-ttyO2.dtsi | 18 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-ttyO4.dtsi | 18 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-ttyO5.dtsi | 18 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone.dts        | 13 +++++++++++++
+ arch/arm/boot/dts/am335x-boneblack.dts   | 13 +++++++++++++
+ arch/arm/boot/dts/am335x-ttyO1.dtsi      | 14 ++++++++++++++
+ arch/arm/boot/dts/am335x-ttyO2.dtsi      | 14 ++++++++++++++
+ arch/arm/boot/dts/am335x-ttyO4.dtsi      | 14 ++++++++++++++
+ arch/arm/boot/dts/am335x-ttyO5.dtsi      | 14 ++++++++++++++
+ 10 files changed, 154 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO1.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO2.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO4.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO5.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-ttyO1.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-ttyO2.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-ttyO4.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-ttyO5.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyO1.dtsi b/arch/arm/boot/dts/am335x-bone-ttyO1.dtsi
+new file mode 100644
+index 0000000..6bf4a0d
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-ttyO1.dtsi
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "am335x-ttyO1.dtsi"
++
++&ocp {
++	P9_24_pinmux {
++		mode = "uart";
++	};
++	P9_26_pinmux {
++		mode = "uart";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyO2.dtsi b/arch/arm/boot/dts/am335x-bone-ttyO2.dtsi
+new file mode 100644
+index 0000000..c2f5d09
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-ttyO2.dtsi
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "am335x-ttyO2.dtsi"
++
++&ocp {
++	P9_21_pinmux {
++		mode = "uart";
++	};
++	P9_22_pinmux {
++		mode = "uart";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyO4.dtsi b/arch/arm/boot/dts/am335x-bone-ttyO4.dtsi
+new file mode 100644
+index 0000000..0d04a81
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-ttyO4.dtsi
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "am335x-ttyO4.dtsi"
++
++&ocp {
++	P9_11_pinmux {
++		mode = "uart";
++	};
++	P9_13_pinmux {
++		mode = "uart";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyO5.dtsi b/arch/arm/boot/dts/am335x-bone-ttyO5.dtsi
+new file mode 100644
+index 0000000..19ddeee
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-ttyO5.dtsi
+@@ -0,0 +1,18 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "am335x-ttyO5.dtsi"
++
++&ocp {
++	P8_37_pinmux {
++		mode = "uart";
++	};
++	P8_38_pinmux {
++		mode = "uart";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index 6c70507..46067e0 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -44,3 +44,16 @@
+ &aes {
+ 	status = "okay";
+ };
++
++/* uart1: P9.24, P9.26 */
++#include "am335x-ttyO1.dtsi"
++/* #include "am335x-bone-ttyO1.dtsi" */
++/* uart2: P9.21, P9.22 */
++#include "am335x-ttyO2.dtsi"
++/* #include "am335x-bone-ttyO2.dtsi" */
++/* uart4: P9.11, P9.13 */
++#include "am335x-ttyO4.dtsi"
++/* #include "am335x-bone-ttyO4.dtsi" */
++/* uart5: P8.37, P8.38 */
++#include "am335x-ttyO5.dtsi"
++/* #include "am335x-bone-ttyO5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 55326d9..175b724 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -40,3 +40,16 @@
+ #include "am335x-boneblack-emmc.dtsi"
+ /* HDMI: without audio */
+ #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
++
++/* uart1: P9.24, P9.26 */
++#include "am335x-ttyO1.dtsi"
++/* #include "am335x-bone-ttyO1.dtsi" */
++/* uart2: P9.21, P9.22 */
++#include "am335x-ttyO2.dtsi"
++/* #include "am335x-bone-ttyO2.dtsi" */
++/* uart4: P9.11, P9.13 */
++#include "am335x-ttyO4.dtsi"
++/* #include "am335x-bone-ttyO4.dtsi" */
++/* uart5: P8.37, P8.38 boneblack: hdmi has to be disabled for ttyO5 */
++#include "am335x-ttyO5.dtsi"
++/* #include "am335x-bone-ttyO5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-ttyO1.dtsi b/arch/arm/boot/dts/am335x-ttyO1.dtsi
+new file mode 100644
+index 0000000..039763a
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-ttyO1.dtsi
+@@ -0,0 +1,14 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/am335x-ttyO2.dtsi b/arch/arm/boot/dts/am335x-ttyO2.dtsi
+new file mode 100644
+index 0000000..a7c3117
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-ttyO2.dtsi
+@@ -0,0 +1,14 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&uart2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/am335x-ttyO4.dtsi b/arch/arm/boot/dts/am335x-ttyO4.dtsi
+new file mode 100644
+index 0000000..76fb6a2
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-ttyO4.dtsi
+@@ -0,0 +1,14 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&uart4 {
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/am335x-ttyO5.dtsi b/arch/arm/boot/dts/am335x-ttyO5.dtsi
+new file mode 100644
+index 0000000..5675eeb
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-ttyO5.dtsi
+@@ -0,0 +1,14 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&uart5 {
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	status = "okay";
++};
+-- 
+2.1.0
+

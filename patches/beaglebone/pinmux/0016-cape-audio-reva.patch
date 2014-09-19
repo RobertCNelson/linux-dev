@@ -1,0 +1,162 @@
+From 22304d332ab4585bc920254d9845f1b506d55b2f Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 19 Sep 2014 09:52:24 -0500
+Subject: [PATCH 16/20] cape: audio reva
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-audio-reva.dtsi    | 90 ++++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 10 +++
+ arch/arm/boot/dts/am335x-bone.dts                |  3 +
+ arch/arm/boot/dts/am335x-boneblack.dts           |  3 +
+ 4 files changed, 106 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-audio-reva.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-audio-reva.dtsi b/arch/arm/boot/dts/am335x-bone-audio-reva.dtsi
+new file mode 100644
+index 0000000..0234b8b
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-audio-reva.dtsi
+@@ -0,0 +1,90 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	/* gpio */
++	P9_14_pinmux {
++		mode = "P9_14_gpio_pu_pin";
++	};
++	P9_16_pinmux {
++		mode = "P9_16_gpio_pu_pin";
++	};
++	/* audio */
++	P9_25_pinmux {
++		status = "disabled";
++	};
++	P9_28_pinmux {
++		status = "disabled";
++	};
++	P9_29_pinmux {
++		status = "disabled";
++	};
++	P9_31_pinmux {
++		status = "disabled";
++	};
++
++	gpio-leds-cape-audio {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <>;
++
++		audio-led0 {
++			label = "audio:green:usr0";
++			gpios = <&gpio1 18 0>;
++			linux,default-trigger = "heartbeat";
++			default-state = "off";
++		};
++
++		audio-led1 {
++			label = "audio:green:usr1";
++			gpios = <&gpio1 19 0>;
++			linux,default-trigger = "mmc0";
++			default-state = "off";
++		};
++	};
++};
++
++&i2c2 {
++	tlv320aic3x: tlv320aic3x@1b {
++		compatible = "ti,tlv320aic3x";
++		reg = <0x1b>;
++		status = "okay";
++	};
++};
++
++&mcasp0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mcasp0_pins_audio_reva>;
++	status = "okay";
++	op-mode = <0>;          /* MCASP_IIS_MODE */
++	tdm-slots = <2>;
++	num-serializer = <16>;
++	serial-dir = <  /* 0: INACTIVE, 1: TX, 2: RX */
++		0 0 2 1
++		0 0 0 0
++		0 0 0 0
++		0 0 0 0
++	>;
++	tx-num-evt = <1>;
++	rx-num-evt = <1>;
++};
++
++/ {
++	sound {
++		compatible = "ti,da830-evm-audio";
++		ti,model = "DA830 EVM";
++		ti,audio-codec = <&tlv320aic3x>;
++		ti,mcasp-controller = <&mcasp0>;
++		ti,codec-clock-rate = <12000000>;
++		ti,audio-routing =
++			"Headphone Jack",       "HPLOUT",
++			"Headphone Jack",       "HPROUT",
++			"LINE1L",               "Line In",
++			"LINE1R",               "Line In";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+index 2c90709..3abacfe 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
+@@ -385,6 +385,16 @@
+ 		>;
+ 	};
+ 
++	/* audio rev a */
++	mcasp0_pins_audio_reva: mcasp0_pins_audio_reva {
++		pinctrl-single,pins = <
++			0x190 0x20	/* mcasp0_aclkx.mcasp0_aclkx, INPUT | MODE0 */
++			0x194 0x20	/* mcasp0_fsx.mcasp0_fsx, INPUT | MODE0 */
++			0x19c 0x22	/* mcasp0_ahclkr.mcasp0_axr2, INPUT | MODE2 */
++			0x1ac 0x22	/* mcasp0_ahclkx.mcasp0_axr3, INPUT | MODE2 */
++		>;
++	};
++
+ 	/* audio rev b */
+ 	mcasp0_pins_audio_revb: mcasp0_pins_audio_revb {
+ 		pinctrl-single,pins = <
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index cc12e62..bb06739 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -81,6 +81,9 @@
+ 
+ /* Capes */
+ 
++/* http://elinux.org/CircuitCo:Audio_Cape_RevA */
++/* #include "am335x-bone-audio-reva.dtsi" */
++
+ /* http://elinux.org/CircuitCo:Audio_Cape_RevB */
+ /* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
+ /* #include "am335x-bone-audio-revb.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 9432f7a..ff38cc8 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -79,6 +79,9 @@
+ 
+ /* Capes */
+ 
++/* http://elinux.org/CircuitCo:Audio_Cape_RevA */
++/* #include "am335x-bone-audio-reva.dtsi" */
++
+ /* http://elinux.org/CircuitCo:Audio_Cape_RevB */
+ /* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
+ /* #include "am335x-bone-audio-revb.dtsi" */
+-- 
+2.1.0
+

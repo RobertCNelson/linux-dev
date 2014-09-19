@@ -1,26 +1,270 @@
-From 996651ea189596e4c840fccb501e08a869c0db42 Mon Sep 17 00:00:00 2001
+From 3afbe5366b9e59f0d8531112ce16bd17197a5b14 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 11 Sep 2014 16:19:15 -0500
-Subject: [PATCH 7/8] auto generated: cape: 4dcape
+Date: Fri, 19 Sep 2014 12:15:11 -0500
+Subject: [PATCH 7/9] auto generated: cape: 4dcape
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-boneblack-4dcape-43.dts  | 125 ++++++++++++++++++++++
- arch/arm/boot/dts/am335x-boneblack-4dcape-43t.dts | 125 ++++++++++++++++++++++
- arch/arm/boot/dts/am335x-boneblack-4dcape-70.dts  | 125 ++++++++++++++++++++++
- arch/arm/boot/dts/am335x-boneblack-4dcape-70t.dts | 125 ++++++++++++++++++++++
- 4 files changed, 500 insertions(+)
+ arch/arm/boot/dts/am335x-bone-4dcape-43.dts       | 53 ++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-4dcape-43t.dts      | 53 ++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-4dcape-70.dts       | 53 ++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-4dcape-70t.dts      | 53 ++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-4dcape-43.dts  | 61 +++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-4dcape-43t.dts | 61 +++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-4dcape-70.dts  | 61 +++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-4dcape-70t.dts | 61 +++++++++++++++++++++++
+ 8 files changed, 456 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-4dcape-43.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-4dcape-43t.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-4dcape-70.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-4dcape-70t.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-4dcape-43.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-4dcape-43t.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-4dcape-70.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-4dcape-70t.dts
 
+diff --git a/arch/arm/boot/dts/am335x-bone-4dcape-43.dts b/arch/arm/boot/dts/am335x-bone-4dcape-43.dts
+new file mode 100644
+index 0000000..a640af6
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-4dcape-43.dts
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-pinmux.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone";
++	compatible = "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-always-on;
++};
++
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++};
++
++&sham {
++	status = "okay";
++};
++
++&aes {
++	status = "okay";
++};
++
++#include "am335x-bone-4dcape-43.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-4dcape-43t.dts b/arch/arm/boot/dts/am335x-bone-4dcape-43t.dts
+new file mode 100644
+index 0000000..76b520e
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-4dcape-43t.dts
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-pinmux.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone";
++	compatible = "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-always-on;
++};
++
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++};
++
++&sham {
++	status = "okay";
++};
++
++&aes {
++	status = "okay";
++};
++
++#include "am335x-bone-4dcape-43t.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-4dcape-70.dts b/arch/arm/boot/dts/am335x-bone-4dcape-70.dts
+new file mode 100644
+index 0000000..952d812
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-4dcape-70.dts
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-pinmux.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone";
++	compatible = "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-always-on;
++};
++
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++};
++
++&sham {
++	status = "okay";
++};
++
++&aes {
++	status = "okay";
++};
++
++#include "am335x-bone-4dcape-70.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-bone-4dcape-70t.dts b/arch/arm/boot/dts/am335x-bone-4dcape-70t.dts
+new file mode 100644
+index 0000000..70c2611
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-4dcape-70t.dts
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-pinmux.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone";
++	compatible = "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-always-on;
++};
++
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++};
++
++&sham {
++	status = "okay";
++};
++
++&aes {
++	status = "okay";
++};
++
++#include "am335x-bone-4dcape-70t.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-4dcape-43.dts b/arch/arm/boot/dts/am335x-boneblack-4dcape-43.dts
 new file mode 100644
-index 0000000..af95ab5
+index 0000000..9940757
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-4dcape-43.dts
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,61 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -54,6 +298,17 @@ index 0000000..af95ab5
 +	regulator-always-on;
 +};
 +
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
 +&mmc1 {
 +	vmmc-supply = <&vmmcsd_fixed>;
 +};
@@ -64,94 +319,19 @@ index 0000000..af95ab5
 +};
 +
 +#include "am335x-boneblack-emmc.dtsi"
++/* HDMI: without audio */
++#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
 +
 +/* Max Core Speed */
 +#include "am335x-boneblack-1ghz.dtsi"
 +/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+/* spi0: */
-+/* P9.17 spi0_cs0 */
-+/* P9.18 spi0_d1 */
-+/* P9.21 spi0_d0 */
-+/* P9.22 spi0_sclk */
-+/* #include "am335x-bone-spi0-spidev.dtsi" */
-+
-+/* spi1: */
-+/* P9.31 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.28 spi1_cs0 */
-+/* #include "am335x-bone-spi1-spidev.dtsi" */
-+
-+/* spi1a: */
-+/* P9.42 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.20 spi1_cs0 */
-+/* #include "am335x-bone-spi1a-spidev.dtsi" */
-+
-+/* uart1: P9.24, P9.26 */
-+/* #include "am335x-bone-ttyO1.dtsi" */
-+/* uart2: P9.21, P9.22 */
-+/* #include "am335x-bone-ttyO2.dtsi" */
-+/* uart4: P9.11, P9.13 */
-+/* #include "am335x-bone-ttyO4.dtsi" */
-+/* uart5: P8.37, P8.38 am335x-boneblack: hdmi has to be disabled for ttyO5 */
-+/* #include "am335x-bone-ttyO5.dtsi" */
-+
-+/* Display */
-+/* #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi" */
-+/* Pins: audio: P9.25, P9.28, P9.29, P9.30, P9.31 */
-+/* #include "am335x-boneblack-nxp-hdmi-audio.dtsi" */
-+
-+/* Capes */
-+/* http://elinux.org/4D_4.3_LCD_CAPE */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-43.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-43t.dtsi" */
-+
-+/* http://www.4dsystems.com.au/product/4DCAPE_70T/ */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-70.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-70t.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
-+/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD3 */
-+/* #include "am335x-bone-lcd3-01-00a2.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd4-01-00a1.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
-+/* am335x-boneblack: emmc has to be disabled for lcd7-01-00a2 */
-+/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
-+/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
-+
-+/* http://www.chipsee.com/product/evm/beagle/beaglebone-black-expansion-capacitive.html */
-+/* #include "am335x-bone-bbb-exp-c.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:RTC_Cape */
-+/* i2c1: P9.17, P9.18 */
-+/* gpio: P8.26 (mfp: wakeup) */
-+/* #include "am335x-bone-rtc-01-00a1.dtsi" */
-+
-+/* http://elinux.org/Cryptotronix:CryptoCape */
-+/* uart4: P9.11, P9.13 */
-+/* gpio: gpio1 13 gpio1 17 (gpio NOT IMPLEMENTED YET) */
-+/* #include "am335x-bone-crypto-00a0.dtsi" */
-+
 +#include "am335x-bone-4dcape-43.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-4dcape-43t.dts b/arch/arm/boot/dts/am335x-boneblack-4dcape-43t.dts
 new file mode 100644
-index 0000000..e172ae0
+index 0000000..16e8fa5
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-4dcape-43t.dts
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,61 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -185,6 +365,17 @@ index 0000000..e172ae0
 +	regulator-always-on;
 +};
 +
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
 +&mmc1 {
 +	vmmc-supply = <&vmmcsd_fixed>;
 +};
@@ -195,94 +386,19 @@ index 0000000..e172ae0
 +};
 +
 +#include "am335x-boneblack-emmc.dtsi"
++/* HDMI: without audio */
++#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
 +
 +/* Max Core Speed */
 +#include "am335x-boneblack-1ghz.dtsi"
 +/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+/* spi0: */
-+/* P9.17 spi0_cs0 */
-+/* P9.18 spi0_d1 */
-+/* P9.21 spi0_d0 */
-+/* P9.22 spi0_sclk */
-+/* #include "am335x-bone-spi0-spidev.dtsi" */
-+
-+/* spi1: */
-+/* P9.31 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.28 spi1_cs0 */
-+/* #include "am335x-bone-spi1-spidev.dtsi" */
-+
-+/* spi1a: */
-+/* P9.42 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.20 spi1_cs0 */
-+/* #include "am335x-bone-spi1a-spidev.dtsi" */
-+
-+/* uart1: P9.24, P9.26 */
-+/* #include "am335x-bone-ttyO1.dtsi" */
-+/* uart2: P9.21, P9.22 */
-+/* #include "am335x-bone-ttyO2.dtsi" */
-+/* uart4: P9.11, P9.13 */
-+/* #include "am335x-bone-ttyO4.dtsi" */
-+/* uart5: P8.37, P8.38 am335x-boneblack: hdmi has to be disabled for ttyO5 */
-+/* #include "am335x-bone-ttyO5.dtsi" */
-+
-+/* Display */
-+/* #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi" */
-+/* Pins: audio: P9.25, P9.28, P9.29, P9.30, P9.31 */
-+/* #include "am335x-boneblack-nxp-hdmi-audio.dtsi" */
-+
-+/* Capes */
-+/* http://elinux.org/4D_4.3_LCD_CAPE */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-43.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-43t.dtsi" */
-+
-+/* http://www.4dsystems.com.au/product/4DCAPE_70T/ */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-70.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-70t.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
-+/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD3 */
-+/* #include "am335x-bone-lcd3-01-00a2.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd4-01-00a1.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
-+/* am335x-boneblack: emmc has to be disabled for lcd7-01-00a2 */
-+/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
-+/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
-+
-+/* http://www.chipsee.com/product/evm/beagle/beaglebone-black-expansion-capacitive.html */
-+/* #include "am335x-bone-bbb-exp-c.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:RTC_Cape */
-+/* i2c1: P9.17, P9.18 */
-+/* gpio: P8.26 (mfp: wakeup) */
-+/* #include "am335x-bone-rtc-01-00a1.dtsi" */
-+
-+/* http://elinux.org/Cryptotronix:CryptoCape */
-+/* uart4: P9.11, P9.13 */
-+/* gpio: gpio1 13 gpio1 17 (gpio NOT IMPLEMENTED YET) */
-+/* #include "am335x-bone-crypto-00a0.dtsi" */
-+
 +#include "am335x-bone-4dcape-43t.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-4dcape-70.dts b/arch/arm/boot/dts/am335x-boneblack-4dcape-70.dts
 new file mode 100644
-index 0000000..cad25e9
+index 0000000..dd9e574
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-4dcape-70.dts
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,61 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -316,6 +432,17 @@ index 0000000..cad25e9
 +	regulator-always-on;
 +};
 +
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
 +&mmc1 {
 +	vmmc-supply = <&vmmcsd_fixed>;
 +};
@@ -326,94 +453,19 @@ index 0000000..cad25e9
 +};
 +
 +#include "am335x-boneblack-emmc.dtsi"
++/* HDMI: without audio */
++#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
 +
 +/* Max Core Speed */
 +#include "am335x-boneblack-1ghz.dtsi"
 +/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+/* spi0: */
-+/* P9.17 spi0_cs0 */
-+/* P9.18 spi0_d1 */
-+/* P9.21 spi0_d0 */
-+/* P9.22 spi0_sclk */
-+/* #include "am335x-bone-spi0-spidev.dtsi" */
-+
-+/* spi1: */
-+/* P9.31 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.28 spi1_cs0 */
-+/* #include "am335x-bone-spi1-spidev.dtsi" */
-+
-+/* spi1a: */
-+/* P9.42 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.20 spi1_cs0 */
-+/* #include "am335x-bone-spi1a-spidev.dtsi" */
-+
-+/* uart1: P9.24, P9.26 */
-+/* #include "am335x-bone-ttyO1.dtsi" */
-+/* uart2: P9.21, P9.22 */
-+/* #include "am335x-bone-ttyO2.dtsi" */
-+/* uart4: P9.11, P9.13 */
-+/* #include "am335x-bone-ttyO4.dtsi" */
-+/* uart5: P8.37, P8.38 am335x-boneblack: hdmi has to be disabled for ttyO5 */
-+/* #include "am335x-bone-ttyO5.dtsi" */
-+
-+/* Display */
-+/* #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi" */
-+/* Pins: audio: P9.25, P9.28, P9.29, P9.30, P9.31 */
-+/* #include "am335x-boneblack-nxp-hdmi-audio.dtsi" */
-+
-+/* Capes */
-+/* http://elinux.org/4D_4.3_LCD_CAPE */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-43.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-43t.dtsi" */
-+
-+/* http://www.4dsystems.com.au/product/4DCAPE_70T/ */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-70.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-70t.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
-+/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD3 */
-+/* #include "am335x-bone-lcd3-01-00a2.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd4-01-00a1.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
-+/* am335x-boneblack: emmc has to be disabled for lcd7-01-00a2 */
-+/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
-+/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
-+
-+/* http://www.chipsee.com/product/evm/beagle/beaglebone-black-expansion-capacitive.html */
-+/* #include "am335x-bone-bbb-exp-c.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:RTC_Cape */
-+/* i2c1: P9.17, P9.18 */
-+/* gpio: P8.26 (mfp: wakeup) */
-+/* #include "am335x-bone-rtc-01-00a1.dtsi" */
-+
-+/* http://elinux.org/Cryptotronix:CryptoCape */
-+/* uart4: P9.11, P9.13 */
-+/* gpio: gpio1 13 gpio1 17 (gpio NOT IMPLEMENTED YET) */
-+/* #include "am335x-bone-crypto-00a0.dtsi" */
-+
 +#include "am335x-bone-4dcape-70.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-4dcape-70t.dts b/arch/arm/boot/dts/am335x-boneblack-4dcape-70t.dts
 new file mode 100644
-index 0000000..a46d28f
+index 0000000..3b6d4ad
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-4dcape-70t.dts
-@@ -0,0 +1,125 @@
+@@ -0,0 +1,61 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -447,6 +499,17 @@ index 0000000..a46d28f
 +	regulator-always-on;
 +};
 +
++&ocp {
++	/* clkout2 */
++	P9_41_pinmux {
++		status = "disabled";
++	};
++	/* mmc1 */
++	P9_92_pinmux {
++		status = "disabled";
++	};
++};
++
 +&mmc1 {
 +	vmmc-supply = <&vmmcsd_fixed>;
 +};
@@ -457,87 +520,12 @@ index 0000000..a46d28f
 +};
 +
 +#include "am335x-boneblack-emmc.dtsi"
++/* HDMI: without audio */
++#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi"
 +
 +/* Max Core Speed */
 +#include "am335x-boneblack-1ghz.dtsi"
 +/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+/* spi0: */
-+/* P9.17 spi0_cs0 */
-+/* P9.18 spi0_d1 */
-+/* P9.21 spi0_d0 */
-+/* P9.22 spi0_sclk */
-+/* #include "am335x-bone-spi0-spidev.dtsi" */
-+
-+/* spi1: */
-+/* P9.31 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.28 spi1_cs0 */
-+/* #include "am335x-bone-spi1-spidev.dtsi" */
-+
-+/* spi1a: */
-+/* P9.42 spi1_sclk */
-+/* P9.29 spi1_d0 */
-+/* P9.30 spi1_d1 */
-+/* P9.20 spi1_cs0 */
-+/* #include "am335x-bone-spi1a-spidev.dtsi" */
-+
-+/* uart1: P9.24, P9.26 */
-+/* #include "am335x-bone-ttyO1.dtsi" */
-+/* uart2: P9.21, P9.22 */
-+/* #include "am335x-bone-ttyO2.dtsi" */
-+/* uart4: P9.11, P9.13 */
-+/* #include "am335x-bone-ttyO4.dtsi" */
-+/* uart5: P8.37, P8.38 am335x-boneblack: hdmi has to be disabled for ttyO5 */
-+/* #include "am335x-bone-ttyO5.dtsi" */
-+
-+/* Display */
-+/* #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi" */
-+/* Pins: audio: P9.25, P9.28, P9.29, P9.30, P9.31 */
-+/* #include "am335x-boneblack-nxp-hdmi-audio.dtsi" */
-+
-+/* Capes */
-+/* http://elinux.org/4D_4.3_LCD_CAPE */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-43.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-43t.dtsi" */
-+
-+/* http://www.4dsystems.com.au/product/4DCAPE_70T/ */
-+/* 4DCAPE-43 (Non Touch version): */
-+/* #include "am335x-bone-4dcape-70.dtsi" */
-+/* 4DCAPE-43T (Resistive Touch version): */
-+/* #include "am335x-bone-4dcape-70t.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:Audio_Cape_RevB */
-+/* Pins: P9.24, P9.28, P9.29, P9.31, P9.30 */
-+/* #include "am335x-bone-audio.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD3 */
-+/* #include "am335x-bone-lcd3-01-00a2.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD4 */
-+/* #include "am335x-bone-lcd4-01-00a1.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:BeagleBone_LCD7 */
-+/* am335x-boneblack: emmc has to be disabled for lcd7-01-00a2 */
-+/* #include "am335x-bone-lcd7-01-00a2.dtsi" */
-+/* #include "am335x-bone-lcd7-01-00a3.dtsi" */
-+
-+/* http://www.chipsee.com/product/evm/beagle/beaglebone-black-expansion-capacitive.html */
-+/* #include "am335x-bone-bbb-exp-c.dtsi" */
-+
-+/* http://elinux.org/CircuitCo:RTC_Cape */
-+/* i2c1: P9.17, P9.18 */
-+/* gpio: P8.26 (mfp: wakeup) */
-+/* #include "am335x-bone-rtc-01-00a1.dtsi" */
-+
-+/* http://elinux.org/Cryptotronix:CryptoCape */
-+/* uart4: P9.11, P9.13 */
-+/* gpio: gpio1 13 gpio1 17 (gpio NOT IMPLEMENTED YET) */
-+/* #include "am335x-bone-crypto-00a0.dtsi" */
-+
 +#include "am335x-bone-4dcape-70t.dtsi"
 -- 
 2.1.0

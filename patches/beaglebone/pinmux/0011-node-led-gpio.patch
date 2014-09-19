@@ -1,28 +1,37 @@
-From db014b36cea595a84f248f1e43504506854faead Mon Sep 17 00:00:00 2001
+From cc3c0a4f8425638ff7c1a8233a19787bd3bf1812 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 26 Aug 2014 11:08:46 -0500
-Subject: [PATCH 10/19] am335x-bone-common: pinmux led
- (gpio1_18/gpio1_28/gpio3_19)
+Date: Fri, 19 Sep 2014 09:11:50 -0500
+Subject: [PATCH 11/20] node: led-gpio
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi | 21 +++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone-led-gpio1-18.dtsi  | 23 +++++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone-led-gpio1-28.dtsi  | 23 +++++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi  | 23 +++++++++++++++++++++++
- 4 files changed, 90 insertions(+)
+ arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi   | 29 ++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-led-gpio1-18.dtsi    | 30 +++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-led-gpio1-28.dtsi    | 29 ++++++++++++++++
+ .../boot/dts/am335x-bone-led-gpio2-4-gpio2-5.dtsi  | 39 ++++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi    | 30 +++++++++++++++++
+ 5 files changed, 157 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-led-gpio1-18.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-led-gpio1-28.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-led-gpio2-4-gpio2-5.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-index 0f22048..83d824b 100644
+index 9b52339..8276c83 100644
 --- a/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common-pinmux.dtsi
-@@ -91,6 +91,27 @@
+@@ -25,6 +25,35 @@
  		>;
  	};
  
++	/* bbb-exp-c */
++	user_leds_s1: user_leds_s1 {
++		pinctrl-single,pins = <
++			0x98 0x7	/* gpmc_wen.gpio2_4, OUTPUT | MODE7 */
++			0x9c 0x7	/* gpmc_ben0_cle.gpio2_5, OUTPUT | MODE7 */
++		>;
++	};
++
 +	/* lcd4-01-00a0 */
 +	gpio1_18_led_pins: pinmux_gpio1_18_led_pins {
 +		pinctrl-single,pins = <
@@ -49,10 +58,10 @@ index 0f22048..83d824b 100644
  			0x188 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
 diff --git a/arch/arm/boot/dts/am335x-bone-led-gpio1-18.dtsi b/arch/arm/boot/dts/am335x-bone-led-gpio1-18.dtsi
 new file mode 100644
-index 0000000..14c57c7
+index 0000000..ae10465
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-led-gpio1-18.dtsi
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,30 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -60,6 +69,13 @@ index 0000000..14c57c7
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
++
++&ocp {
++	P9_14_pinmux {
++		/* gpio1[18] */
++		status = "disabled";
++	};
++};
 +
 +/ {
 +	gpio-leds-cape-lcd {
@@ -78,10 +94,10 @@ index 0000000..14c57c7
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-led-gpio1-28.dtsi b/arch/arm/boot/dts/am335x-bone-led-gpio1-28.dtsi
 new file mode 100644
-index 0000000..7c54f98
+index 0000000..5a1ec39
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-led-gpio1-28.dtsi
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,29 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -89,6 +105,12 @@ index 0000000..7c54f98
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
++
++&ocp {
++	P9_12_pinmux {
++		status = "disabled";
++	};
++};
 +
 +/ {
 +	gpio-leds-cape-lcd {
@@ -105,12 +127,12 @@ index 0000000..7c54f98
 +		};
 +	};
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi b/arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi
+diff --git a/arch/arm/boot/dts/am335x-bone-led-gpio2-4-gpio2-5.dtsi b/arch/arm/boot/dts/am335x-bone-led-gpio2-4-gpio2-5.dtsi
 new file mode 100644
-index 0000000..e73fc10
+index 0000000..c80d580
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi
-@@ -0,0 +1,23 @@
++++ b/arch/arm/boot/dts/am335x-bone-led-gpio2-4-gpio2-5.dtsi
+@@ -0,0 +1,39 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -118,6 +140,58 @@ index 0000000..e73fc10
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
++
++&ocp {
++	P8_09_pinmux {
++		status = "disabled";
++	};
++	P8_10_pinmux {
++		status = "disabled";
++	};
++};
++
++/ {
++	gpio-leds-cape-lcd {
++		compatible = "gpio-leds";
++		pinctrl-names = "default";
++
++		pinctrl-0 = <&user_leds_s1>;
++
++		lcd-led0 {
++			label = "lcd:green:usr0";
++			gpios = <&gpio2 4 0>;
++			linux,default-trigger = "heartbeat";
++			default-state = "off";
++		};
++
++		lcd-led1 {
++			label = "lcd:green:usr1";
++			gpios = <&gpio2 5 0>;
++			linux,default-trigger = "mmc0";
++			default-state = "off";
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi b/arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi
+new file mode 100644
+index 0000000..619831f
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-led-gpio3-19.dtsi
+@@ -0,0 +1,30 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&ocp {
++	P9_27_pinmux {
++		/* gpio3[19] */
++		status = "disabled";
++	};
++};
 +
 +/ {
 +	gpio-leds-cape-lcd {
