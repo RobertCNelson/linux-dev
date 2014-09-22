@@ -130,6 +130,8 @@ check_config_disable
 #
 config="CONFIG_CAPE_BONE_ARGUS"
 check_config_disable
+config="CONFIG_BEAGLEBONE_PINMUX_HELPER"
+check_config_disable
 
 #
 # Graphics support
