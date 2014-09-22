@@ -191,6 +191,8 @@ config="CONFIG_MACH_TI8148EVM"
 check_config_disable
 config="CONFIG_ARCH_SOCFPGA"
 check_config_disable
+config="CONFIG_ARCH_EXYNOS"
+check_config_disable
 config="CONFIG_ARCH_TEGRA"
 check_config_builtin
 config="CONFIG_ARCH_TEGRA_124_SOC"
@@ -466,7 +468,8 @@ check_config_module
 #
 config="CONFIG_CAPE_BONE_ARGUS"
 check_config_builtin
-
+config="CONFIG_BEAGLEBONE_PINMUX_HELPER"
+check_config_builtin
 #
 # SCSI device support
 #
