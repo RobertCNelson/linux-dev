@@ -663,7 +663,7 @@ beaglebone () {
 dts
 wand
 errata
-freescale
+#freescale
 
 beaglebone
 
