@@ -1,6 +1,6 @@
-From bf5cb595e98a89ed843ab3e124bdd6adc3a2d132 Mon Sep 17 00:00:00 2001
+From 607c4d0c3e85b62f95829c38ed361379a5c51ed3 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 15 Sep 2014 20:56:49 -0500
+Date: Thu, 9 Oct 2014 11:54:37 -0500
 Subject: [PATCH 01/20] am335x-bone-common: split out am33xx_pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -127,10 +127,10 @@ index e00bab9..d95303d 100644
  	/* P8 Header            */
  	/************************/
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index bde1777..7ca7df6 100644
+index 6cc25ed..2905e07 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -64,115 +64,6 @@
+@@ -61,115 +61,6 @@
  	};
  };
  
@@ -247,7 +247,7 @@ index bde1777..7ca7df6 100644
  	pinctrl-names = "default";
  	pinctrl-0 = <&uart0_pins>;
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 94ee427..7dbfe07 100644
+index 83d40f7..b027404 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
 @@ -9,6 +9,7 @@
@@ -256,9 +256,9 @@ index 94ee427..7dbfe07 100644
  #include "am335x-bone-common.dtsi"
 +#include "am335x-bone-common-pinmux.dtsi"
  
- &ldo3_reg {
- 	regulator-min-microvolt = <1800000>;
-@@ -20,6 +21,11 @@
+ / {
+ 	model = "TI AM335x BeagleBone";
+@@ -25,6 +26,11 @@
  	vmmc-supply = <&ldo3_reg>;
  };
  
@@ -271,7 +271,7 @@ index 94ee427..7dbfe07 100644
  	status = "okay";
  };
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 305975d..3606bc6 100644
+index 901739f..1460e3b 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
 @@ -9,6 +9,7 @@
@@ -280,9 +280,9 @@ index 305975d..3606bc6 100644
  #include "am335x-bone-common.dtsi"
 +#include "am335x-bone-common-pinmux.dtsi"
  
- &ldo3_reg {
- 	regulator-min-microvolt = <1800000>;
-@@ -29,6 +30,9 @@
+ / {
+ 	model = "TI AM335x BeagleBone Black";
+@@ -34,6 +35,9 @@
  };
  
  &am33xx_pinmux {
@@ -293,5 +293,5 @@ index 305975d..3606bc6 100644
  		pinctrl-single,pins = <
  			0x1b0 0x03      /* xdma_event_intr0, OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT */
 -- 
-2.1.0
+2.1.1
 

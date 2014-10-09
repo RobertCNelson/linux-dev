@@ -86,7 +86,10 @@ tegra_next () {
 
 dts () {
 	echo "dir: dts"
-#start_cleanup
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
 	${git} "${DIR}/patches/dts/0001-ARM-dts-omap3-beagle-add-i2c2.patch"
 	${git} "${DIR}/patches/dts/0002-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
@@ -97,9 +100,11 @@ dts () {
 	${git} "${DIR}/patches/dts/0008-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0009-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
 	${git} "${DIR}/patches/dts/0010-imx-add-udoo.patch"
-	${git} "${DIR}/patches/dts/0011-ARM-sun7i-Add-support-for-Olimex-A20-OLinuXino-LIME.patch"
-#number=11
-#cleanup
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=10
+		cleanup
+	fi
 }
 
 wand () {
@@ -115,33 +120,7 @@ errata () {
 }
 
 freescale () {
-	echo "dir: freescale/ipu-v3"
-	${git} "${DIR}/patches/freescale/ipu-v3/0001-gpu-ipu-v3-Add-ipu-cpmem-unit.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0002-staging-imx-drm-Convert-to-new-ipu_cpmem-API.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0003-gpu-ipu-v3-Add-functions-to-set-CSI-IC-source-muxes.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0004-gpu-ipu-v3-Rename-and-add-IDMAC-channels.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0005-gpu-ipu-v3-Add-Camera-Sensor-Interface-unit.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0006-gpu-ipu-v3-Add-Image-Converter-unit.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0007-gpu-ipu-v3-smfc-Move-enable-disable-to-ipu-smfc.c.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0008-gpu-ipu-v3-smfc-Convert-to-per-channel.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0009-gpu-ipu-v3-smfc-Add-ipu_smfc_set_watermark.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0010-gpu-ipu-v3-Add-ipu_mbus_code_to_colorspace.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0011-gpu-ipu-v3-Add-rotation-mode-conversion-utilities.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0012-gpu-ipu-v3-Add-helper-function-checking-if-pixfmt-is.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0013-gpu-ipu-v3-Move-IDMAC-channel-names-to-imx-ipu-v3.h.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0014-gpu-ipu-v3-Add-ipu_idmac_buffer_is_ready.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0015-gpu-ipu-v3-Add-ipu_idmac_clear_buffer.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0016-gpu-ipu-v3-Add-__ipu_idmac_reset_current_buffer.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0017-gpu-ipu-v3-Add-ipu_stride_to_bytes.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0018-gpu-ipu-v3-Add-ipu_idmac_enable_watermark.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0019-gpu-ipu-v3-Add-ipu_idmac_lock_enable.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0020-gpu-ipu-cpmem-Add-ipu_cpmem_set_block_mode.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0021-gpu-ipu-cpmem-Add-ipu_cpmem_set_axi_id.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0022-gpu-ipu-cpmem-Add-ipu_cpmem_set_rotation.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0023-gpu-ipu-cpmem-Add-second-buffer-support-to-ipu_cpmem.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0024-gpu-ipu-v3-Add-more-planar-formats-support.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0025-gpu-ipu-cpmem-Add-ipu_cpmem_dump.patch"
-	${git} "${DIR}/patches/freescale/ipu-v3/0026-gpu-ipu-v3-Add-ipu_dump.patch"
+	echo "dir: freescale"
 }
 
 dtb_makefile_append () {
@@ -273,14 +252,22 @@ beaglebone () {
 	fi
 
 	echo "dir: beaglebone/dts"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
 	${git} "${DIR}/patches/beaglebone/dts/0001-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0002-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
-	${git} "${DIR}/patches/beaglebone/dts/0003-ARM-dts-am335x-bone-Fix-model-name-and-update-compat.patch"
-	${git} "${DIR}/patches/beaglebone/dts/0004-ARM-dts-am335x-boneblack-dcdc1-set-to-1.35v-for-ddr3.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0003-ARM-dts-am335x-boneblack-dcdc1-set-to-1.35v-for-ddr3.patch"
 
-	#echo "patch -p1 < \"${DIR}/patches/beaglebone/dts/0005-add-base-files.patch\""
+	#echo "patch -p1 < \"${DIR}/patches/beaglebone/dts/0004-add-base-files.patch\""
 	#exit
-	${git} "${DIR}/patches/beaglebone/dts/0005-add-base-files.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0004-add-base-files.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=4
+		cleanup
+	fi
 
 	echo "dir: beaglebone/capes"
 	${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
@@ -644,16 +631,6 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
 	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
 	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
-
-	echo "dir: beaglebone/mac"
-	#[PATCH v6 0/7] net: cpsw: Support for am335x chip MACIDs
-	${git} "${DIR}/patches/beaglebone/mac/0001-DT-doc-net-cpsw-mac-address-is-optional.patch"
-	${git} "${DIR}/patches/beaglebone/mac/0002-net-cpsw-Add-missing-return-value.patch"
-	${git} "${DIR}/patches/beaglebone/mac/0003-net-cpsw-header-Add-missing-include.patch"
-	${git} "${DIR}/patches/beaglebone/mac/0004-net-cpsw-Replace-pr_err-by-dev_err.patch"
-	${git} "${DIR}/patches/beaglebone/mac/0005-net-cpsw-Add-am33xx-MACID-readout.patch"
-	${git} "${DIR}/patches/beaglebone/mac/0006-am33xx-define-syscon-control-module-device-node.patch"
-	${git} "${DIR}/patches/beaglebone/mac/0007-arm-dts-am33xx-Add-syscon-phandle-to-cpsw-node.patch"
 }
 
 #imx_next

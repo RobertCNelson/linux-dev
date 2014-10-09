@@ -1,26 +1,26 @@
-From d5fbd25b31998436e1a4f0f5c39ef712022b1ab4 Mon Sep 17 00:00:00 2001
+From d0ae884f7879690ac99052b0e45bb1b0115fc5ba Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 16 Jul 2014 14:59:28 -0500
+Date: Thu, 9 Oct 2014 11:49:11 -0500
 Subject: [PATCH 06/10] arm: dts: omap4: move emif so panda-es-b3 now boots
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile                |  1 +
- arch/arm/boot/dts/omap4-panda-a4.dts      | 12 ++++++
+ arch/arm/boot/dts/omap4-panda-a4.dts      | 12 +++++
  arch/arm/boot/dts/omap4-panda-common.dtsi | 10 -----
- arch/arm/boot/dts/omap4-panda-es-b3.dts   | 68 +++++++++++++++++++++++++++++++
- arch/arm/boot/dts/omap4-panda-es.dts      | 12 ++++++
- arch/arm/boot/dts/omap4-panda.dts         | 12 ++++++
+ arch/arm/boot/dts/omap4-panda-es-b3.dts   | 73 +++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/omap4-panda-es.dts      | 12 +++++
+ arch/arm/boot/dts/omap4-panda.dts         | 12 +++++
  arch/arm/boot/dts/omap4-sdp.dts           |  2 +
  arch/arm/boot/dts/omap4.dtsi              |  2 +
- 8 files changed, 109 insertions(+), 10 deletions(-)
+ 8 files changed, 114 insertions(+), 10 deletions(-)
  create mode 100644 arch/arm/boot/dts/omap4-panda-es-b3.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index b8c5cd3..f6c941b 100644
+index 7c80af9..afa7a6f 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -321,6 +321,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += omap4-duovero-parlor.dtb \
+@@ -336,6 +336,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += omap4-duovero-parlor.dtb \
  	omap4-panda.dtb \
  	omap4-panda-a4.dtb \
  	omap4-panda-es.dtb \
@@ -52,10 +52,10 @@ index 133f1b7..072f0a0 100644
  &dss_hdmi_pins {
  	pinctrl-single,pins = <
 diff --git a/arch/arm/boot/dts/omap4-panda-common.dtsi b/arch/arm/boot/dts/omap4-panda-common.dtsi
-index 8cfa3c8..b8af1b4 100644
+index 1505135..5e5571f 100644
 --- a/arch/arm/boot/dts/omap4-panda-common.dtsi
 +++ b/arch/arm/boot/dts/omap4-panda-common.dtsi
-@@ -455,16 +455,6 @@
+@@ -452,16 +452,6 @@
  	cap-power-off-card;
  };
  
@@ -74,10 +74,10 @@ index 8cfa3c8..b8af1b4 100644
  	pinctrl-0 = <&mcbsp1_pins>;
 diff --git a/arch/arm/boot/dts/omap4-panda-es-b3.dts b/arch/arm/boot/dts/omap4-panda-es-b3.dts
 new file mode 100644
-index 0000000..816d1c9
+index 0000000..2f1dabc
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap4-panda-es-b3.dts
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,73 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -89,6 +89,11 @@ index 0000000..816d1c9
 +
 +#include "omap4460.dtsi"
 +#include "omap4-panda-common.dtsi"
++
++/ {
++	model = "TI OMAP4 PandaBoard-ES";
++	compatible = "ti,omap4-panda-es", "ti,omap4-panda", "ti,omap4460", "ti,omap4430", "ti,omap4";
++};
 +
 +/* Audio routing is differnet between PandaBoard4430 and PandaBoardES */
 +&sound {
@@ -147,12 +152,12 @@ index 0000000..816d1c9
 +	 ti,no-reset-on-init;
 +};
 diff --git a/arch/arm/boot/dts/omap4-panda-es.dts b/arch/arm/boot/dts/omap4-panda-es.dts
-index 816d1c9..1c90423 100644
+index 2f1dabc..206b523 100644
 --- a/arch/arm/boot/dts/omap4-panda-es.dts
 +++ b/arch/arm/boot/dts/omap4-panda-es.dts
-@@ -10,6 +10,18 @@
- #include "omap4460.dtsi"
- #include "omap4-panda-common.dtsi"
+@@ -15,6 +15,18 @@
+ 	compatible = "ti,omap4-panda-es", "ti,omap4-panda", "ti,omap4460", "ti,omap4430", "ti,omap4";
+ };
  
 +&emif1 {
 +	cs1-used;
@@ -170,13 +175,13 @@ index 816d1c9..1c90423 100644
  &sound {
  	ti,model = "PandaBoardES";
 diff --git a/arch/arm/boot/dts/omap4-panda.dts b/arch/arm/boot/dts/omap4-panda.dts
-index 6189a8b..f9057c1 100644
+index a0e28b2..3ee41ef 100644
 --- a/arch/arm/boot/dts/omap4-panda.dts
 +++ b/arch/arm/boot/dts/omap4-panda.dts
-@@ -9,3 +9,15 @@
- 
- #include "omap443x.dtsi"
- #include "omap4-panda-common.dtsi"
+@@ -14,3 +14,15 @@
+ 	model = "TI OMAP4 PandaBoard";
+ 	compatible = "ti,omap4-panda", "ti,omap4430", "ti,omap4";
+ };
 +
 +&emif1 {
 +	cs1-used;
@@ -208,10 +213,10 @@ index 3e1da43..d3466ef 100644
  
  &keypad {
 diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index 69408b5..693e17d 100644
+index 878c979..7b5270a 100644
 --- a/arch/arm/boot/dts/omap4.dtsi
 +++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -618,6 +618,7 @@
+@@ -625,6 +625,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
@@ -219,7 +224,7 @@ index 69408b5..693e17d 100644
  		};
  
  		emif2: emif@4d000000 {
-@@ -630,6 +631,7 @@
+@@ -637,6 +638,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
@@ -228,5 +233,5 @@ index 69408b5..693e17d 100644
  
  		ocp2scp@4a0ad000 {
 -- 
-2.1.0.rc1
+2.1.1
 
