@@ -1,6 +1,6 @@
-From bb09c1693122ddb3a17aa452610d6e6d87d7e2aa Mon Sep 17 00:00:00 2001
+From 7cd35a41ed2f8b168b2ed08861732a18affd9bf6 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 5 Aug 2014 09:52:42 -0500
+Date: Fri, 10 Oct 2014 09:33:55 -0500
 Subject: [PATCH 07/10] mach-imx51: disable cpufreq, still locks up
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -9,15 +9,15 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mach-imx/mach-imx51.c b/arch/arm/mach-imx/mach-imx51.c
-index c77deb3..43d2180 100644
+index 2c5fcaf..3e0bc9e 100644
 --- a/arch/arm/mach-imx/mach-imx51.c
 +++ b/arch/arm/mach-imx/mach-imx51.c
 @@ -51,14 +51,14 @@ static void __init imx51_ipu_mipi_setup(void)
  
  static void __init imx51_dt_init(void)
  {
--	struct platform_device_info devinfo = { .name = "cpufreq-cpu0", };
-+	//struct platform_device_info devinfo = { .name = "cpufreq-cpu0", };
+-	struct platform_device_info devinfo = { .name = "cpufreq-dt", };
++	//struct platform_device_info devinfo = { .name = "cpufreq-dt", };
  
  	mxc_arch_reset_init_dt();
  	imx51_ipu_mipi_setup();
