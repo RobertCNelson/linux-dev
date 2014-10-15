@@ -100,9 +100,10 @@ dts () {
 	${git} "${DIR}/patches/dts/0008-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0009-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
 	${git} "${DIR}/patches/dts/0010-imx-add-udoo.patch"
+	${git} "${DIR}/patches/dts/0011-ARM-sun7i-add-support-for-A20-OLinuXino-Lime2.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=10
+		number=11
 		cleanup
 	fi
 }
@@ -121,6 +122,11 @@ errata () {
 
 freescale () {
 	echo "dir: freescale"
+}
+
+fixes () {
+	echo "dir: fixes" 
+	${git} "${DIR}/patches/fixes/0001-clk-fix-extra-clk_gpio.patch"
 }
 
 dtb_makefile_append () {
@@ -641,6 +647,7 @@ dts
 wand
 errata
 #freescale
+fixes
 
 beaglebone
 
