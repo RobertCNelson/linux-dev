@@ -125,8 +125,8 @@ freescale () {
 }
 
 fixes () {
-	echo "dir: fixes" 
-	${git} "${DIR}/patches/fixes/0001-clk-fix-extra-clk_gpio.patch"
+	echo "dir: fixes"
+#	${git} "${DIR}/patches/fixes/0001-clk-fix-extra-clk_gpio.patch"
 }
 
 dtb_makefile_append () {
@@ -178,6 +178,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/hdmi_audio/0003-ASoC-davinci-evm-HDMI-audio-support-for-TDA998x-trou.patch"
 	${git} "${DIR}/patches/beaglebone/hdmi_audio/0004-ASoC-davinci-HDMI-audio-build-for-AM33XX-and-TDA998x.patch"
 	${git} "${DIR}/patches/beaglebone/hdmi_audio/0005-ARM-dts-am33xx-Add-external-clock-provider.patch"
+	${git} "${DIR}/patches/fixes/0001-clk-fix-extra-clk_gpio.patch"
 
 	echo "dir: beaglebone/pinmux-helper"
 	#regenerate="enable"
