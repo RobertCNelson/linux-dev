@@ -468,6 +468,8 @@ check_config_disable
 #
 config="CONFIG_MTD_LPDDR2_NVM"
 check_config_module
+config="CONFIG_MTD_SPI_NOR_USE_4K_SECTORS"
+check_config_builtin
 config="CONFIG_SPI_FSL_QUADSPI"
 check_config_module
 
@@ -745,6 +747,8 @@ check_config_module
 #exit
 
 config="CONFIG_TOUCHSCREEN_AD7879_SPI"
+check_config_module
+config="CONFIG_TOUCHSCREEN_AR1021_I2C"
 check_config_module
 config="CONFIG_TOUCHSCREEN_AUO_PIXCIR"
 check_config_module
