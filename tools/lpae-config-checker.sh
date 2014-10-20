@@ -120,12 +120,6 @@ config="CONFIG_ARM_ERRATA_430973"
 check_config_disable
 
 #
-# ARM CPU frequency scaling drivers
-#
-config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
-check_config_disable
-
-#
 # Argus cape driver for beaglebone black
 #
 config="CONFIG_CAPE_BONE_ARGUS"

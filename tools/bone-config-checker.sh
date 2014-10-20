@@ -132,12 +132,6 @@ config="CONFIG_THUMB2_KERNEL"
 check_config_builtin
 
 #
-# ARM CPU frequency scaling drivers
-#
-config="CONFIG_ARM_OMAP2PLUS_CPUFREQ"
-check_config_disable
-
-#
 # Non-8250 serial port support
 #
 config="CONFIG_SERIAL_FSL_LPUART"
@@ -317,8 +311,6 @@ check_config_builtin
 # Graphics support
 #
 config="CONFIG_GPU_VIVANTE_V4"
-check_config_disable
-config="CONFIG_IMX_IPUV3_CORE"
 check_config_disable
 
 #
