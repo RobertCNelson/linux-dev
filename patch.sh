@@ -266,13 +266,14 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/dts/0001-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0002-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0003-ARM-dts-am335x-boneblack-dcdc1-set-to-1.35v-for-ddr3.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0004-ARM-dts-am335x-boneblack-enable-power-off-and-rtc-wa.patch"
 
 	#echo "patch -p1 < \"${DIR}/patches/beaglebone/dts/0004-add-base-files.patch\""
 	#exit
 	${git} "${DIR}/patches/beaglebone/dts/0004-add-base-files.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=5
 		cleanup
 	fi
 
@@ -638,6 +639,28 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
 	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
 	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
+
+	echo "dir: beaglebone/rtc"
+	#v2
+	${git} "${DIR}/patches/beaglebone/rtc/0001-rtc-omap-fix-clock-source-configuration.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0002-rtc-omap-fix-missing-wakealarm-attribute.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0003-rtc-omap-fix-interrupt-disable-at-probe.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0004-rtc-omap-clean-up-probe-error-handling.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0005-rtc-omap-fix-class-device-registration.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0006-rtc-omap-remove-unused-register-base-define.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0007-rtc-omap-use-dev_info.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0008-rtc-omap-make-platform-device-id-table-const.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0009-rtc-omap-add-device-abstraction.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0010-rtc-omap-remove-DRIVER_NAME-macro.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0011-rtc-omap-add-structured-device-type-info.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0012-rtc-omap-silence-bogus-power-up-reset-message-at-pro.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0013-rtc-omap-add-helper-to-read-raw-bcd-time.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0014-rtc-omap-add-helper-to-read-32-bit-registers.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0015-rtc-omap-add-support-for-pmic_power_en.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0016-rtc-omap-enable-wake-up-from-power-off.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0017-rtc-omap-fix-minor-coding-style-issues.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0018-rtc-omap-add-copyright-entry.patch"
+	${git} "${DIR}/patches/beaglebone/rtc/0019-ARM-dts-am33xx-update-rtc-node-compatible-property.patch"
 }
 
 #imx_next

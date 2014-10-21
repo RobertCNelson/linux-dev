@@ -1,0 +1,37 @@
+From dae4b7792965d1da2ad0d706014b2916214904d5 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Tue, 21 Oct 2014 19:38:02 +0200
+Subject: [PATCH 16/19] rtc: omap: enable wake-up from power off
+
+The ALARM interrupt must not be disabled during shutdown in order to be
+able to power up the system using an RTC alarm.
+
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/rtc/rtc-omap.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index f6c93f8..cb5ef3c 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -687,8 +687,15 @@ static SIMPLE_DEV_PM_OPS(omap_rtc_pm_ops, omap_rtc_suspend, omap_rtc_resume);
+ static void omap_rtc_shutdown(struct platform_device *pdev)
+ {
+ 	struct omap_rtc *rtc = platform_get_drvdata(pdev);
++	u8 mask;
+ 
+-	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, 0);
++	/*
++	 * Keep the ALARM interrupt enabled to allow the system to power up on
++	 * alarm events.
++	 */
++	mask = rtc_read(rtc, OMAP_RTC_INTERRUPTS_REG);
++	mask &= OMAP_RTC_INTERRUPTS_IT_ALARM;
++	rtc_write(rtc, OMAP_RTC_INTERRUPTS_REG, mask);
+ }
+ 
+ static struct platform_driver omap_rtc_driver = {
+-- 
+2.1.1
+

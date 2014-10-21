@@ -1,0 +1,40 @@
+From 575679090e49c443f4b45b1b907b87c89f3f5441 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Tue, 21 Oct 2014 19:37:47 +0200
+Subject: [PATCH 01/19] rtc: omap: fix clock-source configuration
+
+Make sure not to reset the clock-source configuration when enabling the
+32kHz clock mux.
+
+Until the clock source can be configured through device tree we must not
+overwrite settings made by the bootloader (e.g. clock-source selection).
+
+Fixes: cd914bba03d8 ("drivers/rtc/rtc-omap.c: add support for enabling
+32khz clock")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/rtc/rtc-omap.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 21142e6..f842c21 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -431,8 +431,10 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+ 	rtc_write(0, OMAP_RTC_INTERRUPTS_REG);
+ 
+ 	/* enable RTC functional clock */
+-	if (id_entry->driver_data & OMAP_RTC_HAS_32KCLK_EN)
+-		rtc_writel(OMAP_RTC_OSC_32KCLK_EN, OMAP_RTC_OSC_REG);
++	if (id_entry->driver_data & OMAP_RTC_HAS_32KCLK_EN) {
++		reg = rtc_read(OMAP_RTC_OSC_REG);
++		rtc_writel(reg | OMAP_RTC_OSC_32KCLK_EN, OMAP_RTC_OSC_REG);
++	}
+ 
+ 	/* clear old status */
+ 	reg = rtc_read(OMAP_RTC_STATUS_REG);
+-- 
+2.1.1
+

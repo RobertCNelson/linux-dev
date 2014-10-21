@@ -1,0 +1,91 @@
+From 05e8a96d32fb6d46515755c853a1e302bf389bc7 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Tue, 21 Oct 2014 19:37:51 +0200
+Subject: [PATCH 05/19] rtc: omap: fix class-device registration
+
+Make sure not to register the class device until after the device has
+been configured.
+
+Currently, the device is not fully configured (e.g. 24-hour mode) when
+the class device is registered, something which involves driver
+callbacks for example to read the current time.
+
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/rtc/rtc-omap.c | 46 +++++++++++++++++++++++-----------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 6b10db5..813bed2 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -413,16 +413,6 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+ 		rtc_writel(KICK1_VALUE, OMAP_RTC_KICK1_REG);
+ 	}
+ 
+-	device_init_wakeup(&pdev->dev, true);
+-
+-	rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-			&omap_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc)) {
+-		ret = PTR_ERR(rtc);
+-		goto err;
+-	}
+-	platform_set_drvdata(pdev, rtc);
+-
+ 	/*
+ 	 * disable interrupts
+ 	 *
+@@ -446,19 +436,6 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+ 	if (reg & (u8) OMAP_RTC_STATUS_ALARM)
+ 		rtc_write(OMAP_RTC_STATUS_ALARM, OMAP_RTC_STATUS_REG);
+ 
+-	/* handle periodic and alarm irqs */
+-	ret = devm_request_irq(&pdev->dev, omap_rtc_timer, rtc_irq, 0,
+-			dev_name(&rtc->dev), rtc);
+-	if (ret)
+-		goto err;
+-
+-	if (omap_rtc_timer != omap_rtc_alarm) {
+-		ret = devm_request_irq(&pdev->dev, omap_rtc_alarm, rtc_irq, 0,
+-				dev_name(&rtc->dev), rtc);
+-		if (ret)
+-			goto err;
+-	}
+-
+ 	/* On boards with split power, RTC_ON_NOFF won't reset the RTC */
+ 	reg = rtc_read(OMAP_RTC_CTRL_REG);
+ 	if (reg & (u8) OMAP_RTC_CTRL_STOP)
+@@ -488,6 +465,29 @@ static int __init omap_rtc_probe(struct platform_device *pdev)
+ 	if (reg != new_ctrl)
+ 		rtc_write(new_ctrl, OMAP_RTC_CTRL_REG);
+ 
++	device_init_wakeup(&pdev->dev, true);
++
++	rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
++			&omap_rtc_ops, THIS_MODULE);
++	if (IS_ERR(rtc)) {
++		ret = PTR_ERR(rtc);
++		goto err;
++	}
++	platform_set_drvdata(pdev, rtc);
++
++	/* handle periodic and alarm irqs */
++	ret = devm_request_irq(&pdev->dev, omap_rtc_timer, rtc_irq, 0,
++			dev_name(&rtc->dev), rtc);
++	if (ret)
++		goto err;
++
++	if (omap_rtc_timer != omap_rtc_alarm) {
++		ret = devm_request_irq(&pdev->dev, omap_rtc_alarm, rtc_irq, 0,
++				dev_name(&rtc->dev), rtc);
++		if (ret)
++			goto err;
++	}
++
+ 	return 0;
+ 
+ err:
+-- 
+2.1.1
+
