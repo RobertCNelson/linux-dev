@@ -67,6 +67,35 @@ local_patch () {
 #external_git
 #local_patch
 
+x15 () {
+	echo "dir: x15"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		#start_cleanup
+		git checkout v3.18-rc2 -b tmp
+		git pull --no-edit https://github.com/nmenon/linux-2.6-playground.git upstream/v3.18/x15
+		git format-patch -4 -o "${DIR}/patches/x15/"
+		git checkout master -f
+		git branch -D tmp
+		exit
+	fi
+
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/x15/0001-omap2plus_defconfig-enable-the-usual-drivers.patch"
+	${git} "${DIR}/patches/x15/0002-ARM-dts-Add-am57xx-beagle-x15.patch"
+	${git} "${DIR}/patches/x15/0003-ARM-dts-dra7-Add-CPSW-and-MDIO-module-nodes-for-dra7.patch"
+	${git} "${DIR}/patches/x15/0004-ARM-dts-am57xx-beagle-x15-Add-dual-ethernet.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=4
+		cleanup
+	fi
+}
+
 imx_next () {
 	echo "dir: imx_next"
 	#From: https://git.kernel.org/cgit/linux/kernel/git/shawnguo/linux.git/
@@ -663,6 +692,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/rtc/0019-ARM-dts-am33xx-update-rtc-node-compatible-property.patch"
 }
 
+x15
 #imx_next
 #omap_next
 #tegra_next
