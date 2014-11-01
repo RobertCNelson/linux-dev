@@ -1,0 +1,62 @@
+From eb8a5290b33732d6bf0139c439d2fcb27a2314bb Mon Sep 17 00:00:00 2001
+From: Felipe Balbi <balbi@ti.com>
+Date: Thu, 30 Oct 2014 13:34:32 -0500
+Subject: [PATCH 10/10] ARM: dts: beagle_x15: add missing extcon for USB gadget
+
+Without that USB gadget extcon, omap-dwc3 (the
+wrapper IP) will never tell dwc3 (the actual
+USB IP) that it's time to connect to the host.
+
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+---
+ arch/arm/boot/dts/am57xx-beagle-x15.dts | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15.dts b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+index 4fe8d80..443fde0 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+@@ -47,6 +47,15 @@
+ 		gpio = <&gpio7 11 GPIO_ACTIVE_HIGH>;
+ 	};
+ 
++	extcon: extcon {
++		compatible = "linux,extcon-gpio";
++		pinctrl-names = "default";
++		pinctrl-0 = <&extcon_pins_default>;
++
++		gpios = <&gpio7 24 GPIO_ACTIVE_HIGH>;
++		cable-name = "USB-HOST";
++	};
++
+ 	leds {
+ 		compatible = "gpio-leds";
+ 		pinctrl-names = "default";
+@@ -249,6 +258,13 @@
+ 			0x284 (PIN_INPUT_SLEW | MUX_MODE0) /* usb2_drvvbus */
+ 		>;
+ 	};
++
++	extcon_pins_default:  extcon_pins_default {
++		pinctrl-single,pins = <
++			0x3e8 (PIN_INPUT | MUX_MODE14) /* uart1_ctsn.gpio7_24 */
++		>;
++	};
++
+ };
+ 
+ &i2c1 {
+@@ -511,6 +527,10 @@
+ 	pinctrl-0 = <&usb1_pins>;
+ };
+ 
++&omap_dwc3_2 {
++	extcon = <&extcon>;
++};
++
+ &usb2_phy2 {
+ 	phy-supply = <&ldousb_reg>;
+ };
+-- 
+2.1.1
+

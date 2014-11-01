@@ -1,0 +1,59 @@
+From 2c683fe0de00d3a3c0bfe78c184db5ac71991f32 Mon Sep 17 00:00:00 2001
+From: George Cherian <george.cherian@ti.com>
+Date: Thu, 30 Oct 2014 13:34:29 -0500
+Subject: [PATCH 08/10] extcon: gpio: Add support for using cable names
+
+Add support for using cable names. Enables other drivers to register interest
+and get notified using extcon provided notifier call backs.
+
+Signed-off-by: George Cherian <george.cherian@ti.com>
+Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+---
+ Documentation/devicetree/bindings/extcon/extcon-gpio.txt | 2 ++
+ drivers/extcon/extcon-gpio.c                             | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/extcon/extcon-gpio.txt b/Documentation/devicetree/bindings/extcon/extcon-gpio.txt
+index 5fe6846..f19aeb4 100644
+--- a/Documentation/devicetree/bindings/extcon/extcon-gpio.txt
++++ b/Documentation/devicetree/bindings/extcon/extcon-gpio.txt
+@@ -7,6 +7,7 @@ Required Properties:
+  - compatible: should be:
+    * "linux,extcon-gpio"
+  - gpios: specifies the gpio pin used.
++ - cable-name: Name of the cable used.
+ 
+ Optional Properties:
+  - debounce: Debounce time for GPIO IRQ in ms
+@@ -18,4 +19,5 @@ Eg:
+ 		compatible = "linux,extcon-gpio";
+ 		gpios = <&gpio3 12 GPIO_ACTIVE_HIGH>;
+ 		debounce = <20>;
++		cable-name = "USB-HOST";
+ 	};
+diff --git a/drivers/extcon/extcon-gpio.c b/drivers/extcon/extcon-gpio.c
+index 7191d28..cbe35af 100644
+--- a/drivers/extcon/extcon-gpio.c
++++ b/drivers/extcon/extcon-gpio.c
+@@ -42,6 +42,7 @@ struct gpio_extcon_data {
+ 	struct delayed_work work;
+ 	unsigned long debounce_jiffies;
+ 	bool check_on_resume;
++	const char *cable_name[1];
+ };
+ 
+ static void gpio_extcon_work(struct work_struct *work)
+@@ -112,6 +113,9 @@ static int gpio_extcon_probe(struct platform_device *pdev)
+ 		of_property_read_u32(np, "debounce", &debounce);
+ 		irq = gpiod_to_irq(extcon_data->gpiod);
+ 		irq_flags = irq_get_trigger_type(irq);
++		of_property_read_string_index(np, "cable-name", 0,
++					      extcon_data->cable_name);
++		extcon_data->edev->supported_cable = extcon_data->cable_name;
+ 	} else {
+ 		if (!pdata)
+ 			return -EBUSY;
+-- 
+2.1.1
+

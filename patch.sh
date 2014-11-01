@@ -74,7 +74,7 @@ x15 () {
 		#start_cleanup
 		git checkout v3.18-rc2 -b tmp
 		git pull --no-edit https://github.com/nmenon/linux-2.6-playground.git upstream/v3.18/x15
-		git format-patch -4 -o "${DIR}/patches/x15/"
+		git format-patch -10 -o "${DIR}/patches/x15/"
 		git checkout master -f
 		git branch -D tmp
 		exit
@@ -89,9 +89,15 @@ x15 () {
 	${git} "${DIR}/patches/x15/0002-ARM-dts-Add-am57xx-beagle-x15.patch"
 	${git} "${DIR}/patches/x15/0003-ARM-dts-dra7-Add-CPSW-and-MDIO-module-nodes-for-dra7.patch"
 	${git} "${DIR}/patches/x15/0004-ARM-dts-am57xx-beagle-x15-Add-dual-ethernet.patch"
+	${git} "${DIR}/patches/x15/0005-extcon-gpio-Convert-the-driver-to-use-gpio-desc-API-.patch"
+	${git} "${DIR}/patches/x15/0006-extcon-gpio-Add-dt-support-for-the-driver.patch"
+	${git} "${DIR}/patches/x15/0007-extcon-gpio-Always-use-gpio_get_value_cansleep.patch"
+	${git} "${DIR}/patches/x15/0008-extcon-gpio-Add-support-for-using-cable-names.patch"
+	${git} "${DIR}/patches/x15/0009-ARM-dts-dra7-Add-labels-to-DWC3-nodes.patch"
+	${git} "${DIR}/patches/x15/0010-ARM-dts-beagle_x15-add-missing-extcon-for-USB-gadget.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=10
 		cleanup
 	fi
 }

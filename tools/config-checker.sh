@@ -2113,6 +2113,17 @@ check_config_builtin
 #
 # DEVFREQ Drivers
 #
+config="CONFIG_EXTCON"
+check_config_builtin
+
+#
+# Extcon Device Drivers
+#
+config="CONFIG_EXTCON_GPIO"
+check_config_builtin
+config="CONFIG_EXTCON_PALMAS"
+check_config_builtin
+
 config="CONFIG_MEMORY"
 check_config_builtin
 config="CONFIG_TI_EMIF"

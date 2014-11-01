@@ -1,0 +1,32 @@
+From 206e0a8b3dc813638aaeeba755718bd32fd64af7 Mon Sep 17 00:00:00 2001
+From: George Cherian <george.cherian@ti.com>
+Date: Thu, 30 Oct 2014 13:34:28 -0500
+Subject: [PATCH 07/10] extcon: gpio: Always use gpio_get_value_cansleep
+
+Some gpio's can sleep while reading, so always use gpio_get_value_cansleep
+to get data. This fixes warning from gpiolib due to wrong API usage.
+
+Reviewed-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: George Cherian <george.cherian@ti.com>
+Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+---
+ drivers/extcon/extcon-gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/extcon/extcon-gpio.c b/drivers/extcon/extcon-gpio.c
+index 9571e1f..7191d28 100644
+--- a/drivers/extcon/extcon-gpio.c
++++ b/drivers/extcon/extcon-gpio.c
+@@ -51,7 +51,7 @@ static void gpio_extcon_work(struct work_struct *work)
+ 		container_of(to_delayed_work(work), struct gpio_extcon_data,
+ 			     work);
+ 
+-	state = gpiod_get_value(data->gpiod);
++	state = gpiod_get_value_cansleep(data->gpiod);
+ 	extcon_set_state(data->edev, state);
+ }
+ 
+-- 
+2.1.1
+
