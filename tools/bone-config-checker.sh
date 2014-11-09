@@ -156,6 +156,13 @@ config="CONFIG_DA9052_WATCHDOG"
 check_config_disable
 
 #
+# Miscellaneous USB options
+#
+#http://bugs.elinux.org/issues/127
+config="CONFIG_USB_OTG"
+check_config_disable
+
+#
 # USB Imaging devices
 #
 config="CONFIG_USB_MUSB_TUSB6010"
@@ -244,8 +251,6 @@ config="CONFIG_USB_CONFIGFS_F_FS"
 check_config_disable
 config="CONFIG_USB_ZERO"
 check_config_module
-config="CONFIG_USB_ZERO_HNPTEST"
-check_config_builtin
 config="CONFIG_USB_AUDIO"
 check_config_module
 config="CONFIG_GADGET_UAC1"

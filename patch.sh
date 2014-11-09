@@ -302,6 +302,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/dts/0002-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0003-ARM-dts-am335x-boneblack-dcdc1-set-to-1.35v-for-ddr3.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0004-ARM-dts-am335x-boneblack-enable-power-off-and-rtc-wa.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0005-bbb-force-usb0-to-perhiperal-mode-fixes-http-bugs.el.patch"
 
 	#echo "patch -p1 < \"${DIR}/patches/beaglebone/dts/0004-add-base-files.patch\""
 	#exit
