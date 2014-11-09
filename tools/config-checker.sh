@@ -486,6 +486,8 @@ check_config_builtin
 #
 config="CONFIG_EEPROM_AT24"
 check_config_builtin
+config="CONFIG_EEPROM_AT25"
+check_config_builtin
 config="CONFIG_EEPROM_93XX46"
 check_config_module
 config="CONFIG_EEPROM_SUNXI_SID"
