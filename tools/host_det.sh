@@ -255,6 +255,7 @@ debian_regs () {
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/oldreleases.php
 		#http://packages.linuxmint.com/index.php
+		#http://mirrors.kernel.org/linuxmint-packages/dists/
 		case "${deb_distro}" in
 		debian)
 			deb_distro="jessie"
@@ -286,6 +287,22 @@ debian_regs () {
 		qiana)
 			deb_distro="trusty"
 			;;
+		rebecca)
+			#http://blog.linuxmint.com/?p=2688
+			deb_distro="trusty"
+			;;
+		esac
+
+		#Future Debian Code names:
+		case "${deb_distro}" in
+		stretch)
+			#Debian 9
+			deb_distro="sid"
+			;;
+		buster)
+			#Debian 10
+			deb_distro="sid"
+			;;
 		esac
 
 		#https://wiki.ubuntu.com/Releases
@@ -294,8 +311,9 @@ debian_regs () {
 		squeeze|wheezy|jessie|sid)
 			unset warn_eol_distro
 			;;
-		utopic)
-			#14.10 (EOL: xyz)
+		utopic|vivid)
+			#14.10 (EOL: June 2015)
+			#15.04 (EOL: January 2016)
 			unset warn_eol_distro
 			;;
 		trusty)
