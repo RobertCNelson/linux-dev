@@ -105,6 +105,8 @@ config="CONFIG_SYSCTL_SYSCALL"
 check_config_builtin
 config="CONFIG_KALLSYMS_ALL"
 check_config_builtin
+config="CONFIG_BPF_SYSCALL"
+check_config_builtin
 config="CONFIG_EMBEDDED"
 check_config_builtin
 
@@ -557,6 +559,8 @@ check_config_builtin
 #
 # Generic fallback / legacy drivers
 #
+config="CONFIG_TCM_USER"
+check_config_module
 config="CONFIG_MII"
 check_config_builtin
 
@@ -944,8 +948,6 @@ config="CONFIG_GPIO_MAX7300"
 check_config_module
 config="CONFIG_GPIO_MAX732X"
 check_config_module
-config="CONFIG_GPIO_PCA953X"
-check_config_module
 config="CONFIG_GPIO_PCF857X"
 check_config_module
 config="CONFIG_GPIO_SX150X"
@@ -1056,8 +1058,6 @@ config="CONFIG_SENSORS_GL518SM"
 check_config_module
 config="CONFIG_SENSORS_GL520SM"
 check_config_module
-config="CONFIG_SENSORS_G762"
-check_config_module
 config="CONFIG_SENSORS_GPIO_FAN"
 check_config_module
 config="CONFIG_SENSORS_HIH6130"
@@ -1167,6 +1167,8 @@ config="CONFIG_SENSORS_W83L785TS"
 check_config_module
 config="CONFIG_SENSORS_W83627HF"
 check_config_module
+config="CONFIG_THERMAL_GOV_BANG_BANG"
+check_config_builtin
 config="CONFIG_IMX_THERMAL"
 check_config_builtin
 
@@ -1663,6 +1665,13 @@ config="CONFIG_USB_LED_TRIG"
 check_config_builtin
 
 #
+# MMC/SD/SDIO Card Drivers
+#
+config="CONFIG_MMC_BLOCK_MINORS"
+value="8"
+check_config_value
+
+#
 # MMC/SD/SDIO Host Controller Drivers
 #
 config="CONFIG_MMC_SDHCI"
@@ -1704,8 +1713,6 @@ check_config_module
 config="CONFIG_LEDS_LP8501"
 check_config_module
 config="CONFIG_LEDS_PCA963X"
-check_config_module
-config="CONFIG_LEDS_PWM"
 check_config_module
 config="CONFIG_LEDS_TCA6507"
 check_config_module
@@ -1749,8 +1756,6 @@ config="CONFIG_RTC_DRV_ISL1208"
 check_config_module
 config="CONFIG_RTC_DRV_ISL12022"
 check_config_module
-config="CONFIG_RTC_DRV_ISL12057"
-check_config_module
 config="CONFIG_RTC_DRV_X1205"
 check_config_module
 config="CONFIG_RTC_DRV_PALMAS"
@@ -1771,8 +1776,6 @@ config="CONFIG_RTC_DRV_M41T80_WDT"
 check_config_builtin
 config="CONFIG_RTC_DRV_BQ32K"
 check_config_module
-config="CONFIG_RTC_DRV_TWL4030"
-check_config_module
 config="CONFIG_RTC_DRV_TPS65910"
 check_config_module
 config="CONFIG_RTC_DRV_S35390A"
@@ -1786,8 +1789,6 @@ check_config_module
 config="CONFIG_RTC_DRV_EM3027"
 check_config_module
 config="CONFIG_RTC_DRV_RV3029C2"
-check_config_module
-config="CONFIG_RTC_DRV_S5M"
 check_config_module
 
 #
@@ -1860,8 +1861,6 @@ check_config_module
 config="CONFIG_RTC_DRV_SUN6I"
 check_config_module
 config="CONFIG_RTC_DRV_TEGRA"
-check_config_module
-config="CONFIG_RTC_DRV_SNVS"
 check_config_module
 
 #
@@ -2186,8 +2185,6 @@ config="CONFIG_TI_ADC081C"
 check_config_module
 config="CONFIG_TI_ADC128S052"
 check_config_module
-config="CONFIG_TWL4030_MADC"
-check_config_module
 config="CONFIG_TWL6030_GPADC"
 check_config_module
 config="CONFIG_VF610_ADC"
@@ -2425,6 +2422,8 @@ check_config_builtin
 config="CONFIG_AUTOFS4_FS"
 check_config_builtin
 config="CONFIG_FUSE_FS"
+check_config_builtin
+config="CONFIG_OVERLAYFS_FS"
 check_config_builtin
 
 #
