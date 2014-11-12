@@ -161,6 +161,7 @@ freescale () {
 
 fixes () {
 	echo "dir: fixes"
+	${git} "${DIR}/patches/fixes/0001-trusty-gcc-4.8-4.8.2-19ubuntu1-has-fix.patch"
 #	${git} "${DIR}/patches/fixes/0001-clk-fix-extra-clk_gpio.patch"
 }
 
