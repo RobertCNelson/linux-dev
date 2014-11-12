@@ -230,9 +230,10 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux-helper/0007-beaglebone-added-expansion-header-to-dtb.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux-helper/0008-bone-pinmux-helper-Add-support-for-mode-device-tree-.patch"
 	${git} "${DIR}/patches/beaglebone/pinmux-helper/0009-pinmux-helper-add-P8_37_pinmux-P8_38_pinmux.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0010-Remove-CONFIG_EXPERIMENTAL-dependency-on-CONFIG_GPIO.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=9
+		number=10
 		cleanup
 	fi
 
