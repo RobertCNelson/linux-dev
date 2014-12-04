@@ -2,6 +2,7 @@
 
 DIR=$PWD
 repo="https://github.com/RobertCNelson/linux/commit"
+compare="https://github.com/RobertCNelson/linux/compare/torvalds:"
 
 if [ -e ${DIR}/version.sh ]; then
 	unset BRANCH
@@ -12,7 +13,7 @@ if [ -e ${DIR}/version.sh ]; then
 		BRANCH="master"
 	fi
 
-	git commit -a -m "merge to: ${repo}/${KERNEL_SHA}" -s
+	git commit -a -m "merge to: ${repo}/${KERNEL_SHA}" -m "Compare: ${compare}${prev_KERNEL_SHA}...${KERNEL_SHA}" -s
 	git push origin ${BRANCH}
 fi
 
