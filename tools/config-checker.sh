@@ -593,6 +593,8 @@ config="CONFIG_TI_DAVINCI_CPDMA"
 check_config_builtin
 config="CONFIG_TI_CPSW"
 check_config_builtin
+config="CONFIG_TI_CPTS"
+check_config_builtin
 config="CONFIG_VIA_VELOCITY"
 check_config_disable
 
@@ -2423,7 +2425,7 @@ config="CONFIG_AUTOFS4_FS"
 check_config_builtin
 config="CONFIG_FUSE_FS"
 check_config_builtin
-config="CONFIG_OVERLAYFS_FS"
+config="CONFIG_OVERLAY_FS"
 check_config_builtin
 
 #
