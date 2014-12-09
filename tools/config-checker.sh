@@ -1568,6 +1568,8 @@ config="CONFIG_HID_LENOVO"
 check_config_module
 config="CONFIG_HID_PENMOUNT"
 check_config_module
+config="CONFIG_HID_LOGITECH_DJ"
+check_config_builtin
 
 #
 # Miscellaneous USB options
