@@ -1449,6 +1449,8 @@ check_config_disable
 #
 # Frame buffer hardware drivers
 #
+config="CONFIG_FB_SIMPLE"
+check_config_builtin
 config="CONFIG_FB_MX3"
 check_config_disable
 config="CONFIG_OMAP2_DSS"
