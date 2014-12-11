@@ -713,7 +713,7 @@ errata
 #freescale
 fixes
 
-beaglebone
+#beaglebone
 
 packaging_setup () {
 	cp -v "${DIR}/3rdparty/packaging/builddeb" "${DIR}/KERNEL/scripts/package"
