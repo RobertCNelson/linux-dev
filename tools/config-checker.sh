@@ -358,6 +358,21 @@ config="CONFIG_HSR"
 check_config_module
 
 #
+# CAN Device Drivers
+#
+
+config="CONFIG_CAN_C_CAN"
+check_config_module
+config="CONFIG_CAN_C_CAN_PLATFORM"
+check_config_module
+
+#
+# CAN SPI interfaces
+#
+config="CONFIG_CAN_MCP251X"
+check_config_module
+
+#
 # Bluetooth device drivers
 #
 config="CONFIG_BT_HCIUART"
