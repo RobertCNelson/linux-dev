@@ -92,4 +92,11 @@ check_config_builtin
 config="CONFIG_HID_LOGITECH_DJ"
 check_config_builtin
 
+#Can: make sure these are included
+config="CONFIG_CAN_C_CAN"
+check_config_module
+config="CONFIG_CAN_C_CAN_PLATFORM"
+check_config_module
+
+
 #
