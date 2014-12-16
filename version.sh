@@ -27,7 +27,7 @@ toolchain="gcc_linaro_gnueabihf_4_9"
 #Kernel/Build
 KERNEL_REL=3.18
 KERNEL_TAG=${KERNEL_REL}
-BUILD=armv7-devel-r14
+BUILD=armv7-devel-r15
 
 #v3.X-rcX + upto SHA
 prev_KERNEL_SHA="988adfdffdd43cfd841df734664727993076d7cb"
