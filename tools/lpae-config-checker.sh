@@ -83,6 +83,43 @@ check_if_set_then_disable () {
 	fi
 }
 
+#http://anonscm.debian.org/viewvc/kernel/dists/trunk/linux/debian/config/armhf/config.lpae?view=markup
+
+##
+## file: arch/arm/Kconfig
+##
+CONFIG_ARM_DMA_IOMMU_ALIGNMENT=8
+
+##
+## file: arch/arm/kvm/Kconfig
+##
+CONFIG_VIRTUALIZATION=y
+CONFIG_KVM=y
+
+##
+## file: arch/arm/mm/Kconfig
+##
+CONFIG_ARM_LPAE=y
+
+##
+## file: drivers/iommu/Kconfig
+##
+CONFIG_ARM_SMMU=y
+
+config="CONFIG_ARM_DMA_IOMMU_ALIGNMENT"
+value="8"
+check_config_value
+config="CONFIG_VIRTUALIZATION"
+check_config_builtin
+config="CONFIG_KVM"
+check_config_builtin
+config="CONFIG_ARM_LPAE"
+check_config_builtin
+config="CONFIG_ARM_SMMU"
+check_config_builtin
+
+###############
+
 #
 # CPU Core family selection
 #
@@ -112,10 +149,6 @@ check_config_disable
 #
 # Processor Features
 #
-config="CONFIG_ARM_LPAE"
-check_config_builtin
-config="CONFIG_ARCH_PHYS_ADDR_T_64BIT"
-check_config_builtin
 config="CONFIG_ARM_ERRATA_430973"
 check_config_disable
 
@@ -135,16 +168,10 @@ check_config_disable
 config="CONFIG_IMX_IPUV3_CORE"
 check_config_disable
 
-#
-# Android
-#
+config="CONFIG_DRM_TILCDC"
+check_config_disable
 config="CONFIG_DRM_IMX"
 check_config_disable
 
-#
-# Library routines
-#
-config="CONFIG_KVM"
-check_config_builtin
 
 #

@@ -344,4 +344,10 @@ check_config_disable
 config="CONFIG_RESET_CONTROLLER"
 check_config_disable
 
+#can:
+config="CONFIG_CAN_C_CAN"
+check_config_module
+config="CONFIG_CAN_C_CAN_PLATFORM"
+check_config_module
+
 #
