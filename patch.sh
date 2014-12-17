@@ -67,6 +67,11 @@ local_patch () {
 #external_git
 #local_patch
 
+need_to_push_mainline () {
+	echo "dir: need_to_push_mainline"
+	${git} "${DIR}/patches/need_to_push_mainline/0001-ARM-dts-restructure-imx6q-udoo.dts-to-support-udoo-d.patch"
+}
+
 x15 () {
 	echo "dir: x15"
 	#regenerate="enable"
@@ -134,7 +139,7 @@ dts () {
 #	${git} "${DIR}/patches/dts/0007-mach-imx51-disable-cpufreq-still-locks-up.patch"
 	${git} "${DIR}/patches/dts/0008-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0009-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
-	${git} "${DIR}/patches/dts/0010-imx-add-udoo.patch"
+#	${git} "${DIR}/patches/dts/0010-imx-add-udoo.patch"
 #	${git} "${DIR}/patches/dts/0011-ARM-sun7i-add-support-for-A20-OLinuXino-Lime2.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -702,6 +707,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/rtc/0019-ARM-dts-am33xx-update-rtc-node-compatible-property.patch"
 }
 
+need_to_push_mainline
 #x15
 #imx_next
 #omap_next
