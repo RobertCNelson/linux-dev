@@ -2,346 +2,216 @@
 
 DIR=$PWD
 
-check_config_value () {
-	unset test_config
-	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x" ] ; then
-		echo "echo ${config}=${value} >> ./KERNEL/.config"
-	else
-		if [ ! "x${test_config}" = "x${config}=${value}" ] ; then
-			echo "sed -i -e 's:${test_config}:${config}=${value}:g' ./KERNEL/.config"
-		fi
+config_enable () {
+	ret=$(./scripts/config --state ${config})
+	if [ ! "x${ret}" = "xy" ] ; then
+		echo "Setting: ${config}=y"
+		./scripts/config --enable ${config}
 	fi
 }
 
-check_config_builtin () {
-	unset test_config
-	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x" ] ; then
-		echo "echo ${config}=y >> ./KERNEL/.config"
+config_disable () {
+	ret=$(./scripts/config --state ${config})
+	if [ ! "x${ret}" = "xn" ] ; then
+		echo "Setting: ${config}=n"
+		./scripts/config --disable ${config}
 	fi
 }
 
-check_config_module () {
-	unset test_config
-	test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x${config}=y" ] ; then
-		echo "sed -i -e 's:${config}=y:${config}=m:g' ./KERNEL/.config"
-	else
-		unset test_config
-		test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
-		if [ "x${test_config}" = "x" ] ; then
-			echo "echo ${config}=m >> ./KERNEL/.config"
-		fi
+config_module () {
+	ret=$(./scripts/config --state ${config})
+	if [ ! "x${ret}" = "xm" ] ; then
+		echo "Setting: ${config}=m"
+		./scripts/config --module ${config}
 	fi
 }
 
-check_config () {
-	unset test_config
-	test_config=$(grep "${config}=" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x" ] ; then
-		echo "echo ${config}=y >> ./KERNEL/.config"
-		echo "echo ${config}=m >> ./KERNEL/.config"
+config_string () {
+	ret=$(./scripts/config --state ${config})
+	if [ ! "x${ret}" = "x${option}" ] ; then
+		echo "Setting: ${config}=${option}"
+		./scripts/config --set-str ${config} ${option}
 	fi
 }
 
-check_config_disable () {
-	unset test_config
-	test_config=$(grep "${config} is not set" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x" ] ; then
-		unset test_config
-		test_config=$(grep "${config}=y" ${DIR}/patches/defconfig || true)
-		if [ "x${test_config}" = "x${config}=y" ] ; then
-			echo "sed -i -e 's:${config}=y:# ${config} is not set:g' ./KERNEL/.config"
-		else
-			echo "sed -i -e 's:${config}=m:# ${config} is not set:g' ./KERNEL/.config"
-		fi
+config_value () {
+	ret=$(./scripts/config --state ${config})
+	if [ ! "x${ret}" = "x${option}" ] ; then
+		echo "Setting: ${config}=${option}"
+		./scripts/config --set-val ${config} ${option}
 	fi
 }
 
-check_if_set_then_set_module () {
-	unset test_config
-	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x${if_config}=y" ] ; then
-		check_config_module
-	fi
-}
-
-check_if_set_then_set () {
-	unset test_config
-	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x${if_config}=y" ] ; then
-		check_config_builtin
-	fi
-}
-
-check_if_set_then_disable () {
-	unset test_config
-	test_config=$(grep "${if_config}=y" ${DIR}/patches/defconfig || true)
-	if [ "x${test_config}" = "x${if_config}=y" ] ; then
-		check_config_disable
-	fi
-}
+cd ${DIR}/KERNEL/
 
 #
 # General setup
 #
-config="CONFIG_KERNEL_XZ"
-check_config_disable
-config="CONFIG_KERNEL_LZO"
-check_config_builtin
+config="CONFIG_KERNEL_XZ" ; config_disable
+config="CONFIG_KERNEL_LZO" ; config_enable
 
 #
 # CPU Core family selection
 #
-config="CONFIG_ARCH_MXC"
-check_config_disable
+config="CONFIG_ARCH_MXC" ; config_disable
 
 #
 # OMAP Feature Selections
 #
-config="CONFIG_ARCH_OMAP4"
-check_config_disable
-config="CONFIG_SOC_OMAP5"
-check_config_disable
-config="CONFIG_SOC_AM43XX"
-check_config_disable
-config="CONFIG_SOC_DRA7XX"
-check_config_disable
+config="CONFIG_ARCH_OMAP4" ; config_disable
+config="CONFIG_SOC_OMAP5" ; config_disable
+config="CONFIG_SOC_AM43XX" ; config_disable
+config="CONFIG_SOC_DRA7XX" ; config_disable
 
 #
 # OMAP Legacy Platform Data Board Type
 #
-config="CONFIG_ARCH_SUNXI"
-check_config_disable
-config="CONFIG_ARCH_TEGRA"
-check_config_disable
+config="CONFIG_ARCH_SUNXI" ; config_disable
+config="CONFIG_ARCH_TEGRA" ; config_disable
 
 #
 # Processor Features
 #
-config="CONFIG_PL310_ERRATA_769419"
-check_config_disable
+config="CONFIG_PL310_ERRATA_769419" ; config_disable
 
 #
 # Kernel Features
 #
-config="CONFIG_SMP"
-check_config_disable
-config="CONFIG_THUMB2_KERNEL"
-check_config_builtin
+config="CONFIG_SMP" ; config_disable
+config="CONFIG_THUMB2_KERNEL" ; config_enable
 
 #
 # Non-8250 serial port support
 #
-config="CONFIG_SERIAL_FSL_LPUART"
-check_config_disable
+config="CONFIG_SERIAL_FSL_LPUART" ; config_disable
 
 #
 # Input Device Drivers
 #
-config="CONFIG_TOUCHSCREEN_EDT_FT5X06"
-check_config_builtin
+config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_enable
 
 #
 # Native drivers
 #
-config="CONFIG_IMX_THERMAL"
-check_config_disable
+config="CONFIG_IMX_THERMAL" ; config_disable
 
 #
 # Watchdog Device Drivers
 #
-config="CONFIG_DA9052_WATCHDOG"
-check_config_disable
+config="CONFIG_DA9052_WATCHDOG" ; config_disable
 
 #
 # Miscellaneous USB options
 #
 #http://bugs.elinux.org/issues/127
-config="CONFIG_USB_OTG"
-check_config_disable
+config="CONFIG_USB_OTG" ; config_disable
 
 #
 # USB Imaging devices
 #
-config="CONFIG_USB_MUSB_TUSB6010"
-check_config_disable
-config="CONFIG_USB_MUSB_OMAP2PLUS"
-check_config_disable
-config="CONFIG_USB_MUSB_AM35X"
-check_config_disable
-config="CONFIG_USB_MUSB_DSPS"
-check_config_builtin
-config="CONFIG_USB_MUSB_UX500"
-check_config_disable
-config="CONFIG_USB_MUSB_AM335X_CHILD"
-check_config_builtin
-config="CONFIG_USB_TI_CPPI41_DMA"
-check_config_disable
-config="CONFIG_MUSB_PIO_ONLY"
-check_config_builtin
+config="CONFIG_USB_MUSB_TUSB6010" ; config_disable
+config="CONFIG_USB_MUSB_OMAP2PLUS" ; config_disable
+config="CONFIG_USB_MUSB_AM35X" ; config_disable
+config="CONFIG_USB_MUSB_DSPS" ; config_enable
+config="CONFIG_USB_MUSB_UX500" ; config_disable
+config="CONFIG_USB_MUSB_AM335X_CHILD" ; config_enable
+config="CONFIG_USB_TI_CPPI41_DMA" ; config_disable
+config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 
 #
 # USB Physical Layer drivers
 #
-config="CONFIG_AM335X_CONTROL_USB"
-check_config_builtin
-config="CONFIG_AM335X_PHY_USB"
-check_config_builtin
+config="CONFIG_AM335X_CONTROL_USB" ; config_enable
+config="CONFIG_AM335X_PHY_USB" ; config_enable
 
 #
 # USB Peripheral Controller
 #
-config="CONFIG_USB_LIBCOMPOSITE"
-check_config_module
-config="CONFIG_USB_F_ACM"
-check_config_module
-config="CONFIG_USB_F_SS_LB"
-check_config_module
-config="CONFIG_USB_U_SERIAL"
-check_config_module
-config="CONFIG_USB_U_ETHER"
-check_config_module
-config="CONFIG_USB_F_SERIAL"
-check_config_module
-config="CONFIG_USB_F_OBEX"
-check_config_module
-config="CONFIG_USB_F_NCM"
-check_config_module
-config="CONFIG_USB_F_ECM"
-check_config_module
-config="CONFIG_USB_F_PHONET"
-check_config_module
-config="CONFIG_USB_F_EEM"
-check_config_module
-config="CONFIG_USB_F_SUBSET"
-check_config_module
-config="CONFIG_USB_F_RNDIS"
-check_config_module
-config="CONFIG_USB_F_MASS_STORAGE"
-check_config_module
-config="CONFIG_USB_F_FS"
-check_config_module
-config="CONFIG_USB_CONFIGFS"
-check_config_module
-config="CONFIG_USB_CONFIGFS_SERIAL"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_ACM"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_OBEX"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_NCM"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_ECM"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_ECM_SUBSET"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_RNDIS"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_EEM"
-check_config_builtin
-config="CONFIG_USB_CONFIGFS_PHONET"
-check_config_disable
-config="CONFIG_USB_CONFIGFS_MASS_STORAGE"
-check_config_disable
-config="CONFIG_USB_CONFIGFS_F_LB_SS"
-check_config_disable
-config="CONFIG_USB_CONFIGFS_F_FS"
-check_config_disable
-config="CONFIG_USB_ZERO"
-check_config_module
-config="CONFIG_USB_AUDIO"
-check_config_module
-config="CONFIG_GADGET_UAC1"
-check_config_disable
-config="CONFIG_USB_ETH"
-check_config_module
-config="CONFIG_USB_ETH_RNDIS"
-check_config_builtin
-config="CONFIG_USB_ETH_EEM"
-check_config_builtin
-config="CONFIG_USB_G_NCM"
-check_config_module
-config="CONFIG_USB_GADGETFS"
-check_config_module
-config="CONFIG_USB_FUNCTIONFS"
-check_config_module
-config="CONFIG_USB_FUNCTIONFS_ETH"
-check_config_builtin
-config="CONFIG_USB_FUNCTIONFS_RNDIS"
-check_config_builtin
-config="CONFIG_USB_FUNCTIONFS_GENERIC"
-check_config_builtin
-config="CONFIG_USB_MASS_STORAGE"
-check_config_module
-config="CONFIG_USB_GADGET_TARGET"
-check_config_disable
-config="CONFIG_USB_G_SERIAL"
-check_config_module
-config="CONFIG_USB_MIDI_GADGET"
-check_config_module
-config="CONFIG_USB_G_PRINTER"
-check_config_module
-config="CONFIG_USB_CDC_COMPOSITE"
-check_config_module
-config="CONFIG_USB_G_NOKIA"
-check_config_module
-config="CONFIG_USB_G_ACM_MS"
-check_config_module
-config="CONFIG_USB_G_MULTI"
-check_config_module
-config="CONFIG_USB_G_MULTI_RNDIS"
-check_config_builtin
-config="CONFIG_USB_G_MULTI_CDC"
-check_config_builtin
-config="CONFIG_USB_G_HID"
-check_config_module
-config="CONFIG_USB_G_DBGP"
-check_config_module
-config="CONFIG_USB_G_DBGP_PRINTK"
-check_config_disable
-config="CONFIG_USB_G_DBGP_SERIAL"
-check_config_builtin
-config="CONFIG_USB_G_WEBCAM"
-check_config_disable
+config="CONFIG_USB_LIBCOMPOSITE" ; config_module
+config="CONFIG_USB_F_ACM" ; config_module
+config="CONFIG_USB_F_SS_LB" ; config_module
+config="CONFIG_USB_U_SERIAL" ; config_module
+config="CONFIG_USB_U_ETHER" ; config_module
+config="CONFIG_USB_F_SERIAL" ; config_module
+config="CONFIG_USB_F_OBEX" ; config_module
+config="CONFIG_USB_F_NCM" ; config_module
+config="CONFIG_USB_F_ECM" ; config_module
+config="CONFIG_USB_F_PHONET" ; config_module
+config="CONFIG_USB_F_EEM" ; config_module
+config="CONFIG_USB_F_SUBSET" ; config_module
+config="CONFIG_USB_F_RNDIS" ; config_module
+config="CONFIG_USB_F_MASS_STORAGE" ; config_module
+config="CONFIG_USB_F_FS" ; config_module
+config="CONFIG_USB_CONFIGFS" ; config_module
+config="CONFIG_USB_CONFIGFS_SERIAL" ; config_enable
+config="CONFIG_USB_CONFIGFS_ACM" ; config_enable
+config="CONFIG_USB_CONFIGFS_OBEX" ; config_enable
+config="CONFIG_USB_CONFIGFS_NCM" ; config_enable
+config="CONFIG_USB_CONFIGFS_ECM" ; config_enable
+config="CONFIG_USB_CONFIGFS_ECM_SUBSET" ; config_enable
+config="CONFIG_USB_CONFIGFS_RNDIS" ; config_enable
+config="CONFIG_USB_CONFIGFS_EEM" ; config_enable
+config="CONFIG_USB_CONFIGFS_PHONET" ; config_disable
+config="CONFIG_USB_CONFIGFS_MASS_STORAGE" ; config_disable
+config="CONFIG_USB_CONFIGFS_F_LB_SS" ; config_disable
+config="CONFIG_USB_CONFIGFS_F_FS" ; config_disable
+config="CONFIG_USB_ZERO" ; config_module
+config="CONFIG_USB_AUDIO" ; config_module
+config="CONFIG_GADGET_UAC1" ; config_disable
+config="CONFIG_USB_ETH" ; config_module
+config="CONFIG_USB_ETH_RNDIS" ; config_enable
+config="CONFIG_USB_ETH_EEM" ; config_enable
+config="CONFIG_USB_G_NCM" ; config_module
+config="CONFIG_USB_GADGETFS" ; config_module
+config="CONFIG_USB_FUNCTIONFS" ; config_module
+config="CONFIG_USB_FUNCTIONFS_ETH" ; config_enable
+config="CONFIG_USB_FUNCTIONFS_RNDIS" ; config_enable
+config="CONFIG_USB_FUNCTIONFS_GENERIC" ; config_enable
+config="CONFIG_USB_MASS_STORAGE" ; config_module
+config="CONFIG_USB_GADGET_TARGET" ; config_disable
+config="CONFIG_USB_G_SERIAL" ; config_module
+config="CONFIG_USB_MIDI_GADGET" ; config_module
+config="CONFIG_USB_G_PRINTER" ; config_module
+config="CONFIG_USB_CDC_COMPOSITE" ; config_module
+config="CONFIG_USB_G_NOKIA" ; config_module
+config="CONFIG_USB_G_ACM_MS" ; config_module
+config="CONFIG_USB_G_MULTI" ; config_module
+config="CONFIG_USB_G_MULTI_RNDIS" ; config_enable
+config="CONFIG_USB_G_MULTI_CDC" ; config_enable
+config="CONFIG_USB_G_HID" ; config_module
+config="CONFIG_USB_G_DBGP" ; config_module
+config="CONFIG_USB_G_DBGP_PRINTK" ; config_disable
+config="CONFIG_USB_G_DBGP_SERIAL" ; config_enable
+config="CONFIG_USB_G_WEBCAM" ; config_disable
 
 #
 # on-CPU RTC drivers
 #
-config="CONFIG_RTC_DRV_OMAP"
-check_config_builtin
+config="CONFIG_RTC_DRV_OMAP" ; config_enable
 
 #
 # Graphics support
 #
-config="CONFIG_GPU_VIVANTE_V4"
-check_config_disable
+config="CONFIG_GPU_VIVANTE_V4" ; config_disable
 
 #
 # I2C encoder or helper chips
 #
-config="CONFIG_DRM_OMAP"
-check_config_disable
+config="CONFIG_DRM_OMAP" ; config_disable
 
 #
 # Android
 #
-config="CONFIG_DRM_IMX"
-check_config_disable
+config="CONFIG_DRM_IMX" ; config_disable
 
 #capes:
-config="CONFIG_CAPE_BONE_ARGUS"
-check_config_builtin
+config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
 
 #lcd4:
-config="CONFIG_BACKLIGHT_GPIO"
-check_config_builtin
+config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 
 #Reset Controller:
-config="CONFIG_STMMAC_ETH"
-check_config_disable
-config="CONFIG_RESET_CONTROLLER"
-check_config_disable
+config="CONFIG_STMMAC_ETH" ; config_disable
+config="CONFIG_RESET_CONTROLLER" ; config_disable
 
 #
