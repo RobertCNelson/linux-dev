@@ -278,6 +278,11 @@ config="CONFIG_OMAP_OCP2SCP" ; config_enable
 config="CONFIG_VEXPRESS_CONFIG" ; config_disable
 
 #
+# Disk-On-Chip Device Drivers
+#
+config="CONFIG_MTD_NAND_SUNXI" ; config_module
+
+#
 # LPDDR & LPDDR2 PCM memory drivers
 #
 config="CONFIG_MTD_LPDDR2_NVM" ; config_module
@@ -416,7 +421,7 @@ config="CONFIG_KEYBOARD_TEGRA" ; config_module
 config="CONFIG_KEYBOARD_SAMSUNG" ; config_module
 config="CONFIG_KEYBOARD_SUNKBD" ; config_module
 config="CONFIG_KEYBOARD_XTKBD" ; config_module
-config="CONFIG_KEYBOARD_CAP1106" ; config_module
+config="CONFIG_KEYBOARD_CAP11XX" ; config_module
 
 #exit
 
@@ -424,6 +429,7 @@ config="CONFIG_MOUSE_PS2_TOUCHKIT" ; config_enable
 config="CONFIG_MOUSE_SERIAL" ; config_module
 config="CONFIG_MOUSE_BCM5974" ; config_module
 config="CONFIG_MOUSE_CYAPA" ; config_module
+config="CONFIG_MOUSE_ELAN_I2C" ; config_module
 config="CONFIG_MOUSE_VSXXXAA" ; config_module
 config="CONFIG_MOUSE_GPIO" ; config_module
 
@@ -474,6 +480,7 @@ config="CONFIG_TOUCHSCREEN_DA9052" ; config_module
 config="CONFIG_TOUCHSCREEN_EETI" ; config_module
 config="CONFIG_TOUCHSCREEN_EGALAX" ; config_module
 config="CONFIG_TOUCHSCREEN_ILI210X" ; config_module
+config="CONFIG_TOUCHSCREEN_ELAN" ; config_module
 config="CONFIG_TOUCHSCREEN_WACOM_I2C" ; config_module
 config="CONFIG_TOUCHSCREEN_MAX11801" ; config_module
 config="CONFIG_TOUCHSCREEN_MMS114" ; config_module
@@ -716,7 +723,9 @@ config="CONFIG_SENSORS_W83781D" ; config_module
 config="CONFIG_SENSORS_W83L785TS" ; config_module
 config="CONFIG_SENSORS_W83627HF" ; config_module
 config="CONFIG_THERMAL_GOV_BANG_BANG" ; config_enable
+config="CONFIG_CLOCK_THERMAL" ; config_enable
 config="CONFIG_IMX_THERMAL" ; config_enable
+config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 
 #
 # Texas Instruments thermal drivers
