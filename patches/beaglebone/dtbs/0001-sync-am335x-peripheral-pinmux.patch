@@ -1,6 +1,6 @@
-From e4fd8c97ecce7a1c4246f5ea9870a38d9428dfc1 Mon Sep 17 00:00:00 2001
+From bde0b562577c7580e0f83e749818def66be22dec Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 23 Dec 2014 12:58:59 -0600
+Date: Tue, 23 Dec 2014 16:33:11 -0600
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -8,7 +8,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone-can0.dts             |  52 ++++++++
  arch/arm/boot/dts/am335x-bone-can1.dts             |  52 ++++++++
  arch/arm/boot/dts/am335x-bone-common.dtsi          |  15 ---
- arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi   |  19 +++
+ arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi   |  18 +++
  arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi     |  45 +++++++
  arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi     |  45 +++++++
  arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi     |  88 +++++++++++++
@@ -37,8 +37,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-ttyO2.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyO4.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi     |  13 ++
- include/dt-bindings/board/am335x-bbw-bbb-base.h    |  64 +++++++++
- 33 files changed, 1393 insertions(+), 69 deletions(-)
+ include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 +++++++++++++++
+ 33 files changed, 1431 insertions(+), 69 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-can0.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-can1.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
@@ -187,7 +187,7 @@ index 0000000..72631ab
 +/* #include "am335x-peripheral-ttyO5.dtsi" */
 +/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 6cc25ed..c5fb4c5 100644
+index 6db9fc1..cb23566 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -153,21 +153,6 @@
@@ -214,10 +214,10 @@ index 6cc25ed..c5fb4c5 100644
  &uart0 {
 diff --git a/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi b/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
 new file mode 100644
-index 0000000..6d8610e
+index 0000000..79afe92
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,18 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -229,17 +229,16 @@ index 0000000..6d8610e
 +/* standard */
 +
 +&gpio1 {
-+	gpio-hogs = <&emmc_rst>;
-+
-+	emmc_rst: emmc_rst {
++	emmc_rst {
++		gpio-hog;
 +		gpios = <20 0>;
-+		output-high;
++		state = "output-high";
 +		line-name = "EMMC ResetN";
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
 new file mode 100644
-index 0000000..b38b4b758
+index 0000000..0961216
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
 @@ -0,0 +1,45 @@
@@ -290,7 +289,7 @@ index 0000000..b38b4b758
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
 new file mode 100644
-index 0000000..30bb39d
+index 0000000..9e26413
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
 @@ -0,0 +1,45 @@
@@ -1423,10 +1422,10 @@ index 0000000..17319db
 +#include "am335x-peripheral-ttyO5.dtsi"
 +#include "am335x-bone-pinmux-ttyO5.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 5c42d25..a1bd77a 100644
+index 577d67c..e248d5b 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -25,62 +25,31 @@
+@@ -29,62 +29,31 @@
  	vmmc-supply = <&vmmcsd_fixed>;
  };
  
@@ -1676,15 +1675,16 @@ index 0000000..8b42fb0
 +};
 diff --git a/include/dt-bindings/board/am335x-bbw-bbb-base.h b/include/dt-bindings/board/am335x-bbw-bbb-base.h
 new file mode 100644
-index 0000000..217576b
+index 0000000..35f6d57
 --- /dev/null
 +++ b/include/dt-bindings/board/am335x-bbw-bbb-base.h
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,103 @@
 +/*
 + * This header provides constants for bbw/bbb pinctrl bindings.
 + *
 + * Copyright (C) 2014 Robert Nelson <robertcnelson@gmail.com>
 + *
++ * Numbers Based on: https://github.com/derekmolloy/boneDeviceTree/tree/master/docs
 + */
 +
 +#ifndef _DT_BINDINGS_BOARD_AM335X_BBW_BBB_BASE_H
@@ -1695,7 +1695,22 @@ index 0000000..217576b
 +
 +#define BONE_P8_05 0x008
 +#define BONE_P8_06 0x00C
++#define BONE_P8_07 0x090
++#define BONE_P8_08 0x094
 +
++#define BONE_P8_09 0x09C
++#define BONE_P8_10 0x098
++#define BONE_P8_11 0x034
++#define BONE_P8_12 0x030
++
++#define BONE_P8_13 0x024
++#define BONE_P8_14 0x028
++#define BONE_P8_15 0x03C
++#define BONE_P8_16 0x038
++
++#define BONE_P8_17 0x02C
++#define BONE_P8_18 0x08C
++#define BONE_P8_19 0x020
 +#define BONE_P8_20 0x084
 +
 +#define BONE_P8_21 0x080
@@ -1704,6 +1719,7 @@ index 0000000..217576b
 +#define BONE_P8_24 0x004
 +
 +#define BONE_P8_25 0x000
++#define BONE_P8_26 0x07C
 +#define BONE_P8_27 0x0E0
 +#define BONE_P8_28 0x0E8
 +
@@ -1731,17 +1747,39 @@ index 0000000..217576b
 +#define BONE_P8_46 0x0A4
 +
 +#define BONE_P9_11 0x070
++#define BONE_P9_12 0x078
 +
 +#define BONE_P9_13 0x074
++#define BONE_P9_14 0x048
++#define BONE_P9_15 0x040
++#define BONE_P9_16 0x04C
 +
++#define BONE_P9_17 0x15C
++#define BONE_P9_18 0x158
 +#define BONE_P9_19 0x17C
 +#define BONE_P9_20 0x178
 +
 +#define BONE_P9_21 0x154
 +#define BONE_P9_22 0x150
++#define BONE_P9_23 0x044
 +#define BONE_P9_24 0x184
 +
++#define BONE_P9_25 0x1AC
 +#define BONE_P9_26 0x180
++#define BONE_P9_27 0x1A4
++#define BONE_P9_28 0x19C
++
++#define BONE_P9_29 0x194
++#define BONE_P9_30 0x198
++#define BONE_P9_31 0x190
++
++/* Shared P21 of P11 */
++#define BONE_P9_41A 0x1B4
++#define BONE_P9_41B 0x1A8
++
++/* Shared P22 of P11 */
++#define BONE_P9_42A 0x164
++#define BONE_P9_42B 0x1A0
 +
 +#endif
 -- 

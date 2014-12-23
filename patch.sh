@@ -72,12 +72,29 @@ need_to_push_mainline () {
 	${git} "${DIR}/patches/need_to_push_mainline/0001-ARM-dts-restructure-imx6q-udoo.dts-to-support-udoo-d.patch"
 }
 
+dt () {
+	echo "dir: dt/gpiohog"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/dt/gpiohog/0001-gpio-add-GPIO-hogging-mechanism.patch"
+	${git} "${DIR}/patches/dt/gpiohog/0002-gpio-Document-GPIO-hogging-mechanism.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=2
+		cleanup
+	fi
+}
+
 dts () {
 	echo "dir: dts"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
+
 	${git} "${DIR}/patches/dts/0001-ARM-dts-omap3-beagle-add-i2c2.patch"
 	${git} "${DIR}/patches/dts/0002-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
@@ -112,43 +129,6 @@ fixes () {
 
 dtb_makefile_append () {
 	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
-}
-
-dtsi_append () {
-	wfile="arch/arm/boot/dts/${base_dts}-${cape}.dts"
-	cp arch/arm/boot/dts/${base_dts}-base.dts ${wfile}
-	echo "" >> ${wfile}
-	echo "#include \"am335x-bone-${cape}.dtsi\"" >> ${wfile}
-	git add ${wfile}
-}
-
-dtsi_append_custom () {
-	wfile="arch/arm/boot/dts/${dtb_name}.dts"
-	cp arch/arm/boot/dts/${base_dts}-base.dts ${wfile}
-	echo "" >> ${wfile}
-	echo "#include \"am335x-bone-${cape}.dtsi\"" >> ${wfile}
-	git add ${wfile}
-}
-
-dtsi_append_hdmi_no_audio () {
-	dtsi_append
-	echo "#include \"am335x-boneblack-nxp-hdmi-no-audio.dtsi\"" >> ${wfile}
-	git add ${wfile}
-}
-
-dtsi_drop_nxp_hdmi_audio () {
-	sed -i -e 's:#include "am335x-boneblack-nxp-hdmi-no-audio.dtsi":/* #include "am335x-boneblack-nxp-hdmi-no-audio.dtsi" */:g' ${wfile}
-	git add ${wfile}
-}
-
-dtsi_drop_emmc () {
-	sed -i -e 's:#include "am335x-boneblack-emmc.dtsi":/* #include "am335x-boneblack-emmc.dtsi" */:g' ${wfile}
-	git add ${wfile}
-}
-
-dts_drop_clkout2_pin () {
-	sed -i -e 's:pinctrl-0 = <\&clkout2_pin>;:/* pinctrl-0 = <\&clkout2_pin>; */:g' ${wfile}
-	git add ${wfile}
 }
 
 beaglebone () {
@@ -221,14 +201,25 @@ beaglebone () {
 		${git} "${DIR}/patches/beaglebone/generated/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
 
-#	echo "dir: beaglebone/phy"
-#	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
-#	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
-#	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
+	echo "dir: beaglebone/phy"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
+	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
+	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=3
+		cleanup
+	fi
 }
 
 need_to_push_mainline
 
+dt
 dts
 wand
 errata
