@@ -152,24 +152,24 @@ dts_drop_clkout2_pin () {
 }
 
 beaglebone () {
-	echo "dir: beaglebone/dtbs"
-	${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
-
 	echo "dir: beaglebone/dts"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-#	${git} "${DIR}/patches/beaglebone/dts/0001-am335x-boneblack-add-cpu0-opp-points.patch"
-#	${git} "${DIR}/patches/beaglebone/dts/0002-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
-#	${git} "${DIR}/patches/beaglebone/dts/0003-ARM-dts-am335x-boneblack-enable-power-off-and-rtc-wa.patch"
-#	${git} "${DIR}/patches/beaglebone/dts/0004-bbb-force-usb0-to-perhiperal-mode-fixes-http-bugs.el.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0001-am335x-boneblack-add-cpu0-opp-points.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0002-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0003-bbb-force-usb0-to-perhiperal-mode-fixes-http-bugs.el.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=3
 		cleanup
 	fi
+
+	echo "dir: beaglebone/dtbs"
+	#exit
+	${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
 
 	echo "dir: beaglebone/capes"
 	#${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
@@ -220,11 +220,6 @@ beaglebone () {
 	else
 		${git} "${DIR}/patches/beaglebone/generated/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
-
-#	echo "dir: beaglebone/power"
-#	${git} "${DIR}/patches/beaglebone/power/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
-#	${git} "${DIR}/patches/beaglebone/power/0002-am335x-bone-common-enable-ti-pmic-shutdown-controlle.patch"
-#	${git} "${DIR}/patches/beaglebone/power/0003-dt-bone-common-Add-interrupt-for-PMIC.patch"
 
 #	echo "dir: beaglebone/phy"
 #	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
