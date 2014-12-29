@@ -891,6 +891,7 @@ config="CONFIG_DISPLAY_CONNECTOR_HDMI" ; config_enable
 config="CONFIG_DISPLAY_PANEL_DPI" ; config_enable
 
 config="CONFIG_FB_SSD1307" ; config_enable
+config="CONFIG_BACKLIGHT_PWM" ; config_enable
 config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 
 #

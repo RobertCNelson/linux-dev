@@ -125,6 +125,7 @@ errata () {
 fixes () {
 	echo "dir: fixes"
 	${git} "${DIR}/patches/fixes/0001-trusty-gcc-4.8-4.8.2-19ubuntu1-has-fix.patch"
+	${git} "${DIR}/patches/fixes/0002-ARM-dts-Fix-missing-usb0_reset-for-sun4i-sun5i.patch"
 }
 
 dtb_makefile_append () {
