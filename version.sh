@@ -27,11 +27,11 @@ toolchain="gcc_linaro_gnueabihf_4_9"
 #Kernel/Build
 KERNEL_REL=3.19
 KERNEL_TAG=${KERNEL_REL}-rc2
-BUILD=armv7-devel-r25
+BUILD=armv7-devel-r26
 
 #v3.X-rcX + upto SHA
-prev_KERNEL_SHA="b7392d2247cfe6771f95d256374f1a8e6a6f48d6"
-KERNEL_SHA="346eef2fc0c6e535f2de74a551223e2e456c1f41"
+prev_KERNEL_SHA="346eef2fc0c6e535f2de74a551223e2e456c1f41"
+KERNEL_SHA="5faa0154fe333e11ae3826296e08eada1d1d2ec8"
 
 #git branch
 #BRANCH="v3.19.x"

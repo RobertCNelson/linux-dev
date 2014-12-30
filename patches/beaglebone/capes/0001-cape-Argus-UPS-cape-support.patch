@@ -22,7 +22,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-argus.dtsi b/arch/arm/boot/dts/am335x-bone-argus.dtsi
 new file mode 100644
-index 0000000..5f653c3
+index 0000000..b6d4946
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-argus.dtsi
 @@ -0,0 +1,85 @@
@@ -33,46 +33,46 @@ index 0000000..5f653c3
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
-+
-+&ocp {
-+	P8_07_pinmux {
-+		/* gpio2[2] */
-+		status = "disabled";
-+	};
-+	P8_08_pinmux {
-+		/* gpio2[3] */
-+		status = "disabled";
-+	};
-+	P8_09_pinmux {
-+		/* gpio2[5] */
-+		status = "disabled";
-+	};
-+	P8_10_pinmux {
-+		/* gpio2[4] */
-+		status = "disabled";
-+	};
-+	P9_11_pinmux {
-+		/* gpio0[30] */
-+		status = "disabled";
-+	};
-+	P9_17_pinmux {
-+		/* gpio0[5] */
-+		status = "disabled";
-+	};
-+	P9_18_pinmux {
-+		/* gpio0[4] */
-+		status = "disabled";
-+	};
-+	P9_41_pinmux {
-+		/* gpio0[20] */
-+		status = "disabled";
-+	};
-+	P9_42_pinmux {
-+		/* gpio0[7] */
-+		status = "disabled";
++/ {
++	ocp {
++		P8_07_pinmux {
++			/* gpio2[2] */
++			status = "disabled";
++		};
++		P8_08_pinmux {
++			/* gpio2[3] */
++			status = "disabled";
++		};
++		P8_09_pinmux {
++			/* gpio2[5] */
++			status = "disabled";
++		};
++		P8_10_pinmux {
++			/* gpio2[4] */
++			status = "disabled";
++		};
++		P9_11_pinmux {
++			/* gpio0[30] */
++			status = "disabled";
++		};
++		P9_17_pinmux {
++			/* gpio0[5] */
++			status = "disabled";
++		};
++		P9_18_pinmux {
++			/* gpio0[4] */
++			status = "disabled";
++		};
++		P9_41_pinmux {
++			/* gpio0[20] */
++			status = "disabled";
++		};
++		P9_42_pinmux {
++			/* gpio0[7] */
++			status = "disabled";
++		};
 +	};
 +};
-+
 +/ {
 +	argus-ups {
 +		compatible = "argus-ups";
@@ -112,7 +112,7 @@ index 0000000..5f653c3
 +	};
 +};
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 92b178f..87e25a5 100644
+index 006242c..2fe1a7f 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
 @@ -525,6 +525,7 @@ source "drivers/misc/altera-stapl/Kconfig"
@@ -121,10 +121,10 @@ index 92b178f..87e25a5 100644
  source "drivers/misc/mic/Kconfig"
 +source "drivers/misc/cape_bone_argus/Kconfig"
  source "drivers/misc/genwqe/Kconfig"
- source "drivers/misc/cape/Kconfig"
  source "drivers/misc/echo/Kconfig"
+ source "drivers/misc/cxl/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index b88cde1..37eaee7 100644
+index 7d5c4cd..b9aabf2 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
 @@ -52,6 +52,7 @@ obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
@@ -133,8 +133,8 @@ index b88cde1..37eaee7 100644
  obj-y				+= mic/
 +obj-y				+= cape_bone_argus/
  obj-$(CONFIG_GENWQE)		+= genwqe/
- obj-y				+= cape/
  obj-$(CONFIG_ECHO)		+= echo/
+ obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
 diff --git a/drivers/misc/cape_bone_argus/Kconfig b/drivers/misc/cape_bone_argus/Kconfig
 new file mode 100644
 index 0000000..1b39661
@@ -581,5 +581,5 @@ index 0000000..c434218
 +MODULE_ALIAS("platform:argus-ups");
 +MODULE_DEVICE_TABLE(of, argus_ups_of_ids);
 -- 
-2.1.0
+2.1.4
 

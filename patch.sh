@@ -149,11 +149,16 @@ beaglebone () {
 	fi
 
 	echo "dir: beaglebone/dtbs"
-	#exit
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		patch -p1 < "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
+		exit 2
+	fi
 	${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
 
 	echo "dir: beaglebone/capes"
-	#${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0002-ARGUS-dtbs.patch"
 
 	####
 	#dtb makefile
@@ -164,6 +169,8 @@ beaglebone () {
 
 		device="am335x-bone-can1.dtb"
 		dtb_makefile_append
+
+		device="am335x-bone-cape-bone-argus.dtb" ; dtb_makefile_append
 
 		device="am335x-bone-ttyO1.dtb"
 		dtb_makefile_append
@@ -177,11 +184,15 @@ beaglebone () {
 		device="am335x-bone-ttyO5.dtb"
 		dtb_makefile_append
 
+		device="am335x-boneblack-bbb-exp-c.dtb" ; dtb_makefile_append
+
 		device="am335x-boneblack-can0.dtb"
 		dtb_makefile_append
 
 		device="am335x-boneblack-can1.dtb"
 		dtb_makefile_append
+
+		device="am335x-boneblack-cape-bone-argus.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-ttyO1.dtb"
 		dtb_makefile_append
@@ -197,7 +208,7 @@ beaglebone () {
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/
-		exit
+		exit 2
 	else
 		${git} "${DIR}/patches/beaglebone/generated/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
