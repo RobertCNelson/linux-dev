@@ -55,5 +55,8 @@ config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_CAN_C_CAN" ; config_module
 config="CONFIG_CAN_C_CAN_PLATFORM" ; config_module
 
+#http://www.coreboot.org/EHCI_Debug_Port#DIY_.2F_BeagleBone_Black
+#http://www.coreboot.org/DIY_EHCI_debug_dongle
+config="CONFIG_USB_G_DBGP" ; config_module
 
 #
