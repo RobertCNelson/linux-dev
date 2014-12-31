@@ -72,6 +72,11 @@ need_to_push_mainline () {
 	${git} "${DIR}/patches/need_to_push_mainline/0001-ARM-dts-restructure-imx6q-udoo.dts-to-support-udoo-d.patch"
 }
 
+overlay () {
+	echo "dir: overlay"
+	${git} "${DIR}/patches/overlay/0001-OF-DT-Overlay-configfs-interface-v3.patch"
+}
+
 dt () {
 	echo "dir: dt/gpiohog"
 	#regenerate="enable"
@@ -148,6 +153,9 @@ beaglebone () {
 		cleanup
 	fi
 
+	echo "dir: beaglebone/capes"
+	${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
+
 	echo "dir: beaglebone/dtbs"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -155,10 +163,6 @@ beaglebone () {
 		exit 2
 	fi
 	${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
-
-	echo "dir: beaglebone/capes"
-	${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
-	${git} "${DIR}/patches/beaglebone/capes/0002-ARGUS-dtbs.patch"
 
 	####
 	#dtb makefile
@@ -231,6 +235,7 @@ beaglebone () {
 
 need_to_push_mainline
 
+overlay
 dt
 dts
 wand

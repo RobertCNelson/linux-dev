@@ -1,12 +1,14 @@
-From d211dfd1ee05eb24d6e6cc1e77ec06894293719e Mon Sep 17 00:00:00 2001
+From 102daa2023018f440a3bb9f666dd04f5f27d21fe Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 30 Dec 2014 09:23:40 -0600
+Date: Wed, 31 Dec 2014 09:58:55 -0600
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
+ arch/arm/boot/dts/am335x-bone-argus.dtsi           |   4 +
  arch/arm/boot/dts/am335x-bone-can0.dts             |  57 ++++++
  arch/arm/boot/dts/am335x-bone-can1.dts             |  57 ++++++
+ arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts  |  41 +++++
  arch/arm/boot/dts/am335x-bone-common.dtsi          |  18 --
  arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi   |  18 ++
  arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi     |  45 +++++
@@ -27,12 +29,14 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  48 +++++
  arch/arm/boot/dts/am335x-boneblack-can0.dts        |  64 +++++++
  arch/arm/boot/dts/am335x-boneblack-can1.dts        |  64 +++++++
+ .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  48 +++++
  arch/arm/boot/dts/am335x-boneblack-ttyO1.dts       |  64 +++++++
  arch/arm/boot/dts/am335x-boneblack-ttyO2.dts       |  64 +++++++
  arch/arm/boot/dts/am335x-boneblack-ttyO4.dts       |  64 +++++++
  arch/arm/boot/dts/am335x-boneblack-ttyO5.dts       |  64 +++++++
  arch/arm/boot/dts/am335x-boneblack.dts             |  76 +++-----
  arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 202 +++++++++++++++++++++
+ arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++++
  arch/arm/boot/dts/am335x-peripheral-can0.dtsi      |  13 ++
  arch/arm/boot/dts/am335x-peripheral-can1.dtsi      |  13 ++
  arch/arm/boot/dts/am335x-peripheral-emmc.dtsi      |  15 ++
@@ -44,9 +48,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-ttyO4.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi     |  13 ++
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 +++++++++++
- 39 files changed, 2033 insertions(+), 69 deletions(-)
+ 43 files changed, 2157 insertions(+), 69 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-can0.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-can1.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
@@ -65,11 +70,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-can0.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-can1.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO1.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO2.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO4.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO5.dts
  create mode 100644 arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-can0.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-can1.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-emmc.dtsi
@@ -82,6 +89,28 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi
  create mode 100644 include/dt-bindings/board/am335x-bbw-bbb-base.h
 
+diff --git a/arch/arm/boot/dts/am335x-bone-argus.dtsi b/arch/arm/boot/dts/am335x-bone-argus.dtsi
+index 0bbe050..a44c7d1 100644
+--- a/arch/arm/boot/dts/am335x-bone-argus.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-argus.dtsi
+@@ -5,6 +5,9 @@
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  */
++
++#include "am335x-cape-rtc-ds1307.dtsi"
++
+ / {
+ 	ocp {
+ 		P8_07_pinmux {
+@@ -45,6 +48,7 @@
+ 		};
+ 	};
+ };
++
+ / {
+ 	argus-ups {
+ 		compatible = "argus-ups";
 diff --git a/arch/arm/boot/dts/am335x-bone-can0.dts b/arch/arm/boot/dts/am335x-bone-can0.dts
 new file mode 100644
 index 0000000..27b9920
@@ -208,6 +237,53 @@ index 0000000..7a5c6a4
 +
 +/* #include "am335x-peripheral-ttyO5.dtsi" */
 +/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
+new file mode 100644
+index 0000000..d4fd739
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
+@@ -0,0 +1,41 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone";
++	compatible = "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	/* pinctrl-0 = <&clkout2_pin>; */
++};
++
++&sham {
++	status = "okay";
++};
++
++&aes {
++	status = "okay";
++};
++
++#include "am335x-bone-argus.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
 index 6db9fc1..ae4b7d8 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
@@ -1519,6 +1595,60 @@ index 0000000..d1e3b1f
 +
 +/* #include "am335x-peripheral-ttyO5.dtsi" */
 +/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
+new file mode 100644
+index 0000000..ebe6757
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
+@@ -0,0 +1,48 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone Black";
++	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++};
++
++/* Max Core Speed */
++#include "am335x-boneblack-1ghz.dtsi"
++/* #include "am335x-boneblack-800mhz.dtsi" */
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&vmmcsd_fixed>;
++};
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	/* pinctrl-0 = <&clkout2_pin>; */
++};
++
++#include "am335x-peripheral-emmc.dtsi"
++#include "am335x-bone-pinmux-emmc.dtsi"
++/* #include "am335x-bone-emmc-in-reset.dtsi" */
++
++#include "am335x-peripheral-nxp-hdmi.dtsi"
++#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
++
++&rtc {
++	system-power-controller;
++};
++
++#include "am335x-bone-argus.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyO1.dts b/arch/arm/boot/dts/am335x-boneblack-ttyO1.dts
 new file mode 100644
 index 0000000..6c215e4
@@ -2099,6 +2229,43 @@ index 0000000..1affae5
 +
 +#include "am335x-peripheral-panel-1024x600-24bit.dtsi"
 +#include "am335x-bone-pinmux-panel-1024x600-24bit.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi b/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
+new file mode 100644
+index 0000000..bce6ac5
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
+@@ -0,0 +1,31 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <dt-bindings/board/am335x-bbw-bbb-base.h>
++
++&am33xx_pinmux {
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			BONE_P9_20 0x73 /* (SLEWCTRL_SLOW | PIN_INPUT_PULLUP | MUX_MODE3) uart1_ctsn.i2c2_sda */
++			BONE_P9_19 0x73 /* (SLEWCTRL_SLOW | PIN_INPUT_PULLUP | MUX_MODE3) uart1_rtsn.i2c2_scl */
++		>;
++	};
++};
++
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
++
++	status = "okay";
++	clock-frequency = <100000>;
++
++	rtc@68 {
++		compatible = "maxim,ds1307";
++		reg = <0x68>;
++	};
++};
 diff --git a/arch/arm/boot/dts/am335x-peripheral-can0.dtsi b/arch/arm/boot/dts/am335x-peripheral-can0.dtsi
 new file mode 100644
 index 0000000..4335e39
