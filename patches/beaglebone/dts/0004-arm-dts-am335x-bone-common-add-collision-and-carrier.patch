@@ -1,0 +1,47 @@
+From 9bac5bc4814b86746414c60fbc1a56e7e4604c70 Mon Sep 17 00:00:00 2001
+From: Schuyler Patton <spatton@ti.com>
+Date: Mon, 5 Jan 2015 15:44:14 -0600
+Subject: [PATCH 4/4] arm: dts: am335x-bone-common: add collision and carrier
+ sense pinmux
+
+Added pin mux definitions for collision and carrier sense errors coming
+from the ethernet phy. Without these two signals the MAC ends up ignoring
+the errors detected by the PHY which end up causing a lower throughput
+problem when the phy is in half duplex mode such as connected through a hub.
+
+Fixes: 2ba3549 (ARM: dts: am335x-bone*: add DT for BeagleBone Black)
+Cc: Koen Kooi <koen@dominion.thruhere.net>
+Cc: Tom Rini <trini@ti.com>
+Cc: Kevin Hilman <khilman@linaro.org>
+Cc: <stable@vger.kernel.org> # v3.13+
+Signed-off-by: Schuyler Patton <spatton@ti.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 6db9fc1..05861f7 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -97,6 +97,8 @@
+ 	cpsw_default: cpsw_default {
+ 		pinctrl-single,pins = <
+ 			/* Slave 1 */
++			0x108 (PIN_INPUT | MUX_MODE0)		/* mii1_col.mii1_col */
++			0x10c (PIN_INPUT | MUX_MODE0)		/* mii1_crs.mii1_crs */
+ 			0x110 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxerr.mii1_rxerr */
+ 			0x114 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txen.mii1_txen */
+ 			0x118 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxdv.mii1_rxdv */
+@@ -116,6 +118,8 @@
+ 	cpsw_sleep: cpsw_sleep {
+ 		pinctrl-single,pins = <
+ 			/* Slave 1 reset value */
++			0x108 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x10c (PIN_INPUT_PULLDOWN | MUX_MODE7)
+ 			0x110 (PIN_INPUT_PULLDOWN | MUX_MODE7)
+ 			0x114 (PIN_INPUT_PULLDOWN | MUX_MODE7)
+ 			0x118 (PIN_INPUT_PULLDOWN | MUX_MODE7)
+-- 
+2.1.4
+
