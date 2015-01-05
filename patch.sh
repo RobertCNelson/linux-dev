@@ -138,6 +138,7 @@ fixes () {
 	${git} "${DIR}/patches/fixes/0002-ARM-dts-Fix-missing-usb0_reset-for-sun4i-sun5i.patch"
 	${git} "${DIR}/patches/fixes/0003-ARM-dts-am57xx-beagle-x15-Add-GPIO-controlled-fan-no.patch"
 	${git} "${DIR}/patches/fixes/0004-net-ethernet-cpsw-fix-hangs-with-interrupts.patch"
+	${git} "${DIR}/patches/fixes/0005-tty-serial-8250-omap-add-ttySx-console-if-the-user-d.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=4
