@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -50,7 +50,7 @@ cleanup () {
 	if [ "${number}" ] ; then
 		git format-patch -${number} -o ${DIR}/patches/
 	fi
-	exit
+	exit 2
 }
 
 external_git () {
@@ -108,9 +108,10 @@ dts () {
 	${git} "${DIR}/patches/dts/0006-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
 	${git} "${DIR}/patches/dts/0007-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0008-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
+	${git} "${DIR}/patches/dts/0009-ARM-dts-imx51-babbage-Fix-ULPI-PHY-reset-modelling.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=8
+		number=9
 		cleanup
 	fi
 }
@@ -119,7 +120,6 @@ wand () {
 	echo "dir: wand"
 	${git} "${DIR}/patches/wand/0001-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
 	${git} "${DIR}/patches/wand/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
-#	${git} "${DIR}/patches/wand/0003-Vivante-v4-driver.patch"
 }
 
 errata () {
@@ -137,11 +137,13 @@ fixes () {
 	${git} "${DIR}/patches/fixes/0001-trusty-gcc-4.8-4.8.2-19ubuntu1-has-fix.patch"
 	${git} "${DIR}/patches/fixes/0002-ARM-dts-Fix-missing-usb0_reset-for-sun4i-sun5i.patch"
 	${git} "${DIR}/patches/fixes/0003-ARM-dts-am57xx-beagle-x15-Add-GPIO-controlled-fan-no.patch"
-	${git} "${DIR}/patches/fixes/0004-net-ethernet-cpsw-fix-hangs-with-interrupts.patch"
-	${git} "${DIR}/patches/fixes/0005-tty-serial-8250-omap-add-ttySx-console-if-the-user-d.patch"
+	${git} "${DIR}/patches/fixes/0004-tty-serial-8250-omap-add-ttySx-console-if-the-user-d.patch"
+	${git} "${DIR}/patches/fixes/0005-ARM-dts-am57xx-beagle-x15-Add-dual-ethernet.patch"
+	${git} "${DIR}/patches/fixes/0006-gpio-fan-Add-thermal-control-hooks.patch"
+#	${git} "${DIR}/patches/fixes/0007-ARM-dts-am57xx-beagle-x15-Add-thermal-map.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=7
 		cleanup
 	fi
 
@@ -248,6 +250,14 @@ beaglebone () {
 	fi
 }
 
+etnaviv () {
+	echo "dir: etnaviv"
+	#https://github.com/austriancoder/linux
+	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
+
+#	echo "dir: etnaviv/fixes"
+}
+
 need_to_push_mainline
 
 overlay
@@ -258,6 +268,7 @@ errata
 fixes
 
 beaglebone
+etnaviv
 
 packaging_setup () {
 	cp -v "${DIR}/3rdparty/packaging/builddeb" "${DIR}/KERNEL/scripts/package"

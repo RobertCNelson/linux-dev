@@ -108,11 +108,10 @@ config="CONFIG_BEAGLEBONE_PINMUX_HELPER" ; config_disable
 #
 # Graphics support
 #
-config="CONFIG_GPU_VIVANTE_V4" ; config_disable
 config="CONFIG_IMX_IPUV3_CORE" ; config_disable
 
 config="CONFIG_DRM_TILCDC" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
-
+config="CONFIG_DRM_ETNAVIV" ; config_disable
 
 #

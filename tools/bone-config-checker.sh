@@ -192,17 +192,9 @@ config="CONFIG_RTC_DRV_OMAP" ; config_enable
 #
 # Graphics support
 #
-config="CONFIG_GPU_VIVANTE_V4" ; config_disable
-
-#
-# I2C encoder or helper chips
-#
 config="CONFIG_DRM_OMAP" ; config_disable
-
-#
-# Android
-#
 config="CONFIG_DRM_IMX" ; config_disable
+config="CONFIG_DRM_ETNAVIV" ; config_disable
 
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable

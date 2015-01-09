@@ -83,11 +83,11 @@ redhat_reqs () {
 			pkg="uboot-tools"
 			check_rpm
 			;;
-		19|20|21)
+		20|21|22)
 			pkg="uboot-tools"
 			check_rpm
 			;;
-		17|18)
+		17|18|19)
 			#end of life...
 			pkg="uboot-tools"
 			check_rpm

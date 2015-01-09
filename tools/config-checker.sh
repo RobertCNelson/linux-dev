@@ -843,8 +843,6 @@ config="CONFIG_SOC_CAMERA_TW9910" ; config_module
 # Graphics support
 #
 # CONFIG_TEGRA_HOST1X is not set
-config="CONFIG_GPU_VIVANTE_V4" ; config_enable
-config="CONFIG_GPU_VIVANTE_PROFILER" ; config_enable
 config="CONFIG_IMX_IPUV3_CORE" ; config_enable
 
 #
@@ -857,6 +855,8 @@ config="CONFIG_DRM_UDL" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_DRM_TILCDC" ; config_enable
 config="CONFIG_DRM_IMX" ; config_enable
+config="CONFIG_DRM_ETNAVIV" ; config_enable
+config="CONFIG_DRM_ETNAVIV_REGISTER_LOGGING" ; config_enable
 
 #exit
 
