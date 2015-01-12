@@ -532,10 +532,17 @@ config="CONFIG_SERIO_AMBAKMI" ; config_disable
 config="CONFIG_DEVKMEM" ; config_enable
 
 #
+# Serial drivers
+#
+config="CONFIG_SERIAL_8250_OMAP" ; config_enable
+config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
+
+#
 # Non-8250 serial port support
 #
 config="CONFIG_SERIAL_TEGRA" ; config_enable
 config="CONFIG_CONSOLE_POLL" ; config_enable
+config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
