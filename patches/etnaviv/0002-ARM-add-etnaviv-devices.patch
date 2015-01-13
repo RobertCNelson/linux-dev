@@ -1,0 +1,52 @@
+From 9558e0f42380cd2ed140fe608404852079e2de0f Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 13 Jan 2015 11:15:24 -0600
+Subject: [PATCH 2/2] ARM: add etnaviv devices
+
+Add the etnaviv drm devices to the DT files.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ arch/arm/boot/dts/imx6qdl.dtsi | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
+index 4fc03b7..f24e044 100644
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -85,6 +85,32 @@
+ 		interrupt-parent = <&intc>;
+ 		ranges;
+ 
++		gpu_subsystem {
++			#address-cells = <1>;
++			#size-cells = <1>;
++			compatible = "vivante,gccore";
++			ranges;
++
++			gpu_2d: gpu-2d@00134000 {
++				clocks = <&clks IMX6QDL_CLK_GPU2D_CORE>,
++					 <&clks IMX6QDL_CLK_GPU2D_AXI>;
++				clock-names = "core", "bus";
++				compatible = "vivante,vivante-gpu-2d";
++				interrupts = <0 10 0x04>;
++				reg = <0x00134000 0x4000>;
++			};
++
++			gpu_3d: gpu-3d@00130000 {
++				clocks = <&clks IMX6QDL_CLK_GPU3D_CORE>,
++					 <&clks IMX6QDL_CLK_GPU3D_SHADER>,
++					 <&clks IMX6QDL_CLK_GPU3D_AXI>;
++				clock-names = "core", "shader", "bus";
++				compatible = "vivante,vivante-gpu-3d";
++				interrupts = <0 9 0x04>;
++				reg = <0x00130000 0x4000>;
++			};
++		};
++
+ 		dma_apbh: dma-apbh@00110000 {
+ 			compatible = "fsl,imx6q-dma-apbh", "fsl,imx28-dma-apbh";
+ 			reg = <0x00110000 0x2000>;
+-- 
+2.1.4
+

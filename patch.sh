@@ -264,12 +264,12 @@ etnaviv () {
 		#git checkout v3.18-rc7 -b tmp
 		#git pull --no-edit https://github.com/austriancoder/linux master
 
-		meld KERNEL/arch/arm/boot/dts/imx6q.dtsi ~/linux-src/arch/arm/boot/dts/imx6q.dtsi
 		meld KERNEL/drivers/staging/etnaviv/ ~/linux-src/drivers/staging/etnaviv/
 		meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_drm.h
 	fi
 
 	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
+	${git} "${DIR}/patches/etnaviv/0002-ARM-add-etnaviv-devices.patch"
 
 #	echo "dir: etnaviv/fixes"
 }

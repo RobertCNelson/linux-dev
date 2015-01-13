@@ -7,7 +7,6 @@ raw diff from: https://github.com/austriancoder/linux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/imx6q.dtsi                  |   24 +
  drivers/staging/Kconfig                       |    2 +
  drivers/staging/Makefile                      |    1 +
  drivers/staging/etnaviv/Kconfig               |   19 +
@@ -33,7 +32,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/staging/etnaviv/state.xml.h           |  348 ++++++++
  drivers/staging/etnaviv/state_hi.xml.h        |  405 +++++++++
  include/uapi/drm/etnaviv_drm.h                |  223 +++++
- 26 files changed, 6240 insertions(+)
+ 25 files changed, 6216 insertions(+)
  create mode 100644 drivers/staging/etnaviv/Kconfig
  create mode 100644 drivers/staging/etnaviv/Makefile
  create mode 100644 drivers/staging/etnaviv/cmdstream.xml.h
@@ -58,41 +57,6 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 drivers/staging/etnaviv/state_hi.xml.h
  create mode 100644 include/uapi/drm/etnaviv_drm.h
 
-diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-index 85f72e6..98cbfd4 100644
---- a/arch/arm/boot/dts/imx6q.dtsi
-+++ b/arch/arm/boot/dts/imx6q.dtsi
-@@ -217,6 +217,30 @@
- 				};
- 			};
- 		};
-+
-+
-+		gpu-subsystem {
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			compatible = "vivante,gccore";
-+			ranges;
-+
-+			gpu2d@00134000 {
-+				compatible      = "vivante,vivante-gpu-2d";
-+				reg             = <0x00134000 0x4000>;
-+				clock-names     = "core", "bus";
-+				clocks          = <&clks 121>, <&clks 26>;
-+				interrupts      = <0 10 0x04>;
-+			};
-+
-+			gpu3d@00130000 {
-+				compatible      = "vivante,vivante-gpu-3d";
-+				reg             = <0x00130000 0x4000>;
-+				clock-names     = "core", "shader", "bus";
-+				clocks          = <&clks 122>, <&clks 74>, <&clks 27>;
-+				interrupts      = <0 9 0x04>;
-+			};
-+		};
- 	};
- 
- 	display-subsystem {
 diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
 index 815de37..209ab99 100644
 --- a/drivers/staging/Kconfig
