@@ -1,28 +1,29 @@
-From 9543d44dd5cdad93e45f11c9e128217e2f18a031 Mon Sep 17 00:00:00 2001
+From d3fb1929013c2ac28cd84a15c0950854fdbd0a82 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 6 Jan 2015 15:37:21 -0600
+Date: Tue, 13 Jan 2015 10:43:44 -0600
 Subject: [PATCH] staging: etnaviv: add drm driver
 
 raw diff from: https://github.com/austriancoder/linux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
+ arch/arm/boot/dts/imx6q.dtsi                  |   24 +
  drivers/staging/Kconfig                       |    2 +
  drivers/staging/Makefile                      |    1 +
  drivers/staging/etnaviv/Kconfig               |   19 +
  drivers/staging/etnaviv/Makefile              |   18 +
  drivers/staging/etnaviv/cmdstream.xml.h       |  218 +++++
  drivers/staging/etnaviv/common.xml.h          |  253 ++++++
- drivers/staging/etnaviv/etnaviv_buffer.c      |  263 ++++++
- drivers/staging/etnaviv/etnaviv_drv.c         |  723 +++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_buffer.c      |  286 +++++++
+ drivers/staging/etnaviv/etnaviv_drv.c         |  723 ++++++++++++++++
  drivers/staging/etnaviv/etnaviv_drv.h         |  156 ++++
  drivers/staging/etnaviv/etnaviv_gem.c         |  779 ++++++++++++++++++
  drivers/staging/etnaviv/etnaviv_gem.h         |  127 +++
  drivers/staging/etnaviv/etnaviv_gem_prime.c   |  120 +++
  drivers/staging/etnaviv/etnaviv_gem_submit.c  |  396 +++++++++
  drivers/staging/etnaviv/etnaviv_gem_userptr.c |  210 +++++
- drivers/staging/etnaviv/etnaviv_gpu.c         | 1084 +++++++++++++++++++++++++
- drivers/staging/etnaviv/etnaviv_gpu.h         |  158 ++++
+ drivers/staging/etnaviv/etnaviv_gpu.c         | 1099 +++++++++++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_gpu.h         |  162 ++++
  drivers/staging/etnaviv/etnaviv_iommu.c       |  190 +++++
  drivers/staging/etnaviv/etnaviv_iommu.h       |   26 +
  drivers/staging/etnaviv/etnaviv_iommu_v2.c    |  260 ++++++
@@ -32,7 +33,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/staging/etnaviv/state.xml.h           |  348 ++++++++
  drivers/staging/etnaviv/state_hi.xml.h        |  405 +++++++++
  include/uapi/drm/etnaviv_drm.h                |  223 +++++
- 25 files changed, 6174 insertions(+)
+ 26 files changed, 6240 insertions(+)
  create mode 100644 drivers/staging/etnaviv/Kconfig
  create mode 100644 drivers/staging/etnaviv/Makefile
  create mode 100644 drivers/staging/etnaviv/cmdstream.xml.h
@@ -57,6 +58,41 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 drivers/staging/etnaviv/state_hi.xml.h
  create mode 100644 include/uapi/drm/etnaviv_drm.h
 
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index 85f72e6..98cbfd4 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -217,6 +217,30 @@
+ 				};
+ 			};
+ 		};
++
++
++		gpu-subsystem {
++			#address-cells = <1>;
++			#size-cells = <1>;
++			compatible = "vivante,gccore";
++			ranges;
++
++			gpu2d@00134000 {
++				compatible      = "vivante,vivante-gpu-2d";
++				reg             = <0x00134000 0x4000>;
++				clock-names     = "core", "bus";
++				clocks          = <&clks 121>, <&clks 26>;
++				interrupts      = <0 10 0x04>;
++			};
++
++			gpu3d@00130000 {
++				compatible      = "vivante,vivante-gpu-3d";
++				reg             = <0x00130000 0x4000>;
++				clock-names     = "core", "shader", "bus";
++				clocks          = <&clks 122>, <&clks 74>, <&clks 27>;
++				interrupts      = <0 9 0x04>;
++			};
++		};
+ 	};
+ 
+ 	display-subsystem {
 diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
 index 815de37..209ab99 100644
 --- a/drivers/staging/Kconfig
@@ -611,10 +647,10 @@ index 0000000..36fa0e4
 +#endif /* COMMON_XML */
 diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
 new file mode 100644
-index 0000000..7deba75
+index 0000000..ff61fc1
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_buffer.c
-@@ -0,0 +1,263 @@
+@@ -0,0 +1,286 @@
 +/*
 + * Copyright (C) 2014 2014 Etnaviv Project
 + * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
@@ -740,6 +776,14 @@ index 0000000..7deba75
 + * High level commands:
 + */
 +
++static void cmd_trigger_event(struct etnaviv_gem_object *buffer,
++		unsigned int event)
++{
++	/* trigger event */
++	CMD_LOAD_STATE(buffer, VIVS_GL_EVENT,
++			VIVS_GL_EVENT_EVENT_ID(event) | VIVS_GL_EVENT_FROM_PE);
++}
++
 +static void cmd_select_pipe(struct etnaviv_gem_object *buffer, u8 pipe)
 +{
 +	u32 flush;
@@ -760,6 +804,22 @@ index 0000000..7deba75
 +
 +	CMD_LOAD_STATE(buffer, VIVS_GL_PIPE_SELECT,
 +		       VIVS_GL_PIPE_SELECT_PIPE(pipe));
++}
++
++static void cmd_enable_mmu(struct etnaviv_gem_object *buffer)
++{
++	struct etnaviv_gpu *gpu = buffer->gpu;
++
++	if (gpu->mmu->version == ETNAVIV_IOMMU_V2) {
++		u32 config = gpu->pgtable | VIVS_MMUv2_CONFIGURATION_MODE_MODE1_K;
++
++		/* pgtable address aligned correctly? */
++		WARN_ON(gpu->pgtable & 0x3ff);
++
++		CMD_LOAD_STATE(buffer, VIVS_MMUv2_CONFIGURATION, config);
++
++		/* TODO: safe zone */
++	}
 +}
 +
 +static int cmd_mmu_flush(struct etnaviv_gem_object *buffer)
@@ -810,7 +870,6 @@ index 0000000..7deba75
 +	return words_used;
 +}
 +
-+
 +u32 etnaviv_buffer_init(struct etnaviv_gpu *gpu)
 +{
 +	struct etnaviv_gem_object *buffer = to_etnaviv_bo(gpu->buffer);
@@ -821,6 +880,7 @@ index 0000000..7deba75
 +	buffer->gpu = gpu;
 +
 +	cmd_select_pipe(buffer, gpu->pipe);
++	cmd_enable_mmu(buffer);
 +
 +	CMD_WAIT(buffer);
 +	CMD_LINK(buffer, 4, buffer->paddr + to_bytes(buffer->offset - 1));
@@ -861,8 +921,7 @@ index 0000000..7deba75
 +		VIV_FE_LINK_HEADER_PREFETCH(prefetch);
 +
 +	/* trigger event */
-+	CMD_LOAD_STATE(buffer, VIVS_GL_EVENT,
-+			VIVS_GL_EVENT_EVENT_ID(event) | VIVS_GL_EVENT_FROM_PE);
++	cmd_trigger_event(buffer, event);
 +
 +	/* append WAIT/LINK to 'ring'-buffer */
 +	CMD_WAIT(buffer);
@@ -3433,10 +3492,10 @@ index 0000000..b2a0f27
 +}
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
 new file mode 100644
-index 0000000..81a3f75
+index 0000000..2ccf95b
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.c
-@@ -0,0 +1,1084 @@
+@@ -0,0 +1,1099 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -3862,6 +3921,10 @@ index 0000000..81a3f75
 +		complete(&gpu->event_free);
 +	}
 +
++	/* Setup separate event for management work */
++	init_completion(&gpu->management_event);
++	complete(&gpu->management_event);
++
 +	/* Start command processor */
 +	prefetch = etnaviv_buffer_init(gpu);
 +
@@ -4224,6 +4287,12 @@ index 0000000..81a3f75
 +	}
 +}
 +
++unsigned long etnaviv_gpu_management_event_wait(struct etnaviv_gpu *gpu)
++{
++	return wait_for_completion_timeout(&gpu->management_event,
++			  msecs_to_jiffies(10 * 10000));
++}
++
 +/*
 + * Cmdstream submission/retirement:
 + */
@@ -4352,9 +4421,14 @@ index 0000000..81a3f75
 +			uint8_t event = __fls(intr);
 +
 +			dev_dbg(gpu->dev, "event %u\n", event);
-+			gpu->retired_fence = gpu->event[event].fence;
-+			event_free(gpu, event);
-+			etnaviv_gpu_retire(gpu);
++
++			if (event == ETNA_MANAGEMENT_EVENT)
++				complete(&gpu->management_event);
++			else {
++				gpu->retired_fence = gpu->event[event].fence;
++				event_free(gpu, event);
++				etnaviv_gpu_retire(gpu);
++			}
 +		}
 +
 +		ret = IRQ_HANDLED;
@@ -4523,10 +4597,10 @@ index 0000000..81a3f75
 +};
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
 new file mode 100644
-index 0000000..36468ba
+index 0000000..d81b98b
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.h
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,162 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -4622,8 +4696,10 @@ index 0000000..36468ba
 +	struct drm_gem_object *buffer;
 +
 +	/* event management: */
++#define ETNA_MANAGEMENT_EVENT 30
 +	struct etnaviv_event event[30];
 +	struct completion event_free;
++	struct completion management_event;
 +	spinlock_t event_spinlock;
 +
 +	/* list of GEM active objects: */
@@ -4677,6 +4753,8 @@ index 0000000..36468ba
 +#ifdef CONFIG_DEBUG_FS
 +void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m);
 +#endif
++
++unsigned long etnaviv_gpu_management_event_wait(struct etnaviv_gpu *gpu);
 +
 +void etnaviv_gpu_retire(struct etnaviv_gpu *gpu);
 +int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
