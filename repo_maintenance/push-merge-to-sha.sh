@@ -6,6 +6,8 @@ compare="https://github.com/torvalds/linux/compare"
 
 if [ -e ${DIR}/version.sh ]; then
 	unset BRANCH
+	unset BUILD
+	unset prev_KERNEL_SHA
 	unset KERNEL_SHA
 	. ${DIR}/version.sh
 
@@ -13,7 +15,12 @@ if [ -e ${DIR}/version.sh ]; then
 		BRANCH="master"
 	fi
 
-	git commit -a -m "${BUILD}: merge to: ${repo}/${KERNEL_SHA}" -m "Compare: ${compare}/${prev_KERNEL_SHA}...${KERNEL_SHA}" -s
+	if [ "x${prev_KERNEL_SHA}" = "x" ] ; then
+		git commit -a -m "${BUILD}: merge to: ${repo}/${KERNEL_SHA}" -s
+	else
+		git commit -a -m "${BUILD}: merge to: ${repo}/${KERNEL_SHA}" -m "Compare: ${compare}/${prev_KERNEL_SHA}...${KERNEL_SHA}" -s
+	fi
+
 	git push origin ${BRANCH}
 fi
 

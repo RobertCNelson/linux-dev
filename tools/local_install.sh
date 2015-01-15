@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -92,30 +92,34 @@ mmc_write_boot_uname () {
 }
 
 mmc_write_boot () {
-	echo "Installing ${KERNEL_UTS}"
-
-	if [ -f "${location}/zImage_bak" ] ; then
-		sudo rm -f "${location}/zImage_bak" || true
-	fi
-
 	if [ -f "${location}/zImage" ] ; then
-		sudo mv "${location}/zImage" "${location}/zImage_bak"
-	fi
+		echo "Installing ${KERNEL_UTS}"
 
-	#Assuming boot via zImage on first partition...
-	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/zImage"
-
-	if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
-
-		if [ -d "${location}/dtbs" ] ; then
-			sudo rm -rf "${location}/dtbs" || true
+		if [ -f "${location}/zImage_bak" ] ; then
+			sudo rm -f "${location}/zImage_bak" || true
 		fi
 
-		sudo mkdir -p "${location}/dtbs"
+		if [ -f "${location}/zImage" ] ; then
+			sudo mv "${location}/zImage" "${location}/zImage_bak"
+		fi
 
-		echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
-		sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
-		sync
+		#Assuming boot via zImage on first partition...
+		sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/zImage"
+
+		if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
+
+			if [ -d "${location}/dtbs" ] ; then
+				sudo rm -rf "${location}/dtbs" || true
+			fi
+
+			sudo mkdir -p "${location}/dtbs"
+
+			echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
+			sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
+			sync
+		fi
+	else
+		echo "Error: no current ${location}/zImage"
 	fi
 }
 
