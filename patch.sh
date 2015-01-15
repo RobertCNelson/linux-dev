@@ -261,7 +261,7 @@ etnaviv () {
 		exit 2
 
 		#cd ~/linux-src
-		#git checkout v3.18-rc7 -b tmp
+		#git checkout v3.19-rc4 -b tmp
 		#git pull --no-edit https://github.com/austriancoder/linux master
 
 		meld KERNEL/drivers/staging/etnaviv/ ~/linux-src/drivers/staging/etnaviv/
