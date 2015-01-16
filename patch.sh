@@ -270,6 +270,7 @@ etnaviv () {
 
 	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
 	${git} "${DIR}/patches/etnaviv/0002-ARM-add-etnaviv-devices.patch"
+	${git} "${DIR}/patches/etnaviv/0003-drivers-of-Export-of_reserved_mem_device_-init-relea.patch"
 
 #	echo "dir: etnaviv/fixes"
 }

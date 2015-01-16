@@ -1,0 +1,35 @@
+From a4c750a2c6391923e72da7795a7aec703a475fb5 Mon Sep 17 00:00:00 2001
+From: "George G. Davis" <ggdavisiv@gmail.com>
+Date: Fri, 9 Jan 2015 09:29:05 -0500
+Subject: [PATCH 3/3] drivers: of: Export of_reserved_mem_device_{init,release}
+
+Export of_reserved_mem_device_{init,release} so that modules
+can initialize and release their assigned per-device cma_area.
+
+Signed-off-by: George G. Davis <george_davis@mentor.com>
+[robh: s/EXPORT_SYMBOL/EXPORT_SYMBOL_GPL/]
+Signed-off-by: Rob Herring <robh@kernel.org>
+---
+ drivers/of/of_reserved_mem.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index dc566b3..726ebe7 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -265,6 +265,7 @@ int of_reserved_mem_device_init(struct device *dev)
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(of_reserved_mem_device_init);
+ 
+ /**
+  * of_reserved_mem_device_release() - release reserved memory device structures
+@@ -289,3 +290,4 @@ void of_reserved_mem_device_release(struct device *dev)
+ 
+ 	rmem->ops->device_release(rmem, dev);
+ }
++EXPORT_SYMBOL_GPL(of_reserved_mem_device_release);
+-- 
+2.1.4
+

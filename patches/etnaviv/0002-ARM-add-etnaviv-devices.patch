@@ -1,20 +1,43 @@
-From 9558e0f42380cd2ed140fe608404852079e2de0f Mon Sep 17 00:00:00 2001
-From: Russell King <rmk+kernel@arm.linux.org.uk>
-Date: Tue, 13 Jan 2015 11:15:24 -0600
+From 8c52717bbfdc90e3d79509ffb3970c91c26dc6b1 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 16 Jan 2015 08:51:01 -0600
 Subject: [PATCH 2/2] ARM: add etnaviv devices
 
 Add the etnaviv drm devices to the DT files.
 
+rcn-ee: add reserved-memory
+https://github.com/austriancoder/linux/commit/5e3ef1c0cbf783e827f259392da46af02d906c20
+
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 ---
- arch/arm/boot/dts/imx6qdl.dtsi | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ arch/arm/boot/dts/imx6qdl.dtsi | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
 diff --git a/arch/arm/boot/dts/imx6qdl.dtsi b/arch/arm/boot/dts/imx6qdl.dtsi
-index 4fc03b7..f24e044 100644
+index 4fc03b7..def8800 100644
 --- a/arch/arm/boot/dts/imx6qdl.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -85,6 +85,32 @@
+@@ -78,6 +78,19 @@
+ 		};
+ 	};
+ 
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
++
++		gpu_reserved: gpu_reserved {
++			compatible = "shared-dma-pool";
++			size = <0x8000000>;
++			alloc-ranges = <0x0 0x40000000>;
++			reusable;
++		};
++	};
++
+ 	soc {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+@@ -85,6 +98,33 @@
  		interrupt-parent = <&intc>;
  		ranges;
  
@@ -23,6 +46,7 @@ index 4fc03b7..f24e044 100644
 +			#size-cells = <1>;
 +			compatible = "vivante,gccore";
 +			ranges;
++			memory-region 	= <&gpu_reserved>;
 +
 +			gpu_2d: gpu-2d@00134000 {
 +				clocks = <&clks IMX6QDL_CLK_GPU2D_CORE>,
