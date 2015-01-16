@@ -271,6 +271,7 @@ etnaviv () {
 	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
 	${git} "${DIR}/patches/etnaviv/0002-ARM-add-etnaviv-devices.patch"
 	${git} "${DIR}/patches/etnaviv/0003-drivers-of-Export-of_reserved_mem_device_-init-relea.patch"
+	${git} "${DIR}/patches/etnaviv/0004-temp-imx6qdl-disable-reserved-memory-locking-up-v3.1.patch"
 
 #	echo "dir: etnaviv/fixes"
 }
