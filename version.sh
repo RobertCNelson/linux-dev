@@ -1,12 +1,7 @@
 #!/bin/sh
 #
 ARCH=$(uname -m)
-
-if [ $(which nproc) ] ; then
-	CORES=$(nproc)
-else
-	CORES=1
-fi
+CORES=$(getconf _NPROCESSORS_ONLN)
 
 #Debian 7 (Wheezy): git version 1.7.10.4 and later needs "--no-edit"
 unset git_opts
