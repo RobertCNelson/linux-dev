@@ -1,6 +1,6 @@
-From c061e4ee50c966c9ac2cb9c43518b3bde2feed8f Mon Sep 17 00:00:00 2001
+From 67fc8bbb6e9fb09bcc94e57e2fd30a386ba03f75 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 16 Jan 2015 08:46:29 -0600
+Date: Mon, 19 Jan 2015 09:09:12 -0600
 Subject: [PATCH] staging: etnaviv: add drm driver
 
 raw diff from: https://github.com/austriancoder/linux
@@ -1802,7 +1802,7 @@ index 0000000..cc46bc3
 +#endif /* __ETNAVIV_DRV_H__ */
 diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
 new file mode 100644
-index 0000000..e2d9b8a
+index 0000000..856fa88
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_gem.c
 @@ -0,0 +1,779 @@
@@ -2033,7 +2033,7 @@ index 0000000..e2d9b8a
 +	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
 +	int ret = 0;
 +
-+	if (!etnaviv_obj->iova  && !(etnaviv_obj->flags & ETNA_BO_CMDSTREAM)) {
++	if (!etnaviv_obj->iova && (etnaviv_obj->backend != ETNA_BO_BACKEND_DMA)) {
 +		struct etnaviv_drm_private *priv = obj->dev->dev_private;
 +		struct etnaviv_iommu *mmu = priv->mmu;
 +		struct page **pages = etnaviv_gem_get_pages(obj);
@@ -2434,7 +2434,7 @@ index 0000000..e2d9b8a
 +
 +	list_del(&etnaviv_obj->mm_list);
 +
-+	if (!(etnaviv_obj->flags & ETNA_BO_CMDSTREAM))
++	if (etnaviv_obj->backend != ETNA_BO_BACKEND_DMA)
 +		etnaviv_free_obj(obj);
 +
 +	drm_gem_free_mmap_offset(obj);
