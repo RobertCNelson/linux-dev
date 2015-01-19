@@ -92,34 +92,34 @@ mmc_write_boot_uname () {
 }
 
 mmc_write_boot () {
+	if [ ! -f "${location}/zImage" ] ; then
+		echo "Error: no current ${location}/zImage, this might not boot..."
+	fi
+
+	echo "Installing ${KERNEL_UTS} to ${partition}"
+
+	if [ -f "${location}/zImage_bak" ] ; then
+		sudo rm -f "${location}/zImage_bak" || true
+	fi
+
 	if [ -f "${location}/zImage" ] ; then
-		echo "Installing ${KERNEL_UTS} to ${partition}"
+		sudo mv "${location}/zImage" "${location}/zImage_bak"
+	fi
 
-		if [ -f "${location}/zImage_bak" ] ; then
-			sudo rm -f "${location}/zImage_bak" || true
+	#Assuming boot via zImage on first partition...
+	sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/zImage"
+
+	if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
+
+		if [ -d "${location}/dtbs" ] ; then
+			sudo rm -rf "${location}/dtbs" || true
 		fi
 
-		if [ -f "${location}/zImage" ] ; then
-			sudo mv "${location}/zImage" "${location}/zImage_bak"
-		fi
+		sudo mkdir -p "${location}/dtbs"
 
-		#Assuming boot via zImage on first partition...
-		sudo cp -v "${DIR}/deploy/${KERNEL_UTS}.zImage" "${location}/zImage"
-
-		if [ -f "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" ] ; then
-
-			if [ -d "${location}/dtbs" ] ; then
-				sudo rm -rf "${location}/dtbs" || true
-			fi
-
-			sudo mkdir -p "${location}/dtbs"
-
-			echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
-			sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
-			sync
-		fi
-	else
-		echo "Error: no current ${location}/zImage"
+		echo "Installing ${KERNEL_UTS}-dtbs.tar.gz to ${partition}"
+		sudo tar ${UNTAR} "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/"
+		sync
 	fi
 }
 
