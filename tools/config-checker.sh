@@ -115,9 +115,6 @@ config="CONFIG_MACH_CM_T3517" ; config_disable
 config="CONFIG_MACH_SBC3530" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
-config="CONFIG_ARCH_TEGRA" ; config_enable
-config="CONFIG_ARCH_TEGRA_124_SOC" ; config_enable
-config="CONFIG_TEGRA_AHB" ; config_enable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
 
@@ -225,7 +222,6 @@ config="CONFIG_MAC802154" ; config_module
 # Classification
 #
 config="CONFIG_NET_ACT_VLAN" ; config_module
-config="CONFIG_DNS_RESOLVER" ; config_enable
 config="CONFIG_HSR" ; config_module
 
 #
@@ -417,7 +413,6 @@ config="CONFIG_KEYBOARD_LM8333" ; config_module
 config="CONFIG_KEYBOARD_MCS" ; config_module
 config="CONFIG_KEYBOARD_MPR121" ; config_module
 config="CONFIG_KEYBOARD_NEWTON" ; config_module
-config="CONFIG_KEYBOARD_TEGRA" ; config_module
 config="CONFIG_KEYBOARD_SAMSUNG" ; config_module
 config="CONFIG_KEYBOARD_SUNKBD" ; config_module
 config="CONFIG_KEYBOARD_XTKBD" ; config_module
@@ -540,7 +535,6 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 #
 # Non-8250 serial port support
 #
-config="CONFIG_SERIAL_TEGRA" ; config_enable
 config="CONFIG_CONSOLE_POLL" ; config_enable
 config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
@@ -569,7 +563,6 @@ config="CONFIG_I2C_MUX_PCA954x" ; config_enable
 config="CONFIG_I2C_IMX" ; config_enable
 config="CONFIG_I2C_MV64XXX" ; config_enable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
-config="CONFIG_I2C_TEGRA" ; config_enable
 
 #
 # External I2C/SMBus adapter drivers
@@ -584,13 +577,11 @@ config="CONFIG_SPI_OMAP24XX" ; config_enable
 config="CONFIG_SPI_SUN4I" ; config_enable
 config="CONFIG_SPI_SUN6I" ; config_enable
 config="CONFIG_SPI_TEGRA114" ; config_enable
-config="CONFIG_SPI_TEGRA20_SFLASH" ; config_module
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 
 #
 # Pin controllers
 #
-config="CONFIG_PINCTRL_PALMAS" ; config_enable
 config="CONFIG_GPIO_DA9052" ; config_enable
 config="CONFIG_GPIO_DA9055" ; config_module
 config="CONFIG_GPIO_MAX730X" ; config_module
@@ -616,7 +607,6 @@ config="CONFIG_GPIO_74X164" ; config_module
 #
 # MODULbus GPIO expanders:
 #
-config="CONFIG_GPIO_PALMAS" ; config_enable
 config="CONFIG_GPIO_TPS65910" ; config_enable
 
 #
@@ -739,8 +729,6 @@ config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 #
 config="CONFIG_TI_SOC_THERMAL" ; config_enable
 config="CONFIG_TI_THERMAL" ; config_enable
-config="CONFIG_OMAP4_THERMAL" ; config_enable
-config="CONFIG_OMAP5_THERMAL" ; config_enable
 config="CONFIG_DRA752_THERMAL" ; config_enable
 config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 
@@ -765,7 +753,6 @@ config="CONFIG_MFD_MC13XXX" ; config_enable
 config="CONFIG_MFD_MC13XXX_SPI" ; config_enable
 config="CONFIG_MFD_MC13XXX_I2C" ; config_enable
 config="CONFIG_MFD_TI_AM335X_TSCADC" ; config_enable
-config="CONFIG_MFD_PALMAS" ; config_enable
 config="CONFIG_MFD_TPS65217" ; config_enable
 config="CONFIG_MFD_TPS65218" ; config_enable
 config="CONFIG_MFD_TPS65910" ; config_enable
@@ -780,7 +767,6 @@ config="CONFIG_REGULATOR_GPIO" ; config_enable
 config="CONFIG_REGULATOR_MC13XXX_CORE" ; config_enable
 config="CONFIG_REGULATOR_MC13783" ; config_enable
 config="CONFIG_REGULATOR_MC13892" ; config_enable
-config="CONFIG_REGULATOR_PALMAS" ; config_enable
 config="CONFIG_REGULATOR_PBIAS" ; config_enable
 config="CONFIG_REGULATOR_PFUZE100" ; config_enable
 config="CONFIG_REGULATOR_PWM" ; config_enable
@@ -849,7 +835,6 @@ config="CONFIG_SOC_CAMERA_TW9910" ; config_module
 #
 # Graphics support
 #
-# CONFIG_TEGRA_HOST1X is not set
 config="CONFIG_IMX_IPUV3_CORE" ; config_enable
 
 #
@@ -864,8 +849,6 @@ config="CONFIG_DRM_TILCDC" ; config_enable
 config="CONFIG_DRM_IMX" ; config_enable
 config="CONFIG_DRM_ETNAVIV" ; config_enable
 config="CONFIG_DRM_ETNAVIV_REGISTER_LOGGING" ; config_enable
-
-#exit
 
 #
 # I2C encoder or helper chips
@@ -912,10 +895,6 @@ config="CONFIG_LOGO_LINUX_CLUT224" ; config_enable
 #
 # HD-Audio
 #
-config="CONFIG_SND_HDA" ; config_module
-config="CONFIG_SND_HDA_TEGRA" ; config_module
-config="CONFIG_SND_HDA_CODEC_HDMI" ; config_module
-config="CONFIG_SND_HDA_GENERIC" ; config_module
 config="CONFIG_SND_EDMA_SOC" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_MCASP" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM" ; config_module
@@ -925,7 +904,6 @@ config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 # SoC Audio support for Freescale i.MX boards:
 #
 config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_module
-config="CONFIG_SND_SOC_TEGRA" ; config_module
 
 #
 # CODEC drivers
@@ -983,11 +961,6 @@ config="CONFIG_USB_MUSB_TUSB6010" ; config_disable
 config="CONFIG_USB_MUSB_OMAP2PLUS" ; config_enable
 config="CONFIG_USB_MUSB_AM35X" ; config_disable
 config="CONFIG_USB_MUSB_DSPS" ; config_disable
-
-#
-# Platform Glue Driver Support
-#
-config="CONFIG_USB_DWC3_OMAP" ; config_module
 
 #
 # Debugging features
@@ -1074,7 +1047,6 @@ config="CONFIG_RTC_DRV_RS5C372" ; config_module
 config="CONFIG_RTC_DRV_ISL1208" ; config_module
 config="CONFIG_RTC_DRV_ISL12022" ; config_module
 config="CONFIG_RTC_DRV_X1205" ; config_module
-config="CONFIG_RTC_DRV_PALMAS" ; config_module
 config="CONFIG_RTC_DRV_PCF2127" ; config_module
 config="CONFIG_RTC_DRV_PCF8523" ; config_module
 config="CONFIG_RTC_DRV_PCF8563" ; config_module
@@ -1130,8 +1102,7 @@ config="CONFIG_RTC_DRV_DS2404" ; config_module
 #
 # on-CPU RTC drivers
 #
-config="CONFIG_RTC_DRV_SUN6I" ; config_module
-config="CONFIG_RTC_DRV_TEGRA" ; config_module
+config="CONFIG_RTC_DRV_SUN6I" ; config_enable
 
 #
 # HID Sensor RTC drivers
@@ -1143,18 +1114,11 @@ config="CONFIG_RTC_DRV_HID_SENSOR_TIME" ; config_module
 #
 config="CONFIG_DW_DMAC_CORE" ; config_enable
 config="CONFIG_DW_DMAC" ; config_enable
-config="CONFIG_TEGRA20_APB_DMA" ; config_enable
 config="CONFIG_TI_CPPI41" ; config_enable
 config="CONFIG_FSL_EDMA" ; config_enable
 config="CONFIG_DMA_SUN6I" ; config_enable
 
-#
-# DMA Clients
-#
-config="CONFIG_VIRTIO" ; config_enable
-
 #STAGING
-
 #
 # Microsoft Hyper-V guest support
 #
@@ -1470,13 +1434,7 @@ config="CONFIG_AS3935" ; config_module
 #
 config="CONFIG_MLX90614" ; config_module
 config="CONFIG_TMP006" ; config_module
-config="CONFIG_PWM_IMX" ; config_enable
-config="CONFIG_PWM_PCA9685" ; config_enable
-config="CONFIG_PWM_TEGRA" ; config_enable
-config="CONFIG_PWM_TIECAP" ; config_enable
-config="CONFIG_PWM_TIEHRPWM" ; config_enable
-config="CONFIG_PWM_TWL" ; config_enable
-config="CONFIG_PWM_TWL_LED" ; config_enable
+config="CONFIG_PWM_PCA9685" ; config_module
 
 #
 # PHY Subsystem
