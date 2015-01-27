@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -69,7 +69,7 @@ gcc_toolchain () {
 
 		binary="bin/arm-none-eabi-"
 		;;
-	gcc_linaro_eabi_4_9)
+	gcc_linaro_eabi_4_9_i686)
 		#
 		#https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-arm-none-eabi-4.9-2014.09_linux.tar.xz
 		#
@@ -82,6 +82,23 @@ gcc_toolchain () {
 		datestamp="${release}-${toolchain_name}"
 
 		binary="bin/arm-none-eabi-"
+		;;
+	gcc_linaro_eabi_4_9)
+		#
+		#https://releases.linaro.org/14.11/components/toolchain/binaries/arm-none-eabi/gcc-linaro-4.9-2014.11-x86_64_arm-eabi.tar.xz
+		#
+
+		gcc_version="4.9"
+		release="14.11"
+		target="arm-none-eabi"
+
+		version="${release}/components/toolchain/binaries/${target}"
+		filename="gcc-linaro-${gcc_version}-20${release}-x86_64_arm-eabi.tar.xz"
+		directory="gcc-linaro-${gcc_version}-20${release}-x86_64_arm-eabi"
+
+		datestamp="${gcc_version}-20${release}-${target}"
+
+		binary="bin/${target}-"
 		;;
 	gcc_linaro_gnueabi_4_6)
 		#
@@ -126,40 +143,36 @@ gcc_toolchain () {
 
 		binary="bin/arm-linux-gnueabihf-"
 		;;
+	gcc_linaro_gnueabihf_4_9_i686)
+		#
+		#https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
+		#
+		gcc_version="4.9"
+		release="2014.09"
+		toolchain_name="gcc-linaro-arm-linux-gnueabihf"
+		version="14.09/components/toolchain/binaries"
+		directory="${toolchain_name}-${gcc_version}-${release}_linux"
+		filename="${directory}.tar.xz"
+		datestamp="${release}-${toolchain_name}"
+
+		binary="bin/arm-linux-gnueabihf-"
+		;;
 	gcc_linaro_gnueabihf_4_9)
-		if [ "x${ARCH}" = "xi686" ] ; then
-			echo ""
-			echo "Warning: 32bit is no longer supported by linaro, using old 14.09 release..."
-			echo ""
-			#
-			#https://releases.linaro.org/14.09/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
-			#
-			gcc_version="4.9"
-			release="2014.09"
-			toolchain_name="gcc-linaro-arm-linux-gnueabihf"
-			version="14.09/components/toolchain/binaries"
-			directory="${toolchain_name}-${gcc_version}-${release}_linux"
-			filename="${directory}.tar.xz"
-			datestamp="${release}-${toolchain_name}"
+		#
+		#https://releases.linaro.org/14.11/components/toolchain/binaries/arm-linux-gnueabihf/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf.tar.xz
+		#
 
-			binary="bin/arm-linux-gnueabihf-"
-		else
-			#
-			#http://releases.linaro.org/14.11/components/toolchain/binaries/arm-linux-gnueabihf/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf.tar.xz
-			#
+		gcc_version="4.9"
+		release="14.11"
+		target="arm-linux-gnueabihf"
 
-			gcc_version="4.9"
-			release="14.11"
-			target="arm-linux-gnueabihf"
+		version="${release}/components/toolchain/binaries/${target}"
+		filename="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}.tar.xz"
+		directory="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}"
 
-			version="${release}/components/toolchain/binaries/${target}"
-			filename="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}.tar.xz"
-			directory="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}"
+		datestamp="${gcc_version}-20${release}-${target}"
 
-			datestamp="${gcc_version}-20${release}-${target}"
-
-			binary="bin/${target}-"
-		fi
+		binary="bin/${target}-"
 		;;
 	*)
 		echo "bug: maintainer forgot to set:"
@@ -172,6 +185,24 @@ gcc_toolchain () {
 }
 
 if [ "x${CC}" = "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
+	if [ "x${ARCH}" = "xi686" ] ; then
+		echo ""
+		echo "Warning: 32bit is no longer supported by linaro..."
+		if [ "x${toolchain}" = "xgcc_linaro_eabi_4_9" ] ; then
+			echo ""
+			echo "Warning: 32bit is no longer supported by linaro, using old 14.09 gcc-4.9 release..."
+			echo ""
+			toolchain="gcc_linaro_eabi_4_9_i686"
+		fi
+
+		if [ "x${toolchain}" = "xgcc_linaro_gnueabihf_4_9" ] ; then
+			echo ""
+			echo "Warning: 32bit is no longer supported by linaro, using old 14.09 gcc-4.9 release..."
+			echo ""
+			toolchain="gcc_linaro_gnueabihf_4_9_i686"
+		fi
+
+	fi
 	gcc_toolchain
 fi
 
