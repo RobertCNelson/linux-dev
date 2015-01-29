@@ -10,16 +10,17 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/staging/Kconfig                       |    2 +
  drivers/staging/Makefile                      |    1 +
  drivers/staging/etnaviv/Kconfig               |   19 +
- drivers/staging/etnaviv/Makefile              |   18 +
+ drivers/staging/etnaviv/Makefile              |   19 +
  drivers/staging/etnaviv/cmdstream.xml.h       |  218 +++++
  drivers/staging/etnaviv/common.xml.h          |  253 ++++++
  drivers/staging/etnaviv/etnaviv_buffer.c      |  286 +++++++
+ drivers/staging/etnaviv/etnaviv_cmd_parser.c  |   99 +++
  drivers/staging/etnaviv/etnaviv_drv.c         |  731 ++++++++++++++++
- drivers/staging/etnaviv/etnaviv_drv.h         |  156 ++++
+ drivers/staging/etnaviv/etnaviv_drv.h         |  159 ++++
  drivers/staging/etnaviv/etnaviv_gem.c         |  779 ++++++++++++++++++
  drivers/staging/etnaviv/etnaviv_gem.h         |  127 +++
  drivers/staging/etnaviv/etnaviv_gem_prime.c   |  120 +++
- drivers/staging/etnaviv/etnaviv_gem_submit.c  |  396 +++++++++
+ drivers/staging/etnaviv/etnaviv_gem_submit.c  |  401 +++++++++
  drivers/staging/etnaviv/etnaviv_gem_userptr.c |  210 +++++
  drivers/staging/etnaviv/etnaviv_gpu.c         | 1099 +++++++++++++++++++++++++
  drivers/staging/etnaviv/etnaviv_gpu.h         |  162 ++++
@@ -32,12 +33,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/staging/etnaviv/state.xml.h           |  348 ++++++++
  drivers/staging/etnaviv/state_hi.xml.h        |  405 +++++++++
  include/uapi/drm/etnaviv_drm.h                |  223 +++++
- 25 files changed, 6224 insertions(+)
+ 26 files changed, 6332 insertions(+)
  create mode 100644 drivers/staging/etnaviv/Kconfig
  create mode 100644 drivers/staging/etnaviv/Makefile
  create mode 100644 drivers/staging/etnaviv/cmdstream.xml.h
  create mode 100644 drivers/staging/etnaviv/common.xml.h
  create mode 100644 drivers/staging/etnaviv/etnaviv_buffer.c
+ create mode 100644 drivers/staging/etnaviv/etnaviv_cmd_parser.c
  create mode 100644 drivers/staging/etnaviv/etnaviv_drv.c
  create mode 100644 drivers/staging/etnaviv/etnaviv_drv.h
  create mode 100644 drivers/staging/etnaviv/etnaviv_gem.c
@@ -104,16 +106,17 @@ index 0000000..e072628
 +	  logging can be switched on via etnaviv.reglog=y module param.
 diff --git a/drivers/staging/etnaviv/Makefile b/drivers/staging/etnaviv/Makefile
 new file mode 100644
-index 0000000..2981d15
+index 0000000..98b4099
 --- /dev/null
 +++ b/drivers/staging/etnaviv/Makefile
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,19 @@
 +ccflags-y := -Iinclude/drm -Idrivers/staging/etnaviv
 +ifeq (, $(findstring -W,$(EXTRA_CFLAGS)))
 +	ccflags-y += -Werror
 +endif
 +
 +etnaviv-y := \
++	etnaviv_cmd_parser.o \
 +	etnaviv_drv.o \
 +	etnaviv_gem.o \
 +	etnaviv_gem_prime.o \
@@ -901,6 +904,111 @@ index 0000000..ff61fc1
 +	*(last_wait) = i;
 +	mb();	/* followed by the actual LINK opcode */
 +}
+diff --git a/drivers/staging/etnaviv/etnaviv_cmd_parser.c b/drivers/staging/etnaviv/etnaviv_cmd_parser.c
+new file mode 100644
+index 0000000..65de403
+--- /dev/null
++++ b/drivers/staging/etnaviv/etnaviv_cmd_parser.c
+@@ -0,0 +1,99 @@
++/*
++ * Copyright (C) 2015 Etnaviv Project
++ * Author: Russell King <rmk+kernel@arm.linux.org.uk>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "etnaviv_gem.h"
++#include "etnaviv_gpu.h"
++
++#include "cmdstream.xml.h"
++
++static const char *opcode_to_str(u8 cmd)
++{
++    const char *op_names[] =
++    {
++        "FE_OPCODE_LOAD_STATE",
++        "FE_OPCODE_END",
++        "FE_OPCODE_NOP",
++        "FE_OPCODE_DRAW_2D",
++        "FE_OPCODE_DRAW_PRIMITIVES",
++        "FE_OPCODE_DRAW_INDEXED_PRIMITIVES",
++        "FE_OPCODE_WAIT",
++        "FE_OPCODE_LINK",
++        "FE_OPCODE_STALL",
++        "FE_OPCODE_CALL",
++        "FE_OPCODE_RETURN",
++        "FE_OPCODE_CHIP_SELECT"
++    };
++
++    if (cmd <= FE_OPCODE_CHIP_SELECT)
++        return op_names[cmd];
++
++    return "UNKOWN OPCODE";
++}
++
++bool etnaviv_cmd_validate(struct etnaviv_gpu *gpu,
++	struct etnaviv_gem_object *obj, unsigned int size)
++{
++	u32 *start = obj->vaddr;
++	u32 *buf = start;
++	u32 *end = buf + size;
++
++	while (buf < end) {
++		u32 cmd = *buf;
++		unsigned int len, n;
++		unsigned int op = cmd >> 27;
++
++		switch (op) {
++		case FE_OPCODE_LOAD_STATE:
++			n = VIV_FE_LOAD_STATE_HEADER_COUNT(cmd);
++			len = 1 + n;
++			break;
++
++		case FE_OPCODE_DRAW_2D:
++			n = VIV_FE_DRAW_2D_HEADER_COUNT(cmd);
++			len = 2 + n * 2;
++			break;
++
++		case FE_OPCODE_DRAW_PRIMITIVES:
++			len = 4;
++			break;
++
++		case FE_OPCODE_DRAW_INDEXED_PRIMITIVES:
++			len = 6;
++			break;
++
++		case FE_OPCODE_NOP:
++		case FE_OPCODE_STALL:
++			len = 2;
++			break;
++
++		default:
++			dev_err(gpu->dev, "%s: op %s (%u) not permitted at offset %u\n",
++					__func__, opcode_to_str(op), op, buf - start);
++			return false;
++		}
++
++		buf += ALIGN(len, 2);
++	}
++
++	if (buf > end) {
++		dev_err(gpu->dev, "%s: commands overflow end of buffer: %u > %u\n",
++			__func__, buf - start, size);
++		return false;
++	}
++
++	return true;
++}
 diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
 new file mode 100644
 index 0000000..f2eba54
@@ -1640,10 +1748,10 @@ index 0000000..f2eba54
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
 new file mode 100644
-index 0000000..cc46bc3
+index 0000000..fcf0960
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_drv.h
-@@ -0,0 +1,156 @@
+@@ -0,0 +1,159 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -1684,6 +1792,7 @@ index 0000000..cc46bc3
 +#include <drm/drm_gem.h>
 +
 +struct etnaviv_gpu;
++struct etnaviv_gem_object;
 +struct etnaviv_gem_submit;
 +
 +struct etnaviv_file_private {
@@ -1760,6 +1869,8 @@ index 0000000..cc46bc3
 +u32 etnaviv_buffer_init(struct etnaviv_gpu *gpu);
 +void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
 +	struct etnaviv_gem_submit *submit);
++bool etnaviv_cmd_validate(struct etnaviv_gpu *gpu,
++	struct etnaviv_gem_object *obj, unsigned int size);
 +
 +#ifdef CONFIG_DEBUG_FS
 +void etnaviv_gem_describe_objects(struct list_head *list, struct seq_file *m);
@@ -2846,10 +2957,10 @@ index 0000000..32f5c17
 +}
 diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
 new file mode 100644
-index 0000000..2760a71
+index 0000000..241fec1
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
-@@ -0,0 +1,396 @@
+@@ -0,0 +1,401 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -3221,6 +3332,11 @@ index 0000000..2760a71
 +
 +	submit->cmd.size = submit_cmd.size / 4;
 +	submit->cmd.obj = etnaviv_obj;
++
++	if (!etnaviv_cmd_validate(gpu, etnaviv_obj, submit->cmd.size)) {
++		ret = -EINVAL;
++		goto out;
++	}
 +
 +	ret = submit_reloc(submit, etnaviv_obj, submit_cmd.nr_relocs,
 +			submit_cmd.relocs);
