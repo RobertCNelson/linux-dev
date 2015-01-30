@@ -988,11 +988,10 @@ config="CONFIG_USB_GADGET_VBUS_DRAW" ; option="500" ; config_value
 config="CONFIG_USB_LIBCOMPOSITE" ; config_enable
 config="CONFIG_USB_U_ETHER" ; config_enable
 config="CONFIG_USB_F_ECM" ; config_enable
-config="CONFIG_USB_F_EEM" ; config_enable
 config="CONFIG_USB_F_SUBSET" ; config_enable
 config="CONFIG_USB_F_RNDIS" ; config_enable
 config="CONFIG_USB_ETH" ; config_enable
-config="CONFIG_USB_ETH_EEM" ; config_enable
+config="CONFIG_USB_ETH_EEM" ; config_disable
 config="CONFIG_USB_GADGETFS" ; config_disable
 config="CONFIG_USB_G_NOKIA" ; config_disable
 
