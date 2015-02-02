@@ -108,7 +108,7 @@ dts () {
 	${git} "${DIR}/patches/dts/0006-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
 	${git} "${DIR}/patches/dts/0007-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0008-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
-	${git} "${DIR}/patches/dts/0009-ARM-dts-sunxi-Add-simplefb-nodes-for-de_be0-lcd0-de_.patch"
+#	${git} "${DIR}/patches/dts/0009-ARM-dts-sunxi-Add-simplefb-nodes-for-de_be0-lcd0-de_.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=9
@@ -135,7 +135,7 @@ fixes () {
 	fi
 
 	${git} "${DIR}/patches/fixes/0001-trusty-gcc-4.8-4.8.2-19ubuntu1-has-fix.patch"
-	${git} "${DIR}/patches/fixes/0002-ARM-dts-Fix-missing-usb0_reset-for-sun4i-sun5i.patch"
+#	${git} "${DIR}/patches/fixes/0002-ARM-dts-Fix-missing-usb0_reset-for-sun4i-sun5i.patch"
 	${git} "${DIR}/patches/fixes/0003-ARM-dts-am57xx-beagle-x15-Add-GPIO-controlled-fan-no.patch"
 	${git} "${DIR}/patches/fixes/0004-tty-serial-8250-omap-add-ttySx-console-if-the-user-d.patch"
 	${git} "${DIR}/patches/fixes/0005-ARM-dts-am57xx-beagle-x15-Add-dual-ethernet.patch"
