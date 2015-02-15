@@ -252,6 +252,16 @@ debian_regs () {
 			deb_distro="precise"
 		fi
 
+		if [ "x${deb_distro}" = "xbelenos" ] ; then
+			#http://listas.trisquel.info/pipermail/trisquel-announce/2014-November/000018.html
+			#lsb_release -a
+			#Distributor ID:    Trisquel
+			#Description:    Trisquel GNU/Linux 7.0, Belenos
+			#Release:    7.0
+			#Codename:    belenos
+			deb_distro="trusty"
+		fi
+
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/oldreleases.php
 		#http://packages.linuxmint.com/index.php
