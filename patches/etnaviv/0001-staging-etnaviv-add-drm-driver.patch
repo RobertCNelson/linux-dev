@@ -15,9 +15,9 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/staging/etnaviv/common.xml.h          |  253 ++++++
  drivers/staging/etnaviv/etnaviv_buffer.c      |  286 +++++++
  drivers/staging/etnaviv/etnaviv_cmd_parser.c  |  119 +++
- drivers/staging/etnaviv/etnaviv_drv.c         |  731 ++++++++++++++++
- drivers/staging/etnaviv/etnaviv_drv.h         |  159 ++++
- drivers/staging/etnaviv/etnaviv_gem.c         |  779 ++++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_drv.c         |  728 ++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_drv.h         |  155 ++++
+ drivers/staging/etnaviv/etnaviv_gem.c         |  748 +++++++++++++++++
  drivers/staging/etnaviv/etnaviv_gem.h         |  127 +++
  drivers/staging/etnaviv/etnaviv_gem_prime.c   |  120 +++
  drivers/staging/etnaviv/etnaviv_gem_submit.c  |  401 +++++++++
@@ -33,7 +33,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/staging/etnaviv/state.xml.h           |  348 ++++++++
  drivers/staging/etnaviv/state_hi.xml.h        |  405 +++++++++
  include/uapi/drm/etnaviv_drm.h                |  223 +++++
- 26 files changed, 6352 insertions(+)
+ 26 files changed, 6314 insertions(+)
  create mode 100644 drivers/staging/etnaviv/Kconfig
  create mode 100644 drivers/staging/etnaviv/Makefile
  create mode 100644 drivers/staging/etnaviv/cmdstream.xml.h
@@ -1033,10 +1033,10 @@ index 0000000..548703c
 +}
 diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
 new file mode 100644
-index 0000000..f2eba54
+index 0000000..3b5c523
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_drv.c
-@@ -0,0 +1,731 @@
+@@ -0,0 +1,728 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -1628,19 +1628,16 @@ index 0000000..f2eba54
 +	.set_busid          = drm_platform_set_busid,
 +	.gem_free_object    = etnaviv_gem_free_object,
 +	.gem_vm_ops         = &vm_ops,
-+	.dumb_create        = msm_gem_dumb_create,
-+	.dumb_map_offset    = msm_gem_dumb_map_offset,
-+	.dumb_destroy       = drm_gem_dumb_destroy,
 +	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
 +	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
 +	.gem_prime_export   = drm_gem_prime_export,
 +	.gem_prime_import   = drm_gem_prime_import,
-+	.gem_prime_pin      = msm_gem_prime_pin,
-+	.gem_prime_unpin    = msm_gem_prime_unpin,
++	.gem_prime_pin      = etnaviv_gem_prime_pin,
++	.gem_prime_unpin    = etnaviv_gem_prime_unpin,
 +	.gem_prime_get_sg_table = etnaviv_gem_prime_get_sg_table,
 +	.gem_prime_import_sg_table = etnaviv_gem_prime_import_sg_table,
 +	.gem_prime_vmap     = etnaviv_gem_prime_vmap,
-+	.gem_prime_vunmap   = msm_gem_prime_vunmap,
++	.gem_prime_vunmap   = etnaviv_gem_prime_vunmap,
 +#ifdef CONFIG_DEBUG_FS
 +	.debugfs_init       = etnaviv_debugfs_init,
 +	.debugfs_cleanup    = etnaviv_debugfs_cleanup,
@@ -1770,10 +1767,10 @@ index 0000000..f2eba54
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
 new file mode 100644
-index 0000000..fcf0960
+index 0000000..fd65c33
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_drv.h
-@@ -0,0 +1,159 @@
+@@ -0,0 +1,155 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -1861,17 +1858,13 @@ index 0000000..fcf0960
 +struct page **etnaviv_gem_get_pages(struct drm_gem_object *obj);
 +void msm_gem_put_pages(struct drm_gem_object *obj);
 +void etnaviv_gem_put_iova(struct drm_gem_object *obj);
-+int msm_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
-+		struct drm_mode_create_dumb *args);
-+int msm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
-+		uint32_t handle, uint64_t *offset);
 +struct sg_table *etnaviv_gem_prime_get_sg_table(struct drm_gem_object *obj);
 +void *etnaviv_gem_prime_vmap(struct drm_gem_object *obj);
-+void msm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
++void etnaviv_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
 +struct drm_gem_object *etnaviv_gem_prime_import_sg_table(struct drm_device *dev,
 +		struct dma_buf_attachment *attach, struct sg_table *sgt);
-+int msm_gem_prime_pin(struct drm_gem_object *obj);
-+void msm_gem_prime_unpin(struct drm_gem_object *obj);
++int etnaviv_gem_prime_pin(struct drm_gem_object *obj);
++void etnaviv_gem_prime_unpin(struct drm_gem_object *obj);
 +void *etnaviv_gem_vaddr_locked(struct drm_gem_object *obj);
 +void *etnaviv_gem_vaddr(struct drm_gem_object *obj);
 +dma_addr_t etnaviv_gem_paddr_locked(struct drm_gem_object *obj);
@@ -1935,10 +1928,10 @@ index 0000000..fcf0960
 +#endif /* __ETNAVIV_DRV_H__ */
 diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
 new file mode 100644
-index 0000000..856fa88
+index 0000000..fc0ca95
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_gem.c
-@@ -0,0 +1,779 @@
+@@ -0,0 +1,748 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -2231,37 +2224,6 @@ index 0000000..856fa88
 +	 * if another _get_iova_locked() fails we can start unmapping
 +	 * things that are no longer needed..
 +	 */
-+}
-+
-+int msm_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
-+		struct drm_mode_create_dumb *args)
-+{
-+	args->pitch = align_pitch(args->width, args->bpp);
-+	args->size  = PAGE_ALIGN(args->pitch * args->height);
-+	/* TODO: re-check flags */
-+	return etnaviv_gem_new_handle(dev, file, args->size,
-+			ETNA_BO_WC, &args->handle);
-+}
-+
-+int msm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
-+		uint32_t handle, uint64_t *offset)
-+{
-+	struct drm_gem_object *obj;
-+	int ret = 0;
-+
-+	/* GEM does all our handle to object mapping */
-+	obj = drm_gem_object_lookup(dev, file, handle);
-+	if (obj == NULL) {
-+		ret = -ENOENT;
-+		goto fail;
-+	}
-+
-+	*offset = etnaviv_gem_mmap_offset(obj);
-+
-+	drm_gem_object_unreference_unlocked(obj);
-+
-+fail:
-+	return ret;
 +}
 +
 +void *etnaviv_gem_vaddr_locked(struct drm_gem_object *obj)
@@ -2853,7 +2815,7 @@ index 0000000..5d32eee
 +#endif /* __ETNAVIV_GEM_H__ */
 diff --git a/drivers/staging/etnaviv/etnaviv_gem_prime.c b/drivers/staging/etnaviv/etnaviv_gem_prime.c
 new file mode 100644
-index 0000000..32f5c17
+index 0000000..c4a5ea1
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_gem_prime.c
 @@ -0,0 +1,120 @@
@@ -2894,12 +2856,12 @@ index 0000000..32f5c17
 +	return etnaviv_gem_vaddr(obj);
 +}
 +
-+void msm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
++void etnaviv_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
 +{
 +	/* TODO msm_gem_vunmap() */
 +}
 +
-+int msm_gem_prime_pin(struct drm_gem_object *obj)
++int etnaviv_gem_prime_pin(struct drm_gem_object *obj)
 +{
 +	if (!obj->import_attach) {
 +		struct drm_device *dev = obj->dev;
@@ -2911,7 +2873,7 @@ index 0000000..32f5c17
 +	return 0;
 +}
 +
-+void msm_gem_prime_unpin(struct drm_gem_object *obj)
++void etnaviv_gem_prime_unpin(struct drm_gem_object *obj)
 +{
 +	if (!obj->import_attach) {
 +		struct drm_device *dev = obj->dev;

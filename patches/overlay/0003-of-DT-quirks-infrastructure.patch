@@ -1,0 +1,529 @@
+From 97b8f2209bbb4052c028f3562b662a753c1c4ee2 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Wed, 18 Feb 2015 16:59:34 +0200
+Subject: [PATCH 3/5] of: DT quirks infrastructure
+
+Implement a method of applying DT quirks early in the boot sequence.
+
+A DT quirk is a subtree of the boot DT that can be applied to
+a target in the base DT resulting in a modification of the live
+tree. The format of the quirk nodes is that of a device tree overlay.
+
+For details please refer to Documentation/devicetree/quirks.txt
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ Documentation/devicetree/quirks.txt | 101 ++++++++++
+ drivers/of/dynamic.c                | 358 ++++++++++++++++++++++++++++++++++++
+ include/linux/of.h                  |  16 ++
+ 3 files changed, 475 insertions(+)
+ create mode 100644 Documentation/devicetree/quirks.txt
+
+diff --git a/Documentation/devicetree/quirks.txt b/Documentation/devicetree/quirks.txt
+new file mode 100644
+index 0000000..789319a
+--- /dev/null
++++ b/Documentation/devicetree/quirks.txt
+@@ -0,0 +1,101 @@
++A Device Tree quirk is the way which allows modification of the
++boot device tree under the control of a per-platform specific method.
++
++Take for instance the case of a board family that comprises of a
++number of different board revisions, all being incremental changes
++after an initial release.
++
++Since all board revisions must be supported via a single software image
++the only way to support this scheme is by having a different DTB for each
++revision with the bootloader selecting which one to use at boot time.
++
++While this may in theory work, in practice it is very cumbersome
++for the following reasons:
++
++1. The act of selecting a different boot device tree blob requires
++a reasonably advanced bootloader with some kind of configuration or
++scripting capabilities. Sadly this is not the case many times, the
++bootloader is extremely dumb and can only use a single dt blob.
++
++2. On many instances boot time is extremely critical; in some cases
++there are hard requirements like having working video feeds in under
++2 seconds from power-up. This leaves an extremely small time budget for
++boot-up, as low as 500ms to kernel entry. The sanest way to get there
++is by removing the standard bootloader from the normal boot sequence
++altogether by having a very small boot shim that loads the kernel and
++immediately jumps to kernel, like falcon-boot mode in u-boot does.
++
++3. Having different DTBs/DTSs for different board revisions easily leads to
++drift between versions. Since no developer is expected to have every single
++board revision at hand, things are easy to get out of sync, with board versions
++failing to boot even though the kernel is up to date.
++
++4. One final problem is the static way that device tree works.
++For example it might be desirable for various boards to have a way to
++selectively configure the boot device tree, possibly by the use of command
++line options.  For instance a device might be disabled if a given command line
++option is present, different configuration to various devices for debugging
++purposes can be selected and so on. Currently the only way to do so is by
++recompiling the DTS and installing, which is an chore for developers and
++a completely unreasonable expectation from end-users.
++
++Device Tree quirks solve all those problems by having an in-kernel interface
++which per-board/platform method can use to selectively modify the device tree
++right after unflattening.
++
++A DT quirk is a subtree of the boot DT that can be applied to
++a target in the base DT resulting in a modification of the live
++tree. The format of the quirk nodes is that of a device tree overlay.
++
++As an example the following DTS contains a quirk.
++
++/ {
++	foo: foo-node {
++		bar = <10>;
++	};
++
++	select-quirk = <&quirk>;
++
++	quirk: quirk {
++		fragment@0 {
++			target = <&foo>;
++			__overlay {
++				bar = <0xf00>;
++				baz = <11>;
++			};
++		};
++	};
++};
++
++The quirk when applied would result at the following tree:
++
++/ {
++	foo: foo-node {
++		bar = <0xf00>;
++		baz = <11>;
++	};
++
++	select-quirk = <&quirk>;
++
++	quirk: quirk {
++		fragment@0 {
++			target = <&foo>;
++			__overlay {
++				bar = <0xf00>;
++				baz = <11>;
++			};
++		};
++	};
++
++};
++
++The two public method used to accomplish this are of_quirk_apply_by_node()
++and of_quirk_apply_by_phandle();
++
++To apply the quirk, a per-platform method can retrieve the phandle from the
++select-quirk property and pass it to the of_quirk_apply_by_phandle() node.
++
++The method which the per-platform method is using to select the quirk to apply
++is out of the scope of the DT quirk definition, but possible methods include
++and are not limited to: revision encoding in a GPIO input range, board id
++located in external or internal EEPROM or flash, DMI board ids, etc.
+diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
+index 3351ef4..d275dc7 100644
+--- a/drivers/of/dynamic.c
++++ b/drivers/of/dynamic.c
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <linux/of.h>
++#include <linux/of_fdt.h>
+ #include <linux/spinlock.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+@@ -779,3 +780,360 @@ int of_changeset_action(struct of_changeset *ocs, unsigned long action,
+ 	list_add_tail(&ce->node, &ocs->entries);
+ 	return 0;
+ }
++
++/* fixup a symbol entry for a quirk if it exists */
++static int quirk_fixup_symbol(struct device_node *dns, struct device_node *dnp)
++{
++	struct device_node *dn;
++	struct property *prop;
++	const char *names, *namep;
++	int lens, lenp;
++	char *p;
++
++	dn = of_find_node_by_path("/__symbols__");
++	if (!dn)
++		return 0;
++
++	names = of_node_full_name(dns);
++	lens = strlen(names);
++	namep = of_node_full_name(dnp);
++	lenp = strlen(namep);
++	for_each_property_of_node(dn, prop) {
++		/* be very concervative at matching */
++		if (lens == (prop->length - 1) &&
++			((const char *)prop->value)[prop->length] == '\0' &&
++			strcmp(prop->value, names) == 0)
++			break;
++	}
++	if (prop == NULL)
++		return 0;
++	p = early_init_dt_alloc_memory_arch(lenp + 1, __alignof__(char));
++	if (!p) {
++		pr_err("%s: symbol fixup %s failed\n", __func__, prop->name);
++		return -ENOMEM;
++	}
++	strcpy(p, namep);
++
++	pr_debug("%s: symbol fixup %s: %s -> %s\n", __func__,
++			prop->name, names, namep);
++
++	prop->value = p;
++	prop->length = lenp + 1;
++
++	return 0;
++}
++
++/* create a new quirk node */
++static struct device_node *new_quirk_node(
++		struct device_node *dns,
++		struct device_node *dnt,
++		const char *name)
++{
++	struct device_node *dnp;
++	int dnlen, len, ret;
++	struct property **pp, *prop;
++	char *p;
++
++	dnlen = strlen(dnt->full_name);
++	len = dnlen + 1 + strlen(name) + 1;
++	dnp = early_init_dt_alloc_memory_arch(
++			sizeof(struct device_node) + len,
++			__alignof__(struct device_node));
++	if (dnp == NULL) {
++		pr_err("%s: allocation failure at %pO\n", __func__,
++				dns);
++		return NULL;
++	}
++	memset(dnp, 0, sizeof(*dnp));
++	of_node_init(dnp);
++	p = (char *)dnp + sizeof(*dnp);
++
++	/* build full name */
++	dnp->full_name = p;
++	memcpy(p, dnt->full_name, dnlen);
++	p += dnlen;
++	if (dnlen != 1)
++		*p++ = '/';
++	strcpy(p, name);
++
++	dnp->parent = dnt;
++
++	/* we now move the phandle properties */
++	for (pp = &dns->properties; (prop = *pp) != NULL; ) {
++
++		/* do not touch normal properties */
++		if (strcmp(prop->name, "name") &&
++		    strcmp(prop->name, "phandle") &&
++		    strcmp(prop->name, "linux,phandle") &&
++		    strcmp(prop->name, "ibm,phandle")) {
++			pp = &(*pp)->next;
++			continue;
++		}
++
++		/* move to the new node */
++		*pp = prop->next;
++		/* don't advance */
++
++		prop->next = dnp->properties;
++		dnp->properties = prop;
++
++		if ((strcmp(prop->name, "phandle") == 0 ||
++		    strcmp(prop->name, "linux,phandle") == 0 ||
++		    strcmp(prop->name, "ibm,phandle") == 0) &&
++				dnp->phandle == 0) {
++			dnp->phandle = be32_to_cpup(prop->value);
++			/* remove the phandle from the source */
++			dns->phandle = 0;
++		}
++	}
++
++	dnp->name = of_get_property(dnp, "name", NULL);
++	dnp->type = of_get_property(dnp, "device_type", NULL);
++	if (!dnp->name)
++		dnp->name = "<NULL>";
++	if (!dnp->type)
++		dnp->type = "<NULL>";
++
++	ret = quirk_fixup_symbol(dns, dnp);
++	if (ret != 0)
++		pr_warn("%s: Failed to fixup symbol %pO\n", __func__, dnp);
++
++	return dnp;
++}
++
++/* apply a quirk fragment node recursively */
++static int of_apply_quirk_fragment_node(struct device_node *dn,
++		struct device_node *dnt)
++{
++	struct property *prop, *tprop, **pp;
++	struct device_node *dnp, **dnpp, *child;
++	const char *name, *namet;
++	int i, ret;
++
++	if (!dn || !dnt)
++		return -EINVAL;
++
++	/* iterate over all properties */
++	for (pp = &dn->properties; (prop = *pp) != NULL; pp = &prop->next) {
++
++		/* do not touch auto-generated properties */
++		if (!strcmp(prop->name, "name") ||
++		    !strcmp(prop->name, "phandle") ||
++		    !strcmp(prop->name, "linux,phandle") ||
++		    !strcmp(prop->name, "ibm,phandle") ||
++		    !strcmp(prop->name, "__remove_property__") ||
++		    !strcmp(prop->name, "__remove_node__"))
++			continue;
++
++		pr_debug("%s: change property %s from %pO to %pO\n",
++				__func__, prop->name, dn, dnt);
++
++		tprop = of_find_property(dnt, prop->name, NULL);
++		if (tprop) {
++			tprop->value = prop->value;
++			tprop->length = prop->length;
++			continue;
++		}
++		tprop = early_init_dt_alloc_memory_arch(
++				sizeof(struct property),
++				__alignof__(struct property));
++		if (!tprop) {
++			pr_err("%s: allocation failure at %pO\n", __func__,
++					dn);
++			return -ENOMEM;
++		}
++		tprop->name = prop->name;
++		tprop->value = prop->value;
++		tprop->length = prop->length;
++
++		/* link */
++		tprop->next = dnt->properties;
++		dnt->properties = tprop;
++	}
++
++	/* now handle property removals (if any) */
++	for (i = 0; of_property_read_string_index(dn, "__remove_property__",
++				i, &name) == 0; i++) {
++
++		/* remove property directly (we don't care about dead props) */
++		for (pp = &dnt->properties; (prop = *pp) != NULL;
++				pp = &prop->next) {
++			if (!strcmp(prop->name, name)) {
++				*pp = prop->next;
++				pr_info("%s: remove property %s at %pO\n",
++					__func__, name, dnt);
++				break;
++			}
++		}
++	}
++
++	/* now handle node removals (if any) */
++	for (i = 0; of_property_read_string_index(dn, "__remove_node__",
++				i, &name) == 0; i++) {
++
++		/* remove node directly (we don't care about dead props) */
++		for (dnpp = &dnt->child; (dnp = *dnpp) != NULL;
++				dnpp = &dnp->sibling) {
++
++			/* find path component */
++			namet = strrchr(dnp->full_name, '/');
++			if (!namet)	/* root */
++				namet = dnp->full_name;
++			else
++				namet++;
++			if (!strcmp(namet, name)) {
++				*dnpp = dnp->sibling;
++				pr_info("%s: remove node %s at %pO\n",
++					__func__, namet, dnt);
++				break;
++			}
++		}
++	}
++
++	/* now iterate over childen */
++	for_each_child_of_node(dn, child) {
++		/* locate path component */
++		name = strrchr(child->full_name, '/');
++		if (name == NULL)	/* root? */
++			name = child->full_name;
++		else
++			name++;
++
++		/* find node (if it exists) */
++		for (dnpp = &dnt->child; (dnp = *dnpp) != NULL;
++				dnpp = &dnp->sibling) {
++
++			namet = strrchr(dnp->full_name, '/');
++			if (!namet)	/* root */
++				namet = dnp->full_name;
++			else
++				namet++;
++
++			if (!strcmp(namet, name))
++				break;
++		}
++
++		/* not found, create node */
++		if (dnp == NULL) {
++			dnp = new_quirk_node(child, dnt, name);
++			if (dnp == NULL) {
++				pr_err("%s: allocation failure at %pO\n",
++						__func__, dn);
++				of_node_put(child);
++				return -ENOMEM;
++			}
++			dnp->sibling = *dnpp;
++			*dnpp = dnp;
++
++			pr_debug("%s: new node %pO\n", __func__, dnp);
++		}
++		pr_debug("%s: recursing %pO\n", __func__, dnp);
++
++		ret = of_apply_quirk_fragment_node(child, dnp);
++		if (ret != 0) {
++			of_node_put(child);
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
++/* apply a single quirk fragment located at dn */
++static int of_apply_single_quirk_fragment(struct device_node *dn)
++{
++	struct device_node *dnt, *dno;
++	const char *path;
++	u32 val;
++	int ret;
++
++	/* first try to go by using the target as a phandle */
++	dno = NULL;
++	dnt = NULL;
++	ret = of_property_read_u32(dn, "target", &val);
++	if (ret == 0)
++		dnt = of_find_node_by_phandle(val);
++
++	if (dnt == NULL) {
++		/* now try to locate by path */
++		ret = of_property_read_string(dn, "target-path",
++				&path);
++		if (ret == 0)
++			dnt = of_find_node_by_path(path);
++	}
++
++	if (dnt == NULL) {
++		pr_err("%s: Failed to find target for node %pO\n",
++				__func__, dn);
++		ret = -ENODEV;
++		goto out;
++	}
++
++	pr_debug("%s: Found target at %pO\n", __func__, dnt);
++	dno = of_get_child_by_name(dn, "__overlay__");
++	if (!dno) {
++		pr_err("%s: Failed to find overlay node %pO\n", __func__, dn);
++		ret = -ENODEV;
++		goto out;
++	}
++
++	ret = of_apply_quirk_fragment_node(dno, dnt);
++out:
++	of_node_put(dno);
++	of_node_put(dnt);
++
++	return ret;
++}
++
++/**
++ * of_quirk_apply_by_node - Apply a DT quirk found at the given node
++ *
++ * @dn:		device node pointer to the quirk
++ *
++ * Returns 0 on success, a negative error value in case of an error.
++ */
++int of_quirk_apply_by_node(struct device_node *dn)
++{
++	struct device_node *child;
++	int ret;
++
++	if (!dn)
++		return -ENODEV;
++
++	pr_debug("Apply quirk at %pO\n", dn);
++
++	ret = 0;
++	for_each_child_of_node(dn, child) {
++		ret = of_apply_single_quirk_fragment(child);
++		if (ret != 0) {
++			of_node_put(child);
++			break;
++		}
++	}
++
++	return ret;
++}
++
++/**
++ * of_quirk_apply_by_node - Apply a DT quirk found by the given phandle
++ *
++ * ph:		phandle of the quirk node
++ *
++ * Returns 0 on success, a negative error value in case of an error.
++ */
++int of_quirk_apply_by_phandle(phandle ph)
++{
++	struct device_node *dn;
++	int ret;
++
++	dn = of_find_node_by_phandle(ph);
++	if (!dn) {
++		pr_err("Failed to find node with phandle %u\n", ph);
++		return -ENODEV;
++	}
++
++	ret = of_quirk_apply_by_node(dn);
++	of_node_put(dn);
++
++	return ret;
++}
+diff --git a/include/linux/of.h b/include/linux/of.h
+index dfde07e..5851984 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -1043,4 +1043,20 @@ static inline int of_overlay_destroy_all(void)
+ 
+ #endif
+ 
++/* early boot quirks */
++#ifdef CONFIG_OF_DYNAMIC
++int of_quirk_apply_by_node(struct device_node *dn);
++int of_quirk_apply_by_phandle(phandle ph);
++#else
++static inline int of_quirk_apply_by_node(struct device_node *dn)
++{
++	return -ENOTSUPP;
++}
++
++int of_quirk_apply_by_phandle(phandle ph)
++{
++	return -ENOTSUPP;
++}
++#endif
++
+ #endif /* _LINUX_OF_H */
+-- 
+2.1.4
+
