@@ -67,11 +67,6 @@ local_patch () {
 #external_git
 #local_patch
 
-need_to_push_mainline () {
-	echo "dir: need_to_push_mainline"
-	${git} "${DIR}/patches/need_to_push_mainline/0001-ARM-dts-restructure-imx6q-udoo.dts-to-support-udoo-d.patch"
-}
-
 overlay () {
 	echo "dir: overlay"
 #	${git} "${DIR}/patches/overlay/0001-OF-DT-Overlay-configfs-interface-v3.patch"
@@ -272,8 +267,6 @@ etnaviv () {
 
 #	echo "dir: etnaviv/fixes"
 }
-
-need_to_push_mainline
 
 overlay
 dt
