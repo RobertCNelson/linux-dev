@@ -117,7 +117,6 @@ config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_MACH_TOUCHBOOK" ; config_disable
 config="CONFIG_MACH_NOKIA_RX51" ; config_disable
 config="CONFIG_MACH_CM_T35" ; config_disable
-config="CONFIG_MACH_CM_T3517" ; config_disable
 config="CONFIG_MACH_SBC3530" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
@@ -228,6 +227,8 @@ config="CONFIG_MAC802154" ; config_module
 # Classification
 #
 config="CONFIG_NET_ACT_VLAN" ; config_module
+config="CONFIG_NET_ACT_BPF" ; config_module
+config="CONFIG_NET_ACT_CONNMARK" ; config_module
 config="CONFIG_HSR" ; config_module
 
 #
@@ -421,12 +422,14 @@ config="CONFIG_KEYBOARD_MPR121" ; config_module
 config="CONFIG_KEYBOARD_NEWTON" ; config_module
 config="CONFIG_KEYBOARD_SAMSUNG" ; config_module
 config="CONFIG_KEYBOARD_SUNKBD" ; config_module
+config="CONFIG_KEYBOARD_SUN4I_LRADC" ; config_module
 config="CONFIG_KEYBOARD_XTKBD" ; config_module
 config="CONFIG_KEYBOARD_CAP11XX" ; config_module
 
 #exit
 
 config="CONFIG_MOUSE_PS2_TOUCHKIT" ; config_enable
+config="CONFIG_MOUSE_PS2_FOCALTECH" ; config_enable
 config="CONFIG_MOUSE_SERIAL" ; config_module
 config="CONFIG_MOUSE_BCM5974" ; config_module
 config="CONFIG_MOUSE_CYAPA" ; config_module
@@ -497,12 +500,16 @@ config="CONFIG_INPUT_AD714X" ; config_module
 config="CONFIG_INPUT_AD714X_I2C" ; config_module
 config="CONFIG_INPUT_AD714X_SPI" ; config_module
 config="CONFIG_INPUT_BMA150" ; config_module
+config="CONFIG_INPUT_E3X0_BUTTON" ; config_module
 config="CONFIG_INPUT_MC13783_PWRBUTTON" ; config_module
 config="CONFIG_INPUT_MPU3050" ; config_module
 config="CONFIG_INPUT_GP2A" ; config_module
 config="CONFIG_INPUT_GPIO_TILT_POLLED" ; config_module
 config="CONFIG_INPUT_KXTJ9" ; config_module
 config="CONFIG_INPUT_KXTJ9_POLLED_MODE" ; config_enable
+config="CONFIG_INPUT_REGULATOR_HAPTIC" ; config_module
+config="CONFIG_INPUT_TPS65218_PWRBUTTON" ; config_enable
+config="CONFIG_INPUT_AXP20X_PEK" ; config_enable
 config="CONFIG_INPUT_TWL4030_PWRBUTTON" ; config_enable
 config="CONFIG_INPUT_TWL4030_VIBRA" ; config_enable
 config="CONFIG_INPUT_TWL6040_VIBRA" ; config_enable
@@ -530,6 +537,7 @@ config="CONFIG_SERIO_AMBAKMI" ; config_disable
 #
 # Character devices
 #
+config="CONFIG_DEVMEM" ; config_enable
 config="CONFIG_DEVKMEM" ; config_enable
 
 #
@@ -800,12 +808,18 @@ config="CONFIG_IR_IGORPLUGUSB" ; config_module
 config="CONFIG_IR_SUNXI" ; config_module
 
 #
+# Webcam devices
+#
+config="CONFIG_USB_GSPCA_TOUPTEK" ; config_module
+
+#
 # Software defined radio USB devices
 #
 config="CONFIG_VIDEO_OMAP3" ; config_module
 config="CONFIG_VIDEO_OMAP3_DEBUG" ; config_disable
 config="CONFIG_SOC_CAMERA" ; config_module
 config="CONFIG_SOC_CAMERA_PLATFORM" ; config_module
+config="CONFIG_VIDEO_AM437X_VPFE" ; config_module
 config="CONFIG_VIDEO_CODA" ; config_enable
 config="CONFIG_VIDEO_MEM2MEM_DEINTERLACE" ; config_module
 
@@ -860,6 +874,7 @@ config="CONFIG_DRM_ETNAVIV_REGISTER_LOGGING" ; config_enable
 # I2C encoder or helper chips
 #
 config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_enable
+config="CONFIG_DRM_DW_HDMI" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_DRM_PANEL" ; config_enable
 
@@ -880,6 +895,7 @@ config="CONFIG_OMAP2_DSS_SDI" ; config_disable
 #
 # OMAP Display Device Drivers (new device model)
 #
+config="CONFIG_DISPLAY_ENCODER_OPA362" ; config_enable
 config="CONFIG_DISPLAY_ENCODER_TFP410" ; config_enable
 config="CONFIG_DISPLAY_ENCODER_TPD12S015" ; config_enable
 config="CONFIG_DISPLAY_CONNECTOR_DVI" ; config_enable
@@ -901,6 +917,10 @@ config="CONFIG_LOGO_LINUX_CLUT224" ; config_enable
 #
 # HD-Audio
 #
+config="CONFIG_SND_USB_POD" ; config_module
+config="CONFIG_SND_USB_PODHD" ; config_module
+config="CONFIG_SND_USB_TONEPORT" ; config_module
+config="CONFIG_SND_USB_VARIAX" ; config_module
 config="CONFIG_SND_EDMA_SOC" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_MCASP" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM" ; config_module
@@ -927,6 +947,7 @@ config="CONFIG_HID_GENERIC" ; config_enable
 # Special HID drivers
 #
 config="CONFIG_HID_APPLEIR" ; config_module
+config="CONFIG_HID_BETOP_FF" ; config_module
 config="CONFIG_HID_GT683R" ; config_module
 config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_HID_LOGITECH_HIDPP" ; config_enable
@@ -1219,15 +1240,8 @@ config="CONFIG_AD2S1210" ; config_module
 #
 # Android
 #
-config="CONFIG_ANDROID" ; config_enable
-config="CONFIG_ANDROID_BINDER_IPC" ; config_enable
-config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
-
-
 config="CONFIG_ASHMEM" ; config_enable
-config="CONFIG_ANDROID_LOGGER" ; config_module
 config="CONFIG_ANDROID_TIMED_GPIO" ; config_module
-config="CONFIG_ANDROID_INTF_ALARM_DEV" ; config_enable
 config="CONFIG_SYNC" ; config_enable
 config="CONFIG_SW_SYNC" ; config_disable
 
@@ -1254,6 +1268,7 @@ config="CONFIG_HWSPINLOCK_OMAP" ; config_enable
 # Clock Source drivers
 #
 config="CONFIG_TEGRA_IOMMU_SMMU" ; config_enable
+config="CONFIG_ARM_SMMU" ; config_enable
 
 #
 # Remoteproc drivers
@@ -1277,6 +1292,7 @@ config="CONFIG_DEVFREQ_GOV_USERSPACE" ; config_enable
 #
 # DEVFREQ Drivers
 #
+config="CONFIG_ARM_TEGRA_DEVFREQ" ; config_enable
 config="CONFIG_EXTCON" ; config_enable
 
 #
@@ -1298,6 +1314,8 @@ config="CONFIG_IIO_ST_ACCEL_SPI_3AXIS" ; config_module
 config="CONFIG_KXSD9" ; config_module
 config="CONFIG_MMA8452" ; config_module
 config="CONFIG_KXCJK1013" ; config_module
+config="CONFIG_MMA9551" ; config_module
+config="CONFIG_MMA9553" ; config_module
 
 #
 # Analog to digital converters
@@ -1312,6 +1330,7 @@ config="CONFIG_AD7887" ; config_module
 config="CONFIG_AD7923" ; config_module
 config="CONFIG_AD799X" ; config_module
 config="CONFIG_AXP288_ADC" ; config_module
+config="CONFIG_CC10001_ADC" ; config_module
 config="CONFIG_MAX1027" ; config_module
 config="CONFIG_MAX1363" ; config_module
 config="CONFIG_MCP320X" ; config_module
@@ -1326,6 +1345,11 @@ config="CONFIG_VF610_ADC" ; config_module
 # Amplifiers
 #
 config="CONFIG_AD8366" ; config_module
+
+#
+# SSP Sensor Common
+#
+config="CONFIG_IIO_SSP_SENSORHUB" ; config_module
 
 #
 # Digital to analog converters
@@ -1384,6 +1408,7 @@ config="CONFIG_SI7020" ; config_module
 #
 config="CONFIG_ADIS16400" ; config_module
 config="CONFIG_ADIS16480" ; config_module
+config="CONFIG_KMX61" ; config_module
 config="CONFIG_INV_MPU6050_IIO" ; config_module
 
 #
@@ -1393,9 +1418,11 @@ config="CONFIG_ADJD_S311" ; config_module
 config="CONFIG_AL3320A" ; config_module
 config="CONFIG_APDS9300" ; config_module
 config="CONFIG_CM32181" ; config_module
+config="CONFIG_CM3232" ; config_module
 config="CONFIG_CM36651" ; config_module
 config="CONFIG_GP2AP020A00F" ; config_module
 config="CONFIG_ISL29125" ; config_module
+config="CONFIG_JSA1212" ; config_module
 config="CONFIG_LTR501" ; config_module
 config="CONFIG_TCS3414" ; config_module
 config="CONFIG_TCS3472" ; config_module
@@ -1435,11 +1462,17 @@ config="CONFIG_T5403" ; config_module
 config="CONFIG_AS3935" ; config_module
 
 #
+# Proximity sensors
+#
+config="CONFIG_SX9500" ; config_module
+
+#
 # Temperature sensors
 #
 config="CONFIG_MLX90614" ; config_module
 config="CONFIG_TMP006" ; config_module
 config="CONFIG_PWM_PCA9685" ; config_module
+config="CONFIG_PWM_SUN4I" ; config_module
 
 #
 # PHY Subsystem
@@ -1449,6 +1482,13 @@ config="CONFIG_OMAP_USB2" ; config_enable
 config="CONFIG_TI_PIPE3" ; config_enable
 config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
+
+#
+# Android
+#
+config="CONFIG_ANDROID" ; config_enable
+config="CONFIG_ANDROID_BINDER_IPC" ; config_enable
+config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
 
 #
 # File systems
