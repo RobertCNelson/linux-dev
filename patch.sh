@@ -283,7 +283,7 @@ etnaviv () {
 dt
 dts
 wand
-errata
+#errata
 fixes
 
 beaglebone
