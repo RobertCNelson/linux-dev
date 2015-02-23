@@ -20,16 +20,16 @@ config="multi_v7_defconfig"
 toolchain="gcc_linaro_gnueabihf_4_9"
 
 #Kernel/Build
-KERNEL_REL=3.19
-KERNEL_TAG=${KERNEL_REL}
-BUILD=armv7-devel-r7
+KERNEL_REL=4.0
+KERNEL_TAG=${KERNEL_REL}-rc1
+BUILD=armv7-devel-r8
 
 #v3.X-rcX + upto SHA
-prev_KERNEL_SHA="3d883483dc0a7261d73d8b1857a7387a1dd99eee"
-KERNEL_SHA="90c453ca2214394eec602d98e6cb92d151908493"
+#prev_KERNEL_SHA="3d883483dc0a7261d73d8b1857a7387a1dd99eee"
+#KERNEL_SHA="90c453ca2214394eec602d98e6cb92d151908493"
 
 #git branch
-#BRANCH="v3.20.x"
+#BRANCH="v4.0.x"
 
 DISTRO=cross
 DEBARCH=armhf
