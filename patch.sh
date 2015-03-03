@@ -166,11 +166,10 @@ beaglebone () {
 
 	${git} "${DIR}/patches/beaglebone/dts/0001-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0002-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
-#	${git} "${DIR}/patches/beaglebone/dts/0003-bbb-force-usb0-to-perhiperal-mode-fixes-http-bugs.el.patch"
-	${git} "${DIR}/patches/beaglebone/dts/0004-arm-dts-am335x-bone-common-add-collision-and-carrier.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0003-arm-dts-am335x-bone-common-add-collision-and-carrier.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=3
 		cleanup
 	fi
 
