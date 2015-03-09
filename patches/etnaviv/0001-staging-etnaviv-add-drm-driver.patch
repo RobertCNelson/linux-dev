@@ -1,6 +1,6 @@
-From 48e9b51a193bf444710a415e916ced44adf22f63 Mon Sep 17 00:00:00 2001
+From 732fe3100a6051246618075fab9b745dffe4efe0 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 6 Mar 2015 16:37:17 -0600
+Date: Sun, 8 Mar 2015 21:02:10 -0500
 Subject: [PATCH] staging: etnaviv: add drm driver
 
 raw diff from: https://github.com/austriancoder/linux
@@ -22,18 +22,18 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  drivers/staging/etnaviv/etnaviv_gem_prime.c   |  120 +++
  drivers/staging/etnaviv/etnaviv_gem_submit.c  |  401 +++++++++
  drivers/staging/etnaviv/etnaviv_gem_userptr.c |  210 +++++
- drivers/staging/etnaviv/etnaviv_gpu.c         | 1099 +++++++++++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_gpu.c         | 1111 +++++++++++++++++++++++++
  drivers/staging/etnaviv/etnaviv_gpu.h         |  162 ++++
  drivers/staging/etnaviv/etnaviv_iommu.c       |  190 +++++
  drivers/staging/etnaviv/etnaviv_iommu.h       |   26 +
  drivers/staging/etnaviv/etnaviv_iommu_v2.c    |  260 ++++++
  drivers/staging/etnaviv/etnaviv_iommu_v2.h    |   25 +
- drivers/staging/etnaviv/etnaviv_mmu.c         |  120 +++
- drivers/staging/etnaviv/etnaviv_mmu.h         |   50 ++
+ drivers/staging/etnaviv/etnaviv_mmu.c         |  119 +++
+ drivers/staging/etnaviv/etnaviv_mmu.h         |   48 ++
  drivers/staging/etnaviv/state.xml.h           |  348 ++++++++
  drivers/staging/etnaviv/state_hi.xml.h        |  405 +++++++++
  include/uapi/drm/etnaviv_drm.h                |  223 +++++
- 26 files changed, 6450 insertions(+)
+ 26 files changed, 6459 insertions(+)
  create mode 100644 drivers/staging/etnaviv/Kconfig
  create mode 100644 drivers/staging/etnaviv/Makefile
  create mode 100644 drivers/staging/etnaviv/cmdstream.xml.h
@@ -3700,10 +3700,10 @@ index 0000000..62e9734
 +}
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
 new file mode 100644
-index 0000000..2ccf95b
+index 0000000..2b0007b
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.c
-@@ -0,0 +1,1099 @@
+@@ -0,0 +1,1111 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -4059,18 +4059,9 @@ index 0000000..2ccf95b
 +	return 0;
 +}
 +
-+int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
++static void etnaviv_hw_init(struct etnaviv_gpu *gpu)
 +{
-+	int ret, i;
 +	u32 prefetch;
-+	bool mmuv1;
-+	struct iommu_domain *iommu;
-+	enum etnaviv_iommu_version version;
-+
-+	etnaviv_hw_identify(gpu);
-+	ret = etnaviv_hw_reset(gpu);
-+	if (ret)
-+		return ret;
 +
 +	/* set GPU AXI cache attribute to "cacheable, no allocate" */
 +	gpu_write(gpu, VIVS_HI_AXI_CONFIG,
@@ -4083,6 +4074,29 @@ index 0000000..2ccf95b
 +	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_TX, 0x0);
 +	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_PEZ, 0x0);
 +	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_PE, 0x0);
++
++	/* start command processor */
++	prefetch = etnaviv_buffer_init(gpu);
++
++	gpu_write(gpu, VIVS_HI_INTR_ENBL, ~0U);
++	gpu_write(gpu, VIVS_FE_COMMAND_ADDRESS,
++		  etnaviv_gem_paddr_locked(gpu->buffer));
++	gpu_write(gpu, VIVS_FE_COMMAND_CONTROL,
++		  VIVS_FE_COMMAND_CONTROL_ENABLE |
++		  VIVS_FE_COMMAND_CONTROL_PREFETCH(prefetch));
++}
++
++int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
++{
++	int ret, i;
++	bool mmuv1;
++	struct iommu_domain *iommu;
++	enum etnaviv_iommu_version version;
++
++	etnaviv_hw_identify(gpu);
++	ret = etnaviv_hw_reset(gpu);
++	if (ret)
++		return ret;
 +
 +	/* Setup IOMMU.. eventually we will (I think) do this once per context
 +	 * and have separate page tables per context.  For now, to keep things
@@ -4133,15 +4147,7 @@ index 0000000..2ccf95b
 +	init_completion(&gpu->management_event);
 +	complete(&gpu->management_event);
 +
-+	/* Start command processor */
-+	prefetch = etnaviv_buffer_init(gpu);
-+
-+	gpu_write(gpu, VIVS_HI_INTR_ENBL, ~0U);
-+	gpu_write(gpu, VIVS_FE_COMMAND_ADDRESS,
-+		  etnaviv_gem_paddr_locked(gpu->buffer));
-+	gpu_write(gpu, VIVS_FE_COMMAND_CONTROL,
-+		  VIVS_FE_COMMAND_CONTROL_ENABLE |
-+		  VIVS_FE_COMMAND_CONTROL_PREFETCH(prefetch));
++	etnaviv_hw_init(gpu);
 +
 +	return 0;
 +
@@ -4396,6 +4402,12 @@ index 0000000..2ccf95b
 +	return 0;
 +}
 +
++static void etnaviv_gpu_recover(struct etnaviv_gpu *gpu)
++{
++	etnaviv_hw_reset(gpu);
++	etnaviv_hw_init(gpu);
++}
++
 +/*
 + * Hangcheck detection for locked gpu:
 + */
@@ -4408,7 +4420,7 @@ index 0000000..2ccf95b
 +	dev_err(gpu->dev, "hangcheck recover!\n");
 +
 +	mutex_lock(&dev->struct_mutex);
-+	/* TODO gpu->funcs->recover(gpu); */
++	etnaviv_gpu_recover(gpu);
 +	mutex_unlock(&dev->struct_mutex);
 +
 +	etnaviv_gpu_retire(gpu);
@@ -5498,10 +5510,10 @@ index 0000000..603ea41
 +#endif /* __ETNAVIV_IOMMU_V2_H__ */
 diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
 new file mode 100644
-index 0000000..9b4bd4d
+index 0000000..0d41461
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_mmu.c
-@@ -0,0 +1,120 @@
+@@ -0,0 +1,119 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -5611,7 +5623,6 @@ index 0000000..9b4bd4d
 +		return ERR_PTR(-ENOMEM);
 +
 +	mmu->domain = domain;
-+	mmu->dev = dev;
 +	mmu->version = version;
 +
 +	drm_mm_init(&mmu->mm, domain->geometry.aperture_start,
@@ -5624,10 +5635,10 @@ index 0000000..9b4bd4d
 +}
 diff --git a/drivers/staging/etnaviv/etnaviv_mmu.h b/drivers/staging/etnaviv/etnaviv_mmu.h
 new file mode 100644
-index 0000000..93aa4c6
+index 0000000..44db4e3
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_mmu.h
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,48 @@
 +/*
 + * Copyright (C) 2013 Red Hat
 + * Author: Rob Clark <robdclark@gmail.com>
@@ -5656,9 +5667,7 @@ index 0000000..93aa4c6
 +};
 +
 +struct etnaviv_iommu {
-+	struct drm_device *dev;
 +	struct iommu_domain *domain;
-+
 +	enum etnaviv_iommu_version version;
 +
 +	/* memory manager for GPU address area */
