@@ -70,8 +70,8 @@ config="CONFIG_SECCOMP_FILTER" ; config_enable
 #
 # GCOV-based kernel profiling
 #
-#config="CONFIG_MODULE_COMPRESS" ; config_enable
-#config="CONFIG_MODULE_COMPRESS_GZIP" ; config_enable
+config="CONFIG_MODULE_COMPRESS" ; config_enable
+config="CONFIG_MODULE_COMPRESS_GZIP" ; config_enable
 
 #
 # CPU Core family selection
@@ -545,6 +545,8 @@ config="CONFIG_DEVKMEM" ; config_enable
 #
 config="CONFIG_SERIAL_8250_OMAP" ; config_enable
 config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
+config="CONFIG_SERIAL_8250_NR_UARTS" ; option="6" ; config_value
+config="CONFIG_SERIAL_8250_RUNTIME_UARTS" ; option="6" ; config_value
 
 #
 # Non-8250 serial port support
@@ -962,6 +964,7 @@ config="CONFIG_USB_OTG" ; config_enable
 # USB Host Controller Drivers
 #
 config="CONFIG_USB_XHCI_HCD" ; config_enable
+config="CONFIG_USB_XHCI_PLATFORM" ; config_enable
 config="CONFIG_USB_EHCI_HCD" ; config_enable
 config="CONFIG_USB_EHCI_HCD_OMAP" ; config_enable
 config="CONFIG_USB_EHCI_TEGRA" ; config_enable
@@ -984,10 +987,12 @@ config="CONFIG_USBIP_DEBUG" ; config_disable
 #
 # Platform Glue Layer
 #
-config="CONFIG_USB_MUSB_TUSB6010" ; config_disable
+config="CONFIG_USB_MUSB_TUSB6010" ; config_enable
 config="CONFIG_USB_MUSB_OMAP2PLUS" ; config_enable
-config="CONFIG_USB_MUSB_AM35X" ; config_disable
-config="CONFIG_USB_MUSB_DSPS" ; config_disable
+config="CONFIG_USB_MUSB_AM35X" ; config_enable
+config="CONFIG_USB_MUSB_DSPS" ; config_enable
+config="CONFIG_USB_DWC3" ; config_enable
+config="CONFIG_USB_DWC3_DUAL_ROLE" ; config_enable
 
 #
 # Debugging features
@@ -998,6 +1003,8 @@ config="CONFIG_USB_CHIPIDEA_DEBUG" ; config_disable
 #
 # USB Physical Layer drivers
 #
+config="CONFIG_AM335X_CONTROL_USB" ; config_enable
+config="CONFIG_AM335X_PHY_USB" ; config_enable
 config="CONFIG_TWL6030_USB" ; config_enable
 config="CONFIG_USB_GPIO_VBUS" ; config_enable
 config="CONFIG_USB_MXS_PHY" ; config_enable

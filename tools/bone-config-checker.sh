@@ -119,12 +119,6 @@ config="CONFIG_USB_TI_CPPI41_DMA" ; config_disable
 config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 
 #
-# USB Physical Layer drivers
-#
-config="CONFIG_AM335X_CONTROL_USB" ; config_enable
-config="CONFIG_AM335X_PHY_USB" ; config_enable
-
-#
 # USB Peripheral Controller
 #
 config="CONFIG_USB_LIBCOMPOSITE" ; config_module
