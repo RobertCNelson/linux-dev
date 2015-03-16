@@ -1151,6 +1151,11 @@ config="CONFIG_TI_CPPI41" ; config_enable
 config="CONFIG_FSL_EDMA" ; config_enable
 config="CONFIG_DMA_SUN6I" ; config_enable
 
+#
+# DMA Clients
+#
+config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
+
 #STAGING
 #
 # Microsoft Hyper-V guest support
