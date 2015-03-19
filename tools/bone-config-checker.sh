@@ -58,6 +58,7 @@ config="CONFIG_ARCH_MXC" ; config_disable
 #
 # OMAP Feature Selections
 #
+config="CONFIG_ARCH_OMAP3" ; config_disable
 config="CONFIG_ARCH_OMAP4" ; config_disable
 config="CONFIG_SOC_OMAP5" ; config_disable
 config="CONFIG_SOC_AM43XX" ; config_disable
