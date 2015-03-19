@@ -174,13 +174,6 @@ config="CONFIG_ARM_IMX6Q_CPUFREQ" ; config_enable
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
 
 #
-# CPU Idle
-#
-config="CONFIG_CPU_IDLE" ; config_enable
-config="CONFIG_CPU_IDLE_GOV_LADDER" ; config_enable
-config="CONFIG_CPU_IDLE_GOV_MENU" ; config_enable
-
-#
 # At least one emulation must be selected
 #
 config="CONFIG_KERNEL_MODE_NEON" ; config_enable
@@ -252,7 +245,6 @@ config="CONFIG_BT_HCIUART_BCSP" ; config_enable
 config="CONFIG_BT_HCIUART_ATH3K" ; config_enable
 config="CONFIG_BT_HCIUART_LL" ; config_enable
 config="CONFIG_BT_HCIUART_3WIRE" ; config_enable
-config="CONFIG_MAC80211_RC_MINSTREL_VHT" ; config_enable
 config="CONFIG_NFC_NCI" ; config_module
 config="CONFIG_NFC_NCI_SPI" ; config_enable
 config="CONFIG_NFC_HCI" ; config_module
@@ -294,6 +286,7 @@ config="CONFIG_SPI_FSL_QUADSPI" ; config_module
 #
 # Device Tree and Open Firmware support
 #
+config="CONFIG_OF_OVERLAY" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
 config="CONFIG_ZRAM_LZ4_COMPRESS" ; config_enable
 
@@ -389,10 +382,8 @@ config="CONFIG_SMSC_PHY" ; config_enable
 # USB Network Adapters
 #
 config="CONFIG_USB_ZD1201" ; config_module
-config="CONFIG_ATH9K_CHANNEL_CONTEXT" ; config_enable
 config="CONFIG_WCN36XX" ; config_module
 config="CONFIG_WCN36XX_DEBUGFS" ; config_disable
-config="CONFIG_BRCMDBG" ; config_enable
 config="CONFIG_LIBERTAS_SPI" ; config_module
 config="CONFIG_MWIFIEX" ; config_module
 config="CONFIG_MWIFIEX_SDIO" ; config_module
@@ -429,7 +420,6 @@ config="CONFIG_KEYBOARD_CAP11XX" ; config_module
 #exit
 
 config="CONFIG_MOUSE_PS2_TOUCHKIT" ; config_enable
-config="CONFIG_MOUSE_PS2_FOCALTECH" ; config_enable
 config="CONFIG_MOUSE_SERIAL" ; config_module
 config="CONFIG_MOUSE_BCM5974" ; config_module
 config="CONFIG_MOUSE_CYAPA" ; config_module
@@ -537,16 +527,15 @@ config="CONFIG_SERIO_AMBAKMI" ; config_disable
 #
 # Character devices
 #
-config="CONFIG_DEVMEM" ; config_enable
 config="CONFIG_DEVKMEM" ; config_enable
 
 #
 # Serial drivers
 #
-config="CONFIG_SERIAL_8250_OMAP" ; config_enable
-config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 config="CONFIG_SERIAL_8250_NR_UARTS" ; option="6" ; config_value
 config="CONFIG_SERIAL_8250_RUNTIME_UARTS" ; option="6" ; config_value
+config="CONFIG_SERIAL_8250_OMAP" ; config_enable
+config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 
 #
 # Non-8250 serial port support
@@ -556,17 +545,8 @@ config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
-config="CONFIG_HW_RANDOM" ; config_enable
-config="CONFIG_HW_RANDOM_OMAP" ; config_enable
-config="CONFIG_HW_RANDOM_OMAP3_ROM" ; config_enable
-config="CONFIG_HW_RANDOM_TPM" ; config_module
 config="CONFIG_TCG_TPM" ; config_module
 config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_module
-
-#
-# I2C support
-#
-config="CONFIG_I2C_CHARDEV" ; config_enable
 
 #
 # Multiplexer I2C Chip support
@@ -656,7 +636,6 @@ config="CONFIG_BATTERY_DA9052" ; config_module
 config="CONFIG_CHARGER_GPIO" ; config_module
 config="CONFIG_POWER_RESET_GPIO_RESTART" ; config_enable
 config="CONFIG_POWER_RESET_IMX" ; config_enable
-config="CONFIG_POWER_RESET_SUN6I" ; config_enable
 config="CONFIG_POWER_RESET_SYSCON" ; config_enable
 config="CONFIG_POWER_AVS" ; config_enable
 
@@ -936,6 +915,7 @@ config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_module
 #
 # CODEC drivers
 #
+config="CONFIG_SND_SOC_HDMI_CODEC" ; config_module
 config="CONFIG_SND_SOC_TLV320AIC31XX" ; config_module
 
 #
@@ -1256,13 +1236,7 @@ config="CONFIG_ASHMEM" ; config_enable
 config="CONFIG_ANDROID_TIMED_GPIO" ; config_module
 config="CONFIG_SYNC" ; config_enable
 config="CONFIG_SW_SYNC" ; config_disable
-
 config="CONFIG_ION" ; config_enable
-
-#
-# SOC (System On Chip) specific Drivers
-#
-config="CONFIG_SOC_TI" ; config_enable
 
 #
 # Common Clock Framework
@@ -1294,6 +1268,11 @@ config="CONFIG_OMAP_REMOTEPROC" ; config_enable
 config="CONFIG_RPMSG" ; config_enable
 
 #
+# SOC (System On Chip) specific Drivers
+#
+config="CONFIG_SOC_TI" ; config_enable
+
+#
 # DEVFREQ Governors
 #
 config="CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND" ; config_enable
@@ -1312,7 +1291,6 @@ config="CONFIG_EXTCON" ; config_enable
 #
 config="CONFIG_EXTCON_GPIO" ; config_enable
 config="CONFIG_EXTCON_PALMAS" ; config_enable
-
 config="CONFIG_TI_EMIF" ; config_enable
 
 #
