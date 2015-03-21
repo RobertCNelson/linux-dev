@@ -262,6 +262,16 @@ debian_regs () {
 			deb_distro="trusty"
 		fi
 
+		#https://bugs.kali.org/changelog_page.php
+		if [ "x${deb_distro}" = "xmoto" ] ; then
+			#lsb_release -a
+			#Distributor ID:    Kali
+			#Description:    Kali GNU/Linux 1.1.0
+			#Release:    1.1.0
+			#Codename:    moto
+			deb_distro="wheezy"
+		fi
+
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/oldreleases.php
 		#http://packages.linuxmint.com/index.php
