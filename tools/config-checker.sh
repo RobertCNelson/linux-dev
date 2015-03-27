@@ -70,8 +70,8 @@ config="CONFIG_SECCOMP_FILTER" ; config_enable
 #
 # GCOV-based kernel profiling
 #
-config="CONFIG_MODULE_COMPRESS" ; config_enable
-config="CONFIG_MODULE_COMPRESS_GZIP" ; config_enable
+config="CONFIG_MODULE_COMPRESS" ; config_disable
+#config="CONFIG_MODULE_COMPRESS_GZIP" ; config_enable
 
 #
 # CPU Core family selection
