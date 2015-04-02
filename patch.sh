@@ -255,7 +255,6 @@ beaglebone () {
 
 etnaviv () {
 	echo "dir: etnaviv"
-	#https://github.com/austriancoder/linux
 
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -263,17 +262,27 @@ etnaviv () {
 		patch -p1 < "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
 		exit 2
 
-		#cd ~/linux-src
-		#git checkout v4.0-rc3 -b tmp
-		#git pull --no-edit https://github.com/austriancoder/linux master
+	cd ~/linux-src
+	git checkout v4.0-rc6 -b tmp
+	git pull --no-edit git://git.pengutronix.de/git/lst/linux.git etnaviv-for-upstream
 
-		meld KERNEL/drivers/staging/etnaviv/ ~/linux-src/drivers/staging/etnaviv/
-		meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_drm.h
+meld KERNEL/Documentation/devicetree/bindings/drm/etnaviv/etnaviv-drm.txt ~/linux-src/Documentation/devicetree/bindings/drm/etnaviv/etnaviv-drm.txt
+
+meld KERNEL/Documentation/devicetree/bindings/vendor-prefixes.txt ~/linux-src/Documentation/devicetree/bindings/vendor-prefixes.txt
+
+meld KERNEL/arch/arm/boot/dts/imx6dl.dtsi ~/linux-src/arch/arm/boot/dts/imx6dl.dtsi
+meld KERNEL/arch/arm/boot/dts/imx6q.dtsi ~/linux-src/arch/arm/boot/dts/imx6q.dtsi
+meld KERNEL/arch/arm/boot/dts/imx6qdl.dtsi ~/linux-src/arch/arm/boot/dts/imx6qdl.dtsi
+
+meld KERNEL/drivers/staging/Kconfig ~/linux-src/drivers/staging/Kconfig
+meld KERNEL/drivers/staging/Makefile ~/linux-src/drivers/staging/Makefile
+meld KERNEL/drivers/staging/etnaviv/ ~/linux-src/drivers/staging/etnaviv/
+
+meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_drm.h
+
 	fi
 
 	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
-	${git} "${DIR}/patches/etnaviv/0002-ARM-add-etnaviv-devices.patch"
-	${git} "${DIR}/patches/etnaviv/0004-temp-imx6qdl-disable-reserved-memory-locking-up-v3.1.patch"
 
 #	echo "dir: etnaviv/fixes"
 }
