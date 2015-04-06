@@ -534,14 +534,18 @@ config="CONFIG_DEVKMEM" ; config_enable
 #
 config="CONFIG_SERIAL_8250_NR_UARTS" ; option="6" ; config_value
 config="CONFIG_SERIAL_8250_RUNTIME_UARTS" ; option="6" ; config_value
-config="CONFIG_SERIAL_8250_OMAP" ; config_enable
-config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
+config="CONFIG_SERIAL_8250_OMAP" ; config_disable
+#config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 
 #
 # Non-8250 serial port support
 #
 config="CONFIG_CONSOLE_POLL" ; config_enable
-config="CONFIG_SERIAL_OMAP" ; config_disable
+#config="CONFIG_SERIAL_OMAP" ; config_disable
+
+config="CONFIG_SERIAL_OMAP" ; config_enable
+config="CONFIG_SERIAL_OMAP_CONSOLE" ; config_enable
+
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable

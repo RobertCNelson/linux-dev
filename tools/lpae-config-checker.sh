@@ -100,6 +100,17 @@ config="CONFIG_MACH_SUN5I" ; config_disable
 config="CONFIG_ARM_ERRATA_430973" ; config_disable
 
 #
+# Serial drivers
+#
+config="CONFIG_SERIAL_8250_OMAP" ; config_enable
+config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
+
+#
+# Non-8250 serial port support
+#
+config="CONFIG_SERIAL_OMAP" ; config_disable
+
+#
 # Argus cape driver for beaglebone black
 #
 config="CONFIG_CAPE_BONE_ARGUS" ; config_disable
