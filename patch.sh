@@ -297,9 +297,10 @@ meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_
 	fi
 
 	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
+	${git} "${DIR}/patches/etnaviv/0002-etnaviv-wheezy-build-fix.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
+		number=2
 		cleanup
 	fi
 

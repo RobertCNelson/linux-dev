@@ -1,0 +1,27 @@
+From 2af654a4c7ea6f8ebb4c2854b80d5f054d1b6b01 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 8 Apr 2015 16:06:30 -0500
+Subject: [PATCH 2/2] etnaviv: wheezy build fix
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index a8290a8..3e4df6b 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -790,7 +790,8 @@ static int etnaviv_gem_userptr_get_pages(struct etnaviv_gem_object *etnaviv_obj)
+ 	struct page **pvec = NULL;
+ 	struct get_pages_work *work;
+ 	struct mm_struct *mm;
+-	int ret, pinned, npages = etnaviv_obj->base.size >> PAGE_SHIFT;
++	int ret = 0;
++	int pinned, npages = etnaviv_obj->base.size >> PAGE_SHIFT;
+ 
+ 	if (etnaviv_obj->userptr.work) {
+ 		if (IS_ERR(etnaviv_obj->userptr.work)) {
+-- 
+2.1.4
+
