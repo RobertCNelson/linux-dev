@@ -1,0 +1,337 @@
+From 1f1896e1074d658ebc566fe627e6832cf442c725 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 8 Apr 2015 15:52:08 -0500
+Subject: [PATCH] hack: omap: clockk: dpll5: apply sprz319e 2.1 erratum
+
+Rewrote for v4.0.x, now even twice as ugly!!!
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/omap3-beagle-xm.dts |  4 +++
+ arch/arm/mach-omap2/clkt_dpll.c       | 67 +++++++++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/clock3xxx.c       |  9 ++++-
+ arch/arm/mach-omap2/dpll3xxx.c        | 29 +++++++++++++++
+ drivers/clk/ti/dpll.c                 | 66 +++++++++++++++++++++++++++++++---
+ include/linux/clk/ti.h                |  9 +++++
+ 6 files changed, 178 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
+index a8e6bd3..ce082aa 100644
+--- a/arch/arm/boot/dts/omap3-beagle-xm.dts
++++ b/arch/arm/boot/dts/omap3-beagle-xm.dts
+@@ -175,6 +175,10 @@
+ 	};
+ };
+ 
++&dpll2_ck {
++	ti,omap3630-dpll-usb-clock-errata;
++};
++
+ &omap3_pmx_wkup {
+ 	gpio1_pins: pinmux_gpio1_pins {
+ 		pinctrl-single,pins = <
+diff --git a/arch/arm/mach-omap2/clkt_dpll.c b/arch/arm/mach-omap2/clkt_dpll.c
+index f251a14..882f5c0 100644
+--- a/arch/arm/mach-omap2/clkt_dpll.c
++++ b/arch/arm/mach-omap2/clkt_dpll.c
+@@ -52,6 +52,14 @@
+ #define DPLL_FINT_UNDERFLOW		-1
+ #define DPLL_FINT_INVALID		-2
+ 
++/* copied from clock3xxx.c */
++/*
++ * DPLL5_FREQ_FOR_USBHOST: USBHOST and USBTLL are the only clocks
++ * that are sourced by DPLL5, and both of these require this clock
++ * to be at 120 MHz for proper operation.
++ */
++#define DPLL5_FREQ_FOR_USBHOST		120000000
++
+ /* Private functions */
+ 
+ /*
+@@ -368,3 +376,62 @@ long omap2_dpll_round_rate(struct clk_hw *hw, unsigned long target_rate,
+ 	return dd->last_rounded_rate;
+ }
+ 
++struct sprz319e_2_1_values {
++	unsigned long sys_clk_rate;
++	int m, n, div120m;
++};
++
++/**
++ * omap2_dpll5_round_rate - round a target rate for OMAP DPLL5
++ * according to DM37xx sprz319e 2.1 erratum
++ *
++ * @clk: struct clk * for a DPLL (presumably DPLL5)
++ * @target_rate: desired DPLL clock rate
++ *
++ * The erratum applies only for DM37xx, desired clock rates of
++ * div120m times 120 MHz and specified sys_clks.
++ */
++long omap2_dpll5_round_rate(struct clk_hw *hw, unsigned long target_rate,
++		unsigned long *parent_rate)
++{
++	struct clk_hw_omap *clk = to_clk_hw_omap(hw);
++	struct dpll_data *dd;
++	const char *clk_name;
++	int i;
++
++	/* erratum tables */
++	const struct sprz319e_2_1_values sprz319e_2_1_table[] = {
++		/* table 35 */
++		{ 12000000,  80,  0, 8 },
++		{ 19200000,  50,  0, 8 },
++		{ 38400000,  25,  0, 8 },
++		/* table 36 */
++		{ 13000000, 443,  5, 8 },
++		{ 26000000, 443, 11, 8 },
++	};
++
++	if (!clk || !clk->dpll_data)
++		return ~0;
++
++	dd = clk->dpll_data;
++
++	clk_name = __clk_get_name(hw->clk);
++
++	for (i = 0; i < (sizeof(sprz319e_2_1_table)/sizeof(struct sprz319e_2_1_values)); i++) {
++		const struct sprz319e_2_1_values *v = &sprz319e_2_1_table[i];
++
++		if (*parent_rate == v->sys_clk_rate &&
++			target_rate == DPLL5_FREQ_FOR_USBHOST * v->div120m) {
++
++			pr_info("clock: dpll5: Applying SPRZ319E 2.1: %8lu, %3d, %3d, %3d\n",
++				v->sys_clk_rate, v->m, v->n, v->div120m);
++
++			dd->last_rounded_m = v->m;
++			dd->last_rounded_n = v->n + 1;
++			dd->last_rounded_rate = v->sys_clk_rate * v->m / (v->n + 1);
++
++			return dd->last_rounded_rate;
++		}
++	}
++	return target_rate;
++}
+diff --git a/arch/arm/mach-omap2/clock3xxx.c b/arch/arm/mach-omap2/clock3xxx.c
+index a9e86db..858c91c 100644
+--- a/arch/arm/mach-omap2/clock3xxx.c
++++ b/arch/arm/mach-omap2/clock3xxx.c
+@@ -96,7 +96,14 @@ void __init omap3_clk_lock_dpll5(void)
+ 	struct clk *dpll5_m2_clk;
+ 
+ 	dpll5_clk = clk_get(NULL, "dpll5_ck");
+-	clk_set_rate(dpll5_clk, DPLL5_FREQ_FOR_USBHOST);
++
++	if (cpu_is_omap3630()) {
++		pr_info("clock: dpll5: dpll5_clk omap3630\n");
++		clk_set_rate(dpll5_clk, DPLL5_FREQ_FOR_USBHOST * 8);
++	} else {
++		clk_set_rate(dpll5_clk, DPLL5_FREQ_FOR_USBHOST);
++	}
++
+ 	clk_prepare_enable(dpll5_clk);
+ 
+ 	/* Program dpll5_m2_clk divider for no division */
+diff --git a/arch/arm/mach-omap2/dpll3xxx.c b/arch/arm/mach-omap2/dpll3xxx.c
+index 44e57ec..1901eac 100644
+--- a/arch/arm/mach-omap2/dpll3xxx.c
++++ b/arch/arm/mach-omap2/dpll3xxx.c
+@@ -501,6 +501,35 @@ long omap3_noncore_dpll_determine_rate(struct clk_hw *hw, unsigned long rate,
+ 	return rate;
+ }
+ 
++long omap3630_noncore_dpll_determine_rate(struct clk_hw *hw, unsigned long rate,
++				       unsigned long min_rate,
++				       unsigned long max_rate,
++				       unsigned long *best_parent_rate,
++				       struct clk_hw **best_parent_clk)
++{
++	struct clk_hw_omap *clk = to_clk_hw_omap(hw);
++	struct dpll_data *dd;
++
++	if (!hw || !rate)
++		return -EINVAL;
++
++	dd = clk->dpll_data;
++	if (!dd)
++		return -EINVAL;
++
++	if (__clk_get_rate(dd->clk_bypass) == rate &&
++	    (dd->modes & (1 << DPLL_LOW_POWER_BYPASS))) {
++		*best_parent_clk = __clk_get_hw(dd->clk_bypass);
++	} else {
++		rate = omap2_dpll5_round_rate(hw, rate, best_parent_rate);
++		*best_parent_clk = __clk_get_hw(dd->clk_ref);
++	}
++
++	*best_parent_rate = rate;
++
++	return rate;
++}
++
+ /**
+  * omap3_noncore_dpll_set_parent - set parent for a DPLL clock
+  * @hw: pointer to the clock to set parent for
+diff --git a/drivers/clk/ti/dpll.c b/drivers/clk/ti/dpll.c
+index 81dc469..e76fe9e 100644
+--- a/drivers/clk/ti/dpll.c
++++ b/drivers/clk/ti/dpll.c
+@@ -23,6 +23,8 @@
+ #include <linux/clk/ti.h>
+ #include "clock.h"
+ 
++static u8 omap3630_dpll_usb_clock_errata = 0;
++
+ #undef pr_fmt
+ #define pr_fmt(fmt) "%s: " fmt, __func__
+ 
+@@ -113,6 +115,18 @@ static const struct clk_ops omap3_dpll_ck_ops = {
+ 	.round_rate	= &omap2_dpll_round_rate,
+ };
+ 
++static const struct clk_ops omap3_dpll_ck_ops_3630 = {
++	.enable		= &omap3_noncore_dpll_enable,
++	.disable	= &omap3_noncore_dpll_disable,
++	.get_parent	= &omap2_init_dpll_parent,
++	.recalc_rate	= &omap3_dpll_recalc,
++	.set_rate	= &omap3_noncore_dpll_set_rate,
++	.set_parent	= &omap3_noncore_dpll_set_parent,
++	.set_rate_and_parent	= &omap3_noncore_dpll_set_rate_and_parent,
++	.determine_rate	= &omap3630_noncore_dpll_determine_rate,
++	.round_rate	= &omap2_dpll5_round_rate,
++};
++
+ static const struct clk_ops omap3_dpll_per_ck_ops = {
+ 	.enable		= &omap3_noncore_dpll_enable,
+ 	.disable	= &omap3_noncore_dpll_disable,
+@@ -124,6 +138,18 @@ static const struct clk_ops omap3_dpll_per_ck_ops = {
+ 	.determine_rate	= &omap3_noncore_dpll_determine_rate,
+ 	.round_rate	= &omap2_dpll_round_rate,
+ };
++
++static const struct clk_ops omap3_dpll_per_ck_ops_3630 = {
++	.enable		= &omap3_noncore_dpll_enable,
++	.disable	= &omap3_noncore_dpll_disable,
++	.get_parent	= &omap2_init_dpll_parent,
++	.recalc_rate	= &omap3_dpll_recalc,
++	.set_rate	= &omap3_dpll4_set_rate,
++	.set_parent	= &omap3_noncore_dpll_set_parent,
++	.set_rate_and_parent	= &omap3_dpll4_set_rate_and_parent,
++	.determine_rate	= &omap3630_noncore_dpll_determine_rate,
++	.round_rate	= &omap2_dpll5_round_rate,
++};
+ #endif
+ 
+ static const struct clk_ops dpll_x2_ck_ops = {
+@@ -201,6 +227,10 @@ struct clk *ti_clk_register_dpll(struct ti_clk *setup)
+ 	struct clk *clk_ref;
+ 	struct clk *clk_bypass;
+ 
++	if (omap3630_dpll_usb_clock_errata) {
++		ops = &omap3_dpll_ck_ops_3630;
++	}
++
+ 	dpll = setup->data;
+ 
+ 	if (dpll->num_parents < 2)
+@@ -256,8 +286,17 @@ struct clk *ti_clk_register_dpll(struct ti_clk *setup)
+ 	if (dpll->flags & CLKF_CORE)
+ 		ops = &omap3_dpll_core_ck_ops;
+ 
+-	if (dpll->flags & CLKF_PER)
+-		ops = &omap3_dpll_per_ck_ops;
++	if (omap3630_dpll_usb_clock_errata) {
++
++		if (dpll->flags & CLKF_PER)
++			ops = &omap3_dpll_per_ck_ops_3630;
++
++	} else {
++
++		if (dpll->flags & CLKF_PER)
++			ops = &omap3_dpll_per_ck_ops;
++
++	}
+ 
+ 	if (dpll->flags & CLKF_J_TYPE)
+ 		dd->flags |= DPLL_J_TYPE;
+@@ -414,6 +453,11 @@ static void __init of_ti_dpll_setup(struct device_node *node,
+ 	if (of_property_read_bool(node, "ti,lock"))
+ 		dpll_mode |= 1 << DPLL_LOCKED;
+ 
++	if (of_property_read_bool(node, "ti,omap3630-dpll-usb-clock-errata")){
++		omap3630_dpll_usb_clock_errata = 1;
++		pr_info("clock: omap3630-dpll-usb-clock-errata\n");
++	}
++
+ 	if (dpll_mode)
+ 		dd->modes = dpll_mode;
+ 
+@@ -462,7 +506,11 @@ static void __init of_ti_omap3_dpll_setup(struct device_node *node)
+ 		.modes = (1 << DPLL_LOW_POWER_BYPASS) | (1 << DPLL_LOCKED),
+ 	};
+ 
+-	of_ti_dpll_setup(node, &omap3_dpll_ck_ops, &dd);
++	if (omap3630_dpll_usb_clock_errata) {
++		of_ti_dpll_setup(node, &omap3_dpll_ck_ops_3630, &dd);
++	} else {
++		of_ti_dpll_setup(node, &omap3_dpll_ck_ops, &dd);
++	}
+ }
+ CLK_OF_DECLARE(ti_omap3_dpll_clock, "ti,omap3-dpll-clock",
+ 	       of_ti_omap3_dpll_setup);
+@@ -501,7 +549,11 @@ static void __init of_ti_omap3_per_dpll_setup(struct device_node *node)
+ 		.modes = (1 << DPLL_LOW_POWER_STOP) | (1 << DPLL_LOCKED),
+ 	};
+ 
+-	of_ti_dpll_setup(node, &omap3_dpll_per_ck_ops, &dd);
++	if (omap3630_dpll_usb_clock_errata) {
++		of_ti_dpll_setup(node, &omap3_dpll_per_ck_ops_3630, &dd);
++	} else {
++		of_ti_dpll_setup(node, &omap3_dpll_per_ck_ops, &dd);
++	}
+ }
+ CLK_OF_DECLARE(ti_omap3_per_dpll_clock, "ti,omap3-dpll-per-clock",
+ 	       of_ti_omap3_per_dpll_setup);
+@@ -523,7 +575,11 @@ static void __init of_ti_omap3_per_jtype_dpll_setup(struct device_node *node)
+ 		.modes = (1 << DPLL_LOW_POWER_STOP) | (1 << DPLL_LOCKED),
+ 	};
+ 
+-	of_ti_dpll_setup(node, &omap3_dpll_per_ck_ops, &dd);
++	if (omap3630_dpll_usb_clock_errata) {
++		of_ti_dpll_setup(node, &omap3_dpll_per_ck_ops_3630, &dd);
++	} else {
++		of_ti_dpll_setup(node, &omap3_dpll_per_ck_ops, &dd);
++	}
+ }
+ CLK_OF_DECLARE(ti_omap3_per_jtype_dpll_clock, "ti,omap3-dpll-per-j-type-clock",
+ 	       of_ti_omap3_per_jtype_dpll_setup);
+diff --git a/include/linux/clk/ti.h b/include/linux/clk/ti.h
+index 6784400..a33b171 100644
+--- a/include/linux/clk/ti.h
++++ b/include/linux/clk/ti.h
+@@ -275,6 +275,12 @@ long omap3_noncore_dpll_determine_rate(struct clk_hw *hw,
+ 				       unsigned long max_rate,
+ 				       unsigned long *best_parent_rate,
+ 				       struct clk_hw **best_parent_clk);
++long omap3630_noncore_dpll_determine_rate(struct clk_hw *hw,
++				       unsigned long rate,
++				       unsigned long min_rate,
++				       unsigned long max_rate,
++				       unsigned long *best_parent_rate,
++				       struct clk_hw **best_parent_clk);
+ unsigned long omap4_dpll_regm4xen_recalc(struct clk_hw *hw,
+ 					 unsigned long parent_rate);
+ long omap4_dpll_regm4xen_round_rate(struct clk_hw *hw,
+@@ -290,6 +296,9 @@ u8 omap2_init_dpll_parent(struct clk_hw *hw);
+ unsigned long omap3_dpll_recalc(struct clk_hw *hw, unsigned long parent_rate);
+ long omap2_dpll_round_rate(struct clk_hw *hw, unsigned long target_rate,
+ 			   unsigned long *parent_rate);
++long omap2_dpll5_round_rate(struct clk_hw *hw, unsigned long target_rate,
++			   unsigned long *parent_rate);
++
+ void omap2_init_clk_clkdm(struct clk_hw *clk);
+ unsigned long omap3_clkoutx2_recalc(struct clk_hw *hw,
+ 				    unsigned long parent_rate);
+-- 
+2.1.4
+
