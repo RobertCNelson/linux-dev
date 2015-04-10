@@ -1,3 +1,16 @@
+From 7b8087324c105fb037b65524960bb3b8e3e3aef1 Mon Sep 17 00:00:00 2001
+From: Elias Bakken <elias@iagent.no>
+Date: Thu, 9 Apr 2015 19:25:53 +0200
+Subject: [PATCH] Making the uio pruss driver work
+
+---
+ .../devicetree/bindings/arm/omap/omap.txt          |   2 +
+ arch/arm/boot/dts/am33xx.dtsi                      |  11 +++
+ arch/arm/mach-omap2/omap_device.c                  |  24 ++++-
+ drivers/uio/Kconfig                                |   4 +-
+ drivers/uio/uio_pruss.c                            | 105 ++++++++++++++++++++-
+ 5 files changed, 137 insertions(+), 9 deletions(-)
+
 diff --git a/Documentation/devicetree/bindings/arm/omap/omap.txt b/Documentation/devicetree/bindings/arm/omap/omap.txt
 index 4f6a82c..619f13a 100644
 --- a/Documentation/devicetree/bindings/arm/omap/omap.txt
@@ -93,7 +106,7 @@ index 8a15c32..01d921c 100644
  	  driver is available from below SVN repo - you may use anonymous login
  
 diff --git a/drivers/uio/uio_pruss.c b/drivers/uio/uio_pruss.c
-index 818735b..8cd4cff 100644
+index 818735b..e235e45 100644
 --- a/drivers/uio/uio_pruss.c
 +++ b/drivers/uio/uio_pruss.c
 @@ -19,6 +19,7 @@
@@ -154,7 +167,7 @@ index 818735b..8cd4cff 100644
  	/* Power on PRU in case its not done as part of boot-loader */
  	gdev->pruss_clk = clk_get(dev, "pruss");
  	if (IS_ERR(gdev->pruss_clk)) {
-@@ -144,7 +158,63 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -144,8 +158,25 @@ static int pruss_probe(struct platform_device *pdev)
  	} else {
  		clk_enable(gdev->pruss_clk);
  	}
@@ -167,7 +180,8 @@ index 818735b..8cd4cff 100644
 +			dev_err(&pdev->dev, "pm_runtime_get_sync() failed\n");
 +			return ret;
 +		}
-+
+ 
+-	regs_prussio = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 +		ret = of_address_to_resource(pdev->dev.of_node, 0, &res);
 +		if (IS_ERR_VALUE(ret)) {
 +			dev_err(&pdev->dev, "failed to parse DT reg\n");
@@ -175,7 +189,17 @@ index 818735b..8cd4cff 100644
 +		}
 +		regs_prussio = &res;
 +	}
++	else
++		regs_prussio = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!regs_prussio) {
+ 		dev_err(dev, "No PRUSS I/O resource specified\n");
+ 		goto out_free;
+@@ -156,7 +187,47 @@ static int pruss_probe(struct platform_device *pdev)
+ 		goto out_free;
+ 	}
  
+-	if (pdata->sram_pool) {
++
 +	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
 +	if (IS_ERR(pinctrl))
 +		dev_warn(&pdev->dev,
@@ -215,23 +239,15 @@ index 818735b..8cd4cff 100644
 +			}
 +		}
 +	}
- 	regs_prussio = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!regs_prussio) {
- 		dev_err(dev, "No PRUSS I/O resource specified\n");
-@@ -156,7 +226,7 @@ static int pruss_probe(struct platform_device *pdev)
- 		goto out_free;
- 	}
- 
--	if (pdata->sram_pool) {
 +	if (pdata && pdata->sram_pool) {
  		gdev->sram_pool = pdata->sram_pool;
  		gdev->sram_vaddr =
  			(unsigned long)gen_pool_dma_alloc(gdev->sram_pool,
-@@ -182,13 +252,24 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -181,7 +252,17 @@ static int pruss_probe(struct platform_device *pdev)
+ 		goto out_free;
  	}
  
- 	gdev->pintc_base = pdata->pintc_base;
--	gdev->hostirq_start = platform_get_irq(pdev, 0);
+-	gdev->pintc_base = pdata->pintc_base;
 +	if (pdev->dev.of_node) {
 +		ret = of_property_read_u32(pdev->dev.of_node,
 +					   "ti,pintc-offset",
@@ -242,10 +258,11 @@ index 818735b..8cd4cff 100644
 +			goto out_free;
 +		}
 +	} else
-+		gdev->pintc_base = pdata->pintc_base;	gdev->hostirq_start = platform_get_irq(pdev, 0);
++		gdev->pintc_base = pdata->pintc_base;
+ 	gdev->hostirq_start = platform_get_irq(pdev, 0);
  
  	for (cnt = 0, p = gdev->info; cnt < MAX_PRUSS_EVT; cnt++, p++) {
- 		p->mem[0].addr = regs_prussio->start;
+@@ -189,6 +270,7 @@ static int pruss_probe(struct platform_device *pdev)
  		p->mem[0].size = resource_size(regs_prussio);
  		p->mem[0].memtype = UIO_MEM_PHYS;
  
@@ -253,7 +270,7 @@ index 818735b..8cd4cff 100644
  		p->mem[1].addr = gdev->sram_paddr;
  		p->mem[1].size = sram_pool_sz;
  		p->mem[1].memtype = UIO_MEM_PHYS;
-@@ -196,7 +277,11 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -196,7 +278,11 @@ static int pruss_probe(struct platform_device *pdev)
  		p->mem[2].addr = gdev->ddr_paddr;
  		p->mem[2].size = extram_pool_sz;
  		p->mem[2].memtype = UIO_MEM_PHYS;
@@ -266,7 +283,7 @@ index 818735b..8cd4cff 100644
  		p->name = kasprintf(GFP_KERNEL, "pruss_evt%d", cnt);
  		p->version = DRV_VERSION;
  
-@@ -226,11 +311,20 @@ static int pruss_remove(struct platform_device *dev)
+@@ -226,11 +312,20 @@ static int pruss_remove(struct platform_device *dev)
  	return 0;
  }
  
@@ -287,3 +304,6 @@ index 818735b..8cd4cff 100644
  		   },
  };
  
+-- 
+2.1.0
+
