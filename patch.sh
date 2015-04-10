@@ -168,6 +168,11 @@ pru () {
 	${git} "${DIR}/patches/pru/0001-clean-up-errors.patch"
 }
 
+sgx () {
+	echo "dir: sgx"
+        ${git} "${DIR}/patches/sgx/0001-added-the-sgx-platform-data.patch"
+}
+
 dtb_makefile_append () {
 	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
@@ -324,6 +329,7 @@ wand
 errata
 fixes
 pru
+sgx
 beaglebone
 etnaviv
 

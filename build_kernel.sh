@@ -284,8 +284,8 @@ echo "CROSS_COMPILE=${CC}"
 . ${DIR}/version.sh
 export LINUX_GIT
 
-#unset FULL_REBUILD
-FULL_REBUILD=1
+unset FULL_REBUILD
+#FULL_REBUILD=1
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 	cp "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
