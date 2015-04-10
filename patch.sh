@@ -162,6 +162,12 @@ fixes () {
 	fi
 }
 
+pru () {
+	echo "dir: pru"
+	${git} "${DIR}/patches/pru/0000-enable-uio-pruss.patch"
+	${git} "${DIR}/patches/pru/0001-clean-up-errors.patch"
+}
+
 dtb_makefile_append () {
 	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
@@ -184,6 +190,7 @@ beaglebone () {
 
 	echo "dir: beaglebone/capes"
 	${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0002-cape-Replicape-add-cape-support.patch"
 
 	echo "dir: beaglebone/dtbs"
 	#regenerate="enable"
@@ -238,6 +245,9 @@ beaglebone () {
 
 		device="am335x-boneblack-ttyO5.dtb"
 		dtb_makefile_append
+
+		device="am335x-boneblack-replicape.dtb"
+                dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/
@@ -313,7 +323,7 @@ dts
 wand
 errata
 fixes
-
+pru
 beaglebone
 etnaviv
 
