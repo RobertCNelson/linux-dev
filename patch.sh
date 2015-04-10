@@ -133,8 +133,18 @@ wand () {
 }
 
 errata () {
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
 	echo "dir: errata"
-	${git} "${DIR}/patches/errata/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum-co.patch"
+
+	${git} "${DIR}/patches/errata/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
+		cleanup
+	fi
 }
 
 fixes () {
@@ -150,7 +160,6 @@ fixes () {
 		number=1
 		cleanup
 	fi
-
 }
 
 pru () {
@@ -292,7 +301,18 @@ meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_
 
 	fi
 
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
 	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
+	${git} "${DIR}/patches/etnaviv/0002-etnaviv-wheezy-build-fix.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=2
+		cleanup
+	fi
 
 #	echo "dir: etnaviv/fixes"
 }
@@ -301,7 +321,7 @@ meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_
 dt
 dts
 wand
-#errata
+errata
 fixes
 pru
 beaglebone
