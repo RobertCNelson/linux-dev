@@ -1139,6 +1139,8 @@ config="CONFIG_DMA_SUN6I" ; config_enable
 # DMA Clients
 #
 config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
+config="CONFIG_UIO_DMEM_GENIRQ" ; config_module
+config="CONFIG_UIO_PRUSS" ; config_module
 
 #STAGING
 #
@@ -1538,7 +1540,6 @@ config="CONFIG_KGDB_SERIAL_CONSOLE" ; config_enable
 config="CONFIG_KGDB_TESTS" ; config_disable
 config="CONFIG_KGDB_KDB" ; config_enable
 config="CONFIG_KDB_KEYBOARD" ; config_enable
-config="CONFIG_STRICT_DEVMEM" ; config_enable
 
 #
 # Digest

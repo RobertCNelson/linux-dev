@@ -1,7 +1,6 @@
 #!/bin/sh
 #
 ARCH=$(uname -m)
-CORES=$(getconf _NPROCESSORS_ONLN)
 
 #Debian 7 (Wheezy): git version 1.7.10.4 and later needs "--no-edit"
 unset git_opts
