@@ -171,6 +171,7 @@ pru () {
 sgx () {
 	echo "dir: sgx"
         ${git} "${DIR}/patches/sgx/0001-added-the-sgx-platform-data.patch"
+	${git} "${DIR}/patches/sgx/0002-arm-Export-cache-flush-management-symbols-when-MULTI.patch"
 }
 
 dtb_makefile_append () {
