@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,7 @@ patch_kernel () {
 
 config_reference () {
 	echo "Updating reference config: ${ref_config}"
-	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" ${ref_config}
+	make ARCH=arm CROSS_COMPILE="${CC}" ${ref_config}
 	cp -v .config ${DIR}/patches/example_${ref_config}
 }
 
@@ -67,7 +67,7 @@ copy_defconfig () {
 	echo "Updating: defconfig-lpae"
 	echo "-----------------------------"
 	cp -v ${DIR}/patches/defconfig-lpae .config
-	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" oldconfig
+	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
 	cp -v .config ${DIR}/patches/defconfig-lpae
 	echo "-----------------------------"
 
@@ -75,7 +75,7 @@ copy_defconfig () {
 	echo "Updating: defconfig-bone"
 	echo "-----------------------------"
 	cp -v ${DIR}/patches/defconfig-bone .config
-	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" oldconfig
+	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
 	cp -v .config ${DIR}/patches/defconfig-bone
 	echo "-----------------------------"
 
@@ -83,7 +83,7 @@ copy_defconfig () {
 	echo "Updating: defconfig"
 	echo "-----------------------------"
 	cp -v ${DIR}/patches/defconfig .config
-	make ARCH=arm CROSS_COMPILE="${CCACHE} ${CC}" oldconfig
+	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
 	cp -v .config ${DIR}/patches/defconfig
 
 	cp -v ${DIR}/patches/defconfig .config
@@ -139,14 +139,6 @@ make_kernel () {
 	fi
 
 	if [ -f ./arch/arm/boot/${image} ] ; then
-		if [ ${AUTO_TESTER} ] ; then
-			mkdir -p "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/" || true
-			cp -uv arch/arm/boot/${image} "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.${image}"
-			xz -z "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.${image}"
-			mkimage -A arm -O linux -T kernel -C none -a 0x80008000 -e 0x80008000 -n ${KERNEL_UTS} -d arch/arm/boot/zImage "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.uImage"
-			xz -z "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/${KERNEL_UTS}.uImage"
-			cp -uv .config "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/config-${KERNEL_UTS}"
-		fi
 		cp -v arch/arm/boot/${image} "${DIR}/deploy/${KERNEL_UTS}.${image}"
 		cp -v .config "${DIR}/deploy/config-${KERNEL_UTS}"
 	fi
@@ -166,13 +158,6 @@ make_pkg () {
 
 	deployfile="-${pkg}.tar.gz"
 	tar_options="--create --gzip --file"
-
-	if [ "${AUTO_TESTER}" ] ; then
-		#FIXME: xz might not be available everywhere...
-		#FIXME: ./tools/install_kernel.sh needs update...
-		deployfile="-${pkg}.tar.xz"
-		tar_options="--create --xz --file"
-	fi
 
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
@@ -206,10 +191,6 @@ make_pkg () {
 	cd ${DIR}/deploy/tmp
 	tar ${tar_options} ../${KERNEL_UTS}${deployfile} *
 
-	if [ ${AUTO_TESTER} ] ; then
-		cp -uv ../${KERNEL_UTS}${deployfile} "${DIR}/deploy/beagleboard.org/${KERNEL_UTS}/"
-	fi
-
 	cd ${DIR}/
 	rm -rf ${DIR}/deploy/tmp || true
 
@@ -234,13 +215,6 @@ make_firmware_pkg () {
 make_dtbs_pkg () {
 	pkg="dtbs"
 	make_pkg
-}
-
-update_latest () {
-	echo "#!/bin/sh -e" > "${DIR}/deploy/beagleboard.org/latest"
-	echo "abi=aac" >> "${DIR}/deploy/beagleboard.org/latest"
-	echo "kernel=${KERNEL_UTS}" >> "${DIR}/deploy/beagleboard.org/latest"
-	cp -uv ./tools/test-me.sh "${DIR}/deploy/beagleboard.org/"
 }
 
 /bin/sh -e ${DIR}/tools/host_det.sh || { exit 1 ; }
@@ -275,12 +249,11 @@ unset LINUX_GIT
 . ${DIR}/system.sh
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 . ${DIR}/.CC
-if [ ${AUTO_BUILD} ] ; then
-	if [ -f /usr/bin/ccache ] ; then
-		CC="ccache ${CC}"
-	fi
-fi
 echo "CROSS_COMPILE=${CC}"
+if [ -f /usr/bin/ccache ] ; then
+	echo "ccache [enabled]"
+	CC="ccache ${CC}"
+fi
 
 . ${DIR}/version.sh
 export LINUX_GIT
@@ -306,9 +279,6 @@ make_modules_pkg
 make_firmware_pkg
 if [ "x${DTBS}" = "xenable" ] ; then
 	make_dtbs_pkg
-fi
-if [ "${AUTO_TESTER}" ] ; then
-	update_latest
 fi
 echo "-----------------------------"
 echo "Script Complete"

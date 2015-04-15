@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 DIR=$PWD
+CORES=$(getconf _NPROCESSORS_ONLN)
 
 mkdir -p ${DIR}/deploy/
 
@@ -115,13 +116,6 @@ make_pkg () {
 	deployfile="-${pkg}.tar.gz"
 	tar_options="--create --gzip --file"
 
-	if [ "${AUTO_TESTER}" ] ; then
-		#FIXME: xz might not be available everywhere...
-		#FIXME: ./tools/install_kernel.sh needs update...
-		deployfile="-${pkg}.tar.xz"
-		tar_options="--create --xz --file"
-	fi
-
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
 	fi
@@ -212,12 +206,11 @@ unset LINUX_GIT
 . ${DIR}/system.sh
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 . ${DIR}/.CC
-if [ ${AUTO_BUILD} ] ; then
-	if [ -f /usr/bin/ccache ] ; then
-		CC="ccache ${CC}"
-	fi
-fi
 echo "CROSS_COMPILE=${CC}"
+if [ -f /usr/bin/ccache ] ; then
+	echo "ccache [enabled]"
+	CC="ccache ${CC}"
+fi
 
 . ${DIR}/version.sh
 export LINUX_GIT
