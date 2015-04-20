@@ -96,14 +96,14 @@ overlay () {
 }
 
 dt () {
-	echo "dir: dt/gpiohog"
+	echo "dir: dt"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/dt/gpiohog/0001-gpio-add-GPIO-hogging-mechanism.patch"
-	${git} "${DIR}/patches/dt/gpiohog/0002-gpio-Document-GPIO-hogging-mechanism.patch"
+#	${git} "${DIR}/patches/dt/gpiohog/0001-gpio-add-GPIO-hogging-mechanism.patch"
+#	${git} "${DIR}/patches/dt/gpiohog/0002-gpio-Document-GPIO-hogging-mechanism.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=2
