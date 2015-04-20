@@ -280,10 +280,15 @@ debian_regs () {
 		fi
 
 		#Linux Mint: Compatibility Matrix
+		#http://www.linuxmint.com/download_all.php (lists current versions)
 		#http://www.linuxmint.com/oldreleases.php
 		#http://packages.linuxmint.com/index.php
 		#http://mirrors.kernel.org/linuxmint-packages/dists/
 		case "${deb_distro}" in
+		betsy)
+			#LMDE 2
+			deb_distro="jessie"
+			;;
 		debian)
 			deb_distro="jessie"
 			;;
