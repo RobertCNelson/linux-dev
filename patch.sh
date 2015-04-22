@@ -315,9 +315,10 @@ meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_
 
 	${git} "${DIR}/patches/etnaviv/0001-staging-etnaviv-add-drm-driver.patch"
 	${git} "${DIR}/patches/etnaviv/0002-etnaviv-wheezy-build-fix.patch"
+	${git} "${DIR}/patches/etnaviv/0003-Revert-iommu-Remove-domain_init-and-domain_free-iomm.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=2
+		number=3
 		cleanup
 	fi
 
