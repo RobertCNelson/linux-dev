@@ -1,6 +1,6 @@
-From 29e96f783e8e57df563b82d2f55db1316f7c153e Mon Sep 17 00:00:00 2001
+From b29c434df59808093e52a6b3d4f52b00a117d1ca Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 15 Mar 2015 20:02:45 -0500
+Date: Wed, 22 Apr 2015 13:14:51 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -17,23 +17,23 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../am335x-bone-pinmux-gpio-backlight-P9_14.dtsi   |  43 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-nxp-hdmi.dtsi | 143 +++++++++++++++
  .../am335x-bone-pinmux-panel-1024x600-24bit.dtsi   | 151 +++++++++++++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyO1.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyO2.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyO4.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyO5.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-ttyO1.dts            |  57 ++++++
- arch/arm/boot/dts/am335x-bone-ttyO2.dts            |  57 ++++++
- arch/arm/boot/dts/am335x-bone-ttyO4.dts            |  57 ++++++
- arch/arm/boot/dts/am335x-bone-ttyO5.dts            |  57 ++++++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi    |  48 +++++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi    |  48 +++++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi    |  48 +++++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi    |  48 +++++
+ arch/arm/boot/dts/am335x-bone-ttyS1.dts            |  57 ++++++
+ arch/arm/boot/dts/am335x-bone-ttyS2.dts            |  57 ++++++
+ arch/arm/boot/dts/am335x-bone-ttyS4.dts            |  57 ++++++
+ arch/arm/boot/dts/am335x-bone-ttyS5.dts            |  57 ++++++
  arch/arm/boot/dts/am335x-bone.dts                  |  23 +++
  arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  48 +++++
  arch/arm/boot/dts/am335x-boneblack-can0.dts        |  64 +++++++
  arch/arm/boot/dts/am335x-boneblack-can1.dts        |  64 +++++++
  .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  48 +++++
- arch/arm/boot/dts/am335x-boneblack-ttyO1.dts       |  64 +++++++
- arch/arm/boot/dts/am335x-boneblack-ttyO2.dts       |  64 +++++++
- arch/arm/boot/dts/am335x-boneblack-ttyO4.dts       |  64 +++++++
- arch/arm/boot/dts/am335x-boneblack-ttyO5.dts       |  64 +++++++
+ arch/arm/boot/dts/am335x-boneblack-ttyS1.dts       |  64 +++++++
+ arch/arm/boot/dts/am335x-boneblack-ttyS2.dts       |  64 +++++++
+ arch/arm/boot/dts/am335x-boneblack-ttyS4.dts       |  64 +++++++
+ arch/arm/boot/dts/am335x-boneblack-ttyS5.dts       |  64 +++++++
  arch/arm/boot/dts/am335x-boneblack.dts             |  76 +++-----
  arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 202 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++++
@@ -43,10 +43,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../am335x-peripheral-gpio-backlight-P9_14.dtsi    |  18 ++
  arch/arm/boot/dts/am335x-peripheral-nxp-hdmi.dtsi  |  21 +++
  .../am335x-peripheral-panel-1024x600-24bit.dtsi    |  49 +++++
- arch/arm/boot/dts/am335x-peripheral-ttyO1.dtsi     |  13 ++
- arch/arm/boot/dts/am335x-peripheral-ttyO2.dtsi     |  13 ++
- arch/arm/boot/dts/am335x-peripheral-ttyO4.dtsi     |  13 ++
- arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi     |  13 ++
+ arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi     |  13 ++
+ arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi     |  13 ++
+ arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 ++
+ arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 ++
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 +++++++++++
  43 files changed, 2157 insertions(+), 69 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-can0.dts
@@ -59,22 +59,22 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-gpio-backlight-P9_14.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-nxp-hdmi.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-panel-1024x600-24bit.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyO1.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyO2.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyO4.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyO5.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO1.dts
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO2.dts
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO4.dts
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyO5.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS1.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS2.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS4.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS5.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-can0.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-can1.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO1.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO2.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO4.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyO5.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS1.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS2.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS4.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS5.dts
  create mode 100644 arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-can0.dtsi
@@ -83,10 +83,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-gpio-backlight-P9_14.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-nxp-hdmi.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-panel-1024x600-24bit.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyO1.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyO2.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyO4.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi
  create mode 100644 include/dt-bindings/board/am335x-bbw-bbb-base.h
 
 diff --git a/arch/arm/boot/dts/am335x-bone-argus.dtsi b/arch/arm/boot/dts/am335x-bone-argus.dtsi
@@ -113,7 +113,7 @@ index 0bbe050..a44c7d1 100644
  		compatible = "argus-ups";
 diff --git a/arch/arm/boot/dts/am335x-bone-can0.dts b/arch/arm/boot/dts/am335x-bone-can0.dts
 new file mode 100644
-index 0000000..27b9920
+index 0000000..a89dd82
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-can0.dts
 @@ -0,0 +1,57 @@
@@ -163,20 +163,20 @@ index 0000000..27b9920
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-bone-can1.dts b/arch/arm/boot/dts/am335x-bone-can1.dts
 new file mode 100644
-index 0000000..7a5c6a4
+index 0000000..c4c27a9
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-can1.dts
 @@ -0,0 +1,57 @@
@@ -226,17 +226,17 @@ index 0000000..7a5c6a4
 +#include "am335x-peripheral-can1.dtsi"
 +#include "am335x-bone-pinmux-can1.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
 new file mode 100644
 index 0000000..d4fd739
@@ -895,11 +895,11 @@ index 0000000..65e5fbb
 +		pinctrl-0 = <&lcd_24bit_pins>;
 +	};
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyO1.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO1.dtsi
+diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi
 new file mode 100644
-index 0000000..48c8d50
+index 0000000..ae5b813
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO1.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi
 @@ -0,0 +1,48 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -910,10 +910,10 @@ index 0000000..48c8d50
 + */
 +
 +/* Testing */
-+/* sudo /sbin/getty -L ttyO1 115200 vt102 */
++/* sudo /sbin/getty -L ttyS1 115200 vt102 */
 +
 +#include <dt-bindings/board/am335x-bbw-bbb-base.h>
-+#include "am335x-peripheral-ttyO1.dtsi"
++#include "am335x-peripheral-ttyS1.dtsi"
 +
 +/* cape universal */
 +
@@ -949,11 +949,11 @@ index 0000000..48c8d50
 +&uart1 {
 +	pinctrl-0 = <&uart1_pins>;
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyO2.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO2.dtsi
+diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi
 new file mode 100644
-index 0000000..cf7cafd
+index 0000000..5fa593a
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO2.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi
 @@ -0,0 +1,48 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -964,10 +964,10 @@ index 0000000..cf7cafd
 + */
 +
 +/* Testing */
-+/* sudo /sbin/getty -L ttyO2 115200 vt102 */
++/* sudo /sbin/getty -L ttyS2 115200 vt102 */
 +
 +#include <dt-bindings/board/am335x-bbw-bbb-base.h>
-+#include "am335x-peripheral-ttyO2.dtsi"
++#include "am335x-peripheral-ttyS2.dtsi"
 +
 +/* cape universal */
 +
@@ -1003,11 +1003,11 @@ index 0000000..cf7cafd
 +&uart2 {
 +	pinctrl-0 = <&uart2_pins>;
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyO4.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO4.dtsi
+diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi
 new file mode 100644
-index 0000000..b16f89d
+index 0000000..1d22a95
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO4.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi
 @@ -0,0 +1,48 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1018,10 +1018,10 @@ index 0000000..b16f89d
 + */
 +
 +/* Testing */
-+/* sudo /sbin/getty -L ttyO4 115200 vt102 */
++/* sudo /sbin/getty -L ttyS4 115200 vt102 */
 +
 +#include <dt-bindings/board/am335x-bbw-bbb-base.h>
-+#include "am335x-peripheral-ttyO4.dtsi"
++#include "am335x-peripheral-ttyS4.dtsi"
 +
 +/* cape universal */
 +
@@ -1057,11 +1057,11 @@ index 0000000..b16f89d
 +&uart4 {
 +	pinctrl-0 = <&uart4_pins>;
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyO5.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO5.dtsi
+diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi
 new file mode 100644
-index 0000000..906caa4
+index 0000000..01d0aec
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyO5.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi
 @@ -0,0 +1,48 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1072,10 +1072,10 @@ index 0000000..906caa4
 + */
 +
 +/* Testing */
-+/* sudo /sbin/getty -L ttyO5 115200 vt102 */
++/* sudo /sbin/getty -L ttyS5 115200 vt102 */
 +
 +#include <dt-bindings/board/am335x-bbw-bbb-base.h>
-+#include "am335x-peripheral-ttyO5.dtsi"
++#include "am335x-peripheral-ttyS5.dtsi"
 +
 +/* cape universal */
 +
@@ -1111,11 +1111,11 @@ index 0000000..906caa4
 +&uart5 {
 +	pinctrl-0 = <&uart5_pins>;
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyO1.dts b/arch/arm/boot/dts/am335x-bone-ttyO1.dts
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyS1.dts b/arch/arm/boot/dts/am335x-bone-ttyS1.dts
 new file mode 100644
-index 0000000..857b8dc
+index 0000000..9a8b24ee
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyO1.dts
++++ b/arch/arm/boot/dts/am335x-bone-ttyS1.dts
 @@ -0,0 +1,57 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1163,22 +1163,22 @@ index 0000000..857b8dc
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+#include "am335x-peripheral-ttyO1.dtsi"
-+#include "am335x-bone-pinmux-ttyO1.dtsi"
++#include "am335x-peripheral-ttyS1.dtsi"
++#include "am335x-bone-pinmux-ttyS1.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyO2.dts b/arch/arm/boot/dts/am335x-bone-ttyO2.dts
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyS2.dts b/arch/arm/boot/dts/am335x-bone-ttyS2.dts
 new file mode 100644
-index 0000000..67bdc0d
+index 0000000..6a149a5
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyO2.dts
++++ b/arch/arm/boot/dts/am335x-bone-ttyS2.dts
 @@ -0,0 +1,57 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1226,22 +1226,22 @@ index 0000000..67bdc0d
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+#include "am335x-peripheral-ttyO2.dtsi"
-+#include "am335x-bone-pinmux-ttyO2.dtsi"
++#include "am335x-peripheral-ttyS2.dtsi"
++#include "am335x-bone-pinmux-ttyS2.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyO4.dts b/arch/arm/boot/dts/am335x-bone-ttyO4.dts
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyS4.dts b/arch/arm/boot/dts/am335x-bone-ttyS4.dts
 new file mode 100644
-index 0000000..8a597b7
+index 0000000..c901887
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyO4.dts
++++ b/arch/arm/boot/dts/am335x-bone-ttyS4.dts
 @@ -0,0 +1,57 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1289,22 +1289,22 @@ index 0000000..8a597b7
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+#include "am335x-peripheral-ttyO4.dtsi"
-+#include "am335x-bone-pinmux-ttyO4.dtsi"
++#include "am335x-peripheral-ttyS4.dtsi"
++#include "am335x-bone-pinmux-ttyS4.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyO5.dts b/arch/arm/boot/dts/am335x-bone-ttyO5.dts
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-bone-ttyS5.dts b/arch/arm/boot/dts/am335x-bone-ttyS5.dts
 new file mode 100644
-index 0000000..3dc03f9
+index 0000000..c93c280
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyO5.dts
++++ b/arch/arm/boot/dts/am335x-bone-ttyS5.dts
 @@ -0,0 +1,57 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1352,19 +1352,19 @@ index 0000000..3dc03f9
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+#include "am335x-peripheral-ttyO5.dtsi"
-+#include "am335x-bone-pinmux-ttyO5.dtsi"
++#include "am335x-peripheral-ttyS5.dtsi"
++#include "am335x-bone-pinmux-ttyS5.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 6b849372..6c586fb 100644
+index 6b849372..a467683 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
 @@ -24,3 +24,26 @@
@@ -1383,17 +1383,17 @@ index 6b849372..6c586fb 100644
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 new file mode 100644
 index 0000000..6d8eb3b
@@ -1450,7 +1450,7 @@ index 0000000..6d8eb3b
 +#include "am335x-cape-bbb-exp-c.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-can0.dts b/arch/arm/boot/dts/am335x-boneblack-can0.dts
 new file mode 100644
-index 0000000..1160aac
+index 0000000..4bb69c6
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-can0.dts
 @@ -0,0 +1,64 @@
@@ -1507,20 +1507,20 @@ index 0000000..1160aac
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-can1.dts b/arch/arm/boot/dts/am335x-boneblack-can1.dts
 new file mode 100644
-index 0000000..d1e3b1f
+index 0000000..884855f
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-can1.dts
 @@ -0,0 +1,64 @@
@@ -1577,17 +1577,17 @@ index 0000000..d1e3b1f
 +#include "am335x-peripheral-can1.dtsi"
 +#include "am335x-bone-pinmux-can1.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 new file mode 100644
 index 0000000..ebe6757
@@ -1642,11 +1642,11 @@ index 0000000..ebe6757
 +};
 +
 +#include "am335x-bone-argus.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyO1.dts b/arch/arm/boot/dts/am335x-boneblack-ttyO1.dts
+diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS1.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS1.dts
 new file mode 100644
-index 0000000..6c215e4
+index 0000000..640a78a
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyO1.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-ttyS1.dts
 @@ -0,0 +1,64 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1701,22 +1701,22 @@ index 0000000..6c215e4
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+#include "am335x-peripheral-ttyO1.dtsi"
-+#include "am335x-bone-pinmux-ttyO1.dtsi"
++#include "am335x-peripheral-ttyS1.dtsi"
++#include "am335x-bone-pinmux-ttyS1.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyO2.dts b/arch/arm/boot/dts/am335x-boneblack-ttyO2.dts
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS2.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS2.dts
 new file mode 100644
-index 0000000..af99d87
+index 0000000..fb8b384
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyO2.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-ttyS2.dts
 @@ -0,0 +1,64 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1771,22 +1771,22 @@ index 0000000..af99d87
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+#include "am335x-peripheral-ttyO2.dtsi"
-+#include "am335x-bone-pinmux-ttyO2.dtsi"
++#include "am335x-peripheral-ttyS2.dtsi"
++#include "am335x-bone-pinmux-ttyS2.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyO4.dts b/arch/arm/boot/dts/am335x-boneblack-ttyO4.dts
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS4.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS4.dts
 new file mode 100644
-index 0000000..3b0838d
+index 0000000..16322bc
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyO4.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-ttyS4.dts
 @@ -0,0 +1,64 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1841,22 +1841,22 @@ index 0000000..3b0838d
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+#include "am335x-peripheral-ttyO4.dtsi"
-+#include "am335x-bone-pinmux-ttyO4.dtsi"
++#include "am335x-peripheral-ttyS4.dtsi"
++#include "am335x-bone-pinmux-ttyS4.dtsi"
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyO5.dts b/arch/arm/boot/dts/am335x-boneblack-ttyO5.dts
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
+diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS5.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS5.dts
 new file mode 100644
-index 0000000..4fe2314
+index 0000000..9a7156d
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyO5.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-ttyS5.dts
 @@ -0,0 +1,64 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1911,19 +1911,19 @@ index 0000000..4fe2314
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+#include "am335x-peripheral-ttyO5.dtsi"
-+#include "am335x-bone-pinmux-ttyO5.dtsi"
++#include "am335x-peripheral-ttyS5.dtsi"
++#include "am335x-bone-pinmux-ttyS5.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 577d67c..627b8c5 100644
+index 577d67c..607328c 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
 @@ -29,62 +29,36 @@
@@ -2003,20 +2003,20 @@ index 577d67c..627b8c5 100644
 +/* #include "am335x-peripheral-can1.dtsi" */
 +/* #include "am335x-bone-pinmux-can1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO1.dtsi" */
++/* #include "am335x-peripheral-ttyS1.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO2.dtsi" */
++/* #include "am335x-peripheral-ttyS2.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO4.dtsi" */
++/* #include "am335x-peripheral-ttyS4.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
 +
-+/* #include "am335x-peripheral-ttyO5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyO5.dtsi" */
++/* #include "am335x-peripheral-ttyS5.dtsi" */
++/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
 new file mode 100644
-index 0000000..1affae5
+index 0000000..24cedf4
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
 @@ -0,0 +1,202 @@
@@ -2033,14 +2033,14 @@ index 0000000..1affae5
 +#include "am335x-peripheral-can0.dtsi"
 +#include "am335x-bone-pinmux-can0.dtsi"
 +
-+#include "am335x-peripheral-ttyO1.dtsi"
-+#include "am335x-bone-pinmux-ttyO1.dtsi"
++#include "am335x-peripheral-ttyS1.dtsi"
++#include "am335x-bone-pinmux-ttyS1.dtsi"
 +
-+#include "am335x-peripheral-ttyO2.dtsi"
-+#include "am335x-bone-pinmux-ttyO2.dtsi"
++#include "am335x-peripheral-ttyS2.dtsi"
++#include "am335x-bone-pinmux-ttyS2.dtsi"
 +
-+#include "am335x-peripheral-ttyO4.dtsi"
-+#include "am335x-bone-pinmux-ttyO4.dtsi"
++#include "am335x-peripheral-ttyS4.dtsi"
++#include "am335x-bone-pinmux-ttyS4.dtsi"
 +
 +&am33xx_pinmux {
 +	user_leds_s1: user_leds_s1 {
@@ -2424,11 +2424,11 @@ index 0000000..74ddc12
 +		};
 +	};
 +};
-diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyO1.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyO1.dtsi
+diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi
 new file mode 100644
 index 0000000..f59fa4c
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-peripheral-ttyO1.dtsi
++++ b/arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi
 @@ -0,0 +1,13 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -2443,11 +2443,11 @@ index 0000000..f59fa4c
 +
 +	status = "okay";
 +};
-diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyO2.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyO2.dtsi
+diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi
 new file mode 100644
 index 0000000..a25d6cf
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-peripheral-ttyO2.dtsi
++++ b/arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi
 @@ -0,0 +1,13 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -2462,11 +2462,11 @@ index 0000000..a25d6cf
 +
 +	status = "okay";
 +};
-diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyO4.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyO4.dtsi
+diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi
 new file mode 100644
 index 0000000..adc89f0
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-peripheral-ttyO4.dtsi
++++ b/arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi
 @@ -0,0 +1,13 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -2481,11 +2481,11 @@ index 0000000..adc89f0
 +
 +	status = "okay";
 +};
-diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi
+diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi
 new file mode 100644
 index 0000000..8b42fb0
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-peripheral-ttyO5.dtsi
++++ b/arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi
 @@ -0,0 +1,13 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
