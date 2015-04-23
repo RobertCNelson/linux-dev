@@ -123,9 +123,10 @@ dts () {
 	${git} "${DIR}/patches/dts/0006-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
 	${git} "${DIR}/patches/dts/0007-omap3-beagle-xm-ehci-works-again.patch"
 	${git} "${DIR}/patches/dts/0008-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
+	${git} "${DIR}/patches/dts/0009-first-pass-imx6q-ccimx6sbc.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=8
+		number=9
 		cleanup
 	fi
 }

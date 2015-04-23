@@ -852,8 +852,7 @@ config="CONFIG_DRM_UDL" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_DRM_TILCDC" ; config_enable
 config="CONFIG_DRM_IMX" ; config_enable
-config="CONFIG_DRM_ETNAVIV" ; config_enable
-config="CONFIG_DRM_ETNAVIV_REGISTER_LOGGING" ; config_enable
+config="CONFIG_DRM_ETNAVIV" ; config_module
 
 #
 # I2C encoder or helper chips
