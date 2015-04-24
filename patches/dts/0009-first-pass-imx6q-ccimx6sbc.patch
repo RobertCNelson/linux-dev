@@ -6,15 +6,15 @@ Subject: [PATCH 9/9] first pass: imx6q-ccimx6sbc
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile            |   1 +
- arch/arm/boot/dts/imx6q-ccimx6sbc.dts | 275 ++++++++++++++++++++++++++++++++++
- 2 files changed, 276 insertions(+)
+ arch/arm/boot/dts/imx6q-ccimx6sbc.dts | 303 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 304 insertions(+)
  create mode 100644 arch/arm/boot/dts/imx6q-ccimx6sbc.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 2ae13d8..7194234 100644
+index 95cce3d..d0b588f 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -279,6 +279,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
+@@ -271,6 +271,7 @@ dtb-$(CONFIG_SOC_IMX6Q) += \
  	imx6dl-wandboard-revb1.dtb \
  	imx6q-arm2.dtb \
  	imx6q-cm-fx6.dtb \
@@ -24,10 +24,10 @@ index 2ae13d8..7194234 100644
  	imx6q-dmo-edmqmx6.dtb \
 diff --git a/arch/arm/boot/dts/imx6q-ccimx6sbc.dts b/arch/arm/boot/dts/imx6q-ccimx6sbc.dts
 new file mode 100644
-index 0000000..a6e0533
+index 0000000..300be31
 --- /dev/null
 +++ b/arch/arm/boot/dts/imx6q-ccimx6sbc.dts
-@@ -0,0 +1,275 @@
+@@ -0,0 +1,303 @@
 +/*
 + * Copyright (C) 2015 Robert Nelson (robertcnelson@gmail.com)
 + *
@@ -102,6 +102,18 @@ index 0000000..a6e0533
 +			gpio = <&gpio3 10 GPIO_ACTIVE_HIGH>;
 +			enable-active-high;
 +		};
++
++		reg_usb_otg_vbus: regulator@2 {
++			compatible = "regulator-fixed";
++			reg = <2>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usbotg>;
++			regulator-name = "usb_otg_vbus";
++			regulator-min-microvolt = <5000000>;
++			regulator-max-microvolt = <5000000>;
++			gpio = <&gpio3 22 GPIO_ACTIVE_HIGH>;
++			enable-active-high;
++		};
 +	};
 +};
 +
@@ -137,33 +149,33 @@ index 0000000..a6e0533
 +				regulator-always-on;
 +			};
 +
-+			vdd_mca_io_reg: ldo3 {
++			ldo3_reg: ldo3 {
 +				regulator-min-microvolt = <3300000>;
 +				regulator-max-microvolt = <3300000>;
 +				regulator-always-on;
 +			};
 +
-+			vdd_eth_io_reg: ldo4 {
-+				regulator-min-microvolt = <2500000>;
-+				regulator-max-microvolt = <2500000>;
++			ldo4_reg: ldo4 {
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
 +				regulator-always-on;
 +			};
 +
-+			vdd_minipcie_io_reg: ldo6 {
-+				regulator-min-microvolt = <1500000>;
-+				regulator-max-microvolt = <1500000>;
++			ldo6_reg: ldo6 {
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
 +				regulator-always-on;
 +			};
 +
-+			vdd_vgen7_1v8_reg: ldo7 {
-+				regulator-min-microvolt = <2800000>;
-+				regulator-max-microvolt = <2800000>;
++			ldo7_reg: ldo7 {
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
 +				regulator-always-on;
 +			};
 +
-+			vdd_ext_ldo8_reg: ldo8 {
-+				regulator-min-microvolt = <2800000>;
-+				regulator-max-microvolt = <2800000>;
++			ldo8_reg: ldo8 {
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
 +				regulator-always-on;
 +			};
 +		};
@@ -239,6 +251,15 @@ index 0000000..a6e0533
 +			>;
 +		};
 +
++		pinctrl_usbotg: usbotggrp {
++			fsl,pins = <
++				MX6QDL_PAD_GPIO_1__USB_OTG_ID		0x17059
++				MX6QDL_PAD_EIM_D21__USB_OTG_OC		0x1b0b0
++				/* power enable, high active */
++				MX6QDL_PAD_EIM_D22__GPIO3_IO22		0x10b0
++			>;
++		};
++
 +		pinctrl_usdhc2: usdhc2grp {
 +			fsl,pins = <
 +				MX6QDL_PAD_SD2_CMD__SD2_CMD		0x17059
@@ -285,6 +306,13 @@ index 0000000..a6e0533
 +	vbus-supply = <&reg_usbh1_reset>;
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&pinctrl_usbh1>;
++	status = "okay";
++};
++
++&usbotg {
++	vbus-supply = <&reg_usb_otg_vbus>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_usbotg>;
 +	status = "okay";
 +};
 +
