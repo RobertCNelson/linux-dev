@@ -327,10 +327,6 @@ debian_regs () {
 
 		#Future Debian Code names:
 		case "${deb_distro}" in
-		stretch)
-			#Debian 9
-			deb_distro="sid"
-			;;
 		buster)
 			#Debian 10
 			deb_distro="sid"
@@ -340,7 +336,7 @@ debian_regs () {
 		#https://wiki.ubuntu.com/Releases
 		unset error_unknown_deb_distro
 		case "${deb_distro}" in
-		squeeze|wheezy|jessie|sid)
+		squeeze|wheezy|jessie|stretch|sid)
 			unset warn_eol_distro
 			;;
 		utopic|vivid)
