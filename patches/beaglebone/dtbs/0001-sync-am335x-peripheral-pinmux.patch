@@ -1,6 +1,6 @@
-From e03d472cd8ec8e2b517f378f2676ef6a92a6fa82 Mon Sep 17 00:00:00 2001
+From 78ca21cb7d26192dff3dd54e3109dba3f81c422e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 28 Apr 2015 09:47:51 -0500
+Date: Tue, 28 Apr 2015 15:14:40 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -51,9 +51,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 ++
- arch/arm/boot/dts/am33xx.dtsi                      |   7 +
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 +++++++++++
- 48 files changed, 2274 insertions(+), 78 deletions(-)
+ 47 files changed, 2267 insertions(+), 78 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-can0.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-can1.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
@@ -2676,24 +2675,6 @@ index 0000000..8b42fb0
 +
 +	status = "okay";
 +};
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index ebc3168..e26db94 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -881,6 +881,13 @@
- 			reg = <0x48310000 0x2000>;
- 			interrupts = <111>;
- 		};
-+
-+		sgx@0x56000000 {
-+			compatible = "ti,sgx";
-+			ti,hwmods = "gfx";
-+			reg = <0x56000000 0x1000000>;
-+			interrupts = <37>;
-+		};
- 	};
- };
- 
 diff --git a/include/dt-bindings/board/am335x-bbw-bbb-base.h b/include/dt-bindings/board/am335x-bbw-bbb-base.h
 new file mode 100644
 index 0000000..35f6d57
