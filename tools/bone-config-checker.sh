@@ -122,7 +122,6 @@ config="CONFIG_USB_MUSB_OMAP2PLUS" ; config_disable
 config="CONFIG_USB_MUSB_AM35X" ; config_disable
 config="CONFIG_USB_MUSB_DSPS" ; config_enable
 config="CONFIG_USB_MUSB_UX500" ; config_disable
-config="CONFIG_USB_MUSB_AM335X_CHILD" ; config_enable
 config="CONFIG_USB_TI_CPPI41_DMA" ; config_disable
 config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 
@@ -194,7 +193,6 @@ config="CONFIG_RTC_DRV_OMAP" ; config_enable
 #
 config="CONFIG_DRM_OMAP" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
-config="CONFIG_DRM_ETNAVIV" ; config_disable
 
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
