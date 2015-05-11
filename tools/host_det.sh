@@ -67,7 +67,7 @@ redhat_reqs () {
 		echo "RPM distro version: [${rpm_distro}]"
 
 		case "${rpm_distro}" in
-		6.4|6.5|6.6)
+		6.4|6.5|6.6|6.7)
 			echo "-----------------------------"
 			echo "Warning: RHEL/CentOS [${rpm_distro}] has no [uboot-tools] pkg by default"
 			echo "add: [EPEL] repo: https://fedoraproject.org/wiki/EPEL"
@@ -76,7 +76,7 @@ redhat_reqs () {
 			pkg="uboot-tools"
 			check_rpm
 			;;
-		7.0)
+		7.0|7.1)
 			echo "-----------------------------"
 			echo "Warning: RHEL/CentOS [${rpm_distro}] has no [uboot-tools] pkg by default"
 			echo "add: [EPEL] repo: https://fedoraproject.org/wiki/EPEL"
