@@ -84,13 +84,13 @@ config="CONFIG_THUMB2_KERNEL" ; config_enable
 #
 # Serial drivers
 #
-config="CONFIG_SERIAL_8250_OMAP" ; config_enable
-config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
+#config="CONFIG_SERIAL_8250_OMAP" ; config_enable
+#config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 
 #
 # Non-8250 serial port support
 #
-config="CONFIG_SERIAL_OMAP" ; config_disable
+#config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_disable
 
 #
@@ -193,6 +193,7 @@ config="CONFIG_RTC_DRV_OMAP" ; config_enable
 #
 config="CONFIG_DRM_OMAP" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
+config="CONFIG_OMAP2_DSS" ; config_disable
 
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
