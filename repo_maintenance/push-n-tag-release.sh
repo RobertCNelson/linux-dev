@@ -47,7 +47,7 @@ if [ -e ${DIR}/version.sh ]; then
 	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}"
 
 	#push tag
-	echo "git push -f ${repo} \"${KERNEL_TAG}-${BUILD}\""
+	echo "log: git push -f ${repo} \"${KERNEL_TAG}-${BUILD}\""
 	git push -f ${repo} "${KERNEL_TAG}-${BUILD}"
 
 	cd ${DIR}/
