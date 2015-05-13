@@ -1,0 +1,67 @@
+From 3472963e002505a8bcbf9e94fbe55a42228109da Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 12 May 2015 14:21:27 -0500
+Subject: [PATCH 5/5] add overlay dtb
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/Makefile                     |  1 +
+ arch/arm/boot/dts/am335x-boneblack-overlay.dts | 34 ++++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-overlay.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 5997783..cf34a4e 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -415,6 +415,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
+ 	am335x-base0033.dtb \
+ 	am335x-bone.dtb \
+ 	am335x-boneblack.dtb \
++	am335x-boneblack-overlay.dtb \
+ 	am335x-bonegreen.dtb \
+ 	am335x-evm.dtb \
+ 	am335x-evmsk.dtb \
+diff --git a/arch/arm/boot/dts/am335x-boneblack-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
+new file mode 100644
+index 0000000..1d3bde4
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
+@@ -0,0 +1,34 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone Black";
++	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++};
++
++/* Max Core Speed */
++#include "am335x-boneblack-1ghz.dtsi"
++/* #include "am335x-boneblack-800mhz.dtsi" */
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&vmmcsd_fixed>;
++};
++
++&rtc {
++	system-power-controller;
++};
+-- 
+2.1.4
+

@@ -1,187 +1,133 @@
-From 671b58ac7d086f20562a1c54ceb0117b85d3a422 Mon Sep 17 00:00:00 2001
+From cd5898c460099468478887a1bbd841d3724cc749 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 6 May 2015 23:09:53 +0300
-Subject: [PATCH 22/22] capemgr: Beaglebone capemanager
+Subject: [PATCH 22/26] misc: Beaglebone capemanager
 
 A cape loader based on DT overlays and DT objects.
 
-Beaglebone cape manager implementation.
+This is the beaglebone cape manager which allows capes to be automatically
+probed and instantiated via means of a device tree overlay deduced from
+the part-number and version contained on the cape's EEPROM.
+
+The reference manual contains information about the specification
+and the contents of the EEPROM.
+
+http://beagleboard.org/static/beaglebone/latest/Docs/Hardware/BONE_SRM.pdf
+
+Documentation about the workings of the cape manager is located
+in Documentation/misc-devices/bone_capemgr.txt
 
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi |   87 ++
- arch/arm/boot/dts/am335x-boneblack.dts    |    1 +
- drivers/misc/Kconfig                      |    8 +
- drivers/misc/Makefile                     |    1 +
- drivers/misc/beaglebone-capemgr.c         | 2274 +++++++++++++++++++++++++++++
- include/linux/i2c/eeprom.h                |   10 +-
- 6 files changed, 2378 insertions(+), 3 deletions(-)
- create mode 100644 drivers/misc/beaglebone-capemgr.c
+ Documentation/misc-devices/bone_capemgr.txt |   59 +
+ drivers/misc/Kconfig                        |    8 +
+ drivers/misc/Makefile                       |    1 +
+ drivers/misc/bone_capemgr.c                 | 1991 +++++++++++++++++++++++++++
+ 4 files changed, 2059 insertions(+)
+ create mode 100644 Documentation/misc-devices/bone_capemgr.txt
+ create mode 100644 drivers/misc/bone_capemgr.c
 
-diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index c3255e0..0b96997 100644
---- a/arch/arm/boot/dts/am335x-bone-common.dtsi
-+++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -81,6 +81,13 @@
- 		>;
- 	};
- 
-+	i2c2_pins: pinmux_i2c2_pins {
-+		pinctrl-single,pins = <
-+			0x178 (PIN_INPUT_PULLUP | MUX_MODE3) 	/* uart1_ctsn.i2c2_sda */
-+			0x17c (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_rtsn.i2c2_scl */
-+		>;
-+	};
+diff --git a/Documentation/misc-devices/bone_capemgr.txt b/Documentation/misc-devices/bone_capemgr.txt
+new file mode 100644
+index 0000000..aedcbdd
+--- /dev/null
++++ b/Documentation/misc-devices/bone_capemgr.txt
+@@ -0,0 +1,59 @@
++---------------------------
++  Beaglebone Cape-Manager
++---------------------------
 +
- 	uart0_pins: pinmux_uart0_pins {
- 		pinctrl-single,pins = <
- 			0x170 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
-@@ -218,8 +225,41 @@
- 		reg = <0x24>;
- 	};
- 
-+	baseboard_eeprom: baseboard_eeprom@50 {
-+		compatible = "at,24c256";
-+		reg = <0x50>;
-+	};
- };
- 
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins>;
++The beaglebone cape manager driver allows the automatic use of external
++peripheral capes to be automatically supported by Linux without any manual
++setup required by the user.
 +
-+	status = "okay";
-+	clock-frequency = <100000>;
++Each beaglebone cape should contain an EEPROM that describes
++it in a fixed I2C address on the i2c2 bus of the baseboard.
++The format of the EEPROM is defined in the beaglebone reference
++manual at:
++http://beagleboard.org/static/beaglebone/latest/Docs/Hardware/BONE_SRM.pdf
 +
-+	cape_eeprom0: cape_eeprom0@54 {
-+		compatible = "at,24c256";
-+		reg = <0x54>;
-+	};
++Reading the part number and revision information the manager
++requests a firmware file formatted as a device tree overlay blob.
 +
-+	cape_eeprom1: cape_eeprom1@55 {
-+		compatible = "at,24c256";
-+		reg = <0x55>;
-+	};
++Applying the overlay the devices are instantiated and the cape is
++ready to be used.
 +
-+	cape_eeprom2: cape_eeprom2@56 {
-+		compatible = "at,24c256";
-+		reg = <0x56>;
-+	};
++For instance if the part-number is BB-BONE-SERL-03 and the version is 00A1
++the firmware file requested will be BB-BONE-SERL-03-00A1-00A1.dtbo
++It will be located by the in-kernel firmware
++loader in the usual place, i.e.  /lib/firmware/`uname -r`, /lib/firmware etc.
 +
-+	cape_eeprom3: cape_eeprom3@57 {
-+		compatible = "at,24c256";
-+		reg = <0x57>;
-+	};
-+};
++The driver supports the following parameters (either as part of the kernel
++command line or supplied at module insertion time).
 +
++disable_partno: A comma delimited list of PART-NUMBER[:REV] of disabled capes.
++enable_partno: A comma delimited list of PART-NUMBER[:REV[:PRIO]] of enabled capes.
++boot_scan_period: The boot scan period in ms. When the cape manager is built-in
++                  the kernel image, the firmware loader cannot find the files
++		  before the rootfs is mounted. This parameter controls the
++		  period with which the boot state is checked in that case.
 +
- /include/ "tps65217.dtsi"
- 
- &tps {
-@@ -309,3 +349,50 @@
- &sham {
- 	status = "okay";
- };
++There's a sysfs control interface which is defined at the ABI documentation area.
 +
-+/* the cape manager */
-+/ {
-+	bone_capemgr {
-+		compatible = "ti,bone-capemgr";
-+		status = "okay";
++Theory of operation:
++--------------------
 +
-+		eeprom = <&baseboard_eeprom>;
++On driver probe the I2C EEPROM of the baseboard is read and information about the
++current baseboard is retrieved. This information includes the mapping from baseboard
++board name to DT friendly compatible string. I.e. the "A335BONE" board name from EEPROM
++is mapped to the "ti,beaglebone" compatible string which should be present in the dtbo
++to be loaded.
 +
-+		/* map board revisions to compatible definitions */
-+		baseboardmaps {
-+			baseboard_beaglebone: board@0 {
-+				board-name = "A335BONE";
-+				compatible-name = "ti,beaglebone";
-+			};
++Afterwards the EEPROMs declared in each slot are probed, and the EEPROMs found are
++decoded keeping track the cape part-number and version data.
 +
-+			baseboard_beaglebone_black: board@1 {
-+				board-name = "A335BNLT";
-+				compatible-name = "ti,beaglebone-black";
-+			};
-+		};
++Using the part-number and version a firmware file is requested (the firmware file
++requested is <part-number>-<version>.dtbo).
 +
-+		/* only 4 slots defined */
-+		slots {
-+			slot@0 {
-+				eeprom = <&cape_eeprom0>;
-+			};
++The dtbo is unflattend and the resulting device tree is matched against a compatible
++baseboard, and in case of multiple parallel loading capes the priorities defined are honored.
++That means that when there are multiple capes being loaded in parallel the ones with the
++lowest priority number are loaded first.
 +
-+			slot@1 {
-+				eeprom = <&cape_eeprom1>;
-+			};
-+
-+			slot@2 {
-+				eeprom = <&cape_eeprom2>;
-+			};
-+
-+			slot@3 {
-+				eeprom = <&cape_eeprom3>;
-+			};
-+		};
-+
-+		/* mapping between board names and dtb objects */
-+		capemaps {
-+			/* empty for now */
-+		};
-+	};
-+};
-diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 5c42d25..2bab055 100644
---- a/arch/arm/boot/dts/am335x-boneblack.dts
-+++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -79,6 +79,7 @@
- 		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
- 		status = "okay";
- 	};
-+
- };
- 
- &rtc {
++Applying the device tree overlay makes the cape operational, as if it was part of the
++kernel's booting device tree.
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 006242c..fc3161e 100644
+index 006242c..9f483d5 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -515,6 +515,13 @@ config VEXPRESS_SYSCFG
+@@ -515,6 +515,14 @@ config VEXPRESS_SYSCFG
  	  bus. System Configuration interface is one of the possible means
  	  of generating transactions on this bus.
  
-+config CAPE_BEAGLEBONE
-+	tristate "Beaglebone cape support"
++config BONE_CAPEMGR
++	tristate "Beaglebone cape manager"
 +	depends on ARCH_OMAP2PLUS && OF && I2C && OF_OVERLAY
 +	default n
 +	help
-+	  Say Y here to include support for beaglebone capes
++	  Say Y here to include support for automatic loading of
++	  beaglebone capes.
 +
  source "drivers/misc/c2port/Kconfig"
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
-@@ -528,4 +535,5 @@ source "drivers/misc/mic/Kconfig"
- source "drivers/misc/genwqe/Kconfig"
- source "drivers/misc/echo/Kconfig"
- source "drivers/misc/cxl/Kconfig"
-+
- endmenu
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 7d5c4cd..d638c7d 100644
+index 7d5c4cd..659b78b 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
 @@ -56,3 +56,4 @@ obj-$(CONFIG_GENWQE)		+= genwqe/
  obj-$(CONFIG_ECHO)		+= echo/
  obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
-+obj-$(CONFIG_CAPE_BEAGLEBONE)	+= beaglebone-capemgr.o
-diff --git a/drivers/misc/beaglebone-capemgr.c b/drivers/misc/beaglebone-capemgr.c
++obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
+diff --git a/drivers/misc/bone_capemgr.c b/drivers/misc/bone_capemgr.c
 new file mode 100644
-index 0000000..392bcec
+index 0000000..a9099ff
 --- /dev/null
-+++ b/drivers/misc/beaglebone-capemgr.c
-@@ -0,0 +1,2274 @@
++++ b/drivers/misc/bone_capemgr.c
+@@ -0,0 +1,1991 @@
 +/*
-+ * TI Beaglebone cape controller
++ * TI Beaglebone cape manager
 + *
 + * Copyright (C) 2012 Texas Instruments Inc.
 + * Copyright (C) 2012-2015 Konsulko Group.
@@ -196,10 +142,6 @@ index 0000000..392bcec
 + * but WITHOUT ANY WARRANTY; without even the implied warranty of
 + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 + * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
 +#include <linux/module.h>
@@ -229,26 +171,25 @@ index 0000000..392bcec
 +#include <linux/file.h>
 +#include <linux/fs.h>
 +
-+/* extra command line overrides */
-+static char *extra_override = NULL;
-+module_param(extra_override, charp, 0444);
-+MODULE_PARM_DESC(extra_override,
-+		"Comma delimited list of PART-NUMBER[:REV] overrides");
-+
 +/* disabled capes */
-+static char *disable_partno = NULL;
++static char *disable_partno;
 +module_param(disable_partno, charp, 0444);
 +MODULE_PARM_DESC(disable_partno,
 +		"Comma delimited list of PART-NUMBER[:REV] of disabled capes");
 +
 +/* enable capes */
-+static char *enable_partno = NULL;
++static char *enable_partno;
 +module_param(enable_partno, charp, 0444);
 +MODULE_PARM_DESC(enable_partno,
 +		"Comma delimited list of PART-NUMBER[:REV] of enabled capes");
 +
++/* delay to scan on boot until rootfs appears */
++static int boot_scan_period = 1000;
++module_param(boot_scan_period, int, 0444);
++MODULE_PARM_DESC(boot_scan_period,
++		"boot scan period until rootfs firmware is available");
 +
-+struct bone_capemgr_info;
++struct capemgr_info;
 +
 +struct slot_ee_attribute {
 +	struct device_attribute devattr;
@@ -267,22 +208,19 @@ index 0000000..392bcec
 +
 +struct bone_cape_slot {
 +	struct list_head	node;
-+	struct bone_capemgr_info *info;
++	struct capemgr_info	*info;
 +	int			slotno;
 +	u32			eeprom_handle;
 +	int			eeprom_addr;
 +	struct i2c_client	*client;
 +	struct memory_accessor	*macc;
-+	unsigned int		probed : 1;
-+	unsigned int		probe_failed : 1;
-+	unsigned int		override : 1;
 +	char			text_id[256];
 +	char			signature[256];
 +	/* quick access */
 +	char			board_name[32+1];
-+	char 			version[4+1];
-+	char 			manufacturer[16+1];
-+	char 			part_number[16+1];
++	char			version[4+1];
++	char			manufacturer[16+1];
++	char			part_number[16+1];
 +
 +	/* attribute group */
 +	char			*ee_attr_name;
@@ -291,9 +229,15 @@ index 0000000..392bcec
 +	struct attribute	**ee_attrs_tab;
 +	struct attribute_group	attrgroup;
 +
++	/* state flags */
++	unsigned int		probed : 1;
++	unsigned int		probe_failed : 1;
++	unsigned int		override : 1;
 +	unsigned int		loading : 1;
 +	unsigned int		loaded : 1;
 +	unsigned int		retry_loading : 1;
++	unsigned int		disabled : 1;
++
 +	char			*dtbo;
 +	const struct firmware	*fw;
 +	struct device_node	*overlay;
@@ -304,12 +248,6 @@ index 0000000..392bcec
 +
 +	/* load priority */
 +	int priority;
-+};
-+
-+struct bone_capemap {
-+	struct list_head node;
-+	char *part_number;
-+	struct device_node *map_node;
 +};
 +
 +struct bone_baseboard {
@@ -323,29 +261,22 @@ index 0000000..392bcec
 +
 +	/* quick access */
 +	char			board_name[8+1];
-+	char 			revision[4+1];
-+	char 			serial_number[12+1];
++	char			revision[4+1];
++	char			serial_number[12+1];
 +
 +	/* access to the eeprom */
 +	u32			eeprom_handle;
 +	int			eeprom_addr;
 +	struct i2c_client	*client;
 +	struct memory_accessor	*macc;
-+	unsigned int		probed : 1;
-+	unsigned int		probe_failed : 1;
-+	unsigned int		override : 1;
 +};
 +
-+struct bone_capemgr_info {
++struct capemgr_info {
 +	struct platform_device	*pdev;
 +
 +	atomic_t next_slot_nr;
 +	struct list_head	slot_list;
 +	struct mutex		slots_list_mutex;
-+
-+	int capemaps_nr;
-+	struct list_head	capemap_list;
-+	struct mutex		capemap_mutex;
 +
 +	/* baseboard EEPROM data */
 +	struct bone_baseboard	baseboard;
@@ -357,13 +288,13 @@ index 0000000..392bcec
 +static int bone_slot_fill_override(struct bone_cape_slot *slot,
 +		struct device_node *node,
 +		const char *part_number, const char *version);
-+static struct bone_cape_slot *bone_capemgr_add_slot(
-+		struct bone_capemgr_info *info, struct device_node *node,
++static struct bone_cape_slot *capemgr_add_slot(
++		struct capemgr_info *info, struct device_node *node,
 +		const char *part_number, const char *version, int prio);
-+static int bone_capemgr_remove_slot_no_lock(struct bone_cape_slot *slot);
-+static int bone_capemgr_remove_slot(struct bone_cape_slot *slot);
-+static int bone_capemgr_load(struct bone_cape_slot *slot);
-+static int bone_capemgr_unload(struct bone_cape_slot *slot);
++static int capemgr_remove_slot_no_lock(struct bone_cape_slot *slot);
++static int capemgr_remove_slot(struct bone_cape_slot *slot);
++static int capemgr_load_slot(struct bone_cape_slot *slot);
++static int capemgr_unload_slot(struct bone_cape_slot *slot);
 +
 +/* baseboard EEPROM field definition */
 +#define BBRD_EE_FIELD_HEADER		0
@@ -395,14 +326,14 @@ index 0000000..392bcec
 +	({ \
 +		const u8 *_p = (p); \
 +		(((u32)_p[0] << 24) | ((u32)_p[1] << 16) | \
-+		( (u32)_p[2] <<  8) |  (u32)_p[3]      ); \
++		 ((u32)_p[2] <<  8) |  (u32)_p[3]); \
 +	})
 +
 +#define EE_FIELD_HEADER_VALID	0xaa5533ee
 +
 +struct ee_field {
-+	const char 	*name;
-+	int 		start;
++	const char	*name;
++	int		start;
 +	int		size;
 +	unsigned int	ascii : 1;
 +	unsigned int	strip_trailing_dots : 1;
@@ -558,7 +489,7 @@ index 0000000..392bcec
 +
 +	/* terminate ascii field */
 +	if (sig_field->ascii)
-+		buf[sig_field->size] = '\0';;
++		buf[sig_field->size] = '\0';
 +
 +	if (sig_field->strip_trailing_dots) {
 +		len = strlen(buf);
@@ -588,68 +519,44 @@ index 0000000..392bcec
 +}
 +
 +#ifdef CONFIG_OF
-+static const struct of_device_id bone_capemgr_of_match[] = {
++static const struct of_device_id capemgr_of_match[] = {
 +	{
 +		.compatible = "ti,bone-capemgr",
 +	},
 +	{ },
 +};
-+MODULE_DEVICE_TABLE(of, bone_capemgr_of_match);
++MODULE_DEVICE_TABLE(of, capemgr_of_match);
 +
 +#endif
 +
 +static int bone_baseboard_scan(struct bone_baseboard *bbrd)
 +{
-+	struct bone_capemgr_info *info = container_of(bbrd,
-+			struct bone_capemgr_info, baseboard);
++	struct capemgr_info *info = container_of(bbrd,
++			struct capemgr_info, baseboard);
 +	struct memory_accessor *macc = bbrd->macc;
 +	const u8 *p;
-+	int i, r;
++	int r;
 +
-+	/* need to read EEPROM? */
-+	if (bbrd->probed)
-+		goto bbrd_fail_check;
++	if (macc == NULL || macc->read == NULL) {
++		dev_err(&info->pdev->dev,
++			"No memory accessor for baseboard\n");
++		return -ENODEV;
++	}
 +
-+	bbrd->probed = 1;
-+
-+	if (!bbrd->override) {
-+
-+		if (macc == NULL || macc->read == NULL) {
-+			dev_err(&info->pdev->dev,
-+				"bone: No memory accessor for baseboard\n");
-+			return -ENODEV;
-+		}
-+
-+		for (i = 0; i < 10; i++) {
-+
-+			/* perform read */
-+			r = macc->read(macc, bbrd->signature,
-+					0, sizeof(bbrd->signature));
-+
-+			if (r == sizeof(bbrd->signature))
-+				break;
-+
-+			dev_info(&info->pdev->dev,
-+				"bone: scan failed (%d time)\n", i + 1);
-+
-+			msleep(500);
-+		}
-+
-+		if (i >= 10) {
-+			bbrd->probe_failed = 1;
-+			return r >= 0 ? -EINVAL : r;
-+		}
-+
-+	} else
++	/* perform read */
++	r = macc->read(macc, bbrd->signature, 0, sizeof(bbrd->signature));
++	if (r != sizeof(bbrd->signature)) {
++		if (r == -EPROBE_DEFER)
++			return r;
 +		dev_info(&info->pdev->dev,
-+			"bone: Using override eeprom data for baseboard\n");
++				"baseboard i2c read failed\n");
++		return r >= 0 ? -EINVAL : r;
++	}
 +
 +	p = bbrd->signature;
 +	if (EE_FIELD_MAKE_HEADER(p) != EE_FIELD_HEADER_VALID) {
-+		dev_err(&info->pdev->dev, "bone: Invalid signature "
-+			"'%08x' at baseboard\n",
++		dev_err(&info->pdev->dev, "Invalid board signature '%08x'\n",
 +			EE_FIELD_MAKE_HEADER(p));
-+		bbrd->probe_failed = 1;
 +		return -ENODEV;
 +	}
 +
@@ -671,17 +578,12 @@ index 0000000..392bcec
 +	/* terminate always */
 +	bbrd->text_id[sizeof(bbrd->text_id) - 1] = '\0';
 +
-+bbrd_fail_check:
-+	/* bbrd has failed and we don't support hotpluging */
-+	if (bbrd->probe_failed)
-+		return -ENODEV;
-+
 +	return 0;
 +}
 +
 +static int bone_slot_scan(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct memory_accessor *macc = slot->macc;
 +	const u8 *p;
 +	int r;
@@ -696,7 +598,7 @@ index 0000000..392bcec
 +
 +		if (macc == NULL || macc->read == NULL) {
 +			dev_err(&info->pdev->dev,
-+				"bone: No memory accessor for slot %d\n",
++				"No memory accessor for slot %d\n",
 +				slot->slotno);
 +			return -ENODEV;
 +		}
@@ -711,15 +613,14 @@ index 0000000..392bcec
 +		}
 +	} else
 +		dev_info(&info->pdev->dev,
-+			"bone: Using override eeprom data at slot %d\n",
++			"Using override eeprom data at slot %d\n",
 +			slot->slotno);
 +
 +	p = slot->signature;
 +	if (EE_FIELD_MAKE_HEADER(p) != EE_FIELD_HEADER_VALID) {
-+		dev_err(&info->pdev->dev, "bone: Invalid signature "
-+			"'%08x' at slot %d\n",
-+			EE_FIELD_MAKE_HEADER(p),
-+			slot->slotno);
++		dev_err(&info->pdev->dev,
++			"Invalid signature '%08x' at slot %d\n",
++			EE_FIELD_MAKE_HEADER(p), slot->slotno);
 +		slot->probe_failed = 1;
 +		return -ENODEV;
 +	}
@@ -810,7 +711,7 @@ index 0000000..392bcec
 +	const char *cp;
 +	int cplen, vlen, l;
 +
-+	/* check if it's directly compatible with the baseboard */
++	/* check if it's directly compatible */
 +	cp = prop->value;
 +	cplen = prop->length;
 +	vlen = strlen(value);
@@ -825,94 +726,6 @@ index 0000000..392bcec
 +	}
 +	return -1;
 +}
-+
-+/* check an override slot node if it's compatible */
-+static int bone_is_compatible_override(struct device_node *node,
-+		const char *compatible_name)
-+{
-+	struct property *prop;
-+	const char *part_number;
-+	const char *version;
-+
-+	/* check if the slot is compatible with the board */
-+	prop = of_find_property(node, "compatible", NULL);
-+
-+	/* no prop, it's something that's compatible with everything */
-+	if (prop == NULL)
-+		return 1;
-+
-+	/* check if it's directly compatible with the baseboard */
-+	if (of_multi_prop_cmp(prop, compatible_name) == 0)
-+		return 1;
-+
-+	/* forced override? */
-+	if (of_multi_prop_cmp(prop, "force") == 0)
-+		return 1;
-+
-+	/* final try, check if it's specified in the kernel command line */
-+	if (extra_override == NULL)
-+		return 0;
-+
-+	/* the compatible name should have kernel-command-line in it */
-+	if (of_multi_prop_cmp(prop, "kernel-command-line") != 0)
-+		return 0;
-+
-+	/* we must have at least the part-name */
-+	if (of_property_read_string(node, "part-number",
-+				&part_number) != 0)
-+		return 0;
-+
-+	/* read the version (if it exists) */
-+	if (of_property_read_string(node, "version", &version) != 0)
-+		version = NULL;
-+
-+	/* match on the extra override */
-+	return bone_match_cape(extra_override, part_number, version);
-+}
-+
-+static int bone_is_compatible_runtime_override(struct device_node *node,
-+		const char *req_part_number, const char *req_version)
-+{
-+	struct property *prop;
-+	const char *part_number;
-+	const char *version;
-+
-+	/* only check overrides */
-+	if (!of_property_read_bool(node, "ti,cape-override"))
-+		return 0;
-+
-+	/* check if the slot is compatible with the board */
-+	prop = of_find_property(node, "compatible", NULL);
-+
-+	/* no prop, it's something that's compatible with everything */
-+	if (prop == NULL)
-+		return 1;
-+
-+	/* the compatible name should have runtime in it */
-+	if (of_multi_prop_cmp(prop, "runtime") != 0)
-+		return 0;
-+
-+	/* we must have at least the part-name */
-+	if (of_property_read_string(node, "part-number",
-+				&part_number) != 0)
-+		return 0;
-+
-+	/* read the version (if it exists) */
-+	if (of_property_read_string(node, "version", &version) != 0)
-+		version = NULL;
-+
-+	/* the part names must match */
-+	if (strcmp(req_part_number, part_number) != 0)
-+		return 0;
-+
-+	/* if any version is null, any version matches */
-+	if (version == NULL || req_version == NULL)
-+		return 1;
-+
-+	/* finally versions must match */
-+	return strcmp(req_version, version) == 0;
-+}
-+
 +
 +static ssize_t slot_ee_attr_show(struct device *dev,
 +				struct device_attribute *attr, char *buf)
@@ -944,40 +757,40 @@ index 0000000..392bcec
 +
 +	/* case by case handling */
 +	switch (ee_attr->field) {
-+		case CAPE_EE_FIELD_HEADER:
-+			len = sprintf(buf, "%02x %02x %02x %02x\n",
-+					s[0], s[1], s[2], s[3]);
-+			break;
++	case CAPE_EE_FIELD_HEADER:
++		len = sprintf(buf, "%02x %02x %02x %02x\n",
++				s[0], s[1], s[2], s[3]);
++		break;
 +
-+			/* 2 bytes */
-+		case CAPE_EE_FIELD_NUMBER_OF_PINS:
-+		case CAPE_EE_FIELD_VDD_3V3EXP:
-+		case CAPE_EE_FIELD_VDD_5V:
-+		case CAPE_EE_FIELD_SYS_5V:
-+		case CAPE_EE_FIELD_DC_SUPPLIED:
++		/* 2 bytes */
++	case CAPE_EE_FIELD_NUMBER_OF_PINS:
++	case CAPE_EE_FIELD_VDD_3V3EXP:
++	case CAPE_EE_FIELD_VDD_5V:
++	case CAPE_EE_FIELD_SYS_5V:
++	case CAPE_EE_FIELD_DC_SUPPLIED:
++		/* the bone is LE */
++		val = s[0] & (s[1] << 8);
++		len = sprintf(buf, "%u\n", (unsigned int)val & 0xffff);
++		break;
++
++	case CAPE_EE_FIELD_PIN_USAGE:
++
++		len = 0;
++		for (i = 0; i < sig_field->size / 2; i++) {
 +			/* the bone is LE */
 +			val = s[0] & (s[1] << 8);
-+			len = sprintf(buf, "%u\n", (unsigned int)val & 0xffff);
-+			break;
++			sprintf(buf, "%04x\n", val);
++			buf += 5;
++			len += 5;
++			s += 2;
++		}
 +
-+		case CAPE_EE_FIELD_PIN_USAGE:
++		break;
 +
-+			len = 0;
-+			for (i = 0; i < sig_field->size / 2; i++) {
-+				/* the bone is LE */
-+				val = s[0] & (s[1] << 8);
-+				sprintf(buf, "%04x\n", val);
-+				buf += 5;
-+				len += 5;
-+				s += 2;
-+			}
-+
-+			break;
-+
-+		default:
-+			*buf = '\0';
-+			len = 0;
-+			break;
++	default:
++		*buf = '\0';
++		len = 0;
++		break;
 +	}
 +
 +out:
@@ -988,8 +801,8 @@ index 0000000..392bcec
 +
 +#define SLOT_EE_ATTR(_name, _field) \
 +	{ \
-+		.devattr = __ATTR(_name, 0440, slot_ee_attr_show, NULL), \
-+		.field = CAPE_EE_FIELD_##_field , \
++		.devattr = __ATTR(_name, S_IRUGO, slot_ee_attr_show, NULL), \
++		.field = CAPE_EE_FIELD_##_field, \
 +		.slot = NULL, \
 +	}
 +
@@ -1011,7 +824,7 @@ index 0000000..392bcec
 +
 +static int bone_cape_slot_sysfs_register(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct device *dev = &info->pdev->dev;
 +	struct slot_ee_attribute *ee_attr;
 +	struct attribute_group *attrgroup;
@@ -1087,7 +900,7 @@ index 0000000..392bcec
 +
 +static void bone_cape_slot_sysfs_unregister(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct device *dev = &info->pdev->dev;
 +
 +	sysfs_remove_group(&dev->kobj, &slot->attrgroup);
@@ -1101,7 +914,7 @@ index 0000000..392bcec
 +{
 +	struct bbrd_ee_attribute *ee_attr = to_bbrd_ee_attribute(attr);
 +	struct platform_device *pdev = to_platform_device(dev);
-+	struct bone_capemgr_info *info = platform_get_drvdata(pdev);
++	struct capemgr_info *info = platform_get_drvdata(pdev);
 +	struct bone_baseboard *bbrd = &info->baseboard;
 +	const struct ee_field *sig_field;
 +	u16 val;
@@ -1128,27 +941,27 @@ index 0000000..392bcec
 +
 +	/* case by case handling */
 +	switch (ee_attr->field) {
-+		case BBRD_EE_FIELD_HEADER:
-+			len = sprintf(buf, "%02x %02x %02x %02x\n",
-+					s[0], s[1], s[2], s[3]);
-+			break;
++	case BBRD_EE_FIELD_HEADER:
++		len = sprintf(buf, "%02x %02x %02x %02x\n",
++				s[0], s[1], s[2], s[3]);
++		break;
 +
-+		case BBRD_EE_FIELD_CONFIG_OPTION:
-+			len = 0;
-+			for (i = 0; i < sig_field->size / 2; i++) {
-+				/* the bone is LE */
-+				val = s[0] & (s[1] << 8);
-+				sprintf(buf, "%04x\n", val);
-+				buf += 5;
-+				len += 5;
-+				s += 2;
-+			}
-+			break;
++	case BBRD_EE_FIELD_CONFIG_OPTION:
++		len = 0;
++		for (i = 0; i < sig_field->size / 2; i++) {
++			/* the bone is LE */
++			val = s[0] & (s[1] << 8);
++			sprintf(buf, "%04x\n", val);
++			buf += 5;
++			len += 5;
++			s += 2;
++		}
++		break;
 +
-+		default:
-+			*buf = '\0';
-+			len = 0;
-+			break;
++	default:
++		*buf = '\0';
++		len = 0;
++		break;
 +	}
 +
 +out:
@@ -1160,7 +973,7 @@ index 0000000..392bcec
 +#define BBRD_EE_ATTR(_name, _field) \
 +	{ \
 +		.devattr = __ATTR(_name, 0440, bbrd_ee_attr_show, NULL), \
-+		.field = BBRD_EE_FIELD_##_field , \
++		.field = BBRD_EE_FIELD_##_field, \
 +	}
 +
 +static struct bbrd_ee_attribute bbrd_ee_attrs[] = {
@@ -1172,11 +985,11 @@ index 0000000..392bcec
 +};
 +
 +static struct attribute *bbrd_attrs_flat[] = {
-+	&bbrd_ee_attrs[BBRD_EE_FIELD_HEADER	 	].devattr.attr,
-+	&bbrd_ee_attrs[BBRD_EE_FIELD_BOARD_NAME	 	].devattr.attr,
-+	&bbrd_ee_attrs[BBRD_EE_FIELD_REVISION		].devattr.attr,
-+	&bbrd_ee_attrs[BBRD_EE_FIELD_SERIAL_NUMBER	].devattr.attr,
-+	&bbrd_ee_attrs[BBRD_EE_FIELD_CONFIG_OPTION	].devattr.attr,
++	&bbrd_ee_attrs[BBRD_EE_FIELD_HEADER].devattr.attr,
++	&bbrd_ee_attrs[BBRD_EE_FIELD_BOARD_NAME].devattr.attr,
++	&bbrd_ee_attrs[BBRD_EE_FIELD_REVISION].devattr.attr,
++	&bbrd_ee_attrs[BBRD_EE_FIELD_SERIAL_NUMBER].devattr.attr,
++	&bbrd_ee_attrs[BBRD_EE_FIELD_CONFIG_OPTION].devattr.attr,
 +	NULL,
 +};
 +
@@ -1211,7 +1024,7 @@ index 0000000..392bcec
 +		char *buf)
 +{
 +	struct platform_device *pdev = to_platform_device(dev);
-+	struct bone_capemgr_info *info = platform_get_drvdata(pdev);
++	struct capemgr_info *info = platform_get_drvdata(pdev);
 +	struct bone_cape_slot *slot;
 +	ssize_t len, sz;
 +
@@ -1219,7 +1032,7 @@ index 0000000..392bcec
 +	sz = 0;
 +	list_for_each_entry(slot, &info->slot_list, node) {
 +
-+		len = sprintf(buf, "%2d: %02x:%c%c%c%c%c %s\n",
++		len = sprintf(buf, "%2d: %02x:%c%c%c%c%c%c %3d %s\n",
 +				slot->slotno,
 +				(int)slot->client ?
 +					slot->client->addr & 0x7f : 0xff,
@@ -1228,7 +1041,8 @@ index 0000000..392bcec
 +				slot->override     ? 'O' : '-',
 +				slot->loading	   ? 'l' : '-',
 +				slot->loaded	   ? 'L' : '-',
-+				slot->text_id);
++				slot->disabled     ? 'D' : '-',
++				slot->overlay_id, slot->text_id);
 +
 +		buf += len;
 +		sz += len;
@@ -1242,7 +1056,7 @@ index 0000000..392bcec
 +		 const char *buf, size_t count)
 +{
 +	struct platform_device *pdev = to_platform_device(dev);
-+	struct bone_capemgr_info *info = platform_get_drvdata(pdev);
++	struct capemgr_info *info = platform_get_drvdata(pdev);
 +	struct bone_cape_slot *slot;
 +	struct device_node *pnode, *node, *slots_node;
 +	char *s, *part_number, *version;
@@ -1251,7 +1065,9 @@ index 0000000..392bcec
 +
 +	/* check for remove slot */
 +	if (strlen(buf) > 0 && buf[0] == '-') {
-+		slotno = simple_strtoul(buf + 1, NULL, 10);
++		ret = kstrtoint(buf + 1, 10, &slotno);
++		if (ret != 0)
++			return ret;
 +
 +		/* now load each (take lock to be sure */
 +		mutex_lock(&info->slots_list_mutex);
@@ -1263,14 +1079,25 @@ index 0000000..392bcec
 +		mutex_unlock(&info->slots_list_mutex);
 +		return -ENODEV;
 +found:
-+		ret = bone_capemgr_remove_slot_no_lock(slot);
++		/* the hardware slots just get unloaded */
++		if (!slot->override) {
++			ret = capemgr_unload_slot(slot);
++			if (ret == 0)
++				dev_info(&pdev->dev,
++					"Unloaded slot #%d\n", slotno);
++			else
++				dev_err(&pdev->dev,
++					"Failed to unload slot #%d\n", slotno);
++		} else {
++			ret = capemgr_remove_slot_no_lock(slot);
++			if (ret == 0)
++				dev_info(&pdev->dev,
++					"Removed slot #%d\n", slotno);
++			else
++				dev_err(&pdev->dev,
++					"Failed to remove slot #%d\n", slotno);
++		}
 +		mutex_unlock(&info->slots_list_mutex);
-+
-+		if (ret == 0)
-+			dev_info(&pdev->dev, "Removed slot #%d\n", slotno);
-+		else
-+			dev_err(&pdev->dev, "Failed to remove slot #%d\n",
-+					slotno);
 +
 +		return ret == 0 ? strlen(buf) : ret;
 +	}
@@ -1297,45 +1124,8 @@ index 0000000..392bcec
 +	slot = NULL;
 +	ret = 0;
 +
-+	/* iterate over any slots */
-+	slots_node = of_get_child_by_name(pnode, "slots");
-+	if (slots_node != NULL) {
-+		for_each_child_of_node(slots_node, node) {
-+
-+			/* check if the override is compatible */
-+			if (!bone_is_compatible_runtime_override(node,
-+						part_number, version))
-+				continue;
-+
-+			/* if matches the disabled ones skip */
-+			if (bone_match_cape(disable_partno,
-+						part_number, NULL)) {
-+				dev_info(&pdev->dev,
-+					"Skipping disabled cape with "
-+						"part# %s\n", part_number);
-+				continue;
-+			}
-+
-+			slot = bone_capemgr_add_slot(info, node,
-+					part_number, version, 0);
-+			if (IS_ERR(slot)) {
-+				dev_err(&pdev->dev, "Failed to add slot #%d\n",
-+					atomic_read(&info->next_slot_nr) - 1);
-+				ret = PTR_ERR(slot);
-+				slot = NULL;
-+				goto err_fail;
-+			}
-+			break;
-+		}
-+		of_node_put(node);
-+		of_node_put(slots_node);
-+	}
-+	slots_node = NULL;
-+
 +	/* no specific slot found, try immediate */
-+	if (!slot)
-+		slot = bone_capemgr_add_slot(info, NULL,
-+				part_number, version, 0);
++	slot = capemgr_add_slot(info, NULL, part_number, version, 0);
 +
 +	if (IS_ERR_OR_NULL(slot)) {
 +		dev_err(&pdev->dev, "Failed to add slot #%d\n",
@@ -1347,10 +1137,9 @@ index 0000000..392bcec
 +
 +	kfree(part_number);
 +
-+	ret = bone_capemgr_load(slot);
-+
++	ret = capemgr_load_slot(slot);
 +	if (ret != 0)
-+		bone_capemgr_remove_slot(slot);
++		capemgr_remove_slot(slot);
 +
 +	return ret == 0 ? strlen(buf) : ret;
 +err_fail:
@@ -1361,9 +1150,9 @@ index 0000000..392bcec
 +}
 +
 +/* verify the overlay */
-+static int bone_capemgr_verify_overlay(struct bone_cape_slot *slot)
++static int capemgr_verify_overlay(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct device *dev = &info->pdev->dev;
 +	struct bone_baseboard *bbrd = &info->baseboard;
 +	struct device_node *node = slot->overlay;
@@ -1374,8 +1163,7 @@ index 0000000..392bcec
 +
 +	/* validate */
 +	if (node == NULL) {
-+		dev_err(dev, "slot #%d: No overlay "
-+				"for '%s'\n",
++		dev_err(dev, "slot #%d: No overlay for '%s'\n",
 +				slot->slotno, slot->part_number);
 +		return -EINVAL;
 +	}
@@ -1385,16 +1173,14 @@ index 0000000..392bcec
 +
 +	/* no compatible property? */
 +	if (prop == NULL) {
-+		dev_err(dev, "slot #%d: No compatible property "
-+				"for '%s'\n",
++		dev_err(dev, "slot #%d: No compatible property for '%s'\n",
 +				slot->slotno, slot->part_number);
 +		return -EINVAL;
 +	}
 +
 +	/* verify that the cape is baseboard compatible */
 +	if (of_multi_prop_cmp(prop, bbrd->compatible_name) != 0) {
-+		dev_err(dev, "slot #%d: Incompatible with baseboard "
-+				"for '%s'\n",
++		dev_err(dev, "slot #%d: Incompatible with baseboard for '%s'\n",
 +				slot->slotno, slot->part_number);
 +		return -EINVAL;
 +	}
@@ -1454,8 +1240,9 @@ index 0000000..392bcec
 +
 +					/* resource conflict */
 +					err = -EEXIST;
-+					dev_err(dev, "slot #%d: %s conflict "
-+						"%s (#%d:%s)\n", slot->slotno,
++					dev_err(dev,
++						"slot #%d: %s conflict %s (#%d:%s)\n",
++						slot->slotno,
 +						slot->part_number, ra,
 +						slotn->slotno,
 +						slotn->part_number);
@@ -1470,27 +1257,22 @@ index 0000000..392bcec
 +	return err;
 +}
 +
-+static int bone_capemgr_load(struct bone_cape_slot *slot)
++static int capemgr_load_slot(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct device *dev = &info->pdev->dev;
-+	struct device_node *node;
-+	struct property *prop;
 +	const char *dtbo;
-+	int found, err;
-+	struct bone_capemap *capemap;
++	int err;
 +
 +	if (slot->probe_failed) {
-+		dev_err(dev, "slot #%d: probe failed "
-+				"for '%s'\n",
-+				slot->slotno, slot->part_number);
++		dev_err(dev, "slot #%d: probe failed for '%s'\n",
++			slot->slotno, slot->part_number);
 +		return -ENODEV;
 +	}
 +
 +	if (slot->loaded) {
-+		dev_err(dev, "slot #%d: already loaded "
-+				"for '%s'\n",
-+				slot->slotno, slot->part_number);
++		dev_err(dev, "slot #%d: already loaded for '%s'\n",
++			slot->slotno, slot->part_number);
 +		return -EAGAIN;
 +	}
 +
@@ -1498,81 +1280,19 @@ index 0000000..392bcec
 +	kfree(slot->dtbo);
 +	slot->dtbo = NULL;
 +
-+	mutex_lock(&info->capemap_mutex);
-+	found = 0;
-+	list_for_each_entry(capemap, &info->capemap_list, node) {
-+		if (strcmp(capemap->part_number, slot->part_number) == 0) {
-+			found = 1;
-+			break;
-+		}
-+	}
++	dev_dbg(dev, "slot #%d: Requesting part number/version based '%s-%s.dtbo\n",
++			slot->slotno, slot->part_number, slot->version);
 +
-+	/* found? */
-+	if (found) {
-+		if (capemap->map_node == NULL) {
-+			mutex_unlock(&info->capemap_mutex);
-+			/* need to match programatically; not supported yet */
-+			dev_err(dev, "slot #%d: Failed to find capemap "
-+					"for '%s'\n",
-+					slot->slotno, slot->part_number);
-+			return -ENODEV;
-+		}
-+
-+		/* locate first match */
-+		dtbo = NULL;
-+		for_each_child_of_node(capemap->map_node, node) {
-+
-+			/* dtbo must exist */
-+			if (of_property_read_string(node, "dtbo", &dtbo) != 0)
-+				continue;
-+
-+			/* get version property (if any) */
-+			prop = of_find_property(node, "version", NULL);
-+
-+			/* if no version node exists, we match */
-+			if (prop == NULL)
-+				break;
-+
-+			if (of_multi_prop_cmp(prop, slot->version) == 0)
-+				break;
-+		}
-+
-+		if (node == NULL) {
-+			/* can't find dtbo version node? try the default */
-+			if (of_property_read_string(capemap->map_node,
-+						"dtbo", &dtbo) != 0) {
-+				mutex_unlock(&info->capemap_mutex);
-+				dev_err(dev, "slot #%d: Failed to find dtbo "
-+						"for '%s'\n",
-+						slot->slotno,
-+						slot->part_number);
-+				return -ENODEV;
-+			}
-+		}
-+
-+		slot->dtbo = kstrdup(dtbo, GFP_KERNEL);
-+		of_node_put(node);	/* handles NULL */
-+	} else {
-+		dev_dbg(dev, "slot #%d: Requesting part number/version based "
-+				"'%s-%s.dtbo\n",
-+				slot->slotno,
-+				slot->part_number, slot->version);
-+
-+		/* no specific capemap node; request the part number + .dtbo*/
-+		slot->dtbo = kasprintf(GFP_KERNEL, "%s-%s.dtbo",
-+				slot->part_number, slot->version);
-+	}
-+
++	/* request the part number + .dtbo*/
++	slot->dtbo = kasprintf(GFP_KERNEL, "%s-%s.dtbo",
++			slot->part_number, slot->version);
 +	if (slot->dtbo == NULL) {
-+		mutex_unlock(&info->capemap_mutex);
 +		dev_err(dev, "slot #%d: Failed to get dtbo '%s'\n",
 +				slot->slotno, dtbo);
 +		return -ENOMEM;
 +	}
-+	mutex_unlock(&info->capemap_mutex);
 +
-+	dev_dbg(dev, "slot #%d: Requesting firmware '%s' for board-name '%s'"
-+			", version '%s'%s\n",
++	dev_dbg(dev, "slot #%d: Requesting firmware '%s' for board-name '%s', version '%s'%s\n",
 +			slot->slotno,
 +			slot->dtbo, slot->board_name, slot->version,
 +			system_state == SYSTEM_BOOTING ? " - booting" : "");
@@ -1605,7 +1325,7 @@ index 0000000..392bcec
 +		goto err_fail;
 +	}
 +
-+	err = bone_capemgr_verify_overlay(slot);
++	err = capemgr_verify_overlay(slot);
 +	if (err != 0) {
 +		dev_err(dev, "slot #%d: Failed verification\n",
 +				slot->slotno);
@@ -1642,7 +1362,7 @@ index 0000000..392bcec
 +	return err;
 +}
 +
-+static int bone_capemgr_unload(struct bone_cape_slot *slot)
++static int capemgr_unload_slot(struct bone_cape_slot *slot)
 +{
 +	if (!slot->loaded || slot->overlay_id == -1)
 +		return -EINVAL;
@@ -1657,9 +1377,9 @@ index 0000000..392bcec
 +}
 +
 +/* slots_list_mutex must be taken */
-+static int bone_capemgr_remove_slot_no_lock(struct bone_cape_slot *slot)
++static int capemgr_remove_slot_no_lock(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct device *dev = &info->pdev->dev;
 +	int ret;
 +
@@ -1668,9 +1388,10 @@ index 0000000..392bcec
 +
 +	if (slot->loaded && slot->overlay_id >= 0) {
 +		/* unload just in case */
-+		ret = bone_capemgr_unload(slot);
++		ret = capemgr_unload_slot(slot);
 +		if (ret != 0) {
-+			dev_err(dev, "Unable to unload slot #%d\n", slot->slotno);
++			dev_err(dev, "Unable to unload slot #%d\n",
++				slot->slotno);
 +			return ret;
 +		}
 +	}
@@ -1687,13 +1408,13 @@ index 0000000..392bcec
 +	return 0;
 +}
 +
-+static int bone_capemgr_remove_slot(struct bone_cape_slot *slot)
++static int capemgr_remove_slot(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	int ret;
 +
 +	mutex_lock(&info->slots_list_mutex);
-+	ret = bone_capemgr_remove_slot_no_lock(slot);
++	ret = capemgr_remove_slot_no_lock(slot);
 +	mutex_unlock(&info->slots_list_mutex);
 +
 +	return ret;
@@ -1765,7 +1486,8 @@ index 0000000..392bcec
 +	}
 +
 +	/* if a part_number is supplied use it */
-+	if (part_number && (len = strlen(part_number)) > 0) {
++	len = part_number ? strlen(part_number) : 0;
++	if (len > 0) {
 +		sig_field = &cape_sig_fields[CAPE_EE_FIELD_PART_NUMBER];
 +
 +		/* point to the entry */
@@ -1782,7 +1504,8 @@ index 0000000..392bcec
 +	}
 +
 +	/* if a version is supplied use it */
-+	if (version && (len = strlen(version)) > 0) {
++	len = version ? strlen(version) : 0;
++	if (len > 0) {
 +		sig_field = &cape_sig_fields[CAPE_EE_FIELD_VERSION];
 +
 +		/* point to the entry */
@@ -1806,7 +1529,7 @@ index 0000000..392bcec
 +}
 +
 +static struct bone_cape_slot *
-+bone_capemgr_add_slot(struct bone_capemgr_info *info, struct device_node *node,
++capemgr_add_slot(struct capemgr_info *info, struct device_node *node,
 +		const char *part_number, const char *version, int prio)
 +{
 +	struct device_node *eeprom_node;
@@ -1829,7 +1552,7 @@ index 0000000..392bcec
 +	slot->priority = prio;
 +	slot->overlay_id = -1;
 +
-+	if (node && !of_property_read_bool(node, "ti,cape-override")) {
++	if (node) {
 +		ret = of_property_read_u32(node, "eeprom",
 +				&slot->eeprom_handle);
 +		if (ret != 0) {
@@ -1846,9 +1569,7 @@ index 0000000..392bcec
 +		}
 +		slot->client = of_find_i2c_device_by_node(eeprom_node);
 +		if (slot->client == NULL) {
-+			dev_err(dev, "slot #%d: failed to find i2c client\n",
-+					slotno);
-+			/* ret = -ENODEV; */
++			/* return probe defer to retry */
 +			ret = -EPROBE_DEFER;
 +			goto err_no_eeprom_client;
 +		}
@@ -1860,8 +1581,8 @@ index 0000000..392bcec
 +		/* grab the memory accessor of the eeprom */
 +		slot->macc = i2c_eeprom_get_memory_accessor(slot->client);
 +		if (IS_ERR_OR_NULL(slot->macc)) {
-+			dev_err(dev, "slot #%d: failed to get "
-+					"memory accessor\n", slotno);
++			dev_err(dev, "slot #%d: failed to get memory accessor\n",
++				slotno);
 +			ret = slot->macc == NULL ? -ENODEV :
 +				PTR_ERR(slot->macc);
 +			slot->macc = NULL;
@@ -1869,10 +1590,7 @@ index 0000000..392bcec
 +		}
 +
 +	} else {
-+		if (node)
-+			dev_info(dev, "slot #%d: specific override\n", slotno);
-+		else
-+			dev_info(dev, "slot #%d: generic override\n", slotno);
++		dev_info(dev, "slot #%d: override\n", slotno);
 +
 +		/* fill in everything with defaults first */
 +		ret = bone_slot_fill_override(slot, node, part_number, version);
@@ -1934,13 +1652,14 @@ index 0000000..392bcec
 +/* return 1 if it makes sense to retry loading */
 +static int retry_loading_condition(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct device *dev = &info->pdev->dev;
 +	struct bone_cape_slot *slotn;
 +	int ret;
 +
-+	dev_dbg(dev, "loader: retry_loading slot-%d %s:%s (prio %d)\n", slot->slotno,
-+			slot->part_number, slot->version, slot->priority);
++	dev_dbg(dev, "loader: retry_loading slot-%d %s:%s (prio %d)\n",
++			slot->slotno, slot->part_number, slot->version,
++			slot->priority);
 +
 +	mutex_lock(&info->slots_list_mutex);
 +	ret = 0;
@@ -1958,7 +1677,7 @@ index 0000000..392bcec
 +/* return 1 if this slot is clear to try to load now */
 +static int clear_to_load_condition(struct bone_cape_slot *slot)
 +{
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	int my_prio = slot->priority;
 +	struct device *dev = &info->pdev->dev;
 +	int ret;
@@ -1981,10 +1700,10 @@ index 0000000..392bcec
 +	return ret;
 +}
 +
-+static int bone_capemgr_loader(void *data)
++static int capemgr_loader(void *data)
 +{
 +	struct bone_cape_slot *slot = data;
-+	struct bone_capemgr_info *info = slot->info;
++	struct capemgr_info *info = slot->info;
 +	struct device *dev = &info->pdev->dev;
 +	int ret, done, other_loading, booting;
 +
@@ -2012,7 +1731,7 @@ index 0000000..392bcec
 +			slot->part_number, slot->version, slot->priority);
 +
 +	/* using the return value */
-+	ret = bone_capemgr_load(slot);
++	ret = capemgr_load_slot(slot);
 +
 +	/* wake up all just in case */
 +	wake_up_interruptible_all(&info->load_wq);
@@ -2035,12 +1754,13 @@ index 0000000..392bcec
 +		/* simple wait for someone to kick us */
 +		if (other_loading) {
 +			DEFINE_WAIT(__wait);
++
 +			prepare_to_wait(&info->load_wq, &__wait,
 +					TASK_INTERRUPTIBLE);
 +			finish_wait(&info->load_wq, &__wait);
 +		} else {
 +			/* always delay when booting */
-+			msleep(1000);
++			msleep(boot_scan_period);
 +		}
 +
 +		if (signal_pending(current)) {
@@ -2050,7 +1770,7 @@ index 0000000..392bcec
 +		}
 +
 +		/* using the return value */
-+		ret = bone_capemgr_load(slot);
++		ret = capemgr_load_slot(slot);
 +		if (ret == 0)
 +			goto done;
 +
@@ -2070,30 +1790,29 @@ index 0000000..392bcec
 +		dev_err(dev, "loader: failed to load slot-%d %s:%s (prio %d)\n",
 +			slot->slotno, slot->part_number, slot->version,
 +			slot->priority);
-+	}
 +
-+	/* not loaded? remove */
-+	if (ret != 0)
-+		bone_capemgr_remove_slot(slot);
++		/* if it's a override slot remove it */
++		if (slot->override)
++			capemgr_remove_slot(slot);
++	}
 +
 +	return ret;
 +}
 +
 +static int
-+bone_capemgr_probe(struct platform_device *pdev)
++capemgr_probe(struct platform_device *pdev)
 +{
-+	struct bone_capemgr_info *info;
++	struct capemgr_info *info;
 +	struct bone_baseboard *bbrd;
 +	struct bone_cape_slot *slot;
 +	struct device_node *pnode = pdev->dev.of_node;
 +	struct device_node *baseboardmaps_node;
-+	struct device_node *slots_node, *capemaps_node, *node;
++	struct device_node *slots_node, *node;
 +	struct device_node *eeprom_node;
 +	const char *part_number;
 +	const char *version;
 +	const char *board_name;
 +	const char *compatible_name;
-+	struct bone_capemap *capemap;
 +	int ret, len, prio;
 +	long val;
 +	char *wbuf, *s, *p, *e;
@@ -2103,11 +1822,9 @@ index 0000000..392bcec
 +		return -ENOTSUPP;
 +
 +	info = devm_kzalloc(&pdev->dev,
-+			sizeof(struct bone_capemgr_info), GFP_KERNEL);
-+	if (!info) {
-+		dev_err(&pdev->dev, "Failed to allocate device structure\n");
++			sizeof(struct capemgr_info), GFP_KERNEL);
++	if (!info)
 +		return -ENOMEM;
-+	}
 +
 +	info->pdev = pdev;
 +	platform_set_drvdata(pdev, info);
@@ -2116,13 +1833,9 @@ index 0000000..392bcec
 +	INIT_LIST_HEAD(&info->slot_list);
 +	mutex_init(&info->slots_list_mutex);
 +
-+	INIT_LIST_HEAD(&info->capemap_list);
-+	mutex_init(&info->capemap_mutex);
-+
 +	init_waitqueue_head(&info->load_wq);
 +
 +	baseboardmaps_node = NULL;
-+	capemaps_node = NULL;
 +
 +	/* find the baseboard */
 +	bbrd = &info->baseboard;
@@ -2151,8 +1864,7 @@ index 0000000..392bcec
 +	of_node_put(eeprom_node);
 +	eeprom_node = NULL;
 +	if (bbrd->client == NULL) {
-+		dev_err(&pdev->dev, "Failed to find baseboard i2c client\n");
-+		// ret = -ENODEV;
++		/* return probe defer to retry */
 +		ret = -EPROBE_DEFER;
 +		goto err_exit;
 +	}
@@ -2163,8 +1875,7 @@ index 0000000..392bcec
 +	/* grab the memory accessor of the eeprom */
 +	bbrd->macc = i2c_eeprom_get_memory_accessor(bbrd->client);
 +	if (IS_ERR_OR_NULL(bbrd->macc)) {
-+		dev_err(&pdev->dev, "Failed to get "
-+				"baseboard memory accessor\n");
++		dev_err(&pdev->dev, "Failed to get baseboard memory accessor\n");
 +		ret = bbrd->macc == NULL ? -ENODEV :
 +			PTR_ERR(bbrd->macc);
 +		bbrd->macc = NULL;
@@ -2203,7 +1914,6 @@ index 0000000..392bcec
 +	}
 +	bbrd->compatible_name = kstrdup(compatible_name, GFP_KERNEL);
 +	if (bbrd->compatible_name == NULL) {
-+		dev_err(&pdev->dev, "Failed to allocate compatible name\n");
 +		ret = -ENOMEM;
 +		goto err_exit;
 +	}
@@ -2212,60 +1922,12 @@ index 0000000..392bcec
 +	dev_info(&pdev->dev, "compatible-baseboard=%s\n",
 +			bbrd->compatible_name);
 +
-+	/* iterate over any capemaps */
-+	capemaps_node = of_get_child_by_name(pnode, "capemaps");
-+	if (capemaps_node != NULL) {
-+
-+		for_each_child_of_node(capemaps_node, node) {
-+
-+			/* there must be part-number */
-+			if (of_property_read_string(node, "part-number",
-+						&part_number) != 0)
-+				continue;
-+
-+			/* if matches the disabled ones skip */
-+			if (bone_match_cape(disable_partno,
-+						part_number, NULL)) {
-+				dev_info(&pdev->dev,
-+					"Skipping disabled cape with "
-+						"part# %s\n", part_number);
-+				continue;
-+			}
-+
-+			len = sizeof(*capemap) + strlen(part_number) + 1;
-+			capemap = devm_kzalloc(&pdev->dev, len, GFP_KERNEL);
-+			if (capemap == NULL) {
-+				dev_err(&pdev->dev, "Failed to allocate "
-+						"capemap\n");
-+				ret = -ENOMEM;
-+				goto err_exit;
-+			}
-+			capemap->part_number = (char *)(capemap + 1);
-+			capemap->map_node = of_node_get(node);
-+			strcpy(capemap->part_number, part_number);
-+
-+			/* add to the slot list */
-+			mutex_lock(&info->capemap_mutex);
-+			list_add_tail(&capemap->node, &info->capemap_list);
-+			info->capemaps_nr++;
-+			mutex_unlock(&info->capemap_mutex);
-+		}
-+		of_node_put(capemaps_node);
-+		capemaps_node = NULL;
-+	}
-+
 +	/* iterate over any slots */
 +	slots_node = of_get_child_by_name(pnode, "slots");
 +	if (slots_node != NULL) {
 +		for_each_child_of_node(slots_node, node) {
 +
-+			/* check if the override is compatible */
-+			if (!bone_is_compatible_override(node,
-+						bbrd->compatible_name))
-+				continue;
-+
-+			slot = bone_capemgr_add_slot(info, node,
-+					NULL, NULL, 0);
++			slot = capemgr_add_slot(info, node, NULL, NULL, 0);
 +			if (IS_ERR(slot)) {
 +				dev_err(&pdev->dev, "Failed to add slot #%d\n",
 +					atomic_read(&info->next_slot_nr));
@@ -2284,7 +1946,6 @@ index 0000000..392bcec
 +		/* allocate a temporary buffer */
 +		wbuf = devm_kzalloc(&pdev->dev, PAGE_SIZE, GFP_KERNEL);
 +		if (wbuf == NULL) {
-+			dev_err(&pdev->dev, "Failed to allocate temporary buffer\n");
 +			ret = -ENOMEM;
 +			goto err_exit;
 +		}
@@ -2330,11 +1991,13 @@ index 0000000..392bcec
 +				}
 +			}
 +
-+			dev_info(&pdev->dev, "enabled_partno part_number '%s', version '%s', prio '%d'\n",
-+					part_number, version ? version : "N/A", prio);
++			dev_info(&pdev->dev,
++				"enabled_partno PARTNO '%s' VER '%s' PR '%d'\n",
++					part_number,
++					version ? version : "N/A", prio);
 +
 +			/* only immediate slots are allowed here */
-+			slot = bone_capemgr_add_slot(info, NULL,
++			slot = capemgr_add_slot(info, NULL,
 +					part_number, version, prio);
 +
 +			/* we continue even in case of an error */
@@ -2371,11 +2034,12 @@ index 0000000..392bcec
 +	list_for_each_entry(slot, &info->slot_list, node) {
 +
 +		/* if matches the disabled ones skip */
-+		if (bone_match_cape(disable_partno,
-+					slot->part_number, NULL)) {
++		if (bone_match_cape(disable_partno, slot->part_number,
++					slot->version)) {
 +			dev_info(&pdev->dev,
-+				"Skipping loading of disabled cape with "
-+					"part# %s\n", slot->part_number);
++				"Skipping loading of disabled cape with part# %s\n",
++				slot->part_number);
++			slot->disabled = 1;
 +			continue;
 +		}
 +
@@ -2389,12 +2053,12 @@ index 0000000..392bcec
 +		if (!slot->loading)
 +			continue;
 +
-+		slot->loader_thread = kthread_run(bone_capemgr_loader,
++		slot->loader_thread = kthread_run(capemgr_loader,
 +				slot, "capemgr-loader-%d",
 +				slot->slotno);
 +		if (IS_ERR(slot->loader_thread)) {
-+			dev_warn(&pdev->dev, "slot #%d: Failed to "
-+					"start loader\n", slot->slotno);
++			dev_warn(&pdev->dev, "slot #%d: Failed to start loader\n",
++					slot->slotno);
 +			slot->loader_thread = NULL;
 +		}
 +	}
@@ -2406,22 +2070,21 @@ index 0000000..392bcec
 +
 +err_exit:
 +	of_node_put(baseboardmaps_node);
-+	of_node_put(capemaps_node);
 +	platform_set_drvdata(pdev, NULL);
 +	devm_kfree(&pdev->dev, info);
 +
 +	return ret;
 +}
 +
-+static int bone_capemgr_remove(struct platform_device *pdev)
++static int capemgr_remove(struct platform_device *pdev)
 +{
-+	struct bone_capemgr_info *info = platform_get_drvdata(pdev);
++	struct capemgr_info *info = platform_get_drvdata(pdev);
 +	struct bone_cape_slot *slot, *slotn;
 +	int ret;
 +
 +	mutex_lock(&info->slots_list_mutex);
 +	list_for_each_entry_safe(slot, slotn, &info->slot_list, node)
-+		bone_capemgr_remove_slot_no_lock(slot);
++		capemgr_remove_slot_no_lock(slot);
 +	mutex_unlock(&info->slots_list_mutex);
 +
 +	platform_set_drvdata(pdev, NULL);
@@ -2438,48 +2101,22 @@ index 0000000..392bcec
 +	return 0;
 +}
 +
-+static struct platform_driver bone_capemgr_driver = {
-+	.probe		= bone_capemgr_probe,
-+	.remove		= bone_capemgr_remove,
++static struct platform_driver capemgr_driver = {
++	.probe		= capemgr_probe,
++	.remove		= capemgr_remove,
 +	.driver		= {
-+		.name	= "bone-capemgr",
++		.name	= "bone_capemgr",
 +		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(bone_capemgr_of_match),
++		.of_match_table = of_match_ptr(capemgr_of_match),
 +	},
 +};
 +
-+module_platform_driver(bone_capemgr_driver);
++module_platform_driver(capemgr_driver);
 +
 +MODULE_AUTHOR("Pantelis Antoniou");
 +MODULE_DESCRIPTION("Beaglebone cape manager");
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:bone_capemgr");
-diff --git a/include/linux/i2c/eeprom.h b/include/linux/i2c/eeprom.h
-index 1393980..055d0b8 100644
---- a/include/linux/i2c/eeprom.h
-+++ b/include/linux/i2c/eeprom.h
-@@ -39,14 +39,18 @@ i2c_eeprom_get_memory_accessor(struct i2c_client *client)
- {
- 	int ret;
- 	struct memory_accessor *macc;
-+	struct i2c_driver *i2cdrv;
- 
- 	/* verify that the i2c client's driver has a command method */
--	if (!client || !client->driver || !client->driver->command)
-+	if (!client || !client->dev.driver)
-+		return ERR_PTR(-ENOTSUPP);
-+
-+	i2cdrv = to_i2c_driver(client->dev.driver);
-+	if (!i2cdrv)
- 		return ERR_PTR(-ENOTSUPP);
- 
- 	macc = NULL;
--	ret = client->driver->command(client, I2C_EEPROM_GET_MEMORY_ACCESSOR,
--			&macc);
-+	ret = i2cdrv->command(client, I2C_EEPROM_GET_MEMORY_ACCESSOR, &macc);
- 	if (ret != 0)
- 		return ERR_PTR(ret);
- 
 -- 
 2.1.4
 

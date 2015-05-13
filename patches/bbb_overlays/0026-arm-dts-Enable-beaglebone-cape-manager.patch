@@ -1,0 +1,65 @@
+From c87bac6e38d79c347c25d786585768629fce4c6a Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Tue, 12 May 2015 14:35:13 +0300
+Subject: [PATCH 26/26] arm: dts: Enable beaglebone cape-manager
+
+Enable the cape manager on the beaglebone family of boards.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 42 +++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 84869b7..014341a 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -349,3 +349,45 @@
+ &sham {
+ 	status = "okay";
+ };
++
++/* the cape manager */
++/ {
++	bone_capemgr {
++		compatible = "ti,bone-capemgr";
++		status = "okay";
++
++		eeprom = <&baseboard_eeprom>;
++
++		/* map board revisions to compatible definitions */
++		baseboardmaps {
++			baseboard_beaglebone: board@0 {
++				board-name = "A335BONE";
++				compatible-name = "ti,beaglebone";
++			};
++
++			baseboard_beaglebone_black: board@1 {
++				board-name = "A335BNLT";
++				compatible-name = "ti,beaglebone-black";
++			};
++		};
++
++		/* only 4 slots defined */
++		slots {
++			slot@0 {
++				eeprom = <&cape_eeprom0>;
++			};
++
++			slot@1 {
++				eeprom = <&cape_eeprom1>;
++			};
++
++			slot@2 {
++				eeprom = <&cape_eeprom2>;
++			};
++
++			slot@3 {
++				eeprom = <&cape_eeprom3>;
++			};
++		};
++	};
++};
+-- 
+2.1.4
+

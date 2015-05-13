@@ -74,27 +74,6 @@ local_patch () {
 #external_git
 #local_patch
 
-overlay () {
-	echo "dir: overlay"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/overlay/0001-of-Custom-printk-format-specifier-for-device-node.patch"
-	${git} "${DIR}/patches/overlay/0002-arm-of-Add-a-DT-quirk-method-after-unflattening.patch"
-	${git} "${DIR}/patches/overlay/0003-of-DT-quirks-infrastructure.patch"
-	${git} "${DIR}/patches/overlay/0004-arm-am33xx-DT-quirks-for-am33xx-based-beaglebone-var.patch"
-	${git} "${DIR}/patches/overlay/0005-arm-dts-Common-Black-White-Beaglebone-DTS-using-quir.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=5
-		cleanup
-	fi
-
-
-}
-
 dt () {
 	echo "dir: dt"
 	#regenerate="enable"
@@ -219,10 +198,14 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0019-Documentation-ABI-sys-firmware-devicetree-overlays.patch"
 	${git} "${DIR}/patches/bbb_overlays/0020-of-Move-OF-flags-to-be-visible-even-when-CONFIG_OF.patch"
 	${git} "${DIR}/patches/bbb_overlays/0021-i2c-EEPROM-In-kernel-memory-accessor-interface.patch"
-	${git} "${DIR}/patches/bbb_overlays/0022-capemgr-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0022-misc-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0023-doc-dt-beaglebone-cape-manager-bindings.patch"
+	${git} "${DIR}/patches/bbb_overlays/0024-documentation-ABI-bone_capemgr-sysfs-API.patch"
+	${git} "${DIR}/patches/bbb_overlays/0025-arm-dts-Beaglebone-i2c-definitions.patch"
+	${git} "${DIR}/patches/bbb_overlays/0026-arm-dts-Enable-beaglebone-cape-manager.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=22
+		number=26
 		cleanup
 	fi
 }
@@ -242,9 +225,11 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/dts/0002-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0003-arm-dts-am335x-bone-common-add-collision-and-carrier.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0004-add-am335x-bonegreen.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0005-add-overlay-dtb.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0006-ARM-dts-AM33XX-Set-pmic-shutdown-controller-for-Beag.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=6
 		cleanup
 	fi
 
@@ -363,7 +348,6 @@ meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_
 #	echo "dir: etnaviv/fixes"
 }
 
-#overlay
 dt
 dts
 wand

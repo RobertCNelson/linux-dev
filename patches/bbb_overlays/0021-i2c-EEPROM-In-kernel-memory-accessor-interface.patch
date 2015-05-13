@@ -1,16 +1,16 @@
-From b294705fb7795e73fa17174a56b44e41cd77040d Mon Sep 17 00:00:00 2001
+From ce848efa56133963cca4b5d5ec24316e2c4d8554 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <panto@antoniou-consulting.com>
 Date: Thu, 13 Dec 2012 11:23:21 +0200
-Subject: [PATCH 21/22] i2c-EEPROM: In kernel memory accessor interface
+Subject: [PATCH 21/26] i2c: EEPROM: In kernel memory accessor interface
 
 In kernel users need to access the EEPROM using the i2c_client
 interface. Extend at24 to use it via the command interface.
 
-Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- drivers/misc/eeprom/at24.c | 23 ++++++++++++++++++
- include/linux/i2c/eeprom.h | 59 ++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 82 insertions(+)
+ drivers/misc/eeprom/at24.c | 23 +++++++++++++++++
+ include/linux/i2c/eeprom.h | 63 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 86 insertions(+)
  create mode 100644 include/linux/i2c/eeprom.h
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
@@ -63,10 +63,10 @@ index 2d3db81..dd7ba9f 100644
  static int __init at24_init(void)
 diff --git a/include/linux/i2c/eeprom.h b/include/linux/i2c/eeprom.h
 new file mode 100644
-index 0000000..1393980
+index 0000000..055d0b8
 --- /dev/null
 +++ b/include/linux/i2c/eeprom.h
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,63 @@
 +/*
 + * i2c/eeprom.h
 + *
@@ -108,14 +108,18 @@ index 0000000..1393980
 +{
 +	int ret;
 +	struct memory_accessor *macc;
++	struct i2c_driver *i2cdrv;
 +
 +	/* verify that the i2c client's driver has a command method */
-+	if (!client || !client->driver || !client->driver->command)
++	if (!client || !client->dev.driver)
++		return ERR_PTR(-ENOTSUPP);
++
++	i2cdrv = to_i2c_driver(client->dev.driver);
++	if (!i2cdrv)
 +		return ERR_PTR(-ENOTSUPP);
 +
 +	macc = NULL;
-+	ret = client->driver->command(client, I2C_EEPROM_GET_MEMORY_ACCESSOR,
-+			&macc);
++	ret = i2cdrv->command(client, I2C_EEPROM_GET_MEMORY_ACCESSOR, &macc);
 +	if (ret != 0)
 +		return ERR_PTR(ret);
 +
