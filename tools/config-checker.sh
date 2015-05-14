@@ -282,8 +282,14 @@ config="CONFIG_SPI_FSL_QUADSPI" ; config_module
 # Device Tree and Open Firmware support
 #
 config="CONFIG_OF_OVERLAY" ; config_enable
+config="CONFIG_OF_CONFIGFS" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
 config="CONFIG_ZRAM_LZ4_COMPRESS" ; config_enable
+
+#
+# Misc devices
+#
+config="CONFIG_BONE_CAPEMGR" ; config_enable
 
 #
 # EEPROM support
@@ -573,6 +579,11 @@ config="CONFIG_SPI_TEGRA114" ; config_enable
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 
 #
+# PPS clients support
+#
+config="CONFIG_PPS_CLIENT_GPIO" ; config_module
+
+#
 # Pin controllers
 #
 config="CONFIG_GPIO_MAX730X" ; config_module
@@ -735,7 +746,6 @@ config="CONFIG_TEGRA_WATCHDOG" ; config_enable
 #
 # Multifunction device drivers
 #
-config="CONFIG_MFD_AXP20X" ; config_enable
 config="CONFIG_MFD_DA9055" ; config_enable
 config="CONFIG_MFD_DA9063" ; config_enable
 config="CONFIG_MFD_DLN2" ; config_enable
@@ -780,7 +790,6 @@ config="CONFIG_VIDEOBUF2_DMA_CONTIG" ; config_enable
 # Media drivers
 #
 config="CONFIG_IR_HIX5HD2" ; config_module
-config="CONFIG_IR_IGORPLUGUSB" ; config_module
 config="CONFIG_IR_SUNXI" ; config_module
 
 #
@@ -886,12 +895,6 @@ config="CONFIG_LOGO_LINUX_CLUT224" ; config_enable
 #
 # HD-Audio
 #
-config="CONFIG_SND_USB_LINE6" ; config_module
-config="CONFIG_SND_USB_POD" ; config_module
-config="CONFIG_SND_USB_PODHD" ; config_module
-config="CONFIG_SND_USB_TONEPORT" ; config_module
-config="CONFIG_SND_USB_VARIAX" ; config_module
-
 config="CONFIG_SND_EDMA_SOC" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_MCASP" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM" ; config_module
@@ -1058,7 +1061,6 @@ config="CONFIG_RTC_DRV_ISL1208" ; config_module
 config="CONFIG_RTC_DRV_ISL12022" ; config_module
 config="CONFIG_RTC_DRV_X1205" ; config_module
 config="CONFIG_RTC_DRV_PCF2127" ; config_module
-config="CONFIG_RTC_DRV_PCF8523" ; config_module
 config="CONFIG_RTC_DRV_PCF8563" ; config_module
 config="CONFIG_RTC_DRV_PCF85063" ; config_module
 config="CONFIG_RTC_DRV_PCF8583" ; config_module
@@ -1096,6 +1098,7 @@ config="CONFIG_RTC_DRV_MCP795" ; config_module
 config="CONFIG_RTC_DRV_DS1286" ; config_module
 config="CONFIG_RTC_DRV_DS1511" ; config_module
 config="CONFIG_RTC_DRV_DS1553" ; config_module
+config="CONFIG_RTC_DRV_DS1685_FAMILY" ; config_module
 config="CONFIG_RTC_DRV_DS1742" ; config_module
 config="CONFIG_RTC_DRV_DA9055" ; config_module
 config="CONFIG_RTC_DRV_DA9063" ; config_module
@@ -1488,10 +1491,12 @@ config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
 # File systems
 #
 config="CONFIG_EXT4_FS" ; config_enable
+config="CONFIG_EXT4_ENCRYPTION" ; config_enable
 config="CONFIG_JBD2" ; config_enable
 config="CONFIG_FS_MBCACHE" ; config_enable
 config="CONFIG_XFS_FS" ; config_enable
 config="CONFIG_BTRFS_FS" ; config_enable
+config="CONFIG_F2FS_FS" ; config_enable
 config="CONFIG_FANOTIFY_ACCESS_PERMISSIONS" ; config_enable
 config="CONFIG_AUTOFS4_FS" ; config_enable
 config="CONFIG_FUSE_FS" ; config_enable
