@@ -242,8 +242,8 @@ beaglebone () {
 		start_cleanup
 	fi
 
-	#${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
-	#${git} "${DIR}/patches/beaglebone/capes/0002-Added-support-for-Replicape.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0002-Added-support-for-Replicape.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=2
@@ -257,7 +257,7 @@ beaglebone () {
 		patch -p1 < "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
 		exit 2
 	fi
-	#${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
+	${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
 
 	####
 	#dtb makefile
@@ -265,28 +265,18 @@ beaglebone () {
 	if [ "x${regenerate}" = "xenable" ] ; then
 
 		device="am335x-bone-can0.dtb" ; dtb_makefile_append
-		device="am335x-bone-can1.dtb" ; dtb_makefile_append
 		device="am335x-bone-cape-bone-argus.dtb" ; dtb_makefile_append
-		device="am335x-bone-ttyS1.dtb" ; dtb_makefile_append
-		device="am335x-bone-ttyS2.dtb" ; dtb_makefile_append
-		device="am335x-bone-ttyS4.dtb" ; dtb_makefile_append
-		device="am335x-bone-ttyS5.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-bbb-exp-c.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-can0.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-can1.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-cape-bone-argus.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-ttyS1.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-ttyS2.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-ttyS4.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-ttyS5.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-replicape.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/
 		exit 2
-	#else
-	#	${git} "${DIR}/patches/beaglebone/generated/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
+	else
+		${git} "${DIR}/patches/beaglebone/generated/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
 
 	echo "dir: beaglebone/phy"
@@ -295,9 +285,9 @@ beaglebone () {
 		start_cleanup
 	fi
 
-#	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
-#	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
-#	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
+	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
+	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
+	#${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=3

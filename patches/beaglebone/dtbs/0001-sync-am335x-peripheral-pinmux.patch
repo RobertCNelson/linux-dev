@@ -1,61 +1,48 @@
-From 78ca21cb7d26192dff3dd54e3109dba3f81c422e Mon Sep 17 00:00:00 2001
+From 7be9804e8c21fb100086f7ace1082fd22087df53 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 28 Apr 2015 15:14:40 -0500
+Date: Thu, 14 May 2015 11:50:37 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/am335x-bone-argus.dtsi           |   4 +
- arch/arm/boot/dts/am335x-bone-can0.dts             |  53 ++++++
- arch/arm/boot/dts/am335x-bone-can1.dts             |  53 ++++++
- arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts  |  41 +++++
- arch/arm/boot/dts/am335x-bone-common.dtsi          |  18 --
+ arch/arm/boot/dts/am335x-bone-can0.dts             |  52 ++++
+ arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts  |  41 +++
+ .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 321 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi   |  18 ++
- arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi     |  45 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi     |  45 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi     |  88 +++++++++
- .../am335x-bone-pinmux-gpio-backlight-P9_14.dtsi   |  43 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-i2c2.dtsi     |  45 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-nxp-hdmi.dtsi | 143 +++++++++++++++
- .../am335x-bone-pinmux-panel-1024x600-24bit.dtsi   | 151 +++++++++++++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-bone-ttyS1.dts            |  53 ++++++
- arch/arm/boot/dts/am335x-bone-ttyS2.dts            |  53 ++++++
- arch/arm/boot/dts/am335x-bone-ttyS4.dts            |  53 ++++++
- arch/arm/boot/dts/am335x-bone-ttyS5.dts            |  53 ++++++
- arch/arm/boot/dts/am335x-bone.dts                  |  29 +++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  48 +++++
- arch/arm/boot/dts/am335x-boneblack-can0.dts        |  68 +++++++
- arch/arm/boot/dts/am335x-boneblack-can1.dts        |  68 +++++++
- .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  48 +++++
- arch/arm/boot/dts/am335x-boneblack-replicape.dts   |  18 +-
- arch/arm/boot/dts/am335x-boneblack-ttyS1.dts       |  68 +++++++
- arch/arm/boot/dts/am335x-boneblack-ttyS2.dts       |  68 +++++++
- arch/arm/boot/dts/am335x-boneblack-ttyS4.dts       |  68 +++++++
- arch/arm/boot/dts/am335x-boneblack-ttyS5.dts       |  68 +++++++
- arch/arm/boot/dts/am335x-boneblack.dts             |  82 ++++-----
- arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 202 +++++++++++++++++++++
- arch/arm/boot/dts/am335x-cape-i2c2-eeprom.dtsi     |  31 ++++
- arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++++
- arch/arm/boot/dts/am335x-peripheral-can0.dtsi      |  13 ++
- arch/arm/boot/dts/am335x-peripheral-can1.dtsi      |  13 ++
- arch/arm/boot/dts/am335x-peripheral-emmc.dtsi      |  15 ++
+ arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi     |  45 +++
+ arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi     |  45 +++
+ arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi     |  88 ++++++
+ .../am335x-bone-pinmux-gpio-backlight-P9_14.dtsi   |  43 +++
+ arch/arm/boot/dts/am335x-bone-pinmux-i2c2.dtsi     |  45 +++
+ arch/arm/boot/dts/am335x-bone-pinmux-nxp-hdmi.dtsi | 143 +++++++++
+ .../am335x-bone-pinmux-panel-1024x600-24bit.dtsi   | 151 ++++++++++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi    |  48 +++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi    |  48 +++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi    |  48 +++
+ arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi    |  48 +++
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  48 +++
+ arch/arm/boot/dts/am335x-boneblack-can0.dts        |  67 +++++
+ .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  48 +++
+ arch/arm/boot/dts/am335x-boneblack-replicape.dts   |  20 +-
+ arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 202 +++++++++++++
+ arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++
+ arch/arm/boot/dts/am335x-peripheral-can0.dtsi      |  13 +
+ arch/arm/boot/dts/am335x-peripheral-can1.dtsi      |  13 +
+ arch/arm/boot/dts/am335x-peripheral-emmc.dtsi      |  15 +
  .../am335x-peripheral-gpio-backlight-P9_14.dtsi    |  18 ++
- arch/arm/boot/dts/am335x-peripheral-i2c2.dtsi      |  13 ++
- arch/arm/boot/dts/am335x-peripheral-nxp-hdmi.dtsi  |  21 +++
- .../am335x-peripheral-panel-1024x600-24bit.dtsi    |  49 +++++
- arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi     |  13 ++
- arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi     |  13 ++
- arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 ++
- arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 ++
- include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 +++++++++++
- 47 files changed, 2267 insertions(+), 78 deletions(-)
+ arch/arm/boot/dts/am335x-peripheral-i2c2.dtsi      |  13 +
+ arch/arm/boot/dts/am335x-peripheral-nxp-hdmi.dtsi  |  21 ++
+ .../am335x-peripheral-panel-1024x600-24bit.dtsi    |  49 ++++
+ arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi     |  13 +
+ arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi     |  13 +
+ arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 +
+ arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +
+ include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 +++++++
+ 34 files changed, 1891 insertions(+), 10 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-can0.dts
- create mode 100644 arch/arm/boot/dts/am335x-bone-can1.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
@@ -68,20 +55,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS1.dts
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS2.dts
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS4.dts
- create mode 100644 arch/arm/boot/dts/am335x-bone-ttyS5.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-can0.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-can1.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS1.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS2.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS4.dts
- create mode 100644 arch/arm/boot/dts/am335x-boneblack-ttyS5.dts
  create mode 100644 arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
- create mode 100644 arch/arm/boot/dts/am335x-cape-i2c2-eeprom.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-can0.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-can1.dtsi
@@ -120,10 +97,10 @@ index 0bbe050..a44c7d1 100644
  		compatible = "argus-ups";
 diff --git a/arch/arm/boot/dts/am335x-bone-can0.dts b/arch/arm/boot/dts/am335x-bone-can0.dts
 new file mode 100644
-index 0000000..3e49ac6
+index 0000000..a5777c4
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-can0.dts
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,52 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -134,7 +111,7 @@ index 0000000..3e49ac6
 +/dts-v1/;
 +
 +#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
 +
 +/ {
 +	model = "TI AM335x BeagleBone";
@@ -164,66 +141,6 @@ index 0000000..3e49ac6
 +
 +/* #include "am335x-peripheral-i2c2.dtsi" */
 +/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-bone-can1.dts b/arch/arm/boot/dts/am335x-bone-can1.dts
-new file mode 100644
-index 0000000..f1597e8
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-can1.dts
-@@ -0,0 +1,53 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone";
-+	compatible = "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&ldo3_reg>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+#include "am335x-peripheral-can1.dtsi"
-+#include "am335x-bone-pinmux-can1.dtsi"
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
 +
 +/* #include "am335x-peripheral-ttyS1.dtsi" */
 +/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
@@ -238,7 +155,7 @@ index 0000000..f1597e8
 +/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
 new file mode 100644
-index 0000000..d4fd739
+index 0000000..a92d891
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
 @@ -0,0 +1,41 @@
@@ -252,7 +169,7 @@ index 0000000..d4fd739
 +/dts-v1/;
 +
 +#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
 +
 +/ {
 +	model = "TI AM335x BeagleBone";
@@ -283,42 +200,333 @@ index 0000000..d4fd739
 +};
 +
 +#include "am335x-bone-argus.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 58edb60..16733e4 100644
---- a/arch/arm/boot/dts/am335x-bone-common.dtsi
-+++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -62,9 +62,6 @@
- };
- 
- &am33xx_pinmux {
--	pinctrl-names = "default";
--	pinctrl-0 = <&clkout2_pin>;
--
- 	user_leds_s0: user_leds_s0 {
- 		pinctrl-single,pins = <
- 			0x54 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
-@@ -157,21 +154,6 @@
- 			0x160 (PIN_INPUT | MUX_MODE7) /* GPIO0_6 */
- 		>;
- 	};
--
--	emmc_pins: pinmux_emmc_pins {
--		pinctrl-single,pins = <
--			0x80 (PIN_INPUT_PULLUP | MUX_MODE2) /* gpmc_csn1.mmc1_clk */
--			0x84 (PIN_INPUT_PULLUP | MUX_MODE2) /* gpmc_csn2.mmc1_cmd */
--			0x00 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad0.mmc1_dat0 */
--			0x04 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad1.mmc1_dat1 */
--			0x08 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad2.mmc1_dat2 */
--			0x0c (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad3.mmc1_dat3 */
--			0x10 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad4.mmc1_dat4 */
--			0x14 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad5.mmc1_dat5 */
--			0x18 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad6.mmc1_dat6 */
--			0x1c (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad7.mmc1_dat7 */
--		>;
--	};
- };
- 
- &uart0 {
+diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+new file mode 100644
+index 0000000..b2da1ca
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+@@ -0,0 +1,321 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	cpus {
++		cpu@0 {
++			cpu0-supply = <&dcdc2_reg>;
++		};
++	};
++
++	memory {
++		device_type = "memory";
++		reg = <0x80000000 0x10000000>; /* 256 MB */
++	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&user_leds_s0>;
++
++		compatible = "gpio-leds";
++
++		led@2 {
++			label = "beaglebone:green:usr0";
++			gpios = <&gpio1 21 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++			default-state = "off";
++		};
++
++		led@3 {
++			label = "beaglebone:green:usr1";
++			gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "mmc0";
++			default-state = "off";
++		};
++
++		led@4 {
++			label = "beaglebone:green:usr2";
++			gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "cpu0";
++			default-state = "off";
++		};
++
++		led@5 {
++			label = "beaglebone:green:usr3";
++			gpios = <&gpio1 24 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "mmc1";
++			default-state = "off";
++		};
++	};
++
++	vmmcsd_fixed: fixedregulator@0 {
++		compatible = "regulator-fixed";
++		regulator-name = "vmmcsd_fixed";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++	};
++};
++
++&am33xx_pinmux {
++	user_leds_s0: user_leds_s0 {
++		pinctrl-single,pins = <
++			0x54 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
++			0x58 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_a6.gpio1_22 */
++			0x5c (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a7.gpio1_23 */
++			0x60 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_a8.gpio1_24 */
++		>;
++	};
++
++	i2c0_pins: pinmux_i2c0_pins {
++		pinctrl-single,pins = <
++			0x188 (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
++			0x18c (PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_scl.i2c0_scl */
++		>;
++	};
++
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			0x178 (PIN_INPUT_PULLUP | MUX_MODE3) 	/* uart1_ctsn.i2c2_sda */
++			0x17c (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_rtsn.i2c2_scl */
++		>;
++	};
++
++	uart0_pins: pinmux_uart0_pins {
++		pinctrl-single,pins = <
++			0x170 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
++			0x174 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* uart0_txd.uart0_txd */
++		>;
++	};
++
++	clkout2_pin: pinmux_clkout2_pin {
++		pinctrl-single,pins = <
++			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
++		>;
++	};
++
++	cpsw_default: cpsw_default {
++		pinctrl-single,pins = <
++			/* Slave 1 */
++			0x108 (PIN_INPUT | MUX_MODE0)		/* mii1_col.mii1_col */
++			0x10c (PIN_INPUT | MUX_MODE0)		/* mii1_crs.mii1_crs */
++			0x110 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxerr.mii1_rxerr */
++			0x114 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txen.mii1_txen */
++			0x118 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxdv.mii1_rxdv */
++			0x11c (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd3.mii1_txd3 */
++			0x120 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd2.mii1_txd2 */
++			0x124 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd1.mii1_txd1 */
++			0x128 (PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd0.mii1_txd0 */
++			0x12c (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_txclk.mii1_txclk */
++			0x130 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxclk.mii1_rxclk */
++			0x134 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd3.mii1_rxd3 */
++			0x138 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd2.mii1_rxd2 */
++			0x13c (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd1.mii1_rxd1 */
++			0x140 (PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd0.mii1_rxd0 */
++		>;
++	};
++
++	cpsw_sleep: cpsw_sleep {
++		pinctrl-single,pins = <
++			/* Slave 1 reset value */
++			0x108 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x10c (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x110 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x114 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x118 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x11c (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x120 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x124 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x128 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x12c (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x130 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x134 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x138 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x13c (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x140 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	davinci_mdio_default: davinci_mdio_default {
++		pinctrl-single,pins = <
++			/* MDIO */
++			0x148 (PIN_INPUT_PULLUP | SLEWCTRL_FAST | MUX_MODE0)	/* mdio_data.mdio_data */
++			0x14c (PIN_OUTPUT_PULLUP | MUX_MODE0)			/* mdio_clk.mdio_clk */
++		>;
++	};
++
++	davinci_mdio_sleep: davinci_mdio_sleep {
++		pinctrl-single,pins = <
++			/* MDIO reset value */
++			0x148 (PIN_INPUT_PULLDOWN | MUX_MODE7)
++			0x14c (PIN_INPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	mmc1_pins: pinmux_mmc1_pins {
++		pinctrl-single,pins = <
++			0x160 (PIN_INPUT | MUX_MODE7) /* GPIO0_6 */
++		>;
++	};
++
++	emmc_pins: pinmux_emmc_pins {
++		pinctrl-single,pins = <
++			0x80 (PIN_INPUT_PULLUP | MUX_MODE2) /* gpmc_csn1.mmc1_clk */
++			0x84 (PIN_INPUT_PULLUP | MUX_MODE2) /* gpmc_csn2.mmc1_cmd */
++			0x00 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad0.mmc1_dat0 */
++			0x04 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad1.mmc1_dat1 */
++			0x08 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad2.mmc1_dat2 */
++			0x0c (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad3.mmc1_dat3 */
++			0x10 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad4.mmc1_dat4 */
++			0x14 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad5.mmc1_dat5 */
++			0x18 (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad6.mmc1_dat6 */
++			0x1c (PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad7.mmc1_dat7 */
++		>;
++	};
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_pins>;
++
++	status = "okay";
++};
++
++&usb {
++	status = "okay";
++};
++
++&usb_ctrl_mod {
++	status = "okay";
++};
++
++&usb0_phy {
++	status = "okay";
++};
++
++&usb1_phy {
++	status = "okay";
++};
++
++&usb0 {
++	status = "okay";
++	dr_mode = "peripheral";
++};
++
++&usb1 {
++	status = "okay";
++	dr_mode = "host";
++};
++
++&cppi41dma  {
++	status = "okay";
++};
++
++&i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c0_pins>;
++
++	status = "okay";
++	clock-frequency = <400000>;
++
++	tps: tps@24 {
++		reg = <0x24>;
++	};
++
++};
++
++/include/ "tps65217.dtsi"
++
++&tps {
++	ti,pmic-shutdown-controller;
++
++	regulators {
++		dcdc1_reg: regulator@0 {
++			regulator-name = "vdds_dpr";
++			regulator-always-on;
++		};
++
++		dcdc2_reg: regulator@1 {
++			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
++			regulator-name = "vdd_mpu";
++			regulator-min-microvolt = <925000>;
++			regulator-max-microvolt = <1325000>;
++			regulator-boot-on;
++			regulator-always-on;
++		};
++
++		dcdc3_reg: regulator@2 {
++			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
++			regulator-name = "vdd_core";
++			regulator-min-microvolt = <925000>;
++			regulator-max-microvolt = <1150000>;
++			regulator-boot-on;
++			regulator-always-on;
++		};
++
++		ldo1_reg: regulator@3 {
++			regulator-name = "vio,vrtc,vdds";
++			regulator-always-on;
++		};
++
++		ldo2_reg: regulator@4 {
++			regulator-name = "vdd_3v3aux";
++			regulator-always-on;
++		};
++
++		ldo3_reg: regulator@5 {
++			regulator-name = "vdd_1v8";
++			regulator-always-on;
++		};
++
++		ldo4_reg: regulator@6 {
++			regulator-name = "vdd_3v3a";
++			regulator-always-on;
++		};
++	};
++};
++
++&cpsw_emac0 {
++	phy_id = <&davinci_mdio>, <0>;
++	phy-mode = "mii";
++};
++
++&cpsw_emac1 {
++	phy_id = <&davinci_mdio>, <1>;
++	phy-mode = "mii";
++};
++
++&mac {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&cpsw_default>;
++	pinctrl-1 = <&cpsw_sleep>;
++	status = "okay";
++};
++
++&davinci_mdio {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&davinci_mdio_default>;
++	pinctrl-1 = <&davinci_mdio_sleep>;
++	status = "okay";
++};
++
++&mmc1 {
++	status = "okay";
++	bus-width = <0x4>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&mmc1_pins>;
++	cd-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
++	cd-inverted;
++};
++
++&aes {
++	status = "okay";
++};
++
++&sham {
++	status = "okay";
++};
 diff --git a/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi b/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
 new file mode 100644
 index 0000000..7d8f673
@@ -1161,282 +1369,9 @@ index 0000000..01d0aec
 +&uart5 {
 +	pinctrl-0 = <&uart5_pins>;
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyS1.dts b/arch/arm/boot/dts/am335x-bone-ttyS1.dts
-new file mode 100644
-index 0000000..85aacd2
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyS1.dts
-@@ -0,0 +1,53 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone";
-+	compatible = "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&ldo3_reg>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+#include "am335x-peripheral-ttyS1.dtsi"
-+#include "am335x-bone-pinmux-ttyS1.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyS2.dts b/arch/arm/boot/dts/am335x-bone-ttyS2.dts
-new file mode 100644
-index 0000000..57976f1
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyS2.dts
-@@ -0,0 +1,53 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone";
-+	compatible = "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&ldo3_reg>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+#include "am335x-peripheral-ttyS2.dtsi"
-+#include "am335x-bone-pinmux-ttyS2.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyS4.dts b/arch/arm/boot/dts/am335x-bone-ttyS4.dts
-new file mode 100644
-index 0000000..8fbcd30
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyS4.dts
-@@ -0,0 +1,53 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone";
-+	compatible = "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&ldo3_reg>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+#include "am335x-peripheral-ttyS4.dtsi"
-+#include "am335x-bone-pinmux-ttyS4.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-bone-ttyS5.dts b/arch/arm/boot/dts/am335x-bone-ttyS5.dts
-new file mode 100644
-index 0000000..124d2c0
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bone-ttyS5.dts
-@@ -0,0 +1,53 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone";
-+	compatible = "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&ldo3_reg>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+#include "am335x-peripheral-ttyS5.dtsi"
-+#include "am335x-bone-pinmux-ttyS5.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 6b849372..293fbcb 100644
---- a/arch/arm/boot/dts/am335x-bone.dts
-+++ b/arch/arm/boot/dts/am335x-bone.dts
-@@ -24,3 +24,32 @@
- &mmc1 {
- 	vmmc-supply = <&ldo3_reg>;
- };
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+/* Pins conflict with i2c2 */
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* Pins conflict with can0 */
-+#include "am335x-peripheral-i2c2.dtsi"
-+#include "am335x-bone-pinmux-i2c2.dtsi"
-+#include "am335x-cape-i2c2-eeprom.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 new file mode 100644
-index 0000000..6d8eb3b
+index 0000000..8c92446
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 @@ -0,0 +1,48 @@
@@ -1450,7 +1385,7 @@ index 0000000..6d8eb3b
 +/dts-v1/;
 +
 +#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
 +
 +/ {
 +	model = "TI AM335x BeagleBone Black";
@@ -1490,10 +1425,10 @@ index 0000000..6d8eb3b
 +#include "am335x-cape-bbb-exp-c.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-can0.dts b/arch/arm/boot/dts/am335x-boneblack-can0.dts
 new file mode 100644
-index 0000000..cbbe482
+index 0000000..a613db4
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-can0.dts
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,67 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1504,7 +1439,7 @@ index 0000000..cbbe482
 +/dts-v1/;
 +
 +#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
 +
 +/ {
 +	model = "TI AM335x BeagleBone Black";
@@ -1549,81 +1484,6 @@ index 0000000..cbbe482
 +
 +/* #include "am335x-peripheral-i2c2.dtsi" */
 +/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-boneblack-can1.dts b/arch/arm/boot/dts/am335x-boneblack-can1.dts
-new file mode 100644
-index 0000000..e0e9cb6
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-can1.dts
-@@ -0,0 +1,68 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone Black";
-+	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&vmmcsd_fixed>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+#include "am335x-peripheral-emmc.dtsi"
-+#include "am335x-bone-pinmux-emmc.dtsi"
-+/* #include "am335x-bone-emmc-in-reset.dtsi" */
-+
-+#include "am335x-peripheral-nxp-hdmi.dtsi"
-+#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
-+
-+&rtc {
-+	system-power-controller;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+#include "am335x-peripheral-can1.dtsi"
-+#include "am335x-bone-pinmux-can1.dtsi"
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
 +
 +/* #include "am335x-peripheral-ttyS1.dtsi" */
 +/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
@@ -1638,7 +1498,7 @@ index 0000000..e0e9cb6
 +/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 new file mode 100644
-index 0000000..ebe6757
+index 0000000..f95ff5d
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 @@ -0,0 +1,48 @@
@@ -1652,7 +1512,7 @@ index 0000000..ebe6757
 +/dts-v1/;
 +
 +#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
 +
 +/ {
 +	model = "TI AM335x BeagleBone Black";
@@ -1691,11 +1551,15 @@ index 0000000..ebe6757
 +
 +#include "am335x-bone-argus.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-replicape.dts b/arch/arm/boot/dts/am335x-boneblack-replicape.dts
-index fe5bdc7..d161635 100644
+index fe5bdc7..fcdd038 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-replicape.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-replicape.dts
-@@ -11,8 +11,8 @@
- #include "am335x-bone-common.dtsi"
+@@ -8,11 +8,11 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
+-#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
  
  / {
 -       model = "TI AM335x BeagleBone Black";
@@ -1739,400 +1603,6 @@ index fe5bdc7..d161635 100644
  };
  
  #include "am335x-bone-replicape.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS1.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS1.dts
-new file mode 100644
-index 0000000..06bc43c
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyS1.dts
-@@ -0,0 +1,68 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone Black";
-+	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&vmmcsd_fixed>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+#include "am335x-peripheral-emmc.dtsi"
-+#include "am335x-bone-pinmux-emmc.dtsi"
-+/* #include "am335x-bone-emmc-in-reset.dtsi" */
-+
-+#include "am335x-peripheral-nxp-hdmi.dtsi"
-+#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
-+
-+&rtc {
-+	system-power-controller;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+#include "am335x-peripheral-ttyS1.dtsi"
-+#include "am335x-bone-pinmux-ttyS1.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS2.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS2.dts
-new file mode 100644
-index 0000000..e8532e8
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyS2.dts
-@@ -0,0 +1,68 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone Black";
-+	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&vmmcsd_fixed>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+#include "am335x-peripheral-emmc.dtsi"
-+#include "am335x-bone-pinmux-emmc.dtsi"
-+/* #include "am335x-bone-emmc-in-reset.dtsi" */
-+
-+#include "am335x-peripheral-nxp-hdmi.dtsi"
-+#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
-+
-+&rtc {
-+	system-power-controller;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+#include "am335x-peripheral-ttyS2.dtsi"
-+#include "am335x-bone-pinmux-ttyS2.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS4.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS4.dts
-new file mode 100644
-index 0000000..2a5c301
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyS4.dts
-@@ -0,0 +1,68 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone Black";
-+	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&vmmcsd_fixed>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+#include "am335x-peripheral-emmc.dtsi"
-+#include "am335x-bone-pinmux-emmc.dtsi"
-+/* #include "am335x-bone-emmc-in-reset.dtsi" */
-+
-+#include "am335x-peripheral-nxp-hdmi.dtsi"
-+#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
-+
-+&rtc {
-+	system-power-controller;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+#include "am335x-peripheral-ttyS4.dtsi"
-+#include "am335x-bone-pinmux-ttyS4.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
-diff --git a/arch/arm/boot/dts/am335x-boneblack-ttyS5.dts b/arch/arm/boot/dts/am335x-boneblack-ttyS5.dts
-new file mode 100644
-index 0000000..fb78127
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-boneblack-ttyS5.dts
-@@ -0,0 +1,68 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+/dts-v1/;
-+
-+#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
-+
-+/ {
-+	model = "TI AM335x BeagleBone Black";
-+	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
-+};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
-+
-+&ldo3_reg {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-always-on;
-+};
-+
-+&mmc1 {
-+	vmmc-supply = <&vmmcsd_fixed>;
-+};
-+
-+&am33xx_pinmux {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
-+};
-+
-+#include "am335x-peripheral-emmc.dtsi"
-+#include "am335x-bone-pinmux-emmc.dtsi"
-+/* #include "am335x-bone-emmc-in-reset.dtsi" */
-+
-+/* #include "am335x-peripheral-nxp-hdmi.dtsi" */
-+/* #include "am335x-bone-pinmux-nxp-hdmi.dtsi" */
-+
-+&rtc {
-+	system-power-controller;
-+};
-+
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* #include "am335x-peripheral-i2c2.dtsi" */
-+/* #include "am335x-bone-pinmux-i2c2.dtsi" */
-+/* #include "am335x-cape-i2c2-eeprom.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+#include "am335x-peripheral-ttyS5.dtsi"
-+#include "am335x-bone-pinmux-ttyS5.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 577d67c..0eb79ef 100644
---- a/arch/arm/boot/dts/am335x-boneblack.dts
-+++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -29,62 +29,42 @@
- 	vmmc-supply = <&vmmcsd_fixed>;
- };
- 
--&mmc2 {
--	vmmc-supply = <&vmmcsd_fixed>;
--	pinctrl-names = "default";
--	pinctrl-0 = <&emmc_pins>;
--	bus-width = <8>;
--	status = "okay";
--};
--
- &am33xx_pinmux {
--	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
--		pinctrl-single,pins = <
--			0x1b0 0x03      /* xdma_event_intr0, OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT */
--			0xa0 0x08       /* lcd_data0.lcd_data0, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xa4 0x08       /* lcd_data1.lcd_data1, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xa8 0x08       /* lcd_data2.lcd_data2, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xac 0x08       /* lcd_data3.lcd_data3, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xb0 0x08       /* lcd_data4.lcd_data4, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xb4 0x08       /* lcd_data5.lcd_data5, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xb8 0x08       /* lcd_data6.lcd_data6, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xbc 0x08       /* lcd_data7.lcd_data7, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xc0 0x08       /* lcd_data8.lcd_data8, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xc4 0x08       /* lcd_data9.lcd_data9, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xc8 0x08       /* lcd_data10.lcd_data10, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xcc 0x08       /* lcd_data11.lcd_data11, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xd0 0x08       /* lcd_data12.lcd_data12, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xd4 0x08       /* lcd_data13.lcd_data13, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xd8 0x08       /* lcd_data14.lcd_data14, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xdc 0x08       /* lcd_data15.lcd_data15, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
--			0xe0 0x00       /* lcd_vsync.lcd_vsync, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
--			0xe4 0x00       /* lcd_hsync.lcd_hsync, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
--			0xe8 0x00       /* lcd_pclk.lcd_pclk, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
--			0xec 0x00       /* lcd_ac_bias_en.lcd_ac_bias_en, OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT */
--		>;
--	};
--	nxp_hdmi_bonelt_off_pins: nxp_hdmi_bonelt_off_pins {
--		pinctrl-single,pins = <
--			0x1b0 0x03      /* xdma_event_intr0, OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT */
--		>;
--	};
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&clkout2_pin>;
- };
- 
--&lcdc {
--	status = "okay";
--};
-+#include "am335x-peripheral-emmc.dtsi"
-+#include "am335x-bone-pinmux-emmc.dtsi"
-+/* #include "am335x-bone-emmc-in-reset.dtsi" */
- 
--/ {
--	hdmi {
--		compatible = "ti,tilcdc,slave";
--		i2c = <&i2c0>;
--		pinctrl-names = "default", "off";
--		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
--		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
--		status = "okay";
--	};
--};
-+#include "am335x-peripheral-nxp-hdmi.dtsi"
-+#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
- 
- &rtc {
- 	system-power-controller;
- };
-+
-+/* Pins conflict with i2c2 */
-+/* #include "am335x-peripheral-can0.dtsi" */
-+/* #include "am335x-bone-pinmux-can0.dtsi" */
-+
-+/* #include "am335x-peripheral-can1.dtsi" */
-+/* #include "am335x-bone-pinmux-can1.dtsi" */
-+
-+/* Pins conflict with can0 */
-+#include "am335x-peripheral-i2c2.dtsi"
-+#include "am335x-bone-pinmux-i2c2.dtsi"
-+#include "am335x-cape-i2c2-eeprom.dtsi"
-+
-+/* #include "am335x-peripheral-ttyS1.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS1.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS2.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS2.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS4.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS4.dtsi" */
-+
-+/* #include "am335x-peripheral-ttyS5.dtsi" */
-+/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
 new file mode 100644
 index 0000000..24cedf4
@@ -2341,43 +1811,6 @@ index 0000000..24cedf4
 +
 +#include "am335x-peripheral-panel-1024x600-24bit.dtsi"
 +#include "am335x-bone-pinmux-panel-1024x600-24bit.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-cape-i2c2-eeprom.dtsi b/arch/arm/boot/dts/am335x-cape-i2c2-eeprom.dtsi
-new file mode 100644
-index 0000000..76a6964
---- /dev/null
-+++ b/arch/arm/boot/dts/am335x-cape-i2c2-eeprom.dtsi
-@@ -0,0 +1,31 @@
-+/*
-+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+&i2c2 {
-+	clock-frequency = <100000>;
-+
-+	cape_eeprom0: cape_eeprom0@54 {
-+		compatible = "at,24c256";
-+		reg = <0x54>;
-+	};
-+
-+	cape_eeprom1: cape_eeprom1@55 {
-+		compatible = "at,24c256";
-+		reg = <0x55>;
-+	};
-+
-+	cape_eeprom2: cape_eeprom2@56 {
-+		compatible = "at,24c256";
-+		reg = <0x56>;
-+	};
-+
-+	cape_eeprom3: cape_eeprom3@57 {
-+		compatible = "at,24c256";
-+		reg = <0x57>;
-+	};
-+};
 diff --git a/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi b/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
 new file mode 100644
 index 0000000..bce6ac5
