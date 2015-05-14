@@ -836,7 +836,7 @@ config="CONFIG_IMX_IPUV3_CORE" ; config_enable
 
 #...Drivers... (these will enable other defaults..)
 config="CONFIG_DRM_DW_HDMI" ; config_enable
-config="CONFIG_DRM_VGEM" ; config_enable
+config="CONFIG_DRM_VGEM" ; config_disable
 config="CONFIG_DRM_UDL" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_DRM_TILCDC" ; config_enable
