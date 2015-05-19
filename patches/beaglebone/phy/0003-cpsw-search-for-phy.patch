@@ -1,6 +1,6 @@
 From 2a7ba83fd0ffe75c527674dd59980703b093ca13 Mon Sep 17 00:00:00 2001
 From: Jay at Control Module Industries <cmidroid@gmail.com>
-Date: Tue, 1 Jul 2014 14:49:52 -0500
+Date: Tue, 19 May 2015 13:35:14 -0500
 Subject: [PATCH 3/3] cpsw: search for phy
 
 I have encountered the same issue(s) on A6A boards.
@@ -11,24 +11,20 @@ would welcome any input on a different approach.
 
 https://groups.google.com/d/msg/beagleboard/9mctrG26Mc8/SRlnumt0LoMJ
 
+v4.1-rcX: added hack around CONFIG_OF_OVERLAY
+
+todo: we shouldn't update both phy_id's as this could be breaking dual ethernet am335x devices
+
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- drivers/net/ethernet/ti/davinci_mdio.c | 80 ++++++++++++++++++++++++++++++++++
- 1 file changed, 80 insertions(+)
+ drivers/net/ethernet/ti/davinci_mdio.c | 96 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 96 insertions(+)
 
 diff --git a/drivers/net/ethernet/ti/davinci_mdio.c b/drivers/net/ethernet/ti/davinci_mdio.c
-index c00084d..beac65b 100644
+index c00084d..6fca7b7 100644
 --- a/drivers/net/ethernet/ti/davinci_mdio.c
 +++ b/drivers/net/ethernet/ti/davinci_mdio.c
-@@ -40,6 +40,7 @@
- #include <linux/of_device.h>
- #include <linux/of_mdio.h>
- #include <linux/pinctrl/consumer.h>
-+#include <linux/phy.h>
- 
- /*
-  * This timeout definition is a worst-case ultra defensive measure against
-@@ -102,6 +103,10 @@ struct davinci_mdio_data {
+@@ -102,6 +102,10 @@ struct davinci_mdio_data {
  	bool		skip_scan;
  };
  
@@ -39,7 +35,7 @@ index c00084d..beac65b 100644
  static void __davinci_mdio_reset(struct davinci_mdio_data *data)
  {
  	u32 mdio_in, div, mdio_out_khz, access_time;
-@@ -158,6 +163,11 @@ static int davinci_mdio_reset(struct mii_bus *bus)
+@@ -158,6 +162,11 @@ static int davinci_mdio_reset(struct mii_bus *bus)
  		/* restrict mdio bus to live phys only */
  		dev_info(data->dev, "detected phy mask %x\n", ~phy_mask);
  		phy_mask = ~phy_mask;
@@ -51,13 +47,13 @@ index c00084d..beac65b 100644
  	} else {
  		/* desperately scan all phys */
  		dev_warn(data->dev, "no live phy, scanning all\n");
-@@ -318,6 +328,76 @@ static int davinci_mdio_probe_dt(struct mdio_platform_data *data,
+@@ -318,6 +327,93 @@ static int davinci_mdio_probe_dt(struct mdio_platform_data *data,
  
  	return 0;
  }
 +static void davinci_mdio_update_dt_from_phymask(u32 phy_mask)
 +{
-+	int i, len;
++	int i, len, skip;
 +	u32 addr;
 +	__be32 *old_phy_p, *phy_id_p;
 +	struct property *phy_id_property = NULL;
@@ -74,6 +70,19 @@ index c00084d..beac65b 100644
 +
 +	for_each_compatible_node(node_p, NULL, "ti,cpsw") {
 +		for_each_node_by_name(slave_p, "slave") {
++
++#if IS_ENABLED(CONFIG_OF_OVERLAY)
++			skip = 1;
++			// Hack, the overlay fixup "slave" doesn't have phy-mode...
++			old_phy_p = (__be32 *) of_get_property(slave_p, "phy-mode", &len);
++
++			if (len != (sizeof(__be32 *) * 1))
++			{
++				skip = 0;
++			}
++
++			if (skip) {
++#endif
 +
 +			old_phy_p = (__be32 *) of_get_property(slave_p, "phy_id", &len);
 +
@@ -104,9 +113,13 @@ index c00084d..beac65b 100644
 +				*phy_id_p = cpu_to_be32(addr);
 +
 +				of_update_property(slave_p, phy_id_property);
++				pr_info("davinci_mdio: dt: updated phy_id[%d] from phy_mask[%x]\n", addr, phy_mask);
 +
 +				++addr;
 +			}
++#if IS_ENABLED(CONFIG_OF_OVERLAY)
++		}
++#endif
 +		}
 +	}
 +

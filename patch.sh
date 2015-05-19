@@ -287,7 +287,7 @@ beaglebone () {
 
 	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
 	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
-	#${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
+	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=3
