@@ -1,33 +1,33 @@
-From 24e00aaee16149308b594c09ad430b285278e949 Mon Sep 17 00:00:00 2001
+From ea5cbe21b9045bb569fa32d4aa3e9893892e5ad1 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 11 May 2015 08:45:16 -0500
-Subject: [PATCH 4/4] add: am335x-bonegreen
+Date: Thu, 21 May 2015 10:37:56 -0500
+Subject: [PATCH 6/6] add overlay dtb
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/Makefile             |  1 +
- arch/arm/boot/dts/am335x-bonegreen.dts | 42 ++++++++++++++++++++++++++++++++++
- 2 files changed, 43 insertions(+)
- create mode 100644 arch/arm/boot/dts/am335x-bonegreen.dts
+ arch/arm/boot/dts/Makefile                     |  1 +
+ arch/arm/boot/dts/am335x-boneblack-overlay.dts | 30 ++++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-overlay.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 93be426..5997783 100644
+index c5dd461..e5481be 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -415,6 +415,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
+@@ -419,6 +419,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
  	am335x-base0033.dtb \
  	am335x-bone.dtb \
  	am335x-boneblack.dtb \
-+	am335x-bonegreen.dtb \
++	am335x-boneblack-overlay.dtb \
+ 	am335x-bonegreen.dtb \
  	am335x-evm.dtb \
  	am335x-evmsk.dtb \
- 	am335x-nano.dtb \
-diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
+diff --git a/arch/arm/boot/dts/am335x-boneblack-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
 new file mode 100644
-index 0000000..8df822a
+index 0000000..8206843
 --- /dev/null
-+++ b/arch/arm/boot/dts/am335x-bonegreen.dts
-@@ -0,0 +1,42 @@
++++ b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
+@@ -0,0 +1,30 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -41,8 +41,8 @@ index 0000000..8df822a
 +#include "am335x-bone-common.dtsi"
 +
 +/ {
-+	model = "TI AM335x BeagleBone Green";
-+	compatible = "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++	model = "TI AM335x BeagleBone Black";
++	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
 +
 +/* Max Core Speed */
@@ -57,18 +57,6 @@ index 0000000..8df822a
 +
 +&mmc1 {
 +	vmmc-supply = <&vmmcsd_fixed>;
-+};
-+
-+&mmc2 {
-+	vmmc-supply = <&vmmcsd_fixed>;
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&emmc_pins>;
-+	bus-width = <8>;
-+	status = "okay";
-+};
-+
-+&rtc {
-+	system-power-controller;
 +};
 -- 
 2.1.4

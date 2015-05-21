@@ -1,6 +1,6 @@
-From 7be9804e8c21fb100086f7ace1082fd22087df53 Mon Sep 17 00:00:00 2001
+From f3e08f9268b5eedf29689a3771470fd7f3aa61d1 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 14 May 2015 11:50:37 -0500
+Date: Thu, 21 May 2015 10:54:38 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -21,10 +21,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi    |  48 +++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi    |  48 +++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi    |  48 +++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  48 +++
- arch/arm/boot/dts/am335x-boneblack-can0.dts        |  67 +++++
- .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  48 +++
- arch/arm/boot/dts/am335x-boneblack-replicape.dts   |  20 +-
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  44 +++
+ arch/arm/boot/dts/am335x-boneblack-can0.dts        |  63 ++++
+ .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  44 +++
+ arch/arm/boot/dts/am335x-boneblack-replicape.dts   |  18 +-
  arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 202 +++++++++++++
  arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++
  arch/arm/boot/dts/am335x-peripheral-can0.dtsi      |  13 +
@@ -39,7 +39,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 +
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 +++++++
- 34 files changed, 1891 insertions(+), 10 deletions(-)
+ 34 files changed, 1878 insertions(+), 9 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-can0.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
@@ -1371,10 +1371,10 @@ index 0000000..01d0aec
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 new file mode 100644
-index 0000000..8c92446
+index 0000000..5dcef6f
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,44 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1418,17 +1418,13 @@ index 0000000..8c92446
 +/* #include "am335x-peripheral-nxp-hdmi.dtsi" */
 +/* #include "am335x-bone-pinmux-nxp-hdmi.dtsi" */
 +
-+&rtc {
-+	system-power-controller;
-+};
-+
 +#include "am335x-cape-bbb-exp-c.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-can0.dts b/arch/arm/boot/dts/am335x-boneblack-can0.dts
 new file mode 100644
-index 0000000..a613db4
+index 0000000..ffe07e3
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-can0.dts
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,63 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1472,10 +1468,6 @@ index 0000000..a613db4
 +#include "am335x-peripheral-nxp-hdmi.dtsi"
 +#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
 +
-+&rtc {
-+	system-power-controller;
-+};
-+
 +#include "am335x-peripheral-can0.dtsi"
 +#include "am335x-bone-pinmux-can0.dtsi"
 +
@@ -1498,10 +1490,10 @@ index 0000000..a613db4
 +/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 new file mode 100644
-index 0000000..f95ff5d
+index 0000000..ff99914
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,44 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1545,13 +1537,9 @@ index 0000000..f95ff5d
 +#include "am335x-peripheral-nxp-hdmi.dtsi"
 +#include "am335x-bone-pinmux-nxp-hdmi.dtsi"
 +
-+&rtc {
-+	system-power-controller;
-+};
-+
 +#include "am335x-bone-argus.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-replicape.dts b/arch/arm/boot/dts/am335x-boneblack-replicape.dts
-index fe5bdc7..fcdd038 100644
+index a44d1a9..b241009 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-replicape.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-replicape.dts
 @@ -8,11 +8,11 @@
@@ -1594,15 +1582,6 @@ index fe5bdc7..fcdd038 100644
  };
  
  #include "am335x-peripheral-emmc.dtsi"
-@@ -42,7 +42,7 @@
- #include "am335x-bone-pinmux-nxp-hdmi.dtsi"
- 
- &rtc {
--       system-power-controller;
-+	system-power-controller;
- };
- 
- #include "am335x-bone-replicape.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
 new file mode 100644
 index 0000000..24cedf4
