@@ -117,8 +117,9 @@ config="CONFIG_ARCH_WM8850" ; config_disable
 #
 # Processor Features
 #
-config="CONFIG_ARM_ERRATA_430973" ; config_enable
 config="CONFIG_PL310_ERRATA_753970" ; config_disable
+config="CONFIG_ARM_ERRATA_754327" ; config_disable
+config="CONFIG_ARM_ERRATA_773022" ; config_disable
 
 #
 # Bus support
@@ -273,18 +274,11 @@ config="CONFIG_VEXPRESS_CONFIG" ; config_disable
 config="CONFIG_MTD_NAND_SUNXI" ; config_module
 
 #
-# LPDDR & LPDDR2 PCM memory drivers
-#
-config="CONFIG_MTD_LPDDR2_NVM" ; config_module
-config="CONFIG_SPI_FSL_QUADSPI" ; config_module
-
-#
 # Device Tree and Open Firmware support
 #
 config="CONFIG_OF_OVERLAY" ; config_enable
 config="CONFIG_OF_CONFIGFS" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
-config="CONFIG_ZRAM_LZ4_COMPRESS" ; config_enable
 
 #
 # Misc devices
@@ -542,9 +536,6 @@ config="CONFIG_SERIAL_8250_OMAP" ; config_disable
 config="CONFIG_CONSOLE_POLL" ; config_enable
 #config="CONFIG_SERIAL_OMAP" ; config_disable
 
-config="CONFIG_SERIAL_OMAP" ; config_enable
-config="CONFIG_SERIAL_OMAP_CONSOLE" ; config_enable
-
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
@@ -571,11 +562,8 @@ config="CONFIG_I2C_DLN2" ; config_module
 #
 # SPI Master Controller Drivers
 #
-config="CONFIG_SPI_IMX" ; config_enable
-config="CONFIG_SPI_OMAP24XX" ; config_enable
-config="CONFIG_SPI_SUN4I" ; config_enable
-config="CONFIG_SPI_SUN6I" ; config_enable
-config="CONFIG_SPI_TEGRA114" ; config_enable
+config="CONFIG_SPI_SUN4I" ; config_module
+config="CONFIG_SPI_TEGRA114" ; config_module
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 
 #
@@ -749,10 +737,6 @@ config="CONFIG_TEGRA_WATCHDOG" ; config_enable
 config="CONFIG_MFD_DA9055" ; config_enable
 config="CONFIG_MFD_DA9063" ; config_enable
 config="CONFIG_MFD_DLN2" ; config_enable
-config="CONFIG_MFD_MC13XXX" ; config_enable
-config="CONFIG_MFD_MC13XXX_SPI" ; config_enable
-config="CONFIG_MFD_MC13XXX_I2C" ; config_enable
-config="CONFIG_MFD_TI_AM335X_TSCADC" ; config_enable
 config="CONFIG_MFD_TPS65217" ; config_enable
 config="CONFIG_MFD_TPS65218" ; config_enable
 config="CONFIG_MFD_TPS65910" ; config_enable
@@ -764,9 +748,6 @@ config="CONFIG_REGULATOR_DA9052" ; config_enable
 config="CONFIG_REGULATOR_DA9055" ; config_disable
 config="CONFIG_REGULATOR_DA9063" ; config_enable
 config="CONFIG_REGULATOR_GPIO" ; config_enable
-config="CONFIG_REGULATOR_MC13XXX_CORE" ; config_enable
-config="CONFIG_REGULATOR_MC13783" ; config_enable
-config="CONFIG_REGULATOR_MC13892" ; config_enable
 config="CONFIG_REGULATOR_PBIAS" ; config_enable
 config="CONFIG_REGULATOR_PFUZE100" ; config_enable
 config="CONFIG_REGULATOR_PWM" ; config_enable
@@ -840,8 +821,12 @@ config="CONFIG_SOC_CAMERA_TW9910" ; config_module
 #
 # Graphics support
 #
-config="CONFIG_DRM" ; config_enable
 config="CONFIG_IMX_IPUV3_CORE" ; config_enable
+
+#
+# Direct Rendering Manager
+#
+config="CONFIG_DRM" ; config_enable
 
 #...Drivers... (these will enable other defaults..)
 config="CONFIG_DRM_DW_HDMI" ; config_enable
@@ -861,6 +846,8 @@ config="CONFIG_DRM_IMX_PARALLEL_DISPLAY" ; config_enable
 config="CONFIG_DRM_IMX_TVE" ; config_enable
 config="CONFIG_DRM_IMX_LDB" ; config_enable
 config="CONFIG_DRM_IMX_HDMI" ; config_enable
+
+#exit
 
 #
 # Frame buffer hardware drivers
@@ -914,7 +901,6 @@ config="CONFIG_SND_SOC_TLV320AIC31XX" ; config_module
 #
 # HID support
 #
-config="CONFIG_HID_BATTERY_STRENGTH" ; config_enable
 config="CONFIG_UHID" ; config_enable
 config="CONFIG_HID_GENERIC" ; config_enable
 
@@ -944,11 +930,6 @@ config="CONFIG_USB_EHCI_HCD_OMAP" ; config_enable
 config="CONFIG_USB_EHCI_TEGRA" ; config_enable
 config="CONFIG_USB_EHCI_HCD_PLATFORM" ; config_enable
 config="CONFIG_USB_OHCI_HCD" ; config_disable
-
-#
-# also be needed; see USB_STORAGE Help for more info
-#
-config="CONFIG_USB_STORAGE" ; config_enable
 
 #
 # USB Imaging devices
