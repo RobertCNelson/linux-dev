@@ -224,7 +224,7 @@ beaglebone () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/beaglebone/dts/0001-ARM-dts-am335x-boneblack-disable-RTC-only-sleep.patch"
+#	${git} "${DIR}/patches/beaglebone/dts/0001-ARM-dts-am335x-boneblack-disable-RTC-only-sleep.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0002-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0003-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0004-arm-dts-am335x-bone-common-add-collision-and-carrier.patch"
