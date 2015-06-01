@@ -74,15 +74,20 @@ local_patch () {
 #external_git
 #local_patch
 
-dt () {
-	echo "dir: dt"
+reverts () {
+	echo "dir: reverts"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
+	#my major screw up...
+	${git} "${DIR}/patches/reverts/0001-Revert-ARM-dts-am335x-boneblack-disable-RTC-only-sle.patch"
+
+	${git} "${DIR}/patches/reverts/0002-Revert-spi-spidev-Warn-loudly-if-instantiated-from-D.patch"
+
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=0
+		number=2
 		cleanup
 	fi
 }
@@ -224,7 +229,7 @@ beaglebone () {
 		start_cleanup
 	fi
 
-#	${git} "${DIR}/patches/beaglebone/dts/0001-ARM-dts-am335x-boneblack-disable-RTC-only-sleep.patch"
+	${git} "${DIR}/patches/beaglebone/dts/0001-ARM-dts-am335x-bone-enable-pmic-shutdown-controller.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0002-am335x-boneblack-add-cpu0-opp-points.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0003-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
 	${git} "${DIR}/patches/beaglebone/dts/0004-arm-dts-am335x-bone-common-add-collision-and-carrier.patch"
@@ -264,6 +269,8 @@ beaglebone () {
 	#dtb makefile
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
+
+		device="am335x-arduino-tre.dtb" ; dtb_makefile_append
 
 		device="am335x-bone-can0.dtb" ; dtb_makefile_append
 		device="am335x-bone-cape-bone-argus.dtb" ; dtb_makefile_append
@@ -343,7 +350,7 @@ meld KERNEL/include/uapi/drm/etnaviv_drm.h ~/linux-src/include/uapi/drm/etnaviv_
 #	echo "dir: etnaviv/fixes"
 }
 
-dt
+reverts
 dts
 wand
 errata
