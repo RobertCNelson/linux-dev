@@ -543,6 +543,11 @@ config="CONFIG_TCG_TPM" ; config_module
 config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_module
 
 #
+# I2C support
+#
+config="CONFIG_I2C_CHARDEV" ; config_enable
+
+#
 # Multiplexer I2C Chip support
 #
 config="CONFIG_I2C_MUX_PCA954x" ; config_enable
