@@ -340,7 +340,7 @@ debian_regs () {
 			unset warn_eol_distro
 			;;
 		utopic|vivid)
-			#14.10 (EOL: June 2015)
+			#14.10 (EOL: July 2015)
 			#15.04 (EOL: January 2016)
 			unset warn_eol_distro
 			;;
