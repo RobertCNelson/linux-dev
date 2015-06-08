@@ -14,28 +14,28 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  3 files changed, 64 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/of/base.c b/drivers/of/base.c
-index 99764db..058285e 100644
+index f065026..3fc15a8 100644
 --- a/drivers/of/base.c
 +++ b/drivers/of/base.c
 @@ -192,6 +192,7 @@ int __of_attach_node_sysfs(struct device_node *np)
- static int __init of_init(void)
+ void __init of_core_init(void)
  {
  	struct device_node *np;
 +	int ret;
  
  	/* Create the kset, and register existing nodes */
  	mutex_lock(&of_mutex);
-@@ -208,6 +209,10 @@ static int __init of_init(void)
+@@ -208,6 +209,10 @@ void __init of_core_init(void)
+ 	/* Symlink in /proc as required by userspace ABI */
  	if (of_root)
  		proc_symlink("device-tree", NULL, "/sys/firmware/devicetree/base");
- 
++
 +	ret = of_overlay_init();
 +	if (ret != 0)
 +		pr_warn("of_init: of_overlay_init failed!\n");
-+
- 	return 0;
  }
- core_initcall(of_init);
+ 
+ static struct property *__of_find_property(const struct device_node *np,
 diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
 index 8e882e7..120eb44 100644
 --- a/drivers/of/of_private.h
