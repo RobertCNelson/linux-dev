@@ -256,6 +256,70 @@ beaglebone () {
 		cleanup
 	fi
 
+	echo "dir: beaglebone/pinmux-helper"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0001-BeagleBone-pinmux-helper.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0002-pinmux-helper-Add-runtime-configuration-capability.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0003-pinmux-helper-Switch-to-using-kmalloc.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0004-gpio-Introduce-GPIO-OF-helper.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0005-Add-dir-changeable-property-to-gpio-of-helper.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0006-am33xx.dtsi-add-ocp-label.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0007-beaglebone-added-expansion-header-to-dtb.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0008-bone-pinmux-helper-Add-support-for-mode-device-tree-.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0009-pinmux-helper-add-P8_37_pinmux-P8_38_pinmux.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0010-pinmux-helper-hdmi.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0011-pinmux-helper-can1.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0012-Remove-CONFIG_EXPERIMENTAL-dependency-on-CONFIG_GPIO.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0013-pinmux-helper-add-P9_19_pinmux-P9_20_pinmux.patch"
+	${git} "${DIR}/patches/beaglebone/pinmux-helper/0014-gpio-of-helper-idr_alloc.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=14
+		cleanup
+	fi
+
+	echo "dir: beaglebone/eqep"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/beaglebone/eqep/0001-Provides-a-sysfs-interface-to-the-eQEP-hardware-on-t.patch"
+	${git} "${DIR}/patches/beaglebone/eqep/0002-tieqep.c-devres-remove-devm_request_and_ioremap.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=2
+		cleanup
+	fi
+
+#	echo "dir: beaglebone/hdmi-audio"
+#	#regenerate="enable"
+#	if [ "x${regenerate}" = "xenable" ] ; then
+#		start_cleanup
+#	fi
+
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0001-ASoC-davinci-mcasp-Calculate-BCLK-using-TDM-slots-an.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0002-ASoC-davinci-mcasp-Channel-count-constraints-for-mul.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0003-ASoC-davinci-macsp-Optimize-implicit-BLCK-sample-rat.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0004-drm-tilcdc-Fix-module-unloading.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0005-drm-tilcdc-Remove-tilcdc-slave-support-for-tda998x-d.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0006-drm-tilcdc-Add-support-for-external-tda998x-encoder.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0007-drm-tilcdc-Add-DRM_TILCDC_SLAVE_COMPAT-for-ti-tilcdc.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0008-drm-tilcdc-Force-building-of-DRM_TILCDC_SLAVE_COMPAT.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0009-ARM-dts-am335x-boneblack-Use-new-binding-for-HDMI.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0010-ARM-dts-am335x-boneblack-Add-HDMI-audio-support-HACK.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0011-ASoC-hdmi-codec-lib-Add-hdmi-codec-lib-for-external-.patch"
+#	${git} "${DIR}/patches/beaglebone/hdmi-audio/0012-drm-i2c-tda998x-HACK-Implement-primitive-HDMI-audio-.patch"
+
+#	if [ "x${regenerate}" = "xenable" ] ; then
+#		number=12
+#		cleanup
+#	fi
+
 	#This has to be last...
 	echo "dir: beaglebone/dtbs"
 	#regenerate="enable"
@@ -276,10 +340,12 @@ beaglebone () {
 		device="am335x-bone-cape-bone-argus.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-bbb-exp-c.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-bbb-exp-r.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-can0.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-cape-bone-argus.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-replicape.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-wl1835mod.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-universal.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/
