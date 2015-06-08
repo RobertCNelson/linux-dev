@@ -220,7 +220,7 @@ debian_regs () {
 			#Release:        testing/unstable
 			#Codename:       n/a
 			if [ "x${deb_lsb_rs}" = "xtesting_unstable" ] ; then
-				deb_distro="jessie"
+				deb_distro="stretch"
 			fi
 		fi
 
@@ -339,9 +339,10 @@ debian_regs () {
 		squeeze|wheezy|jessie|stretch|sid)
 			unset warn_eol_distro
 			;;
-		utopic|vivid)
+		utopic|vivid|wily)
 			#14.10 (EOL: July 2015)
 			#15.04 (EOL: January 2016)
+			#15.10 (EOL: July 2016)
 			unset warn_eol_distro
 			;;
 		trusty)
