@@ -66,12 +66,12 @@ index 208bb9b..09532d6 100644
  
  		mac: ethernet@4a100000 {
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 49381a8..d7f0344 100644
+index 2135630..76705c4 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -523,6 +523,17 @@ config BONE_CAPEMGR
- 	  Say Y here to include support for automatic loading of
- 	  beaglebone capes.
+@@ -534,6 +534,17 @@ config DEV_OVERLAYMGR
+ 	  Say Y here to include support for the automagical dev
+ 	  overlay manager.
  
 +config TIEQEP
 +	tristate "EQEP Hardware quadrature encoder controller"
@@ -88,14 +88,16 @@ index 49381a8..d7f0344 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index bef8bf4..b9ba24c 100644
+index 24babfa..b334785 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -59,3 +59,4 @@ obj-$(CONFIG_ECHO)		+= echo/
+@@ -58,5 +58,6 @@ obj-y				+= cape/
+ obj-$(CONFIG_ECHO)		+= echo/
  obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
- obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
 +obj-$(CONFIG_TIEQEP)		+= tieqep.o
+ obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
+ obj-$(CONFIG_DEV_OVERLAYMGR)	+= devovmgr.o
 diff --git a/drivers/misc/tieqep.c b/drivers/misc/tieqep.c
 new file mode 100644
 index 0000000..e0ae946
