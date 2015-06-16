@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,7 @@ if [ -e ${DIR}/version.sh ]; then
 	git branch -m v${KERNEL_TAG}-${BUILD} ${KERNEL_REL}
 
 	#push branch
+	echo "log: git push -f ${repo} ${KERNEL_REL}"
 	git push -f ${repo} ${KERNEL_REL}
 
 	cd ${DIR}/

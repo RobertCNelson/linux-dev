@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,7 @@ if [ -e ${DIR}/version.sh ]; then
 	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}"
 
 	#push tag
+	echo "log: git push -f ${repo} \"${KERNEL_TAG}-${BUILD}\""
 	git push -f ${repo} "${KERNEL_TAG}-${BUILD}"
 
 	cd ${DIR}/

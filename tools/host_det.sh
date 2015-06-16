@@ -67,7 +67,7 @@ redhat_reqs () {
 		echo "RPM distro version: [${rpm_distro}]"
 
 		case "${rpm_distro}" in
-		6.4|6.5|6.6)
+		6.4|6.5|6.6|6.7)
 			echo "-----------------------------"
 			echo "Warning: RHEL/CentOS [${rpm_distro}] has no [uboot-tools] pkg by default"
 			echo "add: [EPEL] repo: https://fedoraproject.org/wiki/EPEL"
@@ -76,7 +76,7 @@ redhat_reqs () {
 			pkg="uboot-tools"
 			check_rpm
 			;;
-		7.0)
+		7.0|7.1)
 			echo "-----------------------------"
 			echo "Warning: RHEL/CentOS [${rpm_distro}] has no [uboot-tools] pkg by default"
 			echo "add: [EPEL] repo: https://fedoraproject.org/wiki/EPEL"
@@ -220,7 +220,7 @@ debian_regs () {
 			#Release:        testing/unstable
 			#Codename:       n/a
 			if [ "x${deb_lsb_rs}" = "xtesting_unstable" ] ; then
-				deb_distro="jessie"
+				deb_distro="stretch"
 			fi
 		fi
 
@@ -280,10 +280,15 @@ debian_regs () {
 		fi
 
 		#Linux Mint: Compatibility Matrix
+		#http://www.linuxmint.com/download_all.php (lists current versions)
 		#http://www.linuxmint.com/oldreleases.php
 		#http://packages.linuxmint.com/index.php
 		#http://mirrors.kernel.org/linuxmint-packages/dists/
 		case "${deb_distro}" in
+		betsy)
+			#LMDE 2
+			deb_distro="jessie"
+			;;
 		debian)
 			deb_distro="jessie"
 			;;
@@ -322,10 +327,6 @@ debian_regs () {
 
 		#Future Debian Code names:
 		case "${deb_distro}" in
-		stretch)
-			#Debian 9
-			deb_distro="sid"
-			;;
 		buster)
 			#Debian 10
 			deb_distro="sid"
@@ -335,12 +336,13 @@ debian_regs () {
 		#https://wiki.ubuntu.com/Releases
 		unset error_unknown_deb_distro
 		case "${deb_distro}" in
-		squeeze|wheezy|jessie|sid)
+		squeeze|wheezy|jessie|stretch|sid)
 			unset warn_eol_distro
 			;;
-		utopic|vivid)
-			#14.10 (EOL: June 2015)
+		utopic|vivid|wily)
+			#14.10 (EOL: July 2015)
 			#15.04 (EOL: January 2016)
+			#15.10 (EOL: July 2016)
 			unset warn_eol_distro
 			;;
 		trusty)

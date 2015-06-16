@@ -21,6 +21,7 @@ if [ -e ${DIR}/version.sh ]; then
 		git commit -a -m "${BUILD}: merge to: ${repo}/${KERNEL_SHA}" -m "Compare: ${compare}/${prev_KERNEL_SHA}...${KERNEL_SHA}" -s
 	fi
 
+	echo "log: git push origin ${BRANCH}"
 	git push origin ${BRANCH}
 fi
 

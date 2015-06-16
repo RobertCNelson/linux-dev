@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2014 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,8 +41,8 @@ patch_kernel () {
 
 copy_defconfig () {
 	cd ${DIR}/KERNEL/
-	make ARCH=arm CROSS_COMPILE=${CC} distclean
-	make ARCH=arm CROSS_COMPILE=${CC} ${config}
+	make ARCH=arm CROSS_COMPILE="${CC}" distclean
+	make ARCH=arm CROSS_COMPILE="${CC}" ${config}
 	cp -v .config ${DIR}/patches/ref_${config}
 	cp -v ${DIR}/patches/defconfig .config
 	cd ${DIR}/
@@ -50,7 +50,7 @@ copy_defconfig () {
 
 make_menuconfig () {
 	cd ${DIR}/KERNEL/
-	make ARCH=arm CROSS_COMPILE=${CC} menuconfig
+	make ARCH=arm CROSS_COMPILE="${CC}" menuconfig
 	cp -v .config ${DIR}/patches/defconfig
 	cd ${DIR}/
 }
@@ -58,9 +58,9 @@ make_menuconfig () {
 make_deb () {
 	cd ${DIR}/KERNEL/
 	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} KDEB_PKGVERSION=1${DISTRO} deb-pkg"
+	echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=1${DISTRO} deb-pkg"
 	echo "-----------------------------"
-	fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} KDEB_PKGVERSION=1${DISTRO} deb-pkg
+	fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=1${DISTRO} deb-pkg
 	mv ${DIR}/*.deb ${DIR}/deploy/
 
 	unset DTBS
@@ -77,9 +77,9 @@ make_deb () {
 
 	if [ "x${DTBS}" = "xenable" ] ; then
 		echo "-----------------------------"
-		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs"
+		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
 		echo "-----------------------------"
-		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs
+		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
 		ls arch/arm/boot/* | grep dtb >/dev/null 2>&1 || unset DTBS
 	fi
 
@@ -93,13 +93,6 @@ make_pkg () {
 
 	deployfile="-${pkg}.tar.gz"
 	tar_options="--create --gzip --file"
-
-	if [ "${AUTO_TESTER}" ] ; then
-		#FIXME: xz might not be available everywhere...
-		#FIXME: ./tools/install_kernel.sh needs update...
-		deployfile="-${pkg}.tar.xz"
-		tar_options="--create --xz --file"
-	fi
 
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
@@ -115,14 +108,14 @@ make_pkg () {
 
 	case "${pkg}" in
 	modules)
-		make -s ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
 		;;
 	firmware)
-		make -s ARCH=arm CROSS_COMPILE=${CC} firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
 		;;
 	dtbs)
 		if [ "x${has_dtbs_install}" = "xenable" ] ; then
-			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=${CC} dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
+			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
 		else
 			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
 		fi
@@ -187,6 +180,10 @@ unset LINUX_GIT
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 . ${DIR}/.CC
 echo "CROSS_COMPILE=${CC}"
+if [ -f /usr/bin/ccache ] ; then
+	echo "ccache [enabled]"
+	CC="ccache ${CC}"
+fi
 
 . ${DIR}/version.sh
 export LINUX_GIT

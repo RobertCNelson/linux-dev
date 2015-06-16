@@ -23,6 +23,7 @@ if [ -e ${DIR}/version.sh ]; then
 	fi
 
 	git commit -a -m "kernel bump: v${KERNEL_TAG} + ${tag}" -s
+	echo "log: git push origin ${BRANCH}"
 	git push origin ${BRANCH}
 fi
 

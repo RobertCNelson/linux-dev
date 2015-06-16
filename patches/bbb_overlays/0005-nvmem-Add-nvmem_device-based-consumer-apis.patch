@@ -1,0 +1,267 @@
+From a436ceca305b930f6685c44218e70fd46cb5c571 Mon Sep 17 00:00:00 2001
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Date: Thu, 21 May 2015 17:43:23 +0100
+Subject: [PATCH 05/46] nvmem: Add nvmem_device based consumer apis.
+
+This patch adds read/write apis which are based on nvmem_device. It is
+common that the drivers like omap cape manager or qcom cpr driver to access
+bytes directly at particular offset in the eeprom and not from nvmem
+cell info in DT. These driver would need to get access to the nvmem
+directly, which is what these new APIS provide.
+
+These wrapper apis would help such users to avoid code duplication in
+there drivers and also avoid them reading a big eeprom blob and parsing
+it internally in there driver.
+
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+---
+ drivers/nvmem/core.c           | 120 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/nvmem-consumer.h |  57 ++++++++++++++++++++
+ include/linux/nvmem-provider.h |  10 +---
+ 3 files changed, 179 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index c1393112..5f7df4b 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -436,6 +436,51 @@ static int __nvmem_device_put(struct nvmem_device *nvmem)
+ 	return 0;
+ }
+ 
++static int nvmem_match(struct device *dev, const void *data)
++{
++	return !strcmp(dev_name(dev), (const char *)data);
++}
++
++static struct nvmem_device *nvmem_find(const char *name)
++{
++	struct device *d;
++
++	d = class_find_device(&nvmem_class, NULL, (void *)name, nvmem_match);
++
++	return d ? to_nvmem_device(d) : NULL;
++}
++
++struct nvmem_device *nvmem_device_get(struct device *dev, const char *dev_name)
++{
++	struct device_node *nvmem_np, *np = dev->of_node;
++	struct nvmem_device *nvmem;
++	int index;
++
++	if (np) { /* try dt first */
++		index = of_property_match_string(np, "nvmem-names", dev_name);
++
++		nvmem_np = of_parse_phandle(np, "nvmem", index);
++		if (!nvmem_np)
++			return ERR_PTR(-EINVAL);
++
++		nvmem = __nvmem_device_get(nvmem_np, NULL, NULL);
++
++		if (!IS_ERR(nvmem) || PTR_ERR(nvmem) == -EPROBE_DEFER)
++			return nvmem;
++
++	}
++
++	return nvmem_find(dev_name);
++
++}
++EXPORT_SYMBOL_GPL(nvmem_device_get);
++
++void nvmem_device_put(struct nvmem_device *nvmem)
++{
++	__nvmem_device_put(nvmem);
++}
++EXPORT_SYMBOL_GPL(nvmem_device_put);
++
+ static struct nvmem_cell *nvmem_cell_get_from_list(const char *cell_id)
+ {
+ 	struct nvmem_cell *cell = NULL;
+@@ -725,6 +770,81 @@ int nvmem_cell_write(struct nvmem_cell *cell, void *buf, ssize_t len)
+ }
+ EXPORT_SYMBOL_GPL(nvmem_cell_write);
+ 
++int nvmem_device_cell_read(struct nvmem_device *nvmem,
++			   struct nvmem_cell_info *info, void *buf)
++{
++	struct nvmem_cell cell;
++	int rc, len;
++
++	if (!nvmem || !nvmem->regmap)
++		return -EINVAL;
++
++	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
++	if (IS_ERR_VALUE(rc))
++		return rc;
++
++	rc = __nvmem_cell_read(nvmem, &cell, buf, &len);
++	if (IS_ERR_VALUE(rc))
++		return rc;
++
++	return len;
++}
++EXPORT_SYMBOL_GPL(nvmem_device_cell_read);
++
++int nvmem_device_cell_write(struct nvmem_device *nvmem,
++			    struct nvmem_cell_info *info, void *buf)
++{
++	struct nvmem_cell cell;
++	int rc;
++
++	if (!nvmem || !nvmem->regmap)
++		return -EINVAL;
++
++	rc = nvmem_cell_info_to_nvmem_cell(nvmem, info, &cell);
++	if (IS_ERR_VALUE(rc))
++		return rc;
++
++	return nvmem_cell_write(&cell, buf, cell.bytes);
++}
++EXPORT_SYMBOL_GPL(nvmem_device_cell_write);
++
++int nvmem_device_read(struct nvmem_device *nvmem,
++		      unsigned int offset,
++		      size_t bytes, void *buf)
++{
++	int rc;
++
++	if (!nvmem || !nvmem->regmap)
++		return -EINVAL;
++
++	rc = regmap_raw_read(nvmem->regmap, offset, buf, bytes);
++
++	if (IS_ERR_VALUE(rc))
++		return rc;
++
++	return bytes;
++}
++EXPORT_SYMBOL_GPL(nvmem_device_read);
++
++int nvmem_device_write(struct nvmem_device *nvmem,
++		       unsigned int offset,
++		       size_t bytes, void *buf)
++{
++	int rc;
++
++	if (!nvmem || !nvmem->regmap)
++		return -EINVAL;
++
++	rc = regmap_raw_write(nvmem->regmap, offset, buf, bytes);
++
++	if (IS_ERR_VALUE(rc))
++		return rc;
++
++
++	return bytes;
++}
++EXPORT_SYMBOL_GPL(nvmem_device_write);
++
+ static int nvmem_init(void)
+ {
+ 	return class_register(&nvmem_class);
+diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
+index c3fa8c7..66c67ba 100644
+--- a/include/linux/nvmem-consumer.h
++++ b/include/linux/nvmem-consumer.h
+@@ -14,6 +14,15 @@
+ 
+ /* consumer cookie */
+ struct nvmem_cell;
++struct nvmem_device;
++
++struct nvmem_cell_info {
++	const char		*name;
++	int			offset;
++	int			bytes;
++	int			bit_offset;
++	int			nbits;
++};
+ 
+ #if IS_ENABLED(CONFIG_NVMEM)
+ 
+@@ -23,6 +32,18 @@ void nvmem_cell_put(struct nvmem_cell *cell);
+ void *nvmem_cell_read(struct nvmem_cell *cell, ssize_t *len);
+ int nvmem_cell_write(struct nvmem_cell *cell, void *buf, ssize_t len);
+ 
++/* direct nvmem device read/write interface */
++struct nvmem_device *nvmem_device_get(struct device *dev, const char *name);
++void nvmem_device_put(struct nvmem_device *nvmem);
++int nvmem_device_read(struct nvmem_device *nvmem, unsigned int offset,
++		      size_t bytes, void *buf);
++int nvmem_device_write(struct nvmem_device *nvmem, unsigned int offset,
++		       size_t bytes, void *buf);
++int nvmem_device_cell_read(struct nvmem_device *nvmem,
++			   struct nvmem_cell_info *info, void *buf);
++int nvmem_device_cell_write(struct nvmem_device *nvmem,
++			    struct nvmem_cell_info *info, void *buf);
++
+ #else
+ 
+ struct nvmem_cell *nvmem_cell_get(struct device *dev, const char *name)
+@@ -44,6 +65,42 @@ static inline int nvmem_cell_write(struct nvmem_cell *cell,
+ {
+ 	return -ENOSYS;
+ }
++
++static inline struct nvmem_device *nvmem_device_get(struct device *dev,
++						    const char *name)
++{
++	return ERR_PTR(-ENOSYS);
++}
++
++static inline void nvmem_device_put(struct nvmem_device *nvmem)
++{
++}
++
++static inline int nvmem_device_cell_read(struct nvmem_device *nvmem,
++					 struct nvmem_cell_info *info,
++					 void *buf)
++{
++	return -ENOSYS;
++}
++
++static inline int nvmem_device_cell_write(struct nvmem_device *nvmem,
++					  struct nvmem_cell_info *info,
++					  void *buf)
++{
++	return -ENOSYS;
++}
++
++static inline int nvmem_device_read(struct nvmem_device *nvmem,
++				    unsigned int offset, size_t bytes, void *buf)
++{
++	return -ENOSYS;
++}
++
++static inline int nvmem_device_write(struct nvmem_device *nvmem,
++				     unsigned int offset, size_t bytes, void *buf)
++{
++	return -ENOSYS;
++}
+ #endif /* CONFIG_NVMEM */
+ 
+ #endif  /* ifndef _LINUX_NVMEM_CONSUMER_H */
+diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
+index 4908b37..7a982cd 100644
+--- a/include/linux/nvmem-provider.h
++++ b/include/linux/nvmem-provider.h
+@@ -12,15 +12,9 @@
+ #ifndef _LINUX_NVMEM_PROVIDER_H
+ #define _LINUX_NVMEM_PROVIDER_H
+ 
+-struct nvmem_device;
++#include <linux/nvmem-consumer.h>
+ 
+-struct nvmem_cell_info {
+-	const char		*name;
+-	int			offset;
+-	int			bytes;
+-	int			bit_offset;
+-	int			nbits;
+-};
++struct nvmem_device;
+ 
+ struct nvmem_config {
+ 	struct device		*dev;
+-- 
+2.1.4
+

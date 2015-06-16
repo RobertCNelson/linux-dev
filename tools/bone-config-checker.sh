@@ -84,13 +84,13 @@ config="CONFIG_THUMB2_KERNEL" ; config_enable
 #
 # Serial drivers
 #
-config="CONFIG_SERIAL_8250_OMAP" ; config_enable
-config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
+#config="CONFIG_SERIAL_8250_OMAP" ; config_enable
+#config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 
 #
 # Non-8250 serial port support
 #
-config="CONFIG_SERIAL_OMAP" ; config_disable
+#config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_disable
 
 #
@@ -122,7 +122,6 @@ config="CONFIG_USB_MUSB_OMAP2PLUS" ; config_disable
 config="CONFIG_USB_MUSB_AM35X" ; config_disable
 config="CONFIG_USB_MUSB_DSPS" ; config_enable
 config="CONFIG_USB_MUSB_UX500" ; config_disable
-config="CONFIG_USB_MUSB_AM335X_CHILD" ; config_enable
 config="CONFIG_USB_TI_CPPI41_DMA" ; config_disable
 config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 
@@ -194,16 +193,25 @@ config="CONFIG_RTC_DRV_OMAP" ; config_enable
 #
 config="CONFIG_DRM_OMAP" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
-config="CONFIG_DRM_ETNAVIV" ; config_disable
+
+#breaks tilcd + tfp410...
+config="CONFIG_OMAP2_DSS" ; config_disable
 
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
 
-#lcd4:
-config="CONFIG_BACKLIGHT_GPIO" ; config_enable
-
 #Reset Controller:
 config="CONFIG_STMMAC_ETH" ; config_disable
 config="CONFIG_RESET_CONTROLLER" ; config_disable
+
+#overlay bugs...
+
+#These have to be modules, to work...
+config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_module
+config="CONFIG_DRM_TILCDC" ; config_module
+config="CONFIG_DRM_UDL" ; config_module
+config="CONFIG_BACKLIGHT_PWM" ; config_module
+config="CONFIG_BACKLIGHT_GPIO" ; config_module
+config="CONFIG_LEDS_GPIO" ; config_module
 
 #

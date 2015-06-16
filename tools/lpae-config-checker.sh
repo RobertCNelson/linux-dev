@@ -114,7 +114,6 @@ config="CONFIG_SERIAL_OMAP" ; config_disable
 # Argus cape driver for beaglebone black
 #
 config="CONFIG_CAPE_BONE_ARGUS" ; config_disable
-config="CONFIG_BEAGLEBONE_PINMUX_HELPER" ; config_disable
 
 #
 # Graphics support
@@ -123,6 +122,5 @@ config="CONFIG_IMX_IPUV3_CORE" ; config_disable
 
 config="CONFIG_DRM_TILCDC" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
-config="CONFIG_DRM_ETNAVIV" ; config_disable
 
 #

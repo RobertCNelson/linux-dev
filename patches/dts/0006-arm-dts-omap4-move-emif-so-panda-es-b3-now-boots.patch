@@ -1,7 +1,7 @@
-From 29ae9f390fa18c78ce896866a15820903829ad06 Mon Sep 17 00:00:00 2001
+From a67314a18836486b70467921947dbceb5fae367c Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 9 Oct 2014 11:49:11 -0500
-Subject: [PATCH 6/8] arm: dts: omap4: move emif so panda-es-b3 now boots
+Date: Wed, 22 Apr 2015 12:06:40 -0500
+Subject: [PATCH 06/12] arm: dts: omap4: move emif so panda-es-b3 now boots
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
@@ -17,10 +17,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/omap4-panda-es-b3.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 6a6ecdb..3773f6f 100644
+index 86217db..2ae13d8 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -361,6 +361,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += omap4-duovero-parlor.dtb \
+@@ -420,6 +420,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
  	omap4-panda.dtb \
  	omap4-panda-a4.dtb \
  	omap4-panda-es.dtb \
@@ -52,11 +52,11 @@ index 133f1b7..072f0a0 100644
  &dss_hdmi_pins {
  	pinctrl-single,pins = <
 diff --git a/arch/arm/boot/dts/omap4-panda-common.dtsi b/arch/arm/boot/dts/omap4-panda-common.dtsi
-index 1505135..5e5571f 100644
+index f1507bc..a644bec 100644
 --- a/arch/arm/boot/dts/omap4-panda-common.dtsi
 +++ b/arch/arm/boot/dts/omap4-panda-common.dtsi
-@@ -452,16 +452,6 @@
- 	cap-power-off-card;
+@@ -460,16 +460,6 @@
+ 	};
  };
  
 -&emif1 {
@@ -195,10 +195,10 @@ index a0e28b2..3ee41ef 100644
 +	status = "ok";
 +};
 diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
-index 3e1da43..d3466ef 100644
+index dac86ed..b68af5c 100644
 --- a/arch/arm/boot/dts/omap4-sdp.dts
 +++ b/arch/arm/boot/dts/omap4-sdp.dts
-@@ -492,11 +492,13 @@
+@@ -501,11 +501,13 @@
  &emif1 {
  	cs1-used;
  	device-handle = <&elpida_ECB240ABACN>;
@@ -213,10 +213,10 @@ index 3e1da43..d3466ef 100644
  
  &keypad {
 diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index 074147c..4b12c47 100644
+index f884d6a..e4dc737 100644
 --- a/arch/arm/boot/dts/omap4.dtsi
 +++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -625,6 +625,7 @@
+@@ -677,6 +677,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
@@ -224,7 +224,7 @@ index 074147c..4b12c47 100644
  		};
  
  		emif2: emif@4d000000 {
-@@ -637,6 +638,7 @@
+@@ -689,6 +690,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
