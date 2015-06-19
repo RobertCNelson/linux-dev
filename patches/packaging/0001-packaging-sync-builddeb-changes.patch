@@ -1,0 +1,43 @@
+From 3001406d4683df30c62da8223652c055747af211 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 19 Jun 2015 13:39:56 -0500
+Subject: [PATCH] packaging: sync builddeb changes
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ scripts/package/builddeb | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/package/builddeb b/scripts/package/builddeb
+index 88dbf23..9678058 100755
+--- a/scripts/package/builddeb
++++ b/scripts/package/builddeb
+@@ -45,7 +45,7 @@ create_package() {
+ 	arm64)
+ 		debarch=arm64 ;;
+ 	arm*)
+-		debarch=arm$(grep -q CONFIG_AEABI=y $KCONFIG_CONFIG && echo el || true) ;;
++		debarch=arm$(grep -q CONFIG_AEABI=y $KCONFIG_CONFIG && echo hf || true) ;;
+ 	*)
+ 		echo "" >&2
+ 		echo "** ** **  WARNING  ** ** **" >&2
+@@ -165,6 +165,16 @@ if grep -q '^CONFIG_MODULES=y' $KCONFIG_CONFIG ; then
+ 	fi
+ fi
+ 
++if grep -q '^CONFIG_OF=y' $KCONFIG_CONFIG ; then
++	mkdir -p "$tmpdir/boot/dtbs/$version"
++	INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" $MAKE KBUILD_SRC= dtbs_install
++
++	#make dtbs_install seems to add an .old directory
++	if [ -d "$tmpdir/boot/dtbs/$version.old" ] ; then
++		rm -rf "$tmpdir/boot/dtbs/$version.old"
++	fi
++fi
++
+ if [ "$ARCH" != "um" ]; then
+ 	$MAKE headers_check KBUILD_SRC=
+ 	$MAKE headers_install KBUILD_SRC= INSTALL_HDR_PATH="$libc_headers_dir/usr"
+-- 
+2.1.4
+

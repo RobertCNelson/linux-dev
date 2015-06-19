@@ -445,31 +445,28 @@ bbb_overlays
 beaglebone
 etnaviv
 
-packaging_setup () {
-	cp -v "${DIR}/3rdparty/packaging/builddeb" "${DIR}/KERNEL/scripts/package"
-	git commit -a -m 'packaging: sync with mainline' -s
-
-	git format-patch -1 -o "${DIR}/patches/packaging"
-	exit 2
-}
-
 packaging () {
 	echo "dir: packaging"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
+		cp -v "${DIR}/3rdparty/packaging/builddeb" "${DIR}/KERNEL/scripts/package"
+		git commit -a -m 'packaging: sync builddeb changes' -s
+		git format-patch -1 -o "${DIR}/patches/packaging"
+	else
+		${git} "${DIR}/patches/packaging/0001-packaging-sync-builddeb-changes.patch"
+	fi
+
+	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	#${git} "${DIR}/patches/packaging/0001-packaging-sync-with-mainline.patch"
-	${git} "${DIR}/patches/packaging/0002-deb-pkg-install-dtbs-in-linux-image-package.patch"
-	#${git} "${DIR}/patches/packaging/0003-deb-pkg-no-dtbs_install.patch"
+		#${git} "${DIR}/patches/packaging/0002"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=3
+		number=1
 		cleanup
 	fi
 }
 
-#packaging_setup
 packaging
 echo "patch.sh ran successfully"
