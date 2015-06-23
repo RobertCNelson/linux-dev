@@ -94,7 +94,7 @@ reverts () {
 
 dts () {
 	echo "dir: dts"
-	regenerate="enable"
+	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
