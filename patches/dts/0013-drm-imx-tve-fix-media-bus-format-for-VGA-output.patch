@@ -1,0 +1,30 @@
+From 61bf7a91a7ec580cf4c70082b2bad80086b3054c Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Fri, 19 Jun 2015 16:38:51 +0200
+Subject: [PATCH 13/15] drm/imx: tve: fix media bus format for VGA output
+
+Commit a7c6e76feeb1 ("drm/imx: switch to use media bus formats")
+accidentally replaced IPU_PIX_FMT_GBR24 with MEDIA_BUS_FMT_YUV8_1X24
+instead of the correct MEDIA_BUS_FMT_GBR888_1X24.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ drivers/gpu/drm/imx/imx-tve.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index 214ecee..e671ad3 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -301,7 +301,7 @@ static void imx_tve_encoder_prepare(struct drm_encoder *encoder)
+ 
+ 	switch (tve->mode) {
+ 	case TVE_MODE_VGA:
+-		imx_drm_set_bus_format_pins(encoder, MEDIA_BUS_FMT_YUV8_1X24,
++		imx_drm_set_bus_format_pins(encoder, MEDIA_BUS_FMT_GBR888_1X24,
+ 					    tve->hsync_pin, tve->vsync_pin);
+ 		break;
+ 	case TVE_MODE_TVOUT:
+-- 
+2.1.4
+

@@ -1,0 +1,32 @@
+From 083a70e8bd879eec4ae7d9e3182140dd084bc1ba Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Fri, 19 Jun 2015 16:38:39 +0200
+Subject: [PATCH 14/15] ARM: dts: imx53-qsb: fix TVE entry
+
+Correct HSYNC/VSYNC pins and add ddc-i2c-bus property
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ arch/arm/boot/dts/imx53-qsb-common.dtsi | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx53-qsb-common.dtsi b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+index 181ae5e..ab4ba39 100644
+--- a/arch/arm/boot/dts/imx53-qsb-common.dtsi
++++ b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+@@ -295,9 +295,10 @@
+ &tve {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_vga_sync>;
++	ddc-i2c-bus = <&i2c2>;
+ 	fsl,tve-mode = "vga";
+-	fsl,hsync-pin = <4>;
+-	fsl,vsync-pin = <6>;
++	fsl,hsync-pin = <7>;	/* IPU DI1 PIN7 via EIM_OE */
++	fsl,vsync-pin = <8>;	/* IPU DI1 PIN8 via EIM_RW */
+ 	status = "okay";
+ };
+ 
+-- 
+2.1.4
+
