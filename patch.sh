@@ -180,8 +180,8 @@ bbb_overlays () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/0001-regmap-Introduce-regmap_get_max_register.patch"
-	${git} "${DIR}/patches/bbb_overlays/0002-regmap-Introduce-regmap_get_reg_stride.patch"
+#mainline	${git} "${DIR}/patches/bbb_overlays/0001-regmap-Introduce-regmap_get_max_register.patch"
+#mainline	${git} "${DIR}/patches/bbb_overlays/0002-regmap-Introduce-regmap_get_reg_stride.patch"
 	${git} "${DIR}/patches/bbb_overlays/0003-nvmem-Add-a-simple-NVMEM-framework-for-nvmem-provide.patch"
 	${git} "${DIR}/patches/bbb_overlays/0004-nvmem-Add-a-simple-NVMEM-framework-for-consumers.patch"
 	${git} "${DIR}/patches/bbb_overlays/0005-nvmem-Add-nvmem_device-based-consumer-apis.patch"
@@ -446,7 +446,7 @@ fixes
 pru
 bbb_overlays
 beaglebone
-etnaviv
+#etnaviv
 
 packaging () {
 	echo "dir: packaging"
