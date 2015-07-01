@@ -293,34 +293,47 @@ debian_regs () {
 			deb_distro="jessie"
 			;;
 		isadora)
+			#eol
 			deb_distro="lucid"
 			;;
 		julia)
+			#eol
 			deb_distro="maverick"
 			;;
 		katya)
+			#eol
 			deb_distro="natty"
 			;;
 		lisa)
+			#eol
 			deb_distro="oneiric"
 			;;
 		maya)
+			#13
 			deb_distro="precise"
 			;;
 		nadia)
+			#eol
 			deb_distro="quantal"
 			;;
 		olivia)
+			#eol
 			deb_distro="raring"
 			;;
 		petra)
+			#eol
 			deb_distro="saucy"
 			;;
 		qiana)
+			#17
 			deb_distro="trusty"
 			;;
 		rebecca)
-			#http://blog.linuxmint.com/?p=2688
+			#17.1
+			deb_distro="trusty"
+			;;
+		rafaela)
+			#17.2
 			deb_distro="trusty"
 			;;
 		esac
