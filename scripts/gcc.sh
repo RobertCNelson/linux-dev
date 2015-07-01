@@ -98,7 +98,7 @@ gcc_toolchain () {
 
 		datestamp="${gcc_version}-20${release}-3-${target}"
 
-		binary="bin/${target}-"
+		binary="bin/arm-eabi-"
 		;;
 	gcc_linaro_gnueabi_4_6)
 		#
