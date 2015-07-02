@@ -1,0 +1,45 @@
+From 1458cf42bbdaca8d62fd8c83a0732de20a9a4eda Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 1 Jul 2015 22:54:09 -0500
+Subject: [PATCH 4/5] Revert "of: make CONFIG_OF user selectable"
+
+This reverts commit 0166dc11be911213e0b1b764488c671be4c48cf3.
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/of/Kconfig | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
+index 8df1b17..63ca0af 100644
+--- a/drivers/of/Kconfig
++++ b/drivers/of/Kconfig
+@@ -1,15 +1,11 @@
+ config DTC
+ 	bool
+ 
+-menuconfig OF
+-	bool "Device Tree and Open Firmware support"
+-	help
+-	  This option enables the device tree infrastructure.
+-	  It is automatically selected by platforms that need it or can
+-	  be enabled manually for unittests, overlays or
+-	  compile-coverage.
++config OF
++	bool
+ 
+-if OF
++menu "Device Tree and Open Firmware support"
++	depends on OF
+ 
+ config OF_UNITTEST
+ 	bool "Device Tree runtime unit tests"
+@@ -102,4 +98,4 @@ config OF_OVERLAY
+ 	  While this option is selected automatically when needed, you can
+ 	  enable it manually to improve device tree unit test coverage.
+ 
+-endif # OF
++endmenu # OF
+-- 
+2.1.4
+

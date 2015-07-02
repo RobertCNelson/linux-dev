@@ -88,8 +88,11 @@ reverts () {
 	#udoo:
 	${git} "${DIR}/patches/reverts/0003-Revert-usb-chipidea-usbmisc_imx-delete-clock-informa.patch"
 
+	${git} "${DIR}/patches/reverts/0004-Revert-of-make-CONFIG_OF-user-selectable.patch"
+	${git} "${DIR}/patches/reverts/0005-Revert-of-make-unittest-select-OF_EARLY_FLATTREE-ins.patch"
+
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=3
+		number=5
 		cleanup
 	fi
 }
@@ -212,7 +215,7 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0024-of-overlay-global-sysfs-enable-attribute.patch"
 	${git} "${DIR}/patches/bbb_overlays/0025-of-overlay-add-per-overlay-sysfs-attributes.patch"
 	${git} "${DIR}/patches/bbb_overlays/0026-Documentation-ABI-sys-firmware-devicetree-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0027-of-Move-OF-flags-to-be-visible-even-when-CONFIG_OF.patch"
+#	${git} "${DIR}/patches/bbb_overlays/0027-of-Move-OF-flags-to-be-visible-even-when-CONFIG_OF.patch"
 	${git} "${DIR}/patches/bbb_overlays/0028-i2c-nvmem-at24-Provide-an-EEPROM-framework-interface.patch"
 	${git} "${DIR}/patches/bbb_overlays/0029-misc-Beaglebone-capemanager.patch"
 	${git} "${DIR}/patches/bbb_overlays/0030-doc-misc-Beaglebone-capemanager-documentation.patch"

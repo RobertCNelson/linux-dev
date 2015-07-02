@@ -1,7 +1,7 @@
-From feb3ee6d9a522fa26b99c0473234b07977420e9f Mon Sep 17 00:00:00 2001
+From 4d1f036e41cb4743fcb7ee091b44765c9a37d486 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 1 Jun 2015 08:41:52 -0500
-Subject: [PATCH 2/2] Revert "spi: spidev: Warn loudly if instantiated from DT
+Subject: [PATCH 2/5] Revert "spi: spidev: Warn loudly if instantiated from DT
  as "spidev""
 
 This reverts commit 956b200a846e324322f6211034c734c65a38e550.
@@ -10,10 +10,10 @@ This reverts commit 956b200a846e324322f6211034c734c65a38e550.
  1 file changed, 7 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 92c909e..23ad978 100644
+index dd616ff..13aedf4 100644
 --- a/drivers/spi/spidev.c
 +++ b/drivers/spi/spidev.c
-@@ -703,14 +703,6 @@ static const struct file_operations spidev_fops = {
+@@ -690,14 +690,6 @@ static const struct file_operations spidev_fops = {
  
  static struct class *spidev_class;
  
@@ -28,7 +28,7 @@ index 92c909e..23ad978 100644
  /*-------------------------------------------------------------------------*/
  
  static int spidev_probe(struct spi_device *spi)
-@@ -719,17 +711,6 @@ static int spidev_probe(struct spi_device *spi)
+@@ -706,17 +698,6 @@ static int spidev_probe(struct spi_device *spi)
  	int			status;
  	unsigned long		minor;
  
@@ -46,7 +46,7 @@ index 92c909e..23ad978 100644
  	/* Allocate driver data */
  	spidev = kzalloc(sizeof(*spidev), GFP_KERNEL);
  	if (!spidev)
-@@ -796,6 +777,13 @@ static int spidev_remove(struct spi_device *spi)
+@@ -783,6 +764,13 @@ static int spidev_remove(struct spi_device *spi)
  	return 0;
  }
  
