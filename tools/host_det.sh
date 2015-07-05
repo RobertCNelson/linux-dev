@@ -352,11 +352,15 @@ debian_regs () {
 		squeeze|wheezy|jessie|stretch|sid)
 			unset warn_eol_distro
 			;;
-		utopic|vivid|wily)
-			#14.10 (EOL: July 2015)
-			#15.04 (EOL: January 2016)
-			#15.10 (EOL: July 2016)
+		vivid|wily)
+			#15.04 vivid: (EOL: January 2016)
+			#15.10 wily: (EOL: July 2016)
 			unset warn_eol_distro
+			;;
+		utopic)
+			#14.10 utopic: (EOL: July 23, 2015)
+			warn_eol_distro=1
+			stop_pkg_search=1
 			;;
 		trusty)
 			#14.04 (EOL: April 2019) lts: trusty -> xyz
