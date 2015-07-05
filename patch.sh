@@ -185,8 +185,11 @@ bbb_overlays () {
 		start_cleanup
 	fi
 
-#mainline	${git} "${DIR}/patches/bbb_overlays/0001-regmap-Introduce-regmap_get_max_register.patch"
-#mainline	${git} "${DIR}/patches/bbb_overlays/0002-regmap-Introduce-regmap_get_reg_stride.patch"
+	#mainline: 668abc729fcb9d034eccadf63166d2c76cd645d1
+	#${git} "${DIR}/patches/bbb_overlays/0001-regmap-Introduce-regmap_get_max_register.patch"
+	#mainline: a2f776cbb8271d7149784207da0b0c51e8b1847c
+	#${git} "${DIR}/patches/bbb_overlays/0002-regmap-Introduce-regmap_get_reg_stride.patch"
+
 	${git} "${DIR}/patches/bbb_overlays/0003-nvmem-Add-a-simple-NVMEM-framework-for-nvmem-provide.patch"
 	${git} "${DIR}/patches/bbb_overlays/0004-nvmem-Add-a-simple-NVMEM-framework-for-consumers.patch"
 	${git} "${DIR}/patches/bbb_overlays/0005-nvmem-Add-nvmem_device-based-consumer-apis.patch"
@@ -223,8 +226,8 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0032-doc-ABI-bone_capemgr-sysfs-API.patch"
 	${git} "${DIR}/patches/bbb_overlays/0033-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
 
-#mainline: 5d1a2961adf906f965b00eb8059fd2e0585e0e09
-#	${git} "${DIR}/patches/bbb_overlays/0034-arm-dts-Beaglebone-i2c-definitions.patch"
+#	mainline: 5d1a2961adf906f965b00eb8059fd2e0585e0e09
+	#${git} "${DIR}/patches/bbb_overlays/0034-arm-dts-Beaglebone-i2c-definitions.patch"
 
 	${git} "${DIR}/patches/bbb_overlays/0035-arm-dts-Enable-beaglebone-cape-manager.patch"
 
@@ -401,6 +404,39 @@ beaglebone () {
 		number=3
 		cleanup
 	fi
+
+	echo "dir: beaglebone/firmware"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	#git clone git://git.ti.com/ti-cm3-pm-firmware/amx3-cm3.git
+	#cd amx3-cm3/
+	#git checkout origin/next-upstream -b tmp
+
+	#commit 277eef8611e260a5d73a9e3773fff8f767fe2b01
+	#Author: Dave Gerlach <d-gerlach@ti.com>
+	#Date:   Wed Mar 4 21:34:54 2015 -0600
+	#
+	#    CM3: Bump firmware release to 0x191
+	#    
+	#    This version, 0x191, includes the following changes:
+	#         - Add trace output on boot for kernel remoteproc driver
+	#         - Fix resouce table as RSC_INTMEM is no longer used in kernel
+	#    
+	#    Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+
+	#cp -v bin/am* /opt/github/bb-kernel/KERNEL/firmware/
+
+	#git add -f ./firmware/am*
+
+	${git} "${DIR}/patches/beaglebone/firmware/0001-add-am33x-firmware.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
+		cleanup
+	fi
 }
 
 etnaviv () {
@@ -474,7 +510,7 @@ packaging () {
 		start_cleanup
 	fi
 
-		#${git} "${DIR}/patches/packaging/0002"
+	#${git} "${DIR}/patches/packaging/0002-deb-pkg-no-dtbs_install.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=1
