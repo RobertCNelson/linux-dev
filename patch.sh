@@ -178,6 +178,10 @@ pru () {
 	fi
 }
 
+mainline () {
+	git format-patch -1 ${SHA} --start-number ${num} -o ../patches/bbb_overlays/mainline/
+}
+
 bbb_overlays () {
 	echo "dir: bbb_overlays/dtc"
 	#regenerate="enable"
@@ -200,6 +204,15 @@ bbb_overlays () {
 		exit 2
 	else
 		${git} "${DIR}/patches/bbb_overlays/dtc/0001-scripts-dtc-Update-to-upstream-version-overlays.patch"
+	fi
+
+	echo "dir: bbb_overlays/mainline"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		SHA="668abc729fcb9d034eccadf63166d2c76cd645d1" ; num="1" ; mainline
+		SHA="a2f776cbb8271d7149784207da0b0c51e8b1847c" ; num="2" ;mainline
+		SHA="5d1a2961adf906f965b00eb8059fd2e0585e0e09" ; num="3" ;mainline
+		exit 2
 	fi
 
 	echo "dir: bbb_overlays"

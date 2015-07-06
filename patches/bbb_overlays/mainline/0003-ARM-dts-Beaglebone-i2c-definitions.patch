@@ -1,0 +1,104 @@
+From 5d1a2961adf906f965b00eb8059fd2e0585e0e09 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Wed, 13 May 2015 11:04:34 +0300
+Subject: [PATCH] ARM: dts: Beaglebone i2c definitions
+
+The beaglebone family of boards contain two I2C busses enabled.
+The first one with a baseboard identification EEPROM and a
+cape I2C bus.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 66 +++++++++++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index c3255e0..236b7db 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -81,6 +81,13 @@
+ 		>;
+ 	};
+ 
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			0x178 (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_ctsn.i2c2_sda */
++			0x17c (PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_rtsn.i2c2_scl */
++		>;
++	};
++
+ 	uart0_pins: pinmux_uart0_pins {
+ 		pinctrl-single,pins = <
+ 			0x170 (PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
+@@ -218,8 +225,67 @@
+ 		reg = <0x24>;
+ 	};
+ 
++	baseboard_eeprom: baseboard_eeprom@50 {
++		compatible = "at,24c256";
++		reg = <0x50>;
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++		baseboard_data: baseboard_data@0 {
++			reg = <0 0x100>;
++		};
++	};
++};
++
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
++
++	status = "okay";
++	clock-frequency = <100000>;
++
++	cape_eeprom0: cape_eeprom0@54 {
++		compatible = "at,24c256";
++		reg = <0x54>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		cape0_data: cape_data@0 {
++			reg = <0 0x100>;
++		};
++	};
++
++	cape_eeprom1: cape_eeprom1@55 {
++		compatible = "at,24c256";
++		reg = <0x55>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		cape1_data: cape_data@0 {
++			reg = <0 0x100>;
++		};
++	};
++
++	cape_eeprom2: cape_eeprom2@56 {
++		compatible = "at,24c256";
++		reg = <0x56>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		cape2_data: cape_data@0 {
++			reg = <0 0x100>;
++		};
++	};
++
++	cape_eeprom3: cape_eeprom3@57 {
++		compatible = "at,24c256";
++		reg = <0x57>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		cape3_data: cape_data@0 {
++			reg = <0 0x100>;
++		};
++	};
+ };
+ 
++
+ /include/ "tps65217.dtsi"
+ 
+ &tps {
+-- 
+2.1.4
+
