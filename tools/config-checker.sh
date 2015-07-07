@@ -29,8 +29,8 @@ config_module () {
 config_string () {
 	ret=$(./scripts/config --state ${config})
 	if [ ! "x${ret}" = "x${option}" ] ; then
-		echo "Setting: ${config}=${option}"
-		./scripts/config --set-str ${config} ${option}
+		echo "Setting: ${config}=\"${option}\""
+		./scripts/config --set-str ${config} "${option}"
 	fi
 }
 
@@ -80,8 +80,13 @@ config="CONFIG_ARCH_HIGHBANK" ; config_disable
 config="CONFIG_SOC_IMX50" ; config_enable
 config="CONFIG_SOC_IMX6SL" ; config_enable
 config="CONFIG_SOC_IMX6SX" ; config_enable
-config="CONFIG_SOC_VF610" ; config_enable
+config="CONFIG_SOC_IMX7D" ; config_enable
 config="CONFIG_SOC_LS1021A" ; config_enable
+
+#
+# Cortex-A/Cortex-M asymmetric multiprocessing platforms
+#
+config="CONFIG_SOC_VF610" ; config_enable
 config="CONFIG_WAND_RFKILL" ; config_enable
 
 #
@@ -100,15 +105,12 @@ config="CONFIG_SOC_DRA7XX" ; config_enable
 #
 # OMAP Legacy Platform Data Board Type
 #
-config="CONFIG_MACH_OMAP3_BEAGLE" ; config_disable
 config="CONFIG_MACH_OMAP_LDP" ; config_disable
 config="CONFIG_MACH_OMAP3530_LV_SOM" ; config_disable
 config="CONFIG_MACH_OMAP3_TORPEDO" ; config_disable
-config="CONFIG_MACH_OVERO" ; config_disable
 config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_MACH_NOKIA_RX51" ; config_disable
-config="CONFIG_MACH_CM_T35" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
@@ -139,7 +141,6 @@ config="CONFIG_HIGHPTE" ; config_enable
 config="CONFIG_MEMORY_ISOLATION" ; config_enable
 config="CONFIG_CMA" ; config_enable
 config="CONFIG_CMA_DEBUG" ; config_disable
-config="CONFIG_ZBUD" ; config_enable
 config="CONFIG_SECCOMP" ; config_enable
 config="CONFIG_XEN" ; config_disable
 
@@ -260,7 +261,13 @@ config="CONFIG_NFC_MICROREAD_I2C" ; config_module
 #
 config="CONFIG_UEVENT_HELPER" ; config_enable
 config="CONFIG_DEVTMPFS_MOUNT" ; config_enable
+
+config="CONFIG_FIRMWARE_IN_KERNEL" ; config_enable
+config="CONFIG_EXTRA_FIRMWARE" ; option="am335x-pm-firmware.elf am335x-bone-scale-data.bin am335x-evm-scale-data.bin am43x-evm-scale-data.bin" ; config_string
+config="CONFIG_EXTRA_FIRMWARE_DIR" ; option="firmware" ; config_string
+
 config="CONFIG_DMA_CMA" ; config_enable
+config="CONFIG_CMA_SIZE_MBYTES" ; option=24 ; config_value
 
 #
 # Bus devices
@@ -276,7 +283,6 @@ config="CONFIG_MTD_NAND_SUNXI" ; config_module
 #
 # Device Tree and Open Firmware support
 #
-config="CONFIG_OF_OVERLAY" ; config_enable
 config="CONFIG_OF_CONFIGFS" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
 
@@ -284,6 +290,7 @@ config="CONFIG_PARPORT" ; config_disable
 # Misc devices
 #
 config="CONFIG_BONE_CAPEMGR" ; config_enable
+config="CONFIG_TIEQEP" ; config_module
 
 #
 # EEPROM support
@@ -291,7 +298,6 @@ config="CONFIG_BONE_CAPEMGR" ; config_enable
 config="CONFIG_EEPROM_AT24" ; config_enable
 config="CONFIG_EEPROM_AT25" ; config_enable
 config="CONFIG_EEPROM_93XX46" ; config_module
-config="CONFIG_EEPROM_SUNXI_SID" ; config_enable
 
 #
 # Texas Instruments shared transport line discipline
@@ -351,17 +357,17 @@ config="CONFIG_IPVLAN" ; config_module
 config="CONFIG_SUN4I_EMAC" ; config_enable
 config="CONFIG_MVMDIO" ; config_disable
 config="CONFIG_KS8851" ; config_module
-config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
-config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
 config="CONFIG_NET_VENDOR_SEEQ" ; config_enable
-config="CONFIG_SMC91X" ; config_disable
-config="CONFIG_SMC911X" ; config_disable
-config="CONFIG_SMSC911X" ; config_enable
 config="CONFIG_STMMAC_ETH" ; config_enable
 config="CONFIG_STMMAC_PLATFORM" ; config_enable
+config="CONFIG_DWMAC_GENERIC" ; config_enable
+config="CONFIG_DWMAC_ROCKCHIP" ; config_enable
+config="CONFIG_DWMAC_SOCFPGA" ; config_disable
+config="CONFIG_DWMAC_SUNXI" ; config_enable
 config="CONFIG_TI_DAVINCI_EMAC" ; config_enable
 config="CONFIG_TI_DAVINCI_MDIO" ; config_enable
 config="CONFIG_TI_DAVINCI_CPDMA" ; config_enable
+config="CONFIG_TI_CPSW_ALE" ; config_enable
 config="CONFIG_TI_CPSW" ; config_enable
 config="CONFIG_TI_CPTS" ; config_enable
 config="CONFIG_VIA_VELOCITY" ; config_disable
@@ -370,6 +376,7 @@ config="CONFIG_VIA_VELOCITY" ; config_disable
 # MII PHY device drivers
 #
 config="CONFIG_SMSC_PHY" ; config_enable
+config="CONFIG_MICREL_PHY" ; config_enable
 
 #
 # USB Network Adapters
@@ -389,6 +396,7 @@ config="CONFIG_IEEE802154_FAKELB" ; config_module
 config="CONFIG_IEEE802154_AT86RF230" ; config_module
 config="CONFIG_IEEE802154_MRF24J40" ; config_module
 config="CONFIG_IEEE802154_CC2520" ; config_module
+config="CONFIG_IEEE802154_ATUSB" ; config_module
 
 #
 # Input Device Drivers
@@ -472,6 +480,7 @@ config="CONFIG_TOUCHSCREEN_MAX11801" ; config_module
 config="CONFIG_TOUCHSCREEN_MMS114" ; config_module
 config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_module
 config="CONFIG_TOUCHSCREEN_PIXCIR" ; config_module
+config="CONFIG_TOUCHSCREEN_WDT87XX_I2C" ; config_module
 config="CONFIG_TOUCHSCREEN_TSC_SERIO" ; config_module
 config="CONFIG_TOUCHSCREEN_ST1232" ; config_module
 config="CONFIG_TOUCHSCREEN_SX8654" ; config_module
@@ -511,11 +520,6 @@ config="CONFIG_INPUT_DRV260X_HAPTICS" ; config_module
 config="CONFIG_INPUT_DRV2667_HAPTICS" ; config_module
 
 #exit
-
-#
-# Hardware I/O ports
-#
-config="CONFIG_SERIO_AMBAKMI" ; config_disable
 
 #
 # Character devices
@@ -685,8 +689,6 @@ config="CONFIG_SENSORS_NCT7802" ; config_module
 config="CONFIG_SENSORS_NCT7904" ; config_module
 config="CONFIG_SENSORS_PCF8591" ; config_module
 
-#exit
-
 config="CONFIG_PMBUS" ; config_module
 config="CONFIG_SENSORS_PMBUS" ; config_module
 config="CONFIG_SENSORS_ADM1275" ; config_module
@@ -718,6 +720,8 @@ config="CONFIG_THERMAL_GOV_BANG_BANG" ; config_enable
 config="CONFIG_CLOCK_THERMAL" ; config_enable
 config="CONFIG_IMX_THERMAL" ; config_enable
 config="CONFIG_TEGRA_SOCTHERM" ; config_enable
+
+#exit
 
 #
 # Texas Instruments thermal drivers
@@ -762,6 +766,8 @@ config="CONFIG_REGULATOR_TPS6507X" ; config_enable
 config="CONFIG_REGULATOR_TPS65217" ; config_enable
 config="CONFIG_REGULATOR_TPS65218" ; config_enable
 config="CONFIG_REGULATOR_TPS65910" ; config_enable
+
+#exit
 
 #
 # Multimedia core support
@@ -1249,6 +1255,7 @@ config="CONFIG_ARM_SMMU" ; config_enable
 #
 config="CONFIG_REMOTEPROC" ; config_enable
 config="CONFIG_OMAP_REMOTEPROC" ; config_enable
+config="CONFIG_WKUP_M3_RPROC" ; config_enable
 
 #
 # Rpmsg drivers
@@ -1472,6 +1479,8 @@ config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_ANDROID" ; config_enable
 config="CONFIG_ANDROID_BINDER_IPC" ; config_enable
 config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
+config="CONFIG_NVMEM" ; config_enable
+config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
 
 #
 # File systems
@@ -1541,7 +1550,7 @@ config="CONFIG_ARM_CRYPTO" ; config_enable
 config="CONFIG_CRYPTO_SHA1_ARM" ; config_module
 config="CONFIG_CRYPTO_SHA1_ARM_NEON" ; config_module
 config="CONFIG_CRYPTO_SHA256_ARM" ; config_module
-config="CONFIG_CRYPTO_SHA512_ARM_NEON" ; config_module
+config="CONFIG_CRYPTO_SHA512_ARM" ; config_module
 config="CONFIG_CRYPTO_AES_ARM" ; config_module
 config="CONFIG_CRYPTO_AES_ARM_BS" ; config_module
 

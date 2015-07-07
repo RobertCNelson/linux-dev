@@ -29,8 +29,8 @@ config_module () {
 config_string () {
 	ret=$(./scripts/config --state ${config})
 	if [ ! "x${ret}" = "x${option}" ] ; then
-		echo "Setting: ${config}=${option}"
-		./scripts/config --set-str ${config} ${option}
+		echo "Setting: ${config}=\"${option}\""
+		./scripts/config --set-str ${config} "${option}"
 	fi
 }
 
