@@ -84,13 +84,14 @@ config="CONFIG_THUMB2_KERNEL" ; config_enable
 #
 # Serial drivers
 #
-#config="CONFIG_SERIAL_8250_OMAP" ; config_enable
-#config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
+config="CONFIG_SERIAL_8250_DMA" ; config_disable
+config="CONFIG_SERIAL_8250_OMAP" ; config_enable
+config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 
 #
 # Non-8250 serial port support
 #
-#config="CONFIG_SERIAL_OMAP" ; config_disable
+config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_disable
 
 #
@@ -199,6 +200,7 @@ config="CONFIG_OMAP2_DSS" ; config_disable
 
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
+config="CONFIG_BEAGLEBONE_PINMUX_HELPER" ; config_enable
 
 #Reset Controller:
 config="CONFIG_STMMAC_ETH" ; config_disable
@@ -213,5 +215,10 @@ config="CONFIG_DRM_UDL" ; config_module
 config="CONFIG_BACKLIGHT_PWM" ; config_module
 config="CONFIG_BACKLIGHT_GPIO" ; config_module
 config="CONFIG_LEDS_GPIO" ; config_module
+
+#
+# Pin controllers
+#
+config="CONFIG_GPIO_OF_HELPER" ; config_enable
 
 #
