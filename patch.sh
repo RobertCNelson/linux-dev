@@ -152,9 +152,13 @@ fixes () {
 	fi
 
 	${git} "${DIR}/patches/fixes/0001-trusty-gcc-4.8-4.8.2-19ubuntu1-has-fix.patch"
+	${git} "${DIR}/patches/fixes/0002-ARM-move-heavy-barrier-support-out-of-line.patch"
+	${git} "${DIR}/patches/fixes/0003-ARM-add-soc-memory-barrier-extension.patch"
+	${git} "${DIR}/patches/fixes/0004-Revert-ARM-OMAP4-remove-dead-kconfig-option-OMAP4_ER.patch"
+	${git} "${DIR}/patches/fixes/0005-ARM-omap2-restore-OMAP4-barrier-behaviour.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
+		number=5
 		cleanup
 	fi
 }
