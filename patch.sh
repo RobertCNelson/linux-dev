@@ -378,6 +378,9 @@ beaglebone () {
 		device="am335x-boneblack-bbb-exp-r.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-can0.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-cape-bone-argus.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-emmc-overlay.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-hdmi-overlay.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-nhdmi-overlay.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-overlay.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-replicape.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-wl1835mod.dtb" ; dtb_makefile_append
