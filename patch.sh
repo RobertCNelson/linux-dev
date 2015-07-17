@@ -113,12 +113,11 @@ dts () {
 	${git} "${DIR}/patches/dts/0010-imx6-wl1835-base-boards.patch"
 	${git} "${DIR}/patches/dts/0011-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
 	${git} "${DIR}/patches/dts/0012-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
-	${git} "${DIR}/patches/dts/0013-drm-imx-tve-fix-media-bus-format-for-VGA-output.patch"
-	${git} "${DIR}/patches/dts/0014-ARM-dts-imx53-qsb-fix-TVE-entry.patch"
-	${git} "${DIR}/patches/dts/0015-ARM-dts-imx53-qsb-select-open-drain-mode-for-i2c1-pa.patch"
+	${git} "${DIR}/patches/dts/0013-ARM-dts-imx53-qsb-fix-TVE-entry.patch"
+	${git} "${DIR}/patches/dts/0014-ARM-dts-imx53-qsb-select-open-drain-mode-for-i2c1-pa.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=15
+		number=14
 		cleanup
 	fi
 }
