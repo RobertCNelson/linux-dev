@@ -232,7 +232,7 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0002-nvmem-Add-a-simple-NVMEM-framework-for-consumers.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0003-nvmem-Add-nvmem_device-based-consumer-apis.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0004-nvmem-Add-bindings-for-simple-nvmem-framework.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0005-nvmem-Add-simple-nvmem-mmio-consumer-helper-function.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0005-Documentation-nvmem-add-nvmem-api-level-and-how-to-d.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0006-nvmem-qfprom-Add-Qualcomm-QFPROM-support.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0007-nvmem-qfprom-Add-bindings-for-qfprom.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0008-nvmem-sunxi-Move-the-SID-driver-to-the-nvmem-framewo.patch"

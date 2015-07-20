@@ -1,6 +1,6 @@
-From f4c83d61d476de7f9d86122866df6efa3649f93f Mon Sep 17 00:00:00 2001
+From f9a2277e0a1aa0a0057a91da0605fdcb1efaac5f Mon Sep 17 00:00:00 2001
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Thu, 21 May 2015 17:43:03 +0100
+Date: Mon, 20 Jul 2015 15:43:12 +0100
 Subject: [PATCH 1/8] nvmem: Add a simple NVMEM framework for nvmem providers
 
 This patch adds just providers part of the framework just to enable easy
@@ -11,9 +11,9 @@ where they all had to duplicate pretty much the same code to register
 a sysfs file, allow in-kernel users to access the content of the devices
 they were driving, etc.
 
-This was also a problem as far as other in-kernel users were involved, since
-the solutions used were pretty much different from on driver to another,
-there was a rather big abstraction leak.
+This was also a problem as far as other in-kernel users were involved,
+since the solutions used were pretty much different from on driver to
+another, there was a rather big abstraction leak.
 
 This introduction of this framework aims at solving this. It also
 introduces DT representation for consumer devices to go get the data
@@ -29,14 +29,16 @@ Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
  drivers/Kconfig                |   2 +
  drivers/Makefile               |   1 +
- drivers/nvmem/Kconfig          |  10 ++
+ drivers/nvmem/Kconfig          |  13 ++
  drivers/nvmem/Makefile         |   6 +
- drivers/nvmem/core.c           | 398 +++++++++++++++++++++++++++++++++++++++++
- include/linux/nvmem-provider.h |  53 ++++++
- 6 files changed, 470 insertions(+)
+ drivers/nvmem/core.c           | 384 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/nvmem-consumer.h |  23 +++
+ include/linux/nvmem-provider.h |  47 +++++
+ 7 files changed, 476 insertions(+)
  create mode 100644 drivers/nvmem/Kconfig
  create mode 100644 drivers/nvmem/Makefile
  create mode 100644 drivers/nvmem/core.c
+ create mode 100644 include/linux/nvmem-consumer.h
  create mode 100644 include/linux/nvmem-provider.h
 
 diff --git a/drivers/Kconfig b/drivers/Kconfig
@@ -61,18 +63,21 @@ index b64b49f..4c270f5 100644
 +obj-$(CONFIG_NVMEM)		+= nvmem/
 diff --git a/drivers/nvmem/Kconfig b/drivers/nvmem/Kconfig
 new file mode 100644
-index 0000000..f157b6d
+index 0000000..de90c82
 --- /dev/null
 +++ b/drivers/nvmem/Kconfig
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,13 @@
 +menuconfig NVMEM
 +	tristate "NVMEM Support"
 +	select REGMAP
 +	help
-+	  Support for NVMEM devices.
++	  Support for NVMEM(Non Volatile Memory) devices like EEPROM, EFUSES...
 +
 +	  This framework is designed to provide a generic interface to NVMEM
 +	  from both the Linux Kernel and the userspace.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called nvmem_core.
 +
 +	  If unsure, say no.
 diff --git a/drivers/nvmem/Makefile b/drivers/nvmem/Makefile
@@ -89,10 +94,10 @@ index 0000000..6df2c69
 +nvmem_core-y			:= core.o
 diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
 new file mode 100644
-index 0000000..6c2f0b1
+index 0000000..bde5528
 --- /dev/null
 +++ b/drivers/nvmem/core.c
-@@ -0,0 +1,398 @@
+@@ -0,0 +1,384 @@
 +/*
 + * nvmem framework core.
 + *
@@ -110,16 +115,16 @@ index 0000000..6c2f0b1
 + */
 +
 +#include <linux/device.h>
-+#include <linux/nvmem-provider.h>
 +#include <linux/export.h>
 +#include <linux/fs.h>
 +#include <linux/idr.h>
 +#include <linux/init.h>
-+#include <linux/regmap.h>
 +#include <linux/module.h>
++#include <linux/nvmem-consumer.h>
++#include <linux/nvmem-provider.h>
 +#include <linux/of.h>
++#include <linux/regmap.h>
 +#include <linux/slab.h>
-+#include <linux/uaccess.h>
 +
 +struct nvmem_device {
 +	const char		*name;
@@ -136,7 +141,7 @@ index 0000000..6c2f0b1
 +};
 +
 +struct nvmem_cell {
-+	const char *name;
++	const char		*name;
 +	int			offset;
 +	int			bytes;
 +	int			bit_offset;
@@ -168,7 +173,7 @@ index 0000000..6c2f0b1
 +	if (pos + count > nvmem->size)
 +		count = nvmem->size - pos;
 +
-+	count = count/nvmem->word_size * nvmem->word_size;
++	count = round_down(count, nvmem->word_size);
 +
 +	rc = regmap_raw_read(nvmem->regmap, pos, buf, count);
 +
@@ -193,7 +198,7 @@ index 0000000..6c2f0b1
 +	if (pos + count > nvmem->size)
 +		count = nvmem->size - pos;
 +
-+	count = count/nvmem->word_size * nvmem->word_size;
++	count = round_down(count, nvmem->word_size);
 +
 +	rc = regmap_raw_write(nvmem->regmap, pos, buf, count);
 +
@@ -204,27 +209,13 @@ index 0000000..6c2f0b1
 +}
 +
 +/* default read/write permissions */
-+static struct bin_attribute bin_attr_nvmem = {
++static struct bin_attribute bin_attr_rw_nvmem = {
 +	.attr	= {
 +		.name	= "nvmem",
 +		.mode	= S_IWUSR | S_IRUGO,
 +	},
 +	.read	= bin_attr_nvmem_read,
 +	.write	= bin_attr_nvmem_write,
-+};
-+
-+static struct bin_attribute *nvmem_bin_attributes[] = {
-+	&bin_attr_nvmem,
-+	NULL,
-+};
-+
-+static const struct attribute_group nvmem_bin_group = {
-+	.bin_attrs	= nvmem_bin_attributes,
-+};
-+
-+static const struct attribute_group *nvmem_dev_groups[] = {
-+	&nvmem_bin_group,
-+	NULL,
 +};
 +
 +/* read only permission */
@@ -236,14 +227,6 @@ index 0000000..6c2f0b1
 +	.read	= bin_attr_nvmem_read,
 +};
 +
-+static struct bin_attribute *nvmem_bin_ro_attributes[] = {
-+	&bin_attr_ro_nvmem,
-+	NULL,
-+};
-+static const struct attribute_group nvmem_bin_ro_group = {
-+	.bin_attrs	= nvmem_bin_ro_attributes,
-+};
-+
 +static void nvmem_release(struct device *dev)
 +{
 +	struct nvmem_device *nvmem = to_nvmem_device(dev);
@@ -252,13 +235,15 @@ index 0000000..6c2f0b1
 +	kfree(nvmem);
 +}
 +
-+static struct class nvmem_class = {
-+	.name		= "nvmem",
-+	.dev_groups	= nvmem_dev_groups,
-+	.dev_release	= nvmem_release,
++static const struct device_type nvmem_provider_type = {
++	.release	= nvmem_release,
 +};
 +
-+static int of_nvmem_match(struct device *dev, const void *nvmem_np)
++static struct bus_type nvmem_bus_type = {
++	.name		= "nvmem",
++};
++
++static int of_nvmem_match(struct device *dev, void *nvmem_np)
 +{
 +	return dev->of_node == nvmem_np;
 +}
@@ -270,19 +255,21 @@ index 0000000..6c2f0b1
 +	if (!nvmem_np)
 +		return NULL;
 +
-+	d = class_find_device(&nvmem_class, NULL, nvmem_np, of_nvmem_match);
++	d = bus_find_device(&nvmem_bus_type, NULL, nvmem_np, of_nvmem_match);
 +
-+	return d ? to_nvmem_device(d) : NULL;
++	if (!d)
++		return NULL;
++
++	return to_nvmem_device(d);
 +}
 +
 +static struct nvmem_cell *nvmem_find_cell(const char *cell_id)
 +{
 +	struct nvmem_cell *p;
 +
-+	list_for_each_entry(p, &nvmem_cells, node) {
++	list_for_each_entry(p, &nvmem_cells, node)
 +		if (p && !strcmp(p->name, cell_id))
 +			return p;
-+	}
 +
 +	return NULL;
 +}
@@ -295,9 +282,9 @@ index 0000000..6c2f0b1
 +	kfree(cell);
 +}
 +
-+static void nvmem_device_remove_all_cells(struct nvmem_device *nvmem)
++static void nvmem_device_remove_all_cells(const struct nvmem_device *nvmem)
 +{
-+	struct nvmem_cell *cell = NULL;
++	struct nvmem_cell *cell;
 +	struct list_head *p, *n;
 +
 +	list_for_each_safe(p, n, &nvmem_cells) {
@@ -315,7 +302,7 @@ index 0000000..6c2f0b1
 +}
 +
 +static int nvmem_cell_info_to_nvmem_cell(struct nvmem_device *nvmem,
-+				   struct nvmem_cell_info *info,
++				   const struct nvmem_cell_info *info,
 +				   struct nvmem_cell *cell)
 +{
 +	cell->nvmem = nvmem;
@@ -341,10 +328,10 @@ index 0000000..6c2f0b1
 +}
 +
 +static int nvmem_add_cells(struct nvmem_device *nvmem,
-+			   struct nvmem_config *cfg)
++			   const struct nvmem_config *cfg)
 +{
 +	struct nvmem_cell **cells;
-+	struct nvmem_cell_info *info = cfg->cells;
++	const struct nvmem_cell_info *info = cfg->cells;
 +	int i, rval;
 +
 +	cells = kzalloc(sizeof(*cells) * cfg->ncells, GFP_KERNEL);
@@ -352,7 +339,7 @@ index 0000000..6c2f0b1
 +		return -ENOMEM;
 +
 +	for (i = 0; i < cfg->ncells; i++) {
-+		cells[i] = kzalloc(sizeof(struct nvmem_cell), GFP_KERNEL);
++		cells[i] = kzalloc(sizeof(**cells), GFP_KERNEL);
 +		if (!cells[i]) {
 +			rval = -ENOMEM;
 +			goto err;
@@ -380,18 +367,19 @@ index 0000000..6c2f0b1
 +}
 +
 +/**
-+ * nvmem_register(): Register a nvmem device for given nvmem.
-+ * Also creates an binary entry in /sys/class/nvmem/dev-name/nvmem
++ * nvmem_register() - Register a nvmem device for given nvmem_config.
++ * Also creates an binary entry in /sys/bus/nvmem/devices/dev-name/nvmem
 + *
-+ * @nvmem: nvmem device that needs to be created
++ * @config: nvmem device configuration with which nvmem device is created.
 + *
-+ * The return value will be an ERR_PTR() on error or a valid pointer
-+ * to nvmem_device.
++ * Return: Will be an ERR_PTR() on error or a valid pointer to nvmem_device
++ * on success.
 + */
 +
-+struct nvmem_device *nvmem_register(struct nvmem_config *config)
++struct nvmem_device *nvmem_register(const struct nvmem_config *config)
 +{
 +	struct nvmem_device *nvmem;
++	struct device_node *np;
 +	struct regmap *rm;
 +	int rval;
 +
@@ -419,19 +407,21 @@ index 0000000..6c2f0b1
 +	nvmem->stride = regmap_get_reg_stride(rm);
 +	nvmem->word_size = regmap_get_val_bytes(rm);
 +	nvmem->size = regmap_get_max_register(rm) + nvmem->stride;
-+	nvmem->dev.class = &nvmem_class;
++	nvmem->dev.type = &nvmem_provider_type;
++	nvmem->dev.bus = &nvmem_bus_type;
 +	nvmem->dev.parent = config->dev;
-+	nvmem->dev.of_node = config->dev->of_node;
++	np = config->dev->of_node;
++	nvmem->dev.of_node = np;
 +	dev_set_name(&nvmem->dev, "%s%d",
 +		     config->name ? : "nvmem", config->id);
 +
-+	nvmem->read_only = of_property_read_bool(nvmem->dev.of_node,
-+						 "read-only");
++	nvmem->read_only = np ? of_property_read_bool(np, "read-only") : 0;
++
++	nvmem->read_only |= config->read_only;
 +
 +	device_initialize(&nvmem->dev);
 +
-+	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n",
-+		dev_name(&nvmem->dev));
++	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
 +
 +	rval = device_add(&nvmem->dev);
 +	if (rval) {
@@ -440,9 +430,10 @@ index 0000000..6c2f0b1
 +		return ERR_PTR(rval);
 +	}
 +
-+	/* update sysfs attributes */
-+	if (nvmem->read_only)
-+		sysfs_update_group(&nvmem->dev.kobj, &nvmem_bin_ro_group);
++	if (device_create_bin_file(&nvmem->dev,
++				nvmem->read_only ? &bin_attr_ro_nvmem :
++				&bin_attr_rw_nvmem))
++		dev_warn(&nvmem->dev, "Failed to create sysfs binary file\n");
 +
 +	if (config->cells)
 +		nvmem_add_cells(nvmem, config);
@@ -452,11 +443,11 @@ index 0000000..6c2f0b1
 +EXPORT_SYMBOL_GPL(nvmem_register);
 +
 +/**
-+ * nvmem_unregister(): Unregister previously registered nvmem device
++ * nvmem_unregister() - Unregister previously registered nvmem device
 + *
 + * @nvmem: Pointer to previously registered nvmem device.
 + *
-+ * The return value will be an non zero on error or a zero on success.
++ * Return: Will be an negative on error or a zero on success.
 + */
 +int nvmem_unregister(struct nvmem_device *nvmem)
 +{
@@ -474,14 +465,14 @@ index 0000000..6c2f0b1
 +}
 +EXPORT_SYMBOL_GPL(nvmem_unregister);
 +
-+static int nvmem_init(void)
++static int __init nvmem_init(void)
 +{
-+	return class_register(&nvmem_class);
++	return bus_register(&nvmem_bus_type);
 +}
 +
-+static void nvmem_exit(void)
++static void __exit nvmem_exit(void)
 +{
-+	class_unregister(&nvmem_class);
++	bus_unregister(&nvmem_bus_type);
 +}
 +
 +subsys_initcall(nvmem_init);
@@ -491,12 +482,41 @@ index 0000000..6c2f0b1
 +MODULE_AUTHOR("Maxime Ripard <maxime.ripard@free-electrons.com");
 +MODULE_DESCRIPTION("nvmem Driver Core");
 +MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
+new file mode 100644
+index 0000000..1e9e767
+--- /dev/null
++++ b/include/linux/nvmem-consumer.h
+@@ -0,0 +1,23 @@
++/*
++ * nvmem framework consumer.
++ *
++ * Copyright (C) 2015 Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
++ * Copyright (C) 2013 Maxime Ripard <maxime.ripard@free-electrons.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#ifndef _LINUX_NVMEM_CONSUMER_H
++#define _LINUX_NVMEM_CONSUMER_H
++
++struct nvmem_cell_info {
++	const char		*name;
++	unsigned int		offset;
++	unsigned int		bytes;
++	unsigned int		bit_offset;
++	unsigned int		nbits;
++};
++
++#endif  /* ifndef _LINUX_NVMEM_CONSUMER_H */
 diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
 new file mode 100644
-index 0000000..4908b37
+index 0000000..0b68caf
 --- /dev/null
 +++ b/include/linux/nvmem-provider.h
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,47 @@
 +/*
 + * nvmem framework provider.
 + *
@@ -512,32 +532,26 @@ index 0000000..4908b37
 +#define _LINUX_NVMEM_PROVIDER_H
 +
 +struct nvmem_device;
-+
-+struct nvmem_cell_info {
-+	const char		*name;
-+	int			offset;
-+	int			bytes;
-+	int			bit_offset;
-+	int			nbits;
-+};
++struct nvmem_cell_info;
 +
 +struct nvmem_config {
 +	struct device		*dev;
 +	const char		*name;
 +	int			id;
 +	struct module		*owner;
-+	struct nvmem_cell_info	*cells;
++	const struct nvmem_cell_info	*cells;
 +	int			ncells;
++	bool			read_only;
 +};
 +
 +#if IS_ENABLED(CONFIG_NVMEM)
 +
-+struct nvmem_device *nvmem_register(struct nvmem_config *cfg);
++struct nvmem_device *nvmem_register(const struct nvmem_config *cfg);
 +int nvmem_unregister(struct nvmem_device *nvmem);
 +
 +#else
 +
-+static inline struct nvmem_device *nvmem_register(struct nvmem_config *cfg)
++static inline struct nvmem_device *nvmem_register(const struct nvmem_config *c)
 +{
 +	return ERR_PTR(-ENOSYS);
 +}
