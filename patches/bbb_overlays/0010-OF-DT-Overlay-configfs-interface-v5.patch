@@ -72,10 +72,10 @@ index 0000000..5fa43e0
 +intended to be used by hardware managers in the kernel, while the copy interface
 +make sense for developers (since it avoids problems with namespaces).
 diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
-index 07bb3c8..df3a2df 100644
+index 8df1b17..7baace6 100644
 --- a/drivers/of/Kconfig
 +++ b/drivers/of/Kconfig
-@@ -97,4 +97,12 @@ config OF_OVERLAY
+@@ -102,4 +102,12 @@ config OF_OVERLAY
  	  While this option is selected automatically when needed, you can
  	  enable it manually to improve device tree unit test coverage.
  
@@ -83,11 +83,11 @@ index 07bb3c8..df3a2df 100644
 +	bool "Device Tree Overlay ConfigFS interface"
 +	select CONFIGFS_FS
 +	select OF_OVERLAY
-+	depends on OF_FLATTREE
++	select OF_FLATTREE
 +	help
 +	  Enable a simple user-space driven DT overlay interface.
 +
- endmenu # OF
+ endif # OF
 diff --git a/drivers/of/Makefile b/drivers/of/Makefile
 index 156c072..46c8f57 100644
 --- a/drivers/of/Makefile

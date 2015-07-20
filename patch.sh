@@ -85,11 +85,8 @@ reverts () {
 	#udoo:
 	${git} "${DIR}/patches/reverts/0002-Revert-usb-chipidea-usbmisc_imx-delete-clock-informa.patch"
 
-	${git} "${DIR}/patches/reverts/0003-Revert-of-make-CONFIG_OF-user-selectable.patch"
-	${git} "${DIR}/patches/reverts/0004-Revert-of-make-unittest-select-OF_EARLY_FLATTREE-ins.patch"
-
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=2
 		cleanup
 	fi
 }
@@ -202,7 +199,17 @@ bbb_overlays () {
 		git format-patch -1 -o ../patches/bbb_overlays/dtc/
 		exit 2
 	else
+		#regenerate="enable"
+		if [ "x${regenerate}" = "xenable" ] ; then
+			start_cleanup
+		fi
+
 		${git} "${DIR}/patches/bbb_overlays/dtc/0001-scripts-dtc-Update-to-upstream-version-overlays.patch"
+
+		if [ "x${regenerate}" = "xenable" ] ; then
+			number=1
+			cleanup
+		fi
 	fi
 
 	echo "dir: bbb_overlays/mainline"
