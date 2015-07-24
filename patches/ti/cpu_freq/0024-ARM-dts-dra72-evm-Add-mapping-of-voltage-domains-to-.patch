@@ -1,0 +1,50 @@
+From b24e79bb4db8b336985400478813d60c5ba5aec7 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 23 Jul 2015 17:43:36 -0500
+Subject: [PATCH] ARM: dts: dra72-evm: Add mapping of voltage domains to
+ regulators
+
+Add the voltage domain mapping to regulators
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/dra72-evm.dts | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/arch/arm/boot/dts/dra72-evm.dts b/arch/arm/boot/dts/dra72-evm.dts
+index 6e2542a..3ddc037 100644
+--- a/arch/arm/boot/dts/dra72-evm.dts
++++ b/arch/arm/boot/dts/dra72-evm.dts
+@@ -412,3 +412,28 @@
+ 		};
+ 	};
+ };
++
++&cpu0 {
++	cpu0-voltdm = <&voltdm_mpu>;
++	voltage-tolerance = <1>;
++};
++
++&voltdm_mpu {
++	vdd-supply = <&smps1_reg>;
++};
++
++&voltdm_core {
++	vdd-supply = <&smps2_reg>;
++};
++
++&voltdm_dspeve {
++	vdd-supply = <&smps3_reg>;
++};
++
++&voltdm_gpu {
++	vdd-supply = <&smps3_reg>;
++};
++
++&voltdm_ivahd {
++	vdd-supply = <&smps3_reg>;
++};
+-- 
+2.1.4
+

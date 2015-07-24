@@ -1,0 +1,43 @@
+From 5cf0b55b7e92b291195c52b8ec0b0d3f9a51f61d Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 23 Jul 2015 17:43:31 -0500
+Subject: [PATCH] cpufreq: voltdm: do a dummy opp setup as part of probe
+
+As part of initial resource checks, we try and ensure that voltage
+domain is ready with all required information. However to do that, we
+also need to make sure that we have the OPP table initialized. Else, we
+end up with:
+  Adding alias for supply vdd,cpu0 -> vdd,4a0021c4.voltdm
+  Adding alias for supply vbb,cpu0 -> vbb,4a0021c4.voltdm
+  cpu cpu0: of_pm_voltdm_notifier_register: failed to get OPP, -19
+  cpu cpu0: Failed to register cpu0 clock notifier: -19
+
+To prevent this from happening, we do a dummy OPP initialization
+and clean it up so that we can ensure all required voltage domain
+information is also ready.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ drivers/cpufreq/cpufreq-voltdm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/cpufreq/cpufreq-voltdm.c b/drivers/cpufreq/cpufreq-voltdm.c
+index 18bda1e..68ab7e7 100644
+--- a/drivers/cpufreq/cpufreq-voltdm.c
++++ b/drivers/cpufreq/cpufreq-voltdm.c
+@@ -281,8 +281,12 @@ static int voltdm_cpufreq_probe(struct platform_device *pdev)
+ 
+ 	np = cpu_dev->of_node;
+ 
++	/* OPPs might be populated at runtime, This is just a dummy setup */
++	of_init_opp_table(cpu_dev);
++
+ 	clk_nb = of_pm_voltdm_notifier_register(cpu_dev, np,
+ 						cpu_clk, "cpu0", &tmp);
++	of_free_opp_table(cpu_dev);
+ 
+ 	if (IS_ERR(clk_nb)) {
+ 		ret = PTR_ERR(clk_nb);
+-- 
+2.1.4
+

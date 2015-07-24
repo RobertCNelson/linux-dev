@@ -1,0 +1,50 @@
+From 03ccdced5235b91254382038708713795ce7d021 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 23 Jul 2015 17:43:37 -0500
+Subject: [PATCH] ARM: dts: am57xx-beagle-x15: Map regulators to voltage
+ domains
+
+Map the appropriate SMPS to the correct voltage domains.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/boot/dts/am57xx-beagle-x15.dts | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15.dts b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+index d1be6e9..6b9b9ce 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+@@ -306,8 +306,28 @@
+ 	ti,no-idle-on-init;
+ };
+ 
++&voltdm_mpu {
++	vdd-supply = <&smps12_reg>;
++};
++
++&voltdm_dspeve {
++	vdd-supply = <&smps45_reg>;
++};
++
++&voltdm_gpu {
++	vdd-supply = <&smps45_reg>;
++};
++
++&voltdm_ivahd {
++	vdd-supply = <&smps45_reg>;
++};
++
++&voltdm_core {
++	vdd-supply = <&smps6_reg>;
++};
++
+ &cpu0 {
+-	cpu0-supply = <&smps12_reg>;
++	cpu0-voltdm = <&voltdm_mpu>;
+ 	voltage-tolerance = <1>;
+ };
+ 
+-- 
+2.1.4
+

@@ -1,0 +1,56 @@
+From 9324834c18421e889a2286d6f3b88bdf31c07b17 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 23 Jul 2015 17:43:30 -0500
+Subject: [PATCH] cpufreq: voltdm: use the right device node for resource
+ readiness check
+
+We have cpufreq-voltdm as a dummy device with an empty device node
+pointer which contains no useful information. This dummy device is used
+to initialize the probe sequence inside cpufreq-voltdm. cpufreq-voltdm
+then registers the cpufreq driver on the cpu nodes as needed once the
+required resources are ready.
+
+However, as part of the voltage domain readiness check, we unfortunately
+try to parse the wrong node pointer (the dummy node pointer containing
+no information), instead of the cpu node pointer which actually has the
+required regulator and OPP information.
+
+By not using the correct node pointer, we pass through the voltage
+domain verification even though we do not have regulators available,
+and the registration logic later on fails.
+
+Fix this at the source by ensuring we pass the correct node pointer for
+verification.
+
+Acked-by: Dave Gerlach <d-gerlach@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ drivers/cpufreq/cpufreq-voltdm.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/cpufreq/cpufreq-voltdm.c b/drivers/cpufreq/cpufreq-voltdm.c
+index 08881d9..18bda1e 100644
+--- a/drivers/cpufreq/cpufreq-voltdm.c
++++ b/drivers/cpufreq/cpufreq-voltdm.c
+@@ -266,6 +266,7 @@ static int voltdm_cpufreq_probe(struct platform_device *pdev)
+ 	struct clk *cpu_clk;
+ 	int ret, tmp;
+ 	struct notifier_block *clk_nb;
++	struct device_node *np;
+ 
+ 	/*
+ 	 * All per-cluster (CPUs sharing clock/voltages) initialization is done
+@@ -278,7 +279,9 @@ static int voltdm_cpufreq_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	clk_nb = of_pm_voltdm_notifier_register(cpu_dev, pdev->dev.of_node,
++	np = cpu_dev->of_node;
++
++	clk_nb = of_pm_voltdm_notifier_register(cpu_dev, np,
+ 						cpu_clk, "cpu0", &tmp);
+ 
+ 	if (IS_ERR(clk_nb)) {
+-- 
+2.1.4
+

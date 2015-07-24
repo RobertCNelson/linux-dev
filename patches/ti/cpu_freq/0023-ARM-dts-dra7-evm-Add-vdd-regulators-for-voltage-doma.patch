@@ -1,0 +1,52 @@
+From 9b0e9d74d7aa29b637bf06bd9454b67eb6893284 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 23 Jul 2015 17:43:35 -0500
+Subject: [PATCH] ARM: dts: dra7-evm: Add vdd regulators for voltage domains
+
+Add voltage domain specific VDD regulators.
+
+With this change, we also switch cpu0-supply over to using voltage
+domain based transition.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/boot/dts/dra7-evm.dts | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/dra7-evm.dts b/arch/arm/boot/dts/dra7-evm.dts
+index 464e3f8..9f8357f 100644
+--- a/arch/arm/boot/dts/dra7-evm.dts
++++ b/arch/arm/boot/dts/dra7-evm.dts
+@@ -259,7 +259,28 @@
+ };
+ 
+ &cpu0 {
+-	cpu0-supply = <&smps123_reg>;
++	cpu0-voltdm = <&voltdm_mpu>;
++	voltage-tolerance = <1>;
++};
++
++&voltdm_mpu {
++	vdd-supply = <&smps123_reg>;
++};
++
++&voltdm_dspeve {
++	vdd-supply = <&smps45_reg>;
++};
++
++&voltdm_gpu {
++	vdd-supply = <&smps6_reg>;
++};
++
++&voltdm_ivahd {
++	vdd-supply = <&smps8_reg>;
++};
++
++&voltdm_core {
++	vdd-supply = <&smps7_reg>;
+ };
+ 
+ &qspi {
+-- 
+2.1.4
+

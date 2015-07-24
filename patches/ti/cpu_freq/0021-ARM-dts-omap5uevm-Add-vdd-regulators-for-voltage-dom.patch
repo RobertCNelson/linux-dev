@@ -1,0 +1,44 @@
+From 752beab102668147fcfde9ee19d853e9fc603e81 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 23 Jul 2015 17:43:33 -0500
+Subject: [PATCH] ARM: dts: omap5uevm: Add vdd regulators for voltage domains
+
+Add voltage domain specific VDD regulators.
+
+With this change, we also switch cpu0-supply over to using voltage
+domain based transition.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/boot/dts/omap5-uevm.dts | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/omap5-uevm.dts b/arch/arm/boot/dts/omap5-uevm.dts
+index 74777a6..33f1bf8 100644
+--- a/arch/arm/boot/dts/omap5-uevm.dts
++++ b/arch/arm/boot/dts/omap5-uevm.dts
+@@ -612,7 +612,20 @@
+ };
+ 
+ &cpu0 {
+-	cpu0-supply = <&smps123_reg>;
++	cpu0-voltdm = <&voltdm_mpu>;
++	voltage-tolerance = <1>;
++};
++
++&voltdm_mpu {
++	vdd-supply = <&smps123_reg>;
++};
++
++&voltdm_mm {
++	vdd-supply = <&smps45_reg>;
++};
++
++&voltdm_core {
++	vdd-supply = <&smps6_reg>;
+ };
+ 
+ &dss {
+-- 
+2.1.4
+

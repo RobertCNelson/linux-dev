@@ -1,0 +1,60 @@
+From cf7213e2d35f57d43fff6e360daf50eb837206f3 Mon Sep 17 00:00:00 2001
+From: Nishanth Menon <nm@ti.com>
+Date: Thu, 23 Jul 2015 17:43:32 -0500
+Subject: [PATCH] ARM: dts: OMAP5: Add voltage domains
+
+Add the transitioning voltage domain definitions.
+
+Signed-off-by: Nishanth Menon <nm@ti.com>
+---
+ arch/arm/boot/dts/omap5.dtsi | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 7d24ae0..55e637f 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -1126,6 +1126,40 @@
+ 			1120000		0	0x4	0 0x02000000 0x01F00000
+ 			>;
+ 		};
++
++		voltdm_mpu: voltdm@4a0021c4 {
++			compatible = "ti,omap5-voltdm";
++			#voltdm-cells = <0>;
++			vbb-supply = <&abb_mpu>;
++			reg = <0x4a0021c4 0x8>;
++			ti,efuse-settings = <
++			/* uV   offset */
++			1060000 0x0
++			1250000 0x4
++			>;
++		};
++
++		voltdm_mm: voltdm@4a0021a4 {
++			compatible = "ti,omap5-voltdm";
++			#voltdm-cells = <0>;
++			vbb-supply = <&abb_mm>;
++			reg = <0x4a0021a4 0x8>;
++			ti,efuse-settings = <
++			/* uV   offset */
++			1025000 0x0
++			1120000 0x4
++			>;
++		};
++
++		voltdm_core: voltdm@4a0021d8 {
++			compatible = "ti,omap5-core-voltdm";
++			#voltdm-cells = <0>;
++			reg = <0x4a0021d8 0x4>;
++			ti,efuse-settings = <
++			/* uV   offset */
++			1050000 0x0
++			>;
++		};
+ 	};
+ };
+ 
+-- 
+2.1.4
+
