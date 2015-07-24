@@ -1,0 +1,38 @@
+From fbc6d87ccdfcc3a347b719c5b6a4925f3dca6fd4 Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:32 -0500
+Subject: [PATCH] ARM: dts: am4372: Add voltage-tolerance to cpu node
+
+Allow for a voltage-tolerance so that cpufreq can adjust the voltage to
+the closest acceptable voltage for an OPP rather than an exact voltage
+that may or may not exist.
+
+Tolerance value calculated from Table 5.3 in section 5.4 of AM437x
+Data Manual, SPRS851, June 2014.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/am4372.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
+index b140adf..28856ce 100644
+--- a/arch/arm/boot/dts/am4372.dtsi
++++ b/arch/arm/boot/dts/am4372.dtsi
+@@ -38,6 +38,13 @@
+ 			clocks = <&dpll_mpu_ck>;
+ 			clock-names = "cpu";
+ 
++			/*
++			 * To consider voltage drop between PMIC and SoC,
++			 * tolerance value is reduced to 2% from 4% and
++			 * voltage value is increased as a precaution.
++			 */
++			voltage-tolerance = <2>;
++
+ 			clock-latency = <300000>; /* From omap-cpufreq driver */
+ 		};
+ 	};
+-- 
+2.1.4
+

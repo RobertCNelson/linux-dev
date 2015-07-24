@@ -1,0 +1,191 @@
+From 13b96edc90e6fbe9becce8a6edbbed12c729d49a Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:29 -0500
+Subject: [PATCH] ARM: OMAP2+: AM43XX: Add opp43xx_data to enable higher OPPs
+
+Certain OPPs on AM43XX are not available for all variants. The available
+OPPs can be determined by reading a device_attr register. This patch
+reads the register and enables the appropriate OPPs.
+
+OPP Information from AM437x Data Manual, SPRS851, June 2014.
+
+dev_atrribute values decoded using "Device_Attribute_ Bit Requests_v0.1.pptx"
+Revised 9/11/2013.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/mach-omap2/Makefile       |   1 +
+ arch/arm/mach-omap2/io.c           |   1 +
+ arch/arm/mach-omap2/opp43xx_data.c | 112 +++++++++++++++++++++++++++++++++++++
+ arch/arm/mach-omap2/pm.h           |   5 ++
+ 4 files changed, 119 insertions(+)
+ create mode 100644 arch/arm/mach-omap2/opp43xx_data.c
+
+diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
+index f2b2272..e30405c 100644
+--- a/arch/arm/mach-omap2/Makefile
++++ b/arch/arm/mach-omap2/Makefile
+@@ -78,6 +78,7 @@ ifeq ($(CONFIG_PM_OPP),y)
+ obj-y					+= opp.o
+ obj-$(CONFIG_ARCH_OMAP3)		+= opp3xxx_data.o
+ obj-$(CONFIG_SOC_AM33XX)		+= opp33xx_data.o
++obj-$(CONFIG_SOC_AM43XX)		+= opp43xx_data.o
+ obj-$(CONFIG_ARCH_OMAP4)		+= opp4xxx_data.o
+ endif
+ 
+diff --git a/arch/arm/mach-omap2/io.c b/arch/arm/mach-omap2/io.c
+index 051c5ae..909c9a4 100644
+--- a/arch/arm/mach-omap2/io.c
++++ b/arch/arm/mach-omap2/io.c
+@@ -622,6 +622,7 @@ void __init am43xx_init_early(void)
+ 
+ void __init am43xx_init_late(void)
+ {
++	am43xx_opp_init();
+ 	omap_common_late_init();
+ }
+ #endif
+diff --git a/arch/arm/mach-omap2/opp43xx_data.c b/arch/arm/mach-omap2/opp43xx_data.c
+new file mode 100644
+index 0000000..303fba2
+--- /dev/null
++++ b/arch/arm/mach-omap2/opp43xx_data.c
+@@ -0,0 +1,112 @@
++/*
++ * AM43XX OPP table definitions.
++ *
++ * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
++ * kind, whether express or implied; without even the implied warranty
++ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++#include <linux/io.h>
++#include <linux/module.h>
++
++#include "control.h"
++#include "omap_opp_data.h"
++#include "pm.h"
++#include "soc.h"
++
++/* From AM437x TRM, SPRUHL7 */
++#define AM43XX_DEV_ATTR_OFFSET	0x610
++
++/*
++ * Bits [5:0] are OPP Disabled bits,
++ * 1 = OPP is disabled and not available,
++ * 0 = OPP available.
++ */
++#define MAX_FREQ_MASK		0x3f
++#define MAX_FREQ_SHFT		0
++
++#define EFUSE_OPP_50_300MHZ_BIT		(0x1 << 0)
++#define EFUSE_OPP_100_600MHZ_BIT		(0x1 << 2)
++#define EFUSE_OPP_120_720MHZ_BIT		(0x1 << 3)
++#define EFUSE_OPP_TURBO_800MHZ_BIT		(0x1 << 4)
++#define EFUSE_OPP_NITRO_1GHZ_BIT		(0x1 << 5)
++
++static struct omap_opp_def am43xx_es1_0_opp_list[] __initdata = {
++	/* MPU OPP1 - OPP50 */
++	OPP_INITIALIZER("mpu", false, 300000000, 950000),
++	/* MPU OPP2 - OPP100 */
++	OPP_INITIALIZER("mpu", false, 600000000, 1100000),
++	/* MPU OPP3 - OPP120 */
++	OPP_INITIALIZER("mpu", false, 720000000, 1200000),
++	/* MPU OPP3 - OPPTurbo */
++	OPP_INITIALIZER("mpu", false, 800000000, 1260000),
++	/* MPU OPP4 - OPPNitro */
++	OPP_INITIALIZER("mpu", false, 1000000000, 1325000),
++};
++
++/**
++ * am43xx_opp_init() - initialize am43xx opp table
++ */
++int __init am43xx_opp_init(void)
++{
++	int r = -ENODEV;
++	u32 rev, val, max_freq;
++
++	if (WARN(!soc_is_am43xx(), "Cannot init OPPs: unsupported SoC.\n"))
++		return r;
++
++	rev = omap_rev();
++
++	switch (rev) {
++	case AM437X_REV_ES1_0:
++	case AM437X_REV_ES1_1:
++	default:
++		/*
++		 * First read dev attr reg to detect supported frequency
++		 */
++		val = omap_ctrl_readl(AM43XX_DEV_ATTR_OFFSET);
++
++		/*
++		 * 1 = OPP is disabled and not available,
++		 * 0 = OPP available.
++		 */
++		max_freq = ~val & MAX_FREQ_MASK;
++
++		opp_def_list_enable_opp(am43xx_es1_0_opp_list,
++			ARRAY_SIZE(am43xx_es1_0_opp_list),
++			"mpu", 300000000,
++			(max_freq & EFUSE_OPP_50_300MHZ_BIT) ? true : false);
++
++		opp_def_list_enable_opp(am43xx_es1_0_opp_list,
++			ARRAY_SIZE(am43xx_es1_0_opp_list),
++			"mpu", 600000000,
++			(max_freq & EFUSE_OPP_100_600MHZ_BIT) ? true : false);
++
++		opp_def_list_enable_opp(am43xx_es1_0_opp_list,
++			ARRAY_SIZE(am43xx_es1_0_opp_list),
++			"mpu", 720000000,
++			(max_freq & EFUSE_OPP_120_720MHZ_BIT) ? true : false);
++
++		opp_def_list_enable_opp(am43xx_es1_0_opp_list,
++			ARRAY_SIZE(am43xx_es1_0_opp_list),
++			"mpu", 800000000,
++			(max_freq & EFUSE_OPP_TURBO_800MHZ_BIT) ? true : false);
++
++		opp_def_list_enable_opp(am43xx_es1_0_opp_list,
++			ARRAY_SIZE(am43xx_es1_0_opp_list),
++			"mpu", 1000000000,
++			(max_freq & EFUSE_OPP_NITRO_1GHZ_BIT) ? true : false);
++
++		r = omap_init_opp_table(am43xx_es1_0_opp_list,
++					ARRAY_SIZE(am43xx_es1_0_opp_list));
++		break;
++	}
++
++	return r;
++}
+diff --git a/arch/arm/mach-omap2/pm.h b/arch/arm/mach-omap2/pm.h
+index 1656d1b..9f83b65 100644
+--- a/arch/arm/mach-omap2/pm.h
++++ b/arch/arm/mach-omap2/pm.h
+@@ -39,6 +39,7 @@ extern int omap_pm_clkdms_setup(struct clockdomain *clkdm, void *unused);
+ extern int omap3_opp_init(void);
+ extern int omap4_opp_init(void);
+ extern int am33xx_opp_init(void);
++extern int am43xx_opp_init(void);
+ #else
+ static inline int omap3_opp_init(void)
+ {
+@@ -52,6 +53,10 @@ static inline int am33xx_opp_init(void)
+ {
+ 	return -EINVAL;
+ }
++static inline int am43xx_opp_init(void)
++{
++	return -EINVAL;
++}
+ #endif
+ 
+ extern int omap3_pm_get_suspend_state(struct powerdomain *pwrdm);
+-- 
+2.1.4
+

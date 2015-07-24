@@ -1,0 +1,114 @@
+From b3e1038f558783b054ba24d018c887e679158fa7 Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:27 -0500
+Subject: [PATCH] ARM: OMAP2+: opp: Add helper functions for variable OPP
+ handling
+
+Add opp_def_list_enable_opp to enable an opp in the opp_def_list
+based on frequency and opp_def_list_update_opp_voltage to change
+the voltage of an opp in the opp_def_list to aid in constructing
+an OPP table based on eFuse values.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/mach-omap2/omap_opp_data.h | 12 ++++++++
+ arch/arm/mach-omap2/opp.c           | 60 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/omap_opp_data.h b/arch/arm/mach-omap2/omap_opp_data.h
+index 336fdfc..92a77d0 100644
+--- a/arch/arm/mach-omap2/omap_opp_data.h
++++ b/arch/arm/mach-omap2/omap_opp_data.h
+@@ -83,6 +83,18 @@ struct omap_opp_def {
+ extern int __init omap_init_opp_table(struct omap_opp_def *opp_def,
+ 		u32 opp_def_size);
+ 
++extern int __init opp_def_list_enable_opp(struct omap_opp_def *list,
++					  unsigned int size,
++					  const char *hwmod_name,
++					  unsigned long opp_freq,
++					  bool state);
++
++extern int __init opp_def_list_update_opp_voltage(struct omap_opp_def *list,
++						  unsigned int size,
++						  const char *hwmod_name,
++						  unsigned long opp_freq,
++						  unsigned long u_volt);
++
+ 
+ extern struct omap_volt_data omap34xx_vddmpu_volt_data[];
+ extern struct omap_volt_data omap34xx_vddcore_volt_data[];
+diff --git a/arch/arm/mach-omap2/opp.c b/arch/arm/mach-omap2/opp.c
+index 263a587..10f8947 100644
+--- a/arch/arm/mach-omap2/opp.c
++++ b/arch/arm/mach-omap2/opp.c
+@@ -28,6 +28,66 @@
+ /* Temp variable to allow multiple calls */
+ static u8 __initdata omap_table_init;
+ 
++/*
++ * opp_def_list_enable_opp() - enable opp by hwmod_name and frequency
++ * @list:	opp default list for this silicon
++ * @size:	number of opp entries for this silicon
++ * @hwmod_name: hwmod for which the provided opp_freq exists
++ * @opp_freq:	frequency for which the state should be updated
++ * @state:	new state to set for opp availability
++ */
++int __init opp_def_list_enable_opp(struct omap_opp_def *list,
++				   unsigned int size,
++				   const char *hwmod_name,
++				   unsigned long opp_freq, bool state)
++{
++	int i;
++
++	for (i = 0; i < size; i++) {
++		struct omap_opp_def *entry = &list[i];
++
++		if (entry->hwmod_name == hwmod_name &&
++		    entry->freq == opp_freq) {
++			entry->default_available = state;
++			return 0;
++		}
++	}
++	WARN(1, "Unable to find opp for %s, frequency %ld\n",
++	     hwmod_name, opp_freq);
++	return -EINVAL;
++}
++
++/**
++ * opp_def_list_update_voltage_opp() - update opp u_volt entry by hwmod_name
++ *				       and frequency
++ * @list:	opp default list for this silicon
++ * @size:	number of opp entries for this silicon
++ * @hwmod_name: hwmod for which the provided opp_freq exists
++ * @opp_freq:	frequency for which the voltage should be updated
++ * @u_volt:	new voltage value for the provided opp
++ */
++int __init opp_def_list_update_opp_voltage(struct omap_opp_def *list,
++					   unsigned int size,
++					   const char *hwmod_name,
++					   unsigned long opp_freq,
++					   unsigned long u_volt)
++{
++	int i;
++
++	for (i = 0; i < size; i++) {
++		struct omap_opp_def *entry = &list[i];
++
++		if (entry->hwmod_name == hwmod_name &&
++		    entry->freq == opp_freq) {
++			entry->u_volt = u_volt;
++			return 0;
++		}
++	}
++	WARN(1, "Unable to find opp for %s, frequency %ld\n",
++	     hwmod_name, opp_freq);
++	return -EINVAL;
++}
++
+ /**
+  * omap_init_opp_table() - Initialize opp table as per the CPU type
+  * @opp_def:		opp default list for this silicon
+-- 
+2.1.4
+

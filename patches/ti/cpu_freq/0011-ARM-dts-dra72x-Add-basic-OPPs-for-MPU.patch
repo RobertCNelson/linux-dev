@@ -1,0 +1,35 @@
+From 7cc36064bd172b6008e4f77c48128b9c7a714eed Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:36 -0500
+Subject: [PATCH] ARM: dts: dra72x: Add basic OPPs for MPU
+
+Add basic OPPs for MPU that will be present if no other driver steps in
+to enable higher OPPs based on SoC configuration.
+
+Data based on DRA7x Data Manual, SPRS857K, Revised July 2014,
+Section 5.3.1.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/dra72x.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/boot/dts/dra72x.dtsi b/arch/arm/boot/dts/dra72x.dtsi
+index 4af17d8..cb17431 100644
+--- a/arch/arm/boot/dts/dra72x.dtsi
++++ b/arch/arm/boot/dts/dra72x.dtsi
+@@ -26,6 +26,11 @@
+ 			cooling-max-level = <2>;
+ 			#cooling-cells = <2>; /* min followed by max */
+ 
++			operating-points = <
++				/* kHz    uV */
++				1000000 1060000
++			>;
++
+ 			clocks = <&dpll_mpu_ck>;
+ 			clock-names = "cpu";
+ 
+-- 
+2.1.4
+

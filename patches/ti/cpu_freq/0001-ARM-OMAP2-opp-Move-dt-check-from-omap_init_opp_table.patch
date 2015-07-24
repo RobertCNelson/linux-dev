@@ -1,0 +1,62 @@
+From 8f5f2b72d19c1e62f85acfd84a286f08ca76e3ac Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:26 -0500
+Subject: [PATCH] ARM: OMAP2+: opp: Move dt check from omap_init_opp_table
+
+omap_init_opp_table previously would return if dt was present however we
+can still use this function even if dt is present to give updated OPP
+table based on SoC conditions like eFuse. Move the dt check to the
+platform specific opp init functions that don't support eFuse check.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/mach-omap2/opp.c          | 3 ---
+ arch/arm/mach-omap2/opp3xxx_data.c | 3 +++
+ arch/arm/mach-omap2/opp4xxx_data.c | 3 +++
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/opp.c b/arch/arm/mach-omap2/opp.c
+index a358a07..263a587 100644
+--- a/arch/arm/mach-omap2/opp.c
++++ b/arch/arm/mach-omap2/opp.c
+@@ -41,9 +41,6 @@ int __init omap_init_opp_table(struct omap_opp_def *opp_def,
+ {
+ 	int i, r;
+ 
+-	if (of_have_populated_dt())
+-		return -EINVAL;
+-
+ 	if (!opp_def || !opp_def_size) {
+ 		pr_err("%s: invalid params!\n", __func__);
+ 		return -EINVAL;
+diff --git a/arch/arm/mach-omap2/opp3xxx_data.c b/arch/arm/mach-omap2/opp3xxx_data.c
+index fc67add..9b44f8e 100644
+--- a/arch/arm/mach-omap2/opp3xxx_data.c
++++ b/arch/arm/mach-omap2/opp3xxx_data.c
+@@ -159,6 +159,9 @@ int __init omap3_opp_init(void)
+ 	if (!cpu_is_omap34xx())
+ 		return r;
+ 
++	if (of_have_populated_dt())
++		return -EINVAL;
++
+ 	if (cpu_is_omap3630())
+ 		r = omap_init_opp_table(omap36xx_opp_def_list,
+ 			ARRAY_SIZE(omap36xx_opp_def_list));
+diff --git a/arch/arm/mach-omap2/opp4xxx_data.c b/arch/arm/mach-omap2/opp4xxx_data.c
+index 1ef7a3e..1392cfe 100644
+--- a/arch/arm/mach-omap2/opp4xxx_data.c
++++ b/arch/arm/mach-omap2/opp4xxx_data.c
+@@ -169,6 +169,9 @@ int __init omap4_opp_init(void)
+ {
+ 	int r = -ENODEV;
+ 
++	if (of_have_populated_dt())
++		return -EINVAL;
++
+ 	if (cpu_is_omap443x())
+ 		r = omap_init_opp_table(omap443x_opp_def_list,
+ 			ARRAY_SIZE(omap443x_opp_def_list));
+-- 
+2.1.4
+

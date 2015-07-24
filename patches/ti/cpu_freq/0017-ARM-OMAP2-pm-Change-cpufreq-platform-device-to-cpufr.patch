@@ -1,0 +1,32 @@
+From 44ebfa6930c9914d139543909e5c33cd5a7ddacc Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:42 -0500
+Subject: [PATCH] ARM: OMAP2+: pm: Change cpufreq platform device to
+ cpufreq-voltdm
+
+Change the cpufreq platform device that gets created for all omap2+
+platforms from cpufreq-dt to cpufreq-voltdm to make use of the
+cpufreq-voltdm driver that is based on clk notifiers and leverages
+the voltdm code for regulator control.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/mach-omap2/pm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index 7540ba1..a362953 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -282,7 +282,7 @@ static inline void omap_init_cpufreq(void)
+ 	if (!of_have_populated_dt())
+ 		devinfo.name = "omap-cpufreq";
+ 	else
+-		devinfo.name = "cpufreq-dt";
++		devinfo.name = "cpufreq-voltdm";
+ 	platform_device_register_full(&devinfo);
+ }
+ 
+-- 
+2.1.4
+

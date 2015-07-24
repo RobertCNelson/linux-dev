@@ -1,0 +1,40 @@
+From ad7ec1619ff14dfaf526d2b6502911736e23ad75 Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:31 -0500
+Subject: [PATCH] ARM: dts: am33xx: Drop operating-points table from cpu0
+
+We now depend on platform code to provide opp table based on various
+SoC factors so drop dt operating-points table as there are no
+OPPs present which are common to all silicon.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/am33xx.dtsi | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index f6c2577..b9d2186 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -45,18 +45,6 @@
+ 			device_type = "cpu";
+ 			reg = <0>;
+ 
+-			/*
+-			 * To consider voltage drop between PMIC and SoC,
+-			 * tolerance value is reduced to 2% from 4% and
+-			 * voltage value is increased as a precaution.
+-			 */
+-			operating-points = <
+-				/* kHz    uV */
+-				720000  1285000
+-				600000  1225000
+-				500000  1125000
+-				275000  1125000
+-			>;
+ 			voltage-tolerance = <2>; /* 2 percentage */
+ 
+ 			clocks = <&dpll_mpu_ck>;
+-- 
+2.1.4
+

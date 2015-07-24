@@ -1,0 +1,34 @@
+From 95a8ed125030375c173756f0fec150ff42d8d18e Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 22 Jul 2015 16:01:35 -0500
+Subject: [PATCH] ARM: dts: dra72x: add clock nodes for CPU
+
+Add clock nodes for cpu0 on dra72x. cpu0 uses dpll_mpu clock.
+
+Latency used is the generic latency defined in omap-cpufreq
+driver.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/dra72x.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/boot/dts/dra72x.dtsi b/arch/arm/boot/dts/dra72x.dtsi
+index 03d742f..4af17d8 100644
+--- a/arch/arm/boot/dts/dra72x.dtsi
++++ b/arch/arm/boot/dts/dra72x.dtsi
+@@ -25,6 +25,11 @@
+ 			cooling-min-level = <0>;
+ 			cooling-max-level = <2>;
+ 			#cooling-cells = <2>; /* min followed by max */
++
++			clocks = <&dpll_mpu_ck>;
++			clock-names = "cpu";
++
++			clock-latency = <300000>; /* From omap-cpufreq driver */
+ 		};
+ 	};
+ 
+-- 
+2.1.4
+

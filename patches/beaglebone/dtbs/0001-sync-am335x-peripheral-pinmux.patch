@@ -1,6 +1,6 @@
-From 2456fabb3bc765dca64f45a299dc9d7789d6dbc2 Mon Sep 17 00:00:00 2001
+From 0eaefb3ccc346186de064fb6335f7760150e4566 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 16 Jul 2015 14:09:16 -0500
+Date: Fri, 24 Jul 2015 09:45:36 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -21,17 +21,18 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi    |  48 ++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi    |  48 ++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi    |  48 ++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  48 ++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  48 ++
- arch/arm/boot/dts/am335x-boneblack-can0.dts        |  67 +++
- .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  48 ++
- .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  42 ++
- .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |  92 ++++
- .../boot/dts/am335x-boneblack-nhdmi-overlay.dts    |  92 ++++
- arch/arm/boot/dts/am335x-boneblack-overlay.dts     |  14 +
- arch/arm/boot/dts/am335x-boneblack-universal.dts   |  36 ++
- arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |   4 +
- arch/arm/boot/dts/am335x-bonegreen.dts             |   4 +
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  44 ++
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  44 ++
+ arch/arm/boot/dts/am335x-boneblack-can0.dts        |  63 +++
+ .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  44 ++
+ .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  38 ++
+ .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |  88 ++++
+ .../boot/dts/am335x-boneblack-nhdmi-overlay.dts    |  88 ++++
+ arch/arm/boot/dts/am335x-boneblack-overlay.dts     |  18 +-
+ arch/arm/boot/dts/am335x-boneblack-replicape.dts   |   4 -
+ arch/arm/boot/dts/am335x-boneblack-universal.dts   |  32 ++
+ arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |   7 +-
+ arch/arm/boot/dts/am335x-bonegreen.dts             |   8 +-
  arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 224 ++++++++
  arch/arm/boot/dts/am335x-cape-bbb-exp-r.dtsi       | 217 ++++++++
  arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++
@@ -46,7 +47,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 +
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 ++++
- 41 files changed, 2988 insertions(+)
+ 42 files changed, 2956 insertions(+), 15 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-arduino-tre.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-can0.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
@@ -1937,10 +1938,10 @@ index 0000000..01d0aec
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 new file mode 100644
-index 0000000..8c92446
+index 0000000..f16263c
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,44 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1957,10 +1958,6 @@ index 0000000..8c92446
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -1991,10 +1988,10 @@ index 0000000..8c92446
 +#include "am335x-cape-bbb-exp-c.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
 new file mode 100644
-index 0000000..521ad3b
+index 0000000..9877591
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,44 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -2011,10 +2008,6 @@ index 0000000..521ad3b
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -2045,10 +2038,10 @@ index 0000000..521ad3b
 +#include "am335x-cape-bbb-exp-r.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-can0.dts b/arch/arm/boot/dts/am335x-boneblack-can0.dts
 new file mode 100644
-index 0000000..a613db4
+index 0000000..454e0df
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-can0.dts
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,63 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -2065,10 +2058,6 @@ index 0000000..a613db4
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -2118,10 +2107,10 @@ index 0000000..a613db4
 +/* #include "am335x-bone-pinmux-ttyS5.dtsi" */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 new file mode 100644
-index 0000000..f95ff5d
+index 0000000..75b22f7
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,44 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -2138,10 +2127,6 @@ index 0000000..f95ff5d
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -2172,10 +2157,10 @@ index 0000000..f95ff5d
 +#include "am335x-bone-argus.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
 new file mode 100644
-index 0000000..f78cc34
+index 0000000..5de5473
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,38 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -2192,10 +2177,6 @@ index 0000000..f78cc34
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -2220,10 +2201,10 @@ index 0000000..f78cc34
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
 new file mode 100644
-index 0000000..5846523
+index 0000000..f833175
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,88 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -2240,10 +2221,6 @@ index 0000000..5846523
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -2318,10 +2295,10 @@ index 0000000..5846523
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
 new file mode 100644
-index 0000000..5846523
+index 0000000..f833175
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,88 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -2338,10 +2315,6 @@ index 0000000..5846523
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -2415,10 +2388,21 @@ index 0000000..5846523
 +	system-power-controller;
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
-index 8206843..d1b1e19 100644
+index 8206843..3ee63a1 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-overlay.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
-@@ -28,3 +28,17 @@
+@@ -15,10 +15,6 @@
+ 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ };
+ 
+-/* Max Core Speed */
+-#include "am335x-boneblack-1ghz.dtsi"
+-/* #include "am335x-boneblack-800mhz.dtsi" */
+-
+ &ldo3_reg {
+ 	regulator-min-microvolt = <1800000>;
+ 	regulator-max-microvolt = <1800000>;
+@@ -28,3 +24,17 @@
  &mmc1 {
  	vmmc-supply = <&vmmcsd_fixed>;
  };
@@ -2436,12 +2420,27 @@ index 8206843..d1b1e19 100644
 +&rtc {
 +	system-power-controller;
 +};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-replicape.dts b/arch/arm/boot/dts/am335x-boneblack-replicape.dts
+index 53371bb..b9532c4 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-replicape.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-replicape.dts
+@@ -15,10 +15,6 @@
+ 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ };
+ 
+-/* Max Core Speed */
+-#include "am335x-boneblack-1ghz.dtsi"
+-/* #include "am335x-boneblack-800mhz.dtsi" */
+-
+ &ldo3_reg {
+ 	regulator-min-microvolt = <1800000>;
+ 	regulator-max-microvolt = <1800000>;
 diff --git a/arch/arm/boot/dts/am335x-boneblack-universal.dts b/arch/arm/boot/dts/am335x-boneblack-universal.dts
 new file mode 100644
-index 0000000..9af2574
+index 0000000..a39edfb
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-universal.dts
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,32 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -2459,10 +2458,6 @@ index 0000000..9af2574
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
 +
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
-+/* #include "am335x-boneblack-800mhz.dtsi" */
-+
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
 +	regulator-max-microvolt = <1800000>;
@@ -2479,10 +2474,20 @@ index 0000000..9af2574
 +
 +#include "am335x-bone-common-universal.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
-index 7027d84..edfc2fa 100644
+index 7027d84..348189a 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
-@@ -28,6 +28,10 @@
+@@ -15,9 +15,6 @@
+ 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ };
+ 
+-/* Max Core Speed */
+-#include "am335x-boneblack-1ghz.dtsi"
+-
+ &ldo3_reg {
+ 	regulator-min-microvolt = <1800000>;
+ 	regulator-max-microvolt = <1800000>;
+@@ -28,6 +25,10 @@
  	vmmc-supply = <&vmmcsd_fixed>;
  };
  
@@ -2494,10 +2499,21 @@ index 7027d84..edfc2fa 100644
  &gpio1 {
  	emmc_rst {
 diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
-index 5de96f1..8df822a 100644
+index 5de96f1..69879ad 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen.dts
-@@ -36,3 +36,7 @@
+@@ -15,10 +15,6 @@
+ 	compatible = "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ };
+ 
+-/* Max Core Speed */
+-#include "am335x-boneblack-1ghz.dtsi"
+-/* #include "am335x-boneblack-800mhz.dtsi" */
+-
+ &ldo3_reg {
+ 	regulator-min-microvolt = <1800000>;
+ 	regulator-max-microvolt = <1800000>;
+@@ -36,3 +32,7 @@
  	bus-width = <8>;
  	status = "okay";
  };
