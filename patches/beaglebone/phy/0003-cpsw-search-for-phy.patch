@@ -12,16 +12,16 @@ would welcome any input on a different approach.
 https://groups.google.com/d/msg/beagleboard/9mctrG26Mc8/SRlnumt0LoMJ
 
 v4.1-rcX: added hack around CONFIG_OF_OVERLAY
-
-todo: we shouldn't update both phy_id's as this could be breaking dual ethernet am335x devices
+v4.2-rc3+: added if (of_machine_is_compatible("ti,am335x-bone")) so we do
+not break dual ethernet am335x devices
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- drivers/net/ethernet/ti/davinci_mdio.c | 96 ++++++++++++++++++++++++++++++++++
- 1 file changed, 96 insertions(+)
+ drivers/net/ethernet/ti/davinci_mdio.c | 97 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 97 insertions(+)
 
 diff --git a/drivers/net/ethernet/ti/davinci_mdio.c b/drivers/net/ethernet/ti/davinci_mdio.c
-index c00084d..6fca7b7 100644
+index c00084d..cfbe9a5 100644
 --- a/drivers/net/ethernet/ti/davinci_mdio.c
 +++ b/drivers/net/ethernet/ti/davinci_mdio.c
 @@ -102,6 +102,10 @@ struct davinci_mdio_data {
@@ -35,19 +35,20 @@ index c00084d..6fca7b7 100644
  static void __davinci_mdio_reset(struct davinci_mdio_data *data)
  {
  	u32 mdio_in, div, mdio_out_khz, access_time;
-@@ -158,6 +162,11 @@ static int davinci_mdio_reset(struct mii_bus *bus)
+@@ -158,6 +162,12 @@ static int davinci_mdio_reset(struct mii_bus *bus)
  		/* restrict mdio bus to live phys only */
  		dev_info(data->dev, "detected phy mask %x\n", ~phy_mask);
  		phy_mask = ~phy_mask;
 +
 +		#if IS_ENABLED(CONFIG_OF)
-+		davinci_mdio_update_dt_from_phymask(phy_mask);
++		if (of_machine_is_compatible("ti,am335x-bone"))
++			davinci_mdio_update_dt_from_phymask(phy_mask);
 +		#endif
 +
  	} else {
  		/* desperately scan all phys */
  		dev_warn(data->dev, "no live phy, scanning all\n");
-@@ -318,6 +327,93 @@ static int davinci_mdio_probe_dt(struct mdio_platform_data *data,
+@@ -318,6 +328,93 @@ static int davinci_mdio_probe_dt(struct mdio_platform_data *data,
  
  	return 0;
  }
