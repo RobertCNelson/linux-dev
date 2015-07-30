@@ -438,6 +438,7 @@ beaglebone () {
 
 	####
 	#dtb makefile
+	echo "dir: beaglebone/generated"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 
