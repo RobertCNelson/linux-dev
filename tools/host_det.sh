@@ -82,19 +82,19 @@ redhat_reqs () {
 			echo "add: [EPEL] repo: https://fedoraproject.org/wiki/EPEL"
 			echo "http://download.fedoraproject.org/pub/epel/7/x86_64/repoview/epel-release.html"
 			echo "-----------------------------"
-			pkg="uboot-tools"
-			check_rpm
+			#pkg="uboot-tools"
+			#check_rpm
 			;;
-		22)
+		22|23)
 			pkgtool="dnf"
 			pkg="uboot-tools"
 			check_rpm
 			;;
-		20|21)
+		21)
 			pkg="uboot-tools"
 			check_rpm
 			;;
-		17|18|19)
+		17|18|19|20)
 			#end of life...
 			pkg="uboot-tools"
 			check_rpm
@@ -350,6 +350,10 @@ debian_regs () {
 		unset error_unknown_deb_distro
 		case "${deb_distro}" in
 		squeeze|wheezy|jessie|stretch|sid)
+			#6 squeeze: 2016-02-06 https://wiki.debian.org/DebianSqueeze
+			#7 wheezy: https://wiki.debian.org/DebianWheezy
+			#8 jessie: https://wiki.debian.org/DebianJessie
+			#9 stretch: https://wiki.debian.org/DebianStretch
 			unset warn_eol_distro
 			;;
 		vivid|wily)
@@ -363,33 +367,26 @@ debian_regs () {
 			stop_pkg_search=1
 			;;
 		trusty)
-			#14.04 (EOL: April 2019) lts: trusty -> xyz
+			#14.04 trusty: (EOL: April 2019) lts: trusty -> xyz
 			unset warn_eol_distro
 			;;
 		quantal|raring|saucy)
-			#12.10 (EOL: May 16, 2014)
-			#13.04 (EOL: January 27, 2014)
-			#13.10 (EOL: July 17, 2014)
+			#12.10 quantal: (EOL: May 16, 2014)
+			#13.04 raring: (EOL: January 27, 2014)
+			#13.10 saucy: (EOL: July 17, 2014)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
 		precise)
-			#12.04 (EOL: April 2017) lts: precise -> trusty
+			#12.04 precise: (EOL: April 2017) lts: precise -> trusty
 			unset warn_eol_distro
 			;;
-		maverick|natty|oneiric)
-			#10.10 (EOL: April 10, 2012)
-			#11.04 (EOL: October 28, 2012)
-			#11.10 (EOL: May 9, 2013)
-			warn_eol_distro=1
-			stop_pkg_search=1
-			;;
-		lucid)
-			#10.04 (EOL: April 2015) lts: lucid -> precise
-			unset warn_eol_distro
-			;;
-		hardy)
-			#8.04 (EOL: May 2013) lts: hardy -> lucid
+		hardy|lucid|maverick|natty|oneiric)
+			#8.04 hardy: (EOL: May 2013) lts: hardy -> lucid
+			#10.04 lucid: (EOL: April 2015) lts: lucid -> precise
+			#10.10 maverick: (EOL: April 10, 2012)
+			#11.04 natty: (EOL: October 28, 2012)
+			#11.10 oneiric: (EOL: May 9, 2013)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
@@ -406,7 +403,7 @@ debian_regs () {
 		
 		#pkg: mkimage
 		case "${deb_distro}" in
-		squeeze|lucid)
+		squeeze)
 			pkg="uboot-mkimage"
 			check_dpkg
 			;;
@@ -418,7 +415,7 @@ debian_regs () {
 
 		#Libs; starting with jessie/sid, lib<pkg_name>-dev:<arch>
 		case "${deb_distro}" in
-		squeeze|wheezy|lucid|precise)
+		squeeze|wheezy|precise)
 			pkg="libncurses5-dev"
 			check_dpkg
 			;;
@@ -432,7 +429,7 @@ debian_regs () {
 		if [ "x${deb_arch}" = "xamd64" ] ; then
 			unset dpkg_multiarch
 			case "${deb_distro}" in
-			squeeze|lucid|precise)
+			squeeze|precise)
 				pkg="ia32-libs"
 				check_dpkg
 				;;
