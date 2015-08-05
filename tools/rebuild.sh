@@ -59,7 +59,8 @@ make_kernel () {
 	image="zImage"
 	unset address
 
-	#uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
+	##uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
+	##make sure to install your distro's version of mkimage
 	#image="uImage"
 	#address="LOADADDR=${ZRELADDR}"
 

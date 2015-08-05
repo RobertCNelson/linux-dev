@@ -67,45 +67,8 @@ redhat_reqs () {
 		echo "RPM distro version: [${rpm_distro}]"
 
 		case "${rpm_distro}" in
-		6.4|6.5|6.6|6.7)
-			echo "-----------------------------"
-			echo "Warning: RHEL/CentOS [${rpm_distro}] has no [uboot-tools] pkg by default"
-			echo "add: [EPEL] repo: https://fedoraproject.org/wiki/EPEL"
-			echo "http://download.fedoraproject.org/pub/epel/6/i386/repoview/epel-release.html"
-			echo "-----------------------------"
-			pkg="uboot-tools"
-			check_rpm
-			;;
-		7.0|7.1)
-			echo "-----------------------------"
-			echo "Warning: RHEL/CentOS [${rpm_distro}] has no [uboot-tools] pkg by default"
-			echo "add: [EPEL] repo: https://fedoraproject.org/wiki/EPEL"
-			echo "http://download.fedoraproject.org/pub/epel/7/x86_64/repoview/epel-release.html"
-			echo "-----------------------------"
-			#pkg="uboot-tools"
-			#check_rpm
-			;;
 		22|23)
 			pkgtool="dnf"
-			pkg="uboot-tools"
-			check_rpm
-			;;
-		21)
-			pkg="uboot-tools"
-			check_rpm
-			;;
-		17|18|19|20)
-			#end of life...
-			pkg="uboot-tools"
-			check_rpm
-			;;
-		*)
-			echo "Warning: [uboot-tools] package check still in development"
-			echo "Please email to: bugs@rcn-ee.com"
-			echo "Success/Failure of [${pkgtool} install uboot-tools]"
-			echo "RPM distro version: [${rpm_distro}]"
-			pkg="uboot-tools"
-			check_rpm
 			;;
 		esac
 	fi
@@ -144,25 +107,6 @@ Missing patch command,
  installed simply using:
 
     zypper install patch
-
-@@
-        return 1
-    fi
-
-# --- mkimage ---
-    if [ ! $( which mkimage ) ]
-    then
-        cat >&2 <<@@
-Missing mkimage command.
- This command is part of a package not provided directly from
- opensuse. It can be found under several places for suse.
- There are two ways to install the package: either using a rpm
- or using a repo.
- In the second case these are the command to issue in order to 
- install it:
-
-    zypper addrepo -f http://download.opensuse.org/repositories/home:/jblunck:/beagleboard/openSUSE_11.2
-    zypper install uboot-mkimage
 
 @@
         return 1
@@ -401,18 +345,6 @@ debian_regs () {
 	if [ $(which lsb_release) ] && [ ! "${stop_pkg_search}" ] ; then
 		deb_arch=$(LC_ALL=C dpkg --print-architecture)
 		
-		#pkg: mkimage
-		case "${deb_distro}" in
-		squeeze)
-			pkg="uboot-mkimage"
-			check_dpkg
-			;;
-		*)
-			pkg="u-boot-tools"
-			check_dpkg
-			;;
-		esac
-
 		#Libs; starting with jessie/sid, lib<pkg_name>-dev:<arch>
 		case "${deb_distro}" in
 		squeeze|wheezy|precise)
