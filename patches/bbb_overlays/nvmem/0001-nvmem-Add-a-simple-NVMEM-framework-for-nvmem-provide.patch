@@ -1,6 +1,6 @@
-From f9a2277e0a1aa0a0057a91da0605fdcb1efaac5f Mon Sep 17 00:00:00 2001
+From 1b33547b0c1032fe6ac09331d80766e754518487 Mon Sep 17 00:00:00 2001
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Mon, 20 Jul 2015 15:43:12 +0100
+Date: Mon, 27 Jul 2015 12:13:19 +0100
 Subject: [PATCH 1/8] nvmem: Add a simple NVMEM framework for nvmem providers
 
 This patch adds just providers part of the framework just to enable easy
@@ -26,15 +26,16 @@ abstraction for nvmems on different buses.
 Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 [Maxime Ripard: intial version of eeprom framework]
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
 ---
  drivers/Kconfig                |   2 +
  drivers/Makefile               |   1 +
  drivers/nvmem/Kconfig          |  13 ++
  drivers/nvmem/Makefile         |   6 +
- drivers/nvmem/core.c           | 384 +++++++++++++++++++++++++++++++++++++++++
+ drivers/nvmem/core.c           | 406 +++++++++++++++++++++++++++++++++++++++++
  include/linux/nvmem-consumer.h |  23 +++
  include/linux/nvmem-provider.h |  47 +++++
- 7 files changed, 476 insertions(+)
+ 7 files changed, 498 insertions(+)
  create mode 100644 drivers/nvmem/Kconfig
  create mode 100644 drivers/nvmem/Makefile
  create mode 100644 drivers/nvmem/core.c
@@ -94,10 +95,10 @@ index 0000000..6df2c69
 +nvmem_core-y			:= core.o
 diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
 new file mode 100644
-index 0000000..bde5528
+index 0000000..2b02491
 --- /dev/null
 +++ b/drivers/nvmem/core.c
-@@ -0,0 +1,384 @@
+@@ -0,0 +1,406 @@
 +/*
 + * nvmem framework core.
 + *
@@ -218,6 +219,20 @@ index 0000000..bde5528
 +	.write	= bin_attr_nvmem_write,
 +};
 +
++static struct bin_attribute *nvmem_bin_rw_attributes[] = {
++	&bin_attr_rw_nvmem,
++	NULL,
++};
++
++static const struct attribute_group nvmem_bin_rw_group = {
++	.bin_attrs	= nvmem_bin_rw_attributes,
++};
++
++static const struct attribute_group *nvmem_rw_dev_groups[] = {
++	&nvmem_bin_rw_group,
++	NULL,
++};
++
 +/* read only permission */
 +static struct bin_attribute bin_attr_ro_nvmem = {
 +	.attr	= {
@@ -225,6 +240,20 @@ index 0000000..bde5528
 +		.mode	= S_IRUGO,
 +	},
 +	.read	= bin_attr_nvmem_read,
++};
++
++static struct bin_attribute *nvmem_bin_ro_attributes[] = {
++	&bin_attr_ro_nvmem,
++	NULL,
++};
++
++static const struct attribute_group nvmem_bin_ro_group = {
++	.bin_attrs	= nvmem_bin_ro_attributes,
++};
++
++static const struct attribute_group *nvmem_ro_dev_groups[] = {
++	&nvmem_bin_ro_group,
++	NULL,
 +};
 +
 +static void nvmem_release(struct device *dev)
@@ -334,7 +363,7 @@ index 0000000..bde5528
 +	const struct nvmem_cell_info *info = cfg->cells;
 +	int i, rval;
 +
-+	cells = kzalloc(sizeof(*cells) * cfg->ncells, GFP_KERNEL);
++	cells = kcalloc(cfg->ncells, sizeof(*cells), GFP_KERNEL);
 +	if (!cells)
 +		return -ENOMEM;
 +
@@ -396,12 +425,13 @@ index 0000000..bde5528
 +	if (!nvmem)
 +		return ERR_PTR(-ENOMEM);
 +
-+	nvmem->id = ida_simple_get(&nvmem_ida, 0, 0, GFP_KERNEL);
-+	if (nvmem->id < 0) {
++	rval  = ida_simple_get(&nvmem_ida, 0, 0, GFP_KERNEL);
++	if (rval < 0) {
 +		kfree(nvmem);
-+		return ERR_PTR(nvmem->id);
++		return ERR_PTR(rval);
 +	}
 +
++	nvmem->id = rval;
 +	nvmem->regmap = rm;
 +	nvmem->owner = config->owner;
 +	nvmem->stride = regmap_get_reg_stride(rm);
@@ -415,9 +445,11 @@ index 0000000..bde5528
 +	dev_set_name(&nvmem->dev, "%s%d",
 +		     config->name ? : "nvmem", config->id);
 +
-+	nvmem->read_only = np ? of_property_read_bool(np, "read-only") : 0;
++	nvmem->read_only = of_property_read_bool(np, "read-only") |
++			   config->read_only;
 +
-+	nvmem->read_only |= config->read_only;
++	nvmem->dev.groups = nvmem->read_only ? nvmem_ro_dev_groups :
++					       nvmem_rw_dev_groups;
 +
 +	device_initialize(&nvmem->dev);
 +
@@ -429,11 +461,6 @@ index 0000000..bde5528
 +		kfree(nvmem);
 +		return ERR_PTR(rval);
 +	}
-+
-+	if (device_create_bin_file(&nvmem->dev,
-+				nvmem->read_only ? &bin_attr_ro_nvmem :
-+				&bin_attr_rw_nvmem))
-+		dev_warn(&nvmem->dev, "Failed to create sysfs binary file\n");
 +
 +	if (config->cells)
 +		nvmem_add_cells(nvmem, config);
@@ -451,12 +478,8 @@ index 0000000..bde5528
 + */
 +int nvmem_unregister(struct nvmem_device *nvmem)
 +{
-+	mutex_lock(&nvmem_mutex);
-+	if (nvmem->users) {
-+		mutex_unlock(&nvmem_mutex);
++	if (nvmem->users)
 +		return -EBUSY;
-+	}
-+	mutex_unlock(&nvmem_mutex);
 +
 +	nvmem_device_remove_all_cells(nvmem);
 +	device_del(&nvmem->dev);
@@ -565,5 +588,5 @@ index 0000000..0b68caf
 +
 +#endif  /* ifndef _LINUX_NVMEM_PROVIDER_H */
 -- 
-2.1.4
+2.4.6
 

@@ -1,6 +1,6 @@
-From 3d18757ed6db1abf7d83e5b554d7eb220024587e Mon Sep 17 00:00:00 2001
+From 060a0f44585999461f074fda2f02671e94f2c38a Mon Sep 17 00:00:00 2001
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Date: Mon, 20 Jul 2015 15:44:22 +0100
+Date: Mon, 27 Jul 2015 12:17:09 +0100
 Subject: [PATCH 8/8] nvmem: sunxi: Move the SID driver to the nvmem framework
 
 Now that we have the nvmem framework, we can consolidate the common
@@ -12,15 +12,15 @@ Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
  Documentation/ABI/testing/sysfs-driver-sunxi-sid   |  22 ---
- .../bindings/misc/allwinner,sunxi-sid.txt          |  17 ---
+ .../bindings/misc/allwinner,sunxi-sid.txt          |  17 --
  .../bindings/nvmem/allwinner,sunxi-sid.txt         |  21 +++
  drivers/misc/eeprom/Kconfig                        |  13 --
  drivers/misc/eeprom/Makefile                       |   1 -
- drivers/misc/eeprom/sunxi_sid.c                    | 156 --------------------
+ drivers/misc/eeprom/sunxi_sid.c                    | 156 -------------------
  drivers/nvmem/Kconfig                              |  11 ++
  drivers/nvmem/Makefile                             |   2 +
- drivers/nvmem/sunxi_sid.c                          | 159 +++++++++++++++++++++
- 9 files changed, 193 insertions(+), 209 deletions(-)
+ drivers/nvmem/sunxi_sid.c                          | 171 +++++++++++++++++++++
+ 9 files changed, 205 insertions(+), 209 deletions(-)
  delete mode 100644 Documentation/ABI/testing/sysfs-driver-sunxi-sid
  delete mode 100644 Documentation/devicetree/bindings/misc/allwinner,sunxi-sid.txt
  create mode 100644 Documentation/devicetree/bindings/nvmem/allwinner,sunxi-sid.txt
@@ -331,10 +331,10 @@ index ff44fe9..4328b93 100644
 +nvmem_sunxi_sid-y		:= sunxi_sid.o
 diff --git a/drivers/nvmem/sunxi_sid.c b/drivers/nvmem/sunxi_sid.c
 new file mode 100644
-index 0000000..169a829
+index 0000000..14777dd
 --- /dev/null
 +++ b/drivers/nvmem/sunxi_sid.c
-@@ -0,0 +1,159 @@
+@@ -0,0 +1,171 @@
 +/*
 + * Allwinner sunXi SoCs Security ID support.
 + *
@@ -362,6 +362,7 @@ index 0000000..169a829
 +#include <linux/platform_device.h>
 +#include <linux/regmap.h>
 +#include <linux/slab.h>
++#include <linux/random.h>
 +
 +
 +static struct nvmem_config econfig = {
@@ -439,6 +440,8 @@ index 0000000..169a829
 +	struct nvmem_device *nvmem;
 +	struct regmap *regmap;
 +	struct sunxi_sid *sid;
++	int i, size;
++	char *randomness;
 +
 +	sid = devm_kzalloc(dev, sizeof(*sid), GFP_KERNEL);
 +	if (!sid)
@@ -449,7 +452,8 @@ index 0000000..169a829
 +	if (IS_ERR(sid->base))
 +		return PTR_ERR(sid->base);
 +
-+	sunxi_sid_regmap_config.max_register = resource_size(res) - 1;
++	size = resource_size(res) - 1;
++	sunxi_sid_regmap_config.max_register = size;
 +
 +	regmap = devm_regmap_init(dev, &sunxi_sid_bus, sid,
 +				  &sunxi_sid_regmap_config);
@@ -457,10 +461,18 @@ index 0000000..169a829
 +		dev_err(dev, "regmap init failed\n");
 +		return PTR_ERR(regmap);
 +	}
++
 +	econfig.dev = dev;
 +	nvmem = nvmem_register(&econfig);
 +	if (IS_ERR(nvmem))
 +		return PTR_ERR(nvmem);
++
++	randomness = kzalloc(sizeof(u8) * size, GFP_KERNEL);
++	for (i = 0; i < size; i++)
++		randomness[i] = sunxi_sid_read_byte(sid, i);
++
++	add_device_randomness(randomness, size);
++	kfree(randomness);
 +
 +	platform_set_drvdata(pdev, nvmem);
 +
@@ -495,5 +507,5 @@ index 0000000..169a829
 +MODULE_DESCRIPTION("Allwinner sunxi security id driver");
 +MODULE_LICENSE("GPL");
 -- 
-2.1.4
+2.4.6
 
