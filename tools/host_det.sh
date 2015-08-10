@@ -223,6 +223,15 @@ debian_regs () {
 			deb_distro="wheezy"
 		fi
 
+		if [ "x${deb_distro}" = "xsana" ] ; then
+			#lsb_release -a
+			#Distributor ID:    Kali
+			#Description:    Kali GNU/Linux 2.0
+			#Release:    2.0
+			#Codename:    sana
+			deb_distro="jessie"
+		fi
+
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/download_all.php (lists current versions)
 		#http://www.linuxmint.com/oldreleases.php
