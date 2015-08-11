@@ -1,0 +1,29 @@
+From cc0f4f75c938a545b74359c0931fbff523b5500b Mon Sep 17 00:00:00 2001
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Date: Tue, 11 Aug 2015 12:03:36 +0100
+Subject: [PATCH 10/11] nvmem: set the size for the nvmem binary file.
+
+This patch sets the actual size of binary file to the nvmem size.
+Previously this was not possible as the core was using the static global
+data structures for attributes.
+
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+---
+ drivers/nvmem/core.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 0a1a9f1..6497434 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -312,6 +312,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 			   config->read_only;
+ 	nvmem->bin = bin_attr_template;
+ 	nvmem->bin.attr.mode = nvmem->read_only ? : (S_IRUSR | S_IWUSR);
++	nvmem->bin.size = nvmem->size;
+ 	device_initialize(&nvmem->dev);
+ 
+ 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+-- 
+2.5.0
+

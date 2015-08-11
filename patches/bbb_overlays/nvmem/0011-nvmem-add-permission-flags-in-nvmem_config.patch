@@ -1,0 +1,43 @@
+From 10098faaf0a8c591dff6346e816d8823aa88f6f2 Mon Sep 17 00:00:00 2001
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Date: Tue, 11 Aug 2015 12:03:44 +0100
+Subject: [PATCH 11/11] nvmem: add permission flags in nvmem_config
+
+This patch adds perm variable to nvmem_config structure which will allow
+providers to specify the permissions required for the sysfs binary file.
+This permission is applied on top of root-only access permissions set by
+the core.
+
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+---
+ drivers/nvmem/core.c           | 1 +
+ include/linux/nvmem-provider.h | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 6497434..3f0e7b1 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -312,6 +312,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 			   config->read_only;
+ 	nvmem->bin = bin_attr_template;
+ 	nvmem->bin.attr.mode = nvmem->read_only ? : (S_IRUSR | S_IWUSR);
++	nvmem->bin.attr.mode |= config->perm;
+ 	nvmem->bin.size = nvmem->size;
+ 	device_initialize(&nvmem->dev);
+ 
+diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
+index 0b68caf..de9a61f 100644
+--- a/include/linux/nvmem-provider.h
++++ b/include/linux/nvmem-provider.h
+@@ -23,6 +23,7 @@ struct nvmem_config {
+ 	const struct nvmem_cell_info	*cells;
+ 	int			ncells;
+ 	bool			read_only;
++	u16			perm; /* visibility in sysfs */
+ };
+ 
+ #if IS_ENABLED(CONFIG_NVMEM)
+-- 
+2.5.0
+
