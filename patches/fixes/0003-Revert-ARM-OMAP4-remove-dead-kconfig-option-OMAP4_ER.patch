@@ -1,7 +1,7 @@
-From 5105b22be092b907cf40841b526c87c2595aa430 Mon Sep 17 00:00:00 2001
+From 7964e4a3f703fd8080615b670bbdc37fdf514096 Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
 Date: Wed, 15 Jul 2015 18:47:29 +0100
-Subject: [PATCH 4/5] Revert "ARM: OMAP4: remove dead kconfig option
+Subject: [PATCH 3/4] Revert "ARM: OMAP4: remove dead kconfig option
  OMAP4_ERRATA_I688"
 
 This reverts commit 606da4826b89b044b51e3a84958b802204cfe4c7.
@@ -23,10 +23,10 @@ Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
  7 files changed, 105 insertions(+)
 
 diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
-index ecc04ff..2128441 100644
+index 4a023e8..0a58e20 100644
 --- a/arch/arm/mach-omap2/Kconfig
 +++ b/arch/arm/mach-omap2/Kconfig
-@@ -240,6 +240,27 @@ config OMAP3_SDRC_AC_TIMING
+@@ -241,6 +241,27 @@ config OMAP3_SDRC_AC_TIMING
  	  wish to say no.  Selecting yes without understanding what is
  	  going on could result in system crashes;
  
@@ -79,10 +79,10 @@ index cf3cf22..46e2458 100644
   * omap_test_timeout - busy-loop, testing a condition
   * @cond: condition to test until it evaluates to true
 diff --git a/arch/arm/mach-omap2/io.c b/arch/arm/mach-omap2/io.c
-index 820dde8..7743e367 100644
+index 9f13e95..1a89999 100644
 --- a/arch/arm/mach-omap2/io.c
 +++ b/arch/arm/mach-omap2/io.c
-@@ -306,6 +306,7 @@ void __init am33xx_map_io(void)
+@@ -307,6 +307,7 @@ void __init am33xx_map_io(void)
  void __init omap4_map_io(void)
  {
  	iotable_init(omap44xx_io_desc, ARRAY_SIZE(omap44xx_io_desc));
@@ -90,7 +90,7 @@ index 820dde8..7743e367 100644
  }
  #endif
  
-@@ -313,6 +314,7 @@ void __init omap4_map_io(void)
+@@ -314,6 +315,7 @@ void __init omap4_map_io(void)
  void __init omap5_map_io(void)
  {
  	iotable_init(omap54xx_io_desc, ARRAY_SIZE(omap54xx_io_desc));
@@ -213,5 +213,5 @@ index ad1bb94..b84a012 100644
  ENTRY(omap_do_wfi)
  	stmfd	sp!, {lr}
 -- 
-2.1.4
+2.5.0
 

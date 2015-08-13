@@ -1,7 +1,7 @@
-From f8373670366429766e8c5279b4e8184bef6dc009 Mon Sep 17 00:00:00 2001
+From f2749d7a59fbf51266e914c61b577a0b13f054be Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
 Date: Wed, 15 Jul 2015 18:47:34 +0100
-Subject: [PATCH 5/5] ARM: omap2: restore OMAP4 barrier behaviour
+Subject: [PATCH 4/4] ARM: omap2: restore OMAP4 barrier behaviour
 
 Restore the OMAP4 barrier behaviour using the new implementation which
 allows multiplatform systems to hook into the mb() and wmb() ARM
@@ -19,7 +19,7 @@ Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
  delete mode 100644 arch/arm/mach-omap2/include/mach/barriers.h
 
 diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
-index 2128441..6e14498 100644
+index 0a58e20..d2918cb 100644
 --- a/arch/arm/mach-omap2/Kconfig
 +++ b/arch/arm/mach-omap2/Kconfig
 @@ -29,6 +29,7 @@ config ARCH_OMAP4
@@ -38,7 +38,7 @@ index 2128441..6e14498 100644
  
  config SOC_AM33XX
  	bool "TI AM33XX"
-@@ -70,6 +72,7 @@ config SOC_DRA7XX
+@@ -71,6 +73,7 @@ config SOC_DRA7XX
  	select HAVE_ARM_ARCH_TIMER
  	select IRQ_CROSSBAR
  	select ARM_ERRATA_798181 if SMP
@@ -46,7 +46,7 @@ index 2128441..6e14498 100644
  
  config ARCH_OMAP2PLUS
  	bool
-@@ -91,6 +94,10 @@ config ARCH_OMAP2PLUS
+@@ -92,6 +95,10 @@ config ARCH_OMAP2PLUS
  	help
  	  Systems based on OMAP2, OMAP3, OMAP4 or OMAP5
  
@@ -57,7 +57,7 @@ index 2128441..6e14498 100644
  
  if ARCH_OMAP2PLUS
  
-@@ -240,27 +247,6 @@ config OMAP3_SDRC_AC_TIMING
+@@ -241,27 +248,6 @@ config OMAP3_SDRC_AC_TIMING
  	  wish to say no.  Selecting yes without understanding what is
  	  going on could result in system crashes;
  
@@ -331,5 +331,5 @@ index b84a012..9b09d85 100644
  	/*
  	 * Execute an ISB instruction to ensure that all of the
 -- 
-2.1.4
+2.5.0
 
