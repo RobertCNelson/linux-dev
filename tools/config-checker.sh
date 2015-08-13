@@ -163,6 +163,7 @@ config="CONFIG_CPU_FREQ_GOV_CONSERVATIVE" ; config_enable
 # CPU frequency scaling drivers
 #
 config="CONFIG_CPUFREQ_DT" ; config_enable
+config="CONFIG_CPUFREQ_VOLTDM" ; config_enable
 config="CONFIG_ARM_IMX6Q_CPUFREQ" ; config_enable
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
 
@@ -185,14 +186,7 @@ config="CONFIG_IP_PNP" ; config_enable
 config="CONFIG_IP_PNP_DHCP" ; config_enable
 config="CONFIG_IP_PNP_BOOTP" ; config_enable
 config="CONFIG_IP_PNP_RARP" ; config_enable
-config="CONFIG_NET_FOU" ; config_module
-config="CONFIG_NET_FOU_IP_TUNNELS" ; config_enable
 config="CONFIG_NETLABEL" ; config_enable
-
-#
-# Core Netfilter Configuration
-#
-config="CONFIG_NFT_REDIR" ; config_module
 
 #
 # IP: Netfilter Configuration
@@ -212,9 +206,6 @@ config="CONFIG_MAC802154" ; config_module
 #
 # Classification
 #
-config="CONFIG_NET_ACT_VLAN" ; config_module
-config="CONFIG_NET_ACT_BPF" ; config_module
-config="CONFIG_NET_ACT_CONNMARK" ; config_module
 config="CONFIG_HSR" ; config_module
 
 #
@@ -273,12 +264,6 @@ config="CONFIG_CMA_SIZE_MBYTES" ; option=24 ; config_value
 # Bus devices
 #
 config="CONFIG_OMAP_OCP2SCP" ; config_enable
-config="CONFIG_VEXPRESS_CONFIG" ; config_disable
-
-#
-# Disk-On-Chip Device Drivers
-#
-config="CONFIG_MTD_NAND_SUNXI" ; config_module
 
 #
 # Device Tree and Open Firmware support
@@ -349,7 +334,6 @@ config="CONFIG_PATA_OF_PLATFORM" ; config_enable
 # Generic fallback / legacy drivers
 #
 config="CONFIG_MII" ; config_enable
-config="CONFIG_IPVLAN" ; config_module
 
 #
 # Distributed Switch Architecture drivers
@@ -385,6 +369,8 @@ config="CONFIG_USB_ZD1201" ; config_module
 config="CONFIG_WCN36XX" ; config_module
 config="CONFIG_WCN36XX_DEBUGFS" ; config_disable
 config="CONFIG_LIBERTAS_SPI" ; config_module
+config="CONFIG_WL_MEDIATEK" ; config_enable
+config="CONFIG_MT7601U" ; config_module
 config="CONFIG_MWIFIEX" ; config_module
 config="CONFIG_MWIFIEX_SDIO" ; config_module
 config="CONFIG_MWIFIEX_USB" ; config_module
@@ -537,7 +523,6 @@ config="CONFIG_SERIAL_8250_OMAP" ; config_disable
 #
 # Non-8250 serial port support
 #
-config="CONFIG_CONSOLE_POLL" ; config_enable
 #config="CONFIG_SERIAL_OMAP" ; config_disable
 
 config="CONFIG_SERIAL_ARC" ; config_disable
@@ -571,7 +556,7 @@ config="CONFIG_I2C_DLN2" ; config_module
 #
 # SPI Master Controller Drivers
 #
-config="CONFIG_SPI_SUN4I" ; config_module
+config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_TEGRA114" ; config_module
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 
@@ -583,6 +568,7 @@ config="CONFIG_PPS_CLIENT_GPIO" ; config_module
 #
 # Pin controllers
 #
+config="CONFIG_PINCTRL_TI_IODELAY" ; config_enable
 config="CONFIG_GPIO_MAX730X" ; config_module
 
 #
@@ -641,6 +627,11 @@ config="CONFIG_POWER_RESET_IMX" ; config_enable
 config="CONFIG_POWER_RESET_SYSCON" ; config_enable
 config="CONFIG_POWER_RESET_SYSCON_POWEROFF" ; config_enable
 config="CONFIG_POWER_AVS" ; config_enable
+
+#
+# Voltage Domain Framework Drivers
+#
+config="CONFIG_VOLTAGE_DOMAIN_OMAP" ; config_enable
 
 #
 # Native drivers
@@ -1462,7 +1453,6 @@ config="CONFIG_SX9500" ; config_module
 config="CONFIG_MLX90614" ; config_module
 config="CONFIG_TMP006" ; config_module
 config="CONFIG_PWM_PCA9685" ; config_module
-config="CONFIG_PWM_SUN4I" ; config_module
 
 #
 # PHY Subsystem
@@ -1472,6 +1462,7 @@ config="CONFIG_OMAP_USB2" ; config_enable
 config="CONFIG_TI_PIPE3" ; config_enable
 config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
+config="CONFIG_PHY_SUN9I_USB" ; config_enable
 
 #
 # Android
@@ -1481,6 +1472,8 @@ config="CONFIG_ANDROID_BINDER_IPC" ; config_enable
 config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
 config="CONFIG_NVMEM" ; config_enable
 config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
+
+#exit
 
 #
 # File systems
