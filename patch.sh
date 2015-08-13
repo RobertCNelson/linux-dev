@@ -202,7 +202,7 @@ fixes () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/fixes/0001-trusty-gcc-4.8-4.8.2-19ubuntu1-has-fix.patch"
+#	${git} "${DIR}/patches/fixes/0001-trusty-gcc-4.8-4.8.2-19ubuntu1-has-fix.patch"
 	${git} "${DIR}/patches/fixes/0002-ARM-move-heavy-barrier-support-out-of-line.patch"
 	${git} "${DIR}/patches/fixes/0003-ARM-add-soc-memory-barrier-extension.patch"
 #	${git} "${DIR}/patches/fixes/0004-Revert-ARM-OMAP4-remove-dead-kconfig-option-OMAP4_ER.patch"
