@@ -296,8 +296,10 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0010-nvmem-set-the-size-for-the-nvmem-binary-file.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0011-nvmem-add-permission-flags-in-nvmem_config.patch"
 
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0012-nvmem-core-fix-a-copy-paste-error.patch"
+
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=11
+		number=12
 		cleanup
 	fi
 
