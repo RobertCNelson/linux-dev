@@ -54,6 +54,8 @@ redhat_reqs () {
 
 	arch=$(uname -m)
 	if [ "x${arch}" = "xx86_64" ] ; then
+		pkg="ncurses-devel.x86_64"
+		check_rpm
 		pkg="ncurses-devel.i686"
 		check_rpm
 		pkg="libstdc++.i686"
