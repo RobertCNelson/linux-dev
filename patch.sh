@@ -230,7 +230,7 @@ pru () {
 }
 
 mainline () {
-	git format-patch -1 ${SHA} --start-number ${num} -o ../patches/bbb_overlays/mainline/
+	git format-patch -1 ${SHA} --start-number ${num} -o ../patches/${directory}/
 }
 
 bbb_overlays () {
@@ -270,27 +270,33 @@ bbb_overlays () {
 	echo "dir: bbb_overlays/mainline"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
+		directory="bbb_overlays/mainline"
 		SHA="668abc729fcb9d034eccadf63166d2c76cd645d1" ; num="1" ; mainline
-		SHA="a2f776cbb8271d7149784207da0b0c51e8b1847c" ; num="2" ;mainline
-		SHA="5d1a2961adf906f965b00eb8059fd2e0585e0e09" ; num="3" ;mainline
-		SHA="4f001fd30145a6a8f72f9544c982cfd3dcb7c6df" ; num="4" ;mainline
+		SHA="a2f776cbb8271d7149784207da0b0c51e8b1847c" ; num="2" ; mainline
+		SHA="5d1a2961adf906f965b00eb8059fd2e0585e0e09" ; num="3" ; mainline
+		SHA="4f001fd30145a6a8f72f9544c982cfd3dcb7c6df" ; num="4" ; mainline
 		exit 2
 	fi
 
 	echo "dir: bbb_overlays/nvmem"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
+		directory="bbb_overlays/nvmem"
+		SHA="eace75cfdcf7d9937d8c1fb226780123c64d72c4" ; num="1" ; mainline
+		SHA="69aba7948cbe53f2f1827e84e9dd0ae470a5072e" ; num="2" ; mainline
+		SHA="e2a5402ec7c6d0442cca370a0097e75750f81398" ; num="3" ; mainline
+		SHA="2af38ab572b031a4111f01153cc020b1038b427b" ; num="4" ; mainline
+		SHA="354ebb541dfa37a83395e5a9b7d68c34f80fffc0" ; num="5" ; mainline
+		SHA="4ab11996b489ad65092216315484824ed32018f8" ; num="6" ; mainline
+		SHA="b470d6d7a5dfe41112d55c39eac67ddc5afac80d" ; num="7" ; mainline
+		SHA="3d0b16a66c8a9d10294572c6f79df4f15a27825d" ; num="8" ; mainline
+		exit 2
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0001-nvmem-Add-a-simple-NVMEM-framework-for-nvmem-provide.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0002-nvmem-Add-a-simple-NVMEM-framework-for-consumers.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0003-nvmem-Add-nvmem_device-based-consumer-apis.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0004-nvmem-Add-bindings-for-simple-nvmem-framework.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0005-Documentation-nvmem-add-nvmem-api-level-and-how-to-d.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0006-nvmem-qfprom-Add-Qualcomm-QFPROM-support.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0007-nvmem-qfprom-Add-bindings-for-qfprom.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0008-nvmem-sunxi-Move-the-SID-driver-to-the-nvmem-framewo.patch"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
 
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0009-nvmem-make-default-user-binary-file-root-access-only.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0010-nvmem-set-the-size-for-the-nvmem-binary-file.patch"
