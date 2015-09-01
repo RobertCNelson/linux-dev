@@ -166,10 +166,9 @@ dts () {
 	${git} "${DIR}/patches/dts/0010-imx6-wl1835-base-boards.patch"
 	${git} "${DIR}/patches/dts/0011-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
 	${git} "${DIR}/patches/dts/0012-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
-	${git} "${DIR}/patches/dts/0013-ARM-dts-imx53-qsb-select-open-drain-mode-for-i2c1-pa.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=13
+		number=12
 		cleanup
 	fi
 }
