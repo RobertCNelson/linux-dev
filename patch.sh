@@ -549,7 +549,7 @@ reverts
 ti
 dts
 wand
-errata
+#errata
 fixes
 pru
 bbb_overlays
