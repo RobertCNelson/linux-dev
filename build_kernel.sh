@@ -63,28 +63,26 @@ copy_defconfig () {
 	ref_config="tegra_defconfig"
 	config_reference
 
-	echo "-----------------------------"
+	clear
 	echo "Updating: defconfig-lpae"
 	echo "-----------------------------"
-	cp -v ${DIR}/patches/defconfig-lpae .config
+	cp ${DIR}/patches/defconfig-lpae .config
 	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
-	cp -v .config ${DIR}/patches/defconfig-lpae
-	echo "-----------------------------"
+	cp .config ${DIR}/patches/defconfig-lpae
 
-	echo "-----------------------------"
+	clear
 	echo "Updating: defconfig-bone"
 	echo "-----------------------------"
-	cp -v ${DIR}/patches/defconfig-bone .config
+	cp ${DIR}/patches/defconfig-bone .config
 	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
-	cp -v .config ${DIR}/patches/defconfig-bone
-	echo "-----------------------------"
+	cp .config ${DIR}/patches/defconfig-bone
 
-	echo "-----------------------------"
+	clear
 	echo "Updating: defconfig"
 	echo "-----------------------------"
-	cp -v ${DIR}/patches/defconfig .config
+	cp ${DIR}/patches/defconfig .config
 	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
-	cp -v .config ${DIR}/patches/defconfig
+	cp .config ${DIR}/patches/defconfig
 
 	cp -v ${DIR}/patches/defconfig .config
 	cd ${DIR}/
