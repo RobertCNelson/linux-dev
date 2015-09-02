@@ -4,32 +4,9 @@ Date: Fri, 12 Jun 2015 19:38:36 +0300
 Subject: [PATCH 22/32] gcl: Fix resource linking
 
 ---
- drivers/base/platform.c | 4 ++--
- drivers/of/unittest.c   | 6 ++++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/of/unittest.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 063f0ab..45c8d06 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -377,7 +377,7 @@ int platform_device_add(struct platform_device *pdev)
- 		struct resource *r = &pdev->resource[i];
- 		unsigned long type = resource_type(r);
- 
--		if (type == IORESOURCE_MEM || type == IORESOURCE_IO)
-+		if (r->parent)
- 			release_resource(r);
- 	}
- 
-@@ -410,7 +410,7 @@ void platform_device_del(struct platform_device *pdev)
- 			struct resource *r = &pdev->resource[i];
- 			unsigned long type = resource_type(r);
- 
--			if (type == IORESOURCE_MEM || type == IORESOURCE_IO)
-+			if (r->parent)
- 				release_resource(r);
- 		}
- 	}
 diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
 index 9f71770b6..b12dd6b 100644
 --- a/drivers/of/unittest.c
