@@ -201,13 +201,8 @@ fixes () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/fixes/0001-ARM-move-heavy-barrier-support-out-of-line.patch"
-	${git} "${DIR}/patches/fixes/0002-ARM-add-soc-memory-barrier-extension.patch"
-#	${git} "${DIR}/patches/fixes/0003-Revert-ARM-OMAP4-remove-dead-kconfig-option-OMAP4_ER.patch"
-#	${git} "${DIR}/patches/fixes/0004-ARM-omap2-restore-OMAP4-barrier-behaviour.patch"
-
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=1
 		cleanup
 	fi
 }
@@ -485,12 +480,10 @@ beaglebone () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-Add-support-for-byte-queue-limits.patch"
-	${git} "${DIR}/patches/beaglebone/phy/0002-cpsw-napi-polling-of-64-is-good-for-gigE-less-good-f.patch"
-	${git} "${DIR}/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch"
+	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-search-for-phy.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=3
+		number=1
 		cleanup
 	fi
 
@@ -549,7 +542,7 @@ ti
 dts
 wand
 #errata
-fixes
+#fixes
 pru
 bbb_overlays
 beaglebone
