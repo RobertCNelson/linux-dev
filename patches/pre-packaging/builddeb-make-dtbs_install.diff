@@ -1,21 +1,24 @@
 diff --git a/3rdparty/packaging/builddeb b/3rdparty/packaging/builddeb
-index 6f9b59d..9678058 100755
+index 0cd46e1..a5650ca 100755
 --- a/3rdparty/packaging/builddeb
 +++ b/3rdparty/packaging/builddeb
-@@ -165,6 +165,16 @@ if grep -q '^CONFIG_MODULES=y' $KCONFIG_CONFIG ; then
- 	fi
+@@ -140,9 +140,18 @@ else
  fi
  
-+if grep -q '^CONFIG_OF=y' $KCONFIG_CONFIG ; then
+ if grep -q "^CONFIG_OF=y" $KCONFIG_CONFIG ; then
 +	mkdir -p "$tmpdir/boot/dtbs/$version"
-+	INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" $MAKE KBUILD_SRC= dtbs_install
+ 	# Only some architectures with OF support have this target
+ 	if grep -q dtbs_install "${srctree}/arch/$SRCARCH/Makefile"; then
+-		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
++		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" dtbs_install
++	else
++		$MAKE KBUILD_SRC= dtbs
++		find arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' "$tmpdir/boot/dtbs/$version" \;
++	fi
 +
 +	#make dtbs_install seems to add an .old directory
 +	if [ -d "$tmpdir/boot/dtbs/$version.old" ] ; then
 +		rm -rf "$tmpdir/boot/dtbs/$version.old"
-+	fi
-+fi
-+
- if [ "$ARCH" != "um" ]; then
- 	$MAKE headers_check KBUILD_SRC=
- 	$MAKE headers_install KBUILD_SRC= INSTALL_HDR_PATH="$libc_headers_dir/usr"
+ 	fi
+ fi
+ 
