@@ -156,19 +156,16 @@ dts () {
 
 	${git} "${DIR}/patches/dts/0001-ARM-dts-omap3-beagle-add-i2c2.patch"
 	${git} "${DIR}/patches/dts/0002-ARM-dts-omap3-beagle-xm-spidev.patch"
-	${git} "${DIR}/patches/dts/0003-ARM-dts-beagle-xm-make-sure-dvi-is-enabled.patch"
-	${git} "${DIR}/patches/dts/0004-ARM-DTS-omap3-beagle-xm-disable-powerdown-gpios.patch"
-	${git} "${DIR}/patches/dts/0005-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
-	${git} "${DIR}/patches/dts/0006-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
-	${git} "${DIR}/patches/dts/0007-omap3-beagle-xm-ehci-works-again.patch"
-	${git} "${DIR}/patches/dts/0008-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
-	${git} "${DIR}/patches/dts/0009-first-pass-imx6q-ccimx6sbc.patch"
-	${git} "${DIR}/patches/dts/0010-imx6-wl1835-base-boards.patch"
-	${git} "${DIR}/patches/dts/0011-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
-	${git} "${DIR}/patches/dts/0012-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
+	${git} "${DIR}/patches/dts/0003-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
+	${git} "${DIR}/patches/dts/0004-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
+	${git} "${DIR}/patches/dts/0005-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
+	${git} "${DIR}/patches/dts/0006-first-pass-imx6q-ccimx6sbc.patch"
+	${git} "${DIR}/patches/dts/0007-imx6-wl1835-base-boards.patch"
+	${git} "${DIR}/patches/dts/0008-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
+	${git} "${DIR}/patches/dts/0009-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=12
+		number=9
 		cleanup
 	fi
 }
@@ -495,9 +492,9 @@ beaglebone () {
 
 	#git clone git://git.ti.com/ti-cm3-pm-firmware/amx3-cm3.git
 	#cd amx3-cm3/
-	#git checkout origin/next-upstream -b tmp
+	#git checkout origin/ti-v4.1.y -b tmp
 
-	#commit 277eef8611e260a5d73a9e3773fff8f767fe2b01
+	#commit 730f0695ca2dda65abcff5763e8f108517bc0d43
 	#Author: Dave Gerlach <d-gerlach@ti.com>
 	#Date:   Wed Mar 4 21:34:54 2015 -0600
 	#
@@ -506,10 +503,11 @@ beaglebone () {
 	#    This version, 0x191, includes the following changes:
 	#         - Add trace output on boot for kernel remoteproc driver
 	#         - Fix resouce table as RSC_INTMEM is no longer used in kernel
+	#         - Add header dependency checking
 	#    
 	#    Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
 
-	#cp -v bin/am* /opt/github/bb-kernel/KERNEL/firmware/
+	#cp -v bin/am* /opt/github/linux-dev/KERNEL/firmware/
 
 	#git add -f ./firmware/am*
 
