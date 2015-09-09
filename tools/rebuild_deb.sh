@@ -81,65 +81,6 @@ make_deb () {
 	cd ${DIR}/
 }
 
-make_pkg () {
-	cd ${DIR}/KERNEL/
-
-	deployfile="-${pkg}.tar.gz"
-	tar_options="--create --gzip --file"
-
-	if [ -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
-		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
-	fi
-
-	if [ -d ${DIR}/deploy/tmp ] ; then
-		rm -rf ${DIR}/deploy/tmp || true
-	fi
-	mkdir -p ${DIR}/deploy/tmp
-
-	echo "-----------------------------"
-	echo "Building ${pkg} archive..."
-
-	case "${pkg}" in
-	modules)
-		make -s ARCH=arm CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
-		;;
-	firmware)
-		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
-		;;
-	dtbs)
-		if grep -q dtbs_install "${DIR}/KERNEL/arch/arm/Makefile"; then
-			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
-		else
-			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
-		fi
-		;;
-	esac
-
-	echo "Compressing ${KERNEL_UTS}${deployfile}..."
-	cd ${DIR}/deploy/tmp
-	tar ${tar_options} ../${KERNEL_UTS}${deployfile} *
-
-	cd ${DIR}/
-	rm -rf ${DIR}/deploy/tmp || true
-
-	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
-		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}${deployfile}]"
-		/bin/sh -e "${DIR}/scripts/error.sh" && { exit 1 ; }
-	else
-		ls -lh "${DIR}/deploy/${KERNEL_UTS}${deployfile}"
-	fi
-}
-
-make_firmware_pkg () {
-	pkg="firmware"
-	make_pkg
-}
-
-make_dtbs_pkg () {
-	pkg="dtbs"
-	make_pkg
-}
-
 /bin/sh -e ${DIR}/tools/host_det.sh || { exit 1 ; }
 
 if [ ! -f ${DIR}/system.sh ] ; then
@@ -176,7 +117,7 @@ if [ ! ${AUTO_BUILD} ] ; then
 	make_menuconfig
 fi
 make_deb
-make_firmware_pkg
-if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
-	make_dtbs_pkg
-fi
+echo "-----------------------------"
+echo "Script Complete"
+echo "${KERNEL_UTS}" > kernel_version
+echo "-----------------------------"
