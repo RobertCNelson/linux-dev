@@ -163,6 +163,7 @@ dts () {
 	${git} "${DIR}/patches/dts/0007-imx6-wl1835-base-boards.patch"
 	${git} "${DIR}/patches/dts/0008-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
 	${git} "${DIR}/patches/dts/0009-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
+	${git} "${DIR}/patches/dts/0001-arm-obvious.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=9
