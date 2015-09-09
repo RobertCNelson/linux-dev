@@ -68,6 +68,10 @@ make_deb () {
 	echo "-----------------------------"
 	fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} KDEB_CHANGELOG_DIST=${deb_distro} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=1${DISTRO} deb-pkg
 	mv ${DIR}/*.deb ${DIR}/deploy/
+	mv ${DIR}/*.debian.tar.gz ${DIR}/deploy/
+	mv ${DIR}/*.dsc ${DIR}/deploy/
+	mv ${DIR}/*.changes ${DIR}/deploy/
+	mv ${DIR}/*.orig.tar.gz ${DIR}/deploy/
 
 	if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
 		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
