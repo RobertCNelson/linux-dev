@@ -47,7 +47,7 @@ mmc_write_rootfs () {
 	echo "info: [${KERNEL_UTS}] now installed..."
 }
 
-mmc_write_boot_uname () {
+mmc_write_boot_pre () {
 	echo "Installing ${KERNEL_UTS} to ${partition}"
 
 	if [ -f "${location}/vmlinuz-${KERNEL_UTS}_bak" ] ; then
@@ -79,6 +79,10 @@ mmc_write_boot_uname () {
 		sudo tar xf "${DIR}/deploy/${KERNEL_UTS}-dtbs.tar.gz" -C "${location}/dtbs/${KERNEL_UTS}/"
 		sync
 	fi
+}
+
+mmc_write_boot_uname () {
+	mmc_write_boot_pre
 
 	unset older_kernel
 	older_kernel=$(grep uname_r "${location}/uEnv.txt" | grep -v '#' | awk -F"=" '{print $2}' || true)
@@ -88,6 +92,20 @@ mmc_write_boot_uname () {
 			sudo sed -i -e 's:uname_r='${older_kernel}':uname_r='${KERNEL_UTS}':g' "${location}/uEnv.txt"
 		fi
 		echo "info: /boot/uEnv.txt: `grep uname_r ${location}/uEnv.txt`"
+	fi
+}
+
+mmc_write_boot_extlinux () {
+	mmc_write_boot_pre
+
+	unset older_kernel
+	older_kernel=$(grep /boot/vmlinuz- "${location}/extlinux/extlinux.conf" | awk -F"/boot/vmlinuz-" '{print $2}' || true)
+
+	if [ ! "x${older_kernel}" = "x" ] ; then
+		if [ ! "x${older_kernel}" = "x${KERNEL_UTS}" ] ; then
+			sudo sed -i -e 's:'${older_kernel}':'${KERNEL_UTS}':g' "${location}/extlinux/extlinux.conf"
+		fi
+		echo "info: /boot/extlinux/extlinux.conf: `grep /boot/vmlinuz- ${location}/extlinux/extlinux.conf`"
 	fi
 }
 
@@ -124,22 +142,56 @@ mmc_write_boot () {
 }
 
 mmc_partition_discover () {
+	boot_written="false"
 	if [ -f "${DIR}/deploy/disk/uEnv.txt" ] ; then
+		echo "found: /uEnv.txt"
 		location="${DIR}/deploy/disk"
 		mmc_write_boot
+		boot_written="true"
 	fi
 
-	if [ -f "${DIR}/deploy/disk/boot/uEnv.txt" ] ; then
-		location="${DIR}/deploy/disk/boot"
-		test_uname=$(grep uname_r "${DIR}/deploy/disk/boot/uEnv.txt" | awk -F"=" '{print $2}' || true)
-		if [ ! "x${test_uname}" = "x" ] ; then
-			mmc_write_boot_uname
-		else
+	if [ "x${boot_written}" = "xfalse" ] ; then
+		if [ -f "${DIR}/deploy/disk/boot/uEnv.txt" ] ; then
+			echo "found: /boot/uEnv.txt"
+			location="${DIR}/deploy/disk/boot"
+			test_uname=$(grep uname_r "${DIR}/deploy/disk/boot/uEnv.txt" | awk -F"=" '{print $2}' || true)
+			if [ ! "x${test_uname}" = "x" ] ; then
+				echo "info: ${test_uname} was installed"
+				mmc_write_boot_uname
+			else
+				mmc_write_boot
+			fi
+			boot_written="true"
+		fi
+	fi
+
+	if [ "x${boot_written}" = "xfalse" ] ; then
+		if [ -f "${DIR}/deploy/disk/boot/extlinux/extlinux.conf" ] ; then
+			echo "found: /boot/extlinux/extlinux.conf"
+			location="${DIR}/deploy/disk/boot"
+			test_uname=$(grep /boot/vmlinuz- "${DIR}/deploy/disk/boot/extlinux/extlinux.conf" | awk -F"/boot/vmlinuz-" '{print $2}' || true)
+			if [ ! "x${test_uname}" = "x" ] ; then
+				echo "info: ${test_uname} was installed"
+				mmc_write_boot_extlinux
+			else
+				mmc_write_boot
+			fi
+			boot_written="true"
+		fi
+	fi
+
+	if [ "x${boot_written}" = "xfalse" ] ; then
+		#Atmel: mmc 0:1: zImage /dtbs/*
+		if [ -f "${DIR}/deploy/disk/BOOT.BIN" ] ; then
+			echo "found: Atmel: /BOOT.BIN"
+			location="${DIR}/deploy/disk"
 			mmc_write_boot
+			boot_written="true"
 		fi
 	fi
 
 	if [ -f "${DIR}/deploy/disk/etc/fstab" ] ; then
+		echo "found: /etc/fstab"
 		location="${DIR}/deploy/disk"
 		mmc_write_rootfs
 	fi
