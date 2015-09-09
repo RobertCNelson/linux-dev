@@ -58,7 +58,8 @@ make_kernel () {
 	image="zImage"
 	unset address
 
-	#uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
+	##uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
+	##make sure to install your distro's version of mkimage
 	#image="uImage"
 	#address="LOADADDR=${ZRELADDR}"
 
@@ -67,25 +68,13 @@ make_kernel () {
 	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules"
 	echo "-----------------------------"
 	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules
+	echo "-----------------------------"
 
-	unset DTBS
-	cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:" >/dev/null 2>&1 && DTBS=enable
-
-	#FIXME: Starting with v3.15-rc0
-	unset has_dtbs_install
-	if [ "x${DTBS}" = "x" ] ; then
-		cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs dtbs_install:" >/dev/null 2>&1 && DTBS=enable
-		if [ "x${DTBS}" = "xenable" ] ; then
-			has_dtbs_install=enable
-		fi
-	fi
-
-	if [ "x${DTBS}" = "xenable" ] ; then
-		echo "-----------------------------"
+	if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
 		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
 		echo "-----------------------------"
 		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
-		ls arch/arm/boot/* | grep dtb >/dev/null 2>&1 || unset DTBS
+		echo "-----------------------------"
 	fi
 
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
@@ -136,7 +125,7 @@ make_pkg () {
 		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
 		;;
 	dtbs)
-		if [ "x${has_dtbs_install}" = "xenable" ] ; then
+		if grep -q dtbs_install "${DIR}/KERNEL/arch/arm/Makefile"; then
 			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
 		else
 			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
@@ -234,10 +223,11 @@ fi
 make_kernel
 make_modules_pkg
 make_firmware_pkg
-if [ "x${DTBS}" = "xenable" ] ; then
+if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
 	make_dtbs_pkg
 fi
 echo "-----------------------------"
 echo "Script Complete"
+echo "${KERNEL_UTS}" > kernel_version
 echo "eewiki.net: [user@localhost:~$ export kernel_version=${KERNEL_UTS}]"
 echo "-----------------------------"

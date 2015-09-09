@@ -69,24 +69,11 @@ make_deb () {
 	fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} KDEB_CHANGELOG_DIST=${deb_distro} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=1${DISTRO} deb-pkg
 	mv ${DIR}/*.deb ${DIR}/deploy/
 
-	unset DTBS
-	cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs:" >/dev/null 2>&1 && DTBS=enable
-
-	#FIXME: Starting with v3.15-rc0
-	unset has_dtbs_install
-	if [ "x${DTBS}" = "x" ] ; then
-		cat ${DIR}/KERNEL/arch/arm/Makefile | grep "dtbs dtbs_install:" >/dev/null 2>&1 && DTBS=enable
-		if [ "x${DTBS}" = "xenable" ] ; then
-			has_dtbs_install=enable
-		fi
-	fi
-
-	if [ "x${DTBS}" = "xenable" ] ; then
-		echo "-----------------------------"
+	if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
 		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
 		echo "-----------------------------"
 		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
-		ls arch/arm/boot/* | grep dtb >/dev/null 2>&1 || unset DTBS
+		echo "-----------------------------"
 	fi
 
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
@@ -120,7 +107,7 @@ make_pkg () {
 		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
 		;;
 	dtbs)
-		if [ "x${has_dtbs_install}" = "xenable" ] ; then
+		if grep -q dtbs_install "${DIR}/KERNEL/arch/arm/Makefile"; then
 			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
 		else
 			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
@@ -211,6 +198,6 @@ if [ ! ${AUTO_BUILD} ] ; then
 fi
 make_deb
 make_firmware_pkg
-if [ "x${DTBS}" = "xenable" ] ; then
+if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
 	make_dtbs_pkg
 fi
