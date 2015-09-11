@@ -1,0 +1,110 @@
+From caace3f6b482d1c2e159027469644946435c01dc Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:45 +0200
+Subject: [PATCH 062/139] staging: etnaviv: remove powerrail support
+
+Remove the etnaviv specific power rail support, which is mostly disabled
+anyway.  This really wants to be using the power domain support instead,
+which allows the SoC specifics to be abstracted from the driver, rather
+than a home-cooked version of it.
+
+For example, on Dove, it is necessary to go through a specific isolation
+and reset sequence when removing and restoring the power to the GPU,
+which is something we don't want to have to place into the generic GPU
+driver.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 47 -----------------------------------
+ drivers/staging/etnaviv/etnaviv_gpu.h |  3 ---
+ 2 files changed, 50 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 4a8e627..76157d9 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -609,45 +609,6 @@ void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m)
+ /*
+  * Power Management:
+  */
+-
+-static int enable_pwrrail(struct etnaviv_gpu *gpu)
+-{
+-#if 0
+-	struct drm_device *dev = gpu->drm;
+-	int ret = 0;
+-
+-	if (gpu->gpu_reg) {
+-		ret = regulator_enable(gpu->gpu_reg);
+-		if (ret) {
+-			dev_err(dev->dev, "failed to enable 'gpu_reg': %d\n",
+-				ret);
+-			return ret;
+-		}
+-	}
+-
+-	if (gpu->gpu_cx) {
+-		ret = regulator_enable(gpu->gpu_cx);
+-		if (ret) {
+-			dev_err(dev->dev, "failed to enable 'gpu_cx': %d\n",
+-				ret);
+-			return ret;
+-		}
+-	}
+-#endif
+-	return 0;
+-}
+-
+-static int disable_pwrrail(struct etnaviv_gpu *gpu)
+-{
+-#if 0
+-	if (gpu->gpu_cx)
+-		regulator_disable(gpu->gpu_cx);
+-	if (gpu->gpu_reg)
+-		regulator_disable(gpu->gpu_reg);
+-#endif
+-	return 0;
+-}
+-
+ static int enable_clk(struct etnaviv_gpu *gpu)
+ {
+ 	if (gpu->clk_core)
+@@ -690,10 +651,6 @@ int etnaviv_gpu_pm_resume(struct etnaviv_gpu *gpu)
+ 
+ 	DBG("%s", dev_name(gpu->dev));
+ 
+-	ret = enable_pwrrail(gpu);
+-	if (ret)
+-		return ret;
+-
+ 	ret = enable_clk(gpu);
+ 	if (ret)
+ 		return ret;
+@@ -719,10 +676,6 @@ int etnaviv_gpu_pm_suspend(struct etnaviv_gpu *gpu)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = disable_pwrrail(gpu);
+-	if (ret)
+-		return ret;
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 821bb07..8b58b2d 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -115,9 +115,6 @@ struct etnaviv_gpu {
+ 	struct etnaviv_iommu *mmu;
+ 
+ 	/* Power Control: */
+-#if 0
+-	struct regulator *gpu_reg, *gpu_cx;
+-#endif
+ 	struct clk *clk_bus;
+ 	struct clk *clk_core;
+ 	struct clk *clk_shader;
+-- 
+2.5.1
+

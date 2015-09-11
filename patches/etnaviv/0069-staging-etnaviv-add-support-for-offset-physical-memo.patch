@@ -1,0 +1,239 @@
+From 2aa7a4c5abf6994a660e3016aa329726db957f3b Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:46 +0200
+Subject: [PATCH 069/139] staging: etnaviv: add support for offset physical
+ memory
+
+On iMX6, memory starts at 256MB physical, and if we have 2GB of memory,
+this causes it to extend beyond 0x80000000.  All memory is available for
+DMA coherent allocations, which can result in the command buffers being
+allocated from addresses above 0x80000000.
+
+However, the Vivante GPU requires that command buffers are in the linear
+space (first 2GB of GPU addresses.)  Trying to program an address with
+bit 31 set results in it being ignored.
+
+The Vivante GPU has a solution to this: they provide a set of memory
+base address registers, which are added to the GPU linear space address
+before appearing on the bus.  If we program these to the base address of
+physical memory, we can use all 2GB of RAM.
+
+There are other reasons to do this: firstly, other SoCs may start their
+physical memory at other bus addresses, which may further reduce the
+range of physical addresses for command buffers.  Secondly, it prevents
+the GPU being able to access addresses below RAM, which in the iMX6
+case are hardware registers.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_buffer.c | 29 +++++++++++++++++------------
+ drivers/staging/etnaviv/etnaviv_gem.c    |  3 ++-
+ drivers/staging/etnaviv/etnaviv_gpu.c    | 20 ++++++++++++++------
+ drivers/staging/etnaviv/etnaviv_gpu.h    |  3 +++
+ drivers/staging/etnaviv/etnaviv_mmu.c    |  4 ++--
+ drivers/staging/etnaviv/etnaviv_mmu.h    |  2 +-
+ 6 files changed, 39 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
+index 575b6fd..9c9aad8 100644
+--- a/drivers/staging/etnaviv/etnaviv_buffer.c
++++ b/drivers/staging/etnaviv/etnaviv_buffer.c
+@@ -106,14 +106,19 @@ static void cmd_select_pipe(struct etnaviv_gem_object *buffer, u8 pipe)
+ 		       VIVS_GL_PIPE_SELECT_PIPE(pipe));
+ }
+ 
++static u32 gpu_va(struct etnaviv_gpu *gpu, struct etnaviv_gem_object *obj)
++{
++	return obj->paddr - gpu->memory_base;
++}
++
+ static void etnaviv_buffer_dump(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_object *obj, u32 off, u32 len)
+ {
+ 	u32 size = obj->base.size;
+ 	u32 *ptr = obj->vaddr + off;
+ 
+-	dev_info(gpu->dev, "virt %p phys 0x%llx free 0x%08x\n",
+-			ptr, (u64)obj->paddr + off, size - len * 4 - off);
++	dev_info(gpu->dev, "virt %p phys 0x%08x free 0x%08x\n",
++			ptr, gpu_va(gpu, obj) + off, size - len * 4 - off);
+ 
+ 	print_hex_dump(KERN_INFO, "cmd ", DUMP_PREFIX_OFFSET, 16, 4,
+ 			ptr, len * 4, 0);
+@@ -130,7 +135,7 @@ u32 etnaviv_buffer_init(struct etnaviv_gpu *gpu)
+ 	cmd_select_pipe(buffer, gpu->pipe);
+ 
+ 	CMD_WAIT(buffer);
+-	CMD_LINK(buffer, 2, buffer->paddr + ((buffer->offset - 1) * 4));
++	CMD_LINK(buffer, 2, gpu_va(gpu, buffer) + ((buffer->offset - 1) * 4));
+ 
+ 	return buffer->offset;
+ }
+@@ -177,7 +182,7 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 
+ 	/* save offset back into main buffer */
+ 	back = buffer->offset + reserve_size - 6;
+-	link_target = buffer->paddr + buffer->offset * 4;
++	link_target = gpu_va(gpu, buffer) + buffer->offset * 4;
+ 	link_size = 6;
+ 
+ 	if (gpu->mmu->need_flush) {
+@@ -192,9 +197,9 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 		cmd->offset = submit->cmd[i].offset + submit->cmd[i].size;
+ 
+ 		if (drm_debug & DRM_UT_DRIVER)
+-			pr_info("stream link from buffer %u to 0x%llx @ 0x%llx %p\n",
+-				i, (u64)link_target,
+-				(u64)cmd->paddr + cmd->offset * 4,
++			pr_info("stream link from buffer %u to 0x%08x @ 0x%08x %p\n",
++				i, link_target,
++				gpu_va(gpu, cmd) + cmd->offset * 4,
+ 				cmd->vaddr + cmd->offset * 4);
+ 
+ 		/* jump back from last cmd to main buffer */
+@@ -203,7 +208,7 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 		/* update the size */
+ 		submit->cmd[i].size = cmd->offset - submit->cmd[i].offset;
+ 
+-		link_target = cmd->paddr + submit->cmd[i].offset * 4;
++		link_target = gpu_va(gpu, cmd) + submit->cmd[i].offset * 4;
+ 		link_size = submit->cmd[i].size * 2;
+ 	}
+ 
+@@ -217,13 +222,13 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 
+ 		pr_info("link op: %p\n", lw);
+ 		pr_info("link addr: %p\n", lw + 1);
+-		pr_info("addr: 0x%llx\n", (u64)link_target);
+-		pr_info("back: 0x%llx\n", (u64)buffer->paddr + (back * 4));
++		pr_info("addr: 0x%08x\n", link_target);
++		pr_info("back: 0x%08x\n", gpu_va(gpu, buffer) + (back * 4));
+ 		pr_info("event: %d\n", event);
+ 	}
+ 
+ 	if (gpu->mmu->need_flush) {
+-		uint32_t new_target = buffer->paddr + buffer->offset *
++		uint32_t new_target = gpu_va(gpu, buffer) + buffer->offset *
+ 					sizeof(uint32_t);
+ 
+ 		/* Add the MMU flush */
+@@ -251,7 +256,7 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 
+ 	/* append WAIT/LINK to main buffer */
+ 	CMD_WAIT(buffer);
+-	CMD_LINK(buffer, 2, buffer->paddr + ((buffer->offset - 1) * 4));
++	CMD_LINK(buffer, 2, gpu_va(gpu, buffer) + ((buffer->offset - 1) * 4));
+ 
+ 	/* Change WAIT into a LINK command; write the address first. */
+ 	*(lw + 1) = link_target;
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index e237100..a4df6b4 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -317,7 +317,8 @@ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ 		if (IS_ERR(pages))
+ 			return PTR_ERR(pages);
+ 
+-		ret = etnaviv_iommu_map_gem(gpu->mmu, etnaviv_obj);
++		ret = etnaviv_iommu_map_gem(gpu->mmu, etnaviv_obj,
++				gpu->memory_base);
+ 	}
+ 
+ 	if (!ret)
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index d2d8107..7697fe2 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -430,11 +430,11 @@ static void etnaviv_gpu_hw_init(struct etnaviv_gpu *gpu)
+ 		  VIVS_HI_AXI_CONFIG_ARCACHE(2));
+ 
+ 	/* set base addresses */
+-	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_RA, 0x0);
+-	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_FE, 0x0);
+-	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_TX, 0x0);
+-	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_PEZ, 0x0);
+-	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_PE, 0x0);
++	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_RA, gpu->memory_base);
++	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_FE, gpu->memory_base);
++	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_TX, gpu->memory_base);
++	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_PEZ, gpu->memory_base);
++	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_PE, gpu->memory_base);
+ 
+ 	/* FIXME: we need to program the GPU table pointer(s) here */
+ 
+@@ -446,7 +446,7 @@ static void etnaviv_gpu_hw_init(struct etnaviv_gpu *gpu)
+ 
+ 	gpu_write(gpu, VIVS_HI_INTR_ENBL, ~0U);
+ 	gpu_write(gpu, VIVS_FE_COMMAND_ADDRESS,
+-		  etnaviv_gem_paddr_locked(gpu->buffer));
++		  etnaviv_gem_paddr_locked(gpu->buffer) - gpu->memory_base);
+ 	gpu_write(gpu, VIVS_FE_COMMAND_CONTROL,
+ 		  VIVS_FE_COMMAND_CONTROL_ENABLE |
+ 		  VIVS_FE_COMMAND_CONTROL_PREFETCH(words));
+@@ -1141,6 +1141,14 @@ static int etnaviv_gpu_platform_probe(struct platform_device *pdev)
+ 
+ 	gpu->dev = &pdev->dev;
+ 
++	/*
++	 * Set the GPU base address to the start of physical memory.  This
++	 * ensures that if we have up to 2GB, the v1 MMU can address the
++	 * highest memory.  This is important as command buffers may be
++	 * allocated outside of this limit.
++	 */
++	gpu->memory_base = PHYS_OFFSET;
++
+ 	/* Map registers: */
+ 	gpu->mmio = etnaviv_ioremap(pdev, NULL, dev_name(gpu->dev));
+ 	if (IS_ERR(gpu->mmio))
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index a7a55c4..70ff3ac 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -93,6 +93,9 @@ struct etnaviv_gpu {
+ 	/* 'ring'-buffer: */
+ 	struct drm_gem_object *buffer;
+ 
++	/* bus base address of memory  */
++	uint32_t memory_base;
++
+ 	/* event management: */
+ 	struct etnaviv_event event[30];
+ 	struct completion event_free;
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index 2855791..b7088c4 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -92,7 +92,7 @@ int etnaviv_iommu_unmap(struct etnaviv_iommu *iommu, uint32_t iova,
+ }
+ 
+ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+-	struct etnaviv_gem_object *etnaviv_obj)
++	struct etnaviv_gem_object *etnaviv_obj, uint32_t memory_base)
+ {
+ 	struct etnaviv_drm_private *priv = etnaviv_obj->base.dev->dev_private;
+ 	struct sg_table *sgt = etnaviv_obj->sgt;
+@@ -103,7 +103,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	if (sgt->nents == 1) {
+ 		uint32_t iova;
+ 
+-		iova = sg_dma_address(sgt->sgl);
++		iova = sg_dma_address(sgt->sgl) - memory_base;
+ 		if (iova < 0x80000000 - sg_dma_len(sgt->sgl)) {
+ 			etnaviv_obj->iova = iova;
+ 			return 0;
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.h b/drivers/staging/etnaviv/etnaviv_mmu.h
+index 3bf6d3f..c9a484e 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.h
++++ b/drivers/staging/etnaviv/etnaviv_mmu.h
+@@ -46,7 +46,7 @@ int etnaviv_iommu_map(struct etnaviv_iommu *iommu, uint32_t iova,
+ int etnaviv_iommu_unmap(struct etnaviv_iommu *iommu, uint32_t iova,
+ 	struct sg_table *sgt, unsigned len);
+ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+-	struct etnaviv_gem_object *etnaviv_obj);
++	struct etnaviv_gem_object *etnaviv_obj, uint32_t memory_base);
+ void etnaviv_iommu_unmap_gem(struct etnaviv_iommu *mmu,
+ 	struct etnaviv_gem_object *etnaviv_obj);
+ void etnaviv_iommu_destroy(struct etnaviv_iommu *iommu);
+-- 
+2.5.1
+

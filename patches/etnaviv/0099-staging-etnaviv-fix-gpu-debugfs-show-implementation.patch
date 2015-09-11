@@ -1,0 +1,135 @@
+From 4bb8d969568a9fd9b5ac3eb14710a935c778a8e7 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:52 +0200
+Subject: [PATCH 099/139] staging: etnaviv: fix gpu debugfs show implementation
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 43 ++++++++++++++++++++---------------
+ drivers/staging/etnaviv/etnaviv_gpu.c | 21 ++++++++++++++---
+ drivers/staging/etnaviv/etnaviv_gpu.h |  2 +-
+ 3 files changed, 44 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index e607aac..55a126b 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -187,23 +187,6 @@ static void etnaviv_preclose(struct drm_device *dev, struct drm_file *file)
+  */
+ 
+ #ifdef CONFIG_DEBUG_FS
+-static int etnaviv_gpu_show(struct drm_device *dev, struct seq_file *m)
+-{
+-	struct etnaviv_drm_private *priv = dev->dev_private;
+-	struct etnaviv_gpu *gpu;
+-	unsigned int i;
+-
+-	for (i = 0; i < ETNA_MAX_PIPES; i++) {
+-		gpu = priv->gpu[i];
+-		if (gpu) {
+-			seq_printf(m, "%s Status:\n", dev_name(gpu->dev));
+-			etnaviv_gpu_debugfs(gpu, m);
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+ static int etnaviv_gem_show(struct drm_device *dev, struct seq_file *m)
+ {
+ 	struct etnaviv_drm_private *priv = dev->dev_private;
+@@ -266,8 +249,32 @@ static int show_locked(struct seq_file *m, void *arg)
+ 	return ret;
+ }
+ 
++static int show_each_gpu(struct seq_file *m, void *arg)
++{
++	struct drm_info_node *node = (struct drm_info_node *) m->private;
++	struct drm_device *dev = node->minor->dev;
++	struct etnaviv_drm_private *priv = dev->dev_private;
++	struct etnaviv_gpu *gpu;
++	int (*show)(struct etnaviv_gpu *gpu, struct seq_file *m) =
++			node->info_ent->data;
++	unsigned int i;
++	int ret = 0;
++
++	for (i = 0; i < ETNA_MAX_PIPES; i++) {
++		gpu = priv->gpu[i];
++		if (!gpu)
++			continue;
++
++		ret = show(gpu, m);
++		if (ret < 0)
++			break;
++	}
++
++	return ret;
++}
++
+ static struct drm_info_list etnaviv_debugfs_list[] = {
+-		{"gpu", show_locked, 0, etnaviv_gpu_show},
++		{"gpu", show_each_gpu, 0, etnaviv_gpu_debugfs},
+ 		{"gem", show_locked, 0, etnaviv_gem_show},
+ 		{ "mm", show_locked, 0, etnaviv_mm_show },
+ 		{"mmu", show_locked, 0, etnaviv_mmu_show},
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 570bcd6..9f4e998 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -547,13 +547,21 @@ static void verify_dma(struct etnaviv_gpu *gpu, struct dma_debug *debug)
+ 	}
+ }
+ 
+-void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m)
++int etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m)
+ {
+ 	struct dma_debug debug;
+ 	u32 dma_lo, dma_hi, axi, idle;
++	int ret;
++
++	seq_printf(m, "%s Status:\n", dev_name(gpu->dev));
++
++	ret = pm_runtime_get_sync(gpu->dev);
++	if (ret < 0)
++		return ret;
+ 
+-	if (pm_runtime_get_sync(gpu->dev) < 0)
+-		return;
++	ret = mutex_lock_interruptible(&gpu->drm->struct_mutex);
++	if (ret < 0)
++		goto err_rpm;
+ 
+ 	dma_lo = gpu_read(gpu, VIVS_FE_DMA_LOW);
+ 	dma_hi = gpu_read(gpu, VIVS_FE_DMA_HIGH);
+@@ -653,8 +661,15 @@ void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m)
+ 	seq_printf(m, "\t last fetch 64 bit word: 0x%08x 0x%08x\n",
+ 		   dma_lo, dma_hi);
+ 
++	ret = 0;
++
++	mutex_unlock(&gpu->drm->struct_mutex);
++
++err_rpm:
+ 	pm_runtime_mark_last_busy(gpu->dev);
+ 	pm_runtime_put_autosuspend(gpu->dev);
++
++	return ret;
+ }
+ #endif
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 21e45e8..6b4f241 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -146,7 +146,7 @@ int etnaviv_gpu_get_param(struct etnaviv_gpu *gpu, uint32_t param,
+ int etnaviv_gpu_init(struct etnaviv_gpu *gpu);
+ 
+ #ifdef CONFIG_DEBUG_FS
+-void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m);
++int etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m);
+ #endif
+ 
+ void etnaviv_gpu_retire(struct etnaviv_gpu *gpu);
+-- 
+2.5.1
+

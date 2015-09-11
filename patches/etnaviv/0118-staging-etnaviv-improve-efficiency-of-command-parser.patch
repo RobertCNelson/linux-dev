@@ -1,0 +1,81 @@
+From f3585ce5a5c8171e959a5fbe626f182bffc3961d Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:56 +0200
+Subject: [PATCH 118/139] staging: etnaviv: improve efficiency of command
+ parser
+
+Performance analysis indicates that the command parser is a hot spot
+in the code.  We can improve the efficiency of the command parser by
+storing the command length in a table, rather than decoding the
+command manually via a switch statement.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_cmd_parser.c | 34 +++++++++++++---------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_cmd_parser.c b/drivers/staging/etnaviv/etnaviv_cmd_parser.c
+index d866b8e..7ae6ddb 100644
+--- a/drivers/staging/etnaviv/etnaviv_cmd_parser.c
++++ b/drivers/staging/etnaviv/etnaviv_cmd_parser.c
+@@ -54,6 +54,13 @@ static bool etnaviv_validate_load_state(struct etnaviv_gpu *gpu, u32 *buf,
+ 	return true;
+ }
+ 
++static uint8_t cmd_length[32] = {
++	[FE_OPCODE_DRAW_PRIMITIVES] = 4,
++	[FE_OPCODE_DRAW_INDEXED_PRIMITIVES] = 6,
++	[FE_OPCODE_NOP] = 2,
++	[FE_OPCODE_STALL] = 2,
++};
++
+ bool etnaviv_cmd_validate_one(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_object *obj, unsigned int offset, unsigned int size)
+ {
+@@ -69,7 +76,7 @@ bool etnaviv_cmd_validate_one(struct etnaviv_gpu *gpu,
+ 		switch (op) {
+ 		case FE_OPCODE_LOAD_STATE:
+ 			n = EXTRACT(cmd, VIV_FE_LOAD_STATE_HEADER_COUNT);
+-			len = 1 + n;
++			len = ALIGN(1 + n, 2);
+ 			if (buf + len > end)
+ 				break;
+ 
+@@ -89,26 +96,17 @@ bool etnaviv_cmd_validate_one(struct etnaviv_gpu *gpu,
+ 			len = 2 + n * 2;
+ 			break;
+ 
+-		case FE_OPCODE_DRAW_PRIMITIVES:
+-			len = 4;
+-			break;
+-
+-		case FE_OPCODE_DRAW_INDEXED_PRIMITIVES:
+-			len = 6;
+-			break;
+-
+-		case FE_OPCODE_NOP:
+-		case FE_OPCODE_STALL:
+-			len = 2;
+-			break;
+-
+ 		default:
+-			dev_err(gpu->dev, "%s: op %u not permitted at offset %tu\n",
+-				__func__, op, buf - start);
+-			return false;
++			len = cmd_length[op];
++			if (len == 0) {
++				dev_err(gpu->dev, "%s: op %u not permitted at offset %tu\n",
++					__func__, op, buf - start);
++				return false;
++			}
++			break;
+ 		}
+ 
+-		buf += ALIGN(len, 2);
++		buf += len;
+ 	}
+ 
+ 	if (buf > end) {
+-- 
+2.5.1
+

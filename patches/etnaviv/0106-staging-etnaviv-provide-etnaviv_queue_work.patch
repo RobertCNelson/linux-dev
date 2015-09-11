@@ -1,0 +1,120 @@
+From 7c972b37b295b37f2cfe35c23a38bb8d9165f53c Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:53 +0200
+Subject: [PATCH 106/139] staging: etnaviv: provide etnaviv_queue_work()
+
+Provide a helper to queue a work_struct onto our private workqueue.
+This avoids repetitions of:
+
+	struct drm_device *dev = ...
+	struct etnaviv_private *priv = dev->dev_private;
+
+	queue_work(priv->wq, w);
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.h |  7 +++++++
+ drivers/staging/etnaviv/etnaviv_gem.c |  4 +---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 18 +++++-------------
+ 3 files changed, 13 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index 34e8e03..7292a67 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -61,6 +61,13 @@ struct etnaviv_drm_private {
+ 	struct workqueue_struct *wq;
+ };
+ 
++static void etnaviv_queue_work(struct drm_device *dev, struct work_struct *w)
++{
++	struct etnaviv_drm_private *priv = drm->dev_private;
++
++	queue_work(priv->wq, w);
++}
++
+ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 		struct drm_file *file);
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index 732ddf3..b34e8e8 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -831,7 +831,6 @@ static void __etnaviv_gem_userptr_get_pages(struct work_struct *_work)
+ 
+ static int etnaviv_gem_userptr_get_pages(struct etnaviv_gem_object *etnaviv_obj)
+ {
+-	struct etnaviv_drm_private *priv;
+ 	struct page **pvec = NULL;
+ 	struct get_pages_work *work;
+ 	struct mm_struct *mm;
+@@ -890,8 +889,7 @@ static int etnaviv_gem_userptr_get_pages(struct etnaviv_gem_object *etnaviv_obj)
+ 	etnaviv_obj->userptr.work = &work->work;
+ 	INIT_WORK(&work->work, __etnaviv_gem_userptr_get_pages);
+ 
+-	priv = etnaviv_obj->base.dev->dev_private;
+-	queue_work(priv->wq, &work->work);
++	etnaviv_queue_work(etnaviv_obj->base.dev, &work->work);
+ 
+ 	return -EAGAIN;
+ }
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 39fe694..4f21744 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -727,7 +727,8 @@ static void recover_worker(struct work_struct *work)
+ 	/* TODO gpu->funcs->recover(gpu); */
+ 	mutex_unlock(&dev->struct_mutex);
+ 
+-	etnaviv_gpu_retire(gpu);
++	/* Retire the buffer objects in a work */
++	etnaviv_queue_work(gpu->dev, &gpu->retire_work);
+ }
+ 
+ static void hangcheck_timer_reset(struct etnaviv_gpu *gpu)
+@@ -740,8 +741,6 @@ static void hangcheck_timer_reset(struct etnaviv_gpu *gpu)
+ static void hangcheck_handler(unsigned long data)
+ {
+ 	struct etnaviv_gpu *gpu = (struct etnaviv_gpu *)data;
+-	struct drm_device *dev = gpu->drm;
+-	struct etnaviv_drm_private *priv = dev->dev_private;
+ 	uint32_t fence = gpu->retired_fence;
+ 	bool progress = false;
+ 
+@@ -765,7 +764,7 @@ static void hangcheck_handler(unsigned long data)
+ 		dev_err(gpu->dev, "     completed fence: %u\n", fence);
+ 		dev_err(gpu->dev, "     submitted fence: %u\n",
+ 			gpu->submitted_fence);
+-		queue_work(priv->wq, &gpu->recover_work);
++		etnaviv_queue_work(gpu->dev, &gpu->recover_work);
+ 	}
+ 
+ 	/* if still more pending work, reset the hangcheck timer: */
+@@ -864,14 +863,6 @@ static void retire_worker(struct work_struct *work)
+ 	wake_up_all(&gpu->fence_event);
+ }
+ 
+-/* call from irq handler to schedule work to retire bo's */
+-void etnaviv_gpu_retire(struct etnaviv_gpu *gpu)
+-{
+-	struct etnaviv_drm_private *priv = gpu->drm->dev_private;
+-
+-	queue_work(priv->wq, &gpu->retire_work);
+-}
+-
+ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ 	uint32_t fence, struct timespec *timeout)
+ {
+@@ -1044,7 +1035,8 @@ static irqreturn_t irq_handler(int irq, void *data)
+ 			pm_runtime_put_autosuspend(gpu->dev);
+ 		}
+ 
+-		etnaviv_gpu_retire(gpu);
++		/* Retire the buffer objects in a work */
++		etnaviv_queue_work(gpu->dev, &gpu->retire_work);
+ 
+ 		ret = IRQ_HANDLED;
+ 	}
+-- 
+2.5.1
+

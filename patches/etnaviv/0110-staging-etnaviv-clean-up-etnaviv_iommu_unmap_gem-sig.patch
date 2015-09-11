@@ -1,0 +1,99 @@
+From 2d82aaf677b8d062da6e603b4969935eef74a665 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:54 +0200
+Subject: [PATCH 110/139] staging: etnaviv: clean up etnaviv_iommu_unmap_gem()
+ signature
+
+The mapping structure contains everything we need; avoid passing extra
+data in rather than using the data we have stored in the structure.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c |  2 +-
+ drivers/staging/etnaviv/etnaviv_mmu.c | 31 ++++++++++++++++++-------------
+ drivers/staging/etnaviv/etnaviv_mmu.h |  4 +---
+ 3 files changed, 20 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index 5d05551..dd9e67e 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -540,7 +540,7 @@ static void etnaviv_free_obj(struct drm_gem_object *obj)
+ 
+ 	list_for_each_entry_safe(mapping, tmp, &etnaviv_obj->vram_list,
+ 				 obj_node) {
+-		etnaviv_iommu_unmap_gem(mapping->mmu, etnaviv_obj, mapping);
++		etnaviv_iommu_unmap_gem(mapping);
+ 	}
+ }
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index b327d37..ca317f6 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -196,7 +196,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 
+ 		list_for_each_entry_safe(m, n, &list, scan_node) {
+ 			list_del_init(&m->scan_node);
+-			etnaviv_iommu_unmap_gem(mmu, m->object, m);
++			etnaviv_iommu_unmap_gem(m);
+ 		}
+ 
+ 		/*
+@@ -230,21 +230,26 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	return ret;
+ }
+ 
+-void etnaviv_iommu_unmap_gem(struct etnaviv_iommu *mmu,
+-			     struct etnaviv_gem_object *etnaviv_obj,
+-			     struct etnaviv_vram_mapping *mapping)
++void etnaviv_iommu_unmap_gem(struct etnaviv_vram_mapping *mapping)
+ {
+-	if (mapping) {
+-		u32 offset = mapping->vram_node.start;
++	struct etnaviv_iommu *mmu;
++	struct etnaviv_gem_object *etnaviv_obj;
+ 
+-		if (mapping->iova >= 0x80000000) {
+-			etnaviv_iommu_unmap(mmu, offset, etnaviv_obj->sgt,
+-					    etnaviv_obj->base.size);
+-			drm_mm_remove_node(&mapping->vram_node);
+-		}
+-		list_del(&mapping->obj_node);
+-		kfree(mapping);
++	if (!mapping)
++		return;
++
++	mmu = mapping->mmu;
++
++	/* If the vram node is on the mm, unmap and remove the node */
++	if (mapping->vram_node.mm == &mmu->mm) {
++		etnaviv_obj = mapping->object;
++		etnaviv_iommu_unmap(mmu, mapping->vram_node.start,
++				    etnaviv_obj->sgt, etnaviv_obj->base.size);
++		drm_mm_remove_node(&mapping->vram_node);
+ 	}
++
++	list_del(&mapping->obj_node);
++	kfree(mapping);
+ }
+ 
+ void etnaviv_iommu_destroy(struct etnaviv_iommu *mmu)
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.h b/drivers/staging/etnaviv/etnaviv_mmu.h
+index 1d619e9..444ef29 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.h
++++ b/drivers/staging/etnaviv/etnaviv_mmu.h
+@@ -49,9 +49,7 @@ int etnaviv_iommu_unmap(struct etnaviv_iommu *iommu, u32 iova,
+ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	struct etnaviv_gem_object *etnaviv_obj, u32 memory_base,
+ 	struct etnaviv_vram_mapping **mapping);
+-void etnaviv_iommu_unmap_gem(struct etnaviv_iommu *mmu,
+-	struct etnaviv_gem_object *etnaviv_obj,
+-	struct etnaviv_vram_mapping *mapping);
++void etnaviv_iommu_unmap_gem(struct etnaviv_vram_mapping *mapping);
+ void etnaviv_iommu_destroy(struct etnaviv_iommu *iommu);
+ 
+ struct etnaviv_iommu *etnaviv_iommu_new(struct device *dev,
+-- 
+2.5.1
+

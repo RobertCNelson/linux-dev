@@ -1,0 +1,32 @@
+From bac129b4573028e5455ce3da7ac855962effa24a Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Tue, 23 Jun 2015 11:51:48 +0200
+Subject: [PATCH 078/139] staging: etnaviv: properly flush all TLBs on MMUv1
+
+Avoids memory corruptions seen due to stale TLB entries.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_buffer.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
+index 9c9aad8..02a6474 100644
+--- a/drivers/staging/etnaviv/etnaviv_buffer.c
++++ b/drivers/staging/etnaviv/etnaviv_buffer.c
+@@ -234,7 +234,10 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 		/* Add the MMU flush */
+ 		CMD_LOAD_STATE(buffer, VIVS_GL_FLUSH_MMU,
+ 			       VIVS_GL_FLUSH_MMU_FLUSH_FEMMU |
+-			       VIVS_GL_FLUSH_MMU_FLUSH_PEMMU);
++			       VIVS_GL_FLUSH_MMU_FLUSH_UNK1 |
++			       VIVS_GL_FLUSH_MMU_FLUSH_UNK2 |
++			       VIVS_GL_FLUSH_MMU_FLUSH_PEMMU |
++			       VIVS_GL_FLUSH_MMU_FLUSH_UNK4);
+ 
+ 		/* And the link to the first buffer */
+ 		CMD_LINK(buffer, link_size, link_target);
+-- 
+2.5.1
+

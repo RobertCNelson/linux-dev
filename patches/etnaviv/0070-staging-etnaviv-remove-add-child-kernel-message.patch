@@ -1,0 +1,31 @@
+From 64b617caaa57c926b03734441af298c58703c1d3 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:46 +0200
+Subject: [PATCH 070/139] staging: etnaviv: remove "add child" kernel message
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index 1dc8d46..4a876d9 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -611,12 +611,9 @@ static int etnaviv_pdev_probe(struct platform_device *pdev)
+ 
+ 		of_platform_populate(node, NULL, NULL, dev);
+ 
+-		for_each_available_child_of_node(node, child_np) {
+-			DRM_INFO("add child %s\n", child_np->name);
+-
++		for_each_available_child_of_node(node, child_np)
+ 			component_match_add(dev, &match, etnaviv_compare,
+ 					    child_np);
+-		}
+ 	} else if (dev->platform_data) {
+ 		char **names = dev->platform_data;
+ 		unsigned i;
+-- 
+2.5.1
+

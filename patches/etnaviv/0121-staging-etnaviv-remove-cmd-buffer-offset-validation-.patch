@@ -1,0 +1,33 @@
+From c4c6fc01dd147525b1110b385c4c1707ef8bb70f Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:56 +0200
+Subject: [PATCH 121/139] staging: etnaviv: remove cmd buffer offset validation
+ in submit_reloc()
+
+We've already validated the command buffer offset, there's no need to
+repeat it elsewhere.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index f94b6e8..a0bc619 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -219,11 +219,6 @@ static int submit_reloc(struct etnaviv_gem_submit *submit, struct etnaviv_gem_ob
+ 	u32 *ptr = obj->vaddr;
+ 	int ret;
+ 
+-	if (offset % 4) {
+-		DRM_ERROR("non-aligned cmdstream buffer: %u\n", offset);
+-		return -EINVAL;
+-	}
+-
+ 	for (i = 0; i < nr_relocs; i++) {
+ 		struct drm_etnaviv_gem_submit_reloc submit_reloc;
+ 		struct etnaviv_gem_object *bobj;
+-- 
+2.5.1
+

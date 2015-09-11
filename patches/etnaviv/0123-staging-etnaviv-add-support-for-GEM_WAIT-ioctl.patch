@@ -1,0 +1,326 @@
+From a57ec3e63ccc5a87b642b415166a96d08410e5a2 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:56 +0200
+Subject: [PATCH 123/139] staging: etnaviv: add support for GEM_WAIT ioctl
+
+Add support for the new GEM_WAIT ioctl, which waits for the kernel to
+finish with the GEM object (all render complete, and has been retired).
+This is different from the WAIT_FENCE ioctl, which just waits for
+rendering to complete.
+
+This is an important distinction, as when a gem object is retired and
+freed, the kernel will invalidate the cache for this object, which
+effectively changes the data userspace sees.  If userspace merely
+waits for rendering to complete, there is a race condition where a
+userptr BO can be free()d and re-used, and the kernel's invalidation
+then corrupts the malloc() free lists.
+
+GEM_WAIT is not fully race free: if the BO is re-submitted via a
+different thread, we can't report this (indeed, this could happen
+after the call has returned.)  It is up to userspace to ensure that
+such behaviour does not occur.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 29 +++++++++++++
+ drivers/staging/etnaviv/etnaviv_gem.c |  8 ++++
+ drivers/staging/etnaviv/etnaviv_gem.h |  2 +
+ drivers/staging/etnaviv/etnaviv_gpu.c | 76 +++++++++++++++++++++++++++--------
+ drivers/staging/etnaviv/etnaviv_gpu.h |  8 ++++
+ include/uapi/drm/etnaviv_drm.h        | 10 ++++-
+ 6 files changed, 116 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index e339fdd..87135e4 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -19,6 +19,7 @@
+ 
+ #include "etnaviv_drv.h"
+ #include "etnaviv_gpu.h"
++#include "etnaviv_gem.h"
+ #include "etnaviv_mmu.h"
+ 
+ #ifdef CONFIG_DRM_ETNAVIV_REGISTER_LOGGING
+@@ -451,6 +452,33 @@ static int etnaviv_ioctl_gem_userptr(struct drm_device *dev, void *data,
+ 				       &args->handle);
+ }
+ 
++static int etnaviv_ioctl_gem_wait(struct drm_device *dev, void *data,
++	struct drm_file *file)
++{
++	struct etnaviv_drm_private *priv = dev->dev_private;
++	struct drm_etnaviv_gem_wait *args = data;
++	struct drm_gem_object *obj;
++	struct etnaviv_gpu *gpu;
++	int ret;
++
++	if (args->pipe >= ETNA_MAX_PIPES)
++		return -EINVAL;
++
++	gpu = priv->gpu[args->pipe];
++	if (!gpu)
++		return -ENXIO;
++
++	obj = drm_gem_object_lookup(dev, file, args->handle);
++	if (!obj)
++		return -ENOENT;
++
++	ret = etnaviv_gem_wait_bo(gpu, obj, &TS(args->timeout));
++
++	drm_gem_object_unreference_unlocked(obj);
++
++	return ret;
++}
++
+ static const struct drm_ioctl_desc etnaviv_ioctls[] = {
+ #define ETNA_IOCTL(n, func, flags) \
+ 	DRM_IOCTL_DEF_DRV(ETNAVIV_##n, etnaviv_ioctl_##func, flags)
+@@ -462,6 +490,7 @@ static const struct drm_ioctl_desc etnaviv_ioctls[] = {
+ 	ETNA_IOCTL(GEM_SUBMIT,   gem_submit,   DRM_UNLOCKED|DRM_AUTH|DRM_RENDER_ALLOW),
+ 	ETNA_IOCTL(WAIT_FENCE,   wait_fence,   DRM_UNLOCKED|DRM_AUTH|DRM_RENDER_ALLOW),
+ 	ETNA_IOCTL(GEM_USERPTR,  gem_userptr,  DRM_UNLOCKED|DRM_RENDER_ALLOW),
++	ETNA_IOCTL(GEM_WAIT,     gem_wait,     DRM_UNLOCKED|DRM_AUTH|DRM_RENDER_ALLOW),
+ };
+ 
+ static const struct vm_operations_struct vm_ops = {
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index 0f7308f..2846327 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -488,6 +488,14 @@ int etnaviv_gem_cpu_fini(struct drm_gem_object *obj)
+ 	return 0;
+ }
+ 
++int etnaviv_gem_wait_bo(struct etnaviv_gpu *gpu, struct drm_gem_object *obj,
++	struct timespec *timeout)
++{
++	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
++
++	return etnaviv_gpu_wait_obj_inactive(gpu, etnaviv_obj, timeout);
++}
++
+ #ifdef CONFIG_DEBUG_FS
+ static void etnaviv_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
+ {
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index f3136d8..4d5455a 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -130,6 +130,8 @@ struct etnaviv_gem_submit {
+ 	} bos[0];
+ };
+ 
++int etnaviv_gem_wait_bo(struct etnaviv_gpu *gpu, struct drm_gem_object *obj,
++	struct timespec *timeout);
+ struct etnaviv_vram_mapping *
+ etnaviv_gem_get_vram_mapping(struct etnaviv_gem_object *obj,
+ 			     struct etnaviv_iommu *mmu);
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 137c092..f89fa86 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -743,7 +743,7 @@ static void hangcheck_timer_reset(struct etnaviv_gpu *gpu)
+ static void hangcheck_handler(unsigned long data)
+ {
+ 	struct etnaviv_gpu *gpu = (struct etnaviv_gpu *)data;
+-	u32 fence = gpu->retired_fence;
++	u32 fence = gpu->completed_fence;
+ 	bool progress = false;
+ 
+ 	if (fence != gpu->hangcheck_fence) {
+@@ -837,7 +837,7 @@ static void retire_worker(struct work_struct *work)
+ 	struct etnaviv_gpu *gpu = container_of(work, struct etnaviv_gpu,
+ 					       retire_work);
+ 	struct drm_device *dev = gpu->drm;
+-	u32 fence = gpu->retired_fence;
++	u32 fence = gpu->completed_fence;
+ 
+ 	mutex_lock(&dev->struct_mutex);
+ 
+@@ -860,11 +860,27 @@ static void retire_worker(struct work_struct *work)
+ 		}
+ 	}
+ 
++	gpu->retired_fence = fence;
++
+ 	mutex_unlock(&dev->struct_mutex);
+ 
+ 	wake_up_all(&gpu->fence_event);
+ }
+ 
++static unsigned long etnaviv_timeout_to_jiffies(struct timespec *timeout)
++{
++	unsigned long timeout_jiffies = timespec_to_jiffies(timeout);
++	unsigned long start_jiffies = jiffies;
++	unsigned long remaining_jiffies;
++
++	if (time_after(start_jiffies, timeout_jiffies))
++		remaining_jiffies = 0;
++	else
++		remaining_jiffies = timeout_jiffies - start_jiffies;
++
++	return remaining_jiffies;
++}
++
+ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ 	u32 fence, struct timespec *timeout)
+ {
+@@ -880,21 +896,15 @@ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ 		/* No timeout was requested: just test for completion */
+ 		ret = fence_completed(gpu, fence) ? 0 : -EBUSY;
+ 	} else {
+-		unsigned long timeout_jiffies = timespec_to_jiffies(timeout);
+-		unsigned long start_jiffies = jiffies;
+-		unsigned long remaining_jiffies;
+-
+-		if (time_after(start_jiffies, timeout_jiffies))
+-			remaining_jiffies = 0;
+-		else
+-			remaining_jiffies = timeout_jiffies - start_jiffies;
++		unsigned long remaining = etnaviv_timeout_to_jiffies(timeout);
+ 
+ 		ret = wait_event_interruptible_timeout(gpu->fence_event,
+ 						fence_completed(gpu, fence),
+-						remaining_jiffies);
++						remaining);
+ 		if (ret == 0) {
+-			DBG("timeout waiting for fence: %u (completed: %u)",
+-					fence, gpu->retired_fence);
++			DBG("timeout waiting for fence: %u (retired: %u completed: %u)",
++				fence, gpu->retired_fence,
++				gpu->completed_fence);
+ 			ret = -ETIMEDOUT;
+ 		} else if (ret != -ERESTARTSYS) {
+ 			ret = 0;
+@@ -904,6 +914,39 @@ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ 	return ret;
+ }
+ 
++/*
++ * Wait for an object to become inactive.  This, on it's own, is not race
++ * free: the object is moved by the retire worker off the active list, and
++ * then the iova is put.  Moreover, the object could be re-submitted just
++ * after we notice that it's become inactive.
++ *
++ * Although the retirement happens under the struct_mutex, we don't want
++ * to hold that lock in this function.  Instead, the caller is responsible
++ * for ensuring that the retire worker has finished (which will happen, eg,
++ * when we unreference the object, an action which takes the struct_mutex.)
++ */
++int etnaviv_gpu_wait_obj_inactive(struct etnaviv_gpu *gpu,
++	struct etnaviv_gem_object *etnaviv_obj, struct timespec *timeout)
++{
++	unsigned long remaining;
++	long ret;
++
++	if (!timeout)
++		return !is_active(etnaviv_obj) ? 0 : -EBUSY;
++
++	remaining = etnaviv_timeout_to_jiffies(timeout);
++
++	ret = wait_event_interruptible_timeout(gpu->fence_event,
++					       !is_active(etnaviv_obj),
++					       remaining);
++	if (ret > 0)
++		return 0;
++	else if (ret == -ERESTARTSYS)
++		return -ERESTARTSYS;
++	else
++		return -ETIMEDOUT;
++}
++
+ int etnaviv_gpu_pm_get_sync(struct etnaviv_gpu *gpu)
+ {
+ 	return pm_runtime_get_sync(gpu->dev);
+@@ -1021,8 +1064,9 @@ static irqreturn_t irq_handler(int irq, void *data)
+ 			 * - event 1 and event 0 complete
+ 			 * we can end up processing event 0 first, then 1.
+ 			 */
+-			if (fence_after(gpu->event[event].fence, gpu->retired_fence))
+-				gpu->retired_fence = gpu->event[event].fence;
++			if (fence_after(gpu->event[event].fence,
++					gpu->completed_fence))
++				gpu->completed_fence = gpu->event[event].fence;
+ 			event_free(gpu, event);
+ 
+ 			/*
+@@ -1304,7 +1348,7 @@ static int etnaviv_gpu_rpm_suspend(struct device *dev)
+ 	u32 idle, mask;
+ 
+ 	/* If we have outstanding fences, we're not idle */
+-	if (gpu->retired_fence != gpu->submitted_fence)
++	if (gpu->completed_fence != gpu->submitted_fence)
+ 		return -EBUSY;
+ 
+ 	/* Check whether the hardware (except FE) is idle */
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index b883403..374f37f 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -107,6 +107,7 @@ struct etnaviv_gpu {
+ 
+ 	/* Fencing support */
+ 	u32 submitted_fence;
++	u32 completed_fence;
+ 	u32 retired_fence;
+ 	wait_queue_head_t fence_event;
+ 
+@@ -144,6 +145,11 @@ static inline u32 gpu_read(struct etnaviv_gpu *gpu, u32 reg)
+ 
+ static inline bool fence_completed(struct etnaviv_gpu *gpu, u32 fence)
+ {
++	return fence_after_eq(gpu->completed_fence, fence);
++}
++
++static inline bool fence_retired(struct etnaviv_gpu *gpu, u32 fence)
++{
+ 	return fence_after_eq(gpu->retired_fence, fence);
+ }
+ 
+@@ -158,6 +164,8 @@ int etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m);
+ void etnaviv_gpu_retire(struct etnaviv_gpu *gpu);
+ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ 	u32 fence, struct timespec *timeout);
++int etnaviv_gpu_wait_obj_inactive(struct etnaviv_gpu *gpu,
++	struct etnaviv_gem_object *etnaviv_obj, struct timespec *timeout);
+ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_submit *submit, struct etnaviv_file_private *ctx);
+ int etnaviv_gpu_pm_get_sync(struct etnaviv_gpu *gpu);
+diff --git a/include/uapi/drm/etnaviv_drm.h b/include/uapi/drm/etnaviv_drm.h
+index 0aca6b1..7cc749c 100644
+--- a/include/uapi/drm/etnaviv_drm.h
++++ b/include/uapi/drm/etnaviv_drm.h
+@@ -199,6 +199,12 @@ struct drm_etnaviv_gem_userptr {
+ 	__u32 handle;	/* out, non-zero handle */
+ };
+ 
++struct drm_etnaviv_gem_wait {
++	__u32 pipe;				/* in */
++	__u32 handle;				/* in, bo to be waited for */
++	struct drm_etnaviv_timespec timeout;	/* in */
++};
++
+ #define DRM_ETNAVIV_GET_PARAM          0x00
+ /* placeholder:
+ #define DRM_ETNAVIV_SET_PARAM          0x01
+@@ -210,7 +216,8 @@ struct drm_etnaviv_gem_userptr {
+ #define DRM_ETNAVIV_GEM_SUBMIT         0x06
+ #define DRM_ETNAVIV_WAIT_FENCE         0x07
+ #define DRM_ETNAVIV_GEM_USERPTR        0x08
+-#define DRM_ETNAVIV_NUM_IOCTLS         0x09
++#define DRM_ETNAVIV_GEM_WAIT           0x09
++#define DRM_ETNAVIV_NUM_IOCTLS         0x0a
+ 
+ #define DRM_IOCTL_ETNAVIV_GET_PARAM    DRM_IOWR(DRM_COMMAND_BASE + DRM_ETNAVIV_GET_PARAM, struct drm_etnaviv_param)
+ #define DRM_IOCTL_ETNAVIV_GEM_NEW      DRM_IOWR(DRM_COMMAND_BASE + DRM_ETNAVIV_GEM_NEW, struct drm_etnaviv_gem_new)
+@@ -220,5 +227,6 @@ struct drm_etnaviv_gem_userptr {
+ #define DRM_IOCTL_ETNAVIV_GEM_SUBMIT   DRM_IOWR(DRM_COMMAND_BASE + DRM_ETNAVIV_GEM_SUBMIT, struct drm_etnaviv_gem_submit)
+ #define DRM_IOCTL_ETNAVIV_WAIT_FENCE   DRM_IOW(DRM_COMMAND_BASE + DRM_ETNAVIV_WAIT_FENCE, struct drm_etnaviv_wait_fence)
+ #define DRM_IOCTL_ETNAVIV_GEM_USERPTR  DRM_IOWR(DRM_COMMAND_BASE + DRM_ETNAVIV_GEM_USERPTR, struct drm_etnaviv_gem_userptr)
++#define DRM_IOCTL_ETNAVIV_GEM_WAIT     DRM_IOW(DRM_COMMAND_BASE + DRM_ETNAVIV_GEM_WAIT, struct drm_etnaviv_gem_wait)
+ 
+ #endif /* __ETNAVIV_DRM_H__ */
+-- 
+2.5.1
+

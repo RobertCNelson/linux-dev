@@ -1,0 +1,31 @@
+From 7fdf5899a7fa086c7fe8445df41fe6555ab675d1 Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Tue, 23 Jun 2015 11:51:48 +0200
+Subject: [PATCH 075/139] staging: etnaviv: allow to draw up to 256 rectangles
+ in one draw call
+
+The hardware interprets a value of 0 as the maximium number of rectangles
+which is 256. Allow this in the command parser.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_cmd_parser.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_cmd_parser.c b/drivers/staging/etnaviv/etnaviv_cmd_parser.c
+index 732d354..b429451 100644
+--- a/drivers/staging/etnaviv/etnaviv_cmd_parser.c
++++ b/drivers/staging/etnaviv/etnaviv_cmd_parser.c
+@@ -68,6 +68,8 @@ bool etnaviv_cmd_validate_one(struct etnaviv_gpu *gpu,
+ 
+ 		case FE_OPCODE_DRAW_2D:
+ 			n = EXTRACT(cmd, VIV_FE_DRAW_2D_HEADER_COUNT);
++			if (n == 0)
++				n = 256;
+ 			len = 2 + n * 2;
+ 			break;
+ 
+-- 
+2.5.1
+

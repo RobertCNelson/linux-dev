@@ -1,0 +1,117 @@
+From e40e9da974514f509d9dc86e1f0d9abf107bd1de Mon Sep 17 00:00:00 2001
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Date: Tue, 23 Jun 2015 11:51:51 +0200
+Subject: [PATCH 093/139] staging: etnaviv: quiten down kernel log output
+
+There is no need to spam the kernel logs with the GPU specs and features
+at startup. If someone wants to know about this stuff debugfs should be
+the right place to look at.
+
+Also use better format specifiers to make it easier for humans to read.
+
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 64 ++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 0a8c0d3..c541152 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -187,27 +187,6 @@ static void etnaviv_hw_specs(struct etnaviv_gpu *gpu)
+ 		gpu->identity.instruction_count = 256;
+ 		break;
+ 	}
+-
+-	dev_info(gpu->dev, "stream_count:  %x\n",
+-		 gpu->identity.stream_count);
+-	dev_info(gpu->dev, "register_max: %x\n",
+-		 gpu->identity.register_max);
+-	dev_info(gpu->dev, "thread_count: %x\n",
+-		 gpu->identity.thread_count);
+-	dev_info(gpu->dev, "vertex_cache_size: %x\n",
+-		 gpu->identity.vertex_cache_size);
+-	dev_info(gpu->dev, "shader_core_count: %x\n",
+-		 gpu->identity.shader_core_count);
+-	dev_info(gpu->dev, "pixel_pipes: %x\n",
+-		 gpu->identity.pixel_pipes);
+-	dev_info(gpu->dev, "vertex_output_buffer_size: %x\n",
+-		 gpu->identity.vertex_output_buffer_size);
+-	dev_info(gpu->dev, "buffer_size: %x\n",
+-		 gpu->identity.buffer_size);
+-	dev_info(gpu->dev, "instruction_count: %x\n",
+-		 gpu->identity.instruction_count);
+-	dev_info(gpu->dev, "num_constants: %x\n",
+-		 gpu->identity.num_constants);
+ }
+ 
+ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+@@ -252,7 +231,7 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 		}
+ 	}
+ 
+-	dev_info(gpu->dev, "model: %x - revision %x\n",
++	dev_info(gpu->dev, "model: GC%x, revision: %x\n",
+ 		 gpu->identity.model, gpu->identity.revision);
+ 
+ 	gpu->identity.features = gpu_read(gpu, VIVS_HI_CHIP_FEATURE);
+@@ -286,15 +265,6 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 				gpu_read(gpu, VIVS_HI_CHIP_MINOR_FEATURE_3);
+ 	}
+ 
+-	dev_info(gpu->dev, "minor_features:  %x\n",
+-		 gpu->identity.minor_features0);
+-	dev_info(gpu->dev, "minor_features1: %x\n",
+-		 gpu->identity.minor_features1);
+-	dev_info(gpu->dev, "minor_features2: %x\n",
+-		 gpu->identity.minor_features2);
+-	dev_info(gpu->dev, "minor_features3: %x\n",
+-		 gpu->identity.minor_features3);
+-
+ 	/* GC600 idle register reports zero bits where modules aren't present */
+ 	if (gpu->identity.model == chipModel_GC600) {
+ 		gpu->idle_mask = VIVS_HI_IDLE_STATE_TX |
+@@ -593,6 +563,38 @@ void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m)
+ 
+ 	verify_dma(gpu, &debug);
+ 
++	seq_puts(m, "\tfeatures\n");
++	seq_printf(m, "\t minor_features0: 0x%08x\n",
++		   gpu->identity.minor_features0);
++	seq_printf(m, "\t minor_features1: 0x%08x\n",
++		   gpu->identity.minor_features1);
++	seq_printf(m, "\t minor_features2: 0x%08x\n",
++		   gpu->identity.minor_features2);
++	seq_printf(m, "\t minor_features3: 0x%08x\n",
++		   gpu->identity.minor_features3);
++
++	seq_puts(m, "\tspecs\n");
++	seq_printf(m, "\t stream_count:  %d\n",
++			gpu->identity.stream_count);
++	seq_printf(m, "\t register_max: %d\n",
++			gpu->identity.register_max);
++	seq_printf(m, "\t thread_count: %d\n",
++			gpu->identity.thread_count);
++	seq_printf(m, "\t vertex_cache_size: %d\n",
++			gpu->identity.vertex_cache_size);
++	seq_printf(m, "\t shader_core_count: %d\n",
++			gpu->identity.shader_core_count);
++	seq_printf(m, "\t pixel_pipes: %d\n",
++			gpu->identity.pixel_pipes);
++	seq_printf(m, "\t vertex_output_buffer_size: %d\n",
++			gpu->identity.vertex_output_buffer_size);
++	seq_printf(m, "\t buffer_size: %d\n",
++			gpu->identity.buffer_size);
++	seq_printf(m, "\t instruction_count: %d\n",
++			gpu->identity.instruction_count);
++	seq_printf(m, "\t num_constants: %d\n",
++			gpu->identity.num_constants);
++
+ 	seq_printf(m, "\taxi: 0x%08x\n", axi);
+ 	seq_printf(m, "\tidle: 0x%08x\n", idle);
+ 	idle |= ~gpu->idle_mask & ~VIVS_HI_IDLE_STATE_AXI_LP;
+-- 
+2.5.1
+

@@ -1,0 +1,454 @@
+From f72b385e9a03eec440b581336056073927875f75 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:47 +0200
+Subject: [PATCH 072/139] staging: etnaviv: avoid holding struct_mutex over
+ dma_alloc_coherent()
+
+Holding the DRM struct_mutex over a call to dma_alloc_coherent() is
+asking for trouble; the DRM struct_mutex is held inside several other
+system-wide locks, and when CMA is enabled, this causes the CMA lock
+to be nested inside struct_mutex.
+
+In conjunction with other system locks, this eventually causes a AB-BA
+lock ordering bug, which becomes most apparent when using CPU hotplug:
+
+[ INFO: possible circular locking dependency detected ]
+3.19.0-rc6+ #1497 Not tainted
+-------------------------------------------------------
+bash/2154 is trying to acquire lock:
+ (console_lock){+.+.+.}, at: [<c006b75c>] console_cpu_notify+0x28/0x34
+
+but task is already holding lock:
+ (cpu_hotplug.lock#2){+.+.+.}, at: [<c00270f0>] cpu_hotplug_begin+0x64/0xb8
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #5 (cpu_hotplug.lock#2){+.+.+.}:
+       [<c06ecaac>] mutex_lock_nested+0x5c/0x3d8
+       [<c00dad28>] lru_add_drain_all+0x1c/0x18c
+       [<c010fbe8>] migrate_prep+0x10/0x18
+       [<c00d5d74>] alloc_contig_range+0xd0/0x2cc
+       [<c0111448>] cma_alloc+0xe0/0x1ac
+       [<c0397268>] dma_alloc_from_contiguous+0x3c/0x44
+       [<c001a7bc>] __alloc_from_contiguous+0x3c/0xe8
+       [<c09a3b48>] atomic_pool_init+0x6c/0x15c
+       [<c0008a5c>] do_one_initcall+0x88/0x1d8
+       [<c099ee44>] kernel_init_freeable+0x110/0x1dc
+       [<c06e3104>] kernel_init+0x10/0xec
+       [<c000ecd0>] ret_from_fork+0x14/0x24
+
+-> #4 (lock){+.+...}:
+       [<c06ecaac>] mutex_lock_nested+0x5c/0x3d8
+       [<c00dad28>] lru_add_drain_all+0x1c/0x18c
+       [<c010fbe8>] migrate_prep+0x10/0x18
+       [<c00d5d74>] alloc_contig_range+0xd0/0x2cc
+       [<c0111448>] cma_alloc+0xe0/0x1ac
+       [<c0397268>] dma_alloc_from_contiguous+0x3c/0x44
+       [<c001a7bc>] __alloc_from_contiguous+0x3c/0xe8
+       [<c09a3b48>] atomic_pool_init+0x6c/0x15c
+       [<c0008a5c>] do_one_initcall+0x88/0x1d8
+       [<c099ee44>] kernel_init_freeable+0x110/0x1dc
+       [<c06e3104>] kernel_init+0x10/0xec
+       [<c000ecd0>] ret_from_fork+0x14/0x24
+
+-> #3 (cma_mutex){+.+.+.}:
+       [<c06ecaac>] mutex_lock_nested+0x5c/0x3d8
+       [<c0111438>] cma_alloc+0xd0/0x1ac
+       [<c0397268>] dma_alloc_from_contiguous+0x3c/0x44
+       [<c001a7bc>] __alloc_from_contiguous+0x3c/0xe8
+       [<c001abbc>] __dma_alloc+0x15c/0x28c
+       [<c001ae38>] arm_dma_alloc+0xa0/0xa8
+       [<c0508a24>] etnaviv_iommu_domain_init+0x54/0x138
+       [<c0508b54>] etnaviv_iommu_domain_alloc+0x4c/0xd8
+       [<c0507c8c>] etnaviv_gpu_init+0x380/0x620
+       [<c0503ff8>] etnaviv_load+0xc0/0x128
+       [<c0369244>] drm_dev_register+0xac/0x10c
+       [<c036ad1c>] drm_platform_init+0x48/0xd4
+       [<c050382c>] etnaviv_bind+0x18/0x20
+       [<c038d138>] try_to_bring_up_master+0x140/0x17c
+       [<c038d2f0>] component_master_add_with_match+0x84/0xe0
+       [<c0504114>] etnaviv_pdev_probe+0xb4/0x104
+       [<c0392ed8>] platform_drv_probe+0x50/0xac
+       [<c03916f0>] driver_probe_device+0x114/0x234
+       [<c03918ac>] __driver_attach+0x9c/0xa0
+       [<c038fd3c>] bus_for_each_dev+0x5c/0x90
+       [<c03911e0>] driver_attach+0x24/0x28
+       [<c0390e58>] bus_add_driver+0xe0/0x1d8
+       [<c03920ac>] driver_register+0x80/0xfc
+       [<c0392d60>] __platform_driver_register+0x50/0x64
+       [<c09d8b08>] etnaviv_init+0x2c/0x4c
+       [<c0008a5c>] do_one_initcall+0x88/0x1d8
+       [<c099ee44>] kernel_init_freeable+0x110/0x1dc
+       [<c06e3104>] kernel_init+0x10/0xec
+       [<c000ecd0>] ret_from_fork+0x14/0x24
+
+-> #2 (&dev->struct_mutex){+.+.+.}:
+       [<c06ecaac>] mutex_lock_nested+0x5c/0x3d8
+       [<c0364508>] drm_gem_mmap+0x3c/0xd4
+       [<c037ef88>] drm_gem_cma_mmap+0x14/0x2c
+       [<c00fd020>] mmap_region+0x3d0/0x6a4
+       [<c00fd5d8>] do_mmap_pgoff+0x2e4/0x374
+       [<c00e6c18>] vm_mmap_pgoff+0x6c/0x9c
+       [<c00fbb98>] SyS_mmap_pgoff+0x94/0xb8
+       [<c000ec00>] ret_fast_syscall+0x0/0x4c
+
+-> #1 (&mm->mmap_sem){++++++}:
+       [<c00f4a68>] might_fault+0x64/0x98
+       [<c033dd3c>] con_set_unimap+0x160/0x25c
+       [<c03381c8>] vt_ioctl+0x126c/0x1328
+       [<c032bfdc>] tty_ioctl+0x498/0xc5c
+       [<c012493c>] do_vfs_ioctl+0x84/0x66c
+       [<c0124f60>] SyS_ioctl+0x3c/0x60
+       [<c000ec00>] ret_fast_syscall+0x0/0x4c
+
+-> #0 (console_lock){+.+.+.}:
+       [<c00627f0>] lock_acquire+0xb0/0x124
+       [<c00697cc>] console_lock+0x44/0x6c
+       [<c006b75c>] console_cpu_notify+0x28/0x34
+       [<c00431b0>] notifier_call_chain+0x4c/0x8c
+       [<c00432cc>] __raw_notifier_call_chain+0x1c/0x24
+       [<c0026d74>] __cpu_notify+0x34/0x50
+       [<c0026da8>] cpu_notify+0x18/0x1c
+       [<c0026eec>] cpu_notify_nofail+0x10/0x1c
+       [<c06e3484>] _cpu_down+0x100/0x248
+       [<c06e35f8>] cpu_down+0x2c/0x48
+       [<c03939a8>] cpu_subsys_offline+0x14/0x18
+       [<c038f6d0>] device_offline+0x90/0xc0
+       [<c038f7e0>] online_store+0x4c/0x74
+       [<c038d46c>] dev_attr_store+0x20/0x2c
+       [<c017c0f8>] sysfs_kf_write+0x54/0x58
+       [<c017b430>] kernfs_fop_write+0xfc/0x1ac
+       [<c0114274>] vfs_write+0xac/0x1b4
+       [<c01145b0>] SyS_write+0x44/0x90
+       [<c000ec00>] ret_fast_syscall+0x0/0x4c
+
+other info that might help us debug this:
+
+Chain exists of:
+  console_lock --> lock --> cpu_hotplug.lock#2
+
+ Possible unsafe locking scenario:
+       CPU0                    CPU1
+       ----                    ----
+  lock(cpu_hotplug.lock#2);
+                               lock(lock);
+                               lock(cpu_hotplug.lock#2);
+  lock(console_lock);
+
+ *** DEADLOCK ***
+
+8 locks held by bash/2154:
+ #0:  (sb_writers#5){.+.+.+}, at: [<c0114354>] vfs_write+0x18c/0x1b4
+ #1:  (&of->mutex){+.+.+.}, at: [<c017b3bc>] kernfs_fop_write+0x88/0x1ac
+ #2:  (s_active#40){.+.+.+}, at: [<c017b3c4>] kernfs_fop_write+0x90/0x1ac
+ #3:  (device_hotplug_lock){+.+.+.}, at: [<c038e4d8>] lock_device_hotplug_sysfs+0x14/0x54
+ #4:  (&dev->mutex){......}, at: [<c038f684>] device_offline+0x44/0xc0
+ #5:  (cpu_add_remove_lock){+.+.+.}, at: [<c0026de0>] cpu_maps_update_begin+0x18/0x20
+ #6:  (cpu_hotplug.lock){++++++}, at: [<c002708c>] cpu_hotplug_begin+0x0/0xb8
+ #7:  (cpu_hotplug.lock#2){+.+.+.}, at: [<c00270f0>] cpu_hotplug_begin+0x64/0xb8
+stack backtrace:
+CPU: 0 PID: 2154 Comm: bash Not tainted 3.19.0-rc6+ #1497
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Backtrace:
+[<c0012280>] (dump_backtrace) from [<c0012418>] (show_stack+0x18/0x1c)
+[<c0012400>] (show_stack) from [<c06e8eac>] (dump_stack+0x7c/0x98)
+[<c06e8e30>] (dump_stack) from [<c06e6520>] (print_circular_bug+0x28c/0x2d8)
+[<c06e6294>] (print_circular_bug) from [<c00621a8>] (__lock_acquire+0x1acc/0x1bb0)
+[<c00606dc>] (__lock_acquire) from [<c00627f0>] (lock_acquire+0xb0/0x124)
+[<c0062740>] (lock_acquire) from [<c00697cc>] (console_lock+0x44/0x6c)
+[<c0069788>] (console_lock) from [<c006b75c>] (console_cpu_notify+0x28/0x34)
+[<c006b734>] (console_cpu_notify) from [<c00431b0>] (notifier_call_chain+0x4c/0x8c)
+[<c0043164>] (notifier_call_chain) from [<c00432cc>] (__raw_notifier_call_chain+0x1c/0x24)
+[<c00432b0>] (__raw_notifier_call_chain) from [<c0026d74>] (__cpu_notify+0x34/0x50)
+[<c0026d40>] (__cpu_notify) from [<c0026da8>] (cpu_notify+0x18/0x1c)
+[<c0026d90>] (cpu_notify) from [<c0026eec>] (cpu_notify_nofail+0x10/0x1c)
+[<c0026edc>] (cpu_notify_nofail) from [<c06e3484>] (_cpu_down+0x100/0x248)
+[<c06e3384>] (_cpu_down) from [<c06e35f8>] (cpu_down+0x2c/0x48)
+[<c06e35cc>] (cpu_down) from [<c03939a8>] (cpu_subsys_offline+0x14/0x18)
+[<c0393994>] (cpu_subsys_offline) from [<c038f6d0>] (device_offline+0x90/0xc0)
+[<c038f640>] (device_offline) from [<c038f7e0>] (online_store+0x4c/0x74)
+[<c038f794>] (online_store) from [<c038d46c>] (dev_attr_store+0x20/0x2c)
+[<c038d44c>] (dev_attr_store) from [<c017c0f8>] (sysfs_kf_write+0x54/0x58)
+[<c017c0a4>] (sysfs_kf_write) from [<c017b430>] (kernfs_fop_write+0xfc/0x1ac)
+[<c017b334>] (kernfs_fop_write) from [<c0114274>] (vfs_write+0xac/0x1b4)
+[<c01141c8>] (vfs_write) from [<c01145b0>] (SyS_write+0x44/0x90)
+[<c011456c>] (SyS_write) from [<c000ec00>] (ret_fast_syscall+0x0/0x4c)
+
+The locking ordering for each of the chain backtraces are:
+
+5: cpu_hotplug.lock (in lru_add_drain_all, get_online_cpus)
+   lock (in lru_add_drain_all)
+   cma_mutex (in cma_alloc)
+4: lock (in lru_add_drain_all),
+   cma_mutex (in cma_alloc)
+3: cma_mutex (in cma_alloc)
+   drm dev->struct_mutex (in etnaviv_load)
+2: drm dev->struct_mutex (in drm_gem_mmap)
+   mm->mmap_sem (in vm_mmap_pgoff)
+1: mm->mmap_sem (in might_fault)
+   console_lock (in con_set_unimap, console_lock)
+0: console_lock (in console_cpu_notify, console_lock)
+   cpu_hotplug.lock (in _cpu_down, cpu_hotplug_begin)
+
+Hence the dependency chain of:
+  cpu_hotplug.lock -> console_lock -> mmap_sem -> struct_mutex ->
+    cma_mutex -> cpu_hotplug.lock *deadlock*
+
+The operation which etnadrm needs to lock is not the allocations, but
+the addition of the etnaviv_obj to the inactive list (to prevent the
+list becoming corrupted.)  Move this to a separate operation which is
+performed once all the setup of the object is complete, and move the
+locking such that the allocation and setup is unlocked.
+
+This is overall more efficient, as we permit multiple expensive
+operations to occur in parallel (memory allocation) while only locking
+what we need.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c       |  6 --
+ drivers/staging/etnaviv/etnaviv_gem.c       | 96 +++++++++++++++++++----------
+ drivers/staging/etnaviv/etnaviv_gem.h       |  1 +
+ drivers/staging/etnaviv/etnaviv_gem_prime.c |  4 ++
+ drivers/staging/etnaviv/etnaviv_gpu.c       |  2 +
+ 5 files changed, 70 insertions(+), 39 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index 4a876d9..cdaa57a 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -91,9 +91,7 @@ static int etnaviv_unload(struct drm_device *dev)
+ 	flush_workqueue(priv->wq);
+ 	destroy_workqueue(priv->wq);
+ 
+-	mutex_lock(&dev->struct_mutex);
+ 	component_unbind_all(dev->dev, dev);
+-	mutex_unlock(&dev->struct_mutex);
+ 
+ 	dev->dev_private = NULL;
+ 
+@@ -144,16 +142,12 @@ static int etnaviv_load(struct drm_device *dev, unsigned long flags)
+ 
+ 	platform_set_drvdata(pdev, dev);
+ 
+-	mutex_lock(&dev->struct_mutex);
+-
+ 	err = component_bind_all(dev->dev, dev);
+ 	if (err < 0)
+ 		return err;
+ 
+ 	load_gpu(dev);
+ 
+-	mutex_unlock(&dev->struct_mutex);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index a4df6b4..3d3e096 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -589,37 +589,26 @@ void etnaviv_gem_free_object(struct drm_gem_object *obj)
+ 	kfree(etnaviv_obj);
+ }
+ 
+-/* convenience method to construct a GEM buffer object, and userspace handle */
+-int etnaviv_gem_new_handle(struct drm_device *dev, struct drm_file *file,
+-		uint32_t size, uint32_t flags, uint32_t *handle)
++int etnaviv_gem_obj_add(struct drm_device *dev, struct drm_gem_object *obj)
+ {
+-	struct drm_gem_object *obj;
++	struct etnaviv_drm_private *priv = dev->dev_private;
++	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+ 	int ret;
+ 
+-	ret = mutex_lock_interruptible(&dev->struct_mutex);
++	ret = mutex_lock_killable(&dev->struct_mutex);
+ 	if (ret)
+ 		return ret;
+ 
+-	obj = etnaviv_gem_new(dev, size, flags);
+-
++	list_add_tail(&etnaviv_obj->mm_list, &priv->inactive_list);
+ 	mutex_unlock(&dev->struct_mutex);
+ 
+-	if (IS_ERR(obj))
+-		return PTR_ERR(obj);
+-
+-	ret = drm_gem_handle_create(file, obj, handle);
+-
+-	/* drop reference from allocate - handle holds it now */
+-	drm_gem_object_unreference_unlocked(obj);
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static int etnaviv_gem_new_impl(struct drm_device *dev,
+ 		uint32_t size, uint32_t flags,
+ 		struct drm_gem_object **obj)
+ {
+-	struct etnaviv_drm_private *priv = dev->dev_private;
+ 	struct etnaviv_gem_object *etnaviv_obj;
+ 	unsigned sz = sizeof(*etnaviv_obj);
+ 	bool valid = true;
+@@ -666,21 +655,19 @@ static int etnaviv_gem_new_impl(struct drm_device *dev,
+ 	reservation_object_init(&etnaviv_obj->_resv);
+ 
+ 	INIT_LIST_HEAD(&etnaviv_obj->submit_entry);
+-	list_add_tail(&etnaviv_obj->mm_list, &priv->inactive_list);
++	INIT_LIST_HEAD(&etnaviv_obj->mm_list);
+ 
+ 	*obj = &etnaviv_obj->base;
+ 
+ 	return 0;
+ }
+ 
+-struct drm_gem_object *etnaviv_gem_new(struct drm_device *dev,
++static struct drm_gem_object *__etnaviv_gem_new(struct drm_device *dev,
+ 		uint32_t size, uint32_t flags)
+ {
+ 	struct drm_gem_object *obj = NULL;
+ 	int ret;
+ 
+-	WARN_ON(!mutex_is_locked(&dev->struct_mutex));
+-
+ 	size = PAGE_ALIGN(size);
+ 
+ 	ret = etnaviv_gem_new_impl(dev, size, flags, &obj);
+@@ -703,11 +690,55 @@ struct drm_gem_object *etnaviv_gem_new(struct drm_device *dev,
+ 
+ fail:
+ 	if (obj)
+-		drm_gem_object_unreference(obj);
++		drm_gem_object_unreference_unlocked(obj);
+ 
+ 	return ERR_PTR(ret);
+ }
+ 
++/* convenience method to construct a GEM buffer object, and userspace handle */
++int etnaviv_gem_new_handle(struct drm_device *dev, struct drm_file *file,
++		uint32_t size, uint32_t flags, uint32_t *handle)
++{
++	struct drm_gem_object *obj;
++	int ret;
++
++	obj = __etnaviv_gem_new(dev, size, flags);
++	if (IS_ERR(obj))
++		return PTR_ERR(obj);
++
++	ret = etnaviv_gem_obj_add(dev, obj);
++	if (ret < 0) {
++		drm_gem_object_unreference_unlocked(obj);
++		return ret;
++	}
++
++	ret = drm_gem_handle_create(file, obj, handle);
++
++	/* drop reference from allocate - handle holds it now */
++	drm_gem_object_unreference_unlocked(obj);
++
++	return ret;
++}
++
++struct drm_gem_object *etnaviv_gem_new(struct drm_device *dev,
++		uint32_t size, uint32_t flags)
++{
++	struct drm_gem_object *obj;
++	int ret;
++
++	obj = __etnaviv_gem_new(dev, size, flags);
++	if (IS_ERR(obj))
++		return obj;
++
++	ret = etnaviv_gem_obj_add(dev, obj);
++	if (ret < 0) {
++		drm_gem_object_unreference_unlocked(obj);
++		return ERR_PTR(ret);
++	}
++
++	return obj;
++}
++
+ int etnaviv_gem_new_private(struct drm_device *dev, size_t size, uint32_t flags,
+ 	struct etnaviv_gem_object **res)
+ {
+@@ -887,22 +918,21 @@ int etnaviv_gem_new_userptr(struct drm_device *dev, struct drm_file *file,
+ 	struct etnaviv_gem_object *etnaviv_obj;
+ 	int ret;
+ 
+-	ret = mutex_lock_interruptible(&dev->struct_mutex);
++	ret = etnaviv_gem_new_private(dev, size, ETNA_BO_CACHED, &etnaviv_obj);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = etnaviv_gem_new_private(dev, size, ETNA_BO_CACHED, &etnaviv_obj);
+-	if (ret == 0) {
+-		etnaviv_obj->ops = &etnaviv_gem_userptr_ops;
+-		etnaviv_obj->userptr.ptr = ptr;
+-		etnaviv_obj->userptr.task = current;
+-		etnaviv_obj->userptr.ro = !(flags & ETNA_USERPTR_WRITE);
+-		get_task_struct(current);
+-	}
+-	mutex_unlock(&dev->struct_mutex);
++	etnaviv_obj->ops = &etnaviv_gem_userptr_ops;
++	etnaviv_obj->userptr.ptr = ptr;
++	etnaviv_obj->userptr.task = current;
++	etnaviv_obj->userptr.ro = !(flags & ETNA_USERPTR_WRITE);
++	get_task_struct(current);
+ 
+-	if (ret)
++	ret = etnaviv_gem_obj_add(dev, &etnaviv_obj->base);
++	if (ret) {
++		drm_gem_object_unreference_unlocked(&etnaviv_obj->base);
+ 		return ret;
++	}
+ 
+ 	ret = drm_gem_handle_create(file, &etnaviv_obj->base, handle);
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index 0bf4325..c7d0e8b 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -118,6 +118,7 @@ struct etnaviv_gem_submit {
+ 
+ int etnaviv_gem_new_private(struct drm_device *dev, size_t size, uint32_t flags,
+ 	struct etnaviv_gem_object **res);
++int etnaviv_gem_obj_add(struct drm_device *dev, struct drm_gem_object *obj);
+ struct page **etnaviv_gem_get_pages(struct etnaviv_gem_object *obj);
+ void etnaviv_gem_put_pages(struct etnaviv_gem_object *obj);
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_prime.c b/drivers/staging/etnaviv/etnaviv_gem_prime.c
+index aad5a96..cca569b 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_prime.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_prime.c
+@@ -108,6 +108,10 @@ struct drm_gem_object *etnaviv_gem_prime_import_sg_table(struct drm_device *dev,
+ 	if (ret)
+ 		goto fail;
+ 
++	ret = etnaviv_gem_obj_add(dev, &etnaviv_obj->base);
++	if (ret)
++		goto fail;
++
+ 	return &etnaviv_obj->base;
+ 
+ fail:
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 2e9f475..becf0e1 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -515,7 +515,9 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
+ 	}
+ 
+ 	/* Now program the hardware */
++	mutex_lock(&gpu->drm->struct_mutex);
+ 	etnaviv_gpu_hw_init(gpu);
++	mutex_unlock(&gpu->drm->struct_mutex);
+ 
+ 	pm_runtime_mark_last_busy(gpu->dev);
+ 	pm_runtime_put_autosuspend(gpu->dev);
+-- 
+2.5.1
+

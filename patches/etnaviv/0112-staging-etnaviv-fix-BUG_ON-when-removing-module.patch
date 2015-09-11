@@ -1,0 +1,26 @@
+From 098ffa494ce6ff7c313a34872570cdf35819d6fd Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:55 +0200
+Subject: [PATCH 112/139] staging: etnaviv: fix BUG_ON when removing module
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 233b219..b12d460 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1157,7 +1157,7 @@ static void etnaviv_gpu_unbind(struct device *dev, struct device *master,
+ #endif
+ 
+ 	if (gpu->buffer) {
+-		drm_gem_object_unreference(gpu->buffer);
++		drm_gem_object_unreference_unlocked(gpu->buffer);
+ 		gpu->buffer = NULL;
+ 	}
+ 
+-- 
+2.5.1
+

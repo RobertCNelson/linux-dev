@@ -1,0 +1,291 @@
+From e07bab66d25bb7544a842000878a028446ae3c9a Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:52 +0200
+Subject: [PATCH 098/139] staging: etnaviv: avoid lockdep circular dependency
+ warning
+
+Avoid the below circular dependency warning by avoiding calling
+pm_runtime_get_sync() at a point where struct_mutex is held, and we
+may well provoke the power domain to be resumed.
+
+We avoid this simply by referencing the runtime PM in the
+etnaviv_gem_submit() function just before we take the lock, and
+drop it after we drop the lock.  We leave the rest of the runtime
+PM management in place - the runtime PM inside etnaviv_gpu_submit()
+won't trigger a resume as the resume will have been done by
+etnaviv_gem_submit() outside of the lock.
+
+======================================================
+[ INFO: possible circular locking dependency detected ]
+4.1.0-rc2+ #1618 Not tainted
+-------------------------------------------------------
+bash/1261 is trying to acquire lock:
+ (&mm->mmap_sem){++++++}, at: [<c010d9bc>] might_fault+0x44/0x98
+
+but task is already holding lock:
+ (&sb->s_type->i_mutex_key#3){+.+.+.}, at: [<c013f940>] iterate_dir+0x3c/0x108
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #6 (&sb->s_type->i_mutex_key#3){+.+.+.}:
+       [<c075c084>] mutex_lock_nested+0x5c/0x3dc
+       [<c02c4204>] start_creating+0x58/0xb4
+       [<c02c4330>] debugfs_create_dir+0x14/0xcc
+       [<c035ba3c>] create_regulator+0xcc/0x1fc
+       [<c035db54>] _regulator_get+0x10c/0x208
+       [<c035dc68>] regulator_get_optional+0x18/0x1c
+       [<c035ecc0>] _devm_regulator_get+0x84/0xc0
+       [<c035ed10>] devm_regulator_get_optional+0x14/0x18
+       [<c0026594>] imx_gpc_probe+0x20/0x110
+       [<c03cfb3c>] platform_drv_probe+0x50/0xac
+       [<c03ce230>] driver_probe_device+0x1d4/0x278
+       [<c03ce370>] __driver_attach+0x9c/0xa0
+       [<c03cc794>] bus_for_each_dev+0x5c/0x90
+       [<c03cdc50>] driver_attach+0x24/0x28
+       [<c03cd8a4>] bus_add_driver+0xe0/0x1dc
+       [<c03ceb9c>] driver_register+0x80/0xfc
+       [<c03cf9c4>] __platform_driver_register+0x50/0x64
+       [<c09f2948>] imx_pgc_init+0x18/0x20
+       [<c00097bc>] do_one_initcall+0x88/0x1dc
+       [<c09e9e4c>] kernel_init_freeable+0x114/0x1e0
+       [<c0751720>] kernel_init+0x10/0xec
+       [<c000fa78>] ret_from_fork+0x14/0x3c
+
+-> #5 (&rdev->mutex){+.+.+.}:
+       [<c075c084>] mutex_lock_nested+0x5c/0x3dc
+       [<c035d830>] regulator_enable+0x48/0x12c
+       [<c0026230>] imx6q_pm_pu_power_on+0x20/0x170
+       [<c03ddc48>] genpd_power_on+0x38/0xf4
+       [<c03df0e4>] __pm_genpd_poweron+0x1a4/0x1b4
+       [<c03def2c>] pm_genpd_poweron+0x28/0x3c
+       [<c03df64c>] genpd_dev_pm_attach+0xb4/0x12c
+       [<c03d54d0>] dev_pm_domain_attach+0x10/0x14
+       [<c03cfb20>] platform_drv_probe+0x34/0xac
+       [<c03ce230>] driver_probe_device+0x1d4/0x278
+       [<c03ce370>] __driver_attach+0x9c/0xa0
+       [<c03cc794>] bus_for_each_dev+0x5c/0x90
+       [<c03cdc50>] driver_attach+0x24/0x28
+       [<c03cd8a4>] bus_add_driver+0xe0/0x1dc
+       [<c03ceb9c>] driver_register+0x80/0xfc
+       [<c03cf9c4>] __platform_driver_register+0x50/0x64
+       [<c0a2701c>] etnaviv_init+0x18/0x4c
+       [<c00097bc>] do_one_initcall+0x88/0x1dc
+       [<c09e9e4c>] kernel_init_freeable+0x114/0x1e0
+       [<c0751720>] kernel_init+0x10/0xec
+       [<c000fa78>] ret_from_fork+0x14/0x3c
+
+-> #4 (&genpd->lock){+.+...}:
+       [<c075c084>] mutex_lock_nested+0x5c/0x3dc
+       [<c03df18c>] pm_genpd_runtime_resume+0x98/0x230
+       [<c03d6828>] __rpm_callback+0x3c/0x78
+       [<c03d6894>] rpm_callback+0x30/0x90
+       [<c03d78d4>] rpm_resume+0x3c4/0x5a4
+       [<c03d7d50>] __pm_runtime_resume+0x70/0x90
+       [<c053de14>] etnaviv_gpu_submit+0x30/0x220
+       [<c053c1c8>] etnaviv_ioctl_gem_submit+0x9a4/0xaf0
+       [<c03a01c4>] drm_ioctl+0x2a4/0x4e4
+       [<c013efb4>] do_vfs_ioctl+0x84/0x66c
+       [<c013f5d8>] SyS_ioctl+0x3c/0x60
+       [<c000f9a0>] ret_fast_syscall+0x0/0x54
+
+-> #3 (reservation_ww_class_mutex){+.+.+.}:
+       [<c075c468>] __ww_mutex_lock_interruptible+0x64/0x6f8
+       [<c053bca0>] etnaviv_ioctl_gem_submit+0x47c/0xaf0
+       [<c03a01c4>] drm_ioctl+0x2a4/0x4e4
+       [<c013efb4>] do_vfs_ioctl+0x84/0x66c
+       [<c013f5d8>] SyS_ioctl+0x3c/0x60
+       [<c000f9a0>] ret_fast_syscall+0x0/0x54
+
+-> #2 (reservation_ww_class_acquire){+.+.+.}:
+       [<c053b990>] etnaviv_ioctl_gem_submit+0x16c/0xaf0
+       [<c03a01c4>] drm_ioctl+0x2a4/0x4e4
+       [<c013efb4>] do_vfs_ioctl+0x84/0x66c
+       [<c013f5d8>] SyS_ioctl+0x3c/0x60
+       [<c000f9a0>] ret_fast_syscall+0x0/0x54
+
+-> #1 (&dev->struct_mutex){+.+.+.}:
+       [<c075c084>] mutex_lock_nested+0x5c/0x3dc
+       [<c039ea20>] drm_gem_mmap+0x3c/0xe0
+       [<c03bb724>] drm_gem_cma_mmap+0x14/0x2c
+       [<c0115bf4>] mmap_region+0x3d0/0x6a4
+       [<c01161ac>] do_mmap_pgoff+0x2e4/0x374
+       [<c0101764>] vm_mmap_pgoff+0x6c/0x9c
+       [<c011475c>] SyS_mmap_pgoff+0x94/0xb8
+       [<c000f9a0>] ret_fast_syscall+0x0/0x54
+
+-> #0 (&mm->mmap_sem){++++++}:
+       [<c006d880>] lock_acquire+0xa0/0x120
+       [<c010d9dc>] might_fault+0x64/0x98
+       [<c013f670>] filldir64+0x74/0x184
+       [<c01555f4>] dcache_readdir+0x1c8/0x28c
+       [<c013f98c>] iterate_dir+0x88/0x108
+       [<c013fb7c>] SyS_getdents64+0x7c/0xec
+       [<c000f9a0>] ret_fast_syscall+0x0/0x54
+
+other info that might help us debug this:
+
+Chain exists of:
+  &mm->mmap_sem --> &rdev->mutex --> &sb->s_type->i_mutex_key#3
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&sb->s_type->i_mutex_key#3);
+                               lock(&rdev->mutex);
+                               lock(&sb->s_type->i_mutex_key#3);
+  lock(&mm->mmap_sem);
+
+ *** DEADLOCK ***
+
+1 lock held by bash/1261:
+ #0:  (&sb->s_type->i_mutex_key#3){+.+.+.}, at: [<c013f940>] iterate_dir+0x3c/0x108
+
+stack backtrace:
+CPU: 0 PID: 1261 Comm: bash Not tainted 4.1.0-rc2+ #1618
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Backtrace:
+[<c00130c8>] (dump_backtrace) from [<c0013264>] (show_stack+0x18/0x1c)
+ r6:c0c27a28 r5:c0c26d68 r4:00000000 r3:00000000
+[<c001324c>] (show_stack) from [<c0757dd4>] (dump_stack+0x7c/0x98)
+[<c0757d58>] (dump_stack) from [<c0754e90>] (print_circular_bug+0x28c/0x2e0)
+ r4:c0c39e58 r3:ecd43200
+[<c0754c04>] (print_circular_bug) from [<c006d024>] (__lock_acquire+0x1944/0x1c34)
+ r10:c14aee7c r8:ecd436a0 r7:ecd43200 r6:c149d2dc r5:00000001 r4:ecd436b8
+[<c006b6e0>] (__lock_acquire) from [<c006d880>] (lock_acquire+0xa0/0x120)
+ r10:c0aeab14 r9:60070013 r8:00000001 r7:00000000 r6:00000000 r5:ed244e88
+ r4:00000000
+[<c006d7e0>] (lock_acquire) from [<c010d9dc>] (might_fault+0x64/0x98)
+ r10:edc02508 r9:00000000 r8:0000001c r7:00000018 r6:00000001 r5:00d16028
+ r4:00000000
+[<c010d978>] (might_fault) from [<c013f670>] (filldir64+0x74/0x184)
+ r4:eb935f60
+[<c013f5fc>] (filldir64) from [<c01555f4>] (dcache_readdir+0x1c8/0x28c)
+ r10:edc02508 r9:eb935f60 r8:e6d1b09c r7:e8074780 r6:e6d1b000 r5:eb935f60
+ r4:edc02508
+[<c015542c>] (dcache_readdir) from [<c013f98c>] (iterate_dir+0x88/0x108)
+ r10:edc044b8 r9:eb935f60 r8:e8074788 r7:00000000 r6:e8074780 r5:00000000
+ r4:00000000
+[<c013f904>] (iterate_dir) from [<c013fb7c>] (SyS_getdents64+0x7c/0xec)
+ r10:00000000 r9:eb934000 r8:e8074780 r7:e8074780 r6:00008000 r5:00d16008
+ r4:000a6b4c
+[<c013fb00>] (SyS_getdents64) from [<c000f9a0>] (ret_fast_syscall+0x0/0x54)
+ r10:00000000 r8:c000fb84 r7:000000d9 r6:00d1600c r5:00d16008 r4:000a6b4c
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 23 +++++++++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_gpu.c        | 25 ++++++++++++++++++++++++-
+ drivers/staging/etnaviv/etnaviv_gpu.h        |  2 ++
+ 3 files changed, 49 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index eb3c5bd..647d16f 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -313,6 +313,27 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 	if (args->nr_cmds > MAX_CMDS)
+ 		return -EINVAL;
+ 
++	/*
++	 * Avoid big circular locking dependency loops:
++	 * - reading debugfs results in mmap_sem depending on i_mutex_key#3
++	 *   (iterate_dir -> filldir64)
++	 * - struct_mutex depends on mmap_sem
++	 *   (vm_mmap_pgoff -> drm_gem_mmap)
++	 * then if we try to do a get_sync() under struct_mutex,
++	 * - genpd->lock depends on struct_mutex
++	 *   (etnaviv_ioctl_gem_submit -> pm_genpd_runtime_resume)
++	 * - (regulator) rdev->mutex depends on genpd->lock
++	 *   (pm_genpd_poweron -> regulator_enable)
++	 * - i_mutex_key#3 depends on rdev->mutex
++	 *   (create_regulator -> debugfs::start_creating)
++	 * and lockdep rightfully explodes.
++	 *
++	 * Avoid this by getting runtime PM outside of the struct_mutex lock.
++	 */
++	ret = etnaviv_gpu_pm_get_sync(gpu);
++	if (ret < 0)
++		return ret;
++
+ 	mutex_lock(&dev->struct_mutex);
+ 
+ 	submit = submit_create(dev, gpu, args->nr_bos);
+@@ -412,6 +433,8 @@ out:
+ 		submit_cleanup(submit, !!ret);
+ 	mutex_unlock(&dev->struct_mutex);
+ 
++	etnaviv_gpu_pm_put(gpu);
++
+ 	/*
+ 	 * If we're returning -EAGAIN, it could be due to the userptr code
+ 	 * wanting to run its workqueue outside of the struct_mutex.
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index dd88587..570bcd6 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -857,6 +857,17 @@ void etnaviv_gpu_retire(struct etnaviv_gpu *gpu)
+ 	queue_work(priv->wq, &gpu->retire_work);
+ }
+ 
++int etnaviv_gpu_pm_get_sync(struct etnaviv_gpu *gpu)
++{
++	return pm_runtime_get_sync(gpu->dev);
++}
++
++void etnaviv_gpu_pm_put(struct etnaviv_gpu *gpu)
++{
++	pm_runtime_mark_last_busy(gpu->dev);
++	pm_runtime_put_autosuspend(gpu->dev);
++}
++
+ /* add bo's to gpu's ring, and kick gpu: */
+ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_submit *submit, struct etnaviv_file_private *ctx)
+@@ -1234,15 +1245,27 @@ static int etnaviv_gpu_rpm_suspend(struct device *dev)
+ static int etnaviv_gpu_rpm_resume(struct device *dev)
+ {
+ 	struct etnaviv_gpu *gpu = dev_get_drvdata(dev);
++	struct drm_device *drm = gpu->drm;
+ 	int ret;
+ 
++	/* We must never runtime-PM resume holding struct_mutex */
++	if (drm && WARN_ON_ONCE(mutex_is_locked(&drm->struct_mutex)))
++		return -EDEADLK;
++
+ 	ret = etnaviv_gpu_resume(gpu);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* Re-initialise the basic hardware state */
+-	if (gpu->drm && gpu->buffer)
++	if (drm && gpu->buffer) {
++		ret = mutex_lock_killable(&drm->struct_mutex);
++		if (ret) {
++			etnaviv_gpu_suspend(gpu);
++			return ret;
++		}
+ 		etnaviv_gpu_hw_init(gpu);
++		mutex_unlock(&drm->struct_mutex);
++	}
+ 
+ 	return 0;
+ }
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index e0068cc..21e45e8 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -152,6 +152,8 @@ void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m);
+ void etnaviv_gpu_retire(struct etnaviv_gpu *gpu);
+ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_submit *submit, struct etnaviv_file_private *ctx);
++int etnaviv_gpu_pm_get_sync(struct etnaviv_gpu *gpu);
++void etnaviv_gpu_pm_put(struct etnaviv_gpu *gpu);
+ 
+ extern struct platform_driver etnaviv_gpu_driver;
+ 
+-- 
+2.5.1
+

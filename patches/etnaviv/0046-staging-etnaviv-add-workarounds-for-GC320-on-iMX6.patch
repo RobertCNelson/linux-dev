@@ -1,0 +1,51 @@
+From 21df5abcb7baeb63fd283833ea841440a0c90021 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:42 +0200
+Subject: [PATCH 046/139] staging: etnaviv: add workarounds for GC320 on iMX6
+
+Add the workarounds found in the GALCORE code (and found to be required)
+for the GC320 2D core found on iMX6 to etnaviv.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index e854864..c06250c 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -395,6 +395,30 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
+ 	if (ret)
+ 		return ret;
+ 
++	if (gpu->identity.model == chipModel_GC320 &&
++	    gpu_read(gpu, VIVS_HI_CHIP_TIME) != 0x2062400 &&
++	    (gpu->identity.revision == 0x5007 ||
++	     gpu->identity.revision == 0x5220)) {
++		u32 mc_memory_debug;
++
++		mc_memory_debug = gpu_read(gpu, VIVS_MC_DEBUG_MEMORY) & ~0xff;
++
++		if (gpu->identity.revision == 0x5007)
++			mc_memory_debug |= 0x0c;
++		else
++			mc_memory_debug |= 0x08;
++
++		gpu_write(gpu, VIVS_MC_DEBUG_MEMORY, mc_memory_debug);
++	}
++
++	/*
++	 * Update GPU AXI cache atttribute to "cacheable, no allocate".
++	 * This is necessary to prevent the iMX6 SoC locking up.
++	 */
++	gpu_write(gpu, VIVS_HI_AXI_CONFIG,
++		  VIVS_HI_AXI_CONFIG_AWCACHE(2) |
++		  VIVS_HI_AXI_CONFIG_ARCACHE(2));
++
+ 	/* set base addresses */
+ 	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_RA, 0x0);
+ 	gpu_write(gpu, VIVS_MC_MEMORY_BASE_ADDR_FE, 0x0);
+-- 
+2.5.1
+

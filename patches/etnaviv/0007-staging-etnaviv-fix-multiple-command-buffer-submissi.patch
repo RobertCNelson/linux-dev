@@ -1,0 +1,110 @@
+From 180cc30f38e4d2b3350a902d10f0f10dcd387dc9 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:36 +0200
+Subject: [PATCH 007/139] staging: etnaviv: fix multiple command buffer
+ submission in etnaviv_buffer_queue()
+
+etnaviv_buffer_queue() could not handle multiple command buffers.  We
+can handle this trivially by adapting the existing code - we record
+where we want to link to, and walk the submitted command buffers in
+reverse order, appending a LINK command to the previous target.
+
+This also means that we conveniently end up with the address and size
+to link to when changing the previous WAIT command.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_buffer.c | 45 +++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
+index facf9c7..87c5bd1 100644
+--- a/drivers/staging/etnaviv/etnaviv_buffer.c
++++ b/drivers/staging/etnaviv/etnaviv_buffer.c
+@@ -130,7 +130,7 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event, struct et
+ 	struct etnaviv_gem_object *buffer = to_etnaviv_bo(gpu->buffer);
+ 	struct etnaviv_gem_object *cmd;
+ 	u32 *lw = buffer->vaddr + ((buffer->offset - 4) * 4);
+-	u32 back;
++	u32 back, link_target, link_size;
+ 	u32 i;
+ 
+ 	if (drm_debug & DRM_UT_DRIVER)
+@@ -138,6 +138,8 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event, struct et
+ 
+ 	/* save offset back into main buffer */
+ 	back = buffer->offset;
++	link_target = buffer->paddr + buffer->offset * 4;
++	link_size = 6;
+ 
+ 	/* trigger event */
+ 	CMD_LOAD_STATE(buffer, VIVS_GL_EVENT, VIVS_GL_EVENT_EVENT_ID(event) | VIVS_GL_EVENT_FROM_PE);
+@@ -147,27 +149,28 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event, struct et
+ 	CMD_LINK(buffer, 2, buffer->paddr + ((buffer->offset - 1) * 4));
+ 
+ 	/* update offset for every cmd stream */
+-	for (i = 0; i < submit->nr_cmds; i++)
+-		submit->cmd[i].obj->offset = submit->cmd[i].offset +
+-					     submit->cmd[i].size;
++	for (i = submit->nr_cmds; i--; ) {
++		cmd = submit->cmd[i].obj;
+ 
+-	/* TODO: inter-connect all cmd buffers */
++		cmd->offset = submit->cmd[i].offset + submit->cmd[i].size;
+ 
+-	/* jump back from last cmd to main buffer */
+-	cmd = submit->cmd[submit->nr_cmds - 1].obj;
+-	CMD_LINK(cmd, 4, buffer->paddr + (back * 4));
++		if (drm_debug & DRM_UT_DRIVER)
++			pr_info("stream link from buffer %u to 0x%llx @ 0x%llx %p\n",
++				i, (u64)link_target,
++				(u64)cmd->paddr + cmd->offset * 4,
++				cmd->vaddr + cmd->offset * 4);
+ 
+-	/* update the size */
+-	for (i = 0; i < submit->nr_cmds; i++)
+-		submit->cmd[i].size = submit->cmd[i].obj->offset -
+-				      submit->cmd[i].offset;
++		/* jump back from last cmd to main buffer */
++		CMD_LINK(cmd, link_size, link_target);
+ 
+-	if (drm_debug & DRM_UT_DRIVER) {
+-		pr_info("stream link @ 0x%llx\n",
+-			(u64)cmd->paddr + ((cmd->offset - 1) * 4));
+-		pr_info("stream link @ %p\n",
+-			cmd->vaddr + ((cmd->offset - 1) * 4));
++		/* update the size */
++		submit->cmd[i].size = cmd->offset - submit->cmd[i].offset;
++
++		link_target = cmd->paddr + submit->cmd[i].offset * 4;
++		link_size = submit->cmd[i].size * 2;
++	}
+ 
++	if (drm_debug & DRM_UT_DRIVER) {
+ 		for (i = 0; i < submit->nr_cmds; i++) {
+ 			struct etnaviv_gem_object *obj = submit->cmd[i].obj;
+ 
+@@ -177,16 +180,16 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event, struct et
+ 
+ 		pr_info("link op: %p\n", lw);
+ 		pr_info("link addr: %p\n", lw + 1);
+-		pr_info("addr: 0x%llx\n", (u64)submit->cmd[0].obj->paddr);
++		pr_info("addr: 0x%llx\n", (u64)link_target);
+ 		pr_info("back: 0x%llx\n", (u64)buffer->paddr + (back * 4));
+ 		pr_info("event: %d\n", event);
+ 	}
+ 
+ 	/* Change WAIT into a LINK command; write the address first. */
+-	i = VIV_FE_LINK_HEADER_OP_LINK | VIV_FE_LINK_HEADER_PREFETCH(submit->cmd[0].size * 2);
+-	*(lw + 1) = submit->cmd[0].obj->paddr + submit->cmd[0].offset * 4;
++	*(lw + 1) = link_target;
+ 	mb();
+-	*(lw)= i;
++	*(lw) = VIV_FE_LINK_HEADER_OP_LINK |
++		VIV_FE_LINK_HEADER_PREFETCH(link_size);
+ 	mb();
+ 
+ 	if (drm_debug & DRM_UT_DRIVER)
+-- 
+2.5.1
+

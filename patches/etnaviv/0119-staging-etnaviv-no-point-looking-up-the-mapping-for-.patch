@@ -1,0 +1,36 @@
+From 042e93f282bb0638d6a4bddd01bd20659b5da743 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:56 +0200
+Subject: [PATCH 119/139] staging: etnaviv: no point looking up the mapping for
+ cmdstream bos
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index dd9e67e..71c8a0c 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -295,8 +295,7 @@ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ 	struct drm_gem_object *obj, u32 *iova)
+ {
+ 	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+-	struct etnaviv_vram_mapping *mapping =
+-			etnaviv_gem_get_vram_mapping(etnaviv_obj, gpu->mmu);
++	struct etnaviv_vram_mapping *mapping;
+ 	int ret = 0;
+ 
+ 	if (etnaviv_obj->flags & ETNA_BO_CMDSTREAM) {
+@@ -304,6 +303,7 @@ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ 		return 0;
+ 	}
+ 
++	mapping = etnaviv_gem_get_vram_mapping(etnaviv_obj, gpu->mmu);
+ 	if (!mapping) {
+ 		struct page **pages = etnaviv_gem_get_pages(etnaviv_obj);
+ 		if (IS_ERR(pages))
+-- 
+2.5.1
+

@@ -1,0 +1,35 @@
+From 887da8782afa1cc81b95ce34feef06441d578912 Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Tue, 23 Jun 2015 11:51:48 +0200
+Subject: [PATCH 079/139] staging: etnaviv: convert to_etnaviv_bo() to real
+ function
+
+This provides a bit more type safety.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index c7d0e8b..e109e8c 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -76,7 +76,12 @@ struct etnaviv_gem_object {
+ 
+ 	struct etnaviv_gem_userptr userptr;
+ };
+-#define to_etnaviv_bo(x) container_of(x, struct etnaviv_gem_object, base)
++
++static inline
++struct etnaviv_gem_object *to_etnaviv_bo(struct drm_gem_object *obj)
++{
++	return container_of(obj, struct etnaviv_gem_object, base);
++}
+ 
+ struct etnaviv_gem_ops {
+ 	int (*get_pages)(struct etnaviv_gem_object *);
+-- 
+2.5.1
+

@@ -1,0 +1,36 @@
+From 84c348e23a2862fbbabe74e2c7a15d05936ca9e8 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:42 +0200
+Subject: [PATCH 041/139] staging: etnaviv: safely take down hangcheck
+
+We need to synchronously take down the hangcheck timer, and then cancel
+the recovery work when we're unbinding the GPU to avoid these timers and
+workers running after we clean up.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index accd07d..93bfd80 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -934,10 +934,12 @@ static void etnaviv_gpu_unbind(struct device *dev, struct device *master,
+ {
+ 	struct etnaviv_gpu *gpu = dev_get_drvdata(dev);
+ 
+-	del_timer(&gpu->hangcheck_timer);
+-
+ 	DBG("%s", dev_name(gpu->dev));
+ 
++	/* Safely take down hangcheck */
++	del_timer_sync(&gpu->hangcheck_timer);
++	cancel_work_sync(&gpu->recover_work);
++
+ 	WARN_ON(!list_empty(&gpu->active_list));
+ 
+ 	if (gpu->buffer)
+-- 
+2.5.1
+

@@ -1,0 +1,63 @@
+From 07debd1c1a81e669f9294d3cffd7d716ffc83864 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:55 +0200
+Subject: [PATCH 117/139] staging: etnaviv: drop event ring buffer tracking
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_buffer.c | 1 -
+ drivers/staging/etnaviv/etnaviv_gpu.c    | 4 +---
+ drivers/staging/etnaviv/etnaviv_gpu.h    | 2 --
+ 3 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
+index 01a2979..cbeebfd 100644
+--- a/drivers/staging/etnaviv/etnaviv_buffer.c
++++ b/drivers/staging/etnaviv/etnaviv_buffer.c
+@@ -262,7 +262,6 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 
+ 	/* Save the event and buffer position of the new event trigger */
+ 	gpu->event[event].fence = submit->fence;
+-	gpu->event[event].ring_pos = buffer->offset;
+ 
+ 	/* trigger event */
+ 	CMD_LOAD_STATE(buffer, VIVS_GL_EVENT, VIVS_GL_EVENT_EVENT_ID(event) |
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 7b618ed..137c092 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1021,10 +1021,8 @@ static irqreturn_t irq_handler(int irq, void *data)
+ 			 * - event 1 and event 0 complete
+ 			 * we can end up processing event 0 first, then 1.
+ 			 */
+-			if (fence_after(gpu->event[event].fence, gpu->retired_fence)) {
++			if (fence_after(gpu->event[event].fence, gpu->retired_fence))
+ 				gpu->retired_fence = gpu->event[event].fence;
+-				gpu->last_ring_pos = gpu->event[event].ring_pos;
+-			}
+ 			event_free(gpu, event);
+ 
+ 			/*
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 44af5ca..b883403 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -80,7 +80,6 @@ struct etnaviv_chip_identity {
+ struct etnaviv_event {
+ 	bool used;
+ 	u32 fence;
+-	u32 ring_pos;
+ };
+ 
+ struct etnaviv_gpu {
+@@ -105,7 +104,6 @@ struct etnaviv_gpu {
+ 	struct list_head active_list;
+ 
+ 	u32 idle_mask;
+-	u32 last_ring_pos;
+ 
+ 	/* Fencing support */
+ 	u32 submitted_fence;
+-- 
+2.5.1
+

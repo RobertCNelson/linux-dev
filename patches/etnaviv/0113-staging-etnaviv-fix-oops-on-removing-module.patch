@@ -1,0 +1,30 @@
+From 8e4cda11d79ca456acab9454a3a4ba61d5e3327c Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:55 +0200
+Subject: [PATCH 113/139] staging: etnaviv: fix oops on removing module
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_iommu.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_iommu.c b/drivers/staging/etnaviv/etnaviv_iommu.c
+index 6c136da..9193d79 100644
+--- a/drivers/staging/etnaviv/etnaviv_iommu.c
++++ b/drivers/staging/etnaviv/etnaviv_iommu.c
+@@ -138,11 +138,7 @@ static void __etnaviv_iommu_free(struct etnaviv_iommu_domain *etnaviv_domain)
+ #ifdef OLD_IOMMU
+ static void etnaviv_iommu_domain_destroy(struct iommu_domain *domain)
+ {
+-	struct etnaviv_iommu_domain *etnaviv_domain = domain->priv;
+-
+-	__etnaviv_iommu_free(etnaviv_domain);
+-
+-	domain->priv = NULL;
++	__etnaviv_iommu_free(to_etnaviv_domain(domain));
+ }
+ #else
+ static void etnaviv_domain_free(struct iommu_domain *domain)
+-- 
+2.5.1
+

@@ -1,0 +1,64 @@
+From 51638c88932d62da763d3be9dea71cb3b9521523 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:40 +0200
+Subject: [PATCH 033/139] staging: etnaviv: hack: bypass iommu with contiguous
+ buffers
+
+Bypass the iommu when we are dealing with single-entry scatterlists.
+
+The etnaviv iommu code needs to be more inteligent: as it currently
+stands, it is unusable as it always allocates from the bottom upwards.
+This causes entries to be re-used without the MMU TLB being flushed,
+but in order to flush the MMU TLB, we have to insert a command into
+the GPU command stream.  Doing this for every allocation/free is
+really sub-optimal.
+
+To get things working as it currently stands, bypass this so that the
+armada DRM scanout buffer can at least be used with etnaviv DRM.  This
+at least gets us /some/ usable acceleration on Dove.
+
+To fix this properly, the MMU handing needs to be re-evaluated and
+probably rewritten.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_mmu.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index 588bcc1..7f9b390 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -99,6 +99,20 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	struct drm_mm_node *node = NULL;
+ 	int ret;
+ 
++	/* v1 MMU can optimize single entry (contiguous) scatterlists */
++	if (sgt->nents == 1) {
++		uint32_t iova;
++
++		iova = sg_dma_address(sgt->sgl);
++		if (!iova)
++			iova = sg_phys(sgt->sgl) - sgt->sgl->offset;
++
++		if (iova < 0x80000000 - sg_dma_len(sgt->sgl)) {
++			etnaviv_obj->iova = iova;
++			return 0;
++		}
++	}
++
+ 	node = kzalloc(sizeof(*node), GFP_KERNEL);
+ 	if (!node)
+ 		return -ENOMEM;
+@@ -123,7 +137,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ void etnaviv_iommu_unmap_gem(struct etnaviv_iommu *mmu,
+ 	struct etnaviv_gem_object *etnaviv_obj)
+ {
+-	if (etnaviv_obj->iova) {
++	if (etnaviv_obj->gpu_vram_node) {
+ 		uint32_t offset = etnaviv_obj->gpu_vram_node->start;
+ 
+ 		etnaviv_iommu_unmap(mmu, offset, etnaviv_obj->sgt,
+-- 
+2.5.1
+

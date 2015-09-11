@@ -1,0 +1,51 @@
+From 1c3b03683c7b0f610e5bef031b1b825a55791aaf Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:39 +0200
+Subject: [PATCH 030/139] staging: etnaviv: publish and use mmu geometry
+
+We model the GPU MMU using the iommu layer, which supports exporting
+the iommu domain geometry.  Use this feature to publish the size of
+the MMU window, and initialise the MMU drm_mm object according to
+the available MMU window size.
+
+As we only allocate a MMU page table which covers 256MB, yet we
+initialised the drm_mm object to cover 1GB, this fixes an overflow
+of the MMU page table array.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_iommu.c | 2 ++
+ drivers/staging/etnaviv/etnaviv_mmu.c   | 4 +++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_iommu.c b/drivers/staging/etnaviv/etnaviv_iommu.c
+index 6aa91bc..d8ac05a 100644
+--- a/drivers/staging/etnaviv/etnaviv_iommu.c
++++ b/drivers/staging/etnaviv/etnaviv_iommu.c
+@@ -166,6 +166,8 @@ struct iommu_domain *etnaviv_iommu_domain_alloc(struct etnaviv_gpu *gpu)
+ 		return NULL;
+ 
+ 	domain->ops = &etnaviv_iommu_ops;
++	domain->geometry.aperture_start = GPU_MEM_START;
++	domain->geometry.aperture_end = GPU_MEM_START + PT_ENTRIES * SZ_4K;
+ 
+ 	ret = domain->ops->domain_init(domain);
+ 	if (ret)
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index 12edc05..9b4bd4d 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -110,7 +110,9 @@ struct etnaviv_iommu *etnaviv_iommu_new(struct drm_device *dev,
+ 	mmu->dev = dev;
+ 	mmu->version = version;
+ 
+-	drm_mm_init(&mmu->mm, 0x80000000, SZ_1G);
++	drm_mm_init(&mmu->mm, domain->geometry.aperture_start,
++		    domain->geometry.aperture_end -
++		      domain->geometry.aperture_start + 1);
+ 
+ 	iommu_set_fault_handler(domain, etnaviv_fault_handler, dev);
+ 
+-- 
+2.5.1
+

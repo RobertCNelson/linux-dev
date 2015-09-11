@@ -1,0 +1,179 @@
+From bc2279005607231d52900819d8991b9c67ebb7eb Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:45 +0200
+Subject: [PATCH 065/139] staging: etnaviv: move PM calls into bind/unbind
+ callbacks
+
+Power management of each GPU core should be a matter for the driver of
+each GPU core itself.  Move the basic power management calls out of
+etnaviv_drv.c and into etnaviv_gpu.c so that we can add runtime PM.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 10 -----
+ drivers/staging/etnaviv/etnaviv_gpu.c | 73 +++++++++++++++++++----------------
+ drivers/staging/etnaviv/etnaviv_gpu.h |  2 -
+ 3 files changed, 39 insertions(+), 46 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index 158cb38..1dc8d46 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -87,21 +87,12 @@ u32 etnaviv_readl(const void __iomem *addr)
+ static int etnaviv_unload(struct drm_device *dev)
+ {
+ 	struct etnaviv_drm_private *priv = dev->dev_private;
+-	unsigned int i;
+ 
+ 	flush_workqueue(priv->wq);
+ 	destroy_workqueue(priv->wq);
+ 
+ 	mutex_lock(&dev->struct_mutex);
+-	for (i = 0; i < ETNA_MAX_PIPES; i++) {
+-		struct etnaviv_gpu *g = priv->gpu[i];
+-
+-		if (g)
+-			etnaviv_gpu_pm_suspend(g);
+-	}
+-
+ 	component_unbind_all(dev->dev, dev);
+-
+ 	mutex_unlock(&dev->struct_mutex);
+ 
+ 	dev->dev_private = NULL;
+@@ -123,7 +114,6 @@ static void load_gpu(struct drm_device *dev)
+ 		if (g) {
+ 			int ret;
+ 
+-			etnaviv_gpu_pm_resume(g);
+ 			ret = etnaviv_gpu_init(g);
+ 			if (ret) {
+ 				dev_err(g->dev, "hw init failed: %d\n", ret);
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 0f01f23..ddc3ceb 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -645,40 +645,6 @@ static int disable_axi(struct etnaviv_gpu *gpu)
+ 	return 0;
+ }
+ 
+-int etnaviv_gpu_pm_resume(struct etnaviv_gpu *gpu)
+-{
+-	int ret;
+-
+-	DBG("%s", dev_name(gpu->dev));
+-
+-	ret = enable_clk(gpu);
+-	if (ret)
+-		return ret;
+-
+-	ret = enable_axi(gpu);
+-	if (ret)
+-		return ret;
+-
+-	return 0;
+-}
+-
+-int etnaviv_gpu_pm_suspend(struct etnaviv_gpu *gpu)
+-{
+-	int ret;
+-
+-	DBG("%s", dev_name(gpu->dev));
+-
+-	ret = disable_axi(gpu);
+-	if (ret)
+-		return ret;
+-
+-	ret = disable_clk(gpu);
+-	if (ret)
+-		return ret;
+-
+-	return 0;
+-}
+-
+ /*
+  * Hangcheck detection for locked gpu:
+  */
+@@ -948,6 +914,38 @@ static irqreturn_t irq_handler(int irq, void *data)
+ 	return ret;
+ }
+ 
++static int etnaviv_gpu_resume(struct etnaviv_gpu *gpu)
++{
++	int ret;
++
++	ret = enable_clk(gpu);
++	if (ret)
++		return ret;
++
++	ret = enable_axi(gpu);
++	if (ret) {
++		disable_clk(gpu);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int etnaviv_gpu_suspend(struct etnaviv_gpu *gpu)
++{
++	int ret;
++
++	ret = disable_axi(gpu);
++	if (ret)
++		return ret;
++
++	ret = disable_clk(gpu);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
+ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
+ 	void *data)
+ {
+@@ -955,6 +953,7 @@ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
+ 	struct etnaviv_drm_private *priv = drm->dev_private;
+ 	struct etnaviv_gpu *gpu = dev_get_drvdata(dev);
+ 	int idx = gpu->pipe;
++	int ret;
+ 
+ 	dev_info(dev, "pre gpu[idx]: %p\n", priv->gpu[idx]);
+ 
+@@ -968,6 +967,10 @@ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
+ 
+ 	dev_info(dev, "post gpu[idx]: %p\n", priv->gpu[idx]);
+ 
++	ret = etnaviv_gpu_resume(gpu);
++	if (ret < 0)
++		return ret;
++
+ 	gpu->drm = drm;
+ 
+ 	INIT_LIST_HEAD(&gpu->active_list);
+@@ -992,6 +995,8 @@ static void etnaviv_gpu_unbind(struct device *dev, struct device *master,
+ 
+ 	WARN_ON(!list_empty(&gpu->active_list));
+ 
++	etnaviv_gpu_suspend(gpu);
++
+ 	if (gpu->buffer) {
+ 		drm_gem_object_unreference(gpu->buffer);
+ 		gpu->buffer = NULL;
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 8b58b2d..a7a55c4 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -142,8 +142,6 @@ int etnaviv_gpu_get_param(struct etnaviv_gpu *gpu, uint32_t param,
+ 	uint64_t *value);
+ 
+ int etnaviv_gpu_init(struct etnaviv_gpu *gpu);
+-int etnaviv_gpu_pm_suspend(struct etnaviv_gpu *gpu);
+-int etnaviv_gpu_pm_resume(struct etnaviv_gpu *gpu);
+ 
+ #ifdef CONFIG_DEBUG_FS
+ void etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m);
+-- 
+2.5.1
+

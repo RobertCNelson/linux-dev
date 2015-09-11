@@ -1,0 +1,54 @@
+From 01262fb751252450feac0a0b67835c459657e08e Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:52 +0200
+Subject: [PATCH 096/139] staging: etnaviv: fix missing error cleanups in
+ etnaviv_load()
+
+The only failure which etnaviv_load() implemented was for kzalloc().
+Other failures (alloc_ordered_workqueue(), component_bind_all()) were
+not implemented.  Add these.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index 0452c38..e607aac 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -128,6 +128,11 @@ static int etnaviv_load(struct drm_device *dev, unsigned long flags)
+ 	dev->dev_private = priv;
+ 
+ 	priv->wq = alloc_ordered_workqueue("etnaviv", 0);
++	if (!priv->wq) {
++		err = -ENOMEM;
++		goto err_wq;
++	}
++
+ 	init_waitqueue_head(&priv->fence_event);
+ 
+ 	INIT_LIST_HEAD(&priv->inactive_list);
+@@ -137,11 +142,18 @@ static int etnaviv_load(struct drm_device *dev, unsigned long flags)
+ 
+ 	err = component_bind_all(dev->dev, dev);
+ 	if (err < 0)
+-		return err;
++		goto err_bind;
+ 
+ 	load_gpu(dev);
+ 
+ 	return 0;
++
++err_bind:
++	flush_workqueue(priv->wq);
++	destroy_workqueue(priv->wq);
++err_wq:
++	kfree(priv);
++	return err;
+ }
+ 
+ static int etnaviv_open(struct drm_device *dev, struct drm_file *file)
+-- 
+2.5.1
+

@@ -1,0 +1,57 @@
+From b977a80046b24a9ff7888958081060afee5ab413 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:37 +0200
+Subject: [PATCH 014/139] staging: etnaviv: add gem operations structure to
+ etnaviv objects
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c | 4 +++-
+ drivers/staging/etnaviv/etnaviv_gem.h | 7 +++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index f9f1d1b..e697f09 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -537,7 +537,9 @@ static void etnaviv_free_obj(struct drm_gem_object *obj)
+ 
+ 	drm_gem_free_mmap_offset(obj);
+ 
+-	if (obj->import_attach) {
++	if (etnaviv_obj->ops) {
++		etnaviv_obj->ops->release(etnaviv_obj);
++	} else if (obj->import_attach) {
+ 		if (etnaviv_obj->vaddr)
+ 			dma_buf_vunmap(obj->import_attach->dmabuf,
+ 				       etnaviv_obj->vaddr);
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index 5dffce3..f454881 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -21,8 +21,11 @@
+ #include <linux/reservation.h>
+ #include "etnaviv_drv.h"
+ 
++struct etnaviv_gem_ops;
++
+ struct etnaviv_gem_object {
+ 	struct drm_gem_object base;
++	const struct etnaviv_gem_ops *ops;
+ 
+ 	uint32_t flags;
+ 
+@@ -65,6 +68,10 @@ struct etnaviv_gem_object {
+ };
+ #define to_etnaviv_bo(x) container_of(x, struct etnaviv_gem_object, base)
+ 
++struct etnaviv_gem_ops {
++	void (*release)(struct etnaviv_gem_object *);
++};
++
+ static inline bool is_active(struct etnaviv_gem_object *etnaviv_obj)
+ {
+ 	return etnaviv_obj->gpu != NULL;
+-- 
+2.5.1
+

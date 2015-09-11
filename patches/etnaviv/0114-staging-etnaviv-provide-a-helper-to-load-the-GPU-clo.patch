@@ -1,0 +1,59 @@
+From 1e19328715b9ded014710ea3dded4111912c7c05 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:55 +0200
+Subject: [PATCH 114/139] staging: etnaviv: provide a helper to load the GPU
+ clock field
+
+The GPU requires a double-write to set the clock divisor.  Rather than
+open-coding this knowledge in a couple of places, provide a helper to
+do this instead.  This avoids spreading this knowledge around the
+driver.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index b12d460..d274fcf 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -280,6 +280,13 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 	etnaviv_hw_specs(gpu);
+ }
+ 
++static void etnaviv_gpu_load_clock(struct etnaviv_gpu *gpu, u32 clock)
++{
++	gpu_write(gpu, VIVS_HI_CLOCK_CONTROL, clock |
++		  VIVS_HI_CLOCK_CONTROL_FSCALE_CMD_LOAD);
++	gpu_write(gpu, VIVS_HI_CLOCK_CONTROL, clock);
++}
++
+ static int etnaviv_hw_reset(struct etnaviv_gpu *gpu)
+ {
+ 	u32 control, idle;
+@@ -301,9 +308,7 @@ static int etnaviv_hw_reset(struct etnaviv_gpu *gpu)
+ 			  VIVS_HI_CLOCK_CONTROL_FSCALE_VAL(0x40);
+ 
+ 		/* enable clock */
+-		gpu_write(gpu, VIVS_HI_CLOCK_CONTROL, control |
+-			  VIVS_HI_CLOCK_CONTROL_FSCALE_CMD_LOAD);
+-		gpu_write(gpu, VIVS_HI_CLOCK_CONTROL, control);
++		etnaviv_gpu_load_clock(gpu, control);
+ 
+ 		/* Wait for stable clock.  Vivante's code waited for 1ms */
+ 		usleep_range(1000, 10000);
+@@ -367,9 +372,7 @@ static int etnaviv_hw_reset(struct etnaviv_gpu *gpu)
+ 		  VIVS_HI_CLOCK_CONTROL_FSCALE_VAL(0x40);
+ 
+ 	/* enable clock */
+-	gpu_write(gpu, VIVS_HI_CLOCK_CONTROL, control |
+-		  VIVS_HI_CLOCK_CONTROL_FSCALE_CMD_LOAD);
+-	gpu_write(gpu, VIVS_HI_CLOCK_CONTROL, control);
++	etnaviv_gpu_load_clock(gpu, control);
+ 
+ 	return 0;
+ }
+-- 
+2.5.1
+

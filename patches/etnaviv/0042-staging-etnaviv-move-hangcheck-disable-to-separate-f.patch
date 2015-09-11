@@ -1,0 +1,45 @@
+From 1a22751338f2b24c4cf172fa3bcede87489aa719 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:42 +0200
+Subject: [PATCH 042/139] staging: etnaviv: move hangcheck disable to separate
+ function
+
+Provide a function to safely take down the hangcheck timer and
+workqueue.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 93bfd80..2f350ca 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -710,6 +710,12 @@ static void hangcheck_handler(unsigned long data)
+ 		hangcheck_timer_reset(gpu);
+ }
+ 
++static void hangcheck_disable(struct etnaviv_gpu *gpu)
++{
++	del_timer_sync(&gpu->hangcheck_timer);
++	cancel_work_sync(&gpu->recover_work);
++}
++
+ /*
+  * event management:
+  */
+@@ -936,9 +942,7 @@ static void etnaviv_gpu_unbind(struct device *dev, struct device *master,
+ 
+ 	DBG("%s", dev_name(gpu->dev));
+ 
+-	/* Safely take down hangcheck */
+-	del_timer_sync(&gpu->hangcheck_timer);
+-	cancel_work_sync(&gpu->recover_work);
++	hangcheck_disable(gpu);
+ 
+ 	WARN_ON(!list_empty(&gpu->active_list));
+ 
+-- 
+2.5.1
+

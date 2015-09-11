@@ -1,0 +1,31 @@
+From d73b46ef2df350816104c4e930b28d77407e8f0b Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:39 +0200
+Subject: [PATCH 031/139] staging: etnaviv: mmuv1: ensure we unmap all entries
+
+Ensure that we unmap all MMU entries when unmapping a region.  We
+fail to do this because we assume that the return value from the
+unmap method should be zero.  It should be the size of entry which
+has been unmapped.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_iommu.c b/drivers/staging/etnaviv/etnaviv_iommu.c
+index d8ac05a..89bc2ff 100644
+--- a/drivers/staging/etnaviv/etnaviv_iommu.c
++++ b/drivers/staging/etnaviv/etnaviv_iommu.c
+@@ -134,7 +134,7 @@ static size_t etnaviv_iommu_unmap(struct iommu_domain *domain,
+ 	pgtable_write(&etnaviv_domain->pgtable, iova, ~0);
+ 	spin_unlock(&etnaviv_domain->map_lock);
+ 
+-	return 0;
++	return SZ_4K;
+ }
+ 
+ static phys_addr_t etnaviv_iommu_iova_to_phys(struct iommu_domain *domain,
+-- 
+2.5.1
+

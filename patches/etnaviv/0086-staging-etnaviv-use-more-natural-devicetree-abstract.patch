@@ -1,0 +1,89 @@
+From fadbece13ffb62be6efd47311ddc87afa9381439 Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Tue, 23 Jun 2015 11:51:49 +0200
+Subject: [PATCH 086/139] staging: etnaviv: use more natural devicetree
+ abstraction
+
+The GPU cores are possibly scattered in the SoC address space, so the
+current abstraction of having a parent node for the master device and
+the cores as child nodes doesn't fit too well.
+
+Instead take the same approach as with imx-drm to have a logical master
+node that refers to the other components by a phandle, so those can be
+placed under their real parent buses in the DT.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index da61d40..b2df857 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -557,14 +557,6 @@ static struct drm_driver etnaviv_drm_driver = {
+ /*
+  * Platform driver:
+  */
+-
+-static int etnaviv_compare(struct device *dev, void *data)
+-{
+-	struct device_node *np = data;
+-
+-	return dev->of_node == np;
+-}
+-
+ static int etnaviv_bind(struct device *dev)
+ {
+ 	return drm_platform_init(&etnaviv_drm_driver, to_platform_device(dev));
+@@ -580,6 +572,13 @@ static const struct component_master_ops etnaviv_master_ops = {
+ 	.unbind = etnaviv_unbind,
+ };
+ 
++static int compare_of(struct device *dev, void *data)
++{
++	struct device_node *np = data;
++
++	return dev->of_node == np;
++}
++
+ static int compare_str(struct device *dev, void *data)
+ {
+ 	return !strcmp(dev_name(dev), data);
+@@ -594,13 +593,18 @@ static int etnaviv_pdev_probe(struct platform_device *pdev)
+ 	dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
+ 
+ 	if (node) {
+-		struct device_node *child_np;
++		struct device_node *core_node;
++		int i;
+ 
+-		of_platform_populate(node, NULL, NULL, dev);
++		for (i = 0; ; i++) {
++			core_node = of_parse_phandle(node, "cores", i);
++			if (!core_node)
++				break;
+ 
+-		for_each_available_child_of_node(node, child_np)
+-			component_match_add(dev, &match, etnaviv_compare,
+-					    child_np);
++			component_match_add(&pdev->dev, &match, compare_of,
++					    core_node);
++			of_node_put(core_node);
++		}
+ 	} else if (dev->platform_data) {
+ 		char **names = dev->platform_data;
+ 		unsigned i;
+@@ -620,7 +624,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id dt_match[] = {
+-	{ .compatible = "vivante,gccore" },
++	{ .compatible = "fsl,imx-gpu-subsystem" },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, dt_match);
+-- 
+2.5.1
+

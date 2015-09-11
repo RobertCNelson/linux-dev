@@ -1,0 +1,86 @@
+From 2a8d63c2249ffd4d947853b0683a9cae33d2eac0 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Tue, 23 Jun 2015 11:51:50 +0200
+Subject: [PATCH 091/139] staging: etnaviv: rename last remaining msm_* symbols
+
+Rename the last three msm_* symbols with an etnaviv_ prefix.  This
+resolves some build errors when MSM and Etnaviv DRM drivers are both
+built into the same kernel.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c       | 6 +++---
+ drivers/staging/etnaviv/etnaviv_drv.h       | 6 +++---
+ drivers/staging/etnaviv/etnaviv_gem_prime.c | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index 503a492..21500a3 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -535,12 +535,12 @@ static struct drm_driver etnaviv_drm_driver = {
+ 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+ 	.gem_prime_export   = drm_gem_prime_export,
+ 	.gem_prime_import   = drm_gem_prime_import,
+-	.gem_prime_pin      = msm_gem_prime_pin,
+-	.gem_prime_unpin    = msm_gem_prime_unpin,
++	.gem_prime_pin      = etnaviv_gem_prime_pin,
++	.gem_prime_unpin    = etnaviv_gem_prime_unpin,
+ 	.gem_prime_get_sg_table = etnaviv_gem_prime_get_sg_table,
+ 	.gem_prime_import_sg_table = etnaviv_gem_prime_import_sg_table,
+ 	.gem_prime_vmap     = etnaviv_gem_prime_vmap,
+-	.gem_prime_vunmap   = msm_gem_prime_vunmap,
++	.gem_prime_vunmap   = etnaviv_gem_prime_vunmap,
+ #ifdef CONFIG_DEBUG_FS
+ 	.debugfs_init       = etnaviv_debugfs_init,
+ 	.debugfs_cleanup    = etnaviv_debugfs_cleanup,
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index 29846b3..05768d0 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -86,11 +86,11 @@ int msm_gem_dumb_map_offset(struct drm_file *file, struct drm_device *dev,
+ 		uint32_t handle, uint64_t *offset);
+ struct sg_table *etnaviv_gem_prime_get_sg_table(struct drm_gem_object *obj);
+ void *etnaviv_gem_prime_vmap(struct drm_gem_object *obj);
+-void msm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
++void etnaviv_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
+ struct drm_gem_object *etnaviv_gem_prime_import_sg_table(struct drm_device *dev,
+ 	struct dma_buf_attachment *attach, struct sg_table *sg);
+-int msm_gem_prime_pin(struct drm_gem_object *obj);
+-void msm_gem_prime_unpin(struct drm_gem_object *obj);
++int etnaviv_gem_prime_pin(struct drm_gem_object *obj);
++void etnaviv_gem_prime_unpin(struct drm_gem_object *obj);
+ void *etnaviv_gem_vaddr_locked(struct drm_gem_object *obj);
+ void *etnaviv_gem_vaddr(struct drm_gem_object *obj);
+ dma_addr_t etnaviv_gem_paddr_locked(struct drm_gem_object *obj);
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_prime.c b/drivers/staging/etnaviv/etnaviv_gem_prime.c
+index cca569b..58c13ae 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_prime.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_prime.c
+@@ -34,12 +34,12 @@ void *etnaviv_gem_prime_vmap(struct drm_gem_object *obj)
+ 	return etnaviv_gem_vaddr(obj);
+ }
+ 
+-void msm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
++void etnaviv_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
+ {
+ 	/* TODO msm_gem_vunmap() */
+ }
+ 
+-int msm_gem_prime_pin(struct drm_gem_object *obj)
++int etnaviv_gem_prime_pin(struct drm_gem_object *obj)
+ {
+ 	if (!obj->import_attach) {
+ 		struct drm_device *dev = obj->dev;
+@@ -51,7 +51,7 @@ int msm_gem_prime_pin(struct drm_gem_object *obj)
+ 	return 0;
+ }
+ 
+-void msm_gem_prime_unpin(struct drm_gem_object *obj)
++void etnaviv_gem_prime_unpin(struct drm_gem_object *obj)
+ {
+ 	if (!obj->import_attach) {
+ 		struct drm_device *dev = obj->dev;
+-- 
+2.5.1
+
