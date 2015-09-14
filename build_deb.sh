@@ -63,15 +63,23 @@ make_deb () {
 		deb_distro="unstable"
 	fi
 
+	build_opts="-j${CORES}"
+	build_opts="${build_opts} ARCH=arm"
+	build_opts="${build_opts} KBUILD_DEBARCH=${DEBARCH}"
+	build_opts="${build_opts} LOCALVERSION=-${BUILD}"
+	build_opts="${build_opts} KDEB_CHANGELOG_DIST=${deb_distro}"
+	build_opts="${build_opts} KDEB_PKGVERSION=1${DISTRO}"
+	build_opts="${build_opts} KDEB_SOURCENAME=${sourcename}"
+
 	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} KDEB_CHANGELOG_DIST=${deb_distro} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=1${DISTRO} deb-pkg"
+	echo "make ${build_opts} CROSS_COMPILE="${CC}" deb-pkg"
 	echo "-----------------------------"
-	fakeroot make -j${CORES} ARCH=arm KBUILD_DEBARCH=${DEBARCH} KDEB_CHANGELOG_DIST=${deb_distro} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" KDEB_PKGVERSION=1${DISTRO} deb-pkg
-	mv ${DIR}/*.deb ${DIR}/deploy/
-	mv ${DIR}/*.debian.tar.gz ${DIR}/deploy/
-	mv ${DIR}/*.dsc ${DIR}/deploy/
-	mv ${DIR}/*.changes ${DIR}/deploy/
-	mv ${DIR}/*.orig.tar.gz ${DIR}/deploy/
+	fakeroot make ${build_opts} CROSS_COMPILE="${CC}" deb-pkg
+	mv ${DIR}/*.deb ${DIR}/deploy/ || true
+	mv ${DIR}/*.debian.tar.gz ${DIR}/deploy/ || true
+	mv ${DIR}/*.dsc ${DIR}/deploy/ || true
+	mv ${DIR}/*.changes ${DIR}/deploy/ || true
+	mv ${DIR}/*.orig.tar.gz ${DIR}/deploy/ || true
 
 	if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
 		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
@@ -125,6 +133,17 @@ fi
 
 . ${DIR}/version.sh
 export LINUX_GIT
+if [ "x${KERNEL_REL}" = "x${KERNEL_TAG}" ] ; then
+	sourcename="linux-${KERNEL_REL}.0-${BUILD}"
+else
+	testrc=$(echo ${KERNEL_TAG} | grep rc || true)
+	if [ ! "x${testrc}" = "x" ] ; then
+		RC=$(echo ${testrc} | awk -F '-' '{print $2}')
+		sourcename="linux-${KERNEL_REL}.0-${RC}-${BUILD}"
+	else
+	sourcename="linux-${KERNEL_TAG}-${BUILD}"
+	fi
+fi
 
 #unset FULL_REBUILD
 FULL_REBUILD=1
