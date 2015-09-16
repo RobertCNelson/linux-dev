@@ -81,13 +81,6 @@ make_deb () {
 	mv ${DIR}/*.changes ${DIR}/deploy/ || true
 	mv ${DIR}/*.orig.tar.gz ${DIR}/deploy/ || true
 
-	if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
-		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
-		echo "-----------------------------"
-		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
-		echo "-----------------------------"
-	fi
-
 	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
 
 	cd ${DIR}/
