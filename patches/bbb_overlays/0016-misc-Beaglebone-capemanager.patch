@@ -1,4 +1,4 @@
-From 1da4f6b604b8d115b4ed9c17832ae9eed6e3d59c Mon Sep 17 00:00:00 2001
+From 3f0b0b79ee78f7413debbd4378bdb0b0c79e4661 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 6 May 2015 23:09:53 +0300
 Subject: [PATCH 16/32] misc: Beaglebone capemanager
@@ -17,7 +17,7 @@ http://beagleboard.org/static/beaglebone/latest/Docs/Hardware/BONE_SRM.pdf
 Documentation about the workings of the cape manager is located
 in Documentation/misc-devices/bone_capemgr.txt
 
-This driver is using the EEPROM framework interface to retrieve
+This driver is using the nvmem framework interface to retrieve
 the data stored on the baseboard and cape EEPROMs.
 
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
@@ -29,10 +29,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  create mode 100644 drivers/misc/bone_capemgr.c
 
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 42c3852..76b66b0 100644
+index ccccc29..5c874d1 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -515,6 +515,16 @@ config VEXPRESS_SYSCFG
+@@ -525,6 +525,16 @@ config VEXPRESS_SYSCFG
  	  bus. System Configuration interface is one of the possible means
  	  of generating transactions on this bus.
  
@@ -41,26 +41,26 @@ index 42c3852..76b66b0 100644
 +	depends on ARCH_OMAP2PLUS && OF
 +	select EEPROM
 +	select OF_OVERLAY
-+	default n
 +	help
 +	  Say Y here to include support for automatic loading of
-+	  beaglebone capes.
++	  beaglebone capes. Select M to build as a module which
++	  will be named bone_capemgr.
 +
  source "drivers/misc/c2port/Kconfig"
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index d056fb7..8b3ef5f 100644
+index 537d7f3..dd885de 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -55,3 +55,4 @@ obj-$(CONFIG_GENWQE)		+= genwqe/
+@@ -56,3 +56,4 @@ obj-$(CONFIG_GENWQE)		+= genwqe/
  obj-$(CONFIG_ECHO)		+= echo/
  obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
 +obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
 diff --git a/drivers/misc/bone_capemgr.c b/drivers/misc/bone_capemgr.c
 new file mode 100644
-index 0000000..7c4f5b0
+index 0000000..094ea75
 --- /dev/null
 +++ b/drivers/misc/bone_capemgr.c
 @@ -0,0 +1,1884 @@
@@ -1236,7 +1236,7 @@ index 0000000..7c4f5b0
 +	dev_dbg(dev, "slot #%d: dtbo '%s' loaded; converting to live tree\n",
 +			slot->slotno, slot->dtbo);
 +
-+	of_fdt_unflatten_tree((void *)slot->fw->data, &slot->overlay);
++	of_fdt_unflatten_tree((unsigned long *)slot->fw->data, &slot->overlay);
 +	if (slot->overlay == NULL) {
 +		dev_err(dev, "slot #%d: Failed to unflatten\n",
 +				slot->slotno);
@@ -1949,5 +1949,5 @@ index 0000000..7c4f5b0
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:bone_capemgr");
 -- 
-2.5.0
+2.5.1
 

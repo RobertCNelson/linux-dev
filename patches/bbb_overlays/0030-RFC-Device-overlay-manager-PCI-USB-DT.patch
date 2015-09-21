@@ -1,7 +1,7 @@
-From 3f5982642aecea68b7cb03614dbe8c8054bb6a2f Mon Sep 17 00:00:00 2001
+From 7f659bc9c7783f9482ea924ca41b17eb23a67974 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Thu, 21 May 2015 12:08:54 +0300
-Subject: [PATCH 31/32] RFC: Device overlay manager (PCI/USB + DT)
+Subject: [PATCH 30/32] RFC: Device overlay manager (PCI/USB + DT)
 
 This probably misplaced (in drivers/misc) patch allows use
 of device tree overlays on the two kinds of probeable busses
@@ -25,12 +25,12 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  create mode 100644 drivers/misc/devovmgr.c
 
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 76b66b0..f58b78d 100644
+index 5c874d1..1bccddb 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -525,6 +525,15 @@ config BONE_CAPEMGR
- 	  Say Y here to include support for automatic loading of
- 	  beaglebone capes.
+@@ -535,6 +535,15 @@ config BONE_CAPEMGR
+ 	  beaglebone capes. Select M to build as a module which
+ 	  will be named bone_capemgr.
  
 +config DEV_OVERLAYMGR
 +	tristate "Device overlay manager"
@@ -45,10 +45,10 @@ index 76b66b0..f58b78d 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 8b3ef5f..1bfe03d 100644
+index dd885de..12a5135 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -56,3 +56,4 @@ obj-$(CONFIG_ECHO)		+= echo/
+@@ -57,3 +57,4 @@ obj-$(CONFIG_ECHO)		+= echo/
  obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
  obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
@@ -1365,5 +1365,5 @@ index 0000000..82d2b07
 +}
 +late_initcall(dovmgr_init);
 -- 
-2.5.0
+2.5.1
 

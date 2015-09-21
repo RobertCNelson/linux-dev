@@ -1,4 +1,4 @@
-From 280b48f2ea0820c5cf230580c390f0dfb6d7389e Mon Sep 17 00:00:00 2001
+From fdfb333504381351f0e38be29377ca0c94063a21 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 13 May 2015 00:12:29 +0300
 Subject: [PATCH 15/32] i2c: nvmem: at24: Provide an EEPROM framework interface
@@ -15,7 +15,7 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  1 file changed, 174 insertions(+), 45 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 6ded3dc..004dfdb 100644
+index c6cb7f8..195a45e 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
 @@ -3,6 +3,7 @@
@@ -63,7 +63,7 @@ index 6ded3dc..004dfdb 100644
  /*-------------------------------------------------------------------------*/
  
  /*
-@@ -301,17 +311,6 @@ static ssize_t at24_read(struct at24_data *at24,
+@@ -276,17 +286,6 @@ static ssize_t at24_read(struct at24_data *at24,
  	return retval;
  }
  
@@ -81,7 +81,7 @@ index 6ded3dc..004dfdb 100644
  /*
   * Note that if the hardware write-protect pin is pulled high, the whole
   * chip is normally write protected. But there are plenty of product
-@@ -432,18 +431,10 @@ static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
+@@ -407,18 +406,10 @@ static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
  	return retval;
  }
  
@@ -102,7 +102,7 @@ index 6ded3dc..004dfdb 100644
  /*
   * This lets other kernel code access the eeprom data. For example, it
   * might hold a board's Ethernet address, or board-specific calibration
-@@ -489,6 +480,91 @@ static void at24_get_ofdata(struct i2c_client *client,
+@@ -464,6 +455,91 @@ static void at24_get_ofdata(struct i2c_client *client,
  { }
  #endif /* CONFIG_OF */
  
@@ -194,7 +194,7 @@ index 6ded3dc..004dfdb 100644
  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  {
  	struct at24_platform_data chip;
-@@ -499,6 +575,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -474,6 +550,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  	int err;
  	unsigned i, num_addresses;
  	kernel_ulong_t magic;
@@ -205,7 +205,7 @@ index 6ded3dc..004dfdb 100644
  
  	if (client->dev.platform_data) {
  		chip = *(struct at24_platform_data *)client->dev.platform_data;
-@@ -566,16 +646,75 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -541,16 +621,75 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  		}
  	}
  
@@ -283,7 +283,7 @@ index 6ded3dc..004dfdb 100644
  
  	mutex_init(&at24->lock);
  	at24->use_smbus = use_smbus;
-@@ -583,16 +722,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -558,16 +697,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  	at24->chip = chip;
  	at24->num_addresses = num_addresses;
  
@@ -300,7 +300,7 @@ index 6ded3dc..004dfdb 100644
  	at24->macc.read = at24_macc_read;
  
  	writable = !(chip.flags & AT24_FLAG_READONLY);
-@@ -603,9 +732,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -578,9 +707,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  
  			at24->macc.write = at24_macc_write;
  
@@ -310,7 +310,7 @@ index 6ded3dc..004dfdb 100644
  			if (write_max > io_limit)
  				write_max = io_limit;
  			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
-@@ -615,8 +741,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -590,8 +716,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  			/* buffer (data + address at the beginning) */
  			at24->writebuf = devm_kzalloc(&client->dev,
  				write_max + 2, GFP_KERNEL);
@@ -323,7 +323,7 @@ index 6ded3dc..004dfdb 100644
  		} else {
  			dev_warn(&client->dev,
  				"cannot write due to controller restrictions.");
-@@ -637,14 +765,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -612,14 +740,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  		}
  	}
  
@@ -339,7 +339,7 @@ index 6ded3dc..004dfdb 100644
  		writable ? "writable" : "read-only", at24->write_max);
  	if (use_smbus == I2C_SMBUS_WORD_DATA ||
  	    use_smbus == I2C_SMBUS_BYTE_DATA) {
-@@ -660,10 +784,14 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -635,10 +759,14 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  	return 0;
  
  err_clients:
@@ -354,7 +354,7 @@ index 6ded3dc..004dfdb 100644
  	return err;
  }
  
-@@ -673,11 +801,12 @@ static int at24_remove(struct i2c_client *client)
+@@ -648,11 +776,12 @@ static int at24_remove(struct i2c_client *client)
  	int i;
  
  	at24 = i2c_get_clientdata(client);
@@ -369,5 +369,5 @@ index 6ded3dc..004dfdb 100644
  }
  
 -- 
-2.5.0
+2.5.1
 
