@@ -42,14 +42,14 @@ patch_kernel () {
 config_reference () {
 	echo "Updating reference config: ${ref_config}"
 	make ARCH=arm CROSS_COMPILE="${CC}" ${ref_config}
-	cp -v .config ${DIR}/patches/example_${ref_config}
+	cp -v .config "${DIR}/patches/example_${ref_config}"
 }
 
 copy_defconfig () {
 	cd "${DIR}/KERNEL" || exit
 	make ARCH=arm CROSS_COMPILE="${CC}" distclean
 	make ARCH=arm CROSS_COMPILE="${CC}" ${config}
-	cp -v .config ${DIR}/patches/ref_${config}
+	cp -v .config "${DIR}/patches/ref_${config}"
 
 	ref_config="imx_v6_v7_defconfig"
 	config_reference
@@ -66,26 +66,26 @@ copy_defconfig () {
 	clear
 	echo "Updating: defconfig-lpae"
 	echo "-----------------------------"
-	cp ${DIR}/patches/defconfig-lpae .config
+	cp "${DIR}/patches/defconfig-lpae" .config
 	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
-	cp .config ${DIR}/patches/defconfig-lpae
+	cp .config "${DIR}/patches/defconfig-lpae"
 
 	clear
 	echo "Updating: defconfig-bone"
 	echo "-----------------------------"
-	cp ${DIR}/patches/defconfig-bone .config
+	cp "${DIR}/patches/defconfig-bone" .config
 	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
-	cp .config ${DIR}/patches/defconfig-bone
+	cp .config "${DIR}/patches/defconfig-bone"
 
 	clear
 	echo "Updating: defconfig"
 	echo "-----------------------------"
-	cp ${DIR}/patches/defconfig .config
+	cp "${DIR}/patches/defconfig" .config
 	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
-	cp .config ${DIR}/patches/defconfig
+	cp .config "${DIR}/patches/defconfig"
 
-	cp -v ${DIR}/patches/defconfig .config
-	cd ${DIR}/
+	cp -v "${DIR}/patches/defconfig" .config
+	cd "${DIR}/" || exit
 }
 
 make_menuconfig () {
@@ -250,8 +250,8 @@ FULL_REBUILD=1
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 	cp -v "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
-	patch -p1 < ${DIR}/patches/pre-packaging/builddeb-arm-default-to-armhf.diff
-	patch -p1 < ${DIR}/patches/pre-packaging/builddeb-make-dtbs_install.diff
+	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-arm-default-to-armhf.diff"
+	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-make-dtbs_install.diff"
 
 	if [ "${RUN_BISECT}" ] ; then
 		/bin/sh -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
