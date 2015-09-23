@@ -30,7 +30,7 @@ detect_host () {
 }
 
 check_rpm () {
-	pkg_test=$(LC_ALL=C rpm -q ${pkg})
+	pkg_test=$(LC_ALL=C rpm -q "${pkg}")
 	if [ "x${pkg_test}" = "xpackage ${pkg} is not installed" ] ; then
 		rpm_pkgs="${rpm_pkgs}${pkg} "
 	fi
@@ -64,7 +64,7 @@ redhat_reqs () {
 		check_rpm
 	fi
 
-	if [ $(which lsb_release) ] ; then
+	if [ "$(which lsb_release)" ] ; then
 		rpm_distro=$(lsb_release -rs)
 		echo "RPM distro version: [${rpm_distro}]"
 
@@ -101,7 +101,7 @@ Missing /etc/SuSE-release file
 
 
 # --- patch ---
-    if [ ! $( which patch ) ]
+    if [ ! "$( which patch )" ]
     then
         cat >&2 <<@@
 Missing patch command,
@@ -142,7 +142,7 @@ debian_regs () {
 	unset warn_dpkg_ia32
 	unset stop_pkg_search
 	#lsb_release might not be installed...
-	if [ $(which lsb_release) ] ; then
+	if [ "$(which lsb_release)" ] ; then
 		deb_distro=$(lsb_release -cs | sed 's/\//_/g')
 
 		if [ "x${deb_distro}" = "xn_a" ] ; then
@@ -353,7 +353,7 @@ debian_regs () {
 		esac
 	fi
 
-	if [ $(which lsb_release) ] && [ ! "${stop_pkg_search}" ] ; then
+	if [ "$(which lsb_release)" ] && [ ! "${stop_pkg_search}" ] ; then
 		deb_arch=$(LC_ALL=C dpkg --print-architecture)
 		
 		#Libs; starting with jessie/sid, lib<pkg_name>-dev:<arch>
@@ -415,9 +415,9 @@ debian_regs () {
 		echo "-----------------------------"
 		echo "Please cut, paste and email to: bugs@rcn-ee.com"
 		echo "-----------------------------"
-		echo "git: [`git rev-parse HEAD`]"
-		echo "git: [`cat .git/config | grep url | sed 's/\t//g' | sed 's/ //g'`]"
-		echo "uname -m: [`uname -m`]"
+		echo "git: [$(git rev-parse HEAD)]"
+		echo "git: [$(cat .git/config | grep url | sed 's/\t//g' | sed 's/ //g')]"
+		echo "uname -m: [$(uname -m)]"
 		echo "lsb_release -a:"
 		lsb_release -a
 		echo "-----------------------------"
@@ -438,14 +438,14 @@ debian_regs () {
 }
 
 BUILD_HOST=${BUILD_HOST:="$( detect_host )"}
-if [ $(which lsb_release) ] ; then
-	info "Detected build host [`lsb_release -sd`]"
-	info "host: [`uname -m`]"
-	info "git HEAD commit: [`git rev-parse HEAD`]"
+if [ "$(which lsb_release)" ] ; then
+	info "Detected build host [$(lsb_release -sd)]"
+	info "host: [$(uname -m)]"
+	info "git HEAD commit: [$(git rev-parse HEAD)]"
 else
 	info "Detected build host [$BUILD_HOST]"
-	info "host: [`uname -m`]"
-	info "git HEAD commit: [`git rev-parse HEAD`]"
+	info "host: [$(uname -m)]"
+	info "git HEAD commit: [$(git rev-parse HEAD)]"
 fi
 case "$BUILD_HOST" in
     redhat*)

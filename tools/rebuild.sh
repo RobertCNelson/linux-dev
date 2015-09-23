@@ -23,36 +23,36 @@
 DIR=$PWD
 CORES=$(getconf _NPROCESSORS_ONLN)
 
-mkdir -p ${DIR}/deploy/
+mkdir -p "${DIR}/deploy/"
 
 patch_kernel () {
-	cd ${DIR}/KERNEL
+	cd "${DIR}/KERNEL" || exit
 
 	export DIR
-	/bin/sh -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
+	/bin/sh -e "${DIR}/patch.sh" || { git add . ; exit 1 ; }
 
 	if [ ! "${RUN_BISECT}" ] ; then
 		git add --all
 		git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
 	fi
 
-	cd ${DIR}/
+	cd "${DIR}/" || exit
 }
 
 copy_defconfig () {
-	cd ${DIR}/KERNEL/
+	cd "${DIR}/KERNEL" || exit
 	make ARCH=arm CROSS_COMPILE="${CC}" distclean
-	make ARCH=arm CROSS_COMPILE="${CC}" ${config}
-	cp -v .config ${DIR}/patches/ref_${config}
-	cp -v ${DIR}/patches/defconfig .config
-	cd ${DIR}/
+	make ARCH=arm CROSS_COMPILE="${CC}" "${config}"
+	cp -v .config "${DIR}/patches/ref_${config}"
+	cp -v "${DIR}/patches/defconfig" .config
+	cd "${DIR}/" || exit
 }
 
 make_menuconfig () {
-	cd ${DIR}/KERNEL/
+	cd "${DIR}/KERNEL" || exit
 	make ARCH=arm CROSS_COMPILE="${CC}" menuconfig
-	cp -v .config ${DIR}/patches/defconfig
-	cd ${DIR}/
+	cp -v .config "${DIR}/patches/defconfig"
+	cd "${DIR}/" || exit
 }
 
 make_kernel () {
@@ -64,21 +64,21 @@ make_kernel () {
 	#image="uImage"
 	#address="LOADADDR=${ZRELADDR}"
 
-	cd ${DIR}/KERNEL/
+	cd "${DIR}/KERNEL" || exit
 	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules"
+	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" ${address} ${image} modules"
 	echo "-----------------------------"
 	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules
 	echo "-----------------------------"
 
 	if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
-		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs"
+		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" dtbs"
 		echo "-----------------------------"
 		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
 		echo "-----------------------------"
 	fi
 
-	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+	KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
 
 	if [ -f "${DIR}/deploy/${KERNEL_UTS}.${image}" ] ; then
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}.${image}" || true
@@ -90,7 +90,7 @@ make_kernel () {
 		cp -v .config "${DIR}/deploy/config-${KERNEL_UTS}"
 	fi
 
-	cd ${DIR}/
+	cd "${DIR}/" || exit
 
 	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}.${image}" ] ; then
 		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}.${image}]"
@@ -101,7 +101,7 @@ make_kernel () {
 }
 
 make_pkg () {
-	cd ${DIR}/KERNEL/
+	cd "${DIR}/KERNEL" || exit
 
 	deployfile="-${pkg}.tar.gz"
 	tar_options="--create --gzip --file"
@@ -110,36 +110,36 @@ make_pkg () {
 		rm -rf "${DIR}/deploy/${KERNEL_UTS}${deployfile}" || true
 	fi
 
-	if [ -d ${DIR}/deploy/tmp ] ; then
-		rm -rf ${DIR}/deploy/tmp || true
+	if [ -d "${DIR}/deploy/tmp" ] ; then
+		rm -rf "${DIR}/deploy/tmp" || true
 	fi
-	mkdir -p ${DIR}/deploy/tmp
+	mkdir -p "${DIR}/deploy/tmp"
 
 	echo "-----------------------------"
 	echo "Building ${pkg} archive..."
 
 	case "${pkg}" in
 	modules)
-		make -s ARCH=arm CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH="${DIR}/deploy/tmp"
 		;;
 	firmware)
-		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH=${DIR}/deploy/tmp
+		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH="${DIR}/deploy/tmp"
 		;;
 	dtbs)
 		if grep -q dtbs_install "${DIR}/KERNEL/arch/arm/Makefile"; then
-			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH=${DIR}/deploy/tmp
+			make -s ARCH=arm LOCALVERSION=-"${BUILD}" CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH="${DIR}/deploy/tmp"
 		else
-			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' ${DIR}/deploy/tmp/ \;
+			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' "${DIR}/deploy/tmp/" \;
 		fi
 		;;
 	esac
 
 	echo "Compressing ${KERNEL_UTS}${deployfile}..."
-	cd ${DIR}/deploy/tmp
-	tar ${tar_options} ../${KERNEL_UTS}${deployfile} *
+	cd "${DIR}/deploy/tmp" || true
+	tar "${tar_options}" "../${KERNEL_UTS}${deployfile}" ./*
 
-	cd ${DIR}/
-	rm -rf ${DIR}/deploy/tmp || true
+	cd "${DIR}/" || exit
+	rm -rf "${DIR}/deploy/tmp" || true
 
 	if [ ! -f "${DIR}/deploy/${KERNEL_UTS}${deployfile}" ] ; then
 		export ERROR_MSG="File Generation Failure: [${KERNEL_UTS}${deployfile}]"
@@ -164,24 +164,24 @@ make_dtbs_pkg () {
 	make_pkg
 }
 
-/bin/sh -e ${DIR}/tools/host_det.sh || { exit 1 ; }
+/bin/sh -e "${DIR}/tools/host_det.sh" || { exit 1 ; }
 
-if [ ! -f ${DIR}/system.sh ] ; then
-	cp -v ${DIR}/system.sh.sample ${DIR}/system.sh
+if [ ! -f "${DIR}/system.sh" ] ; then
+	cp -v "${DIR}/system.sh.sample" "${DIR}/system.sh"
 fi
 
 unset CC
 unset LINUX_GIT
-. ${DIR}/system.sh
+. "${DIR}/system.sh"
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
-. ${DIR}/.CC
+. "${DIR}/.CC"
 echo "CROSS_COMPILE=${CC}"
 if [ -f /usr/bin/ccache ] ; then
 	echo "ccache [enabled]"
 	CC="ccache ${CC}"
 fi
 
-. ${DIR}/version.sh
+. "${DIR}/version.sh"
 export LINUX_GIT
 
 unset FULL_REBUILD
@@ -196,7 +196,7 @@ if [ "${FULL_REBUILD}" ] ; then
 	patch_kernel
 	copy_defconfig
 fi
-if [ ! ${AUTO_BUILD} ] ; then
+if [ ! "${AUTO_BUILD}" ] ; then
 	make_menuconfig
 fi
 make_kernel

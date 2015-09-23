@@ -23,40 +23,40 @@
 DIR=$PWD
 CORES=$(getconf _NPROCESSORS_ONLN)
 
-mkdir -p ${DIR}/deploy/
+mkdir -p "${DIR}/deploy/"
 
 patch_kernel () {
-	cd ${DIR}/KERNEL
+	cd "${DIR}/KERNEL" || exit
 
 	export DIR
-	/bin/sh -e ${DIR}/patch.sh || { git add . ; exit 1 ; }
+	/bin/sh -e "${DIR}/patch.sh" || { git add . ; exit 1 ; }
 
 	if [ ! "${RUN_BISECT}" ] ; then
 		git add --all
 		git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
 	fi
 
-	cd ${DIR}/
+	cd "${DIR}/" || exit
 }
 
 copy_defconfig () {
-	cd ${DIR}/KERNEL/
+	cd "${DIR}/KERNEL" || exit
 	make ARCH=arm CROSS_COMPILE="${CC}" distclean
-	make ARCH=arm CROSS_COMPILE="${CC}" ${config}
-	cp -v .config ${DIR}/patches/ref_${config}
-	cp -v ${DIR}/patches/defconfig .config
-	cd ${DIR}/
+	make ARCH=arm CROSS_COMPILE="${CC}" "${config}"
+	cp -v .config "${DIR}/patches/ref_${config}"
+	cp -v "${DIR}/patches/defconfig" .config
+	cd "${DIR}/" || exit
 }
 
 make_menuconfig () {
-	cd ${DIR}/KERNEL/
+	cd "${DIR}/KERNEL" || exit
 	make ARCH=arm CROSS_COMPILE="${CC}" menuconfig
-	cp -v .config ${DIR}/patches/defconfig
-	cd ${DIR}/
+	cp -v .config "${DIR}/patches/defconfig"
+	cd "${DIR}/" || exit
 }
 
 make_deb () {
-	cd ${DIR}/KERNEL/
+	cd "${DIR}/KERNEL" || exit
 
 	deb_distro=$(lsb_release -cs | sed 's/\//_/g')
 	if [ "x${deb_distro}" = "xn_a" ] ; then
@@ -77,28 +77,28 @@ make_deb () {
 	echo "make ${build_opts} CROSS_COMPILE="${CC}" deb-pkg"
 	echo "-----------------------------"
 	fakeroot make ${build_opts} CROSS_COMPILE="${CC}" deb-pkg
-	mv ${DIR}/*.deb ${DIR}/deploy/ || true
-	mv ${DIR}/*.debian.tar.gz ${DIR}/deploy/ || true
-	mv ${DIR}/*.dsc ${DIR}/deploy/ || true
-	mv ${DIR}/*.changes ${DIR}/deploy/ || true
-	mv ${DIR}/*.orig.tar.gz ${DIR}/deploy/ || true
+	mv "${DIR}/*.deb" "${DIR}/deploy/" || true
+	mv "${DIR}/*.debian.tar.gz" "${DIR}/deploy/" || true
+	mv "${DIR}/*.dsc" "${DIR}/deploy/" || true
+	mv "${DIR}/*.changes" "${DIR}/deploy/" || true
+	mv "${DIR}/*.orig.tar.gz" "${DIR}/deploy/" || true
 
-	KERNEL_UTS=$(cat ${DIR}/KERNEL/include/generated/utsrelease.h | awk '{print $3}' | sed 's/\"//g' )
+	KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
 
-	cd ${DIR}/
+	cd "${DIR}/" || exit
 }
 
-/bin/sh -e ${DIR}/tools/host_det.sh || { exit 1 ; }
+/bin/sh -e "${DIR}/tools/host_det.sh" || { exit 1 ; }
 
-if [ ! -f ${DIR}/system.sh ] ; then
-	cp -v ${DIR}/system.sh.sample ${DIR}/system.sh
+if [ ! -f "${DIR}/system.sh" ] ; then
+	cp -v "${DIR}/system.sh.sample" "${DIR}/system.sh"
 fi
 
 if [ -f "${DIR}/branches.list" ] ; then
 	echo "-----------------------------"
 	echo "Please checkout one of the active branches:"
 	echo "-----------------------------"
-	cat ${DIR}/branches.list | grep -v INACTIVE
+	cat "${DIR}/branches.list" | grep -v INACTIVE
 	echo "-----------------------------"
 	exit
 fi
@@ -117,16 +117,16 @@ fi
 
 unset CC
 unset LINUX_GIT
-. ${DIR}/system.sh
+. "${DIR}/system.sh"
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
-. ${DIR}/.CC
+. "${DIR}/.CC"
 echo "CROSS_COMPILE=${CC}"
 if [ -f /usr/bin/ccache ] ; then
 	echo "ccache [enabled]"
 	CC="ccache ${CC}"
 fi
 
-. ${DIR}/version.sh
+. "${DIR}/version.sh"
 export LINUX_GIT
 
 #unset FULL_REBUILD
@@ -141,7 +141,7 @@ if [ "${FULL_REBUILD}" ] ; then
 	patch_kernel
 	copy_defconfig
 fi
-if [ ! ${AUTO_BUILD} ] ; then
+if [ ! "${AUTO_BUILD}" ] ; then
 	make_menuconfig
 fi
 make_deb

@@ -22,17 +22,17 @@
 
 DIR=$PWD
 
-if [ ! -f ${DIR}/patches/bisect_defconfig ] ; then
-	cp ${DIR}/patches/defconfig ${DIR}/patches/bisect_defconfig
+if [ ! -f "${DIR}/patches/bisect_defconfig" ] ; then
+	cp "${DIR}/patches/defconfig" "${DIR}/patches/bisect_defconfig"
 fi
 
-cp -v ${DIR}/patches/bisect_defconfig ${DIR}/patches/defconfig
+cp -v "${DIR}/patches/bisect_defconfig" "${DIR}/patches/defconfig"
 
-cd ${DIR}/KERNEL/
+cd "${DIR}/KERNEL/" || exit
 git bisect start
 #git bisect good v3.4
 #git bisect bad v3.5-rc1
 
 
 git describe
-cd ${DIR}/
+cd "${DIR}/" || exit

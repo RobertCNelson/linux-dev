@@ -24,12 +24,12 @@ DIR=$PWD
 
 #Yuck, this error script can be called two directories...
 offset="/"
-if [ -f ${DIR}/../version.sh ] ; then
-	. ${DIR}/../version.sh
+if [ -f "${DIR}/../version.sh" ] ; then
+	. "${DIR}/../version.sh"
 	offset="../"
 fi
-if [ -f ${DIR}/../../version.sh ] ; then
-	. ${DIR}/../../version.sh
+if [ -f "${DIR}/../../version.sh" ] ; then
+	. "${DIR}/../../version.sh"
 	offset="../../"
 fi
 
@@ -40,7 +40,7 @@ echo "Error: [${ERROR_MSG}]"
 
 if [ -f "${DIR}/${offset}.git/config" ] ; then
 	gitrepo=$(cat "${DIR}/${offset}.git/config" | grep url | awk '{print $3}')
-	gitwhatchanged=$(cd ${offset} ; git whatchanged -1)
+	gitwhatchanged=$(cd ${offset} || exit ; git whatchanged -1)
 	echo "git repo: [${gitrepo}]"
 	echo "-----------------------------"
 	echo "${gitwhatchanged}"
@@ -61,7 +61,7 @@ fi
 
 echo "uname -m"
 uname -m
-if [ $(which lsb_release) ] ; then
+if [ "$(which lsb_release)" ] ; then
 	echo "lsb_release -a"
 	lsb_release -a
 fi

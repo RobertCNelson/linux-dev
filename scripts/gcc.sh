@@ -23,24 +23,24 @@
 ARCH=$(uname -m)
 DIR=$PWD
 
-. ${DIR}/system.sh
+. "${DIR}/system.sh"
 
 #For:
 #toolchain
-. ${DIR}/version.sh
+. "${DIR}/version.sh"
 
 dl_gcc_generic () {
 	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	if [ ! -f ${DIR}/dl/${directory}/${datestamp} ] ; then
+	if [ ! -f "${DIR}/dl/${directory}/${datestamp}" ] ; then
 		echo "Installing: ${toolchain_name}"
 		echo "-----------------------------"
-		${WGET} ${site}/${version}/${filename}
-		if [ -d ${DIR}/dl/${directory} ] ; then
-			rm -rf ${DIR}/dl/${directory} || true
+		${WGET} "${site}/${version}/${filename}"
+		if [ -d "${DIR}/dl/${directory}" ] ; then
+			rm -rf "${DIR}/dl/${directory}" || true
 		fi
-		tar -xf ${DIR}/dl/${filename} -C ${DIR}/dl/
-		if [ -f ${DIR}/dl/${directory}/${binary}gcc ] ; then
-			touch ${DIR}/dl/${directory}/${datestamp}
+		tar -xf "${DIR}/dl/${filename}" -C "${DIR}/dl/"
+		if [ -f "${DIR}/dl/${directory}/${binary}gcc" ] ; then
+			touch "${DIR}/dl/${directory}/${datestamp}"
 		fi
 	fi
 
@@ -206,7 +206,7 @@ if [ "x${CC}" = "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	gcc_toolchain
 fi
 
-GCC_TEST=$(LC_ALL=C ${CC}gcc -v 2>&1 | grep "Target:" | grep arm || true)
+GCC_TEST=$(LC_ALL=C "${CC}gcc" -v 2>&1 | grep "Target:" | grep arm || true)
 
 if [ "x${GCC_TEST}" = "x" ] ; then
 	echo "-----------------------------"
@@ -216,6 +216,6 @@ if [ "x${GCC_TEST}" = "x" ] ; then
 fi
 
 echo "-----------------------------"
-echo "scripts/gcc: Using: `LC_ALL=C ${CC}gcc --version`"
+echo "scripts/gcc: Using: $(LC_ALL=C "${CC}"gcc --version)"
 echo "-----------------------------"
-echo "CC=${CC}" > ${DIR}/.CC
+echo "CC=${CC}" > "${DIR}/.CC"
