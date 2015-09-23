@@ -208,7 +208,7 @@ mmc_unmount () {
 mmc_detect_n_mount () {
 	echo "Starting Partition Search"
 	echo "-----------------------------"
-	num_partitions=$(LC_ALL=C sudo fdisk -l 2>/dev/null  | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | grep -c "^${MMC}")
+	num_partitions=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | grep -c "^${MMC}")
 
 	i=0 ; while test $i -le "${num_partitions}" ; do
 		partition=$(LC_ALL=C sudo fdisk -l 2>/dev/null | grep "^${MMC}" | grep -v "DM6" | grep -v "Extended" | grep -v "swap" | head -${i} | tail -1 | awk '{print $1}')
@@ -250,7 +250,7 @@ unmount_partitions () {
 	echo "Unmounting Partitions"
 	echo "-----------------------------"
 
-	NUM_MOUNTS=$(mount | grep -v none | grep -c "${MMC}")
+	NUM_MOUNTS=$(mount | grep -v none | grep "${MMC}" | wc -l)
 
 	i=0 ; while test $i -le "${NUM_MOUNTS}" ; do
 		DRIVE=$(mount | grep -v none | grep "${MMC}" | tail -1 | awk '{print $1}')
