@@ -176,7 +176,7 @@ make_pkg () {
 
 	echo "Compressing ${KERNEL_UTS}${deployfile}..."
 	cd "${DIR}/deploy/tmp" || true
-	tar "${tar_options}" "../${KERNEL_UTS}${deployfile}" ./*
+	tar ${tar_options} "../${KERNEL_UTS}${deployfile}" ./*
 
 	cd "${DIR}/" || exit
 	rm -rf "${DIR}/deploy/tmp" || true
