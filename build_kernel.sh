@@ -48,7 +48,7 @@ config_reference () {
 copy_defconfig () {
 	cd "${DIR}/KERNEL" || exit
 	make ARCH=arm CROSS_COMPILE="${CC}" distclean
-	make ARCH=arm CROSS_COMPILE="${CC}" ${config}
+	make ARCH=arm CROSS_COMPILE="${CC}" "${config}"
 	cp -v .config "${DIR}/patches/ref_${config}"
 
 	ref_config="imx_v6_v7_defconfig"
@@ -160,14 +160,14 @@ make_pkg () {
 
 	case "${pkg}" in
 	modules)
-		make -s ARCH=arm CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH="${DIR}/deploy/tmp"
+		make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH="${DIR}/deploy/tmp"
 		;;
 	firmware)
-		make -s ARCH=arm CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH="${DIR}/deploy/tmp"
+		make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH="${DIR}/deploy/tmp"
 		;;
 	dtbs)
 		if grep -q dtbs_install "${DIR}/KERNEL/arch/arm/Makefile"; then
-			make -s ARCH=arm LOCALVERSION=-"${BUILD}" CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH="${DIR}/deploy/tmp"
+			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH="${DIR}/deploy/tmp"
 		else
 			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' "${DIR}/deploy/tmp/" \;
 		fi
