@@ -196,10 +196,11 @@ dts () {
 	${git} "${DIR}/patches/dts/0007-imx6-wl1835-base-boards.patch"
 	${git} "${DIR}/patches/dts/0008-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
 	${git} "${DIR}/patches/dts/0009-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
-	${git} "${DIR}/patches/dts/0001-arm-obvious.patch"
+	${git} "${DIR}/patches/dts/0010-arm-obvious.patch"
+	${git} "${DIR}/patches/dts/0011-dts-am57xx-beagle-x15-make-sure-vdd_sd-is-on-fixex-v.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=9
+		number=11
 		cleanup
 	fi
 }
