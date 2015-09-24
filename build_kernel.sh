@@ -252,6 +252,7 @@ if [ "${FULL_REBUILD}" ] ; then
 	cp -v "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
 	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-arm-default-to-armhf.diff"
 	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-make-dtbs_install.diff"
+	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-fix-changes.diff"
 
 	if [ "${RUN_BISECT}" ] ; then
 		/bin/sh -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
