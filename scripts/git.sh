@@ -109,6 +109,9 @@ git_kernel () {
 		#Disable git's default setting of running `git gc --auto` in the background as the patch.sh script can fail.
 		git config --local --list | grep gc.autodetach >/dev/null 2>&1 || git config --local gc.autodetach 0
 
+		#disable git's auto Cleanup, ./KERNEL is a throw away branch...
+		git config --local --list | grep gc.auto >/dev/null 2>&1 || git config --local gc.auto 0
+
 		if [ ! "${git_config_user_email}" ] ; then
 			git config --local user.email you@example.com
 		fi
