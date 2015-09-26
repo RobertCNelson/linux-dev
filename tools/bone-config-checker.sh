@@ -82,6 +82,12 @@ config="CONFIG_SMP" ; config_disable
 config="CONFIG_THUMB2_KERNEL" ; config_enable
 
 #
+# CPU frequency scaling drivers
+#
+config="CONFIG_QORIQ_CPUFREQ" ; config_disable
+config="CONFIG_CLK_QORIQ" ; config_disable
+
+#
 # Serial drivers
 #
 config="CONFIG_SERIAL_8250_DMA" ; config_disable
@@ -124,6 +130,10 @@ config="CONFIG_USB_MUSB_AM35X" ; config_disable
 config="CONFIG_USB_MUSB_DSPS" ; config_enable
 config="CONFIG_USB_MUSB_UX500" ; config_disable
 config="CONFIG_USB_TI_CPPI41_DMA" ; config_disable
+
+#
+# MUSB DMA mode
+#
 config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 
 #
@@ -194,6 +204,7 @@ config="CONFIG_RTC_DRV_OMAP" ; config_enable
 #
 config="CONFIG_DRM_OMAP" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
+config="CONFIG_DRM_ETNAVIV" ; config_disable
 
 #breaks tilcd + tfp410...
 config="CONFIG_OMAP2_DSS" ; config_disable

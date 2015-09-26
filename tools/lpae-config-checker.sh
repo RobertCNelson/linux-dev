@@ -144,5 +144,6 @@ config="CONFIG_IMX_IPUV3_CORE" ; config_disable
 
 config="CONFIG_DRM_TILCDC" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
+config="CONFIG_DRM_ETNAVIV" ; config_disable
 
 #
