@@ -119,7 +119,7 @@ reverts () {
 	#udoo:
 	${git} "${DIR}/patches/reverts/0003-Revert-usb-chipidea-usbmisc_imx-delete-clock-informa.patch"
 	#am335x causing random reboots...
-	${git} "${DIR}/patches/reverts/0004-Revert-usb-musb-dsps-just-start-polling-already.patch"
+#	${git} "${DIR}/patches/reverts/0004-Revert-usb-musb-dsps-just-start-polling-already.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=4
@@ -191,7 +191,6 @@ dts () {
 	${git} "${DIR}/patches/dts/0002-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
 	${git} "${DIR}/patches/dts/0004-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
-	${git} "${DIR}/patches/dts/0005-ARM-dts-omap3-beagle-ddc-i2c-bus-is-not-responding-d.patch"
 	${git} "${DIR}/patches/dts/0006-first-pass-imx6q-ccimx6sbc.patch"
 	${git} "${DIR}/patches/dts/0007-imx6-wl1835-base-boards.patch"
 	${git} "${DIR}/patches/dts/0008-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"

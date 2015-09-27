@@ -22,10 +22,10 @@ Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
  create mode 100644 arch/arm/mach-omap2/opp43xx_data.c
 
 diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
-index f2b2272..e30405c 100644
+index 603c38f..ce0aa5c 100644
 --- a/arch/arm/mach-omap2/Makefile
 +++ b/arch/arm/mach-omap2/Makefile
-@@ -78,6 +78,7 @@ ifeq ($(CONFIG_PM_OPP),y)
+@@ -77,6 +77,7 @@ ifeq ($(CONFIG_PM_OPP),y)
  obj-y					+= opp.o
  obj-$(CONFIG_ARCH_OMAP3)		+= opp3xxx_data.o
  obj-$(CONFIG_SOC_AM33XX)		+= opp33xx_data.o
@@ -34,17 +34,17 @@ index f2b2272..e30405c 100644
  endif
  
 diff --git a/arch/arm/mach-omap2/io.c b/arch/arm/mach-omap2/io.c
-index 051c5ae..909c9a4 100644
+index 35aee54..18ffee9 100644
 --- a/arch/arm/mach-omap2/io.c
 +++ b/arch/arm/mach-omap2/io.c
-@@ -622,6 +622,7 @@ void __init am43xx_init_early(void)
+@@ -677,6 +677,7 @@ void __init am43xx_init_early(void)
  
  void __init am43xx_init_late(void)
  {
 +	am43xx_opp_init();
  	omap_common_late_init();
+ 	omap2_clk_enable_autoidle_all();
  }
- #endif
 diff --git a/arch/arm/mach-omap2/opp43xx_data.c b/arch/arm/mach-omap2/opp43xx_data.c
 new file mode 100644
 index 0000000..303fba2
@@ -164,7 +164,7 @@ index 0000000..303fba2
 +	return r;
 +}
 diff --git a/arch/arm/mach-omap2/pm.h b/arch/arm/mach-omap2/pm.h
-index 1656d1b..9f83b65 100644
+index 09f7516..70b549f 100644
 --- a/arch/arm/mach-omap2/pm.h
 +++ b/arch/arm/mach-omap2/pm.h
 @@ -39,6 +39,7 @@ extern int omap_pm_clkdms_setup(struct clockdomain *clkdm, void *unused);
@@ -187,5 +187,5 @@ index 1656d1b..9f83b65 100644
  
  extern int omap3_pm_get_suspend_state(struct powerdomain *pwrdm);
 -- 
-2.1.4
+2.5.3
 
