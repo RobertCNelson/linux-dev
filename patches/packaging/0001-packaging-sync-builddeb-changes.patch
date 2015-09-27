@@ -1,15 +1,15 @@
-From 0a717fefdb59f84604485fcb3cd863284e142ee4 Mon Sep 17 00:00:00 2001
+From 4f33c89f812e3e9f93bf0c64f8d971e2f9146aaa Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 9 Sep 2015 12:42:20 -0500
+Date: Fri, 25 Sep 2015 18:48:19 -0500
 Subject: [PATCH] packaging: sync builddeb changes
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- scripts/package/builddeb | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ scripts/package/builddeb | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/scripts/package/builddeb b/scripts/package/builddeb
-index 0cd46e1..69d8ff0d 100755
+index 0cd46e1..690996a 100755
 --- a/scripts/package/builddeb
 +++ b/scripts/package/builddeb
 @@ -52,7 +52,7 @@ set_debarch() {
@@ -21,6 +21,15 @@ index 0cd46e1..69d8ff0d 100755
  	*)
  		debarch=$(dpkg --print-architecture)
  		echo "" >&2
+@@ -115,7 +115,7 @@ esac
+ BUILD_DEBUG="$(grep -s '^CONFIG_DEBUG_INFO=y' $KCONFIG_CONFIG || true)"
+ 
+ # Setup the directory structure
+-rm -rf "$tmpdir" "$fwdir" "$kernel_headers_dir" "$libc_headers_dir" "$dbg_dir"
++rm -rf "$tmpdir" "$fwdir" "$kernel_headers_dir" "$libc_headers_dir" "$dbg_dir" $objtree/debian/files
+ mkdir -m 755 -p "$tmpdir/DEBIAN"
+ mkdir -p "$tmpdir/lib" "$tmpdir/boot"
+ mkdir -p "$fwdir/lib/firmware/$version/"
 @@ -140,9 +140,18 @@ else
  fi
  
@@ -41,6 +50,15 @@ index 0cd46e1..69d8ff0d 100755
  	fi
  fi
  
+@@ -408,7 +417,7 @@ binary-arch:
+ 	\$(MAKE) KDEB_SOURCENAME=${sourcename} KDEB_PKGVERSION=${packageversion} bindeb-pkg
+ 
+ clean:
+-	rm -rf debian/*tmp
++	rm -rf debian/*tmp debian/files
+ 	mv debian/ debian.backup # debian/ might be cleaned away
+ 	\$(MAKE) clean
+ 	mv debian.backup debian
 -- 
-2.5.1
+2.5.3
 

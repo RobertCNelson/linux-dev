@@ -191,15 +191,15 @@ dts () {
 	${git} "${DIR}/patches/dts/0002-ARM-dts-omap3-beagle-xm-spidev.patch"
 	${git} "${DIR}/patches/dts/0003-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
 	${git} "${DIR}/patches/dts/0004-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
-	${git} "${DIR}/patches/dts/0006-first-pass-imx6q-ccimx6sbc.patch"
-	${git} "${DIR}/patches/dts/0007-imx6-wl1835-base-boards.patch"
-	${git} "${DIR}/patches/dts/0008-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
-	${git} "${DIR}/patches/dts/0009-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
-	${git} "${DIR}/patches/dts/0010-arm-obvious.patch"
-	${git} "${DIR}/patches/dts/0011-dts-am57xx-beagle-x15-make-sure-vdd_sd-is-on-fixex-v.patch"
+	${git} "${DIR}/patches/dts/0005-first-pass-imx6q-ccimx6sbc.patch"
+	${git} "${DIR}/patches/dts/0006-imx6-wl1835-base-boards.patch"
+	${git} "${DIR}/patches/dts/0007-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
+	${git} "${DIR}/patches/dts/0008-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
+	${git} "${DIR}/patches/dts/0009-arm-obvious.patch"
+	${git} "${DIR}/patches/dts/0010-dts-am57xx-beagle-x15-make-sure-vdd_sd-is-on-fixex-v.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=11
+		number=10
 		cleanup
 	fi
 }
