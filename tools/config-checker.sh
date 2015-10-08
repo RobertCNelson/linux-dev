@@ -55,6 +55,7 @@ config="CONFIG_USELIB" ; config_enable
 config="CONFIG_IKCONFIG" ; config_enable
 config="CONFIG_IKCONFIG_PROC" ; config_enable
 config="CONFIG_LOG_BUF_SHIFT" ; option="18" ; config_value
+config="CONFIG_CGROUP_PIDS" ; config_enable
 config="CONFIG_SYSFS_SYSCALL" ; config_enable
 config="CONFIG_SYSCTL_SYSCALL" ; config_enable
 config="CONFIG_KALLSYMS_ALL" ; config_enable
@@ -344,7 +345,6 @@ config="CONFIG_PATA_OF_PLATFORM" ; config_enable
 # Generic fallback / legacy drivers
 #
 config="CONFIG_MII" ; config_enable
-config="CONFIG_GENEVE" ; config_module
 config="CONFIG_NET_VRF" ; config_module
 
 #
@@ -1155,7 +1155,7 @@ config="CONFIG_DMA_SUN6I" ; config_enable
 #
 config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
 config="CONFIG_UIO_DMEM_GENIRQ" ; config_module
-#config="CONFIG_UIO_PRUSS" ; config_module
+config="CONFIG_UIO_PRUSS" ; config_module
 
 #STAGING
 #
