@@ -1,0 +1,41 @@
+From 11521347ae952d3cb5c0d44825512f03de90034e Mon Sep 17 00:00:00 2001
+From: ZhengShunQian <zhengsq@rock-chips.com>
+Date: Wed, 30 Sep 2015 13:33:56 +0100
+Subject: [PATCH 14/20] nvmem: core: fix the out-of-range leak in read/write()
+
+The position to read/write must be less than max
+register size.
+
+Signed-off-by: ZhengShunQian <zhengsq@rock-chips.com>
+Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/nvmem/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index d3c6676..f4af8e5 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -67,7 +67,7 @@ static ssize_t bin_attr_nvmem_read(struct file *filp, struct kobject *kobj,
+ 	int rc;
+ 
+ 	/* Stop the user from reading */
+-	if (pos > nvmem->size)
++	if (pos >= nvmem->size)
+ 		return 0;
+ 
+ 	if (pos + count > nvmem->size)
+@@ -92,7 +92,7 @@ static ssize_t bin_attr_nvmem_write(struct file *filp, struct kobject *kobj,
+ 	int rc;
+ 
+ 	/* Stop the user from writing */
+-	if (pos > nvmem->size)
++	if (pos >= nvmem->size)
+ 		return 0;
+ 
+ 	if (pos + count > nvmem->size)
+-- 
+2.6.1
+
