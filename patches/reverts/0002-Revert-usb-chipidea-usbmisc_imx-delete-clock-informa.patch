@@ -1,7 +1,7 @@
-From b60f541d36901ab961887b9c1e70c4b22d809857 Mon Sep 17 00:00:00 2001
+From ab3370776b5a1222578229e92598993e6a67afbe Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Tue, 30 Jun 2015 08:20:59 -0500
-Subject: [PATCH 3/4] Revert "usb: chipidea: usbmisc_imx: delete clock
+Subject: [PATCH 2/2] Revert "usb: chipidea: usbmisc_imx: delete clock
  information"
 
 This reverts commit 73dea4a912b2bfe955305de4891018f9e71e399d.
@@ -12,7 +12,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 19 insertions(+)
 
 diff --git a/drivers/usb/chipidea/usbmisc_imx.c b/drivers/usb/chipidea/usbmisc_imx.c
-index 3cefd49..268d160 100644
+index 5ddab30..379628c 100644
 --- a/drivers/usb/chipidea/usbmisc_imx.c
 +++ b/drivers/usb/chipidea/usbmisc_imx.c
 @@ -11,6 +11,7 @@
@@ -23,7 +23,7 @@ index 3cefd49..268d160 100644
  #include <linux/err.h>
  #include <linux/io.h>
  #include <linux/delay.h>
-@@ -83,6 +84,7 @@ struct usbmisc_ops {
+@@ -84,6 +85,7 @@ struct usbmisc_ops {
  struct imx_usbmisc {
  	void __iomem *base;
  	spinlock_t lock;
@@ -31,7 +31,7 @@ index 3cefd49..268d160 100644
  	const struct usbmisc_ops *ops;
  };
  
-@@ -426,6 +428,7 @@ static int usbmisc_imx_probe(struct platform_device *pdev)
+@@ -434,6 +436,7 @@ static int usbmisc_imx_probe(struct platform_device *pdev)
  {
  	struct resource	*res;
  	struct imx_usbmisc *data;
@@ -39,7 +39,7 @@ index 3cefd49..268d160 100644
  	struct of_device_id *tmp_dev;
  
  	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-@@ -439,6 +442,20 @@ static int usbmisc_imx_probe(struct platform_device *pdev)
+@@ -447,6 +450,20 @@ static int usbmisc_imx_probe(struct platform_device *pdev)
  	if (IS_ERR(data->base))
  		return PTR_ERR(data->base);
  
@@ -60,7 +60,7 @@ index 3cefd49..268d160 100644
  	tmp_dev = (struct of_device_id *)
  		of_match_device(usbmisc_imx_dt_ids, &pdev->dev);
  	data->ops = (const struct usbmisc_ops *)tmp_dev->data;
-@@ -449,6 +466,8 @@ static int usbmisc_imx_probe(struct platform_device *pdev)
+@@ -457,6 +474,8 @@ static int usbmisc_imx_probe(struct platform_device *pdev)
  
  static int usbmisc_imx_remove(struct platform_device *pdev)
  {
@@ -70,5 +70,5 @@ index 3cefd49..268d160 100644
  }
  
 -- 
-2.5.0
+2.6.1
 
