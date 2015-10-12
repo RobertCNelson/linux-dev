@@ -194,11 +194,10 @@ dts () {
 	${git} "${DIR}/patches/dts/0006-imx6-wl1835-base-boards.patch"
 	${git} "${DIR}/patches/dts/0007-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
 	${git} "${DIR}/patches/dts/0008-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
-	${git} "${DIR}/patches/dts/0009-arm-obvious.patch"
-	${git} "${DIR}/patches/dts/0010-dts-am57xx-beagle-x15-make-sure-vdd_sd-is-on-fixex-v.patch"
+	${git} "${DIR}/patches/dts/0009-dts-am57xx-beagle-x15-make-sure-vdd_sd-is-on-fixex-v.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=10
+		number=9
 		cleanup
 	fi
 }
@@ -314,6 +313,10 @@ bbb_overlays () {
 		SHA="4ab11996b489ad65092216315484824ed32018f8" ; num="6" ; mainline
 		SHA="b470d6d7a5dfe41112d55c39eac67ddc5afac80d" ; num="7" ; mainline
 		SHA="3d0b16a66c8a9d10294572c6f79df4f15a27825d" ; num="8" ; mainline
+		SHA="7c806883e143dc60439e6bdb3589700ebed1efaa" ; num="9" ; mainline
+		SHA="cbf854ab36870b931aeba4edd954015b7c3005a2" ; num="10" ; mainline
+		SHA="ace22170655f61d82fff95e57d673bf847a32a03" ; num="11" ; mainline
+		SHA="fb727077b04f768d0c79d9aa29e958262a9e3d9e" ; num="12" ; mainline
 		exit 2
 	fi
 
@@ -324,15 +327,11 @@ bbb_overlays () {
 
 #linux-next:
 
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0009-nvmem-Add-Vybrid-OCOTP-support.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0010-nvmem-imx-ocotp-Add-i.MX6-OCOTP-driver.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0011-nvmem-add-driver-for-ocotp-in-i.MX23-and-i.MX28.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0012-nvmem-Adding-bindings-for-rockchip-efuse.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0013-nvmem-rockchip_efuse_regmap_config-can-be-static.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0014-nvmem-core-fix-the-out-of-range-leak-in-read-write.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0015-nvmem-core-Handle-shift-bits-in-place-if-cell-nbits-.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0016-nvmem-core-Fix-memory-leak-in-nvmem_cell_write.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0017-nvmem-sunxi-Check-for-memory-allocation-failure.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0013-nvmem-Add-Vybrid-OCOTP-support.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0014-nvmem-imx-ocotp-Add-i.MX6-OCOTP-driver.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0015-nvmem-add-driver-for-ocotp-in-i.MX23-and-i.MX28.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0016-nvmem-Adding-bindings-for-rockchip-efuse.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0017-nvmem-rockchip_efuse_regmap_config-can-be-static.patch"
 
 #email...
 
