@@ -107,6 +107,22 @@ local_patch () {
 #rt
 #local_patch
 
+backports () {
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		echo "dir: backports/mediatek"
+		directory="backports/mediatek"
+		SHA="c869f77d6abb5d5f9f2f1a661d5c53862a9cad34" ; num="1" ; mainline
+		SHA="69647fab13a5cbc305b50305fdd7dd4114c0e8db" ; num="2" ; mainline
+		SHA="2af6d21fce9990630d2adfda5a329706aa9e3571" ; num="3" ; mainline
+		SHA="9a15b57e9a2c591a812d979fa3f4f1a763533636" ; num="4" ; mainline
+		SHA="2dea58f62964f80883c8de80c0b5df8dbce0b278" ; num="5" ; mainline
+		SHA="8d0123748af0248750b123f9bfb8040d74691a77" ; num="6" ; mainline
+
+		exit 2
+	fi
+}
+
 reverts () {
 	echo "dir: reverts"
 	#regenerate="enable"
@@ -734,6 +750,7 @@ quieter () {
 }
 
 ###
+backports
 reverts
 ti
 dts

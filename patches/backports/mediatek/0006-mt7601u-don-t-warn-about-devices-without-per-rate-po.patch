@@ -1,0 +1,39 @@
+From 8d0123748af0248750b123f9bfb8040d74691a77 Mon Sep 17 00:00:00 2001
+From: Jakub Kicinski <kubakici@wp.pl>
+Date: Wed, 10 Jun 2015 20:10:09 +0200
+Subject: [PATCH] mt7601u: don't warn about devices without per-rate power
+ table
+
+We expect EEPROM per-rate power table to be filled with
+s6 values and warn user if values are invalid.  However,
+there appear to be devices which don't have this section
+of EEPROM initialized.  In such case we should ignore
+the values and leave the driver power tables set to zero.
+
+Note that vendor driver doesn't care about this case but
+mt76x2 skips 0xff per value.  We take mt76x2's approach.
+
+Signed-off-by: Jakub Kicinski <kubakici@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+---
+ drivers/net/wireless/mediatek/mt7601u/eeprom.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/net/wireless/mediatek/mt7601u/eeprom.c b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
+index ce3837f..8d8ee03 100644
+--- a/drivers/net/wireless/mediatek/mt7601u/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
+@@ -277,6 +277,10 @@ mt7601u_extra_power_over_mac(struct mt7601u_dev *dev)
+ static void
+ mt7601u_set_power_rate(struct power_per_rate *rate, s8 delta, u8 value)
+ {
++	/* Invalid? Note: vendor driver does not handle this */
++	if (value == 0xff)
++		return;
++
+ 	rate->raw = s6_validate(value);
+ 	rate->bw20 = s6_to_int(value);
+ 	/* Note: vendor driver does cap the value to s6 right away */
+-- 
+2.6.1
+
