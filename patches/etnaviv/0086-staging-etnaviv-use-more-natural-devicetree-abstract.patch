@@ -1,7 +1,7 @@
-From fadbece13ffb62be6efd47311ddc87afa9381439 Mon Sep 17 00:00:00 2001
+From 778d4e024cd549ba91bf2efb669e67552c6b6c1a Mon Sep 17 00:00:00 2001
 From: Lucas Stach <l.stach@pengutronix.de>
-Date: Tue, 23 Jun 2015 11:51:49 +0200
-Subject: [PATCH 086/139] staging: etnaviv: use more natural devicetree
+Date: Thu, 2 Apr 2015 17:30:42 +0200
+Subject: [PATCH 086/133] staging: etnaviv: use more natural devicetree
  abstraction
 
 The GPU cores are possibly scattered in the SoC address space, so the
@@ -19,10 +19,10 @@ Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
  1 file changed, 18 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
-index da61d40..b2df857 100644
+index 70b0268..dbb8068 100644
 --- a/drivers/staging/etnaviv/etnaviv_drv.c
 +++ b/drivers/staging/etnaviv/etnaviv_drv.c
-@@ -557,14 +557,6 @@ static struct drm_driver etnaviv_drm_driver = {
+@@ -564,14 +564,6 @@ static struct drm_driver etnaviv_drm_driver = {
  /*
   * Platform driver:
   */
@@ -37,7 +37,7 @@ index da61d40..b2df857 100644
  static int etnaviv_bind(struct device *dev)
  {
  	return drm_platform_init(&etnaviv_drm_driver, to_platform_device(dev));
-@@ -580,6 +572,13 @@ static const struct component_master_ops etnaviv_master_ops = {
+@@ -587,6 +579,13 @@ static const struct component_master_ops etnaviv_master_ops = {
  	.unbind = etnaviv_unbind,
  };
  
@@ -51,7 +51,7 @@ index da61d40..b2df857 100644
  static int compare_str(struct device *dev, void *data)
  {
  	return !strcmp(dev_name(dev), data);
-@@ -594,13 +593,18 @@ static int etnaviv_pdev_probe(struct platform_device *pdev)
+@@ -601,13 +600,18 @@ static int etnaviv_pdev_probe(struct platform_device *pdev)
  	dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
  
  	if (node) {
@@ -75,7 +75,7 @@ index da61d40..b2df857 100644
  	} else if (dev->platform_data) {
  		char **names = dev->platform_data;
  		unsigned i;
-@@ -620,7 +624,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
+@@ -627,7 +631,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
  }
  
  static const struct of_device_id dt_match[] = {
@@ -85,5 +85,5 @@ index da61d40..b2df857 100644
  };
  MODULE_DEVICE_TABLE(of, dt_match);
 -- 
-2.5.1
+2.6.1
 

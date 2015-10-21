@@ -1,7 +1,7 @@
-From 43a9dd80faf61f464dcec8ced110032e6156f68f Mon Sep 17 00:00:00 2001
+From 6e7d40b8ee5869f8c5b10f644f21c9e9ae0c08d1 Mon Sep 17 00:00:00 2001
 From: Lucas Stach <l.stach@pengutronix.de>
-Date: Tue, 23 Jun 2015 11:51:50 +0200
-Subject: [PATCH 088/139] staging: etnaviv: separate GPU pipes from execution
+Date: Thu, 2 Apr 2015 17:30:44 +0200
+Subject: [PATCH 088/133] staging: etnaviv: separate GPU pipes from execution
  state
 
 While this isn't the case on i.MX6 a single GPU pipe can have
@@ -38,7 +38,7 @@ Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
  8 files changed, 58 insertions(+), 74 deletions(-)
 
 diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
-index 02a6474..85a5a15 100644
+index b73975b..a662288 100644
 --- a/drivers/staging/etnaviv/etnaviv_buffer.c
 +++ b/drivers/staging/etnaviv/etnaviv_buffer.c
 @@ -84,7 +84,7 @@ static inline void CMD_STALL(struct etnaviv_gem_object *buffer,
@@ -152,9 +152,9 @@ index 02a6474..85a5a15 100644
 +		link_size = extra_size;
  	}
  
- 	/* Save the event and buffer position of the new event trigger */
+ 	/* trigger event */
 diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
-index b2df857..503a492 100644
+index dbb8068..5bc2f73 100644
 --- a/drivers/staging/etnaviv/etnaviv_drv.c
 +++ b/drivers/staging/etnaviv/etnaviv_drv.c
 @@ -132,6 +132,7 @@ static int etnaviv_load(struct drm_device *dev, unsigned long flags)
@@ -190,10 +190,10 @@ index 93720ec..c801b9a 100644
  	struct ww_acquire_ctx ticket;
  	uint32_t fence;
 diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
-index 495f7a8..093b285 100644
+index ee24fdc..301983a 100644
 --- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
 +++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
-@@ -328,6 +328,7 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+@@ -349,6 +349,7 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
  		ret = -ENOMEM;
  		goto out;
  	}
@@ -202,7 +202,7 @@ index 495f7a8..093b285 100644
  	ret = submit_lookup_objects(submit, args, file);
  	if (ret)
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
-index 8fa3b00..c230da7 100644
+index 333c200..d02605d 100644
 --- a/drivers/staging/etnaviv/etnaviv_gpu.c
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.c
 @@ -28,7 +28,7 @@
@@ -214,9 +214,9 @@ index 8fa3b00..c230da7 100644
  	{ },
  };
  
-@@ -889,8 +889,10 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
- 
+@@ -919,8 +919,10 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
  	gpu->submitted_fence = submit->fence;
+ 	gpu->event[event].fence = submit->fence;
  
 -	if (priv->lastctx != ctx)
 +	if (priv->lastctx != ctx) {
@@ -226,7 +226,7 @@ index 8fa3b00..c230da7 100644
  
  	etnaviv_buffer_queue(gpu, event, submit);
  
-@@ -1052,21 +1054,8 @@ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
+@@ -1108,21 +1110,8 @@ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
  	struct drm_device *drm = data;
  	struct etnaviv_drm_private *priv = drm->dev_private;
  	struct etnaviv_gpu *gpu = dev_get_drvdata(dev);
@@ -248,7 +248,7 @@ index 8fa3b00..c230da7 100644
  #ifdef CONFIG_PM
  	ret = pm_runtime_get_sync(gpu->dev);
  #else
-@@ -1084,12 +1073,12 @@ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
+@@ -1140,12 +1129,12 @@ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
  	setup_timer(&gpu->hangcheck_timer, hangcheck_handler,
  			(unsigned long)gpu);
  
@@ -263,7 +263,7 @@ index 8fa3b00..c230da7 100644
  }
  
  static void etnaviv_gpu_unbind(struct device *dev, struct device *master,
-@@ -1130,23 +1119,13 @@ static const struct component_ops gpu_ops = {
+@@ -1186,23 +1175,13 @@ static const struct component_ops gpu_ops = {
  
  static const struct of_device_id etnaviv_gpu_match[] = {
  	{
@@ -289,7 +289,7 @@ index 8fa3b00..c230da7 100644
  	struct device *dev = &pdev->dev;
  	struct etnaviv_gpu *gpu;
  	int err = 0;
-@@ -1155,17 +1134,6 @@ static int etnaviv_gpu_platform_probe(struct platform_device *pdev)
+@@ -1211,17 +1190,6 @@ static int etnaviv_gpu_platform_probe(struct platform_device *pdev)
  	if (!gpu)
  		return -ENOMEM;
  
@@ -308,10 +308,10 @@ index 8fa3b00..c230da7 100644
  
  	/*
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
-index 70ff3ac..458e76d 100644
+index 5f5147c..7861567 100644
 --- a/drivers/staging/etnaviv/etnaviv_gpu.h
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.h
-@@ -88,7 +88,7 @@ struct etnaviv_gpu {
+@@ -87,7 +87,7 @@ struct etnaviv_gpu {
  	struct drm_device *drm;
  	struct device *dev;
  	struct etnaviv_chip_identity identity;
@@ -377,5 +377,5 @@ index 52c6989..dfd51fc 100644
  	struct drm_etnaviv_timespec timeout;   /* in */
  };
 -- 
-2.5.1
+2.6.1
 

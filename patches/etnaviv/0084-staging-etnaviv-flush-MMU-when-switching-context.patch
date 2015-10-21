@@ -1,7 +1,7 @@
-From b76faf7c28212b11903da8cf1060facf16260dc1 Mon Sep 17 00:00:00 2001
+From 1f4aa04b068682adb7be36dfd1bc596debd3a9ef Mon Sep 17 00:00:00 2001
 From: Lucas Stach <l.stach@pengutronix.de>
-Date: Tue, 23 Jun 2015 11:51:49 +0200
-Subject: [PATCH 084/139] staging: etnaviv: flush MMU when switching context
+Date: Thu, 2 Apr 2015 17:30:40 +0200
+Subject: [PATCH 084/133] staging: etnaviv: flush MMU when switching context
 
 The MMU needs to be flushed when changing the render context to get
 rid of stale TLB entries left behind by the last context.
@@ -17,12 +17,12 @@ Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
-index 5ce1bd5..da25793 100644
+index 1bfac0c..a7a691f 100644
 --- a/drivers/staging/etnaviv/etnaviv_gpu.c
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.c
-@@ -889,6 +889,9 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
- 
+@@ -919,6 +919,9 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
  	gpu->submitted_fence = submit->fence;
+ 	gpu->event[event].fence = submit->fence;
  
 +	if (priv->lastctx != ctx)
 +		gpu->mmu->need_flush = true;
@@ -31,5 +31,5 @@ index 5ce1bd5..da25793 100644
  
  	priv->lastctx = ctx;
 -- 
-2.5.1
+2.6.1
 

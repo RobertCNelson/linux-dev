@@ -1,7 +1,7 @@
-From e82c034330e26b2b9495b64a91762ae21c497334 Mon Sep 17 00:00:00 2001
+From 7ab68fdd02d690464b52e3929e0a7e6ee34a5599 Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
-Date: Tue, 23 Jun 2015 11:51:46 +0200
-Subject: [PATCH 067/139] staging: etnaviv: add support to shutdown and restore
+Date: Fri, 31 Oct 2014 00:31:39 +0000
+Subject: [PATCH 067/133] staging: etnaviv: add support to shutdown and restore
  the front end
 
 Add support to append an END command to the GPU command stream so we
@@ -10,13 +10,13 @@ quiesces the GPU, allowing it to come back up on SoCs such as iMX6.
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 ---
- drivers/staging/etnaviv/etnaviv_buffer.c | 11 +++++++++++
+ drivers/staging/etnaviv/etnaviv_buffer.c | 11 ++++++++++
  drivers/staging/etnaviv/etnaviv_drv.h    |  1 +
- drivers/staging/etnaviv/etnaviv_gpu.c    | 29 +++++++++++++++++++++++++++++
- 3 files changed, 41 insertions(+)
+ drivers/staging/etnaviv/etnaviv_gpu.c    | 36 +++++++++++++++++++++++++++++++-
+ 3 files changed, 47 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
-index 66a7e40..575b6fd 100644
+index d83daff..4c9e207 100644
 --- a/drivers/staging/etnaviv/etnaviv_buffer.c
 +++ b/drivers/staging/etnaviv/etnaviv_buffer.c
 @@ -135,6 +135,17 @@ u32 etnaviv_buffer_init(struct etnaviv_gpu *gpu)
@@ -50,13 +50,15 @@ index 840d002..68fcf2c 100644
  	struct etnaviv_gem_submit *submit);
  bool etnaviv_cmd_validate_one(struct etnaviv_gpu *gpu,
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
-index 76c88e7..4db802e 100644
+index 2fbb96f..8b661d4 100644
 --- a/drivers/staging/etnaviv/etnaviv_gpu.c
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.c
-@@ -944,6 +944,35 @@ static int etnaviv_gpu_suspend(struct etnaviv_gpu *gpu)
- {
- 	int ret;
+@@ -962,6 +962,40 @@ static int etnaviv_gpu_clk_disable(struct etnaviv_gpu *gpu)
+ 	return 0;
+ }
  
++static int etnaviv_gpu_hw_suspend(struct etnaviv_gpu *gpu)
++{
 +	if (gpu->buffer) {
 +		unsigned long timeout;
 +
@@ -86,9 +88,21 @@ index 76c88e7..4db802e 100644
 +		} while (1);
 +	}
 +
- 	ret = disable_axi(gpu);
- 	if (ret)
- 		return ret;
++	return etnaviv_gpu_clk_disable(gpu);
++}
++
+ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
+ 	void *data)
+ {
+@@ -1011,7 +1045,7 @@ static void etnaviv_gpu_unbind(struct device *dev, struct device *master,
+ 
+ 	WARN_ON(!list_empty(&gpu->active_list));
+ 
+-	etnaviv_gpu_clk_disable(gpu);
++	etnaviv_gpu_hw_suspend(gpu);
+ 
+ 	if (gpu->buffer) {
+ 		drm_gem_object_unreference_unlocked(gpu->buffer);
 -- 
-2.5.1
+2.6.1
 

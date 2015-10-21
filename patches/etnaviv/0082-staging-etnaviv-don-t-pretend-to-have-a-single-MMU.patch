@@ -1,7 +1,7 @@
-From 707c1e59d92ab9a6ff7d5735fb53c87decc31718 Mon Sep 17 00:00:00 2001
+From debb69be68acec5a0ce4ed16c73c6e2cd8d54559 Mon Sep 17 00:00:00 2001
 From: Lucas Stach <l.stach@pengutronix.de>
-Date: Tue, 23 Jun 2015 11:51:49 +0200
-Subject: [PATCH 082/139] staging: etnaviv: don't pretend to have a single MMU
+Date: Thu, 2 Apr 2015 17:30:38 +0200
+Subject: [PATCH 082/133] staging: etnaviv: don't pretend to have a single MMU
 
 Each pipe has it's own MMU, so there is no point in pretending
 to have a single one at the DRM driver level. All MMU management has
@@ -16,7 +16,7 @@ Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
  3 files changed, 13 deletions(-)
 
 diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
-index cdaa57a..da61d40 100644
+index 5e3b97f..70b0268 100644
 --- a/drivers/staging/etnaviv/etnaviv_drv.c
 +++ b/drivers/staging/etnaviv/etnaviv_drv.c
 @@ -22,13 +22,6 @@
@@ -52,10 +52,10 @@ index 68fcf2c..3f53d24 100644
  		struct etnaviv_gpu *gpu, uint32_t fence,
  		struct timespec *timeout);
 diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
-index 5de9223..9440397 100644
+index 9bee4e8..472254c 100644
 --- a/drivers/staging/etnaviv/etnaviv_gpu.c
 +++ b/drivers/staging/etnaviv/etnaviv_gpu.c
-@@ -518,7 +518,6 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
+@@ -521,7 +521,6 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
  		ret = -ENOMEM;
  		goto fail;
  	}
@@ -64,5 +64,5 @@ index 5de9223..9440397 100644
  	/* Create buffer: */
  	gpu->buffer = etnaviv_gem_new(gpu->drm, PAGE_SIZE, ETNA_BO_CMDSTREAM);
 -- 
-2.5.1
+2.6.1
 
