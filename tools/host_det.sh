@@ -195,6 +195,16 @@ debian_regs () {
 			deb_distro="precise"
 		fi
 
+		if [ "x${deb_distro}" = "xfreya" ] ; then
+			#http://distrowatch.com/table.php?distribution=elementary
+			#lsb_release -a
+			#Distributor ID: elementary OS
+			#Description:    elementary OS Freya
+			#Release:        0.3.1
+			#Codename:       freya
+			deb_distro="trusty"
+		fi
+
 		if [ "x${deb_distro}" = "xtoutatis" ] ; then
 			#http://listas.trisquel.info/pipermail/trisquel-announce/2013-March/000014.html
 			#lsb_release -a
