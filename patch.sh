@@ -584,6 +584,9 @@ etnaviv () {
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
+	#voodoo@zeus:~/linux-src$ git checkout v4.2 -b testing
+	#Switched to a new branch 'testing'
+	#voodoo@zeus:~/linux-src$ git pull git://ftp.arm.linux.org.uk/~rmk/linux-arm.git drm-etnaviv-devel
 
 	${git} "${DIR}/patches/etnaviv/0001-of-Add-vendor-prefix-for-Vivante-Corporation.patch"
 	${git} "${DIR}/patches/etnaviv/0002-staging-etnaviv-add-devicetree-bindings.patch"
@@ -718,9 +721,12 @@ etnaviv () {
 	${git} "${DIR}/patches/etnaviv/0131-staging-etnaviv-validate-gem_new-flags-argument.patch"
 	${git} "${DIR}/patches/etnaviv/0132-staging-etnaviv-add-validation-of-userptr-pointer.patch"
 	${git} "${DIR}/patches/etnaviv/0133-staging-etnaviv-validate-gem_cpu_prep-op-argument.patch"
+	${git} "${DIR}/patches/etnaviv/0134-staging-etnaviv-copy-relocs-outside-of-DRM-dev-struc.patch"
+	${git} "${DIR}/patches/etnaviv/0135-staging-etnaviv-constify-relocation-pointer-avoid-co.patch"
+	${git} "${DIR}/patches/etnaviv/0136-staging-etnaviv-safely-size-the-etnaviv_gem_submit-s.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=133
+		number=136
 		cleanup
 	fi
 }
