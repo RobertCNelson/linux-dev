@@ -34,7 +34,7 @@ dl_gcc_generic () {
 	if [ ! -f "${DIR}/dl/${directory}/${datestamp}" ] ; then
 		echo "Installing: ${toolchain_name}"
 		echo "-----------------------------"
-		${WGET} "${site}/${version}/${filename}"
+		${WGET} "${site}/${version}/${filename}" || ${WGET} "${archive_site}/${version}/${filename}"
 		if [ -d "${DIR}/dl/${directory}" ] ; then
 			rm -rf "${DIR}/dl/${directory}" || true
 		fi
@@ -54,6 +54,7 @@ dl_gcc_generic () {
 
 gcc_toolchain () {
 	site="https://releases.linaro.org"
+	archive_site="https://releases.linaro.org/archive"
 	case "${toolchain}" in
 	gcc_linaro_eabi_4_8)
 		#
@@ -120,6 +121,7 @@ gcc_toolchain () {
 	gcc_linaro_gnueabi_4_6)
 		#
 		#https://releases.linaro.org/12.03/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabi-2012.03-20120326_linux.tar.bz2
+		#https://releases.linaro.org/archive/12.03/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabi-2012.03-20120326_linux.tar.bz2
 		#
 		release="2012.03"
 		toolchain_name="gcc-linaro-arm-linux-gnueabi"
@@ -134,6 +136,7 @@ gcc_toolchain () {
 	gcc_linaro_gnueabihf_4_7)
 		#
 		#https://releases.linaro.org/13.04/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux.tar.xz
+		#https://releases.linaro.org/archive/13.04/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux.tar.xz
 		#
 		gcc_version="4.7"
 		release="2013.04"
@@ -193,7 +196,7 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_gnueabihf_5)
 		#
-		#https://releases.linaro.org/components/toolchain/binaries/5.1-2015.08/arm-linux-gnueabihf/gcc-linaro-5.1-2015.08-x86_64_arm-linux-	gnueabihf.tar.xz
+		#https://releases.linaro.org/components/toolchain/binaries/5.1-2015.08/arm-linux-gnueabihf/gcc-linaro-5.1-2015.08-x86_64_arm-linux-gnueabihf.tar.xz
 		#
 
 		gcc_version="5.1"
