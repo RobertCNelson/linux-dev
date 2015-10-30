@@ -584,11 +584,14 @@ etnaviv () {
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
+	#cd ~/linux-src
 	#git checkout v4.2 -b testing
 	#git pull --no-edit git://ftp.arm.linux.org.uk/~rmk/linux-arm.git drm-etnaviv-devel
 
-	#git format-patch -138 | grep 4.2 ; rm *.patch
-	#git format-patch -137 -o /opt/github/linux-dev/patches/etnaviv/
+	#git format-patch -147 | grep 4.2 ; rm *.patch
+	#git format-patch -146 -o /opt/github/linux-dev/patches/etnaviv/
+	#git checkout master -f
+	#git branch -D testing
 
 	${git} "${DIR}/patches/etnaviv/0001-of-Add-vendor-prefix-for-Vivante-Corporation.patch"
 	${git} "${DIR}/patches/etnaviv/0002-staging-etnaviv-add-devicetree-bindings.patch"
@@ -727,9 +730,18 @@ etnaviv () {
 	${git} "${DIR}/patches/etnaviv/0135-staging-etnaviv-constify-relocation-pointer-avoid-co.patch"
 	${git} "${DIR}/patches/etnaviv/0136-staging-etnaviv-safely-size-the-etnaviv_gem_submit-s.patch"
 	${git} "${DIR}/patches/etnaviv/0137-staging-etnaviv-fix-use-after-free.patch"
+	${git} "${DIR}/patches/etnaviv/0138-staging-etnaviv-provides-specs-for-older-GPUs.patch"
+	${git} "${DIR}/patches/etnaviv/0139-staging-etnaviv-perform-initialization-cleanup-at-bi.patch"
+	${git} "${DIR}/patches/etnaviv/0140-staging-etnaviv-fix-cache-maintenance-on-cpu_prep.patch"
+	${git} "${DIR}/patches/etnaviv/0141-staging-etnaviv-fail-probe-if-command-buffer-is-outs.patch"
+	${git} "${DIR}/patches/etnaviv/0142-staging-etnaviv-remove-locking-from-etnaviv_gpu_debu.patch"
+	${git} "${DIR}/patches/etnaviv/0143-staging-etnaviv-remove-etnaviv_gem_object-paddr-remn.patch"
+	${git} "${DIR}/patches/etnaviv/0144-staging-etnaviv-drop-id-argument-from-etnaviv_gem_ge.patch"
+	${git} "${DIR}/patches/etnaviv/0145-staging-etnaviv-keep-associated-GPU-dev-around-in-MM.patch"
+	${git} "${DIR}/patches/etnaviv/0146-staging-etnaviv-avoid-dumping-non-3d-and-non-2d-core.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=137
+		number=146
 		cleanup
 	fi
 }
