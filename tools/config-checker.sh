@@ -59,7 +59,6 @@ config="CONFIG_CGROUP_PIDS" ; config_enable
 config="CONFIG_SYSFS_SYSCALL" ; config_enable
 config="CONFIG_SYSCTL_SYSCALL" ; config_enable
 config="CONFIG_KALLSYMS_ALL" ; config_enable
-config="CONFIG_BPF_SYSCALL" ; config_enable
 config="CONFIG_EMBEDDED" ; config_enable
 
 #
@@ -373,6 +372,7 @@ config="CONFIG_VIA_VELOCITY" ; config_disable
 #
 config="CONFIG_SMSC_PHY" ; config_enable
 config="CONFIG_MICREL_PHY" ; config_enable
+config="CONFIG_DP83848_PHY" ; config_enable
 
 #
 # USB Network Adapters
@@ -935,12 +935,10 @@ config="CONFIG_HID_GENERIC" ; config_enable
 # Special HID drivers
 #
 config="CONFIG_HID_APPLEIR" ; config_module
-config="CONFIG_HID_BETOP_FF" ; config_module
 config="CONFIG_HID_GEMBIRD" ; config_module
 config="CONFIG_HID_GT683R" ; config_module
 config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_HID_LOGITECH_HIDPP" ; config_enable
-config="CONFIG_HID_PLANTRONICS" ; config_module
 config="CONFIG_HID_SENSOR_CUSTOM_SENSOR" ; config_module
 
 #
@@ -993,11 +991,6 @@ config="CONFIG_USB_DWC3_DUAL_ROLE" ; config_enable
 #
 config="CONFIG_USB_CHIPIDEA" ; config_enable
 config="CONFIG_USB_CHIPIDEA_DEBUG" ; config_disable
-
-#
-# USB Miscellaneous drivers
-#
-config="CONFIG_USB_CHAOSKEY" ; config_module
 
 #
 # USB Physical Layer drivers
@@ -1144,11 +1137,11 @@ config="CONFIG_RTC_DRV_HID_SENSOR_TIME" ; config_module
 #
 # DMA Devices
 #
+config="CONFIG_DMA_SUN6I" ; config_enable
+config="CONFIG_FSL_EDMA" ; config_enable
+config="CONFIG_TI_CPPI41" ; config_enable
 config="CONFIG_DW_DMAC_CORE" ; config_enable
 config="CONFIG_DW_DMAC" ; config_enable
-config="CONFIG_TI_CPPI41" ; config_enable
-config="CONFIG_FSL_EDMA" ; config_enable
-config="CONFIG_DMA_SUN6I" ; config_enable
 
 #
 # DMA Clients
@@ -1547,7 +1540,9 @@ config="CONFIG_ANDROID" ; config_enable
 config="CONFIG_ANDROID_BINDER_IPC" ; config_enable
 config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
 config="CONFIG_NVMEM" ; config_enable
+config="CONFIG_NVMEM_IMX_OCOTP" ; config_enable
 config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
+config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 
 #exit
 
