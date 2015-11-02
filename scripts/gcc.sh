@@ -29,18 +29,24 @@ DIR=$PWD
 #toolchain
 . "${DIR}/version.sh"
 
+if [ -d $HOME/dl/gcc/ ] ; then
+	gcc_dir="$HOME/dl/gcc"
+else
+	gcc_dir="${DIR}/dl"
+fi
+
 dl_gcc_generic () {
-	WGET="wget -c --directory-prefix=${DIR}/dl/"
-	if [ ! -f "${DIR}/dl/${directory}/${datestamp}" ] ; then
+	WGET="wget -c --directory-prefix=${gcc_dir}/"
+	if [ ! -f "${gcc_dir}/${directory}/${datestamp}" ] ; then
 		echo "Installing: ${toolchain_name}"
 		echo "-----------------------------"
 		${WGET} "${site}/${version}/${filename}" || ${WGET} "${archive_site}/${version}/${filename}"
-		if [ -d "${DIR}/dl/${directory}" ] ; then
-			rm -rf "${DIR}/dl/${directory}" || true
+		if [ -d "${gcc_dir}/${directory}" ] ; then
+			rm -rf "${gcc_dir}/${directory}" || true
 		fi
-		tar -xf "${DIR}/dl/${filename}" -C "${DIR}/dl/"
-		if [ -f "${DIR}/dl/${directory}/${binary}gcc" ] ; then
-			touch "${DIR}/dl/${directory}/${datestamp}"
+		tar -xf "${gcc_dir}/${filename}" -C "${gcc_dir}/"
+		if [ -f "${gcc_dir}/${directory}/${binary}gcc" ] ; then
+			touch "${gcc_dir}/${directory}/${datestamp}"
 		fi
 	fi
 
@@ -48,7 +54,7 @@ dl_gcc_generic () {
 		#using native gcc
 		CC=
 	else
-		CC="${DIR}/dl/${directory}/${binary}"
+		CC="${gcc_dir}/${directory}/${binary}"
 	fi
 }
 
