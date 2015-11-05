@@ -1,0 +1,50 @@
+From fb86de91c2a48e320bfa3767802d9a1fb204a230 Mon Sep 17 00:00:00 2001
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Date: Wed, 30 Sep 2015 13:56:11 +0100
+Subject: [PATCH] nvmem: add binding for mxs-ocotp
+
+This patch adds the devicetree bindings for the Freescale MXS On Chip
+OTP driver.
+
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ .../devicetree/bindings/nvmem/mxs-ocotp.txt        | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/nvmem/mxs-ocotp.txt
+
+diff --git a/Documentation/devicetree/bindings/nvmem/mxs-ocotp.txt b/Documentation/devicetree/bindings/nvmem/mxs-ocotp.txt
+new file mode 100644
+index 0000000..daebce9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/nvmem/mxs-ocotp.txt
+@@ -0,0 +1,25 @@
++On-Chip OTP Memory for Freescale i.MX23/i.MX28
++
++Required properties :
++- compatible :
++  - "fsl,imx23-ocotp" for i.MX23
++  - "fsl,imx28-ocotp" for i.MX28
++- #address-cells : Should be 1
++- #size-cells : Should be 1
++- reg : Address and length of OTP controller registers
++- clocks : Should contain a reference to the hbus clock
++
++= Data cells =
++Are child nodes of mxs-ocotp, bindings of which as described in
++bindings/nvmem/nvmem.txt
++
++Example for i.MX28:
++
++	ocotp: ocotp@8002c000 {
++		compatible = "fsl,imx28-ocotp", "fsl,ocotp";
++		#address-cells = <1>;
++		#size-cells = <1>;
++		reg = <0x8002c000 0x2000>;
++		clocks = <&clks 25>;
++		status = "okay";
++	};
+-- 
+2.6.2
+

@@ -326,10 +326,19 @@ bbb_overlays () {
 		SHA="4ab11996b489ad65092216315484824ed32018f8" ; num="6" ; mainline
 		SHA="b470d6d7a5dfe41112d55c39eac67ddc5afac80d" ; num="7" ; mainline
 		SHA="3d0b16a66c8a9d10294572c6f79df4f15a27825d" ; num="8" ; mainline
-		SHA="7c806883e143dc60439e6bdb3589700ebed1efaa" ; num="9" ; mainline
-		SHA="cbf854ab36870b931aeba4edd954015b7c3005a2" ; num="10" ; mainline
-		SHA="ace22170655f61d82fff95e57d673bf847a32a03" ; num="11" ; mainline
-		SHA="fb727077b04f768d0c79d9aa29e958262a9e3d9e" ; num="12" ; mainline
+		SHA="6230699469523337d65bb5e2f47279dfcf3eea17" ; num="9" ; mainline
+		SHA="22dbdb7cbf7214befd3a449ba7959c8cf4038e6c" ; num="10" ; mainline
+		SHA="5380a9a6acd990833f76c52c1327a289d09d88aa" ; num="11" ; mainline
+		SHA="3edba6b47e4265948db3a77a0137157c033d69e2" ; num="12" ; mainline
+		SHA="fb86de91c2a48e320bfa3767802d9a1fb204a230" ; num="13" ; mainline
+		SHA="c01e9a11ab6f3096a54574c3224d8732a374f135" ; num="14" ; mainline
+		SHA="faf25a9089fc9bdc277b30dbdef8ea7ad7c9083b" ; num="15" ; mainline
+		SHA="03a69568e07e1150e1cfdb862892798f88dafd17" ; num="16" ; mainline
+		SHA="7e532f7925f1758369c7963297baceac3cbaefc1" ; num="17" ; mainline
+		SHA="7c806883e143dc60439e6bdb3589700ebed1efaa" ; num="18" ; mainline
+		SHA="cbf854ab36870b931aeba4edd954015b7c3005a2" ; num="19" ; mainline
+		SHA="ace22170655f61d82fff95e57d673bf847a32a03" ; num="20" ; mainline
+		SHA="fb727077b04f768d0c79d9aa29e958262a9e3d9e" ; num="21" ; mainline
 		exit 2
 	fi
 
@@ -338,23 +347,14 @@ bbb_overlays () {
 		start_cleanup
 	fi
 
-#linux-next:
-
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0013-nvmem-Add-Vybrid-OCOTP-support.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0014-nvmem-imx-ocotp-Add-i.MX6-OCOTP-driver.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0015-nvmem-add-driver-for-ocotp-in-i.MX23-and-i.MX28.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0016-nvmem-Adding-bindings-for-rockchip-efuse.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0017-nvmem-rockchip_efuse_regmap_config-can-be-static.patch"
-
-#email...
-
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0018-nvmem-make-default-user-binary-file-root-access-only.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0019-nvmem-set-the-size-for-the-nvmem-binary-file.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0020-nvmem-add-permission-flags-in-nvmem_config.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0021-nvmem-fix-permissions-of-readonly-nvmem-binattr.patch"
+	#email...
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0022-nvmem-make-default-user-binary-file-root-access-only.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0023-nvmem-set-the-size-for-the-nvmem-binary-file.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0024-nvmem-add-permission-flags-in-nvmem_config.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0025-nvmem-fix-permissions-of-readonly-nvmem-binattr.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=21
+		number=25
 		cleanup
 	fi
 
