@@ -25,12 +25,12 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 179 insertions(+)
 
 diff --git a/Documentation/printk-formats.txt b/Documentation/printk-formats.txt
-index 2216eb1..a54f44f 100644
+index b784c27..60d2712 100644
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -284,6 +284,37 @@ bitmap and its derivatives such as cpumask and nodemask:
+@@ -313,6 +313,37 @@ If you add other %p extensions, please extend lib/test_printf.c with
+ one or more test cases, if at all feasible.
  
- 	Passed by reference.
  
 +Device tree nodes:
 +
@@ -67,7 +67,7 @@ index 2216eb1..a54f44f 100644
  
  
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index 95cd63b..22e421c 100644
+index f9cee8e..ec60e5c 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
 @@ -31,6 +31,7 @@
@@ -235,9 +235,9 @@ index 95cd63b..22e421c 100644
 + *                C full compatible string
 + *                r node reference count
   *
-  * Note: The difference between 'S' and 'F' is that on ia64 and ppc64
-  * function pointers are really function descriptors, which contain a
-@@ -1598,6 +1744,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+  * ** Please update also Documentation/printk-formats.txt when making changes **
+  *
+@@ -1600,6 +1746,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
  		return dentry_name(buf, end,
  				   ((const struct file *)ptr)->f_path.dentry,
  				   spec, fmt);
@@ -247,5 +247,5 @@ index 95cd63b..22e421c 100644
  	spec.flags |= SMALL;
  	if (spec.field_width == -1) {
 -- 
-2.5.1
+2.6.2
 
