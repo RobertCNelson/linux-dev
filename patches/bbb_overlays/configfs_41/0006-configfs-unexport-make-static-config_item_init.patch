@@ -1,0 +1,49 @@
+From 5286d20c4eb7b0c29217f8756652609df74f5489 Mon Sep 17 00:00:00 2001
+From: Fabian Frederick <fabf@skynet.be>
+Date: Wed, 24 Jun 2015 16:54:51 -0700
+Subject: [PATCH] configfs: unexport/make static config_item_init()
+
+config_item_init() is only used in item.c
+
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
+Cc: Joel Becker <jlbec@evilplan.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ fs/configfs/item.c       | 3 +--
+ include/linux/configfs.h | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/fs/configfs/item.c b/fs/configfs/item.c
+index e65f9ff..4d6a30e 100644
+--- a/fs/configfs/item.c
++++ b/fs/configfs/item.c
+@@ -47,12 +47,11 @@ static void config_item_release(struct kref *kref);
+  *	config_item_init - initialize item.
+  *	@item:	item in question.
+  */
+-void config_item_init(struct config_item *item)
++static void config_item_init(struct config_item *item)
+ {
+ 	kref_init(&item->ci_kref);
+ 	INIT_LIST_HEAD(&item->ci_entry);
+ }
+-EXPORT_SYMBOL(config_item_init);
+ 
+ /**
+  *	config_item_set_name - Set the name of an item
+diff --git a/include/linux/configfs.h b/include/linux/configfs.h
+index 34025df..c9e5c57 100644
+--- a/include/linux/configfs.h
++++ b/include/linux/configfs.h
+@@ -71,7 +71,6 @@ static inline char *config_item_name(struct config_item * item)
+ 	return item->ci_name;
+ }
+ 
+-extern void config_item_init(struct config_item *);
+ extern void config_item_init_type_name(struct config_item *item,
+ 				       const char *name,
+ 				       struct config_item_type *type);
+-- 
+2.6.2
+

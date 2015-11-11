@@ -1,0 +1,547 @@
+From 6e77137b363b8d866ac29c5a0c95e953614fb2d8 Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Sat, 2 May 2015 13:37:52 -0400
+Subject: [PATCH] don't pass nameidata to ->follow_link()
+
+its only use is getting passed to nd_jump_link(), which can obtain
+it from current->nameidata
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ Documentation/filesystems/Locking             |  2 +-
+ Documentation/filesystems/vfs.txt             |  2 +-
+ drivers/staging/lustre/lustre/llite/symlink.c |  2 +-
+ fs/9p/vfs_inode.c                             |  2 +-
+ fs/9p/vfs_inode_dotl.c                        |  2 +-
+ fs/autofs4/symlink.c                          |  2 +-
+ fs/befs/linuxvfs.c                            |  4 ++--
+ fs/cifs/cifsfs.h                              |  2 +-
+ fs/cifs/link.c                                |  2 +-
+ fs/configfs/symlink.c                         |  2 +-
+ fs/ecryptfs/inode.c                           |  2 +-
+ fs/ext4/symlink.c                             |  2 +-
+ fs/f2fs/namei.c                               |  4 ++--
+ fs/fuse/dir.c                                 |  2 +-
+ fs/gfs2/inode.c                               |  2 +-
+ fs/hostfs/hostfs_kern.c                       |  2 +-
+ fs/hppfs/hppfs.c                              |  4 ++--
+ fs/kernfs/symlink.c                           |  2 +-
+ fs/libfs.c                                    |  2 +-
+ fs/namei.c                                    | 11 ++++++-----
+ fs/nfs/symlink.c                              |  2 +-
+ fs/overlayfs/inode.c                          |  4 ++--
+ fs/proc/base.c                                |  4 ++--
+ fs/proc/inode.c                               |  2 +-
+ fs/proc/namespaces.c                          |  4 ++--
+ fs/proc/self.c                                |  2 +-
+ fs/proc/thread_self.c                         |  2 +-
+ fs/xfs/xfs_iops.c                             |  3 +--
+ include/linux/fs.h                            |  6 +++---
+ include/linux/namei.h                         |  2 +-
+ mm/shmem.c                                    |  2 +-
+ 31 files changed, 44 insertions(+), 44 deletions(-)
+
+diff --git a/Documentation/filesystems/Locking b/Documentation/filesystems/Locking
+index 7fa6c4a..5b5b4f5 100644
+--- a/Documentation/filesystems/Locking
++++ b/Documentation/filesystems/Locking
+@@ -50,7 +50,7 @@ prototypes:
+ 	int (*rename2) (struct inode *, struct dentry *,
+ 			struct inode *, struct dentry *, unsigned int);
+ 	int (*readlink) (struct dentry *, char __user *,int);
+-	const char *(*follow_link) (struct dentry *, void **, struct nameidata *);
++	const char *(*follow_link) (struct dentry *, void **);
+ 	void (*put_link) (struct dentry *, void *);
+ 	void (*truncate) (struct inode *);
+ 	int (*permission) (struct inode *, int, unsigned int);
+diff --git a/Documentation/filesystems/vfs.txt b/Documentation/filesystems/vfs.txt
+index 1c6b03a..0dec8c8 100644
+--- a/Documentation/filesystems/vfs.txt
++++ b/Documentation/filesystems/vfs.txt
+@@ -350,7 +350,7 @@ struct inode_operations {
+ 	int (*rename2) (struct inode *, struct dentry *,
+ 			struct inode *, struct dentry *, unsigned int);
+ 	int (*readlink) (struct dentry *, char __user *,int);
+-	const char *(*follow_link) (struct dentry *, void **, struct nameidata *);
++	const char *(*follow_link) (struct dentry *, void **);
+ 	void (*put_link) (struct dentry *, void *);
+ 	int (*permission) (struct inode *, int);
+ 	int (*get_acl)(struct inode *, int);
+diff --git a/drivers/staging/lustre/lustre/llite/symlink.c b/drivers/staging/lustre/lustre/llite/symlink.c
+index da6d9d1..f3be3bf 100644
+--- a/drivers/staging/lustre/lustre/llite/symlink.c
++++ b/drivers/staging/lustre/lustre/llite/symlink.c
+@@ -118,7 +118,7 @@ failed:
+ 	return rc;
+ }
+ 
+-static const char *ll_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *ll_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct ptlrpc_request *request = NULL;
+diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
+index 7cc70a3..271f51a 100644
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -1230,7 +1230,7 @@ ino_t v9fs_qid2ino(struct p9_qid *qid)
+  *
+  */
+ 
+-static const char *v9fs_vfs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *v9fs_vfs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct v9fs_session_info *v9ses = v9fs_dentry2v9ses(dentry);
+ 	struct p9_fid *fid = v9fs_fid_lookup(dentry);
+diff --git a/fs/9p/vfs_inode_dotl.c b/fs/9p/vfs_inode_dotl.c
+index ae062ff..16658ed 100644
+--- a/fs/9p/vfs_inode_dotl.c
++++ b/fs/9p/vfs_inode_dotl.c
+@@ -910,7 +910,7 @@ error:
+  */
+ 
+ static const char *
+-v9fs_vfs_follow_link_dotl(struct dentry *dentry, void **cookie, struct nameidata *nd)
++v9fs_vfs_follow_link_dotl(struct dentry *dentry, void **cookie)
+ {
+ 	struct p9_fid *fid = v9fs_fid_lookup(dentry);
+ 	char *target;
+diff --git a/fs/autofs4/symlink.c b/fs/autofs4/symlink.c
+index 9c6a077..da0c334 100644
+--- a/fs/autofs4/symlink.c
++++ b/fs/autofs4/symlink.c
+@@ -12,7 +12,7 @@
+ 
+ #include "autofs_i.h"
+ 
+-static const char *autofs4_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *autofs4_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct autofs_sb_info *sbi = autofs4_sbi(dentry->d_sb);
+ 	struct autofs_info *ino = autofs4_dentry_ino(dentry);
+diff --git a/fs/befs/linuxvfs.c b/fs/befs/linuxvfs.c
+index 3a1aefb..46aedac 100644
+--- a/fs/befs/linuxvfs.c
++++ b/fs/befs/linuxvfs.c
+@@ -42,7 +42,7 @@ static struct inode *befs_iget(struct super_block *, unsigned long);
+ static struct inode *befs_alloc_inode(struct super_block *sb);
+ static void befs_destroy_inode(struct inode *inode);
+ static void befs_destroy_inodecache(void);
+-static const char *befs_follow_link(struct dentry *, void **, struct nameidata *nd);
++static const char *befs_follow_link(struct dentry *, void **);
+ static int befs_utf2nls(struct super_block *sb, const char *in, int in_len,
+ 			char **out, int *out_len);
+ static int befs_nls2utf(struct super_block *sb, const char *in, int in_len,
+@@ -464,7 +464,7 @@ befs_destroy_inodecache(void)
+  * flag is set.
+  */
+ static const char *
+-befs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++befs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct super_block *sb = dentry->d_sb;
+ 	struct befs_inode_info *befs_ino = BEFS_I(d_inode(dentry));
+diff --git a/fs/cifs/cifsfs.h b/fs/cifs/cifsfs.h
+index 61012da..a782b22 100644
+--- a/fs/cifs/cifsfs.h
++++ b/fs/cifs/cifsfs.h
+@@ -120,7 +120,7 @@ extern struct vfsmount *cifs_dfs_d_automount(struct path *path);
+ #endif
+ 
+ /* Functions related to symlinks */
+-extern const char *cifs_follow_link(struct dentry *direntry, void **cookie, struct nameidata *nd);
++extern const char *cifs_follow_link(struct dentry *direntry, void **cookie);
+ extern int cifs_readlink(struct dentry *direntry, char __user *buffer,
+ 			 int buflen);
+ extern int cifs_symlink(struct inode *inode, struct dentry *direntry,
+diff --git a/fs/cifs/link.c b/fs/cifs/link.c
+index 4a439c2..546f86a 100644
+--- a/fs/cifs/link.c
++++ b/fs/cifs/link.c
+@@ -627,7 +627,7 @@ cifs_hl_exit:
+ }
+ 
+ const char *
+-cifs_follow_link(struct dentry *direntry, void **cookie, struct nameidata *nd)
++cifs_follow_link(struct dentry *direntry, void **cookie)
+ {
+ 	struct inode *inode = d_inode(direntry);
+ 	int rc = -ENOMEM;
+diff --git a/fs/configfs/symlink.c b/fs/configfs/symlink.c
+index fac8e85..0ace756 100644
+--- a/fs/configfs/symlink.c
++++ b/fs/configfs/symlink.c
+@@ -279,7 +279,7 @@ static int configfs_getlink(struct dentry *dentry, char * path)
+ 
+ }
+ 
+-static const char *configfs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *configfs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	unsigned long page = get_zeroed_page(GFP_KERNEL);
+ 	int error;
+diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
+index cdb9d6c..73d20ae 100644
+--- a/fs/ecryptfs/inode.c
++++ b/fs/ecryptfs/inode.c
+@@ -675,7 +675,7 @@ out:
+ 	return rc ? ERR_PTR(rc) : buf;
+ }
+ 
+-static const char *ecryptfs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *ecryptfs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	size_t len;
+ 	char *buf = ecryptfs_readlink_lower(dentry, &len);
+diff --git a/fs/ext4/symlink.c b/fs/ext4/symlink.c
+index afec475..ba5bd18 100644
+--- a/fs/ext4/symlink.c
++++ b/fs/ext4/symlink.c
+@@ -23,7 +23,7 @@
+ #include "xattr.h"
+ 
+ #ifdef CONFIG_EXT4_FS_ENCRYPTION
+-static const char *ext4_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *ext4_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct page *cpage = NULL;
+ 	char *caddr, *paddr = NULL;
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index d294793..cd05a7c 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -296,9 +296,9 @@ fail:
+ 	return err;
+ }
+ 
+-static const char *f2fs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *f2fs_follow_link(struct dentry *dentry, void **cookie)
+ {
+-	const char *link = page_follow_link_light(dentry, cookie, nd);
++	const char *link = page_follow_link_light(dentry, cookie);
+ 	if (!IS_ERR(link) && !*link) {
+ 		/* this is broken symlink case */
+ 		page_put_link(dentry, *cookie);
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index f9cb260..d5cdef8 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -1365,7 +1365,7 @@ static int fuse_readdir(struct file *file, struct dir_context *ctx)
+ 	return err;
+ }
+ 
+-static const char *fuse_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *fuse_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+index f59390a..3a1461d 100644
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -1548,7 +1548,7 @@ out:
+  * Returns: 0 on success or error code
+  */
+ 
+-static const char *gfs2_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *gfs2_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct gfs2_inode *ip = GFS2_I(d_inode(dentry));
+ 	struct gfs2_holder i_gh;
+diff --git a/fs/hostfs/hostfs_kern.c b/fs/hostfs/hostfs_kern.c
+index f650ed6..7b6ed7a 100644
+--- a/fs/hostfs/hostfs_kern.c
++++ b/fs/hostfs/hostfs_kern.c
+@@ -892,7 +892,7 @@ static const struct inode_operations hostfs_dir_iops = {
+ 	.setattr	= hostfs_setattr,
+ };
+ 
+-static const char *hostfs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *hostfs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	char *link = __getname();
+ 	if (link) {
+diff --git a/fs/hppfs/hppfs.c b/fs/hppfs/hppfs.c
+index b8f24d3..15a774e 100644
+--- a/fs/hppfs/hppfs.c
++++ b/fs/hppfs/hppfs.c
+@@ -642,11 +642,11 @@ static int hppfs_readlink(struct dentry *dentry, char __user *buffer,
+ 						    buflen);
+ }
+ 
+-static const char *hppfs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *hppfs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct dentry *proc_dentry = HPPFS_I(d_inode(dentry))->proc_dentry;
+ 
+-	return d_inode(proc_dentry)->i_op->follow_link(proc_dentry, cookie, nd);
++	return d_inode(proc_dentry)->i_op->follow_link(proc_dentry, cookie);
+ }
+ 
+ static void hppfs_put_link(struct dentry *dentry, void *cookie)
+diff --git a/fs/kernfs/symlink.c b/fs/kernfs/symlink.c
+index 3c7e799..366c5a1 100644
+--- a/fs/kernfs/symlink.c
++++ b/fs/kernfs/symlink.c
+@@ -112,7 +112,7 @@ static int kernfs_getlink(struct dentry *dentry, char *path)
+ 	return error;
+ }
+ 
+-static const char *kernfs_iop_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *kernfs_iop_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	int error = -ENOMEM;
+ 	unsigned long page = get_zeroed_page(GFP_KERNEL);
+diff --git a/fs/libfs.c b/fs/libfs.c
+index 0c83fde..c5f3373 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -1091,7 +1091,7 @@ simple_nosetlease(struct file *filp, long arg, struct file_lock **flp,
+ }
+ EXPORT_SYMBOL(simple_nosetlease);
+ 
+-const char *simple_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++const char *simple_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	return d_inode(dentry)->i_link;
+ }
+diff --git a/fs/namei.c b/fs/namei.c
+index b57400c..f311f03 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -753,8 +753,9 @@ static inline void path_to_nameidata(const struct path *path,
+  * Helper to directly jump to a known parsed path from ->follow_link,
+  * caller must have taken a reference to path beforehand.
+  */
+-void nd_jump_link(struct nameidata *nd, struct path *path)
++void nd_jump_link(struct path *path)
+ {
++	struct nameidata *nd = current->nameidata;
+ 	path_put(&nd->path);
+ 
+ 	nd->path = *path;
+@@ -916,7 +917,7 @@ const char *get_link(struct nameidata *nd)
+ 	nd->last_type = LAST_BIND;
+ 	res = inode->i_link;
+ 	if (!res) {
+-		res = inode->i_op->follow_link(dentry, &last->cookie, nd);
++		res = inode->i_op->follow_link(dentry, &last->cookie);
+ 		if (IS_ERR(res)) {
+ out:
+ 			path_put(&last->link);
+@@ -4485,12 +4486,12 @@ int generic_readlink(struct dentry *dentry, char __user *buffer, int buflen)
+ 	int res;
+ 
+ 	if (!link) {
+-		link = dentry->d_inode->i_op->follow_link(dentry, &cookie, NULL);
++		link = dentry->d_inode->i_op->follow_link(dentry, &cookie);
+ 		if (IS_ERR(link))
+ 			return PTR_ERR(link);
+ 	}
+ 	res = readlink_copy(buffer, buflen, link);
+-	if (cookie && dentry->d_inode->i_op->put_link)
++	if (dentry->d_inode->i_op->put_link)
+ 		dentry->d_inode->i_op->put_link(dentry, cookie);
+ 	return res;
+ }
+@@ -4523,7 +4524,7 @@ int page_readlink(struct dentry *dentry, char __user *buffer, int buflen)
+ }
+ EXPORT_SYMBOL(page_readlink);
+ 
+-const char *page_follow_link_light(struct dentry *dentry, void **cookie, struct nameidata *nd)
++const char *page_follow_link_light(struct dentry *dentry, void **cookie)
+ {
+ 	struct page *page = NULL;
+ 	char *res = page_getlink(dentry, &page);
+diff --git a/fs/nfs/symlink.c b/fs/nfs/symlink.c
+index c992b20..b6de433 100644
+--- a/fs/nfs/symlink.c
++++ b/fs/nfs/symlink.c
+@@ -42,7 +42,7 @@ error:
+ 	return -EIO;
+ }
+ 
+-static const char *nfs_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *nfs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct page *page;
+diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
+index 235ad42..9986833 100644
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -140,7 +140,7 @@ struct ovl_link_data {
+ 	void *cookie;
+ };
+ 
+-static const char *ovl_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *ovl_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct dentry *realdentry;
+ 	struct inode *realinode;
+@@ -160,7 +160,7 @@ static const char *ovl_follow_link(struct dentry *dentry, void **cookie, struct
+ 		data->realdentry = realdentry;
+ 	}
+ 
+-	ret = realinode->i_op->follow_link(realdentry, cookie, nd);
++	ret = realinode->i_op->follow_link(realdentry, cookie);
+ 	if (IS_ERR_OR_NULL(ret)) {
+ 		kfree(data);
+ 		return ret;
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 52652f8..286a422 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1380,7 +1380,7 @@ static int proc_exe_link(struct dentry *dentry, struct path *exe_path)
+ 		return -ENOENT;
+ }
+ 
+-static const char *proc_pid_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *proc_pid_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct path path;
+@@ -1394,7 +1394,7 @@ static const char *proc_pid_follow_link(struct dentry *dentry, void **cookie, st
+ 	if (error)
+ 		goto out;
+ 
+-	nd_jump_link(nd, &path);
++	nd_jump_link(&path);
+ 	return NULL;
+ out:
+ 	return ERR_PTR(error);
+diff --git a/fs/proc/inode.c b/fs/proc/inode.c
+index acd51d7..eb35874 100644
+--- a/fs/proc/inode.c
++++ b/fs/proc/inode.c
+@@ -393,7 +393,7 @@ static const struct file_operations proc_reg_file_ops_no_compat = {
+ };
+ #endif
+ 
+-static const char *proc_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *proc_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct proc_dir_entry *pde = PDE(d_inode(dentry));
+ 	if (unlikely(!use_pde(pde)))
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index 10d24dd..f6e8354 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -30,7 +30,7 @@ static const struct proc_ns_operations *ns_entries[] = {
+ 	&mntns_operations,
+ };
+ 
+-static const char *proc_ns_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *proc_ns_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	const struct proc_ns_operations *ns_ops = PROC_I(inode)->ns_ops;
+@@ -45,7 +45,7 @@ static const char *proc_ns_follow_link(struct dentry *dentry, void **cookie, str
+ 	if (ptrace_may_access(task, PTRACE_MODE_READ)) {
+ 		error = ns_get_path(&ns_path, task, ns_ops);
+ 		if (!error)
+-			nd_jump_link(nd, &ns_path);
++			nd_jump_link(&ns_path);
+ 	}
+ 	put_task_struct(task);
+ 	return error;
+diff --git a/fs/proc/self.c b/fs/proc/self.c
+index ad33394..113b8d0 100644
+--- a/fs/proc/self.c
++++ b/fs/proc/self.c
+@@ -18,7 +18,7 @@ static int proc_self_readlink(struct dentry *dentry, char __user *buffer,
+ 	return readlink_copy(buffer, buflen, tmp);
+ }
+ 
+-static const char *proc_self_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *proc_self_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct pid_namespace *ns = dentry->d_sb->s_fs_info;
+ 	pid_t tgid = task_tgid_nr_ns(current, ns);
+diff --git a/fs/proc/thread_self.c b/fs/proc/thread_self.c
+index 85c96e0..947b0f4 100644
+--- a/fs/proc/thread_self.c
++++ b/fs/proc/thread_self.c
+@@ -19,7 +19,7 @@ static int proc_thread_self_readlink(struct dentry *dentry, char __user *buffer,
+ 	return readlink_copy(buffer, buflen, tmp);
+ }
+ 
+-static const char *proc_thread_self_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *proc_thread_self_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct pid_namespace *ns = dentry->d_sb->s_fs_info;
+ 	pid_t tgid = task_tgid_nr_ns(current, ns);
+diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
+index 26c4dcb..7f51f39 100644
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -416,8 +416,7 @@ xfs_vn_rename(
+ STATIC const char *
+ xfs_vn_follow_link(
+ 	struct dentry		*dentry,
+-	void			**cookie,
+-	struct nameidata	*nd)
++	void			**cookie)
+ {
+ 	char			*link;
+ 	int			error = -ENOMEM;
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 9ab9341..ed7c9f2 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1608,7 +1608,7 @@ struct file_operations {
+ 
+ struct inode_operations {
+ 	struct dentry * (*lookup) (struct inode *,struct dentry *, unsigned int);
+-	const char * (*follow_link) (struct dentry *, void **, struct nameidata *);
++	const char * (*follow_link) (struct dentry *, void **);
+ 	int (*permission) (struct inode *, int);
+ 	struct posix_acl * (*get_acl)(struct inode *, int);
+ 
+@@ -2705,7 +2705,7 @@ extern const struct file_operations generic_ro_fops;
+ 
+ extern int readlink_copy(char __user *, int, const char *);
+ extern int page_readlink(struct dentry *, char __user *, int);
+-extern const char *page_follow_link_light(struct dentry *, void **, struct nameidata *);
++extern const char *page_follow_link_light(struct dentry *, void **);
+ extern void page_put_link(struct dentry *, void *);
+ extern int __page_symlink(struct inode *inode, const char *symname, int len,
+ 		int nofs);
+@@ -2722,7 +2722,7 @@ void __inode_sub_bytes(struct inode *inode, loff_t bytes);
+ void inode_sub_bytes(struct inode *inode, loff_t bytes);
+ loff_t inode_get_bytes(struct inode *inode);
+ void inode_set_bytes(struct inode *inode, loff_t bytes);
+-const char *simple_follow_link(struct dentry *, void **, struct nameidata *);
++const char *simple_follow_link(struct dentry *, void **);
+ extern const struct inode_operations simple_symlink_inode_operations;
+ 
+ extern int iterate_dir(struct file *, struct dir_context *);
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 3a6cc96..d756304 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -72,7 +72,7 @@ extern int follow_up(struct path *);
+ extern struct dentry *lock_rename(struct dentry *, struct dentry *);
+ extern void unlock_rename(struct dentry *, struct dentry *);
+ 
+-extern void nd_jump_link(struct nameidata *nd, struct path *path);
++extern void nd_jump_link(struct path *path);
+ 
+ static inline void nd_terminate_link(void *name, size_t len, size_t maxlen)
+ {
+diff --git a/mm/shmem.c b/mm/shmem.c
+index d1693dc..e026822 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2475,7 +2475,7 @@ static int shmem_symlink(struct inode *dir, struct dentry *dentry, const char *s
+ 	return 0;
+ }
+ 
+-static const char *shmem_follow_link(struct dentry *dentry, void **cookie, struct nameidata *nd)
++static const char *shmem_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	struct page *page = NULL;
+ 	int error = shmem_getpage(d_inode(dentry), 0, &page, SGP_READ, NULL);
+-- 
+2.6.2
+
