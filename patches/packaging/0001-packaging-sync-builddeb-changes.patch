@@ -1,27 +1,18 @@
-From 9c0e46543be84a2cd263ecd19f578bc23b3a9a2e Mon Sep 17 00:00:00 2001
+From fb320d284b06907668915eeb7cd2f8e54d93b5ab Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 16 Oct 2015 16:34:36 -0500
+Date: Wed, 11 Nov 2015 09:30:46 -0600
 Subject: [PATCH] packaging: sync builddeb changes
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- scripts/package/builddeb | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ scripts/package/builddeb | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/scripts/package/builddeb b/scripts/package/builddeb
-index b967e4f..690996a 100755
+index 6c3b038..5221d24 100755
 --- a/scripts/package/builddeb
 +++ b/scripts/package/builddeb
-@@ -52,7 +52,7 @@ set_debarch() {
- 	arm64)
- 		debarch=arm64 ;;
- 	arm*)
--		debarch=arm$(grep -q CONFIG_AEABI=y $KCONFIG_CONFIG && echo el || true) ;;
-+		debarch=arm$(grep -q CONFIG_AEABI=y $KCONFIG_CONFIG && echo hf || true) ;;
- 	*)
- 		debarch=$(dpkg --print-architecture)
- 		echo "" >&2
-@@ -140,9 +140,18 @@ else
+@@ -149,9 +149,18 @@ else
  fi
  
  if grep -q "^CONFIG_OF=y" $KCONFIG_CONFIG ; then
@@ -42,5 +33,5 @@ index b967e4f..690996a 100755
  fi
  
 -- 
-2.6.1
+2.6.2
 
