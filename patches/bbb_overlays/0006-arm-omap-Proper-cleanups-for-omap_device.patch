@@ -1,7 +1,7 @@
-From 3d9e8e8d1da58c2a7a16703d27a42e5fa5ebe57d Mon Sep 17 00:00:00 2001
+From 6b94cbfde02777092bea0e65a88bf2ddde93b10d Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Mon, 5 Aug 2013 22:44:09 +0300
-Subject: [PATCH 06/32] arm: omap: Proper cleanups for omap_device
+Subject: [PATCH 06/39] arm: omap: Proper cleanups for omap_device
 
 Removing any omap device always resulted in a crash; turns out
 BUS_NOTIFY_DEL_DEVICE is not the last notifier event sent in the
@@ -15,7 +15,7 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  1 file changed, 26 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/omap_device.c b/arch/arm/mach-omap2/omap_device.c
-index f14cd26..a5218d8 100644
+index 4ff61fc..1eed004 100644
 --- a/arch/arm/mach-omap2/omap_device.c
 +++ b/arch/arm/mach-omap2/omap_device.c
 @@ -205,6 +205,26 @@ odbfd_exit:
@@ -62,5 +62,5 @@ index f14cd26..a5218d8 100644
  	case BUS_NOTIFY_ADD_DEVICE:
  		if (pdev->dev.of_node)
 -- 
-2.5.1
+2.6.2
 

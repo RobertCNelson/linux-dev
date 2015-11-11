@@ -358,14 +358,49 @@ bbb_overlays () {
 		cleanup
 	fi
 
+	echo "dir: bbb_overlays/configfs"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-add-show-and-store-methods-to-struct-config.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0002-usb-gadget-use-per-attribute-show-and-store-methods.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0003-usb-gadget-uvc-use-per-attribute-show-and-store-meth.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0004-usb-gadget-f_hid-use-per-attribute-show-and-store-me.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0005-usb-gadget-f_acm-use-per-attribute-show-and-store-me.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0006-usb-gadget-ether-use-per-attribute-show-and-store-me.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0007-usb-gadget-f_loopback-use-per-attribute-show-and-sto.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0008-usb-gadget-f_midi-use-per-attribute-show-and-store-m.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0009-usb-gadget-f_printer-use-per-attribute-show-and-stor.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0010-usb-gadget-f_sourcesink-use-per-attribute-show-and-s.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0011-usb-gadget-f_mass_storage-use-per-attribute-show-and.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0012-usb-gadget-f_uac1-use-per-attribute-show-and-store-m.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0013-usb-gadget-f_uac2-use-per-attribute-show-and-store-m.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0014-usb-gadget-f_obex-use-per-attribute-show-and-store-m.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0015-usb-gadget-f_phonet-use-per-attribute-show-and-store.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0016-usb-gadget-f_serial-use-per-attribute-show-and-store.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0017-dlm-use-per-attribute-show-and-store-methods.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0018-spear13xx_pcie_gadget-use-per-attribute-show-and-sto.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0019-target-use-per-attribute-show-and-store-methods.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0020-netconsole-use-per-attribute-show-and-store-methods.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0021-ocfs2-cluster-move-locking-into-attribute-store-meth.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0022-ocfs2-cluster-use-per-attribute-show-and-store-metho.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0023-configfs-remove-old-API.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=23
+		cleanup
+	fi
+
 	echo "dir: bbb_overlays"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/0001-configfs-Implement-binary-attributes-v4.patch"
-	${git} "${DIR}/patches/bbb_overlays/0002-OF-DT-Overlay-configfs-interface-v5.patch"
+	${git} "${DIR}/patches/bbb_overlays/0001-configfs-Implement-binary-attributes-v5.patch"
+	${git} "${DIR}/patches/bbb_overlays/0002-OF-DT-Overlay-configfs-interface-v6.patch"
 	${git} "${DIR}/patches/bbb_overlays/0003-gitignore-Ignore-DTB-files.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -380,32 +415,40 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0010-of-Custom-printk-format-specifier-for-device-node.patch"
 	${git} "${DIR}/patches/bbb_overlays/0011-of-overlay-kobjectify-overlay-objects.patch"
 	${git} "${DIR}/patches/bbb_overlays/0012-of-overlay-global-sysfs-enable-attribute.patch"
-	${git} "${DIR}/patches/bbb_overlays/0013-of-overlay-add-per-overlay-sysfs-attributes.patch"
-	${git} "${DIR}/patches/bbb_overlays/0014-Documentation-ABI-sys-firmware-devicetree-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0015-i2c-nvmem-at24-Provide-an-EEPROM-framework-interface.patch"
-	${git} "${DIR}/patches/bbb_overlays/0016-misc-Beaglebone-capemanager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0017-doc-misc-Beaglebone-capemanager-documentation.patch"
-	${git} "${DIR}/patches/bbb_overlays/0018-doc-dt-beaglebone-cape-manager-bindings.patch"
-	${git} "${DIR}/patches/bbb_overlays/0019-doc-ABI-bone_capemgr-sysfs-API.patch"
-	${git} "${DIR}/patches/bbb_overlays/0020-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
-	${git} "${DIR}/patches/bbb_overlays/0021-arm-dts-Enable-beaglebone-cape-manager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0022-of-overlay-Implement-indirect-target-support.patch"
-	${git} "${DIR}/patches/bbb_overlays/0023-of-unittest-Add-indirect-overlay-target-test.patch"
-	${git} "${DIR}/patches/bbb_overlays/0024-doc-dt-Document-the-indirect-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0025-of-overlay-Introduce-target-root-capability.patch"
-	${git} "${DIR}/patches/bbb_overlays/0026-of-unittest-Unit-tests-for-target-root-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0027-doc-dt-Document-the-target-root-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0028-of-dynamic-Add-__of_node_dupv.patch"
-	${git} "${DIR}/patches/bbb_overlays/0029-of-changesets-Introduce-changeset-helper-methods.patch"
-	${git} "${DIR}/patches/bbb_overlays/0030-RFC-Device-overlay-manager-PCI-USB-DT.patch"
+	${git} "${DIR}/patches/bbb_overlays/0013-Documentation-ABI-overlays-global-attributes.patch"
+	${git} "${DIR}/patches/bbb_overlays/0014-Documentation-document-of_overlay_disable-parameter.patch"
+	${git} "${DIR}/patches/bbb_overlays/0015-of-overlay-add-per-overlay-sysfs-attributes.patch"
+	${git} "${DIR}/patches/bbb_overlays/0016-Documentation-ABI-overlays-per-overlay-docs.patch"
+	${git} "${DIR}/patches/bbb_overlays/0017-i2c-nvmem-at24-Provide-an-EEPROM-framework-interface.patch"
+	${git} "${DIR}/patches/bbb_overlays/0018-misc-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0019-doc-misc-Beaglebone-capemanager-documentation.patch"
+	${git} "${DIR}/patches/bbb_overlays/0020-doc-dt-beaglebone-cape-manager-bindings.patch"
+	${git} "${DIR}/patches/bbb_overlays/0021-doc-ABI-bone_capemgr-sysfs-API.patch"
+	${git} "${DIR}/patches/bbb_overlays/0022-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
+	${git} "${DIR}/patches/bbb_overlays/0023-arm-dts-Enable-beaglebone-cape-manager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0024-of-overlay-Implement-indirect-target-support.patch"
+	${git} "${DIR}/patches/bbb_overlays/0025-of-unittest-Add-indirect-overlay-target-test.patch"
+	${git} "${DIR}/patches/bbb_overlays/0026-doc-dt-Document-the-indirect-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0027-of-overlay-Introduce-target-root-capability.patch"
+	${git} "${DIR}/patches/bbb_overlays/0028-of-unittest-Unit-tests-for-target-root-overlays.patch"
+	${git} "${DIR}/patches/bbb_overlays/0029-doc-dt-Document-the-target-root-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0030-of-dynamic-Add-__of_node_dupv.patch"
+	${git} "${DIR}/patches/bbb_overlays/0031-of-changesets-Introduce-changeset-helper-methods.patch"
+	${git} "${DIR}/patches/bbb_overlays/0032-RFC-Device-overlay-manager-PCI-USB-DT.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/bbb_overlays/0031-boneblack-defconfig.patch"
-	${git} "${DIR}/patches/bbb_overlays/0032-connector-wip.patch"
+	${git} "${DIR}/patches/bbb_overlays/0033-boneblack-defconfig.patch"
+	${git} "${DIR}/patches/bbb_overlays/0034-connector-wip.patch"
 	fi
 
+	${git} "${DIR}/patches/bbb_overlays/0035-of-remove-bogus-return-in-of_core_init.patch"
+	${git} "${DIR}/patches/bbb_overlays/0036-of-Maintainer-fixes-for-dynamic.patch"
+	${git} "${DIR}/patches/bbb_overlays/0037-of-unittest-changeset-helpers.patch"
+	${git} "${DIR}/patches/bbb_overlays/0038-of-rename-_node_sysfs-to-_node_post.patch"
+	${git} "${DIR}/patches/bbb_overlays/0039-of-Support-hashtable-lookups-for-phandles.patch"
+
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=32
+		number=39
 		cleanup
 	fi
 }
