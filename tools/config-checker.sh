@@ -198,13 +198,11 @@ config="CONFIG_IP_VS_OVF" ; config_module
 #
 # IP: Netfilter Configuration
 #
-config="CONFIG_NFT_DUP_IPV4" ; config_module
 config="CONFIG_NFT_REDIR_IPV4" ; config_module
 
 #
 # IPv6: Netfilter Configuration
 #
-config="CONFIG_NFT_DUP_IPV6" ; config_module
 config="CONFIG_NFT_REDIR_IPV6" ; config_module
 
 #
@@ -328,6 +326,7 @@ config="CONFIG_SATA_AHCI_PLATFORM" ; config_enable
 config="CONFIG_AHCI_IMX" ; config_enable
 config="CONFIG_AHCI_SUNXI" ; config_enable
 config="CONFIG_AHCI_TEGRA" ; config_enable
+config="CONFIG_AHCI_QORIQ" ; config_enable
 
 #
 # PATA SFF controllers with BMDMA
@@ -344,7 +343,6 @@ config="CONFIG_PATA_OF_PLATFORM" ; config_enable
 # Generic fallback / legacy drivers
 #
 config="CONFIG_MII" ; config_enable
-config="CONFIG_NET_VRF" ; config_module
 
 #
 # Distributed Switch Architecture drivers
@@ -352,6 +350,7 @@ config="CONFIG_NET_VRF" ; config_module
 config="CONFIG_SUN4I_EMAC" ; config_enable
 config="CONFIG_MVMDIO" ; config_disable
 config="CONFIG_KS8851" ; config_module
+config="CONFIG_ENCX24J600" ; config_module
 config="CONFIG_NET_VENDOR_SEEQ" ; config_enable
 config="CONFIG_STMMAC_ETH" ; config_enable
 config="CONFIG_STMMAC_PLATFORM" ; config_enable
@@ -385,6 +384,7 @@ config="CONFIG_WCN36XX_DEBUGFS" ; config_disable
 config="CONFIG_LIBERTAS_SPI" ; config_module
 config="CONFIG_WL_MEDIATEK" ; config_enable
 config="CONFIG_MT7601U" ; config_module
+config="CONFIG_RTL8XXXU" ; config_module
 config="CONFIG_MWIFIEX" ; config_module
 config="CONFIG_MWIFIEX_SDIO" ; config_module
 config="CONFIG_MWIFIEX_USB" ; config_module
@@ -473,12 +473,14 @@ config="CONFIG_TOUCHSCREEN_CYTTSP4_SPI" ; config_module
 config="CONFIG_TOUCHSCREEN_DA9052" ; config_module
 config="CONFIG_TOUCHSCREEN_EETI" ; config_module
 config="CONFIG_TOUCHSCREEN_EGALAX" ; config_module
+config="CONFIG_TOUCHSCREEN_FT6236" ; config_module
 config="CONFIG_TOUCHSCREEN_GOODIX" ; config_module
 config="CONFIG_TOUCHSCREEN_ILI210X" ; config_module
 config="CONFIG_TOUCHSCREEN_ELAN" ; config_module
 config="CONFIG_TOUCHSCREEN_WACOM_I2C" ; config_module
 config="CONFIG_TOUCHSCREEN_MAX11801" ; config_module
 config="CONFIG_TOUCHSCREEN_MMS114" ; config_module
+config="CONFIG_TOUCHSCREEN_IMX6UL_TSC" ; config_module
 config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_module
 config="CONFIG_TOUCHSCREEN_PIXCIR" ; config_module
 config="CONFIG_TOUCHSCREEN_WDT87XX_I2C" ; config_module
@@ -486,6 +488,7 @@ config="CONFIG_TOUCHSCREEN_TSC_SERIO" ; config_module
 config="CONFIG_TOUCHSCREEN_ST1232" ; config_module
 config="CONFIG_TOUCHSCREEN_SX8654" ; config_module
 config="CONFIG_TOUCHSCREEN_ZFORCE" ; config_module
+config="CONFIG_TOUCHSCREEN_ROHM_BU21023" ; config_module
 
 config="CONFIG_INPUT_AD714X" ; config_module
 config="CONFIG_INPUT_AD714X_I2C" ; config_module
@@ -561,6 +564,7 @@ config="CONFIG_I2C_MUX_PCA954x" ; config_enable
 #
 config="CONFIG_I2C_IMX" ; config_enable
 config="CONFIG_I2C_MV64XXX" ; config_enable
+config="CONFIG_I2C_RK3X" ; config_enable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
 
 #
@@ -571,9 +575,18 @@ config="CONFIG_I2C_DLN2" ; config_module
 #
 # SPI Master Controller Drivers
 #
+config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
+config="CONFIG_SPI_GPIO" ; config_module
+config="CONFIG_SPI_TI_QSPI" ; config_module
+config="CONFIG_SPI_ROCKCHIP" ; config_module
 config="CONFIG_SPI_TEGRA114" ; config_module
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
+
+#
+# SPI Protocol Masters
+#
+config="CONFIG_SPI_SPIDEV" ; config_module
 
 #
 # PPS clients support
@@ -637,6 +650,8 @@ config="CONFIG_GENERIC_ADC_BATTERY" ; config_module
 config="CONFIG_BATTERY_DA9052" ; config_module
 config="CONFIG_AXP288_FUEL_GAUGE" ; config_module
 config="CONFIG_CHARGER_GPIO" ; config_module
+config="CONFIG_CHARGER_TPS65217" ; config_module
+config="CONFIG_AXP20X_POWER" ; config_enable
 config="CONFIG_POWER_RESET_GPIO_RESTART" ; config_enable
 config="CONFIG_POWER_RESET_IMX" ; config_enable
 config="CONFIG_POWER_RESET_SYSCON" ; config_enable
@@ -678,6 +693,7 @@ config="CONFIG_SENSORS_LTC4260" ; config_module
 config="CONFIG_SENSORS_MAX1619" ; config_module
 config="CONFIG_SENSORS_MAX197" ; config_module
 config="CONFIG_SENSORS_MAX6697" ; config_module
+config="CONFIG_SENSORS_MAX31790" ; config_module
 config="CONFIG_SENSORS_HTU21" ; config_module
 config="CONFIG_SENSORS_MCP3021" ; config_module
 config="CONFIG_SENSORS_LM63" ; config_module
@@ -854,6 +870,7 @@ config="CONFIG_DRM" ; config_enable
 
 #...Drivers... (these will enable other defaults..)
 config="CONFIG_DRM_DW_HDMI" ; config_enable
+config="CONFIG_DRM_DW_HDMI_AHB_AUDIO" ; config_module
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_DRM_TILCDC" ; config_enable
 config="CONFIG_DRM_IMX" ; config_enable
@@ -861,7 +878,7 @@ config="CONFIG_DRM_IMX" ; config_enable
 #
 # I2C encoder or helper chips
 #
-config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_enable
+config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_module
 
 config="CONFIG_DRM_IMX_FB_HELPER" ; config_enable
 config="CONFIG_DRM_IMX_PARALLEL_DISPLAY" ; config_enable
@@ -899,14 +916,6 @@ config="CONFIG_BACKLIGHT_PWM" ; config_enable
 config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 
 #
-# Console display driver support
-#
-config="CONFIG_LOGO" ; config_enable
-config="CONFIG_LOGO_LINUX_MONO" ; config_enable
-config="CONFIG_LOGO_LINUX_VGA16" ; config_enable
-config="CONFIG_LOGO_LINUX_CLUT224" ; config_enable
-
-#
 # HD-Audio
 #
 config="CONFIG_SND_EDMA_SOC" ; config_module
@@ -918,6 +927,11 @@ config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 # SoC Audio support for Freescale i.MX boards:
 #
 config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_module
+
+#
+# Allwinner SoC Audio support
+#
+config="CONFIG_SND_SUN4I_CODEC" ; config_module
 
 #
 # CODEC drivers
@@ -935,7 +949,9 @@ config="CONFIG_HID_GENERIC" ; config_enable
 # Special HID drivers
 #
 config="CONFIG_HID_APPLEIR" ; config_module
+config="CONFIG_HID_CORSAIR" ; config_module
 config="CONFIG_HID_GEMBIRD" ; config_module
+config="CONFIG_HID_GFRM" ; config_module
 config="CONFIG_HID_GT683R" ; config_module
 config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_HID_LOGITECH_HIDPP" ; config_enable
@@ -1025,6 +1041,7 @@ config="CONFIG_MMC_BLOCK_MINORS" ; option="8" ; config_value
 #
 config="CONFIG_MMC_SDHCI" ; config_enable
 config="CONFIG_MMC_SDHCI_PLTFM" ; config_enable
+config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
 config="CONFIG_MMC_SDHCI_TEGRA" ; config_enable
 config="CONFIG_MMC_OMAP" ; config_enable
@@ -1086,6 +1103,7 @@ config="CONFIG_RTC_DRV_RX8581" ; config_module
 config="CONFIG_RTC_DRV_RX8025" ; config_module
 config="CONFIG_RTC_DRV_EM3027" ; config_module
 config="CONFIG_RTC_DRV_RV3029C2" ; config_module
+config="CONFIG_RTC_DRV_RV8803" ; config_module
 
 #
 # SPI RTC drivers
@@ -1275,6 +1293,7 @@ config="CONFIG_FB_TFT_SSD1306" ; config_module
 config="CONFIG_FB_TFT_SSD1331" ; config_module
 config="CONFIG_FB_TFT_SSD1351" ; config_module
 config="CONFIG_FB_TFT_ST7735R" ; config_module
+config="CONFIG_FB_TFT_ST7789V" ; config_module
 config="CONFIG_FB_TFT_TINYLCD" ; config_module
 config="CONFIG_FB_TFT_TLS8204" ; config_module
 config="CONFIG_FB_TFT_UC1611" ; config_module
@@ -1356,6 +1375,9 @@ config="CONFIG_MMA8452" ; config_module
 config="CONFIG_KXCJK1013" ; config_module
 config="CONFIG_MMA9551" ; config_module
 config="CONFIG_MMA9553" ; config_module
+config="CONFIG_MXC4005" ; config_module
+config="CONFIG_STK8312" ; config_module
+config="CONFIG_STK8BA50" ; config_module
 
 #
 # Analog to digital converters
@@ -1371,6 +1393,7 @@ config="CONFIG_AD7923" ; config_module
 config="CONFIG_AD799X" ; config_module
 config="CONFIG_AXP288_ADC" ; config_module
 config="CONFIG_CC10001_ADC" ; config_module
+config="CONFIG_HI8435" ; config_module
 config="CONFIG_MAX1027" ; config_module
 config="CONFIG_MAX1363" ; config_module
 config="CONFIG_MCP320X" ; config_module
@@ -1385,6 +1408,11 @@ config="CONFIG_VF610_ADC" ; config_module
 # Amplifiers
 #
 config="CONFIG_AD8366" ; config_module
+
+#
+# Chemical Sensors
+#
+config="CONFIG_VZ89X" ; config_module
 
 #
 # SSP Sensor Common
@@ -1407,6 +1435,7 @@ config="CONFIG_AD5755" ; config_module
 config="CONFIG_AD5764" ; config_module
 config="CONFIG_AD5791" ; config_module
 config="CONFIG_AD7303" ; config_module
+config="CONFIG_M62332" ; config_module
 config="CONFIG_MAX517" ; config_module
 config="CONFIG_MAX5821" ; config_module
 config="CONFIG_MCP4725" ; config_module
@@ -1440,6 +1469,8 @@ config="CONFIG_ITG3200" ; config_module
 # Humidity sensors
 #
 config="CONFIG_DHT11" ; config_module
+config="CONFIG_HDC100X" ; config_module
+config="CONFIG_HTU21" ; config_module
 config="CONFIG_SI7005" ; config_module
 config="CONFIG_SI7020" ; config_module
 
@@ -1457,6 +1488,8 @@ config="CONFIG_INV_MPU6050_IIO" ; config_module
 config="CONFIG_ADJD_S311" ; config_module
 config="CONFIG_AL3320A" ; config_module
 config="CONFIG_APDS9300" ; config_module
+config="CONFIG_APDS9960" ; config_module
+config="CONFIG_BH1750" ; config_module
 config="CONFIG_CM32181" ; config_module
 config="CONFIG_CM3232" ; config_module
 config="CONFIG_CM3323" ; config_module
@@ -1472,6 +1505,7 @@ config="CONFIG_STK3310" ; config_module
 config="CONFIG_TCS3414" ; config_module
 config="CONFIG_TCS3472" ; config_module
 config="CONFIG_TSL4531" ; config_module
+config="CONFIG_US5182D" ; config_module
 config="CONFIG_VCNL4000" ; config_module
 
 #
@@ -1493,6 +1527,11 @@ config="CONFIG_IIO_INTERRUPT_TRIGGER" ; config_module
 config="CONFIG_IIO_SYSFS_TRIGGER" ; config_module
 
 #
+# Digital potentiometers
+#
+config="CONFIG_MCP4531" ; config_module
+
+#
 # Pressure sensors
 #
 config="CONFIG_BMP280" ; config_module
@@ -1501,6 +1540,7 @@ config="CONFIG_MPL3115" ; config_module
 config="CONFIG_MS5611" ; config_module
 config="CONFIG_MS5611_I2C" ; config_module
 config="CONFIG_MS5611_SPI" ; config_module
+config="CONFIG_MS5637" ; config_module
 config="CONFIG_IIO_ST_PRESS" ; config_module
 config="CONFIG_IIO_ST_PRESS_I2C" ; config_module
 config="CONFIG_IIO_ST_PRESS_SPI" ; config_module
@@ -1514,6 +1554,7 @@ config="CONFIG_AS3935" ; config_module
 #
 # Proximity sensors
 #
+config="CONFIG_LIDAR_LITE_V2" ; config_module
 config="CONFIG_SX9500" ; config_module
 
 #
@@ -1521,6 +1562,8 @@ config="CONFIG_SX9500" ; config_module
 #
 config="CONFIG_MLX90614" ; config_module
 config="CONFIG_TMP006" ; config_module
+config="CONFIG_TSYS01" ; config_module
+config="CONFIG_TSYS02D" ; config_module
 config="CONFIG_PWM_PCA9685" ; config_module
 
 #
