@@ -30,11 +30,11 @@ index 18bda1e..68ab7e7 100644
  	np = cpu_dev->of_node;
  
 +	/* OPPs might be populated at runtime, This is just a dummy setup */
-+	of_add_opp_table(cpu_dev);
++	dev_pm_opp_of_add_table(cpu_dev);
 +
  	clk_nb = of_pm_voltdm_notifier_register(cpu_dev, np,
  						cpu_clk, "cpu0", &tmp);
-+	of_remove_opp_table(cpu_dev);
++	dev_pm_opp_of_remove_table(cpu_dev);
  
  	if (IS_ERR(clk_nb)) {
  		ret = PTR_ERR(clk_nb);
