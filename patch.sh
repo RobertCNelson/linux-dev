@@ -358,46 +358,6 @@ bbb_overlays () {
 		cleanup
 	fi
 
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		echo "dir: bbb_overlays/configfs_41"
-		directory="bbb_overlays/configfs_41"
-		SHA="680baacbca69d18a6d7315374ad83d05ac9c0977" ; num="1" ; mainline
-		SHA="6e77137b363b8d866ac29c5a0c95e953614fb2d8" ; num="2" ; mainline
-		SHA="5f2c4179e129bdc47870a81a65d0aff85aa18293" ; num="3" ; mainline
-		SHA="ecc087ff14352aed52b8e775b4511e7f9cfc64ec" ; num="4" ; mainline
-		SHA="dc3f4198eac14e52a98dfc79cd84b45e280f59cd" ; num="5" ; mainline
-		SHA="5286d20c4eb7b0c29217f8756652609df74f5489" ; num="6" ; mainline
-		SHA="f9bb48825a6b5d02f4cabcc78967c75db903dcdc" ; num="7" ; mainline
-		SHA="3958b79266b14729edd61daf9dfb84de45f4ec6d" ; num="8" ; mainline
-		exit 2
-	fi
-
-	#old_v41_lts="enable"
-	if [ "x${old_v41_lts}" = "xenable" ] ; then
-
-	echo "dir: bbb_overlays/configfs_41"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0001-new-follow_link-and-put_link-calling-conventions.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0002-don-t-pass-nameidata-to-follow_link.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0003-switch-put_link-from-dentry-to-inode.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0004-new-helper-free_page_put_link.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0005-make-simple_positive-public.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0006-configfs-unexport-make-static-config_item_init.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0007-sysfs-Create-mountpoints-with-sysfs_create_mount_poi.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs_41/0008-configfs-fix-kernel-infoleak-through-user-controlled.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=8
-		cleanup
-	fi
-
-	fi
-
 	echo "dir: bbb_overlays/configfs"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
