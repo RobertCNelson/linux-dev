@@ -192,7 +192,7 @@ index 0000000..08881d9
 +	}
 +
 +	/* OPPs might be populated at runtime, don't check for error here */
-+	of_init_opp_table(cpu_dev);
++	of_add_opp_table(cpu_dev);
 +
 +	/*
 +	 * But we need OPP table to function so if it is not there let's
@@ -268,7 +268,7 @@ index 0000000..08881d9
 +out_free_priv:
 +	kfree(priv);
 +out_free_opp:
-+	of_free_opp_table(cpu_dev);
++	of_remove_opp_table(cpu_dev);
 +	of_node_put(np);
 +out_put_clk:
 +	clk_put(cpu_clk);
@@ -283,7 +283,7 @@ index 0000000..08881d9
 +	cpufreq_cooling_unregister(priv->cdev);
 +	dev_pm_opp_free_cpufreq_table(priv->cpu_dev, &policy->freq_table);
 +	of_pm_voltdm_notifier_unregister(priv->clk_nb);
-+	of_free_opp_table(priv->cpu_dev);
++	of_remove_opp_table(priv->cpu_dev);
 +	clk_put(policy->clk);
 +	kfree(priv);
 +
