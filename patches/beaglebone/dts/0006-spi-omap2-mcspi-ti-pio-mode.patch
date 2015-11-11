@@ -1,7 +1,7 @@
-From 5050b7d73336234865e8d16739f9db45af0296be Mon Sep 17 00:00:00 2001
+From 049fd7fd485bf9e402e15a471cd348221f1641f6 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 5 Nov 2015 09:30:35 -0600
-Subject: [PATCH 7/7] spi-omap2-mcspi: ti,pio-mode
+Subject: [PATCH 6/6] spi-omap2-mcspi: ti,pio-mode
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
@@ -23,7 +23,7 @@ index 2ba5f9c..5bec29a 100644
  Examples:
  
 diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
-index 3d09e0b..10018a5 100644
+index 1f8903d..94df00b 100644
 --- a/drivers/spi/spi-omap2-mcspi.c
 +++ b/drivers/spi/spi-omap2-mcspi.c
 @@ -139,6 +139,7 @@ struct omap2_mcspi {
@@ -44,7 +44,7 @@ index 3d09e0b..10018a5 100644
  	mcspi_dma->dma_rx =
  		dma_request_slave_channel_compat(mask, omap_dma_filter_fn,
  						 &sig, &master->dev,
-@@ -1356,6 +1360,8 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
+@@ -1384,6 +1388,8 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
  	mcspi = spi_master_get_devdata(master);
  	mcspi->master = master;
  
@@ -53,7 +53,7 @@ index 3d09e0b..10018a5 100644
  	match = of_match_device(omap_mcspi_of_match, &pdev->dev);
  	if (match) {
  		u32 num_cs = 1; /* default number of chipselect */
-@@ -1366,6 +1372,8 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
+@@ -1394,6 +1400,8 @@ static int omap2_mcspi_probe(struct platform_device *pdev)
  		master->bus_num = bus_num++;
  		if (of_get_property(node, "ti,pindir-d0-out-d1-in", NULL))
  			mcspi->pin_dir = MCSPI_PINDIR_D0_OUT_D1_IN;

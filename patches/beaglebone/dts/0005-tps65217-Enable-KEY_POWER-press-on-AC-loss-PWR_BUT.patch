@@ -1,7 +1,7 @@
-From 3697946dbea81278d75f5d86f5e467b0ad88f6a6 Mon Sep 17 00:00:00 2001
+From 5b99cf030c0e8e37b672718c2b462f2cfd6bfeb7 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Mon, 26 Oct 2015 11:42:13 -0500
-Subject: [PATCH 6/7] tps65217: Enable KEY_POWER press on AC loss / PWR_BUT
+Subject: [PATCH 5/6] tps65217: Enable KEY_POWER press on AC loss / PWR_BUT
 
 This is an adaption to v3.14.x of the original patch by Andrew Bradford <andrew.bradford@omni-id.com>
 Some minor devm_* changes and DT support done by Pantelis Antoniou <panto@antoniou-consulting.com> for 3.8.x
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  3 files changed, 128 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 24505cb..7f3b2db 100644
+index 49f773f..587a8d2 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -312,6 +312,9 @@
@@ -28,7 +28,7 @@ index 24505cb..7f3b2db 100644
  		dcdc1_reg: regulator@0 {
  			regulator-name = "vdds_dpr";
 diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
-index 55add04..0acb3d8 100644
+index d32b5442..ca19130 100644
 --- a/drivers/mfd/tps65217.c
 +++ b/drivers/mfd/tps65217.c
 @@ -24,8 +24,12 @@
@@ -44,7 +44,7 @@ index 55add04..0acb3d8 100644
  
  #include <linux/mfd/core.h>
  #include <linux/mfd/tps65217.h>
-@@ -158,6 +162,82 @@ static const struct of_device_id tps65217_of_match[] = {
+@@ -162,6 +166,82 @@ static const struct of_device_id tps65217_of_match[] = {
  };
  MODULE_DEVICE_TABLE(of, tps65217_of_match);
  
@@ -127,7 +127,7 @@ index 55add04..0acb3d8 100644
  static int tps65217_probe(struct i2c_client *client,
  				const struct i2c_device_id *ids)
  {
-@@ -165,10 +245,13 @@ static int tps65217_probe(struct i2c_client *client,
+@@ -169,10 +249,13 @@ static int tps65217_probe(struct i2c_client *client,
  	unsigned int version;
  	unsigned long chip_id = ids->driver_data;
  	const struct of_device_id *match;
@@ -142,7 +142,7 @@ index 55add04..0acb3d8 100644
  		match = of_match_device(tps65217_of_match, &client->dev);
  		if (!match) {
  			dev_err(&client->dev,
-@@ -176,8 +259,31 @@ static int tps65217_probe(struct i2c_client *client,
+@@ -180,8 +263,31 @@ static int tps65217_probe(struct i2c_client *client,
  			return -EINVAL;
  		}
  		chip_id = (unsigned long)match->data;
@@ -175,7 +175,7 @@ index 55add04..0acb3d8 100644
  	}
  
  	if (!chip_id) {
-@@ -201,6 +307,18 @@ static int tps65217_probe(struct i2c_client *client,
+@@ -205,6 +311,18 @@ static int tps65217_probe(struct i2c_client *client,
  		return ret;
  	}
  
