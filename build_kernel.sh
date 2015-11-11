@@ -45,7 +45,7 @@ config_reference () {
 	cp -v .config "${DIR}/patches/example_${ref_config}"
 }
 
-copy_defconfig () {
+config_comparsion () {
 	cd "${DIR}/KERNEL" || exit
 	make ARCH=arm CROSS_COMPILE="${CC}" distclean
 	make ARCH=arm CROSS_COMPILE="${CC}" "${config}"
@@ -83,6 +83,12 @@ copy_defconfig () {
 	cp "${DIR}/patches/defconfig" .config
 	make ARCH=arm CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig"
+	cd "${DIR}/" || exit
+}
+
+copy_defconfig () {
+	cd "${DIR}/KERNEL" || exit
+	make ARCH=arm CROSS_COMPILE="${CC}" distclean
 
 	cp -v "${DIR}/patches/defconfig" .config
 	cd "${DIR}/" || exit
@@ -257,6 +263,9 @@ if [ "${FULL_REBUILD}" ] ; then
 	fi
 
 	patch_kernel
+	if [ ! "${AUTO_BUILD}" ] ; then
+		config_comparsion
+	fi
 	copy_defconfig
 fi
 if [ ! "${AUTO_BUILD}" ] ; then
