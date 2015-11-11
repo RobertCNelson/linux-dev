@@ -110,6 +110,7 @@ config="CONFIG_MACH_OMAP_LDP" ; config_disable
 config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_MACH_NOKIA_RX51" ; config_disable
+config="CONFIG_ARCH_ROCKCHIP" ; config_enable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
@@ -657,6 +658,7 @@ config="CONFIG_POWER_RESET_IMX" ; config_enable
 config="CONFIG_POWER_RESET_SYSCON" ; config_enable
 config="CONFIG_POWER_RESET_SYSCON_POWEROFF" ; config_enable
 config="CONFIG_POWER_AVS" ; config_enable
+config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
 
 #
 # Voltage Domain Framework Drivers
@@ -744,6 +746,7 @@ config="CONFIG_SENSORS_W83627HF" ; config_module
 config="CONFIG_THERMAL_GOV_BANG_BANG" ; config_enable
 config="CONFIG_CLOCK_THERMAL" ; config_enable
 config="CONFIG_IMX_THERMAL" ; config_enable
+config="CONFIG_ROCKCHIP_THERMAL" ; config_enable
 config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 
 #exit
@@ -886,12 +889,10 @@ config="CONFIG_DRM_IMX_TVE" ; config_enable
 config="CONFIG_DRM_IMX_LDB" ; config_enable
 config="CONFIG_DRM_IMX_HDMI" ; config_enable
 
-#exit
+config="CONFIG_DRM_ROCKCHIP" ; config_module
+config="CONFIG_ROCKCHIP_DW_HDMI" ; config_module
 
-#
-# Frame buffer Devices
-#
-config="CONFIG_FB_BACKLIGHT" ; config_disable
+#exit
 
 #
 # Frame buffer hardware drivers
@@ -927,6 +928,11 @@ config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 # SoC Audio support for Freescale i.MX boards:
 #
 config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_module
+config="CONFIG_SND_SOC_ROCKCHIP" ; config_module
+config="CONFIG_SND_SOC_ROCKCHIP_I2S" ; config_module
+config="CONFIG_SND_SOC_ROCKCHIP_SPDIF" ; config_module
+config="CONFIG_SND_SOC_ROCKCHIP_MAX98090" ; config_module
+config="CONFIG_SND_SOC_ROCKCHIP_RT5645" ; config_module
 
 #
 # Allwinner SoC Audio support
@@ -1046,6 +1052,8 @@ config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
 config="CONFIG_MMC_SDHCI_TEGRA" ; config_enable
 config="CONFIG_MMC_OMAP" ; config_enable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
+config="CONFIG_MMC_DW" ; config_enable
+config="CONFIG_MMC_DW_ROCKCHIP" ; config_enable
 config="CONFIG_MMC_SUNXI" ; config_enable
 config="CONFIG_MEMSTICK" ; config_disable
 
@@ -1318,6 +1326,7 @@ config="CONFIG_HWSPINLOCK_OMAP" ; config_enable
 #
 # Clock Source drivers
 #
+config="CONFIG_ROCKCHIP_IOMMU" ; config_enable
 config="CONFIG_TEGRA_IOMMU_SMMU" ; config_enable
 config="CONFIG_ARM_SMMU" ; config_enable
 
@@ -1336,6 +1345,7 @@ config="CONFIG_RPMSG" ; config_enable
 #
 # SOC (System On Chip) specific Drivers
 #
+config="CONFIG_ROCKCHIP_PM_DOMAINS" ; config_enable
 config="CONFIG_SOC_TI" ; config_enable
 
 #
@@ -1399,6 +1409,7 @@ config="CONFIG_MAX1363" ; config_module
 config="CONFIG_MCP320X" ; config_module
 config="CONFIG_MCP3422" ; config_module
 config="CONFIG_NAU7802" ; config_module
+config="CONFIG_ROCKCHIP_SARADC" ; config_module
 config="CONFIG_TI_ADC081C" ; config_module
 config="CONFIG_TI_ADC128S052" ; config_module
 config="CONFIG_TWL6030_GPADC" ; config_module
@@ -1565,6 +1576,7 @@ config="CONFIG_TMP006" ; config_module
 config="CONFIG_TSYS01" ; config_module
 config="CONFIG_TSYS02D" ; config_module
 config="CONFIG_PWM_PCA9685" ; config_module
+config="CONFIG_PWM_ROCKCHIP" ; config_module
 
 #
 # PHY Subsystem
@@ -1575,6 +1587,7 @@ config="CONFIG_TI_PIPE3" ; config_enable
 config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_PHY_SUN9I_USB" ; config_enable
+config="CONFIG_PHY_ROCKCHIP_USB" ; config_enable
 
 #
 # Android
@@ -1584,6 +1597,7 @@ config="CONFIG_ANDROID_BINDER_IPC" ; config_enable
 config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
 config="CONFIG_NVMEM" ; config_enable
 config="CONFIG_NVMEM_IMX_OCOTP" ; config_enable
+config="CONFIG_ROCKCHIP_EFUSE" ; config_enable
 config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
 config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 
