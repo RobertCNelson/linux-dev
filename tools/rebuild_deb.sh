@@ -41,8 +41,8 @@ patch_kernel () {
 
 copy_defconfig () {
 	cd "${DIR}/KERNEL" || exit
-	make ARCH=arm CROSS_COMPILE="${CC}" distclean
-	make ARCH=arm CROSS_COMPILE="${CC}" "${config}"
+	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" distclean
+	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" "${config}"
 	cp -v .config "${DIR}/patches/ref_${config}"
 	cp -v "${DIR}/patches/defconfig" .config
 	cd "${DIR}/" || exit
@@ -50,7 +50,7 @@ copy_defconfig () {
 
 make_menuconfig () {
 	cd "${DIR}/KERNEL" || exit
-	make ARCH=arm CROSS_COMPILE="${CC}" menuconfig
+	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" menuconfig
 	cp -v .config "${DIR}/patches/defconfig"
 	cd "${DIR}/" || exit
 }
@@ -64,7 +64,7 @@ make_deb () {
 	fi
 
 	build_opts="-j${CORES}"
-	build_opts="${build_opts} ARCH=arm"
+	build_opts="${build_opts} ARCH=${KERNEL_ARCH}"
 	build_opts="${build_opts} KBUILD_DEBARCH=${DEBARCH}"
 	build_opts="${build_opts} LOCALVERSION=-${BUILD}"
 	build_opts="${build_opts} KDEB_CHANGELOG_DIST=${deb_distro}"

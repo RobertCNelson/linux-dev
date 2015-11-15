@@ -41,8 +41,8 @@ patch_kernel () {
 
 copy_defconfig () {
 	cd "${DIR}/KERNEL" || exit
-	make ARCH=arm CROSS_COMPILE="${CC}" distclean
-	make ARCH=arm CROSS_COMPILE="${CC}" "${config}"
+	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" distclean
+	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" "${config}"
 	cp -v .config "${DIR}/patches/ref_${config}"
 	cp -v "${DIR}/patches/defconfig" .config
 	cd "${DIR}/" || exit
@@ -50,13 +50,18 @@ copy_defconfig () {
 
 make_menuconfig () {
 	cd "${DIR}/KERNEL" || exit
-	make ARCH=arm CROSS_COMPILE="${CC}" menuconfig
+	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" menuconfig
 	cp -v .config "${DIR}/patches/defconfig"
 	cd "${DIR}/" || exit
 }
 
 make_kernel () {
-	image="zImage"
+	if [ "x${KERNEL_ARCH}" = "xarm" ] ; then
+		image="zImage"
+	else
+		image="Image"
+	fi
+
 	unset address
 
 	##uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
@@ -66,15 +71,15 @@ make_kernel () {
 
 	cd "${DIR}/KERNEL" || exit
 	echo "-----------------------------"
-	echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" ${address} ${image} modules"
+	echo "make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" ${address} ${image} modules"
 	echo "-----------------------------"
-	make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules
+	make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" ${address} ${image} modules
 	echo "-----------------------------"
 
-	if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
-		echo "make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" dtbs"
+	if grep -q dtbs "${DIR}/KERNEL/arch/${KERNEL_ARCH}/Makefile"; then
+		echo "make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE=\"${CC}\" dtbs"
 		echo "-----------------------------"
-		make -j${CORES} ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
+		make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs
 		echo "-----------------------------"
 	fi
 
@@ -85,8 +90,8 @@ make_kernel () {
 		rm -rf "${DIR}/deploy/config-${KERNEL_UTS}" || true
 	fi
 
-	if [ -f ./arch/arm/boot/${image} ] ; then
-		cp -v arch/arm/boot/${image} "${DIR}/deploy/${KERNEL_UTS}.${image}"
+	if [ -f ./arch/${KERNEL_ARCH}/boot/${image} ] ; then
+		cp -v arch/${KERNEL_ARCH}/boot/${image} "${DIR}/deploy/${KERNEL_UTS}.${image}"
 		cp -v .config "${DIR}/deploy/config-${KERNEL_UTS}"
 	fi
 
@@ -120,16 +125,16 @@ make_pkg () {
 
 	case "${pkg}" in
 	modules)
-		make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH="${DIR}/deploy/tmp"
+		make -s ARCH=${KERNEL_ARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH="${DIR}/deploy/tmp"
 		;;
 	firmware)
-		make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH="${DIR}/deploy/tmp"
+		make -s ARCH=${KERNEL_ARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH="${DIR}/deploy/tmp"
 		;;
 	dtbs)
-		if grep -q dtbs_install "${DIR}/KERNEL/arch/arm/Makefile"; then
-			make -s ARCH=arm LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH="${DIR}/deploy/tmp"
+		if grep -q dtbs_install "${DIR}/KERNEL/arch/${KERNEL_ARCH}/Makefile"; then
+			make -s ARCH=${KERNEL_ARCH} LOCALVERSION=-${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH="${DIR}/deploy/tmp"
 		else
-			find ./arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' "${DIR}/deploy/tmp/" \;
+			find ./arch/${KERNEL_ARCH}/boot/ -iname "*.dtb" -exec cp -v '{}' "${DIR}/deploy/tmp/" \;
 		fi
 		;;
 	esac
@@ -202,7 +207,7 @@ fi
 make_kernel
 make_modules_pkg
 make_firmware_pkg
-if grep -q dtbs "${DIR}/KERNEL/arch/arm/Makefile"; then
+if grep -q dtbs "${DIR}/KERNEL/arch/${KERNEL_ARCH}/Makefile"; then
 	make_dtbs_pkg
 fi
 echo "-----------------------------"
