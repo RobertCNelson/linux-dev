@@ -1,8 +1,8 @@
-From 0dfc05262d0b42834e6c6fba5095dbd90a450912 Mon Sep 17 00:00:00 2001
+From 208e61ac7c0a2c3e4b23e74a66ddc2ea471d251e Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:46 +0200
-Subject: [PATCH 10/23] usb-gadget/f_sourcesink: use per-attribute show and
- store methods
+Subject: [PATCH] usb-gadget/f_sourcesink: use per-attribute show and store
+ methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +16,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 36 insertions(+), 47 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_sourcesink.c b/drivers/usb/gadget/function/f_sourcesink.c
-index d7646d3..9f3ced6 100644
+index cbfaf86..878a581 100644
 --- a/drivers/usb/gadget/function/f_sourcesink.c
 +++ b/drivers/usb/gadget/function/f_sourcesink.c
-@@ -889,9 +889,6 @@ static inline struct f_ss_opts *to_f_ss_opts(struct config_item *item)
+@@ -898,9 +898,6 @@ static inline struct f_ss_opts *to_f_ss_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -29,7 +29,7 @@ index d7646d3..9f3ced6 100644
  static void ss_attr_release(struct config_item *item)
  {
  	struct f_ss_opts *ss_opts = to_f_ss_opts(item);
-@@ -901,12 +898,11 @@ static void ss_attr_release(struct config_item *item)
+@@ -910,12 +907,11 @@ static void ss_attr_release(struct config_item *item)
  
  static struct configfs_item_operations ss_item_ops = {
  	.release		= ss_attr_release,
@@ -44,7 +44,7 @@ index d7646d3..9f3ced6 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -916,9 +912,10 @@ static ssize_t f_ss_opts_pattern_show(struct f_ss_opts *opts, char *page)
+@@ -925,9 +921,10 @@ static ssize_t f_ss_opts_pattern_show(struct f_ss_opts *opts, char *page)
  	return result;
  }
  
@@ -56,7 +56,7 @@ index d7646d3..9f3ced6 100644
  	int ret;
  	u8 num;
  
-@@ -944,13 +941,11 @@ end:
+@@ -953,13 +950,11 @@ end:
  	return ret;
  }
  
@@ -73,7 +73,7 @@ index d7646d3..9f3ced6 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -960,9 +955,10 @@ static ssize_t f_ss_opts_isoc_interval_show(struct f_ss_opts *opts, char *page)
+@@ -969,9 +964,10 @@ static ssize_t f_ss_opts_isoc_interval_show(struct f_ss_opts *opts, char *page)
  	return result;
  }
  
@@ -85,7 +85,7 @@ index d7646d3..9f3ced6 100644
  	int ret;
  	u8 num;
  
-@@ -988,13 +984,11 @@ end:
+@@ -997,13 +993,11 @@ end:
  	return ret;
  }
  
@@ -102,7 +102,7 @@ index d7646d3..9f3ced6 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -1004,9 +998,10 @@ static ssize_t f_ss_opts_isoc_maxpacket_show(struct f_ss_opts *opts, char *page)
+@@ -1013,9 +1007,10 @@ static ssize_t f_ss_opts_isoc_maxpacket_show(struct f_ss_opts *opts, char *page)
  	return result;
  }
  
@@ -114,7 +114,7 @@ index d7646d3..9f3ced6 100644
  	int ret;
  	u16 num;
  
-@@ -1032,13 +1027,11 @@ end:
+@@ -1041,13 +1036,11 @@ end:
  	return ret;
  }
  
@@ -131,7 +131,7 @@ index d7646d3..9f3ced6 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -1048,9 +1041,10 @@ static ssize_t f_ss_opts_isoc_mult_show(struct f_ss_opts *opts, char *page)
+@@ -1057,9 +1050,10 @@ static ssize_t f_ss_opts_isoc_mult_show(struct f_ss_opts *opts, char *page)
  	return result;
  }
  
@@ -143,7 +143,7 @@ index d7646d3..9f3ced6 100644
  	int ret;
  	u8 num;
  
-@@ -1076,13 +1070,11 @@ end:
+@@ -1085,13 +1079,11 @@ end:
  	return ret;
  }
  
@@ -160,7 +160,7 @@ index d7646d3..9f3ced6 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -1092,9 +1084,10 @@ static ssize_t f_ss_opts_isoc_maxburst_show(struct f_ss_opts *opts, char *page)
+@@ -1101,9 +1093,10 @@ static ssize_t f_ss_opts_isoc_maxburst_show(struct f_ss_opts *opts, char *page)
  	return result;
  }
  
@@ -172,7 +172,7 @@ index d7646d3..9f3ced6 100644
  	int ret;
  	u8 num;
  
-@@ -1120,13 +1113,11 @@ end:
+@@ -1129,13 +1122,11 @@ end:
  	return ret;
  }
  
@@ -189,7 +189,7 @@ index d7646d3..9f3ced6 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -1136,9 +1127,10 @@ static ssize_t f_ss_opts_bulk_buflen_show(struct f_ss_opts *opts, char *page)
+@@ -1145,9 +1136,10 @@ static ssize_t f_ss_opts_bulk_buflen_show(struct f_ss_opts *opts, char *page)
  	return result;
  }
  
@@ -201,7 +201,7 @@ index d7646d3..9f3ced6 100644
  	int ret;
  	u32 num;
  
-@@ -1159,18 +1151,15 @@ end:
+@@ -1168,18 +1160,15 @@ end:
  	return ret;
  }
  

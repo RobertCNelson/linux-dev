@@ -1,8 +1,8 @@
-From bc5189c331bc9cc50a60307a966ea4301fea1afb Mon Sep 17 00:00:00 2001
+From 4a90cb203836e4989cc50121b13ff0fb7f671fcb Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:47 +0200
-Subject: [PATCH 11/23] usb-gadget/f_mass_storage: use per-attribute show and
- store methods
+Subject: [PATCH] usb-gadget/f_mass_storage: use per-attribute show and store
+ methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +16,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 46 insertions(+), 73 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_mass_storage.c b/drivers/usb/gadget/function/f_mass_storage.c
-index 5ec5338..223ccf8 100644
+index a6eb537..1ab089f 100644
 --- a/drivers/usb/gadget/function/f_mass_storage.c
 +++ b/drivers/usb/gadget/function/f_mass_storage.c
-@@ -3140,9 +3140,6 @@ static inline struct fsg_opts *to_fsg_opts(struct config_item *item)
+@@ -3144,9 +3144,6 @@ static inline struct fsg_opts *to_fsg_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -29,7 +29,7 @@ index 5ec5338..223ccf8 100644
  static void fsg_lun_attr_release(struct config_item *item)
  {
  	struct fsg_lun_opts *lun_opts;
-@@ -3153,110 +3150,93 @@ static void fsg_lun_attr_release(struct config_item *item)
+@@ -3157,110 +3154,93 @@ static void fsg_lun_attr_release(struct config_item *item)
  
  static struct configfs_item_operations fsg_lun_item_ops = {
  	.release		= fsg_lun_attr_release,
@@ -174,7 +174,7 @@ index 5ec5338..223ccf8 100644
  	NULL,
  };
  
-@@ -3348,9 +3328,6 @@ static void fsg_lun_drop(struct config_group *group, struct config_item *item)
+@@ -3352,9 +3332,6 @@ static void fsg_lun_drop(struct config_group *group, struct config_item *item)
  	config_item_put(item);
  }
  
@@ -184,7 +184,7 @@ index 5ec5338..223ccf8 100644
  static void fsg_attr_release(struct config_item *item)
  {
  	struct fsg_opts *opts = to_fsg_opts(item);
-@@ -3360,12 +3337,11 @@ static void fsg_attr_release(struct config_item *item)
+@@ -3364,12 +3341,11 @@ static void fsg_attr_release(struct config_item *item)
  
  static struct configfs_item_operations fsg_item_ops = {
  	.release		= fsg_attr_release,
@@ -199,7 +199,7 @@ index 5ec5338..223ccf8 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -3375,9 +3351,10 @@ static ssize_t fsg_opts_stall_show(struct fsg_opts *opts, char *page)
+@@ -3379,9 +3355,10 @@ static ssize_t fsg_opts_stall_show(struct fsg_opts *opts, char *page)
  	return result;
  }
  
@@ -211,7 +211,7 @@ index 5ec5338..223ccf8 100644
  	int ret;
  	bool stall;
  
-@@ -3399,13 +3376,12 @@ static ssize_t fsg_opts_stall_store(struct fsg_opts *opts, const char *page,
+@@ -3403,13 +3380,12 @@ static ssize_t fsg_opts_stall_store(struct fsg_opts *opts, const char *page,
  	return ret;
  }
  
@@ -228,7 +228,7 @@ index 5ec5338..223ccf8 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -3415,9 +3391,10 @@ static ssize_t fsg_opts_num_buffers_show(struct fsg_opts *opts, char *page)
+@@ -3419,9 +3395,10 @@ static ssize_t fsg_opts_num_buffers_show(struct fsg_opts *opts, char *page)
  	return result;
  }
  
@@ -240,7 +240,7 @@ index 5ec5338..223ccf8 100644
  	int ret;
  	u8 num;
  
-@@ -3442,17 +3419,13 @@ end:
+@@ -3446,17 +3423,13 @@ end:
  	return ret;
  }
  

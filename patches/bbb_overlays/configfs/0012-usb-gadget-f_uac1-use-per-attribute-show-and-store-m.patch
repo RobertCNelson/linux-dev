@@ -1,8 +1,7 @@
-From 8690f109fbb729b71060121c5ef53f3c870b964d Mon Sep 17 00:00:00 2001
+From c6f89f1cca1cfd81cc27307595ebddee29cc84d3 Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:48 +0200
-Subject: [PATCH 12/23] usb-gadget/f_uac1: use per-attribute show and store
- methods
+Subject: [PATCH] usb-gadget/f_uac1: use per-attribute show and store methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +15,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 16 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_uac1.c b/drivers/usb/gadget/function/f_uac1.c
-index 8ee7019..6a2346b 100644
+index 7856b33..ad01032 100644
 --- a/drivers/usb/gadget/function/f_uac1.c
 +++ b/drivers/usb/gadget/function/f_uac1.c
-@@ -769,9 +769,6 @@ static inline struct f_uac1_opts *to_f_uac1_opts(struct config_item *item)
+@@ -773,9 +773,6 @@ static inline struct f_uac1_opts *to_f_uac1_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -29,7 +28,7 @@ index 8ee7019..6a2346b 100644
  static void f_uac1_attr_release(struct config_item *item)
  {
  	struct f_uac1_opts *opts = to_f_uac1_opts(item);
-@@ -781,14 +778,13 @@ static void f_uac1_attr_release(struct config_item *item)
+@@ -785,14 +782,13 @@ static void f_uac1_attr_release(struct config_item *item)
  
  static struct configfs_item_operations f_uac1_item_ops = {
  	.release	= f_uac1_attr_release,
@@ -46,7 +45,7 @@ index 8ee7019..6a2346b 100644
  	int result;							\
  									\
  	mutex_lock(&opts->lock);					\
-@@ -798,9 +794,10 @@ static ssize_t f_uac1_opts_##name##_show(struct f_uac1_opts *opts,	\
+@@ -802,9 +798,10 @@ static ssize_t f_uac1_opts_##name##_show(struct f_uac1_opts *opts,	\
  	return result;							\
  }									\
  									\
@@ -58,7 +57,7 @@ index 8ee7019..6a2346b 100644
  	int ret;							\
  	u32 num;							\
  									\
-@@ -822,19 +819,17 @@ end:									\
+@@ -826,19 +823,17 @@ end:									\
  	return ret;							\
  }									\
  									\
@@ -81,7 +80,7 @@ index 8ee7019..6a2346b 100644
  	int result;							\
  									\
  	mutex_lock(&opts->lock);					\
-@@ -844,9 +839,10 @@ static ssize_t f_uac1_opts_##name##_show(struct f_uac1_opts *opts,	\
+@@ -848,9 +843,10 @@ static ssize_t f_uac1_opts_##name##_show(struct f_uac1_opts *opts,	\
  	return result;							\
  }									\
  									\
@@ -93,7 +92,7 @@ index 8ee7019..6a2346b 100644
  	int ret = -EBUSY;						\
  	char *tmp;							\
  									\
-@@ -870,22 +866,19 @@ end:									\
+@@ -874,22 +870,19 @@ end:									\
  	return ret;							\
  }									\
  									\

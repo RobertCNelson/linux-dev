@@ -1,8 +1,7 @@
-From 93d9479fb62e8e0355d7cf37ccdf51ec41774f4a Mon Sep 17 00:00:00 2001
+From 0b4be4fa878780a15a953577499eb69839942956 Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:52 +0200
-Subject: [PATCH 16/23] usb-gadget/f_serial: use per-attribute show and store
- methods
+Subject: [PATCH] usb-gadget/f_serial: use per-attribute show and store methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +15,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 4 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_serial.c b/drivers/usb/gadget/function/f_serial.c
-index ba705e0..6bb44d61 100644
+index 1d162e2..ec837f4 100644
 --- a/drivers/usb/gadget/function/f_serial.c
 +++ b/drivers/usb/gadget/function/f_serial.c
-@@ -258,22 +258,6 @@ static inline struct f_serial_opts *to_f_serial_opts(struct config_item *item)
+@@ -266,22 +266,6 @@ static inline struct f_serial_opts *to_f_serial_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -42,7 +41,7 @@ index ba705e0..6bb44d61 100644
  static void serial_attr_release(struct config_item *item)
  {
  	struct f_serial_opts *opts = to_f_serial_opts(item);
-@@ -283,19 +267,17 @@ static void serial_attr_release(struct config_item *item)
+@@ -291,19 +275,17 @@ static void serial_attr_release(struct config_item *item)
  
  static struct configfs_item_operations serial_item_ops = {
  	.release	= serial_attr_release,

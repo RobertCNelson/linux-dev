@@ -1,8 +1,7 @@
-From 770503e0c8c330dd6636439f01367d28618a691c Mon Sep 17 00:00:00 2001
+From 3da5e4c10cbacf5f3da043498299ae631a6dfc9c Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:50 +0200
-Subject: [PATCH 14/23] usb-gadget/f_obex: use per-attribute show and store
- methods
+Subject: [PATCH] usb-gadget/f_obex: use per-attribute show and store methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +15,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 4 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_obex.c b/drivers/usb/gadget/function/f_obex.c
-index 1c3d30a..d6396e0 100644
+index 5460426..f6f1e6b 100644
 --- a/drivers/usb/gadget/function/f_obex.c
 +++ b/drivers/usb/gadget/function/f_obex.c
-@@ -387,22 +387,6 @@ static inline struct f_serial_opts *to_f_serial_opts(struct config_item *item)
+@@ -395,22 +395,6 @@ static inline struct f_serial_opts *to_f_serial_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -42,7 +41,7 @@ index 1c3d30a..d6396e0 100644
  static void obex_attr_release(struct config_item *item)
  {
  	struct f_serial_opts *opts = to_f_serial_opts(item);
-@@ -412,19 +396,17 @@ static void obex_attr_release(struct config_item *item)
+@@ -420,19 +404,17 @@ static void obex_attr_release(struct config_item *item)
  
  static struct configfs_item_operations obex_item_ops = {
  	.release	= obex_attr_release,

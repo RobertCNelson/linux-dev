@@ -1,8 +1,7 @@
-From 393be1046c914608a4531d321b1997481a1c4e06 Mon Sep 17 00:00:00 2001
+From 495702bcc12fb2c51997088befe37145a34e5e3a Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:49 +0200
-Subject: [PATCH 13/23] usb-gadget/f_uac2: use per-attribute show and store
- methods
+Subject: [PATCH] usb-gadget/f_uac2: use per-attribute show and store methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +15,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 11 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
-index 63336e2..044ca79 100644
+index f8de7ea..0a5a1e1 100644
 --- a/drivers/usb/gadget/function/f_uac2.c
 +++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -1439,9 +1439,6 @@ static inline struct f_uac2_opts *to_f_uac2_opts(struct config_item *item)
+@@ -1445,9 +1445,6 @@ static inline struct f_uac2_opts *to_f_uac2_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -29,7 +28,7 @@ index 63336e2..044ca79 100644
  static void f_uac2_attr_release(struct config_item *item)
  {
  	struct f_uac2_opts *opts = to_f_uac2_opts(item);
-@@ -1451,14 +1448,13 @@ static void f_uac2_attr_release(struct config_item *item)
+@@ -1457,14 +1454,13 @@ static void f_uac2_attr_release(struct config_item *item)
  
  static struct configfs_item_operations f_uac2_item_ops = {
  	.release	= f_uac2_attr_release,
@@ -46,7 +45,7 @@ index 63336e2..044ca79 100644
  	int result;							\
  									\
  	mutex_lock(&opts->lock);					\
-@@ -1468,9 +1464,10 @@ static ssize_t f_uac2_opts_##name##_show(struct f_uac2_opts *opts,	\
+@@ -1474,9 +1470,10 @@ static ssize_t f_uac2_opts_##name##_show(struct f_uac2_opts *opts,	\
  	return result;							\
  }									\
  									\
@@ -58,7 +57,7 @@ index 63336e2..044ca79 100644
  	int ret;							\
  	u32 num;							\
  									\
-@@ -1492,10 +1489,7 @@ end:									\
+@@ -1498,10 +1495,7 @@ end:									\
  	return ret;							\
  }									\
  									\
@@ -70,7 +69,7 @@ index 63336e2..044ca79 100644
  
  UAC2_ATTRIBUTE(p_chmask);
  UAC2_ATTRIBUTE(p_srate);
-@@ -1505,12 +1499,12 @@ UAC2_ATTRIBUTE(c_srate);
+@@ -1511,12 +1505,12 @@ UAC2_ATTRIBUTE(c_srate);
  UAC2_ATTRIBUTE(c_ssize);
  
  static struct configfs_attribute *f_uac2_attrs[] = {

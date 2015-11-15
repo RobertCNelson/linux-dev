@@ -361,36 +361,27 @@ bbb_overlays () {
 	echo "dir: bbb_overlays/configfs"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-add-show-and-store-methods-to-struct-config.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0002-usb-gadget-use-per-attribute-show-and-store-methods.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0003-usb-gadget-uvc-use-per-attribute-show-and-store-meth.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0004-usb-gadget-f_hid-use-per-attribute-show-and-store-me.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0005-usb-gadget-f_acm-use-per-attribute-show-and-store-me.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0006-usb-gadget-ether-use-per-attribute-show-and-store-me.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0007-usb-gadget-f_loopback-use-per-attribute-show-and-sto.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0008-usb-gadget-f_midi-use-per-attribute-show-and-store-m.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0009-usb-gadget-f_printer-use-per-attribute-show-and-stor.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0010-usb-gadget-f_sourcesink-use-per-attribute-show-and-s.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0011-usb-gadget-f_mass_storage-use-per-attribute-show-and.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0012-usb-gadget-f_uac1-use-per-attribute-show-and-store-m.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0013-usb-gadget-f_uac2-use-per-attribute-show-and-store-m.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0014-usb-gadget-f_obex-use-per-attribute-show-and-store-m.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0015-usb-gadget-f_phonet-use-per-attribute-show-and-store.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0016-usb-gadget-f_serial-use-per-attribute-show-and-store.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0017-dlm-use-per-attribute-show-and-store-methods.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0018-spear13xx_pcie_gadget-use-per-attribute-show-and-sto.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0019-target-use-per-attribute-show-and-store-methods.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0020-netconsole-use-per-attribute-show-and-store-methods.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0021-ocfs2-cluster-move-locking-into-attribute-store-meth.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0022-ocfs2-cluster-use-per-attribute-show-and-store-metho.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0023-configfs-remove-old-API.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=23
-		cleanup
+		directory="bbb_overlays/configfs"
+		SHA="870823e629ea194e6cf8e82a9694ac62cad49512" ; num="1" ; mainline
+		SHA="45b6a73f62ebcf3ff067895fb8030e67f4c7b67f" ; num="2" ; mainline
+		SHA="76e0da34c7cec5a7dc94667326a948de2e9c8c8d" ; num="3" ; mainline
+		SHA="da4e527cd8850712bb705f4c41f0839705ab7c98" ; num="4" ; mainline
+		SHA="ea6bd6b14ec67eb22e3eb8b2a2b979b5ea800a3a" ; num="5" ; mainline
+		SHA="f9a63da33d3f86acadc14c5cb66e9ad06860892f" ; num="6" ; mainline
+		SHA="75ab2256a7d05128f8aa088cdde961d8029bcd55" ; num="7" ; mainline
+		SHA="3755a273db8f523f8be6c18df9e1506faa93c664" ; num="8" ; mainline
+		SHA="aa48a415270f7cf16ec0ef825d19b4f8bd1a875e" ; num="9" ; mainline
+		SHA="208e61ac7c0a2c3e4b23e74a66ddc2ea471d251e" ; num="10" ; mainline
+		SHA="4a90cb203836e4989cc50121b13ff0fb7f671fcb" ; num="11" ; mainline
+		SHA="c6f89f1cca1cfd81cc27307595ebddee29cc84d3" ; num="12" ; mainline
+		SHA="495702bcc12fb2c51997088befe37145a34e5e3a" ; num="13" ; mainline
+		SHA="3da5e4c10cbacf5f3da043498299ae631a6dfc9c" ; num="14" ; mainline
+		SHA="0736390bea65cac63bed9671a957031c068a60e7" ; num="15" ; mainline
+		SHA="0b4be4fa878780a15a953577499eb69839942956" ; num="16" ; mainline
+		SHA="9ae0f367df5d0d7be09fad1e2e5b080f6a45ca6b" ; num="17" ; mainline
+		SHA="2eafd72939fda6118e27d3ee859684987f43921b" ; num="18" ; mainline
+		SHA="517982229f78b2aebf00a8a337e84e8eeea70b8e" ; num="19" ; mainline
+		exit 2
 	fi
 
 	echo "dir: bbb_overlays"

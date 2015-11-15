@@ -1,8 +1,7 @@
-From 5baa944b3e3ac33f8c272cdb6b266aada160f948 Mon Sep 17 00:00:00 2001
+From 0736390bea65cac63bed9671a957031c068a60e7 Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:51 +0200
-Subject: [PATCH 15/23] usb-gadget/f_phonet: use per-attribute show and store
- methods
+Subject: [PATCH] usb-gadget/f_phonet: use per-attribute show and store methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +15,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 4 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_phonet.c b/drivers/usb/gadget/function/f_phonet.c
-index 62a1987..157441d 100644
+index c0c3ef2..c029ef6 100644
 --- a/drivers/usb/gadget/function/f_phonet.c
 +++ b/drivers/usb/gadget/function/f_phonet.c
-@@ -583,21 +583,6 @@ static inline struct f_phonet_opts *to_f_phonet_opts(struct config_item *item)
+@@ -589,21 +589,6 @@ static inline struct f_phonet_opts *to_f_phonet_opts(struct config_item *item)
  			func_inst.group);
  }
  
@@ -41,7 +40,7 @@ index 62a1987..157441d 100644
  static void phonet_attr_release(struct config_item *item)
  {
  	struct f_phonet_opts *opts = to_f_phonet_opts(item);
-@@ -607,19 +592,17 @@ static void phonet_attr_release(struct config_item *item)
+@@ -613,19 +598,17 @@ static void phonet_attr_release(struct config_item *item)
  
  static struct configfs_item_operations phonet_item_ops = {
  	.release		= phonet_attr_release,

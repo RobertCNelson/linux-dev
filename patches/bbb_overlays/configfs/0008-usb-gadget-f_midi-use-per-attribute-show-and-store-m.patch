@@ -1,8 +1,7 @@
-From 4feff9e320307c85f0048a18679b21a8b9d0fa46 Mon Sep 17 00:00:00 2001
+From 3755a273db8f523f8be6c18df9e1506faa93c664 Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:44 +0200
-Subject: [PATCH 08/23] usb-gadget/f_midi: use per-attribute show and store
- methods
+Subject: [PATCH] usb-gadget/f_midi: use per-attribute show and store methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -16,10 +15,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 16 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_midi.c b/drivers/usb/gadget/function/f_midi.c
-index ce3c8a6..42acb45 100644
+index a287a48..0e2b8ed 100644
 --- a/drivers/usb/gadget/function/f_midi.c
 +++ b/drivers/usb/gadget/function/f_midi.c
-@@ -902,9 +902,6 @@ static inline struct f_midi_opts *to_f_midi_opts(struct config_item *item)
+@@ -906,9 +906,6 @@ static inline struct f_midi_opts *to_f_midi_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -29,7 +28,7 @@ index ce3c8a6..42acb45 100644
  static void midi_attr_release(struct config_item *item)
  {
  	struct f_midi_opts *opts = to_f_midi_opts(item);
-@@ -914,13 +911,12 @@ static void midi_attr_release(struct config_item *item)
+@@ -918,13 +915,12 @@ static void midi_attr_release(struct config_item *item)
  
  static struct configfs_item_operations midi_item_ops = {
  	.release	= midi_attr_release,
@@ -45,7 +44,7 @@ index ce3c8a6..42acb45 100644
  	int result;							\
  									\
  	mutex_lock(&opts->lock);					\
-@@ -930,9 +926,10 @@ static ssize_t f_midi_opts_##name##_show(struct f_midi_opts *opts, char *page) \
+@@ -934,9 +930,10 @@ static ssize_t f_midi_opts_##name##_show(struct f_midi_opts *opts, char *page) \
  	return result;							\
  }									\
  									\
@@ -57,7 +56,7 @@ index ce3c8a6..42acb45 100644
  	int ret;							\
  	u32 num;							\
  									\
-@@ -958,9 +955,7 @@ end:									\
+@@ -962,9 +959,7 @@ end:									\
  	return ret;							\
  }									\
  									\
@@ -68,7 +67,7 @@ index ce3c8a6..42acb45 100644
  
  F_MIDI_OPT(index, true, SNDRV_CARDS);
  F_MIDI_OPT(buflen, false, 0);
-@@ -968,8 +963,9 @@ F_MIDI_OPT(qlen, false, 0);
+@@ -972,8 +967,9 @@ F_MIDI_OPT(qlen, false, 0);
  F_MIDI_OPT(in_ports, true, MAX_PORTS);
  F_MIDI_OPT(out_ports, true, MAX_PORTS);
  
@@ -79,7 +78,7 @@ index ce3c8a6..42acb45 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -985,9 +981,10 @@ static ssize_t f_midi_opts_id_show(struct f_midi_opts *opts, char *page)
+@@ -989,9 +985,10 @@ static ssize_t f_midi_opts_id_show(struct f_midi_opts *opts, char *page)
  	return result;
  }
  
@@ -91,7 +90,7 @@ index ce3c8a6..42acb45 100644
  	int ret;
  	char *c;
  
-@@ -1012,17 +1009,15 @@ end:
+@@ -1016,17 +1013,15 @@ end:
  	return ret;
  }
  

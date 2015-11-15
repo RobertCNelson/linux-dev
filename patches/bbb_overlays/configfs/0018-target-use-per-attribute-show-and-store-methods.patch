@@ -1,7 +1,7 @@
-From b8628bbb903b391f9f9a48ee97f4f0008f6fe403 Mon Sep 17 00:00:00 2001
+From 2eafd72939fda6118e27d3ee859684987f43921b Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:55 +0200
-Subject: [PATCH 19/23] target: use per-attribute show and store methods
+Subject: [PATCH] target: use per-attribute show and store methods
 
 This also allows to remove the target-specific old configfs macros, and
 gets rid of the target_core_fabric_configfs.h header which only had one
@@ -80,7 +80,7 @@ index cda56df..7d370c9 100755
  
  	buf += "static int __init " + fabric_mod_name + "_init(void)\n"
 diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
-index 47c4022..2e2fe81 100644
+index f6fe041..231d29c 100644
 --- a/drivers/infiniband/ulp/srpt/ib_srpt.c
 +++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
 @@ -43,9 +43,7 @@
@@ -93,7 +93,7 @@ index 47c4022..2e2fe81 100644
  #include <target/target_core_fabric.h>
  #include "ib_srpt.h"
  
-@@ -3546,20 +3544,19 @@ static void srpt_cleanup_nodeacl(struct se_node_acl *se_nacl)
+@@ -3545,20 +3543,19 @@ static void srpt_cleanup_nodeacl(struct se_node_acl *se_nacl)
  	spin_unlock_irq(&sport->port_acl_lock);
  }
  
@@ -120,7 +120,7 @@ index 47c4022..2e2fe81 100644
  	struct srpt_port *sport = container_of(se_tpg, struct srpt_port, port_tpg_1);
  	unsigned long val;
  	int ret;
-@@ -3584,22 +3581,19 @@ static ssize_t srpt_tpg_attrib_store_srp_max_rdma_size(
+@@ -3583,22 +3580,19 @@ static ssize_t srpt_tpg_attrib_store_srp_max_rdma_size(
  	return count;
  }
  
@@ -149,7 +149,7 @@ index 47c4022..2e2fe81 100644
  	struct srpt_port *sport = container_of(se_tpg, struct srpt_port, port_tpg_1);
  	unsigned long val;
  	int ret;
-@@ -3624,22 +3618,19 @@ static ssize_t srpt_tpg_attrib_store_srp_max_rsp_size(
+@@ -3623,22 +3617,19 @@ static ssize_t srpt_tpg_attrib_store_srp_max_rsp_size(
  	return count;
  }
  
@@ -178,7 +178,7 @@ index 47c4022..2e2fe81 100644
  	struct srpt_port *sport = container_of(se_tpg, struct srpt_port, port_tpg_1);
  	unsigned long val;
  	int ret;
-@@ -3664,29 +3655,29 @@ static ssize_t srpt_tpg_attrib_store_srp_sq_size(
+@@ -3663,29 +3654,29 @@ static ssize_t srpt_tpg_attrib_store_srp_sq_size(
  	return count;
  }
  
@@ -219,7 +219,7 @@ index 47c4022..2e2fe81 100644
  	struct srpt_port *sport = container_of(se_tpg, struct srpt_port, port_tpg_1);
  	unsigned long tmp;
          int ret;
-@@ -3709,10 +3700,10 @@ static ssize_t srpt_tpg_store_enable(
+@@ -3708,10 +3699,10 @@ static ssize_t srpt_tpg_store_enable(
  	return count;
  }
  
@@ -232,7 +232,7 @@ index 47c4022..2e2fe81 100644
  	NULL,
  };
  
-@@ -3782,16 +3773,15 @@ static void srpt_drop_tport(struct se_wwn *wwn)
+@@ -3781,16 +3772,15 @@ static void srpt_drop_tport(struct se_wwn *wwn)
  	pr_debug("drop_tport(%s\n", config_item_name(&sport->port_wwn.wwn_group.cg_item));
  }
  
@@ -7127,7 +7127,7 @@ index 31a9e3f..7b934ea 100644
  #include "tcm_fc.h"
  
 diff --git a/drivers/usb/gadget/legacy/tcm_usb_gadget.c b/drivers/usb/gadget/legacy/tcm_usb_gadget.c
-index 778e42a..22e5615 100644
+index c3c4808..33833fe 100644
 --- a/drivers/usb/gadget/legacy/tcm_usb_gadget.c
 +++ b/drivers/usb/gadget/legacy/tcm_usb_gadget.c
 @@ -19,8 +19,6 @@
@@ -7232,7 +7232,7 @@ index 778e42a..22e5615 100644
  };
  
 diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index e25a236..29cfc57 100644
+index f114a9d..a971765 100644
 --- a/drivers/vhost/scsi.c
 +++ b/drivers/vhost/scsi.c
 @@ -42,8 +42,6 @@
@@ -7244,7 +7244,7 @@ index e25a236..29cfc57 100644
  #include <linux/vhost.h>
  #include <linux/virtio_scsi.h>
  #include <linux/llist.h>
-@@ -1684,11 +1682,10 @@ static void vhost_scsi_free_cmd_map_res(struct vhost_scsi_nexus *nexus,
+@@ -1686,11 +1684,10 @@ static void vhost_scsi_free_cmd_map_res(struct vhost_scsi_nexus *nexus,
  	}
  }
  
@@ -7259,7 +7259,7 @@ index e25a236..29cfc57 100644
  	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
  				struct vhost_scsi_tpg, se_tpg);
  	unsigned long val;
-@@ -1707,19 +1704,20 @@ static ssize_t vhost_scsi_tpg_attrib_store_fabric_prot_type(
+@@ -1709,19 +1706,20 @@ static ssize_t vhost_scsi_tpg_attrib_store_fabric_prot_type(
  	return count;
  }
  
@@ -7285,7 +7285,7 @@ index e25a236..29cfc57 100644
  	NULL,
  };
  
-@@ -1867,9 +1865,9 @@ static int vhost_scsi_drop_nexus(struct vhost_scsi_tpg *tpg)
+@@ -1869,9 +1867,9 @@ static int vhost_scsi_drop_nexus(struct vhost_scsi_tpg *tpg)
  	return 0;
  }
  
@@ -7297,7 +7297,7 @@ index e25a236..29cfc57 100644
  	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
  				struct vhost_scsi_tpg, se_tpg);
  	struct vhost_scsi_nexus *tv_nexus;
-@@ -1888,10 +1886,10 @@ static ssize_t vhost_scsi_tpg_show_nexus(struct se_portal_group *se_tpg,
+@@ -1890,10 +1888,10 @@ static ssize_t vhost_scsi_tpg_show_nexus(struct se_portal_group *se_tpg,
  	return ret;
  }
  
@@ -7311,7 +7311,7 @@ index e25a236..29cfc57 100644
  	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
  				struct vhost_scsi_tpg, se_tpg);
  	struct vhost_scsi_tport *tport_wwn = tpg->tport;
-@@ -1966,10 +1964,10 @@ check_newline:
+@@ -1968,10 +1966,10 @@ check_newline:
  	return count;
  }
  
@@ -7324,7 +7324,7 @@ index e25a236..29cfc57 100644
  	NULL,
  };
  
-@@ -2105,18 +2103,17 @@ static void vhost_scsi_drop_tport(struct se_wwn *wwn)
+@@ -2107,18 +2105,17 @@ static void vhost_scsi_drop_tport(struct se_wwn *wwn)
  }
  
  static ssize_t
@@ -7607,7 +7607,7 @@ index a0fc85b..0000000
 -
 -#endif /* _CONFIGFS_MACROS_H_ */
 diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
-index 5f48754..0a2c740 100644
+index ac9bf1c..8b9c727 100644
 --- a/include/target/target_core_base.h
 +++ b/include/target/target_core_base.h
 @@ -563,6 +563,36 @@ struct se_node_acl {
@@ -7647,7 +7647,7 @@ index 5f48754..0a2c740 100644
  struct se_session {
  	unsigned		sess_tearing_down:1;
  	u64			sess_bin_isid;
-@@ -821,6 +851,12 @@ struct se_tpg_np {
+@@ -820,6 +850,12 @@ struct se_tpg_np {
  	struct config_group	tpg_np_group;
  };
  
@@ -7660,7 +7660,7 @@ index 5f48754..0a2c740 100644
  struct se_portal_group {
  	/*
  	 * PROTOCOL IDENTIFIER value per SPC4, 7.5.1.
-@@ -857,6 +893,30 @@ struct se_portal_group {
+@@ -856,6 +892,30 @@ struct se_portal_group {
  	struct config_group	tpg_param_group;
  };
  

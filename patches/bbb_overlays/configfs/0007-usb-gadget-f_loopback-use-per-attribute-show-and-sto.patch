@@ -1,7 +1,7 @@
-From ba7ec431cbaa36cb38233f8f46e2a671394ab527 Mon Sep 17 00:00:00 2001
+From 75ab2256a7d05128f8aa088cdde961d8029bcd55 Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:43 +0200
-Subject: [PATCH 07/23] usb-gadget/f_loopback: use per-attribute show and store
+Subject: [PATCH] usb-gadget/f_loopback: use per-attribute show and store
  methods
 
 To simplify the configfs interface and remove boilerplate code that also
@@ -16,10 +16,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  1 file changed, 12 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_loopback.c b/drivers/usb/gadget/function/f_loopback.c
-index 6b2102b..23933bd 100644
+index 6e2fe63..b9d8f05 100644
 --- a/drivers/usb/gadget/function/f_loopback.c
 +++ b/drivers/usb/gadget/function/f_loopback.c
-@@ -465,9 +465,6 @@ static inline struct f_lb_opts *to_f_lb_opts(struct config_item *item)
+@@ -413,9 +413,6 @@ static inline struct f_lb_opts *to_f_lb_opts(struct config_item *item)
  			    func_inst.group);
  }
  
@@ -29,7 +29,7 @@ index 6b2102b..23933bd 100644
  static void lb_attr_release(struct config_item *item)
  {
  	struct f_lb_opts *lb_opts = to_f_lb_opts(item);
-@@ -477,12 +474,11 @@ static void lb_attr_release(struct config_item *item)
+@@ -425,12 +422,11 @@ static void lb_attr_release(struct config_item *item)
  
  static struct configfs_item_operations lb_item_ops = {
  	.release		= lb_attr_release,
@@ -44,7 +44,7 @@ index 6b2102b..23933bd 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -492,9 +488,10 @@ static ssize_t f_lb_opts_qlen_show(struct f_lb_opts *opts, char *page)
+@@ -440,9 +436,10 @@ static ssize_t f_lb_opts_qlen_show(struct f_lb_opts *opts, char *page)
  	return result;
  }
  
@@ -56,7 +56,7 @@ index 6b2102b..23933bd 100644
  	int ret;
  	u32 num;
  
-@@ -515,13 +512,11 @@ end:
+@@ -463,13 +460,11 @@ end:
  	return ret;
  }
  
@@ -73,7 +73,7 @@ index 6b2102b..23933bd 100644
  	int result;
  
  	mutex_lock(&opts->lock);
-@@ -531,9 +526,10 @@ static ssize_t f_lb_opts_bulk_buflen_show(struct f_lb_opts *opts, char *page)
+@@ -479,9 +474,10 @@ static ssize_t f_lb_opts_bulk_buflen_show(struct f_lb_opts *opts, char *page)
  	return result;
  }
  
@@ -85,7 +85,7 @@ index 6b2102b..23933bd 100644
  	int ret;
  	u32 num;
  
-@@ -554,14 +550,11 @@ end:
+@@ -502,14 +498,11 @@ end:
  	return ret;
  }
  

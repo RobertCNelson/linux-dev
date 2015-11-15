@@ -1,8 +1,7 @@
-From da8a12168f281f26fbb006047a8f0c4fad51cfed Mon Sep 17 00:00:00 2001
+From f9a63da33d3f86acadc14c5cb66e9ad06860892f Mon Sep 17 00:00:00 2001
 From: Christoph Hellwig <hch@lst.de>
 Date: Sat, 3 Oct 2015 15:32:42 +0200
-Subject: [PATCH 06/23] usb-gadget/ether: use per-attribute show and store
- methods
+Subject: [PATCH] usb-gadget/ether: use per-attribute show and store methods
 
 To simplify the configfs interface and remove boilerplate code that also
 causes binary bloat.
@@ -21,10 +20,10 @@ Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
  6 files changed, 38 insertions(+), 46 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
-index 4abca70..7ad60ee 100644
+index 7b7424f..0106de8 100644
 --- a/drivers/usb/gadget/function/f_ecm.c
 +++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -838,10 +838,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(ecm);
+@@ -855,10 +855,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(ecm);
  USB_ETHERNET_CONFIGFS_ITEM_ATTR_IFNAME(ecm);
  
  static struct configfs_attribute *ecm_attrs[] = {
@@ -40,10 +39,10 @@ index 4abca70..7ad60ee 100644
  };
  
 diff --git a/drivers/usb/gadget/function/f_eem.c b/drivers/usb/gadget/function/f_eem.c
-index 9a55757..cad35a5 100644
+index c9e90de..f965403 100644
 --- a/drivers/usb/gadget/function/f_eem.c
 +++ b/drivers/usb/gadget/function/f_eem.c
-@@ -545,10 +545,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(eem);
+@@ -555,10 +555,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(eem);
  USB_ETHERNET_CONFIGFS_ITEM_ATTR_IFNAME(eem);
  
  static struct configfs_attribute *eem_attrs[] = {
@@ -59,10 +58,10 @@ index 9a55757..cad35a5 100644
  };
  
 diff --git a/drivers/usb/gadget/function/f_ncm.c b/drivers/usb/gadget/function/f_ncm.c
-index b6f7ed7..7ad798a 100644
+index 3f05c6bd..01a99e5 100644
 --- a/drivers/usb/gadget/function/f_ncm.c
 +++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -1488,10 +1488,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(ncm);
+@@ -1503,10 +1503,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(ncm);
  USB_ETHERNET_CONFIGFS_ITEM_ATTR_IFNAME(ncm);
  
  static struct configfs_attribute *ncm_attrs[] = {
@@ -78,10 +77,10 @@ index b6f7ed7..7ad798a 100644
  };
  
 diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
-index fd301ed..e587767 100644
+index 32985da..a04b526 100644
 --- a/drivers/usb/gadget/function/f_rndis.c
 +++ b/drivers/usb/gadget/function/f_rndis.c
-@@ -864,10 +864,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(rndis);
+@@ -878,10 +878,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(rndis);
  USB_ETHERNET_CONFIGFS_ITEM_ATTR_IFNAME(rndis);
  
  static struct configfs_attribute *rndis_attrs[] = {
@@ -97,10 +96,10 @@ index fd301ed..e587767 100644
  };
  
 diff --git a/drivers/usb/gadget/function/f_subset.c b/drivers/usb/gadget/function/f_subset.c
-index 2e66e62..829c78d 100644
+index e3dfa67..055e4ea 100644
 --- a/drivers/usb/gadget/function/f_subset.c
 +++ b/drivers/usb/gadget/function/f_subset.c
-@@ -405,10 +405,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(gether);
+@@ -413,10 +413,10 @@ USB_ETHERNET_CONFIGFS_ITEM_ATTR_QMULT(gether);
  USB_ETHERNET_CONFIGFS_ITEM_ATTR_IFNAME(gether);
  
  static struct configfs_attribute *gether_attrs[] = {
