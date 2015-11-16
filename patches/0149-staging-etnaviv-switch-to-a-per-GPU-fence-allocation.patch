@@ -1,0 +1,75 @@
+From a90fbadb828620514ef722eacd5f09defeac17f0 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 16 Nov 2015 11:25:58 +0000
+Subject: [PATCH 149/149] staging: etnaviv: switch to a per-GPU fence
+ allocation
+
+Fences are already per-GPU: each GPU can complete the assigned fences
+independently from its counterpart.  Eg, operations queued in the
+order A, B, C, D where A and C are on the 3D GPU and B and D are on
+the 2D GPU may complete in order B A C D.
+
+This means fences must be treated by userspace on a per-GPU basis.  To
+remove any temptation to use them globally, switch to a per-GPU fence
+allocation, so each GPU numbers its transactions indepdently.
+
+We don't need to touch the fence testing, this is already done against
+a particular GPU.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.h | 2 --
+ drivers/staging/etnaviv/etnaviv_gpu.c | 4 +---
+ drivers/staging/etnaviv/etnaviv_gpu.h | 1 +
+ 3 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index 715a38f6..82ab241 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -53,8 +53,6 @@ struct etnaviv_drm_private {
+ 	int num_gpus;
+ 	struct etnaviv_gpu *gpu[ETNA_MAX_PIPES];
+ 
+-	u32 next_fence;
+-
+ 	/* list of GEM objects: */
+ 	struct list_head inactive_list;
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index ff6bdcf..03e5da8 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1091,8 +1091,6 @@ void etnaviv_gpu_pm_put(struct etnaviv_gpu *gpu)
+ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_submit *submit, struct etnaviv_file_private *ctx)
+ {
+-	struct drm_device *dev = gpu->drm;
+-	struct etnaviv_drm_private *priv = dev->dev_private;
+ 	unsigned int event, i;
+ 	int ret;
+ 
+@@ -1116,7 +1114,7 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 		return -EBUSY;
+ 	}
+ 
+-	submit->fence = ++priv->next_fence;
++	submit->fence = ++gpu->next_fence;
+ 
+ 	gpu->submitted_fence = submit->fence;
+ 	gpu->event[event].fence = submit->fence;
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 3be5b48..2a69677 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -111,6 +111,7 @@ struct etnaviv_gpu {
+ 	u32 idle_mask;
+ 
+ 	/* Fencing support */
++	u32 next_fence;
+ 	u32 submitted_fence;
+ 	u32 completed_fence;
+ 	u32 retired_fence;
+-- 
+2.6.2
+

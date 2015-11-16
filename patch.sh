@@ -620,11 +620,11 @@ etnaviv () {
 	fi
 	#http://ftp.arm.linux.org.uk/cgit/linux-arm.git/log/?h=drm-etnaviv-devel
 	#cd ~/linux-src
-	#git checkout v4.2 -b testing
+	#git checkout v4.3 -b testing
 	#git pull --no-edit git://ftp.arm.linux.org.uk/~rmk/linux-arm.git drm-etnaviv-devel
 
-	#git format-patch -149 | grep 4.2 ; rm *.patch
-	#git format-patch -148 -o /opt/github/linux-dev/patches/etnaviv/
+	#git format-patch -150 | grep 4.3 ; rm *.patch
+	#git format-patch -149 -o /opt/github/linux-dev/patches/etnaviv/
 	#git checkout master -f
 	#git branch -D testing
 
@@ -776,9 +776,10 @@ etnaviv () {
 	${git} "${DIR}/patches/etnaviv/0146-staging-etnaviv-avoid-dumping-non-3d-and-non-2d-core.patch"
 	${git} "${DIR}/patches/etnaviv/0147-staging-etnaviv-fix-pipe-selection-cache-flush.patch"
 	${git} "${DIR}/patches/etnaviv/0148-staging-etnaviv-add-devcoredump-support.patch"
+	${git} "${DIR}/patches/etnaviv/0149-staging-etnaviv-switch-to-a-per-GPU-fence-allocation.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=148
+		number=149
 		cleanup
 	fi
 }

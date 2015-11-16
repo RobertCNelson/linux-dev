@@ -1,7 +1,7 @@
-From 8aebc6d05ac73d9fd78142e16674ef54b0f8fc5e Mon Sep 17 00:00:00 2001
+From 39ab039c7324ab9ef5410520b358618bad15cce8 Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
 Date: Sun, 1 Nov 2015 15:27:22 +0000
-Subject: [PATCH 148/148] staging: etnaviv: add devcoredump support
+Subject: [PATCH 148/149] staging: etnaviv: add devcoredump support
 
 Add support for coredumping the GPU state when a GPU hang occurs.  This
 is implemented using the devcoredump infrastructure, which allows us to
@@ -20,13 +20,13 @@ Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 ---
  drivers/staging/etnaviv/Kconfig         |   1 +
  drivers/staging/etnaviv/Makefile        |   3 +-
- drivers/staging/etnaviv/etnaviv_dump.c  | 217 ++++++++++++++++++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_dump.c  | 220 ++++++++++++++++++++++++++++++++
  drivers/staging/etnaviv/etnaviv_dump.h  |  54 ++++++++
  drivers/staging/etnaviv/etnaviv_gpu.c   |  11 ++
- drivers/staging/etnaviv/etnaviv_iommu.c |  35 ++++--
+ drivers/staging/etnaviv/etnaviv_iommu.c |  35 +++--
  drivers/staging/etnaviv/etnaviv_mmu.c   |  18 +++
  drivers/staging/etnaviv/etnaviv_mmu.h   |   9 ++
- 8 files changed, 338 insertions(+), 10 deletions(-)
+ 8 files changed, 341 insertions(+), 10 deletions(-)
  create mode 100644 drivers/staging/etnaviv/etnaviv_dump.c
  create mode 100644 drivers/staging/etnaviv/etnaviv_dump.h
 
@@ -57,10 +57,10 @@ index 2b71c31..64cdfc2 100644
  obj-$(CONFIG_DRM_ETNAVIV)	+= etnaviv.o
 diff --git a/drivers/staging/etnaviv/etnaviv_dump.c b/drivers/staging/etnaviv/etnaviv_dump.c
 new file mode 100644
-index 0000000..f651b8e
+index 0000000..d6cd6e2
 --- /dev/null
 +++ b/drivers/staging/etnaviv/etnaviv_dump.c
-@@ -0,0 +1,217 @@
+@@ -0,0 +1,220 @@
 +/*
 + * Copyright (C) 2015 Etnaviv Project
 + *
@@ -213,6 +213,9 @@ index 0000000..f651b8e
 +		file_size += n_bomap_pages * sizeof(__le64);
 +		n_obj++;
 +	}
++
++	/* Add the size of the headers */
++	file_size += sizeof(*iter.hdr) * n_obj;
 +
 +	/* Allocate the file in vmalloc memory, it's likely to be big */
 +	iter.start = vmalloc(file_size);
@@ -503,5 +506,5 @@ index f7a3d19..3d700db 100644
  	struct iommu_domain *domain, enum etnaviv_iommu_version version);
  
 -- 
-2.6.1
+2.6.2
 
