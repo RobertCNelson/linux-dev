@@ -559,6 +559,7 @@ config="CONFIG_I2C_CHARDEV" ; config_enable
 # Multiplexer I2C Chip support
 #
 config="CONFIG_I2C_MUX_PCA954x" ; config_enable
+config="CONFIG_I2C_MUX_PINCTRL" ; config_enable
 
 #
 # I2C system bus drivers (mostly embedded / system-on-chip)
@@ -882,6 +883,9 @@ config="CONFIG_DRM_IMX" ; config_enable
 #
 # I2C encoder or helper chips
 #
+config="CONFIG_DRM_I2C_ADV7511" ; config_module
+config="CONFIG_DRM_I2C_CH7006" ; config_module
+config="CONFIG_DRM_I2C_SIL164" ; config_module
 config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_module
 
 config="CONFIG_DRM_IMX_FB_HELPER" ; config_enable
