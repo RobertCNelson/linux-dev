@@ -1,0 +1,102 @@
+From 3e6e3806977bab4759cdc02ecb094221dcb87752 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Wed, 18 Nov 2015 18:07:47 +0000
+Subject: [PATCH 154/162] staging: etnaviv: pass command buffer into
+ etnaviv_buffer_queue()
+
+Pass the command buffer into etnaviv_buffer_queue() rather than
+relying on the copy in struct etnaviv_gem_submit.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_buffer.c | 16 +++++++---------
+ drivers/staging/etnaviv/etnaviv_drv.h    |  3 ++-
+ drivers/staging/etnaviv/etnaviv_gpu.c    |  2 +-
+ 3 files changed, 10 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
+index a587d58..332c55e 100644
+--- a/drivers/staging/etnaviv/etnaviv_buffer.c
++++ b/drivers/staging/etnaviv/etnaviv_buffer.c
+@@ -156,7 +156,7 @@ void etnaviv_buffer_end(struct etnaviv_gpu *gpu)
+ }
+ 
+ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+-	struct etnaviv_gem_submit *submit)
++	struct etnaviv_cmdbuf *cmdbuf)
+ {
+ 	struct etnaviv_cmdbuf *buffer = gpu->buffer;
+ 	u32 *lw = buffer->vaddr + buffer->user_size - 16;
+@@ -199,20 +199,19 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 
+ 	if (drm_debug & DRM_UT_DRIVER)
+ 		pr_info("stream link to 0x%08x @ 0x%08x %p\n",
+-			link_target, gpu_va(gpu, submit->cmdbuf),
+-			submit->cmdbuf->vaddr);
++			link_target, gpu_va(gpu, cmdbuf), cmdbuf->vaddr);
+ 
+ 	/* jump back from cmd to main buffer */
+-	CMD_LINK(submit->cmdbuf, link_size, link_target);
++	CMD_LINK(cmdbuf, link_size, link_target);
+ 
+-	link_target = gpu_va(gpu, submit->cmdbuf);
+-	link_size = submit->cmdbuf->size / 8;
++	link_target = gpu_va(gpu, cmdbuf);
++	link_size = cmdbuf->size / 8;
+ 
+ 
+ 
+ 	if (drm_debug & DRM_UT_DRIVER) {
+ 		print_hex_dump(KERN_INFO, "cmd ", DUMP_PREFIX_OFFSET, 16, 4,
+-			       submit->cmdbuf->vaddr, submit->cmdbuf->size, 0);
++			       cmdbuf->vaddr, cmdbuf->size, 0);
+ 
+ 		pr_info("link op: %p\n", lw);
+ 		pr_info("link addr: %p\n", lw + 1);
+@@ -237,8 +236,7 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 		}
+ 
+ 		if (gpu->switch_context) {
+-			etnaviv_cmd_select_pipe(buffer,
+-						submit->cmdbuf->exec_state);
++			etnaviv_cmd_select_pipe(buffer, cmdbuf->exec_state);
+ 			gpu->switch_context = false;
+ 		}
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index f768319..a296783 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -36,6 +36,7 @@
+ #include <drm/drm_gem.h>
+ #include <drm/etnaviv_drm.h>
+ 
++struct etnaviv_cmdbuf;
+ struct etnaviv_gpu;
+ struct etnaviv_mmu;
+ struct etnaviv_gem_object;
+@@ -105,7 +106,7 @@ int etnaviv_gem_new_userptr(struct drm_device *dev, struct drm_file *file,
+ u16 etnaviv_buffer_init(struct etnaviv_gpu *gpu);
+ void etnaviv_buffer_end(struct etnaviv_gpu *gpu);
+ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+-	struct etnaviv_gem_submit *submit);
++	struct etnaviv_cmdbuf *cmdbuf);
+ void etnaviv_validate_init(void);
+ bool etnaviv_cmd_validate_one(struct etnaviv_gpu *gpu,
+ 	u32 *stream, unsigned int size,
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 049c8a3..d3437b5 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1125,7 +1125,7 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 		gpu->lastctx = submit->cmdbuf->ctx;
+ 	}
+ 
+-	etnaviv_buffer_queue(gpu, event, submit);
++	etnaviv_buffer_queue(gpu, event, submit->cmdbuf);
+ 
+ 	/* take ownership of cmdbuffer*/
+ 	submit->cmdbuf->fence = submit->fence;
+-- 
+2.6.2
+

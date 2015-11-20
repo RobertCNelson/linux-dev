@@ -1,0 +1,130 @@
+From 678d861231a65bb5203ad39bb1fe82db1af3ab45 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Thu, 19 Nov 2015 19:59:04 +0000
+Subject: [PATCH 158/162] staging: etnaviv: refcount IOVA allocations
+
+Refcount the IOVA allocations, so that we properly know when an IOVA
+is in use or not.  This aids our MMU functionality, and also gets rid
+of the submit_entry node usage in the MMU code.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.h        |  2 +-
+ drivers/staging/etnaviv/etnaviv_gem.c        | 23 +++++++++++++----------
+ drivers/staging/etnaviv/etnaviv_gem.h        |  1 +
+ drivers/staging/etnaviv/etnaviv_gem_submit.c |  2 +-
+ drivers/staging/etnaviv/etnaviv_gpu.c        |  2 +-
+ drivers/staging/etnaviv/etnaviv_mmu.c        |  4 ++--
+ 6 files changed, 19 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index c100b2d..21888f2 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -76,7 +76,7 @@ int etnaviv_gem_fault(struct vm_area_struct *vma, struct vm_fault *vmf);
+ int etnaviv_gem_mmap_offset(struct drm_gem_object *obj, u64 *offset);
+ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ 	struct drm_gem_object *obj, u32 *iova);
+-void etnaviv_gem_put_iova(struct drm_gem_object *obj);
++void etnaviv_gem_put_iova(struct etnaviv_gpu *gpu, struct drm_gem_object *obj);
+ struct sg_table *etnaviv_gem_prime_get_sg_table(struct drm_gem_object *obj);
+ void *etnaviv_gem_prime_vmap(struct drm_gem_object *obj);
+ void etnaviv_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index 0478967..e2b7afe 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -267,22 +267,25 @@ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ 				gpu->memory_base, &mapping);
+ 	}
+ 
+-	if (!ret)
++	if (!ret) {
++		mapping->use += 1;
+ 		*iova = mapping->iova;
++	}
+ 
+ 	return ret;
+ }
+ 
+-void etnaviv_gem_put_iova(struct drm_gem_object *obj)
++void etnaviv_gem_put_iova(struct etnaviv_gpu *gpu, struct drm_gem_object *obj)
+ {
+-	/*
+-	 * XXX TODO ..
+-	 * NOTE: probably don't need a _locked() version.. we wouldn't
+-	 * normally unmap here, but instead just mark that it could be
+-	 * unmapped (if the iova refcnt drops to zero), but then later
+-	 * if another _get_iova_locked() fails we can start unmapping
+-	 * things that are no longer needed..
+-	 */
++	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
++	struct etnaviv_vram_mapping *mapping;
++
++	WARN_ON(!mutex_is_locked(&obj->dev->struct_mutex));
++
++	mapping = etnaviv_gem_get_vram_mapping(etnaviv_obj, gpu->mmu);
++
++	WARN_ON(mapping->use == 0);
++	mapping->use -= 1;
+ }
+ 
+ void *etnaviv_gem_vaddr_locked(struct drm_gem_object *obj)
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index 8543916..7210668 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -36,6 +36,7 @@ struct etnaviv_vram_mapping {
+ 	struct etnaviv_gem_object *object;
+ 	struct etnaviv_iommu *mmu;
+ 	struct drm_mm_node vram_node;
++	unsigned int use;
+ 	u32 iova;
+ };
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index 0b78ad5..efcf1c6 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -126,7 +126,7 @@ static void submit_unlock_unpin_bo(struct etnaviv_gem_submit *submit, int i)
+ 	struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
+ 
+ 	if (submit->bos[i].flags & BO_PINNED)
+-		etnaviv_gem_put_iova(&etnaviv_obj->base);
++		etnaviv_gem_put_iova(submit->gpu, &etnaviv_obj->base);
+ 
+ 	if (submit->bos[i].flags & BO_LOCKED)
+ 		ww_mutex_unlock(&etnaviv_obj->resv->lock);
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 96c2725..57a8d97 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -974,7 +974,7 @@ static void retire_worker(struct work_struct *work)
+ 		     fence_after_eq(fence, obj->write_fence))) {
+ 			/* move to inactive: */
+ 			etnaviv_gem_move_to_inactive(&obj->base);
+-			etnaviv_gem_put_iova(&obj->base);
++			etnaviv_gem_put_iova(gpu, &obj->base);
+ 			drm_gem_object_unreference(&obj->base);
+ 		} else {
+ 			break;
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index 81be9dd..901bc91 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -165,10 +165,10 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 				continue;
+ 
+ 			/*
+-			 * If it's on the submit list, then it is part of
++			 * If the iova is locked, then it is part of
+ 			 * a submission, and we want to keep its entry.
+ 			 */
+-			if (!list_empty(&o->submit_entry))
++			if (free->use)
+ 				continue;
+ 
+ 			list_add(&free->scan_node, &list);
+-- 
+2.6.2
+

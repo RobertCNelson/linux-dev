@@ -1,0 +1,118 @@
+From 91d7a01b2d9fd9e60c9b2ee2cf7b4ea2397732fe Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Thu, 19 Nov 2015 20:03:57 +0000
+Subject: [PATCH 159/162] staging: etnaviv: remove submit_entry and bo_list
+
+We do not need the submit_entry and bo_list at all: the ww mutex support
+reports when we try to acquire the same object twice, so we already have
+a method by which we can adequately detect multiple handles to the same
+buffer object in the submitted list of buffers.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c        |  1 -
+ drivers/staging/etnaviv/etnaviv_gem.h        |  8 --------
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 19 ++++---------------
+ 3 files changed, 4 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index e2b7afe..0212da1 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -551,7 +551,6 @@ static int etnaviv_gem_new_impl(struct drm_device *dev,
+ 	etnaviv_obj->resv = &etnaviv_obj->_resv;
+ 	reservation_object_init(&etnaviv_obj->_resv);
+ 
+-	INIT_LIST_HEAD(&etnaviv_obj->submit_entry);
+ 	INIT_LIST_HEAD(&etnaviv_obj->mm_list);
+ 	INIT_LIST_HEAD(&etnaviv_obj->vram_list);
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index 7210668..38816d9 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -59,13 +59,6 @@ struct etnaviv_gem_object {
+ 	u32 access;
+ 	u32 read_fence, write_fence;
+ 
+-	/* Transiently in the process of submit ioctl, objects associated
+-	 * with the submit are on submit->bo_list.. this only lasts for
+-	 * the duration of the ioctl, so one bo can never be on multiple
+-	 * submit lists.
+-	 */
+-	struct list_head submit_entry;
+-
+ 	struct page **pages;
+ 	struct sg_table *sgt;
+ 	void *vaddr;
+@@ -108,7 +101,6 @@ static inline bool is_active(struct etnaviv_gem_object *etnaviv_obj)
+ struct etnaviv_gem_submit {
+ 	struct drm_device *dev;
+ 	struct etnaviv_gpu *gpu;
+-	struct list_head bo_list;
+ 	struct ww_acquire_ctx ticket;
+ 	u32 fence;
+ 	unsigned int nr_bos;
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index efcf1c6..f195314 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -58,7 +58,6 @@ static struct etnaviv_gem_submit *submit_create(struct drm_device *dev,
+ 		/* initially, until copy_from_user() and bo lookup succeeds: */
+ 		submit->nr_bos = 0;
+ 
+-		INIT_LIST_HEAD(&submit->bo_list);
+ 		ww_acquire_init(&submit->ticket, &reservation_ww_class);
+ 	}
+ 
+@@ -77,7 +76,6 @@ static int submit_lookup_objects(struct etnaviv_gem_submit *submit,
+ 
+ 	for (i = 0, bo = submit_bos; i < nr_bos; i++, bo++) {
+ 		struct drm_gem_object *obj;
+-		struct etnaviv_gem_object *etnaviv_obj;
+ 
+ 		if (bo->flags & BO_INVALID_FLAGS) {
+ 			DRM_ERROR("invalid flags: %x\n", bo->flags);
+@@ -98,20 +96,9 @@ static int submit_lookup_objects(struct etnaviv_gem_submit *submit,
+ 			goto out_unlock;
+ 		}
+ 
+-		etnaviv_obj = to_etnaviv_bo(obj);
+-
+-		if (!list_empty(&etnaviv_obj->submit_entry)) {
+-			DRM_ERROR("handle %u at index %u already on submit list\n",
+-				  bo->handle, i);
+-			ret = -EINVAL;
+-			goto out_unlock;
+-		}
+-
+ 		drm_gem_object_reference(obj);
+ 
+-		submit->bos[i].obj = etnaviv_obj;
+-
+-		list_add_tail(&etnaviv_obj->submit_entry, &submit->bo_list);
++		submit->bos[i].obj = to_etnaviv_bo(obj);
+ 	}
+ 
+ out_unlock:
+@@ -153,6 +140,9 @@ retry:
+ 		if (!(submit->bos[i].flags & BO_LOCKED)) {
+ 			ret = ww_mutex_lock_interruptible(&etnaviv_obj->resv->lock,
+ 					&submit->ticket);
++			if (ret == -EALREADY)
++				DRM_ERROR("BO at index %u already on submit list\n",
++					  i);
+ 			if (ret)
+ 				goto fail;
+ 			submit->bos[i].flags |= BO_LOCKED;
+@@ -277,7 +267,6 @@ static void submit_cleanup(struct etnaviv_gem_submit *submit, bool fail)
+ 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
+ 
+ 		submit_unlock_unpin_bo(submit, i);
+-		list_del_init(&etnaviv_obj->submit_entry);
+ 		drm_gem_object_unreference(&etnaviv_obj->base);
+ 	}
+ 
+-- 
+2.6.2
+

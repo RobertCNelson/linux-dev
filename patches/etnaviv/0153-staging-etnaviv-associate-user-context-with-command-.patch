@@ -1,0 +1,97 @@
+From a542e37d56f5e16253a023c5c637dec9d43a9c9e Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Wed, 18 Nov 2015 22:30:46 +0000
+Subject: [PATCH 153/162] staging: etnaviv: associate user context with command
+ buffer
+
+Associate the user context with the command buffer, so that we can
+identify which command buffers are associated with each open file
+descriptor.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 4 ++--
+ drivers/staging/etnaviv/etnaviv_gpu.c        | 6 +++---
+ drivers/staging/etnaviv/etnaviv_gpu.h        | 4 +++-
+ 3 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index 139ebc9..9c24968 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -294,7 +294,6 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ {
+ 	struct etnaviv_drm_private *priv = dev->dev_private;
+ 	struct drm_etnaviv_gem_submit *args = data;
+-	struct etnaviv_file_private *ctx = file->driver_priv;
+ 	struct drm_etnaviv_gem_submit_reloc *relocs;
+ 	struct drm_etnaviv_gem_submit_bo *bos;
+ 	struct etnaviv_gem_submit *submit;
+@@ -337,6 +336,7 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 	}
+ 
+ 	cmdbuf->exec_state = args->exec_state;
++	cmdbuf->ctx = file->driver_priv;
+ 
+ 	ret = copy_from_user(bos, to_user_ptr(args->bos),
+ 			     args->nr_bos * sizeof(*bos));
+@@ -413,7 +413,7 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 	submit->cmdbuf = cmdbuf;
+ 	cmdbuf = NULL;
+ 
+-	ret = etnaviv_gpu_submit(gpu, submit, ctx);
++	ret = etnaviv_gpu_submit(gpu, submit);
+ 
+ 	args->fence = submit->fence;
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index e9d6d40..049c8a3 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1089,7 +1089,7 @@ void etnaviv_gpu_pm_put(struct etnaviv_gpu *gpu)
+ 
+ /* add bo's to gpu's ring, and kick gpu: */
+ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+-	struct etnaviv_gem_submit *submit, struct etnaviv_file_private *ctx)
++	struct etnaviv_gem_submit *submit)
+ {
+ 	unsigned int event, i;
+ 	int ret;
+@@ -1119,10 +1119,10 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	gpu->submitted_fence = submit->fence;
+ 	gpu->event[event].fence = submit->fence;
+ 
+-	if (gpu->lastctx != ctx) {
++	if (gpu->lastctx != submit->cmdbuf->ctx) {
+ 		gpu->mmu->need_flush = true;
+ 		gpu->switch_context = true;
+-		gpu->lastctx = ctx;
++		gpu->lastctx = submit->cmdbuf->ctx;
+ 	}
+ 
+ 	etnaviv_buffer_queue(gpu, event, submit);
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index a8fd675..00603fb 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -142,6 +142,8 @@ struct etnaviv_gpu {
+ struct etnaviv_cmdbuf {
+ 	/* device this cmdbuf is allocated for */
+ 	struct etnaviv_gpu *gpu;
++	/* user context key, must be unique between all active users */
++	struct etnaviv_file_private *ctx;
+ 	/* cmdbuf properties */
+ 	void *vaddr;
+ 	dma_addr_t paddr;
+@@ -189,7 +191,7 @@ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ int etnaviv_gpu_wait_obj_inactive(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_object *etnaviv_obj, struct timespec *timeout);
+ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+-	struct etnaviv_gem_submit *submit, struct etnaviv_file_private *ctx);
++	struct etnaviv_gem_submit *submit);
+ struct etnaviv_cmdbuf *etnaviv_gpu_cmdbuf_new(struct etnaviv_gpu *gpu,
+ 					      u32 size);
+ void etnaviv_gpu_cmdbuf_free(struct etnaviv_cmdbuf *cmdbuf);
+-- 
+2.6.2
+

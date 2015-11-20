@@ -1,0 +1,81 @@
+From b26f8b9d44a3bc759825832d0314a4810cf977f3 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Wed, 18 Nov 2015 18:23:09 +0000
+Subject: [PATCH 152/162] staging: etnaviv: move exec_state into etnaviv_cmdbuf
+ struct
+
+Move the exec_state member out of the etnaviv_gem_submit structure
+into the etnaviv_cmdbuf structure - it is a property of the commands
+contained within this buffer, so it belongs here.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_buffer.c     | 3 ++-
+ drivers/staging/etnaviv/etnaviv_gem.h        | 1 -
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 3 ++-
+ drivers/staging/etnaviv/etnaviv_gpu.h        | 2 ++
+ 4 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_buffer.c b/drivers/staging/etnaviv/etnaviv_buffer.c
+index 35eb749..a587d58 100644
+--- a/drivers/staging/etnaviv/etnaviv_buffer.c
++++ b/drivers/staging/etnaviv/etnaviv_buffer.c
+@@ -237,7 +237,8 @@ void etnaviv_buffer_queue(struct etnaviv_gpu *gpu, unsigned int event,
+ 		}
+ 
+ 		if (gpu->switch_context) {
+-			etnaviv_cmd_select_pipe(buffer, submit->exec_state);
++			etnaviv_cmd_select_pipe(buffer,
++						submit->cmdbuf->exec_state);
+ 			gpu->switch_context = false;
+ 		}
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index 7a99fd1..45b27a5 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -107,7 +107,6 @@ static inline bool is_active(struct etnaviv_gem_object *etnaviv_obj)
+ struct etnaviv_gem_submit {
+ 	struct drm_device *dev;
+ 	struct etnaviv_gpu *gpu;
+-	u32 exec_state;
+ 	struct list_head bo_list;
+ 	struct ww_acquire_ctx ticket;
+ 	u32 fence;
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index a824a4a..139ebc9 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -336,6 +336,8 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 		goto err_submit_cmds;
+ 	}
+ 
++	cmdbuf->exec_state = args->exec_state;
++
+ 	ret = copy_from_user(bos, to_user_ptr(args->bos),
+ 			     args->nr_bos * sizeof(*bos));
+ 	if (ret) {
+@@ -385,7 +387,6 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	submit->exec_state = args->exec_state;
+ 
+ 	ret = submit_lookup_objects(submit, file, bos, args->nr_bos);
+ 	if (ret)
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 2a69677..a8fd675 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -149,6 +149,8 @@ struct etnaviv_cmdbuf {
+ 	u32 user_size;
+ 	/* fence after which this buffer is to be disposed */
+ 	u32 fence;
++	/* target exec state */
++	u32 exec_state;
+ 	/* per GPU in-flight list */
+ 	struct list_head gpu_active_list;
+ };
+-- 
+2.6.2
+
