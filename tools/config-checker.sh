@@ -56,6 +56,10 @@ config="CONFIG_IKCONFIG" ; config_enable
 config="CONFIG_IKCONFIG_PROC" ; config_enable
 config="CONFIG_LOG_BUF_SHIFT" ; option="18" ; config_value
 config="CONFIG_CGROUP_PIDS" ; config_enable
+config="CONFIG_MEMCG_SWAP_ENABLED" ; config_enable
+config="CONFIG_MEMCG_KMEM" ; config_enable
+config="CONFIG_CFS_BANDWIDTH" ; config_enable
+config="CONFIG_RT_GROUP_SCHED" ; config_enable
 config="CONFIG_SYSFS_SYSCALL" ; config_enable
 config="CONFIG_SYSCTL_SYSCALL" ; config_enable
 config="CONFIG_KALLSYMS_ALL" ; config_enable
@@ -486,6 +490,7 @@ config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_module
 config="CONFIG_TOUCHSCREEN_PIXCIR" ; config_module
 config="CONFIG_TOUCHSCREEN_WDT87XX_I2C" ; config_module
 config="CONFIG_TOUCHSCREEN_TSC_SERIO" ; config_module
+config="CONFIG_TOUCHSCREEN_TSC2004" ; config_module
 config="CONFIG_TOUCHSCREEN_ST1232" ; config_module
 config="CONFIG_TOUCHSCREEN_SX8654" ; config_module
 config="CONFIG_TOUCHSCREEN_ZFORCE" ; config_module
@@ -577,7 +582,7 @@ config="CONFIG_I2C_DLN2" ; config_module
 #
 # SPI Master Controller Drivers
 #
-config="CONFIG_SPI_DEBUG" ; config_enable
+config="CONFIG_SPI_DEBUG" ; config_disable
 config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
@@ -747,6 +752,7 @@ config="CONFIG_SENSORS_W83L785TS" ; config_module
 config="CONFIG_SENSORS_W83627HF" ; config_module
 config="CONFIG_THERMAL_GOV_BANG_BANG" ; config_enable
 config="CONFIG_CLOCK_THERMAL" ; config_enable
+config="CONFIG_DEVFREQ_THERMAL" ; config_enable
 config="CONFIG_IMX_THERMAL" ; config_enable
 config="CONFIG_ROCKCHIP_THERMAL" ; config_enable
 config="CONFIG_TEGRA_SOCTHERM" ; config_enable
@@ -757,6 +763,7 @@ config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 # Texas Instruments thermal drivers
 #
 config="CONFIG_TI_SOC_THERMAL" ; config_enable
+config="CONFIG_OMAP3_THERMAL" ; config_enable
 config="CONFIG_DRA752_THERMAL" ; config_enable
 config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 
@@ -1076,6 +1083,7 @@ config="CONFIG_LEDS_LP8501" ; config_module
 config="CONFIG_LEDS_LP8860" ; config_module
 config="CONFIG_LEDS_PCA963X" ; config_module
 config="CONFIG_LEDS_TCA6507" ; config_module
+config="CONFIG_LEDS_TLC591XX" ; config_module
 config="CONFIG_LEDS_LM355x" ; config_module
 
 #
