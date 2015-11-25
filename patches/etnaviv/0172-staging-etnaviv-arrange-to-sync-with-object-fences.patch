@@ -1,0 +1,131 @@
+From 590b1f31242bc55a1f524b933841000fe5b7a000 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Sun, 22 Nov 2015 23:01:46 +0000
+Subject: [PATCH 172/178] staging: etnaviv: arrange to sync with object fences
+
+Before starting a GPU operation, sync with the object fences to ensure
+that no conflicting operations are in progress prior to starting the
+GPU operation.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 22 +++++++++++++++
+ drivers/staging/etnaviv/etnaviv_gpu.c        | 40 ++++++++++++++++++++++++++++
+ drivers/staging/etnaviv/etnaviv_gpu.h        |  3 +++
+ 3 files changed, 65 insertions(+)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index 3ee3686..e6011a8 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -14,6 +14,7 @@
+  * this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
++#include <linux/reservation.h>
+ #include "etnaviv_drv.h"
+ #include "etnaviv_gpu.h"
+ #include "etnaviv_gem.h"
+@@ -164,6 +165,23 @@ fail:
+ 	return ret;
+ }
+ 
++static int submit_fence_sync(const struct etnaviv_gem_submit *submit)
++{
++	unsigned int context = submit->gpu->fence_context;
++	int i, ret = 0;
++
++	for (i = 0; i < submit->nr_bos; i++) {
++		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
++		bool write = submit->bos[i].flags & ETNA_SUBMIT_BO_WRITE;
++
++		ret = etnaviv_gpu_fence_sync_obj(etnaviv_obj, context, write);
++		if (ret)
++			break;
++	}
++
++	return ret;
++}
++
+ static void submit_unpin_objects(struct etnaviv_gem_submit *submit)
+ {
+ 	int i;
+@@ -369,6 +387,10 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 		goto err_submit_objects;
+ 	}
+ 
++	ret = submit_fence_sync(submit);
++	if (ret)
++		goto err_submit_objects;
++
+ 	/*
+ 	 * Avoid big circular locking dependency loops:
+ 	 * - reading debugfs results in mmap_sem depending on i_mutex_key#3
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index fa44c7c..a6c36f8 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -873,6 +873,46 @@ static void hangcheck_disable(struct etnaviv_gpu *gpu)
+ 	cancel_work_sync(&gpu->recover_work);
+ }
+ 
++/* fence object management */
++int etnaviv_gpu_fence_sync_obj(struct etnaviv_gem_object *etnaviv_obj,
++	unsigned int context, bool exclusive)
++{
++	struct reservation_object *robj = etnaviv_obj->resv;
++	struct reservation_object_list *fobj;
++	struct fence *fence;
++	int i, ret, held;
++
++	/*
++	 * If we have any shared fences, then the exclusive fence
++	 * should be ignored as it will already have been signalled.
++	 */
++	fobj = reservation_object_get_list(robj);
++	if (!fobj || fobj->shared_count == 0) {
++		/* Wait on any existing exclusive fence which isn't our own */
++		fence = reservation_object_get_excl(robj);
++		if (fence && fence->context != context) {
++			ret = fence_wait(fence, true);
++			if (ret)
++				return ret;
++		}
++	}
++
++	if (!exclusive || !fobj)
++		return 0;
++
++	held = reservation_object_held(robj);
++	for (i = 0; i < fobj->shared_count; i++) {
++		fence = rcu_dereference_protected(fobj->shared[i], held);
++		if (fence->context != context) {
++			ret = fence_wait(fence, true);
++			if (ret)
++				return ret;
++		}
++	}
++
++	return 0;
++}
++
+ /*
+  * event management:
+  */
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 509fb0c..9cd0894 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -186,6 +186,9 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu);
+ int etnaviv_gpu_debugfs(struct etnaviv_gpu *gpu, struct seq_file *m);
+ #endif
+ 
++int etnaviv_gpu_fence_sync_obj(struct etnaviv_gem_object *etnaviv_obj,
++	unsigned int context, bool exclusive);
++
+ void etnaviv_gpu_retire(struct etnaviv_gpu *gpu);
+ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ 	u32 fence, struct timespec *timeout);
+-- 
+2.6.2
+

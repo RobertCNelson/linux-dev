@@ -623,8 +623,8 @@ etnaviv () {
 	#git checkout v4.3 -b testing
 	#git pull --no-edit git://ftp.arm.linux.org.uk/~rmk/linux-arm.git drm-etnaviv-devel
 
-	#git format-patch -163 | grep 4.3 ; rm *.patch
-	#git format-patch -162 -o /opt/github/linux-dev/patches/etnaviv/
+	#git format-patch -179 | grep 4.3 ; rm *.patch
+	#git format-patch -178 -o /opt/github/linux-dev/patches/etnaviv/
 	#git checkout master -f
 	#git branch -D testing
 
@@ -790,9 +790,25 @@ etnaviv () {
 	${git} "${DIR}/patches/etnaviv/0160-staging-etnaviv-split-pin-unpin-from-locking-operati.patch"
 	${git} "${DIR}/patches/etnaviv/0161-staging-etnaviv-move-bulk-of-submission-out-of-DRM-s.patch"
 	${git} "${DIR}/patches/etnaviv/0162-staging-etnaviv-move-command-stream-validation-outsi.patch"
+	${git} "${DIR}/patches/etnaviv/0163-staging-etnaviv-pass-ops-struct-into-GEM-allocation-.patch"
+	${git} "${DIR}/patches/etnaviv/0164-staging-etnaviv-fix-prime-import-reservation-object-.patch"
+	${git} "${DIR}/patches/etnaviv/0165-staging-etnaviv-keep-a-list-of-mappings-on-a-MMU.patch"
+	${git} "${DIR}/patches/etnaviv/0166-staging-etnaviv-switch-to-dumping-active-BOs-from-MM.patch"
+	${git} "${DIR}/patches/etnaviv/0167-staging-etnaviv-keep-GEM-objects-on-a-global-list.patch"
+	${git} "${DIR}/patches/etnaviv/0168-staging-etnaviv-attach-list-of-buffer-objects-to-com.patch"
+	${git} "${DIR}/patches/etnaviv/0169-staging-etnaviv-remove-etnaviv-object-mm_list.patch"
+	${git} "${DIR}/patches/etnaviv/0170-staging-etnaviv-switch-object-active-indication-to-u.patch"
+	${git} "${DIR}/patches/etnaviv/0171-staging-etnaviv-allocate-fence-context.patch"
+	${git} "${DIR}/patches/etnaviv/0172-staging-etnaviv-arrange-to-sync-with-object-fences.patch"
+	${git} "${DIR}/patches/etnaviv/0173-staging-etnaviv-switch-to-use-struct-fence-for-objec.patch"
+	${git} "${DIR}/patches/etnaviv/0174-staging-etnaviv-switch-etnaviv_gem_cpu_prep-to-use-s.patch"
+	${git} "${DIR}/patches/etnaviv/0175-staging-etnaviv-convert-debugfs-gem-dump-to-use-stru.patch"
+	${git} "${DIR}/patches/etnaviv/0176-staging-etnaviv-remove-last-vestiges-of-the-old-buff.patch"
+	${git} "${DIR}/patches/etnaviv/0177-staging-etnaviv-rename-gpu_active_list-to-be-just-pl.patch"
+#	${git} "${DIR}/patches/etnaviv/0178-Dont-Auto-Build.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=162
+		number=177
 		cleanup
 	fi
 }

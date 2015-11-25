@@ -1,0 +1,116 @@
+From b207d682e0b8fa5f10ed9334f1b327b309cdea72 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Sun, 22 Nov 2015 23:01:46 +0000
+Subject: [PATCH 176/178] staging: etnaviv: remove last vestiges of the old
+ buffer management
+
+Remove the last vestiges of the old buffer management.  We now allow
+multiple GPUs to access the same object providing they are all reading,
+but enforce exclusive access in the presence of writers.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.h |  3 ---
+ drivers/staging/etnaviv/etnaviv_gem.c | 28 ----------------------------
+ drivers/staging/etnaviv/etnaviv_gem.h |  1 -
+ drivers/staging/etnaviv/etnaviv_gpu.c | 12 ------------
+ 4 files changed, 44 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index 0521a47..70bcb2c 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -86,9 +86,6 @@ int etnaviv_gem_prime_pin(struct drm_gem_object *obj);
+ void etnaviv_gem_prime_unpin(struct drm_gem_object *obj);
+ void *etnaviv_gem_vaddr_locked(struct drm_gem_object *obj);
+ void *etnaviv_gem_vaddr(struct drm_gem_object *obj);
+-void etnaviv_gem_move_to_active(struct drm_gem_object *obj,
+-		struct etnaviv_gpu *gpu, u32 access, u32 fence);
+-void etnaviv_gem_move_to_inactive(struct drm_gem_object *obj);
+ int etnaviv_gem_cpu_prep(struct drm_gem_object *obj, u32 op,
+ 		struct timespec *timeout);
+ int etnaviv_gem_cpu_fini(struct drm_gem_object *obj);
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index ad2bfdb..c2a3948 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -322,34 +322,6 @@ void *etnaviv_gem_vaddr(struct drm_gem_object *obj)
+ 	return ret;
+ }
+ 
+-void etnaviv_gem_move_to_active(struct drm_gem_object *obj,
+-	struct etnaviv_gpu *gpu, u32 access, u32 fence)
+-{
+-	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+-
+-	etnaviv_obj->gpu = gpu;
+-
+-	if (access & ETNA_SUBMIT_BO_READ)
+-		etnaviv_obj->read_fence = fence;
+-	if (access & ETNA_SUBMIT_BO_WRITE)
+-		etnaviv_obj->write_fence = fence;
+-
+-	etnaviv_obj->access |= access;
+-}
+-
+-void etnaviv_gem_move_to_inactive(struct drm_gem_object *obj)
+-{
+-	struct drm_device *dev = obj->dev;
+-	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+-
+-	WARN_ON(!mutex_is_locked(&dev->struct_mutex));
+-
+-	etnaviv_obj->gpu = NULL;
+-	etnaviv_obj->read_fence = 0;
+-	etnaviv_obj->write_fence = 0;
+-	etnaviv_obj->access = 0;
+-}
+-
+ static inline enum dma_data_direction etnaviv_op_to_dma_dir(u32 op)
+ {
+ 	if (op & ETNA_PREP_READ)
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index d016563..61e287c 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -51,7 +51,6 @@ struct etnaviv_gem_object {
+ 	struct etnaviv_gpu *gpu;     /* non-null if active */
+ 	atomic_t gpu_active;
+ 	u32 access;
+-	u32 read_fence, write_fence;
+ 
+ 	struct page **pages;
+ 	struct sg_table *sgt;
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index d5ac6b6..fad6bff 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1089,7 +1089,6 @@ static void retire_worker(struct work_struct *work)
+ 		fence_put(cmdbuf->fence);
+ 
+ 		for (i = 0; i < cmdbuf->nr_bos; i++) {
+-			etnaviv_gem_move_to_inactive(&cmdbuf->bo[i]->base);
+ 			etnaviv_gem_put_iova(gpu, &cmdbuf->bo[i]->base);
+ 			atomic_dec(&cmdbuf->bo[i]->gpu_active);
+ 			drm_gem_object_unreference(&cmdbuf->bo[i]->base);
+@@ -1248,17 +1247,6 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 		else
+ 			reservation_object_add_shared_fence(etnaviv_obj->resv,
+ 							    fence);
+-
+-		/* can't happen yet.. but when we add 2d support we'll have
+-		 * to deal w/ cross-ring synchronization:
+-		 */
+-		WARN_ON(is_active(etnaviv_obj) && (etnaviv_obj->gpu != gpu));
+-
+-		if (submit->bos[i].flags & (ETNA_SUBMIT_BO_READ |
+-					    ETNA_SUBMIT_BO_WRITE))
+-			etnaviv_gem_move_to_active(&etnaviv_obj->base, gpu,
+-						   submit->bos[i].flags,
+-						   submit->fence);
+ 	}
+ 	cmdbuf->nr_bos = submit->nr_bos;
+ 	hangcheck_timer_reset(gpu);
+-- 
+2.6.2
+

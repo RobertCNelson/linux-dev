@@ -1,0 +1,256 @@
+From a2975a66d1993d9576ae850104a934381f7d33e9 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Sun, 22 Nov 2015 23:01:46 +0000
+Subject: [PATCH 173/178] staging: etnaviv: switch to use struct fence for
+ object fencing
+
+Augment our own fencing support with struct fence to add dma-buf based
+synchronisation.  These fences provide cross-device (and cross fence
+context) synchronisation, so help to address our cross-GPU buffer
+sharing issues.
+
+We migrate our command buffer fencing support over to use struct fence
+to decide when to free the buffer, and this is used to control when our
+reference to the fence can be dropped.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 111 +++++++++++++++++++++++++++++++---
+ drivers/staging/etnaviv/etnaviv_gpu.h |   5 +-
+ 2 files changed, 107 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index a6c36f8..7316575 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -804,6 +804,8 @@ static void recover_worker(struct work_struct *work)
+ 	for (i = 0; i < ARRAY_SIZE(gpu->event); i++) {
+ 		if (!gpu->event[i].used)
+ 			continue;
++		fence_signal(gpu->event[i].fence);
++		gpu->event[i].fence = NULL;
+ 		gpu->event[i].used = false;
+ 		complete(&gpu->event_free);
+ 		/*
+@@ -874,6 +876,72 @@ static void hangcheck_disable(struct etnaviv_gpu *gpu)
+ }
+ 
+ /* fence object management */
++struct etnaviv_fence {
++	struct etnaviv_gpu *gpu;
++	struct fence base;
++};
++
++static inline struct etnaviv_fence *to_etnaviv_fence(struct fence *fence)
++{
++	return container_of(fence, struct etnaviv_fence, base);
++}
++
++static const char *etnaviv_fence_get_driver_name(struct fence *fence)
++{
++	return "etnaviv";
++}
++
++static const char *etnaviv_fence_get_timeline_name(struct fence *fence)
++{
++	struct etnaviv_fence *f = to_etnaviv_fence(fence);
++
++	return dev_name(f->gpu->dev);
++}
++
++static bool etnaviv_fence_enable_signaling(struct fence *fence)
++{
++	return true;
++}
++
++static bool etnaviv_fence_signaled(struct fence *fence)
++{
++	struct etnaviv_fence *f = to_etnaviv_fence(fence);
++
++	return fence_completed(f->gpu, f->base.seqno);
++}
++
++static void etnaviv_fence_release(struct fence *fence)
++{
++	struct etnaviv_fence *f = to_etnaviv_fence(fence);
++
++	kfree_rcu(f, base.rcu);
++}
++
++static const struct fence_ops etnaviv_fence_ops = {
++	.get_driver_name = etnaviv_fence_get_driver_name,
++	.get_timeline_name = etnaviv_fence_get_timeline_name,
++	.enable_signaling = etnaviv_fence_enable_signaling,
++	.signaled = etnaviv_fence_signaled,
++	.wait = fence_default_wait,
++	.release = etnaviv_fence_release,
++};
++
++static struct fence *etnaviv_gpu_fence_alloc(struct etnaviv_gpu *gpu)
++{
++	struct etnaviv_fence *f;
++
++	f = kzalloc(sizeof(*f), GFP_KERNEL);
++	if (!f)
++		return NULL;
++
++	f->gpu = gpu;
++
++	fence_init(&f->base, &etnaviv_fence_ops, &gpu->fence_spinlock,
++		   gpu->fence_context, ++gpu->next_fence);
++
++	return &f->base;
++}
++
+ int etnaviv_gpu_fence_sync_obj(struct etnaviv_gem_object *etnaviv_obj,
+ 	unsigned int context, bool exclusive)
+ {
+@@ -882,6 +950,12 @@ int etnaviv_gpu_fence_sync_obj(struct etnaviv_gem_object *etnaviv_obj,
+ 	struct fence *fence;
+ 	int i, ret, held;
+ 
++	if (!exclusive) {
++		ret = reservation_object_reserve_shared(robj);
++		if (ret)
++			return ret;
++	}
++
+ 	/*
+ 	 * If we have any shared fences, then the exclusive fence
+ 	 * should be ignored as it will already have been signalled.
+@@ -1008,10 +1082,11 @@ static void retire_worker(struct work_struct *work)
+ 	mutex_lock(&dev->struct_mutex);
+ 	list_for_each_entry_safe(cmdbuf, tmp, &gpu->active_cmd_list,
+ 				 gpu_active_list) {
+-		if (!fence_after_eq(fence, cmdbuf->fence))
++		if (!fence_is_signaled(cmdbuf->fence))
+ 			break;
+ 
+ 		list_del(&cmdbuf->gpu_active_list);
++		fence_put(cmdbuf->fence);
+ 
+ 		for (i = 0; i < cmdbuf->nr_bos; i++) {
+ 			etnaviv_gem_move_to_inactive(&cmdbuf->bo[i]->base);
+@@ -1125,6 +1200,7 @@ void etnaviv_gpu_pm_put(struct etnaviv_gpu *gpu)
+ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_submit *submit, struct etnaviv_cmdbuf *cmdbuf)
+ {
++	struct fence *fence;
+ 	unsigned int event, i;
+ 	int ret;
+ 
+@@ -1148,10 +1224,16 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 		return -EBUSY;
+ 	}
+ 
+-	submit->fence = ++gpu->next_fence;
++	fence = etnaviv_gpu_fence_alloc(gpu);
++	if (!fence) {
++		event_free(gpu, event);
++		pm_runtime_put_autosuspend(gpu->dev);
++		return -ENOMEM;
++	}
+ 
++	gpu->event[event].fence = fence;
++	submit->fence = fence->seqno;
+ 	gpu->active_fence = submit->fence;
+-	gpu->event[event].fence = submit->fence;
+ 
+ 	if (gpu->lastctx != cmdbuf->ctx) {
+ 		gpu->mmu->need_flush = true;
+@@ -1161,7 +1243,7 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 
+ 	etnaviv_buffer_queue(gpu, event, cmdbuf);
+ 
+-	cmdbuf->fence = submit->fence;
++	cmdbuf->fence = fence;
+ 	list_add_tail(&cmdbuf->gpu_active_list, &gpu->active_cmd_list);
+ 
+ 	for (i = 0; i < submit->nr_bos; i++) {
+@@ -1174,6 +1256,13 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 		cmdbuf->bo[i] = etnaviv_obj;
+ 		atomic_inc(&etnaviv_obj->gpu_active);
+ 
++		if (submit->bos[i].flags & ETNA_SUBMIT_BO_WRITE)
++			reservation_object_add_excl_fence(etnaviv_obj->resv,
++							  fence);
++		else
++			reservation_object_add_shared_fence(etnaviv_obj->resv,
++							    fence);
++
+ 		/* can't happen yet.. but when we add 2d support we'll have
+ 		 * to deal w/ cross-ring synchronization:
+ 		 */
+@@ -1214,11 +1303,18 @@ static irqreturn_t irq_handler(int irq, void *data)
+ 		}
+ 
+ 		while ((event = ffs(intr)) != 0) {
++			struct fence *fence;
++
+ 			event -= 1;
+ 
+ 			intr &= ~(1 << event);
+ 
+ 			dev_dbg(gpu->dev, "event %u\n", event);
++
++			fence = gpu->event[event].fence;
++			gpu->event[event].fence = NULL;
++			fence_signal(fence);
++
+ 			/*
+ 			 * Events can be processed out of order.  Eg,
+ 			 * - allocate and queue event 0
+@@ -1228,9 +1324,9 @@ static irqreturn_t irq_handler(int irq, void *data)
+ 			 * - event 1 and event 0 complete
+ 			 * we can end up processing event 0 first, then 1.
+ 			 */
+-			if (fence_after(gpu->event[event].fence,
+-					gpu->completed_fence))
+-				gpu->completed_fence = gpu->event[event].fence;
++			if (fence_after(fence->seqno, gpu->completed_fence))
++				gpu->completed_fence = fence->seqno;
++
+ 			event_free(gpu, event);
+ 
+ 			/*
+@@ -1361,6 +1457,7 @@ static int etnaviv_gpu_bind(struct device *dev, struct device *master,
+ 
+ 	gpu->drm = drm;
+ 	gpu->fence_context = fence_context_alloc(1);
++	spin_lock_init(&gpu->fence_spinlock);
+ 
+ 	INIT_LIST_HEAD(&gpu->active_cmd_list);
+ 	INIT_WORK(&gpu->retire_work, retire_worker);
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index 9cd0894..5cb0b6e 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -79,7 +79,7 @@ struct etnaviv_chip_identity {
+ 
+ struct etnaviv_event {
+ 	bool used;
+-	u32 fence;
++	struct fence *fence;
+ };
+ 
+ struct etnaviv_cmdbuf;
+@@ -114,6 +114,7 @@ struct etnaviv_gpu {
+ 	u32 retired_fence;
+ 	wait_queue_head_t fence_event;
+ 	unsigned int fence_context;
++	spinlock_t fence_spinlock;
+ 
+ 	/* worker for handling active-list retiring: */
+ 	struct work_struct retire_work;
+@@ -148,7 +149,7 @@ struct etnaviv_cmdbuf {
+ 	u32 size;
+ 	u32 user_size;
+ 	/* fence after which this buffer is to be disposed */
+-	u32 fence;
++	struct fence *fence;
+ 	/* target exec state */
+ 	u32 exec_state;
+ 	/* per GPU in-flight list */
+-- 
+2.6.2
+

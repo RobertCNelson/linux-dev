@@ -1,0 +1,122 @@
+From 420ff87c757d2d38a51d50d1eb82ac7e754cf866 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Sun, 22 Nov 2015 23:01:44 +0000
+Subject: [PATCH 164/178] staging: etnaviv: fix prime import reservation object
+ handling
+
+We should be using the imported dmabuf reservation object rather than
+our privately allocated reservation object when importing dmabufs.
+Arrange to use the imported dmabuf's reservation object.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c       | 26 ++++++++++++++++----------
+ drivers/staging/etnaviv/etnaviv_gem.h       |  3 ++-
+ drivers/staging/etnaviv/etnaviv_gem_prime.c |  1 +
+ 3 files changed, 19 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index be114f6..ea463bf 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -496,7 +496,8 @@ void etnaviv_gem_free_object(struct drm_gem_object *obj)
+ 
+ 	drm_gem_free_mmap_offset(obj);
+ 	etnaviv_obj->ops->release(etnaviv_obj);
+-	reservation_object_fini(&etnaviv_obj->_resv);
++	if (etnaviv_obj->resv == &etnaviv_obj->_resv)
++		reservation_object_fini(&etnaviv_obj->_resv);
+ 	drm_gem_object_release(obj);
+ 
+ 	kfree(etnaviv_obj);
+@@ -519,7 +520,8 @@ int etnaviv_gem_obj_add(struct drm_device *dev, struct drm_gem_object *obj)
+ }
+ 
+ static int etnaviv_gem_new_impl(struct drm_device *dev, u32 size, u32 flags,
+-	const struct etnaviv_gem_ops *ops, struct drm_gem_object **obj)
++	struct reservation_object *robj, const struct etnaviv_gem_ops *ops,
++	struct drm_gem_object **obj)
+ {
+ 	struct etnaviv_gem_object *etnaviv_obj;
+ 	unsigned sz = sizeof(*etnaviv_obj);
+@@ -547,9 +549,12 @@ static int etnaviv_gem_new_impl(struct drm_device *dev, u32 size, u32 flags,
+ 
+ 	etnaviv_obj->flags = flags;
+ 	etnaviv_obj->ops = ops;
+-
+-	etnaviv_obj->resv = &etnaviv_obj->_resv;
+-	reservation_object_init(&etnaviv_obj->_resv);
++	if (robj) {
++		etnaviv_obj->resv = robj;
++	} else {
++		etnaviv_obj->resv = &etnaviv_obj->_resv;
++		reservation_object_init(&etnaviv_obj->_resv);
++	}
+ 
+ 	INIT_LIST_HEAD(&etnaviv_obj->mm_list);
+ 	INIT_LIST_HEAD(&etnaviv_obj->vram_list);
+@@ -567,8 +572,8 @@ static struct drm_gem_object *__etnaviv_gem_new(struct drm_device *dev,
+ 
+ 	size = PAGE_ALIGN(size);
+ 
+-	ret = etnaviv_gem_new_impl(dev, size, flags, &etnaviv_gem_shmem_ops,
+-				   &obj);
++	ret = etnaviv_gem_new_impl(dev, size, flags, NULL,
++				   &etnaviv_gem_shmem_ops, &obj);
+ 	if (ret)
+ 		goto fail;
+ 
+@@ -644,12 +649,13 @@ struct drm_gem_object *etnaviv_gem_new(struct drm_device *dev,
+ }
+ 
+ int etnaviv_gem_new_private(struct drm_device *dev, size_t size, u32 flags,
+-	const struct etnaviv_gem_ops *ops, struct etnaviv_gem_object **res)
++	struct reservation_object *robj, const struct etnaviv_gem_ops *ops,
++	struct etnaviv_gem_object **res)
+ {
+ 	struct drm_gem_object *obj;
+ 	int ret;
+ 
+-	ret = etnaviv_gem_new_impl(dev, size, flags, ops, &obj);
++	ret = etnaviv_gem_new_impl(dev, size, flags, robj, ops, &obj);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -834,7 +840,7 @@ int etnaviv_gem_new_userptr(struct drm_device *dev, struct drm_file *file,
+ 	struct etnaviv_gem_object *etnaviv_obj;
+ 	int ret;
+ 
+-	ret = etnaviv_gem_new_private(dev, size, ETNA_BO_CACHED,
++	ret = etnaviv_gem_new_private(dev, size, ETNA_BO_CACHED, NULL,
+ 				      &etnaviv_gem_userptr_ops, &etnaviv_obj);
+ 	if (ret)
+ 		return ret;
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index cb3aea2..2620f8f 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -117,7 +117,8 @@ struct etnaviv_vram_mapping *
+ etnaviv_gem_get_vram_mapping(struct etnaviv_gem_object *obj,
+ 			     struct etnaviv_iommu *mmu);
+ int etnaviv_gem_new_private(struct drm_device *dev, size_t size, u32 flags,
+-	const struct etnaviv_gem_ops *ops, struct etnaviv_gem_object **res);
++	struct reservation_object *robj, const struct etnaviv_gem_ops *ops,
++	struct etnaviv_gem_object **res);
+ int etnaviv_gem_obj_add(struct drm_device *dev, struct drm_gem_object *obj);
+ struct page **etnaviv_gem_get_pages(struct etnaviv_gem_object *obj);
+ void etnaviv_gem_put_pages(struct etnaviv_gem_object *obj);
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_prime.c b/drivers/staging/etnaviv/etnaviv_gem_prime.c
+index 0247e3f..ac791fc 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_prime.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_prime.c
+@@ -90,6 +90,7 @@ struct drm_gem_object *etnaviv_gem_prime_import_sg_table(struct drm_device *dev,
+ 	int ret, npages;
+ 
+ 	ret = etnaviv_gem_new_private(dev, size, ETNA_BO_WC,
++				      attach->dmabuf->resv,
+ 				      &etnaviv_gem_prime_ops, &etnaviv_obj);
+ 	if (ret < 0)
+ 		return ERR_PTR(ret);
+-- 
+2.6.2
+

@@ -1,0 +1,195 @@
+From c48f7c717aebd419c609378e988de7ec5a518153 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Sun, 22 Nov 2015 23:01:44 +0000
+Subject: [PATCH 165/178] staging: etnaviv: keep a list of mappings on a MMU
+
+Keep a list of the etnaviv_vram_mapping structures attached to a
+particular GPU.  When we need to unmap something, this makes the
+process more efficient as we can just scan the nodes which are
+mapped on the appropriate GPU, rather than all objects.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c | 26 ++++++++++++++++----------
+ drivers/staging/etnaviv/etnaviv_gem.h |  1 +
+ drivers/staging/etnaviv/etnaviv_mmu.c | 26 +++++++++++++-------------
+ drivers/staging/etnaviv/etnaviv_mmu.h |  1 +
+ 4 files changed, 31 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index ea463bf..0fe910d 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -256,22 +256,26 @@ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ {
+ 	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+ 	struct etnaviv_vram_mapping *mapping;
++	struct page **pages;
+ 	int ret = 0;
+ 
+ 	mapping = etnaviv_gem_get_vram_mapping(etnaviv_obj, gpu->mmu);
+-	if (!mapping) {
+-		struct page **pages = etnaviv_gem_get_pages(etnaviv_obj);
+-		if (IS_ERR(pages))
+-			return PTR_ERR(pages);
+-		ret = etnaviv_iommu_map_gem(gpu->mmu, etnaviv_obj,
+-				gpu->memory_base, &mapping);
+-	}
+-
+-	if (!ret) {
++	if (mapping) {
+ 		mapping->use += 1;
+ 		*iova = mapping->iova;
++		return 0;
+ 	}
+ 
++	pages = etnaviv_gem_get_pages(etnaviv_obj);
++	if (IS_ERR(pages))
++		return PTR_ERR(pages);
++
++	/* etnaviv_iommu_map_gem initialises use-count */
++	ret = etnaviv_iommu_map_gem(gpu->mmu, etnaviv_obj, gpu->memory_base,
++				    &mapping);
++	if (!ret)
++		*iova = mapping->iova;
++
+ 	return ret;
+ }
+ 
+@@ -491,8 +495,10 @@ void etnaviv_gem_free_object(struct drm_gem_object *obj)
+ 	list_del(&etnaviv_obj->mm_list);
+ 
+ 	list_for_each_entry_safe(mapping, tmp, &etnaviv_obj->vram_list,
+-				 obj_node)
++				 obj_node) {
++		WARN_ON(mapping->use);
+ 		etnaviv_iommu_unmap_gem(mapping);
++	}
+ 
+ 	drm_gem_free_mmap_offset(obj);
+ 	etnaviv_obj->ops->release(etnaviv_obj);
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index 2620f8f..3fcfa62 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -33,6 +33,7 @@ struct etnaviv_gem_userptr {
+ struct etnaviv_vram_mapping {
+ 	struct list_head obj_node;
+ 	struct list_head scan_node;
++	struct list_head mmu_node;
+ 	struct etnaviv_gem_object *object;
+ 	struct etnaviv_iommu *mmu;
+ 	struct drm_mm_node vram_node;
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index 901bc91..68d0ce3 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -95,9 +95,8 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	struct etnaviv_gem_object *etnaviv_obj, u32 memory_base,
+ 	struct etnaviv_vram_mapping **out_mapping)
+ {
+-	struct etnaviv_drm_private *priv = etnaviv_obj->base.dev->dev_private;
+-	struct sg_table *sgt = etnaviv_obj->sgt;
+ 	struct etnaviv_vram_mapping *mapping, *free = NULL;
++	struct sg_table *sgt = etnaviv_obj->sgt;
+ 	struct drm_mm_node *node;
+ 	int ret;
+ 
+@@ -108,6 +107,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	INIT_LIST_HEAD(&mapping->scan_node);
+ 	mapping->object = etnaviv_obj;
+ 	mapping->mmu = mmu;
++	mapping->use = 1;
+ 
+ 	/* v1 MMU can optimize single entry (contiguous) scatterlists */
+ 	if (sgt->nents == 1 && !(etnaviv_obj->flags & ETNA_BO_FORCE_MMU)) {
+@@ -118,6 +118,8 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 			mapping->iova = iova;
+ 			list_add_tail(&mapping->obj_node,
+ 				      &etnaviv_obj->vram_list);
++			list_add_tail(&mapping->mmu_node,
++				      &mmu->mappings);
+ 			if (out_mapping)
+ 				*out_mapping = mapping;
+ 			return 0;
+@@ -126,7 +128,6 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 
+ 	node = &mapping->vram_node;
+ 	while (1) {
+-		struct etnaviv_gem_object *o;
+ 		struct etnaviv_vram_mapping *m, *n;
+ 		struct list_head list;
+ 		bool found;
+@@ -153,20 +154,14 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 
+ 		found = 0;
+ 		INIT_LIST_HEAD(&list);
+-		list_for_each_entry(o, &priv->inactive_list, mm_list) {
+-			free = etnaviv_gem_get_vram_mapping(o, mmu);
+-			if (!free)
+-				continue;
+-
+-			/*
+-			 * If this vram node has not been used, skip this.
+-			 */
++		list_for_each_entry(free, &mmu->mappings, mmu_node) {
++			/* If this vram node has not been used, skip this. */
+ 			if (!free->vram_node.mm)
+ 				continue;
+ 
+ 			/*
+-			 * If the iova is locked, then it is part of
+-			 * a submission, and we want to keep its entry.
++			 * If the iova is pinned, then it's in-use,
++			 * so we must keep its mapping.
+ 			 */
+ 			if (free->use)
+ 				continue;
+@@ -225,6 +220,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	}
+ 
+ 	list_add_tail(&mapping->obj_node, &etnaviv_obj->vram_list);
++	list_add_tail(&mapping->mmu_node, &mmu->mappings);
+ 	if (out_mapping)
+ 		*out_mapping = mapping;
+ 
+@@ -239,6 +235,8 @@ void etnaviv_iommu_unmap_gem(struct etnaviv_vram_mapping *mapping)
+ 	if (!mapping)
+ 		return;
+ 
++	WARN_ON(mapping->use);
++
+ 	mmu = mapping->mmu;
+ 
+ 	/* If the vram node is on the mm, unmap and remove the node */
+@@ -249,6 +247,7 @@ void etnaviv_iommu_unmap_gem(struct etnaviv_vram_mapping *mapping)
+ 		drm_mm_remove_node(&mapping->vram_node);
+ 	}
+ 
++	list_del(&mapping->mmu_node);
+ 	list_del(&mapping->obj_node);
+ 	kfree(mapping);
+ }
+@@ -272,6 +271,7 @@ struct etnaviv_iommu *etnaviv_iommu_new(struct etnaviv_gpu *gpu,
+ 	mmu->domain = domain;
+ 	mmu->gpu = gpu;
+ 	mmu->version = version;
++	INIT_LIST_HEAD(&mmu->mappings);
+ 
+ 	drm_mm_init(&mmu->mm, domain->geometry.aperture_start,
+ 		    domain->geometry.aperture_end -
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.h b/drivers/staging/etnaviv/etnaviv_mmu.h
+index 3d700db..e4cf8b9 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.h
++++ b/drivers/staging/etnaviv/etnaviv_mmu.h
+@@ -40,6 +40,7 @@ struct etnaviv_iommu {
+ 	enum etnaviv_iommu_version version;
+ 
+ 	/* memory manager for GPU address area */
++	struct list_head mappings;
+ 	struct drm_mm mm;
+ 	u32 last_iova;
+ 	bool need_flush;
+-- 
+2.6.2
+

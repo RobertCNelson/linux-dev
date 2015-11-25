@@ -1,0 +1,108 @@
+From 77be66910b03613e7ea34e28d2b918b438bb825c Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Sun, 22 Nov 2015 23:01:46 +0000
+Subject: [PATCH 174/178] staging: etnaviv: switch etnaviv_gem_cpu_prep() to
+ use struct fence
+
+Use struct fence to determine when it is safe to grant access to the
+GPU buffer.  This does not take out a fence against the buffer, so
+userspace promises not to start a GPU operation on the buffer until
+the CPU access has been finished.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.h | 15 +++++++++++++++
+ drivers/staging/etnaviv/etnaviv_gem.c | 24 +++++++++++-------------
+ drivers/staging/etnaviv/etnaviv_gpu.c | 14 --------------
+ 3 files changed, 26 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index a5cee7d..0521a47 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -146,4 +146,19 @@ static inline bool fence_after_eq(u32 a, u32 b)
+ 	return (s32)(a - b) >= 0;
+ }
+ 
++static inline unsigned long etnaviv_timeout_to_jiffies(
++	const struct timespec *timeout)
++{
++	unsigned long timeout_jiffies = timespec_to_jiffies(timeout);
++	unsigned long start_jiffies = jiffies;
++	unsigned long remaining_jiffies;
++
++	if (time_after(start_jiffies, timeout_jiffies))
++		remaining_jiffies = 0;
++	else
++		remaining_jiffies = timeout_jiffies - start_jiffies;
++
++	return remaining_jiffies;
++}
++
+ #endif /* __ETNAVIV_DRV_H__ */
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index cf37e41..40a397d 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -365,22 +365,20 @@ int etnaviv_gem_cpu_prep(struct drm_gem_object *obj, u32 op,
+ {
+ 	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+ 	struct drm_device *dev = obj->dev;
++	bool write = !!(op & ETNA_PREP_WRITE);
+ 	int ret;
+ 
+-	if (is_active(etnaviv_obj)) {
+-		struct etnaviv_gpu *gpu = etnaviv_obj->gpu;
+-		u32 fence = 0;
+-
+-		if (op & ETNA_PREP_READ)
+-			fence = etnaviv_obj->write_fence;
+-		if (op & ETNA_PREP_WRITE)
+-			fence = max(fence, etnaviv_obj->read_fence);
+-		if (op & ETNA_PREP_NOSYNC)
+-			timeout = NULL;
++	if (op & ETNA_PREP_NOSYNC) {
++		if (!reservation_object_test_signaled_rcu(etnaviv_obj->resv,
++							  write))
++			return -EBUSY;
++	} else {
++		unsigned long remain = etnaviv_timeout_to_jiffies(timeout);
+ 
+-		ret = etnaviv_gpu_wait_fence_interruptible(gpu, fence, timeout);
+-		if (ret)
+-			return ret;
++		ret = reservation_object_wait_timeout_rcu(etnaviv_obj->resv,
++							  write, true, remain);
++		if (ret <= 0)
++			return ret == 0 ? -ETIMEDOUT : ret;
+ 	}
+ 
+ 	if (etnaviv_obj->flags & ETNA_BO_CACHED) {
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 7316575..d5ac6b6 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1105,20 +1105,6 @@ static void retire_worker(struct work_struct *work)
+ 	wake_up_all(&gpu->fence_event);
+ }
+ 
+-static unsigned long etnaviv_timeout_to_jiffies(struct timespec *timeout)
+-{
+-	unsigned long timeout_jiffies = timespec_to_jiffies(timeout);
+-	unsigned long start_jiffies = jiffies;
+-	unsigned long remaining_jiffies;
+-
+-	if (time_after(start_jiffies, timeout_jiffies))
+-		remaining_jiffies = 0;
+-	else
+-		remaining_jiffies = timeout_jiffies - start_jiffies;
+-
+-	return remaining_jiffies;
+-}
+-
+ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+ 	u32 fence, struct timespec *timeout)
+ {
+-- 
+2.6.2
+
