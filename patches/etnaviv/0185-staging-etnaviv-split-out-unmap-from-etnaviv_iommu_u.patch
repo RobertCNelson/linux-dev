@@ -1,0 +1,59 @@
+From 69dfdcdcd4becf3440807ab1b7479672e4314213 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:14 +0000
+Subject: [PATCH 185/194] staging: etnaviv: split out unmap from
+ etnaviv_iommu_unmap_gem()
+
+Split out the unmap operation from etnaviv_iommu_unmap_gem(), so that
+we can re-use it in etnaviv_iommu_map_gem() when reaping an object.
+We need to split this out so we can re-organise the locking sanely.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_mmu.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index a7d07b1..ed1972b 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -91,6 +91,16 @@ int etnaviv_iommu_unmap(struct etnaviv_iommu *iommu, u32 iova,
+ 	return 0;
+ }
+ 
++static void etnaviv_iommu_remove_mapping(struct etnaviv_iommu *mmu,
++	struct etnaviv_vram_mapping *mapping)
++{
++	struct etnaviv_gem_object *etnaviv_obj = mapping->object;
++
++	etnaviv_iommu_unmap(mmu, mapping->vram_node.start,
++			    etnaviv_obj->sgt, etnaviv_obj->base.size);
++	drm_mm_remove_node(&mapping->vram_node);
++}
++
+ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	struct etnaviv_gem_object *etnaviv_obj, u32 memory_base,
+ 	struct etnaviv_vram_mapping *mapping)
+@@ -212,17 +222,11 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ void etnaviv_iommu_unmap_gem(struct etnaviv_iommu *mmu,
+ 	struct etnaviv_vram_mapping *mapping)
+ {
+-	struct etnaviv_gem_object *etnaviv_obj;
+-
+ 	WARN_ON(mapping->use);
+ 
+ 	/* If the vram node is on the mm, unmap and remove the node */
+-	if (mapping->vram_node.mm == &mmu->mm) {
+-		etnaviv_obj = mapping->object;
+-		etnaviv_iommu_unmap(mmu, mapping->vram_node.start,
+-				    etnaviv_obj->sgt, etnaviv_obj->base.size);
+-		drm_mm_remove_node(&mapping->vram_node);
+-	}
++	if (mapping->vram_node.mm == &mmu->mm)
++		etnaviv_iommu_remove_mapping(mmu, mapping);
+ 
+ 	list_del(&mapping->mmu_node);
+ }
+-- 
+2.6.2
+

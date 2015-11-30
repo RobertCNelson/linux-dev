@@ -1,0 +1,39 @@
+From 22f8ed2411e9ca03bc4ca417f8fb46ae4687de4c Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:12 +0000
+Subject: [PATCH 178/194] staging: etnaviv: fix build error with lockdep
+ disabled
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gpu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index f289759..ef1903b 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -948,7 +948,7 @@ int etnaviv_gpu_fence_sync_obj(struct etnaviv_gem_object *etnaviv_obj,
+ 	struct reservation_object *robj = etnaviv_obj->resv;
+ 	struct reservation_object_list *fobj;
+ 	struct fence *fence;
+-	int i, ret, held;
++	int i, ret;
+ 
+ 	if (!exclusive) {
+ 		ret = reservation_object_reserve_shared(robj);
+@@ -974,9 +974,9 @@ int etnaviv_gpu_fence_sync_obj(struct etnaviv_gem_object *etnaviv_obj,
+ 	if (!exclusive || !fobj)
+ 		return 0;
+ 
+-	held = reservation_object_held(robj);
+ 	for (i = 0; i < fobj->shared_count; i++) {
+-		fence = rcu_dereference_protected(fobj->shared[i], held);
++		fence = rcu_dereference_protected(fobj->shared[i],
++						reservation_object_held(robj));
+ 		if (fence->context != context) {
+ 			ret = fence_wait(fence, true);
+ 			if (ret)
+-- 
+2.6.2
+

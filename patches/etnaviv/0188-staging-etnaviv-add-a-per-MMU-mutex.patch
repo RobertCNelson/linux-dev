@@ -1,0 +1,174 @@
+From f024987851cb6c0a0cacd0814c0dfad75f59ce0b Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:14 +0000
+Subject: [PATCH 188/194] staging: etnaviv: add a per-MMU mutex
+
+Add a mutex to protect the MMU operations.  We must ensure that only one
+allocation is allowed to proceed at any one time (including reaping of
+old allocations) and also protect the MMU list against concurrent
+modification.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 20 +++++++-------------
+ drivers/staging/etnaviv/etnaviv_gem.c | 21 +++++++++++++++++++--
+ drivers/staging/etnaviv/etnaviv_mmu.c | 13 ++++++++++++-
+ drivers/staging/etnaviv/etnaviv_mmu.h |  1 +
+ 4 files changed, 39 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index 0802f24..a5618ae 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -155,20 +155,14 @@ static int etnaviv_mm_show(struct drm_device *dev, struct seq_file *m)
+ 	return ret;
+ }
+ 
+-static int etnaviv_mmu_show(struct drm_device *dev, struct seq_file *m)
++static int etnaviv_mmu_show(struct etnaviv_gpu *gpu, struct seq_file *m)
+ {
+-	struct etnaviv_drm_private *priv = dev->dev_private;
+-	struct etnaviv_gpu *gpu;
+-	unsigned int i;
++	seq_printf(m, "Active Objects (%s):\n", dev_name(gpu->dev));
++
++	mutex_lock(&gpu->mmu->lock);
++	drm_mm_dump_table(m, &gpu->mmu->mm);
++	mutex_unlock(&gpu->mmu->lock);
+ 
+-	for (i = 0; i < ETNA_MAX_PIPES; i++) {
+-		gpu = priv->gpu[i];
+-		if (gpu) {
+-			seq_printf(m, "Active Objects (%s):\n",
+-				   dev_name(gpu->dev));
+-			drm_mm_dump_table(m, &gpu->mmu->mm);
+-		}
+-	}
+ 	return 0;
+ }
+ 
+@@ -266,7 +260,7 @@ static struct drm_info_list etnaviv_debugfs_list[] = {
+ 		{"gpu", show_each_gpu, 0, etnaviv_gpu_debugfs},
+ 		{"gem", show_unlocked, 0, etnaviv_gem_show},
+ 		{ "mm", show_unlocked, 0, etnaviv_mm_show },
+-		{"mmu", show_locked, 0, etnaviv_mmu_show},
++		{"mmu", show_each_gpu, 0, etnaviv_mmu_show},
+ 		{"ring", show_locked, 0, etnaviv_ring_show},
+ };
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index 19549e5..0106c24 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -274,8 +274,25 @@ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ 
+ 	mapping = etnaviv_gem_get_vram_mapping(etnaviv_obj, gpu->mmu);
+ 	if (mapping) {
+-		mapping->use += 1;
+-		goto out;
++		/*
++		 * Holding the object lock prevents the use count changing
++		 * beneath us.  If the use count is zero, the MMU might be
++		 * reaping this object, so take the lock and re-check that
++		 * the MMU owns this mapping to close this race.
++		 */
++		if (mapping->use == 0) {
++			mutex_lock(&gpu->mmu->lock);
++			if (mapping->mmu == gpu->mmu)
++				mapping->use += 1;
++			else
++				mapping = NULL;
++			mutex_unlock(&gpu->mmu->lock);
++			if (mapping)
++				goto out;
++		} else {
++			mapping->use += 1;
++			goto out;
++		}
+ 	}
+ 
+ 	pages = etnaviv_gem_get_pages(etnaviv_obj);
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index a7a3fc5..5fc94ca 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -110,6 +110,8 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 	struct drm_mm_node *node;
+ 	int ret;
+ 
++	mutex_lock(&mmu->lock);
++
+ 	/* v1 MMU can optimize single entry (contiguous) scatterlists */
+ 	if (sgt->nents == 1 && !(etnaviv_obj->flags & ETNA_BO_FORCE_MMU)) {
+ 		u32 iova;
+@@ -118,6 +120,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 		if (iova < 0x80000000 - sg_dma_len(sgt->sgl)) {
+ 			mapping->iova = iova;
+ 			list_add_tail(&mapping->mmu_node, &mmu->mappings);
++			mutex_unlock(&mmu->lock);
+ 			return 0;
+ 		}
+ 	}
+@@ -207,8 +210,10 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 		mmu->need_flush = true;
+ 	}
+ 
+-	if (ret < 0)
++	if (ret < 0) {
++		mutex_unlock(&mmu->lock);
+ 		return ret;
++	}
+ 
+ 	mmu->last_iova = node->start + etnaviv_obj->base.size;
+ 	mapping->iova = node->start;
+@@ -217,10 +222,12 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 
+ 	if (ret < 0) {
+ 		drm_mm_remove_node(node);
++		mutex_unlock(&mmu->lock);
+ 		return ret;
+ 	}
+ 
+ 	list_add_tail(&mapping->mmu_node, &mmu->mappings);
++	mutex_unlock(&mmu->lock);
+ 
+ 	return ret;
+ }
+@@ -230,11 +237,14 @@ void etnaviv_iommu_unmap_gem(struct etnaviv_iommu *mmu,
+ {
+ 	WARN_ON(mapping->use);
+ 
++	mutex_lock(&mmu->lock);
++
+ 	/* If the vram node is on the mm, unmap and remove the node */
+ 	if (mapping->vram_node.mm == &mmu->mm)
+ 		etnaviv_iommu_remove_mapping(mmu, mapping);
+ 
+ 	list_del(&mapping->mmu_node);
++	mutex_unlock(&mmu->lock);
+ }
+ 
+ void etnaviv_iommu_destroy(struct etnaviv_iommu *mmu)
+@@ -256,6 +266,7 @@ struct etnaviv_iommu *etnaviv_iommu_new(struct etnaviv_gpu *gpu,
+ 	mmu->domain = domain;
+ 	mmu->gpu = gpu;
+ 	mmu->version = version;
++	mutex_init(&mmu->lock);
+ 	INIT_LIST_HEAD(&mmu->mappings);
+ 
+ 	drm_mm_init(&mmu->mm, domain->geometry.aperture_start,
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.h b/drivers/staging/etnaviv/etnaviv_mmu.h
+index d612adb..fff215a 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.h
++++ b/drivers/staging/etnaviv/etnaviv_mmu.h
+@@ -40,6 +40,7 @@ struct etnaviv_iommu {
+ 	enum etnaviv_iommu_version version;
+ 
+ 	/* memory manager for GPU address area */
++	struct mutex lock;
+ 	struct list_head mappings;
+ 	struct drm_mm mm;
+ 	u32 last_iova;
+-- 
+2.6.2
+

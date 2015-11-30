@@ -1,0 +1,78 @@
+From a5f2da83c563fab1be5a5b7dcae789258b198beb Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:13 +0000
+Subject: [PATCH 184/194] staging: etnaviv: move etnaviv_gem_get_vram_mapping()
+ and make it static
+
+Move etnaviv_gem_get_vram_mapping() before its two users, and make
+it static, there's no need for this to be exposed.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c | 28 ++++++++++++++--------------
+ drivers/staging/etnaviv/etnaviv_gem.h |  3 ---
+ 2 files changed, 14 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index 15b092e..fa2885c 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -243,6 +243,20 @@ int etnaviv_gem_mmap_offset(struct drm_gem_object *obj, u64 *offset)
+ 	return ret;
+ }
+ 
++static struct etnaviv_vram_mapping *
++etnaviv_gem_get_vram_mapping(struct etnaviv_gem_object *obj,
++			     struct etnaviv_iommu *mmu)
++{
++	struct etnaviv_vram_mapping *mapping;
++
++	list_for_each_entry(mapping, &obj->vram_list, obj_node) {
++		if (mapping->mmu == mmu)
++			return mapping;
++	}
++
++	return NULL;
++}
++
+ /* should be called under struct_mutex.. although it can be called
+  * from atomic context without struct_mutex to acquire an extra
+  * iova ref if you know one is already held.
+@@ -684,20 +698,6 @@ int etnaviv_gem_new_private(struct drm_device *dev, size_t size, u32 flags,
+ 	return 0;
+ }
+ 
+-struct etnaviv_vram_mapping *
+-etnaviv_gem_get_vram_mapping(struct etnaviv_gem_object *obj,
+-			     struct etnaviv_iommu *mmu)
+-{
+-	struct etnaviv_vram_mapping *mapping;
+-
+-	list_for_each_entry(mapping, &obj->vram_list, obj_node) {
+-		if (mapping->mmu == mmu)
+-			return mapping;
+-	}
+-
+-	return NULL;
+-}
+-
+ struct get_pages_work {
+ 	struct work_struct work;
+ 	struct mm_struct *mm;
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.h b/drivers/staging/etnaviv/etnaviv_gem.h
+index 61e287c..dc2d94d 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.h
++++ b/drivers/staging/etnaviv/etnaviv_gem.h
+@@ -106,9 +106,6 @@ struct etnaviv_gem_submit {
+ 
+ int etnaviv_gem_wait_bo(struct etnaviv_gpu *gpu, struct drm_gem_object *obj,
+ 	struct timespec *timeout);
+-struct etnaviv_vram_mapping *
+-etnaviv_gem_get_vram_mapping(struct etnaviv_gem_object *obj,
+-			     struct etnaviv_iommu *mmu);
+ int etnaviv_gem_new_private(struct drm_device *dev, size_t size, u32 flags,
+ 	struct reservation_object *robj, const struct etnaviv_gem_ops *ops,
+ 	struct etnaviv_gem_object **res);
+-- 
+2.6.2
+

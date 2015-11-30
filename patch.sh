@@ -623,8 +623,8 @@ etnaviv () {
 	#git checkout v4.3 -b testing
 	#git pull --no-edit git://ftp.arm.linux.org.uk/~rmk/linux-arm.git drm-etnaviv-devel
 
-	#git format-patch -179 | grep 4.3 ; rm *.patch
-	#git format-patch -178 -o /opt/github/linux-dev/patches/etnaviv/
+	#git format-patch -195 | grep 4.3 ; rm *.patch
+	#git format-patch -194 -o /opt/github/linux-dev/patches/etnaviv/
 	#git checkout master -f
 	#git branch -D testing
 
@@ -805,10 +805,25 @@ etnaviv () {
 	${git} "${DIR}/patches/etnaviv/0175-staging-etnaviv-convert-debugfs-gem-dump-to-use-stru.patch"
 	${git} "${DIR}/patches/etnaviv/0176-staging-etnaviv-remove-last-vestiges-of-the-old-buff.patch"
 	${git} "${DIR}/patches/etnaviv/0177-staging-etnaviv-rename-gpu_active_list-to-be-just-pl.patch"
-#	${git} "${DIR}/patches/etnaviv/0178-Dont-Auto-Build.patch"
+	${git} "${DIR}/patches/etnaviv/0178-staging-etnaviv-fix-build-error-with-lockdep-disable.patch"
+	${git} "${DIR}/patches/etnaviv/0179-staging-etnaviv-arrange-for-IOVAs-to-take-an-object-.patch"
+	${git} "${DIR}/patches/etnaviv/0180-staging-etnaviv-remove-locking-in-etnaviv_ioctl_gem_.patch"
+	${git} "${DIR}/patches/etnaviv/0181-staging-etnaviv-use-vma-manager-lock-when-dumping-vm.patch"
+	${git} "${DIR}/patches/etnaviv/0182-staging-etnaviv-pass-MMU-into-etnaviv_iommu_unmap_ge.patch"
+	${git} "${DIR}/patches/etnaviv/0183-staging-etnaviv-move-etnaviv_vram_mapping-alloc-free.patch"
+	${git} "${DIR}/patches/etnaviv/0184-staging-etnaviv-move-etnaviv_gem_get_vram_mapping-an.patch"
+	${git} "${DIR}/patches/etnaviv/0185-staging-etnaviv-split-out-unmap-from-etnaviv_iommu_u.patch"
+	${git} "${DIR}/patches/etnaviv/0186-staging-etnaviv-allow-re-use-of-etnaviv_vram_mapping.patch"
+	${git} "${DIR}/patches/etnaviv/0187-staging-etnaviv-add-gem-list-lock.patch"
+	${git} "${DIR}/patches/etnaviv/0188-staging-etnaviv-add-a-per-MMU-mutex.patch"
+	${git} "${DIR}/patches/etnaviv/0189-staging-etnaviv-add-a-per-object-mutex.patch"
+	${git} "${DIR}/patches/etnaviv/0190-staging-etnaviv-move-object-pinning-out-from-struct_.patch"
+	${git} "${DIR}/patches/etnaviv/0191-staging-etnaviv-move-PM-and-struct_mutex-to-etnaviv_.patch"
+	${git} "${DIR}/patches/etnaviv/0192-staging-etnaviv-add-a-per-GPU-lock.patch"
+	${git} "${DIR}/patches/etnaviv/0193-staging-etnaviv-add-some-missing-sensitive-states.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=177
+		number=193
 		cleanup
 	fi
 }

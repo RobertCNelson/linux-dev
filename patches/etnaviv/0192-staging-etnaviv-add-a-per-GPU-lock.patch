@@ -1,0 +1,291 @@
+From b1c29fe5f3a10372c163e064e6158207841049a1 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:48 +0000
+Subject: [PATCH 192/194] staging: etnaviv: add a per-GPU lock
+
+Add a per-GPU lock, which protects the kernel ring buffer, fence
+allocation, last context tracking, GPU active command buffer list,
+and hardware access.
+
+There is one icky case here: when waiting for an object to be retired,
+we used to rely on dropping the reference to take the struct_mutex,
+which ensured that the retire worker was no longer running.  Instead,
+we switch to flushing the workqueue.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c | 49 ++++++++---------------------
+ drivers/staging/etnaviv/etnaviv_gpu.c | 58 +++++++++++++----------------------
+ drivers/staging/etnaviv/etnaviv_gpu.h |  1 +
+ 3 files changed, 35 insertions(+), 73 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index a5618ae..6629308 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -118,14 +118,16 @@ static void etnaviv_preclose(struct drm_device *dev, struct drm_file *file)
+ 	struct etnaviv_file_private *ctx = file->driver_priv;
+ 	unsigned int i;
+ 
+-	mutex_lock(&dev->struct_mutex);
+ 	for (i = 0; i < ETNA_MAX_PIPES; i++) {
+ 		struct etnaviv_gpu *gpu = priv->gpu[i];
+ 
+-		if (gpu && gpu->lastctx == ctx)
+-			gpu->lastctx = NULL;
++		if (gpu) {
++			mutex_lock(&gpu->lock);
++			if (gpu->lastctx == ctx)
++				gpu->lastctx = NULL;
++			mutex_unlock(&gpu->lock);
++		}
+ 	}
+-	mutex_unlock(&dev->struct_mutex);
+ 
+ 	kfree(ctx);
+ }
+@@ -186,20 +188,14 @@ static void etnaviv_buffer_dump(struct etnaviv_gpu *gpu, struct seq_file *m)
+ 	seq_puts(m, "\n");
+ }
+ 
+-static int etnaviv_ring_show(struct drm_device *dev, struct seq_file *m)
++static int etnaviv_ring_show(struct etnaviv_gpu *gpu, struct seq_file *m)
+ {
+-	struct etnaviv_drm_private *priv = dev->dev_private;
+-	struct etnaviv_gpu *gpu;
+-	unsigned int i;
++	seq_printf(m, "Ring Buffer (%s): ", dev_name(gpu->dev));
++
++	mutex_lock(&gpu->lock);
++	etnaviv_buffer_dump(gpu, m);
++	mutex_unlock(&gpu->lock);
+ 
+-	for (i = 0; i < ETNA_MAX_PIPES; i++) {
+-		gpu = priv->gpu[i];
+-		if (gpu) {
+-			seq_printf(m, "Ring Buffer (%s): ",
+-				   dev_name(gpu->dev));
+-			etnaviv_buffer_dump(gpu, m);
+-		}
+-	}
+ 	return 0;
+ }
+ 
+@@ -213,25 +209,6 @@ static int show_unlocked(struct seq_file *m, void *arg)
+ 	return show(dev, m);
+ }
+ 
+-static int show_locked(struct seq_file *m, void *arg)
+-{
+-	struct drm_info_node *node = (struct drm_info_node *) m->private;
+-	struct drm_device *dev = node->minor->dev;
+-	int (*show)(struct drm_device *dev, struct seq_file *m) =
+-			node->info_ent->data;
+-	int ret;
+-
+-	ret = mutex_lock_interruptible(&dev->struct_mutex);
+-	if (ret)
+-		return ret;
+-
+-	ret = show(dev, m);
+-
+-	mutex_unlock(&dev->struct_mutex);
+-
+-	return ret;
+-}
+-
+ static int show_each_gpu(struct seq_file *m, void *arg)
+ {
+ 	struct drm_info_node *node = (struct drm_info_node *) m->private;
+@@ -261,7 +238,7 @@ static struct drm_info_list etnaviv_debugfs_list[] = {
+ 		{"gem", show_unlocked, 0, etnaviv_gem_show},
+ 		{ "mm", show_unlocked, 0, etnaviv_mm_show },
+ 		{"mmu", show_each_gpu, 0, etnaviv_mmu_show},
+-		{"ring", show_locked, 0, etnaviv_ring_show},
++		{"ring", show_each_gpu, 0, etnaviv_ring_show},
+ };
+ 
+ static int etnaviv_debugfs_init(struct drm_minor *minor)
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 1f75834..0e02ae2 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -567,9 +567,9 @@ int etnaviv_gpu_init(struct etnaviv_gpu *gpu)
+ 	}
+ 
+ 	/* Now program the hardware */
+-	mutex_lock(&gpu->drm->struct_mutex);
++	mutex_lock(&gpu->lock);
+ 	etnaviv_gpu_hw_init(gpu);
+-	mutex_unlock(&gpu->drm->struct_mutex);
++	mutex_unlock(&gpu->lock);
+ 
+ 	pm_runtime_mark_last_busy(gpu->dev);
+ 	pm_runtime_put_autosuspend(gpu->dev);
+@@ -780,7 +780,6 @@ static void recover_worker(struct work_struct *work)
+ {
+ 	struct etnaviv_gpu *gpu = container_of(work, struct etnaviv_gpu,
+ 					       recover_work);
+-	struct drm_device *dev = gpu->drm;
+ 	unsigned long flags;
+ 	unsigned int i;
+ 
+@@ -789,7 +788,7 @@ static void recover_worker(struct work_struct *work)
+ 	if (pm_runtime_get_sync(gpu->dev) < 0)
+ 		return;
+ 
+-	mutex_lock(&dev->struct_mutex);
++	mutex_lock(&gpu->lock);
+ 
+ 	/* Only catch the first event, or when manually re-armed */
+ 	if (etnaviv_dump_core) {
+@@ -820,7 +819,7 @@ static void recover_worker(struct work_struct *work)
+ 	etnaviv_gpu_hw_init(gpu);
+ 	gpu->switch_context = true;
+ 
+-	mutex_unlock(&dev->struct_mutex);
++	mutex_unlock(&gpu->lock);
+ 	pm_runtime_mark_last_busy(gpu->dev);
+ 	pm_runtime_put_autosuspend(gpu->dev);
+ 
+@@ -1074,12 +1073,11 @@ static void retire_worker(struct work_struct *work)
+ {
+ 	struct etnaviv_gpu *gpu = container_of(work, struct etnaviv_gpu,
+ 					       retire_work);
+-	struct drm_device *dev = gpu->drm;
+ 	u32 fence = gpu->completed_fence;
+ 	struct etnaviv_cmdbuf *cmdbuf, *tmp;
+ 	unsigned int i;
+ 
+-	mutex_lock(&dev->struct_mutex);
++	mutex_lock(&gpu->lock);
+ 	list_for_each_entry_safe(cmdbuf, tmp, &gpu->active_cmd_list, node) {
+ 		if (!fence_is_signaled(cmdbuf->fence))
+ 			break;
+@@ -1100,7 +1098,7 @@ static void retire_worker(struct work_struct *work)
+ 
+ 	gpu->retired_fence = fence;
+ 
+-	mutex_unlock(&dev->struct_mutex);
++	mutex_unlock(&gpu->lock);
+ 
+ 	wake_up_all(&gpu->fence_event);
+ }
+@@ -1144,10 +1142,8 @@ int etnaviv_gpu_wait_fence_interruptible(struct etnaviv_gpu *gpu,
+  * then the iova is put.  Moreover, the object could be re-submitted just
+  * after we notice that it's become inactive.
+  *
+- * Although the retirement happens under the struct_mutex, we don't want
+- * to hold that lock in this function.  Instead, the caller is responsible
+- * for ensuring that the retire worker has finished (which will happen, eg,
+- * when we unreference the object, an action which takes the struct_mutex.)
++ * Although the retirement happens under the gpu lock, we don't want to hold
++ * that lock in this function while waiting.
+  */
+ int etnaviv_gpu_wait_obj_inactive(struct etnaviv_gpu *gpu,
+ 	struct etnaviv_gem_object *etnaviv_obj, struct timespec *timeout)
+@@ -1163,12 +1159,17 @@ int etnaviv_gpu_wait_obj_inactive(struct etnaviv_gpu *gpu,
+ 	ret = wait_event_interruptible_timeout(gpu->fence_event,
+ 					       !is_active(etnaviv_obj),
+ 					       remaining);
+-	if (ret > 0)
++	if (ret > 0) {
++		struct etnaviv_drm_private *priv = gpu->drm->dev_private;
++
++		/* Synchronise with the retire worker */
++		flush_workqueue(priv->wq);
+ 		return 0;
+-	else if (ret == -ERESTARTSYS)
++	} else if (ret == -ERESTARTSYS) {
+ 		return -ERESTARTSYS;
+-	else
++	} else {
+ 		return -ETIMEDOUT;
++	}
+ }
+ 
+ int etnaviv_gpu_pm_get_sync(struct etnaviv_gpu *gpu)
+@@ -1190,28 +1191,11 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	unsigned int event, i;
+ 	int ret;
+ 
+-	/*
+-	 * Avoid big circular locking dependency loops:
+-	 * - reading debugfs results in mmap_sem depending on i_mutex_key#3
+-	 *   (iterate_dir -> filldir64)
+-	 * - struct_mutex depends on mmap_sem
+-	 *   (vm_mmap_pgoff -> drm_gem_mmap)
+-	 * then if we try to do a get_sync() under struct_mutex,
+-	 * - genpd->lock depends on struct_mutex
+-	 *   (etnaviv_ioctl_gem_submit -> pm_genpd_runtime_resume)
+-	 * - (regulator) rdev->mutex depends on genpd->lock
+-	 *   (pm_genpd_poweron -> regulator_enable)
+-	 * - i_mutex_key#3 depends on rdev->mutex
+-	 *   (create_regulator -> debugfs::start_creating)
+-	 * and lockdep rightfully explodes.
+-	 *
+-	 * Avoid this by getting runtime PM outside of the struct_mutex lock.
+-	 */
+ 	ret = etnaviv_gpu_pm_get_sync(gpu);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	mutex_lock(&dev->struct_mutex);
++	mutex_lock(&gpu->lock);
+ 
+ 	/*
+ 	 * TODO
+@@ -1275,7 +1259,7 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	ret = 0;
+ 
+ out_unlock:
+-	mutex_unlock(&dev->struct_mutex);
++	mutex_unlock(&gpu->lock);
+ 
+ 	etnaviv_gpu_pm_put(gpu);
+ 
+@@ -1419,11 +1403,10 @@ static int etnaviv_gpu_hw_suspend(struct etnaviv_gpu *gpu)
+ #ifdef CONFIG_PM
+ static int etnaviv_gpu_hw_resume(struct etnaviv_gpu *gpu)
+ {
+-	struct drm_device *drm = gpu->drm;
+ 	u32 clock;
+ 	int ret;
+ 
+-	ret = mutex_lock_killable(&drm->struct_mutex);
++	ret = mutex_lock_killable(&gpu->lock);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1435,7 +1418,7 @@ static int etnaviv_gpu_hw_resume(struct etnaviv_gpu *gpu)
+ 
+ 	gpu->switch_context = true;
+ 
+-	mutex_unlock(&drm->struct_mutex);
++	mutex_unlock(&gpu->lock);
+ 
+ 	return 0;
+ }
+@@ -1529,6 +1512,7 @@ static int etnaviv_gpu_platform_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	gpu->dev = &pdev->dev;
++	mutex_init(&gpu->lock);
+ 
+ 	/*
+ 	 * Set the GPU base address to the start of physical memory.  This
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.h b/drivers/staging/etnaviv/etnaviv_gpu.h
+index d349e41..c75d503 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.h
++++ b/drivers/staging/etnaviv/etnaviv_gpu.h
+@@ -87,6 +87,7 @@ struct etnaviv_cmdbuf;
+ struct etnaviv_gpu {
+ 	struct drm_device *drm;
+ 	struct device *dev;
++	struct mutex lock;
+ 	struct etnaviv_chip_identity identity;
+ 	struct etnaviv_file_private *lastctx;
+ 	bool switch_context;
+-- 
+2.6.2
+

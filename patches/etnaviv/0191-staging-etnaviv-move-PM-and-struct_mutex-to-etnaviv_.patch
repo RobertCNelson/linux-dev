@@ -1,0 +1,138 @@
+From fb2d3c2dceeeb27c2d3433dea6327edcb2925eaa Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:15 +0000
+Subject: [PATCH 191/194] staging: etnaviv: move PM and struct_mutex to
+ etnaviv_gpu_submit()
+
+Move the runtime PM and struct_mutex inside etnaviv_gpu_submit().
+This makes all the code in etnaviv_gem_submit.c completely free of
+taking the struct_mutex.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 26 ------------------
+ drivers/staging/etnaviv/etnaviv_gpu.c        | 40 +++++++++++++++++++++++-----
+ 2 files changed, 34 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index 15ceb12..fec5ffd 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -403,33 +403,7 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 	memcpy(cmdbuf->vaddr, stream, args->stream_size);
+ 	cmdbuf->user_size = ALIGN(args->stream_size, 8);
+ 
+-	/*
+-	 * Avoid big circular locking dependency loops:
+-	 * - reading debugfs results in mmap_sem depending on i_mutex_key#3
+-	 *   (iterate_dir -> filldir64)
+-	 * - struct_mutex depends on mmap_sem
+-	 *   (vm_mmap_pgoff -> drm_gem_mmap)
+-	 * then if we try to do a get_sync() under struct_mutex,
+-	 * - genpd->lock depends on struct_mutex
+-	 *   (etnaviv_ioctl_gem_submit -> pm_genpd_runtime_resume)
+-	 * - (regulator) rdev->mutex depends on genpd->lock
+-	 *   (pm_genpd_poweron -> regulator_enable)
+-	 * - i_mutex_key#3 depends on rdev->mutex
+-	 *   (create_regulator -> debugfs::start_creating)
+-	 * and lockdep rightfully explodes.
+-	 *
+-	 * Avoid this by getting runtime PM outside of the struct_mutex lock.
+-	 */
+-	ret = etnaviv_gpu_pm_get_sync(gpu);
+-	if (ret < 0)
+-		goto err_submit_cmds;
+-
+-	mutex_lock(&dev->struct_mutex);
+ 	ret = etnaviv_gpu_submit(gpu, submit, cmdbuf);
+-	mutex_unlock(&dev->struct_mutex);
+-
+-	etnaviv_gpu_pm_put(gpu);
+-
+ 	if (ret == 0)
+ 		cmdbuf = NULL;
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_gpu.c b/drivers/staging/etnaviv/etnaviv_gpu.c
+index 192b0e9..1f75834 100644
+--- a/drivers/staging/etnaviv/etnaviv_gpu.c
++++ b/drivers/staging/etnaviv/etnaviv_gpu.c
+@@ -1190,10 +1190,29 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	unsigned int event, i;
+ 	int ret;
+ 
+-	ret = pm_runtime_get_sync(gpu->dev);
++	/*
++	 * Avoid big circular locking dependency loops:
++	 * - reading debugfs results in mmap_sem depending on i_mutex_key#3
++	 *   (iterate_dir -> filldir64)
++	 * - struct_mutex depends on mmap_sem
++	 *   (vm_mmap_pgoff -> drm_gem_mmap)
++	 * then if we try to do a get_sync() under struct_mutex,
++	 * - genpd->lock depends on struct_mutex
++	 *   (etnaviv_ioctl_gem_submit -> pm_genpd_runtime_resume)
++	 * - (regulator) rdev->mutex depends on genpd->lock
++	 *   (pm_genpd_poweron -> regulator_enable)
++	 * - i_mutex_key#3 depends on rdev->mutex
++	 *   (create_regulator -> debugfs::start_creating)
++	 * and lockdep rightfully explodes.
++	 *
++	 * Avoid this by getting runtime PM outside of the struct_mutex lock.
++	 */
++	ret = etnaviv_gpu_pm_get_sync(gpu);
+ 	if (ret < 0)
+ 		return ret;
+ 
++	mutex_lock(&dev->struct_mutex);
++
+ 	/*
+ 	 * TODO
+ 	 *
+@@ -1206,15 +1225,15 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	event = event_alloc(gpu);
+ 	if (unlikely(event == ~0U)) {
+ 		DRM_ERROR("no free event\n");
+-		pm_runtime_put_autosuspend(gpu->dev);
+-		return -EBUSY;
++		ret = -EBUSY;
++		goto out_unlock;
+ 	}
+ 
+ 	fence = etnaviv_gpu_fence_alloc(gpu);
+ 	if (!fence) {
+ 		event_free(gpu, event);
+-		pm_runtime_put_autosuspend(gpu->dev);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out_unlock;
+ 	}
+ 
+ 	gpu->event[event].fence = fence;
+@@ -1232,6 +1251,9 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	cmdbuf->fence = fence;
+ 	list_add_tail(&cmdbuf->node, &gpu->active_cmd_list);
+ 
++	/* We're committed to adding this command buffer, hold a PM reference */
++	pm_runtime_get_noresume(gpu->dev);
++
+ 	for (i = 0; i < submit->nr_bos; i++) {
+ 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
+ 		u32 iova;
+@@ -1250,8 +1272,14 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 	}
+ 	cmdbuf->nr_bos = submit->nr_bos;
+ 	hangcheck_timer_reset(gpu);
++	ret = 0;
+ 
+-	return 0;
++out_unlock:
++	mutex_unlock(&dev->struct_mutex);
++
++	etnaviv_gpu_pm_put(gpu);
++
++	return ret;
+ }
+ 
+ /*
+-- 
+2.6.2
+

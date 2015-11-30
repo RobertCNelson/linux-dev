@@ -1,0 +1,89 @@
+From f776080e0b20fd6300782bbd221fb26375485205 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:15 +0000
+Subject: [PATCH 190/194] staging: etnaviv: move object pinning out from
+ struct_mutex
+
+Now that we have the MMU and objects protected by their own locks,
+we can safely move the object pinning out from under the global
+struct_mutex.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c        |  2 +-
+ drivers/staging/etnaviv/etnaviv_gem_submit.c | 30 ++++++++++++++--------------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index f853cf9..8d6f859 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -348,7 +348,7 @@ void etnaviv_gem_put_iova(struct etnaviv_gpu *gpu, struct drm_gem_object *obj)
+ 	mapping->use -= 1;
+ 	mutex_unlock(&etnaviv_obj->lock);
+ 
+-	drm_gem_object_unreference(obj);
++	drm_gem_object_unreference_unlocked(obj);
+ }
+ 
+ void *etnaviv_gem_vaddr(struct drm_gem_object *obj)
+diff --git a/drivers/staging/etnaviv/etnaviv_gem_submit.c b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+index 189bbbd..15ceb12 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/staging/etnaviv/etnaviv_gem_submit.c
+@@ -391,6 +391,18 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 	if (ret)
+ 		goto err_submit_objects;
+ 
++	ret = submit_pin_objects(submit);
++	if (ret)
++		goto out;
++
++	ret = submit_reloc(submit, stream, args->stream_size / 4,
++			   relocs, args->nr_relocs);
++	if (ret)
++		goto out;
++
++	memcpy(cmdbuf->vaddr, stream, args->stream_size);
++	cmdbuf->user_size = ALIGN(args->stream_size, 8);
++
+ 	/*
+ 	 * Avoid big circular locking dependency loops:
+ 	 * - reading debugfs results in mmap_sem depending on i_mutex_key#3
+@@ -413,20 +425,11 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 		goto err_submit_cmds;
+ 
+ 	mutex_lock(&dev->struct_mutex);
++	ret = etnaviv_gpu_submit(gpu, submit, cmdbuf);
++	mutex_unlock(&dev->struct_mutex);
+ 
+-	ret = submit_pin_objects(submit);
+-	if (ret)
+-		goto out;
+-
+-	ret = submit_reloc(submit, stream, args->stream_size / 4,
+-			   relocs, args->nr_relocs);
+-	if (ret)
+-		goto out;
+-
+-	memcpy(cmdbuf->vaddr, stream, args->stream_size);
+-	cmdbuf->user_size = ALIGN(args->stream_size, 8);
++	etnaviv_gpu_pm_put(gpu);
+ 
+-	ret = etnaviv_gpu_submit(gpu, submit, cmdbuf);
+ 	if (ret == 0)
+ 		cmdbuf = NULL;
+ 
+@@ -434,9 +437,6 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 
+ out:
+ 	submit_unpin_objects(submit);
+-	mutex_unlock(&dev->struct_mutex);
+-
+-	etnaviv_gpu_pm_put(gpu);
+ 
+ 	/*
+ 	 * If we're returning -EAGAIN, it may be due to the userptr code
+-- 
+2.6.2
+

@@ -1,0 +1,105 @@
+From 82fbcc0c0e8d62dd584b9eaec821fccf31d89f4e Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:14 +0000
+Subject: [PATCH 186/194] staging: etnaviv: allow re-use of
+ etnaviv_vram_mapping structures
+
+Allow etnaviv_vram_mapping structures to be re-used after the
+mapping has been reaped.  We do this by setting mapping->mmu to
+NULL, which prevents etnaviv_gem_get_vram_mapping() finding the
+old mapping for the GPU.  Later, when we need to allocate a new
+mapping, we scan the object list for a mapping containing a NULL
+mmu pointer, and re-use this rather than allocating a new entry.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_gem.c | 29 ++++++++++++++++++++++-------
+ drivers/staging/etnaviv/etnaviv_mmu.c | 18 ++++++++++++------
+ 2 files changed, 34 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index fa2885c..1886fbe 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -282,13 +282,23 @@ int etnaviv_gem_get_iova_locked(struct etnaviv_gpu *gpu,
+ 	if (IS_ERR(pages))
+ 		return PTR_ERR(pages);
+ 
+-	mapping = kzalloc(sizeof(*mapping), GFP_KERNEL);
+-	if (!mapping)
+-		return -ENOMEM;
++	/*
++	 * See if we have a reaped vram mapping we can re-use before
++	 * allocating a fresh mapping.
++	 */
++	mapping = etnaviv_gem_get_vram_mapping(etnaviv_obj, NULL);
++	if (!mapping) {
++		mapping = kzalloc(sizeof(*mapping), GFP_KERNEL);
++		if (!mapping)
++			return -ENOMEM;
+ 
+-	INIT_LIST_HEAD(&mapping->scan_node);
+-	mapping->object = etnaviv_obj;
+-	mapping->mmu = mmu;
++		INIT_LIST_HEAD(&mapping->scan_node);
++		mapping->object = etnaviv_obj;
++	} else {
++		list_del(&mapping->obj_node);
++	}
++
++	mapping->mmu = gpu->mmu;
+ 	mapping->use = 1;
+ 
+ 	ret = etnaviv_iommu_map_gem(gpu->mmu, etnaviv_obj, gpu->memory_base,
+@@ -521,8 +531,13 @@ void etnaviv_gem_free_object(struct drm_gem_object *obj)
+ 
+ 	list_for_each_entry_safe(mapping, tmp, &etnaviv_obj->vram_list,
+ 				 obj_node) {
++		struct etnaviv_iommu *mmu = mapping->mmu;
++
+ 		WARN_ON(mapping->use);
+-		etnaviv_iommu_unmap_gem(mapping->mmu, mapping);
++
++		if (mmu)
++			etnaviv_iommu_unmap_gem(mmu, mapping);
++
+ 		list_del(&mapping->obj_node);
+ 		kfree(mapping);
+ 	}
+diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
+index ed1972b..a7a3fc5 100644
+--- a/drivers/staging/etnaviv/etnaviv_mmu.c
++++ b/drivers/staging/etnaviv/etnaviv_mmu.c
+@@ -186,17 +186,23 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 			if (!drm_mm_scan_remove_block(&m->vram_node))
+ 				list_del_init(&m->scan_node);
+ 
++		/*
++		 * Unmap the blocks which need to be reaped from the MMU.
++		 * Clear the mmu pointer to prevent the get_iova finding
++		 * this mapping.
++		 */
+ 		list_for_each_entry_safe(m, n, &list, scan_node) {
+-			etnaviv_iommu_unmap_gem(mmu, m);
+-			list_del(&m->scan_node);
+-			list_del(&m->obj_node);
+-			kfree(m);
++			etnaviv_iommu_remove_mapping(mmu, m);
++			m->mmu = NULL;
++			list_del_init(&m->mmu_node);
++			list_del_init(&m->scan_node);
+ 		}
+ 
+ 		/*
+ 		 * We removed enough mappings so that the new allocation will
+-		 * succeed.  Ensure that the MMU will be flushed and retry
+-		 * the allocation one more time.
++		 * succeed.  Ensure that the MMU will be flushed before the
++		 * associated commit requesting this mapping, and retry the
++		 * allocation one more time.
+ 		 */
+ 		mmu->need_flush = true;
+ 	}
+-- 
+2.6.2
+

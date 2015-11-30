@@ -1,0 +1,104 @@
+From 38fa2edbec0db40fbbfa024c032d2666998621ec Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Mon, 30 Nov 2015 11:39:14 +0000
+Subject: [PATCH 187/194] staging: etnaviv: add gem list lock
+
+Add a lock to protect the list of gem objects.  This prevents two
+threads manipulating the gem_list simultaneously.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ drivers/staging/etnaviv/etnaviv_drv.c |  3 ++-
+ drivers/staging/etnaviv/etnaviv_drv.h |  1 +
+ drivers/staging/etnaviv/etnaviv_gem.c | 13 ++++---------
+ 3 files changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.c b/drivers/staging/etnaviv/etnaviv_drv.c
+index aecef14..0802f24 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.c
++++ b/drivers/staging/etnaviv/etnaviv_drv.c
+@@ -264,7 +264,7 @@ static int show_each_gpu(struct seq_file *m, void *arg)
+ 
+ static struct drm_info_list etnaviv_debugfs_list[] = {
+ 		{"gpu", show_each_gpu, 0, etnaviv_gpu_debugfs},
+-		{"gem", show_locked, 0, etnaviv_gem_show},
++		{"gem", show_unlocked, 0, etnaviv_gem_show},
+ 		{ "mm", show_unlocked, 0, etnaviv_mm_show },
+ 		{"mmu", show_locked, 0, etnaviv_mmu_show},
+ 		{"ring", show_locked, 0, etnaviv_ring_show},
+@@ -564,6 +564,7 @@ static int etnaviv_bind(struct device *dev)
+ 		goto out_wq;
+ 	}
+ 
++	mutex_init(&priv->gem_lock);
+ 	INIT_LIST_HEAD(&priv->gem_list);
+ 	priv->num_gpus = 0;
+ 
+diff --git a/drivers/staging/etnaviv/etnaviv_drv.h b/drivers/staging/etnaviv/etnaviv_drv.h
+index 70bcb2c..e31e899 100644
+--- a/drivers/staging/etnaviv/etnaviv_drv.h
++++ b/drivers/staging/etnaviv/etnaviv_drv.h
+@@ -55,6 +55,7 @@ struct etnaviv_drm_private {
+ 	struct etnaviv_gpu *gpu[ETNA_MAX_PIPES];
+ 
+ 	/* list of GEM objects: */
++	struct mutex gem_lock;
+ 	struct list_head gem_list;
+ 
+ 	struct workqueue_struct *wq;
+diff --git a/drivers/staging/etnaviv/etnaviv_gem.c b/drivers/staging/etnaviv/etnaviv_gem.c
+index 1886fbe..19549e5 100644
+--- a/drivers/staging/etnaviv/etnaviv_gem.c
++++ b/drivers/staging/etnaviv/etnaviv_gem.c
+@@ -453,15 +453,12 @@ static void etnaviv_gem_describe_fence(struct fence *fence,
+ 
+ static void etnaviv_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
+ {
+-	struct drm_device *dev = obj->dev;
+ 	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+ 	struct reservation_object *robj = etnaviv_obj->resv;
+ 	struct reservation_object_list *fobj;
+ 	struct fence *fence;
+ 	unsigned long off = drm_vma_node_start(&obj->vma_node);
+ 
+-	WARN_ON(!mutex_is_locked(&dev->struct_mutex));
+-
+ 	seq_printf(m, "%08x: %c %2d (%2d) %08lx %p %zd\n",
+ 			etnaviv_obj->flags, is_active(etnaviv_obj) ? 'A' : 'I',
+ 			obj->name, obj->refcount.refcount.counter,
+@@ -491,6 +488,7 @@ void etnaviv_gem_describe_objects(struct etnaviv_drm_private *priv,
+ 	int count = 0;
+ 	size_t size = 0;
+ 
++	mutex_lock(&priv->gem_lock);
+ 	list_for_each_entry(etnaviv_obj, &priv->gem_list, gem_node) {
+ 		struct drm_gem_object *obj = &etnaviv_obj->base;
+ 
+@@ -499,6 +497,7 @@ void etnaviv_gem_describe_objects(struct etnaviv_drm_private *priv,
+ 		count++;
+ 		size += obj->size;
+ 	}
++	mutex_unlock(&priv->gem_lock);
+ 
+ 	seq_printf(m, "Total %d objects, %zu bytes\n", count, size);
+ }
+@@ -555,14 +554,10 @@ int etnaviv_gem_obj_add(struct drm_device *dev, struct drm_gem_object *obj)
+ {
+ 	struct etnaviv_drm_private *priv = dev->dev_private;
+ 	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+-	int ret;
+-
+-	ret = mutex_lock_killable(&dev->struct_mutex);
+-	if (ret)
+-		return ret;
+ 
++	mutex_lock(&priv->gem_lock);
+ 	list_add_tail(&etnaviv_obj->gem_node, &priv->gem_list);
+-	mutex_unlock(&dev->struct_mutex);
++	mutex_unlock(&priv->gem_lock);
+ 
+ 	return 0;
+ }
+-- 
+2.6.2
+
