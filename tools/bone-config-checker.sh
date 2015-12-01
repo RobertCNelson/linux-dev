@@ -91,7 +91,7 @@ config="CONFIG_CLK_QORIQ" ; config_disable
 #
 # Serial drivers
 #
-config="CONFIG_SERIAL_8250_DMA" ; config_enable
+config="CONFIG_SERIAL_8250_DMA" ; config_disable
 config="CONFIG_SERIAL_8250_OMAP" ; config_enable
 config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 
