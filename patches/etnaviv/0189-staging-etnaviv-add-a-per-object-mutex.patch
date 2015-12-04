@@ -1,7 +1,7 @@
-From ced5f883fee67dfafbbc7631ad00bb414c9c9a83 Mon Sep 17 00:00:00 2001
+From 36d77500f64408f73495285f2d38dba6b8d2e0e6 Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
 Date: Mon, 30 Nov 2015 11:39:14 +0000
-Subject: [PATCH 189/194] staging: etnaviv: add a per-object mutex
+Subject: [PATCH 189/195] staging: etnaviv: add a per-object mutex
 
 Add a per-gem object mutex to protect each objects data.  This must be
 held when changing ->pages, ->sgt, adding or removing MMU mappings, or
@@ -361,7 +361,7 @@ index d751a29..192b0e9 100644
  		atomic_inc(&etnaviv_obj->gpu_active);
  
 diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
-index 5fc94ca..4ce3caf 100644
+index a354efb..6743bc6 100644
 --- a/drivers/staging/etnaviv/etnaviv_mmu.c
 +++ b/drivers/staging/etnaviv/etnaviv_mmu.c
 @@ -110,6 +110,8 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,

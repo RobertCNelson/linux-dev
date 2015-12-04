@@ -1,7 +1,7 @@
-From 678d861231a65bb5203ad39bb1fe82db1af3ab45 Mon Sep 17 00:00:00 2001
+From 0fa3160549cb1ddf6531e838d5fd70c22861a5a4 Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
 Date: Thu, 19 Nov 2015 19:59:04 +0000
-Subject: [PATCH 158/194] staging: etnaviv: refcount IOVA allocations
+Subject: [PATCH 158/195] staging: etnaviv: refcount IOVA allocations
 
 Refcount the IOVA allocations, so that we properly know when an IOVA
 is in use or not.  This aids our MMU functionality, and also gets rid
@@ -109,7 +109,7 @@ index 96c2725..57a8d97 100644
  		} else {
  			break;
 diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
-index 81be9dd..901bc91 100644
+index 5de380d..49d3339 100644
 --- a/drivers/staging/etnaviv/etnaviv_mmu.c
 +++ b/drivers/staging/etnaviv/etnaviv_mmu.c
 @@ -165,10 +165,10 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,

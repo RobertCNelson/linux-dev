@@ -1,7 +1,7 @@
-From f024987851cb6c0a0cacd0814c0dfad75f59ce0b Mon Sep 17 00:00:00 2001
+From 37c2beef40342a7cd619fe8fe4719557a51fa8d0 Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
 Date: Mon, 30 Nov 2015 11:39:14 +0000
-Subject: [PATCH 188/194] staging: etnaviv: add a per-MMU mutex
+Subject: [PATCH 188/195] staging: etnaviv: add a per-MMU mutex
 
 Add a mutex to protect the MMU operations.  We must ensure that only one
 allocation is allowed to proceed at any one time (including reaping of
@@ -89,7 +89,7 @@ index 19549e5..0106c24 100644
  
  	pages = etnaviv_gem_get_pages(etnaviv_obj);
 diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
-index a7a3fc5..5fc94ca 100644
+index 998ad3d..a354efb 100644
 --- a/drivers/staging/etnaviv/etnaviv_mmu.c
 +++ b/drivers/staging/etnaviv/etnaviv_mmu.c
 @@ -110,6 +110,8 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,

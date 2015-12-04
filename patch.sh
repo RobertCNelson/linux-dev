@@ -623,8 +623,8 @@ etnaviv () {
 	#git checkout v4.3 -b testing
 	#git pull --no-edit git://ftp.arm.linux.org.uk/~rmk/linux-arm.git drm-etnaviv-devel
 
-	#git format-patch -195 | grep 4.3 ; rm *.patch
-	#git format-patch -194 -o /opt/github/linux-dev/patches/etnaviv/
+	#git format-patch -196 | grep 4.3 ; rm *.patch
+	#git format-patch -195 -o /opt/github/linux-dev/patches/etnaviv/
 	#git checkout master -f
 	#git branch -D testing
 
@@ -821,9 +821,10 @@ etnaviv () {
 	${git} "${DIR}/patches/etnaviv/0191-staging-etnaviv-move-PM-and-struct_mutex-to-etnaviv_.patch"
 	${git} "${DIR}/patches/etnaviv/0192-staging-etnaviv-add-a-per-GPU-lock.patch"
 	${git} "${DIR}/patches/etnaviv/0193-staging-etnaviv-add-some-missing-sensitive-states.patch"
+	${git} "${DIR}/patches/etnaviv/0194-staging-etnaviv-add-flags-argument-to-ioctls-missing.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=193
+		number=194
 		cleanup
 	fi
 }

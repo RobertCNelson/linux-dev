@@ -1,7 +1,7 @@
-From 39ab039c7324ab9ef5410520b358618bad15cce8 Mon Sep 17 00:00:00 2001
+From 91676a0a4f90e422de67973885dd1c559df03583 Mon Sep 17 00:00:00 2001
 From: Russell King <rmk+kernel@arm.linux.org.uk>
 Date: Sun, 1 Nov 2015 15:27:22 +0000
-Subject: [PATCH 148/194] staging: etnaviv: add devcoredump support
+Subject: [PATCH 148/195] staging: etnaviv: add devcoredump support
 
 Add support for coredumping the GPU state when a GPU hang occurs.  This
 is implemented using the devcoredump infrastructure, which allows us to
@@ -453,7 +453,7 @@ index bf7b38e..522cfd4 100644
  	etnaviv_domain->domain.geometry.aperture_end = GPU_MEM_START + PT_ENTRIES * SZ_4K - 1;
  
 diff --git a/drivers/staging/etnaviv/etnaviv_mmu.c b/drivers/staging/etnaviv/etnaviv_mmu.c
-index 341bb93..81be9dd 100644
+index 341bb93..5de380d 100644
 --- a/drivers/staging/etnaviv/etnaviv_mmu.c
 +++ b/drivers/staging/etnaviv/etnaviv_mmu.c
 @@ -281,3 +281,21 @@ struct etnaviv_iommu *etnaviv_iommu_new(struct etnaviv_gpu *gpu,
@@ -461,7 +461,7 @@ index 341bb93..81be9dd 100644
  	return mmu;
  }
 +
-+unsigned int etnaviv_iommu_dump_size(struct etnaviv_iommu *iommu)
++size_t etnaviv_iommu_dump_size(struct etnaviv_iommu *iommu)
 +{
 +	struct etnaviv_iommu_ops *ops;
 +
