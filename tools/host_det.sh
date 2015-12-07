@@ -301,6 +301,10 @@ debian_regs () {
 			#17.2
 			deb_distro="trusty"
 			;;
+		rosa)
+			#17.3
+			deb_distro="trusty"
+			;;
 		esac
 
 		#Future Debian Code names:
