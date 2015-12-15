@@ -58,7 +58,6 @@ config="CONFIG_LOG_BUF_SHIFT" ; option="18" ; config_value
 config="CONFIG_CGROUP_PIDS" ; config_enable
 config="CONFIG_MEMCG_SWAP_ENABLED" ; config_enable
 config="CONFIG_MEMCG_KMEM" ; config_enable
-config="CONFIG_CFS_BANDWIDTH" ; config_enable
 config="CONFIG_RT_GROUP_SCHED" ; config_enable
 config="CONFIG_SYSFS_SYSCALL" ; config_enable
 config="CONFIG_SYSCTL_SYSCALL" ; config_enable
@@ -115,7 +114,6 @@ config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_MACH_NOKIA_RX51" ; config_disable
 config="CONFIG_ARCH_ROCKCHIP" ; config_enable
-config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
@@ -147,11 +145,6 @@ config="CONFIG_CMA" ; config_enable
 config="CONFIG_CMA_DEBUG" ; config_disable
 config="CONFIG_SECCOMP" ; config_enable
 config="CONFIG_XEN" ; config_disable
-
-#
-# Boot options
-#
-config="CONFIG_ARM_APPENDED_DTB" ; config_disable
 
 #
 # CPU Frequency scaling
@@ -361,7 +354,7 @@ config="CONFIG_STMMAC_ETH" ; config_enable
 config="CONFIG_STMMAC_PLATFORM" ; config_enable
 config="CONFIG_DWMAC_GENERIC" ; config_enable
 config="CONFIG_DWMAC_ROCKCHIP" ; config_enable
-config="CONFIG_DWMAC_SOCFPGA" ; config_disable
+config="CONFIG_DWMAC_SOCFPGA" ; config_enable
 config="CONFIG_DWMAC_SUNXI" ; config_enable
 config="CONFIG_TI_DAVINCI_EMAC" ; config_enable
 config="CONFIG_TI_DAVINCI_MDIO" ; config_enable
@@ -387,8 +380,6 @@ config="CONFIG_USB_ZD1201" ; config_module
 config="CONFIG_WCN36XX" ; config_module
 config="CONFIG_WCN36XX_DEBUGFS" ; config_disable
 config="CONFIG_LIBERTAS_SPI" ; config_module
-config="CONFIG_WL_MEDIATEK" ; config_enable
-config="CONFIG_MT7601U" ; config_module
 config="CONFIG_RTL8XXXU" ; config_module
 config="CONFIG_MWIFIEX" ; config_module
 config="CONFIG_MWIFIEX_SDIO" ; config_module
@@ -539,6 +530,7 @@ config="CONFIG_DEVKMEM" ; config_enable
 #
 # Serial drivers
 #
+config="CONFIG_SERIAL_8250_DMA" ; config_disable
 config="CONFIG_SERIAL_8250_NR_UARTS" ; option="6" ; config_value
 config="CONFIG_SERIAL_8250_RUNTIME_UARTS" ; option="6" ; config_value
 config="CONFIG_SERIAL_8250_OMAP" ; config_disable
@@ -582,7 +574,6 @@ config="CONFIG_I2C_DLN2" ; config_module
 #
 # SPI Master Controller Drivers
 #
-config="CONFIG_SPI_DEBUG" ; config_disable
 config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
@@ -900,6 +891,7 @@ config="CONFIG_DRM_IMX_PARALLEL_DISPLAY" ; config_enable
 config="CONFIG_DRM_IMX_TVE" ; config_enable
 config="CONFIG_DRM_IMX_LDB" ; config_enable
 config="CONFIG_DRM_IMX_HDMI" ; config_enable
+config="CONFIG_DRM_ETNAVIV" ; config_module
 
 config="CONFIG_DRM_ROCKCHIP" ; config_module
 config="CONFIG_ROCKCHIP_DW_HDMI" ; config_module
@@ -960,6 +952,7 @@ config="CONFIG_SND_SOC_TLV320AIC31XX" ; config_module
 #
 # HID support
 #
+config="CONFIG_HID" ; config_enable
 config="CONFIG_UHID" ; config_enable
 config="CONFIG_HID_GENERIC" ; config_enable
 
@@ -971,9 +964,21 @@ config="CONFIG_HID_CORSAIR" ; config_module
 config="CONFIG_HID_GEMBIRD" ; config_module
 config="CONFIG_HID_GFRM" ; config_module
 config="CONFIG_HID_GT683R" ; config_module
+config="CONFIG_HID_LOGITECH" ; config_enable
 config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_HID_LOGITECH_HIDPP" ; config_enable
 config="CONFIG_HID_SENSOR_CUSTOM_SENSOR" ; config_module
+
+#
+# USB HID support
+#
+config="CONFIG_USB_HID" ; config_enable
+
+#
+# I2C HID support
+#
+config="CONFIG_USB_COMMON" ; config_enable
+config="CONFIG_USB" ; config_enable
 
 #
 # Miscellaneous USB options
@@ -1003,6 +1008,7 @@ config="CONFIG_USBIP_CORE" ; config_module
 config="CONFIG_USBIP_VHCI_HCD" ; config_module
 config="CONFIG_USBIP_HOST" ; config_module
 config="CONFIG_USBIP_DEBUG" ; config_disable
+config="CONFIG_USB_MUSB_HDRC" ; config_enable
 
 #
 # Platform Glue Layer
@@ -1017,6 +1023,7 @@ config="CONFIG_USB_MUSB_AM335X_CHILD" ; config_enable
 #
 # MUSB DMA mode
 #
+config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 config="CONFIG_USB_DWC3" ; config_enable
 config="CONFIG_USB_DWC3_DUAL_ROLE" ; config_enable
 
@@ -1034,6 +1041,7 @@ config="CONFIG_AM335X_PHY_USB" ; config_enable
 config="CONFIG_TWL6030_USB" ; config_enable
 config="CONFIG_USB_GPIO_VBUS" ; config_enable
 config="CONFIG_USB_MXS_PHY" ; config_enable
+config="CONFIG_USB_GADGET" ; config_enable
 config="CONFIG_USB_GADGET_VBUS_DRAW" ; option="500" ; config_value
 
 #
@@ -1067,7 +1075,6 @@ config="CONFIG_MMC_OMAP_HS" ; config_enable
 config="CONFIG_MMC_DW" ; config_enable
 config="CONFIG_MMC_DW_ROCKCHIP" ; config_enable
 config="CONFIG_MMC_SUNXI" ; config_enable
-config="CONFIG_MEMSTICK" ; config_disable
 
 #
 # LED drivers
@@ -1099,7 +1106,6 @@ config="CONFIG_LEDS_TRIGGER_DEFAULT_ON" ; config_enable
 #
 # I2C RTC drivers
 #
-config="CONFIG_RTC_DRV_DS1307" ; config_module
 config="CONFIG_RTC_DRV_DS1374" ; config_module
 config="CONFIG_RTC_DRV_DS1374_WDT" ; config_enable
 config="CONFIG_RTC_DRV_DS1672" ; config_module
@@ -1111,7 +1117,6 @@ config="CONFIG_RTC_DRV_ISL1208" ; config_module
 config="CONFIG_RTC_DRV_ISL12022" ; config_module
 config="CONFIG_RTC_DRV_X1205" ; config_module
 config="CONFIG_RTC_DRV_PCF2127" ; config_module
-config="CONFIG_RTC_DRV_PCF8563" ; config_module
 config="CONFIG_RTC_DRV_PCF85063" ; config_module
 config="CONFIG_RTC_DRV_PCF8583" ; config_module
 config="CONFIG_RTC_DRV_M41T80" ; config_module
@@ -1176,6 +1181,7 @@ config="CONFIG_RTC_DRV_HID_SENSOR_TIME" ; config_module
 #
 # DMA Devices
 #
+config="CONFIG_AXI_DMAC" ; config_enable
 config="CONFIG_DMA_SUN6I" ; config_enable
 config="CONFIG_FSL_EDMA" ; config_enable
 config="CONFIG_TI_CPPI41" ; config_enable
