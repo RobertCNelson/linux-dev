@@ -599,12 +599,19 @@ config="CONFIG_PINCTRL_TI_IODELAY" ; config_enable
 config="CONFIG_GPIO_MAX730X" ; config_module
 
 #
+# Memory mapped GPIO drivers
+#
+config="CONFIG_GPIO_SYSCON" ; config_enable
+
+#
 # I2C GPIO expanders:
 #
 config="CONFIG_GPIO_ADP5588" ; config_module
 config="CONFIG_GPIO_ADNP" ; config_module
 config="CONFIG_GPIO_MAX7300" ; config_module
 config="CONFIG_GPIO_MAX732X" ; config_module
+config="CONFIG_GPIO_PCA953X" ; config_enable
+config="CONFIG_GPIO_PCA953X_IRQ" ; config_enable
 config="CONFIG_GPIO_PCF857X" ; config_module
 config="CONFIG_GPIO_SX150X" ; config_enable
 
