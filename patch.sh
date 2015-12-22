@@ -221,6 +221,26 @@ wand () {
 	${git} "${DIR}/patches/wand/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
 }
 
+udoo () {
+	echo "dir: udoo"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/udoo/0001-usb-hub-add-device-tree-support-for-populating-onboa.patch"
+	${git} "${DIR}/patches/udoo/0002-doc-dt-binding-generic-onboard-USB-device.patch"
+	${git} "${DIR}/patches/udoo/0003-usb-misc-generic_onboard_hub-add-generic-onboard-USB.patch"
+	${git} "${DIR}/patches/udoo/0004-usb-chipidea-host-let-the-hcd-know-s-parent-device-n.patch"
+	${git} "${DIR}/patches/udoo/0005-ARM-dts-imx6qdl-udoo.dtsi-fix-onboard-USB-HUB-proper.patch"
+	${git} "${DIR}/patches/udoo/0006-udoo-sync-pincfgs-with-https-github.com-UDOOboard-li.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=6
+		cleanup
+	fi
+}
+
 errata () {
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -661,6 +681,7 @@ reverts
 ti
 dts
 wand
+udoo
 #errata
 #fixes
 pru
