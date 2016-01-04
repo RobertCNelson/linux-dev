@@ -632,6 +632,11 @@ config="CONFIG_GPIO_MCP23S08" ; config_module
 config="CONFIG_GPIO_MC33880" ; config_module
 
 #
+# USB GPIO expanders
+#
+config="CONFIG_W1" ; config_enable
+
+#
 # 1-wire Bus Masters
 #
 config="CONFIG_W1_MASTER_MXC" ; config_module

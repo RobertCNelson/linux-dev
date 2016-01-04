@@ -116,6 +116,7 @@ config="CONFIG_PCI_TEGRA" ; config_enable
 #
 config="CONFIG_FIRMWARE_IN_KERNEL" ; config_disable
 config="CONFIG_EXTRA_FIRMWARE" ; option="" ; config_string
+config="CONFIG_CMA_SIZE_MBYTES" ; option=64 ; config_value
 
 #
 # Distributed Switch Architecture drivers
