@@ -38,10 +38,12 @@ if [ -e ${DIR}/version.sh ]; then
 	git push origin ${BRANCH} --tags
 
 	cd ${DIR}/KERNEL/
-	make ARCH=arm distclean
+	make ARCH=${KERNEL_ARCH} distclean
 
-	cp ${DIR}/patches/defconfig ${DIR}/KERNEL/arch/arm/configs/${example}_defconfig
-	git add arch/arm/configs/${example}_defconfig
+	cp ${DIR}/patches/defconfig ${DIR}/KERNEL/.config
+	make ARCH=${KERNEL_ARCH} savedefconfig
+	cp ${DIR}/KERNEL/defconfig ${DIR}/KERNEL/arch/${KERNEL_ARCH}/configs/${example}_defconfig
+	git add arch/${KERNEL_ARCH}/configs/${example}_defconfig
 
 	git commit -a -m "${KERNEL_TAG}-${BUILD} ${example}_defconfig" -s
 	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}"

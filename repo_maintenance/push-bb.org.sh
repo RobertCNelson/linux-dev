@@ -26,18 +26,26 @@ DIR=$PWD
 
 repo="git@github.com:beagleboard/linux.git"
 example="bb.org"
+compare="https://github.com/RobertCNelson/ti-linux-kernel/compare"
 
 if [ -e ${DIR}/version.sh ]; then
 	unset BRANCH
 	. ${DIR}/version.sh
 
 	cd ${DIR}/KERNEL/
-	make ARCH=arm distclean
+	make ARCH=${KERNEL_ARCH} distclean
 
-	cp ${DIR}/patches/defconfig ${DIR}/KERNEL/arch/arm/configs/${example}_defconfig
-	git add arch/arm/configs/${example}_defconfig
+	cp ${DIR}/patches/defconfig ${DIR}/KERNEL/.config
+	make ARCH=${KERNEL_ARCH} savedefconfig
+	cp ${DIR}/KERNEL/defconfig ${DIR}/KERNEL/arch/${KERNEL_ARCH}/configs/${example}_defconfig
+	git add arch/${KERNEL_ARCH}/configs/${example}_defconfig
 
-	git commit -a -m "${KERNEL_TAG}-${BUILD} ${example}_defconfig" -s
+	if [ "x${ti_git_old_release}" = "x${ti_git_post}" ] ; then
+		git commit -a -m "${KERNEL_TAG}-${BUILD} ${example}_defconfig" -s
+	else
+		git commit -a -m "${KERNEL_TAG}-${BUILD} ${example}_defconfig" -m "${KERNEL_REL} TI Delta: ${compare}/${ti_git_old_release}...${ti_git_post}" -s
+	fi
+
 	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}" -f
 
 	#push tag
