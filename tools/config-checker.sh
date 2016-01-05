@@ -75,6 +75,7 @@ config="CONFIG_SECCOMP_FILTER" ; config_enable
 #
 config="CONFIG_ARCH_VIRT" ; config_disable
 config="CONFIG_ARCH_MVEBU" ; config_disable
+config="CONFIG_ARCH_BCM" ; config_disable
 config="CONFIG_ARCH_HIGHBANK" ; config_disable
 
 #
@@ -104,7 +105,6 @@ config="CONFIG_OMAP_MUX_DEBUG" ; config_enable
 # TI OMAP/AM/DM/DRA Family
 #
 config="CONFIG_SOC_AM43XX" ; config_enable
-config="CONFIG_SOC_DRA7XX" ; config_enable
 
 #
 # OMAP Legacy Platform Data Board Type
@@ -113,7 +113,6 @@ config="CONFIG_MACH_OMAP_LDP" ; config_disable
 config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_MACH_NOKIA_RX51" ; config_disable
-config="CONFIG_ARCH_ROCKCHIP" ; config_enable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
@@ -139,7 +138,6 @@ config="CONFIG_PCI_SYSCALL" ; config_disable
 #
 config="CONFIG_HZ_100" ; config_enable
 config="CONFIG_HZ_250" ; config_disable
-config="CONFIG_HIGHPTE" ; config_enable
 config="CONFIG_MEMORY_ISOLATION" ; config_enable
 config="CONFIG_CMA" ; config_enable
 config="CONFIG_CMA_DEBUG" ; config_disable
@@ -767,7 +765,6 @@ config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 #
 config="CONFIG_TI_SOC_THERMAL" ; config_enable
 config="CONFIG_OMAP3_THERMAL" ; config_enable
-config="CONFIG_DRA752_THERMAL" ; config_enable
 config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 
 #
@@ -936,7 +933,6 @@ config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 # HD-Audio
 #
 config="CONFIG_SND_EDMA_SOC" ; config_module
-config="CONFIG_SND_DAVINCI_SOC_MCASP" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM" ; config_module
 config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 
@@ -944,16 +940,6 @@ config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 # SoC Audio support for Freescale i.MX boards:
 #
 config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_module
-config="CONFIG_SND_SOC_ROCKCHIP" ; config_module
-config="CONFIG_SND_SOC_ROCKCHIP_I2S" ; config_module
-config="CONFIG_SND_SOC_ROCKCHIP_SPDIF" ; config_module
-config="CONFIG_SND_SOC_ROCKCHIP_MAX98090" ; config_module
-config="CONFIG_SND_SOC_ROCKCHIP_RT5645" ; config_module
-
-#
-# Allwinner SoC Audio support
-#
-config="CONFIG_SND_SUN4I_CODEC" ; config_module
 
 #
 # CODEC drivers
@@ -1044,6 +1030,11 @@ config="CONFIG_USB_DWC3_DUAL_ROLE" ; config_enable
 #
 config="CONFIG_USB_CHIPIDEA" ; config_enable
 config="CONFIG_USB_CHIPIDEA_DEBUG" ; config_disable
+
+#
+# USB Miscellaneous drivers
+#
+config="CONFIG_USB_ONBOARD_DEVICE" ; config_enable
 
 #
 # USB Physical Layer drivers
@@ -1440,7 +1431,6 @@ config="CONFIG_MAX1363" ; config_module
 config="CONFIG_MCP320X" ; config_module
 config="CONFIG_MCP3422" ; config_module
 config="CONFIG_NAU7802" ; config_module
-config="CONFIG_ROCKCHIP_SARADC" ; config_module
 config="CONFIG_TI_ADC081C" ; config_module
 config="CONFIG_TI_ADC128S052" ; config_module
 config="CONFIG_TWL6030_GPADC" ; config_module
