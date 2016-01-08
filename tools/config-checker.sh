@@ -45,11 +45,6 @@ config_value () {
 cd ${DIR}/KERNEL/
 
 #
-# General setup
-#
-config="CONFIG_USELIB" ; config_enable
-
-#
 # RCU Subsystem
 #
 config="CONFIG_IKCONFIG" ; config_enable
@@ -123,12 +118,6 @@ config="CONFIG_ARCH_WM8850" ; config_disable
 config="CONFIG_PL310_ERRATA_753970" ; config_disable
 config="CONFIG_ARM_ERRATA_754327" ; config_disable
 config="CONFIG_ARM_ERRATA_773022" ; config_disable
-
-#
-# Bus support
-#
-config="CONFIG_PCI" ; config_disable
-config="CONFIG_PCI_SYSCALL" ; config_disable
 
 #first check..
 #exit
@@ -1604,7 +1593,7 @@ config="CONFIG_PWM_ROCKCHIP" ; config_module
 #
 config="CONFIG_OMAP_CONTROL_PHY" ; config_enable
 config="CONFIG_OMAP_USB2" ; config_enable
-config="CONFIG_TI_PIPE3" ; config_enable
+config="CONFIG_TI_PIPE3" ; config_module
 config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_PHY_SUN9I_USB" ; config_enable
