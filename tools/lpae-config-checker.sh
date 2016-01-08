@@ -101,17 +101,6 @@ config="CONFIG_MACH_SUN5I" ; config_disable
 config="CONFIG_ARM_ERRATA_430973" ; config_disable
 
 #
-# Bus support
-#
-config="CONFIG_PCI" ; config_enable
-
-#
-# PCI host controller drivers
-#
-config="CONFIG_PCI_DRA7XX" ; config_enable
-config="CONFIG_PCI_TEGRA" ; config_enable
-
-#
 # Generic Driver Options
 #
 config="CONFIG_FIRMWARE_IN_KERNEL" ; config_disable

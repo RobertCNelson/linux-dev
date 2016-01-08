@@ -51,6 +51,12 @@ config="CONFIG_KERNEL_XZ" ; config_disable
 config="CONFIG_KERNEL_LZO" ; config_enable
 
 #
+# Bus support
+#
+config="CONFIG_PCI" ; config_disable
+config="CONFIG_PCI_SYSCALL" ; config_disable
+
+#
 # CPU Core family selection
 #
 config="CONFIG_ARCH_MXC" ; config_disable
