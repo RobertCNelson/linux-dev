@@ -305,6 +305,11 @@ debian_regs () {
 			#17.3
 			deb_distro="trusty"
 			;;
+		sarah)
+			#18
+			#http://blog.linuxmint.com/?p=2975
+			deb_distro="xenial"
+			;;
 		esac
 
 		#Future Debian Code names:
