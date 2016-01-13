@@ -225,6 +225,12 @@ config="CONFIG_BEAGLEBONE_PINMUX_HELPER" ; config_enable
 config="CONFIG_STMMAC_ETH" ; config_disable
 config="CONFIG_RESET_CONTROLLER" ; config_disable
 
+#
+# FPGA Configuration Support
+#
+config="CONFIG_FPGA" ; config_disable
+config="CONFIG_FPGA_MGR_SOCFPGA" ; config_disable
+
 #overlay bugs...
 
 #These have to be modules, to work...

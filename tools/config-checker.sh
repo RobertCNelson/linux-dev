@@ -1614,6 +1614,12 @@ config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 #exit
 
 #
+# FPGA Configuration Support
+#
+config="CONFIG_FPGA" ; config_module
+config="CONFIG_FPGA_MGR_SOCFPGA" ; config_module
+
+#
 # File systems
 #
 config="CONFIG_EXT4_FS" ; config_enable

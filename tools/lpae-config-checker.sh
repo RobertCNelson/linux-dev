@@ -137,4 +137,10 @@ config="CONFIG_DRM_TILCDC" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
 config="CONFIG_DRM_ETNAVIV" ; config_disable
 config="CONFIG_DRM_NOUVEAU" ; config_module
+
+#
+# FPGA Configuration Support
+#
+config="CONFIG_FPGA" ; config_disable
+config="CONFIG_FPGA_MGR_SOCFPGA" ; config_disable
 #
