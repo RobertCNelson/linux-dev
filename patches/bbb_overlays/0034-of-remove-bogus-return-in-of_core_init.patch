@@ -1,0 +1,26 @@
+From 74b6b520a04a9ce427d15fe803fcb9fe0c5af787 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Wed, 14 Oct 2015 13:22:38 +0300
+Subject: [PATCH 34/38] of: remove bogus return in of_core_init
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ drivers/of/base.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/of/base.c b/drivers/of/base.c
+index c6f6286..fc9070f 100644
+--- a/drivers/of/base.c
++++ b/drivers/of/base.c
+@@ -213,8 +213,6 @@ void __init of_core_init(void)
+ 	ret = of_overlay_init();
+ 	if (ret != 0)
+ 		pr_warn("of_init: of_overlay_init failed!\n");
+-
+-	return 0;
+ }
+ 
+ static struct property *__of_find_property(const struct device_node *np,
+-- 
+2.6.4
+
