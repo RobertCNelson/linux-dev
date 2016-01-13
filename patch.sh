@@ -401,6 +401,9 @@ bbb_overlays () {
 		SHA="9ae0f367df5d0d7be09fad1e2e5b080f6a45ca6b" ; num="17" ; mainline
 		SHA="2eafd72939fda6118e27d3ee859684987f43921b" ; num="18" ; mainline
 		SHA="517982229f78b2aebf00a8a337e84e8eeea70b8e" ; num="19" ; mainline
+
+		#${git} "${DIR}/patches/bbb_overlays/0001-configfs-Implement-binary-attributes-v5.patch"
+		SHA="03607ace807b414eab46323c794b6fb8fcc2d48c" ; num="20" ; mainline
 		exit 2
 	fi
 
@@ -410,7 +413,9 @@ bbb_overlays () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/0001-configfs-Implement-binary-attributes-v5.patch"
+	#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=03607ace807b414eab46323c794b6fb8fcc2d48c
+	#${git} "${DIR}/patches/bbb_overlays/0001-configfs-Implement-binary-attributes-v5.patch"
+
 	${git} "${DIR}/patches/bbb_overlays/0002-OF-DT-Overlay-configfs-interface-v6.patch"
 	${git} "${DIR}/patches/bbb_overlays/0003-gitignore-Ignore-DTB-files.patch"
 
