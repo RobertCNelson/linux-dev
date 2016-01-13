@@ -25,10 +25,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 179 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/printk-formats.txt b/Documentation/printk-formats.txt
-index b784c27..5bf7026 100644
+index 6389551..1993652 100644
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -309,10 +309,40 @@ Command from struct task_struct
+@@ -315,10 +315,40 @@ Command from struct task_struct
  
  	Passed by reference.
  
@@ -71,7 +71,7 @@ index b784c27..5bf7026 100644
  
  
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index f9cee8e..ec60e5c 100644
+index ac3f947..cc6c5e2 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
 @@ -31,6 +31,7 @@
@@ -79,10 +79,10 @@ index f9cee8e..ec60e5c 100644
  #include <linux/cred.h>
  #include <net/addrconf.h>
 +#include <linux/of.h>
- 
- #include <asm/page.h>		/* for PAGE_SIZE */
- #include <asm/sections.h>	/* for dereference_function_descriptor() */
-@@ -1361,6 +1362,141 @@ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
+ #ifdef CONFIG_BLOCK
+ #include <linux/blkdev.h>
+ #endif
+@@ -1384,6 +1385,141 @@ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
  	}
  }
  
@@ -224,7 +224,7 @@ index f9cee8e..ec60e5c 100644
  int kptr_restrict __read_mostly;
  
  /*
-@@ -1448,6 +1584,16 @@ int kptr_restrict __read_mostly;
+@@ -1472,6 +1608,16 @@ int kptr_restrict __read_mostly;
   * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
   *        (legacy clock framework) of the clock
   * - 'Cr' For a clock, it prints the current rate of the clock
@@ -241,15 +241,15 @@ index f9cee8e..ec60e5c 100644
   *
   * ** Please update also Documentation/printk-formats.txt when making changes **
   *
-@@ -1600,6 +1746,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+@@ -1624,6 +1770,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
  		return dentry_name(buf, end,
  				   ((const struct file *)ptr)->f_path.dentry,
  				   spec, fmt);
 +	case 'O':
 +		return device_node_string(buf, end, ptr, spec, fmt);
- 	}
- 	spec.flags |= SMALL;
- 	if (spec.field_width == -1) {
+ #ifdef CONFIG_BLOCK
+ 	case 'g':
+ 		return bdev_name(buf, end, ptr, spec, fmt);
 -- 
-2.6.2
+2.6.4
 
