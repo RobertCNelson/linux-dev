@@ -402,10 +402,14 @@ bbb_overlays () {
 		SHA="2eafd72939fda6118e27d3ee859684987f43921b" ; num="18" ; mainline
 		SHA="517982229f78b2aebf00a8a337e84e8eeea70b8e" ; num="19" ; mainline
 
-		#${git} "${DIR}/patches/bbb_overlays/0001-configfs-Implement-binary-attributes-v5.patch"
+		#${git} "${DIR}/patches/bbb_overlays/configfs/0020-configfs-implement-binary-attributes.patch"
+		#4.5.0-rc0
 		SHA="03607ace807b414eab46323c794b6fb8fcc2d48c" ; num="20" ; mainline
 		exit 2
 	fi
+
+	#(< 4.5.0-rc0)
+#	${git} "${DIR}/patches/bbb_overlays/configfs/0020-configfs-implement-binary-attributes.patch"
 
 	echo "dir: bbb_overlays"
 	#regenerate="enable"
