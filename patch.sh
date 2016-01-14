@@ -376,6 +376,19 @@ bbb_overlays () {
 	#(< 4.5.0-rc0)
 #	${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
 
+
+	echo "dir: bbb_overlays/of"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		directory="bbb_overlays/of"
+		#merged in 4.5.0-rc0
+		SHA="183223770ae8625df8966ed15811d1b3ee8720aa" ; num="1" ; mainline
+		exit 2
+	fi
+
+	#(< 4.5.0-rc0)
+#	${git} "${DIR}/patches/bbb_overlays/of/0001-drivers-of-Export-OF-changeset-functions.patch"
+
 	echo "dir: bbb_overlays"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -399,11 +412,16 @@ bbb_overlays () {
 	#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=33caf82acf4dc420bf0f0136b886f7b27ecf90c5
 	${git} "${DIR}/patches/bbb_overlays/0009-of-Custom-printk-format-specifier-for-device-node.patch"
 
+	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
 	${git} "${DIR}/patches/bbb_overlays/0010-of-overlay-kobjectify-overlay-objects.patch"
+
 	${git} "${DIR}/patches/bbb_overlays/0011-of-overlay-global-sysfs-enable-attribute.patch"
 	${git} "${DIR}/patches/bbb_overlays/0012-Documentation-ABI-overlays-global-attributes.patch"
 	${git} "${DIR}/patches/bbb_overlays/0013-Documentation-document-of_overlay_disable-parameter.patch"
+
+	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
 	${git} "${DIR}/patches/bbb_overlays/0014-of-overlay-add-per-overlay-sysfs-attributes.patch"
+
 	${git} "${DIR}/patches/bbb_overlays/0015-Documentation-ABI-overlays-per-overlay-docs.patch"
 	${git} "${DIR}/patches/bbb_overlays/0016-i2c-nvmem-at24-Provide-an-EEPROM-framework-interface.patch"
 	${git} "${DIR}/patches/bbb_overlays/0017-misc-Beaglebone-capemanager.patch"
@@ -419,7 +437,11 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0027-of-unittest-Unit-tests-for-target-root-overlays.patch"
 	${git} "${DIR}/patches/bbb_overlays/0028-doc-dt-Document-the-target-root-overlay-method.patch"
 	${git} "${DIR}/patches/bbb_overlays/0029-of-dynamic-Add-__of_node_dupv.patch"
+
+	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
 	${git} "${DIR}/patches/bbb_overlays/0030-of-changesets-Introduce-changeset-helper-methods.patch"
+
+	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
 	${git} "${DIR}/patches/bbb_overlays/0031-RFC-Device-overlay-manager-PCI-USB-DT.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -429,7 +451,10 @@ bbb_overlays () {
 
 	${git} "${DIR}/patches/bbb_overlays/0034-of-remove-bogus-return-in-of_core_init.patch"
 	${git} "${DIR}/patches/bbb_overlays/0035-of-Maintainer-fixes-for-dynamic.patch"
+
+	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
 	${git} "${DIR}/patches/bbb_overlays/0036-of-unittest-changeset-helpers.patch"
+
 	${git} "${DIR}/patches/bbb_overlays/0037-of-rename-_node_sysfs-to-_node_post.patch"
 	${git} "${DIR}/patches/bbb_overlays/0038-of-Support-hashtable-lookups-for-phandles.patch"
 

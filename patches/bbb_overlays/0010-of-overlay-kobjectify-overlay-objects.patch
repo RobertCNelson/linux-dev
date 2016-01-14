@@ -44,10 +44,10 @@ index 017dd94..c6f6286 100644
  
  static struct property *__of_find_property(const struct device_node *np,
 diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
-index 8e882e7..120eb44 100644
+index 829469f..092cba7 100644
 --- a/drivers/of/of_private.h
 +++ b/drivers/of/of_private.h
-@@ -90,4 +90,13 @@ extern void __of_detach_node_sysfs(struct device_node *np);
+@@ -92,4 +92,13 @@ extern void __of_detach_node_sysfs(struct device_node *np);
  #define for_each_transaction_entry_reverse(_oft, _te) \
  	list_for_each_entry_reverse(_te, &(_oft)->te_list, node)
  
@@ -62,7 +62,7 @@ index 8e882e7..120eb44 100644
 +
  #endif /* _LINUX_OF_PRIVATE_H */
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 54e5af9..e61d5d9 100644
+index 8225081..19001a0 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
 @@ -20,6 +20,7 @@
@@ -136,7 +136,7 @@ index 54e5af9..e61d5d9 100644
  	return id;
  
 +err_cancel_overlay:
-+	of_changeset_revert(&ov->cset);
++	__of_changeset_revert(&ov->cset);
  err_revert_overlay:
  err_abort_trans:
  	of_free_overlay_info(ov);
@@ -151,7 +151,7 @@ index 54e5af9..e61d5d9 100644
  	err = 0;
  
 @@ -545,7 +579,7 @@ int of_overlay_destroy_all(void)
- 		of_changeset_revert(&ov->cset);
+ 		__of_changeset_revert(&ov->cset);
  		of_free_overlay_info(ov);
  		idr_remove(&ov_idr, ov->id);
 -		kfree(ov);
