@@ -74,6 +74,64 @@ external_git () {
 	git pull ${git_opts} ${git_patchset} ${git_tag}
 }
 
+aufs_fail () {
+	echo "aufs4 failed"
+	exit 2
+}
+
+aufs4 () {
+	echo "dir: aufs4"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-kbuild.patch
+		patch -p1 < aufs4-kbuild.patch || aufs_fail
+		rm -rf aufs4-kbuild.patch
+		git add .
+		git commit -a -m 'merge: aufs4-kbuild' -s
+
+		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-base.patch
+		patch -p1 < aufs4-base.patch || aufs_fail
+		rm -rf aufs4-base.patch
+		git add .
+		git commit -a -m 'merge: aufs4-base' -s
+
+		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-mmap.patch
+		patch -p1 < aufs4-mmap.patch || aufs_fail
+		rm -rf aufs4-mmap.patch
+		git add .
+		git commit -a -m 'merge: aufs4-mmap' -s
+
+		wget https://raw.githubusercontent.com/sfjro/aufs4-standalone/aufs${KERNEL_REL}/aufs4-standalone.patch
+		patch -p1 < aufs4-standalone.patch || aufs_fail
+		rm -rf aufs4-standalone.patch
+		git add .
+		git commit -a -m 'merge: aufs4-standalone' -s
+
+		git format-patch -4 -o ../patches/aufs4/
+		exit 2
+	fi
+
+	${git} "${DIR}/patches/aufs4/0001-merge-aufs4-kbuild.patch"
+	${git} "${DIR}/patches/aufs4/0002-merge-aufs4-base.patch"
+	${git} "${DIR}/patches/aufs4/0003-merge-aufs4-mmap.patch"
+	${git} "${DIR}/patches/aufs4/0004-merge-aufs4-standalone.patch"
+
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	#patch -p1 < "${DIR}/patches/aufs4/0005-aufs-why-this-isnt-a-patch.patch"
+	#exit 2
+
+	${git} "${DIR}/patches/aufs4/0005-aufs-why-this-isnt-a-patch.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=5
+		cleanup
+	fi
+}
+
 rt_cleanup () {
 	echo "rt: needs fixup"
 	exit 2
@@ -104,20 +162,17 @@ local_patch () {
 }
 
 #external_git
+#aufs4
 #rt
 #local_patch
 
-backports () {
+lts44_backports () {
+	echo "dir: lts44_backports"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		echo "dir: backports/mediatek"
-		directory="backports/mediatek"
-		SHA="c869f77d6abb5d5f9f2f1a661d5c53862a9cad34" ; num="1" ; mainline
-		SHA="69647fab13a5cbc305b50305fdd7dd4114c0e8db" ; num="2" ; mainline
-		SHA="2af6d21fce9990630d2adfda5a329706aa9e3571" ; num="3" ; mainline
-		SHA="9a15b57e9a2c591a812d979fa3f4f1a763533636" ; num="4" ; mainline
-		SHA="2dea58f62964f80883c8de80c0b5df8dbce0b278" ; num="5" ; mainline
-		SHA="8d0123748af0248750b123f9bfb8040d74691a77" ; num="6" ; mainline
+		#echo "dir: backports/mediatek"
+		#directory="backports/mediatek"
+		#SHA="c869f77d6abb5d5f9f2f1a661d5c53862a9cad34" ; num="1" ; mainline
 
 		exit 2
 	fi
@@ -131,8 +186,6 @@ reverts () {
 	fi
 
 	${git} "${DIR}/patches/reverts/0001-Revert-spi-spidev-Warn-loudly-if-instantiated-from-D.patch"
-	#udoo:
-#	${git} "${DIR}/patches/reverts/0002-Revert-usb-chipidea-usbmisc_imx-delete-clock-informa.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=2
@@ -241,43 +294,15 @@ udoo () {
 	fi
 }
 
-errata () {
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-	echo "dir: errata"
-
-	${git} "${DIR}/patches/errata/0001-hack-omap-clockk-dpll5-apply-sprz319e-2.1-erratum.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-}
-
-fixes () {
-	echo "dir: fixes"
+pru_uio () {
+	echo "dir: pru_uio"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-}
-
-pru () {
-	echo "dir: pru"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/pru/0001-Making-the-uio-pruss-driver-work.patch"
-	${git} "${DIR}/patches/pru/0002-Cleaned-up-error-reporting.patch"
+	${git} "${DIR}/patches/pru_uio/0001-Making-the-uio-pruss-driver-work.patch"
+	${git} "${DIR}/patches/pru_uio/0002-Cleaned-up-error-reporting.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=2
@@ -689,15 +714,13 @@ quieter () {
 }
 
 ###
-backports
+lts44_backports
 reverts
 ti
 dts
 wand
 udoo
-#errata
-#fixes
-pru
+pru_uio
 bbb_overlays
 beaglebone
 etnaviv
