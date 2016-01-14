@@ -188,7 +188,7 @@ reverts () {
 	${git} "${DIR}/patches/reverts/0001-Revert-spi-spidev-Warn-loudly-if-instantiated-from-D.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=2
+		number=1
 		cleanup
 	fi
 }
@@ -705,6 +705,7 @@ quieter () {
 		start_cleanup
 	fi
 
+	#quiet some hide obvious things...
 	${git} "${DIR}/patches/quieter/0001-quiet-8250_omap.c-use-pr_info-over-pr_err.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
