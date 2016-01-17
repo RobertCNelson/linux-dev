@@ -1,26 +1,27 @@
-From 55850211137ad30055382648aaa166b1d0ed4a88 Mon Sep 17 00:00:00 2001
+From f04b205ac143413831b193f39fd9592665111d4b Mon Sep 17 00:00:00 2001
 From: Lucas Stach <l.stach@pengutronix.de>
-Date: Wed, 9 Dec 2015 12:48:15 +0100
-Subject: [PATCH 02/14] drm/etnaviv: add devicetree bindings
+Date: Thu, 2 Apr 2015 17:29:04 +0200
+Subject: [PATCH] drm/etnaviv: add devicetree bindings
 
 Etnaviv follows the same priciple as imx-drm to have a virtual
 master device node to bind all the individual GPU cores together
 into one DRM device.
 
 Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- .../bindings/display/etnaviv/etnaviv-drm.txt       | 49 ++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ .../bindings/display/etnaviv/etnaviv-drm.txt       | 54 ++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/display/etnaviv/etnaviv-drm.txt
 
 diff --git a/Documentation/devicetree/bindings/display/etnaviv/etnaviv-drm.txt b/Documentation/devicetree/bindings/display/etnaviv/etnaviv-drm.txt
 new file mode 100644
-index 0000000..01254f4
+index 0000000..ed5e0a7
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/display/etnaviv/etnaviv-drm.txt
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,54 @@
 +Etnaviv DRM master device
-+================================
++=========================
 +
 +The Etnaviv DRM master device is a virtual device needed to list all
 +Vivante GPU cores that comprise the GPU subsystem.
@@ -40,7 +41,7 @@ index 0000000..01254f4
 +
 +
 +Vivante GPU core devices
-+====================
++========================
 +
 +Required properties:
 +- compatible: Should be "vivante,gc"
@@ -57,6 +58,10 @@ index 0000000..01254f4
 +   - "core":   GPU core clock
 +   - "shader": Shader clock (only required if GPU has feature PIPE_3D)
 +
++Optional properties:
++- power-domains: a power domain consumer specifier according to
++  Documentation/devicetree/bindings/power/power_domain.txt
++
 +example:
 +
 +gpu_3d: gpu@00130000 {
@@ -67,7 +72,8 @@ index 0000000..01254f4
 +	         <&clks IMX6QDL_CLK_GPU3D_CORE>,
 +	         <&clks IMX6QDL_CLK_GPU3D_SHADER>;
 +	clock-names = "bus", "core", "shader";
++	power-domains = <&gpc 1>;
 +};
 -- 
-2.6.2
+2.7.0.rc3
 

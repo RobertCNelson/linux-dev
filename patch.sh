@@ -636,29 +636,51 @@ beaglebone () {
 }
 
 etnaviv () {
+
+	echo "dir: etnaviv/mainline"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		directory="etnaviv/mainline"
+		#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/log/?qt=grep&q=etnaviv
+
+		#merged in 4.5.0-rc0
+
+		#drm/etnaviv: add devicetree bindings
+		SHA="f04b205ac143413831b193f39fd9592665111d4b" ; num="1" ; mainline
+
+		#drm/etnaviv: add initial etnaviv DRM driver
+		SHA="a8c21a5451d831e67b7a6fb910f9ca8bc7b43554" ; num="2" ; mainline
+
+		#MAINTAINERS: add maintainer and reviewers for the etnaviv DRM driver
+		SHA="8bb0bce92ec9330b0ea931df90f719fb5c4a5224" ; num="3" ; mainline
+
+		#drm/etnaviv: unlock on error in etnaviv_gem_get_iova()
+		SHA="ed94add00e290e675c36cef6767d7d1f51a02f28" ; num="4" ; mainline
+
+		#drm/etnaviv: fix workaround for GC500
+		SHA="c33246d793b5bb9d8be7c67918136c310185c23d" ; num="5" ; mainline
+		exit 2
+	fi
+
+	#merged in 4.5.0-rc0
+#	${git} "${DIR}/patches/etnaviv/mainline/0001-drm-etnaviv-add-devicetree-bindings.patch"
+#	${git} "${DIR}/patches/etnaviv/mainline/0002-drm-etnaviv-add-initial-etnaviv-DRM-driver.patch"
+#	${git} "${DIR}/patches/etnaviv/mainline/0004-drm-etnaviv-unlock-on-error-in-etnaviv_gem_get_iova.patch"
+#	${git} "${DIR}/patches/etnaviv/mainline/0003-MAINTAINERS-add-maintainer-and-reviewers-for-the-etn.patch"
+#	${git} "${DIR}/patches/etnaviv/mainline/0005-drm-etnaviv-fix-workaround-for-GC500.patch"
+
 	echo "dir: etnaviv"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/etnaviv/0001-devicetree-add-vendor-prefix-for-Vivante-Corporation.patch"
-	${git} "${DIR}/patches/etnaviv/0002-drm-etnaviv-add-devicetree-bindings.patch"
-	${git} "${DIR}/patches/etnaviv/0003-drm-etnaviv-add-etnaviv-UAPI-header.patch"
-	${git} "${DIR}/patches/etnaviv/0004-drm-etnaviv-add-generated-hardware-description-heade.patch"
-	${git} "${DIR}/patches/etnaviv/0005-drm-etnaviv-add-GPU-core-driver.patch"
-	${git} "${DIR}/patches/etnaviv/0006-drm-etnaviv-add-GEM-core-functionality.patch"
-	${git} "${DIR}/patches/etnaviv/0007-drm-etnaviv-add-GEM-submit-and-cmdstream-validation-.patch"
-	${git} "${DIR}/patches/etnaviv/0008-drm-etnaviv-add-GPU-MMU-handling-functionality.patch"
-	${git} "${DIR}/patches/etnaviv/0009-drm-etnaviv-add-GPU-core-dump-functionality.patch"
-	${git} "${DIR}/patches/etnaviv/0010-drm-etnaviv-add-master-driver-and-hook-up-in-Kconfig.patch"
-	${git} "${DIR}/patches/etnaviv/0011-MAINTAINERS-add-maintainer-and-reviewers-for-the-etn.patch"
-	${git} "${DIR}/patches/etnaviv/0012-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
-	${git} "${DIR}/patches/etnaviv/0013-ARM-dts-dove-add-DT-GPU-support.patch"
-	${git} "${DIR}/patches/etnaviv/0014-ARM-dts-enable-GPU-for-SolidRun-s-Cubox.patch"
+	${git} "${DIR}/patches/etnaviv/0001-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
+	${git} "${DIR}/patches/etnaviv/0002-ARM-dts-dove-add-DT-GPU-support.patch"
+	${git} "${DIR}/patches/etnaviv/0003-ARM-dts-enable-GPU-for-SolidRun-s-Cubox.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=14
+		number=3
 		cleanup
 	fi
 }
