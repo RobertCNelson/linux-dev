@@ -60,11 +60,11 @@ cleanup () {
 	exit 2
 }
 
-pick () {
-	if [ ! -d ../patches/${pick_dir} ] ; then
-		mkdir -p ../patches/${pick_dir}
+cherrypick () {
+	if [ ! -d ../patches/${cherrypick_dir} ] ; then
+		mkdir -p ../patches/${cherrypick_dir}
 	fi
-	git format-patch -1 ${SHA} --start-number ${num} -o ../patches/${pick_dir}
+	git format-patch -1 ${SHA} --start-number ${num} -o ../patches/${cherrypick_dir}
 	num=$(($num+1))
 }
 
@@ -170,12 +170,15 @@ lts44_backports () {
 	echo "dir: lts44_backports"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		#echo "dir: backports/mediatek"
-		#directory="backports/mediatek"
-		#SHA="c869f77d6abb5d5f9f2f1a661d5c53862a9cad34" ; num="1" ; mainline
+		echo "dir: lts44_backports/fixes"
+		cherrypick_dir="lts44_backports/fixes"
+		SHA="d20313b2c407a90fb60eca99d73c47a75bb42e08" ; num="1" ; cherrypick
 
 		exit 2
 	fi
+
+	#4.5.0-rc0
+	#${git} "${DIR}/patches/lts44_backports/fixes/0001-dmaengine-edma-Fix-paRAM-slot-allocation-for-entry-c.patch"
 }
 
 reverts () {
@@ -310,10 +313,6 @@ pru_uio () {
 	fi
 }
 
-mainline () {
-	git format-patch -1 ${SHA} --start-number ${num} -o ../patches/${directory}/
-}
-
 bbb_overlays () {
 	echo "dir: bbb_overlays/dtc"
 	#regenerate="enable"
@@ -367,9 +366,9 @@ bbb_overlays () {
 	echo "dir: bbb_overlays/configfs"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		directory="bbb_overlays/configfs"
+		cherrypick_dir="bbb_overlays/configfs"
 		#merged in 4.5.0-rc0
-		SHA="03607ace807b414eab46323c794b6fb8fcc2d48c" ; num="1" ; mainline
+		SHA="03607ace807b414eab46323c794b6fb8fcc2d48c" ; num="1" ; cherrypick
 		exit 2
 	fi
 
@@ -380,9 +379,9 @@ bbb_overlays () {
 	echo "dir: bbb_overlays/of"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		directory="bbb_overlays/of"
+		cherrypick_dir="bbb_overlays/of"
 		#merged in 4.5.0-rc0
-		SHA="183223770ae8625df8966ed15811d1b3ee8720aa" ; num="1" ; mainline
+		SHA="183223770ae8625df8966ed15811d1b3ee8720aa" ; num="1" ; cherrypick
 		exit 2
 	fi
 
@@ -655,25 +654,25 @@ etnaviv () {
 	echo "dir: etnaviv/mainline"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		directory="etnaviv/mainline"
+		cherrypick_dir="etnaviv/mainline"
 		#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/log/?qt=grep&q=etnaviv
 
 		#merged in 4.5.0-rc0
 
 		#drm/etnaviv: add devicetree bindings
-		SHA="f04b205ac143413831b193f39fd9592665111d4b" ; num="1" ; mainline
+		SHA="f04b205ac143413831b193f39fd9592665111d4b" ; num="1" ; cherrypick
 
 		#drm/etnaviv: add initial etnaviv DRM driver
-		SHA="a8c21a5451d831e67b7a6fb910f9ca8bc7b43554" ; num="2" ; mainline
+		SHA="a8c21a5451d831e67b7a6fb910f9ca8bc7b43554" ; num="2" ; cherrypick
 
 		#MAINTAINERS: add maintainer and reviewers for the etnaviv DRM driver
-		SHA="8bb0bce92ec9330b0ea931df90f719fb5c4a5224" ; num="3" ; mainline
+		SHA="8bb0bce92ec9330b0ea931df90f719fb5c4a5224" ; num="3" ; cherrypick
 
 		#drm/etnaviv: unlock on error in etnaviv_gem_get_iova()
-		SHA="ed94add00e290e675c36cef6767d7d1f51a02f28" ; num="4" ; mainline
+		SHA="ed94add00e290e675c36cef6767d7d1f51a02f28" ; num="4" ; cherrypick
 
 		#drm/etnaviv: fix workaround for GC500
-		SHA="c33246d793b5bb9d8be7c67918136c310185c23d" ; num="5" ; mainline
+		SHA="c33246d793b5bb9d8be7c67918136c310185c23d" ; num="5" ; cherrypick
 		exit 2
 	fi
 
