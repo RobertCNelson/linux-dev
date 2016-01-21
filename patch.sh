@@ -651,7 +651,6 @@ beaglebone () {
 }
 
 etnaviv () {
-	echo "dir: etnaviv/mainline"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cherrypick_dir="etnaviv/mainline"
@@ -663,40 +662,30 @@ etnaviv () {
 		SHA="f04b205ac143413831b193f39fd9592665111d4b" ; num="1" ; cherrypick
 
 		#drm/etnaviv: add initial etnaviv DRM driver
-		SHA="a8c21a5451d831e67b7a6fb910f9ca8bc7b43554" ; num="2" ; cherrypick
+		SHA="a8c21a5451d831e67b7a6fb910f9ca8bc7b43554" ; cherrypick
 
 		#MAINTAINERS: add maintainer and reviewers for the etnaviv DRM driver
-		SHA="8bb0bce92ec9330b0ea931df90f719fb5c4a5224" ; num="3" ; cherrypick
+		SHA="8bb0bce92ec9330b0ea931df90f719fb5c4a5224" ; cherrypick
 
 		#drm/etnaviv: unlock on error in etnaviv_gem_get_iova()
-		SHA="ed94add00e290e675c36cef6767d7d1f51a02f28" ; num="4" ; cherrypick
+		SHA="ed94add00e290e675c36cef6767d7d1f51a02f28" ; cherrypick
 
 		#drm/etnaviv: fix workaround for GC500
-		SHA="c33246d793b5bb9d8be7c67918136c310185c23d" ; num="5" ; cherrypick
+		SHA="c33246d793b5bb9d8be7c67918136c310185c23d" ; cherrypick
+
+		#ARM: dts: imx6: add Vivante GPU nodes
+		SHA="419e202b260ba5913affd7cb3c36f129c036e8f7" ; cherrypick
 		exit 2
 	fi
 
+#	echo "dir: etnaviv/mainline"
 	#merged in 4.5.0-rc0
 #	${git} "${DIR}/patches/etnaviv/mainline/0001-drm-etnaviv-add-devicetree-bindings.patch"
 #	${git} "${DIR}/patches/etnaviv/mainline/0002-drm-etnaviv-add-initial-etnaviv-DRM-driver.patch"
 #	${git} "${DIR}/patches/etnaviv/mainline/0004-drm-etnaviv-unlock-on-error-in-etnaviv_gem_get_iova.patch"
 #	${git} "${DIR}/patches/etnaviv/mainline/0003-MAINTAINERS-add-maintainer-and-reviewers-for-the-etn.patch"
 #	${git} "${DIR}/patches/etnaviv/mainline/0005-drm-etnaviv-fix-workaround-for-GC500.patch"
-
-	echo "dir: etnaviv"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/etnaviv/0001-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
-	${git} "${DIR}/patches/etnaviv/0002-ARM-dts-dove-add-DT-GPU-support.patch"
-	${git} "${DIR}/patches/etnaviv/0003-ARM-dts-enable-GPU-for-SolidRun-s-Cubox.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=3
-		cleanup
-	fi
+#	${git} "${DIR}/patches/etnaviv/mainline/0006-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
 }
 
 quieter () {

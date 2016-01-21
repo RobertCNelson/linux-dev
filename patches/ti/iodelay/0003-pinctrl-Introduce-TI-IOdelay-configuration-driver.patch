@@ -45,10 +45,10 @@ Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
  create mode 100644 drivers/pinctrl/pinctrl-ti-iodelay.c
 
 diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
-index 100d9ac..05290b5 100644
+index 99a4c10..9376e78 100644
 --- a/drivers/pinctrl/Kconfig
 +++ b/drivers/pinctrl/Kconfig
-@@ -182,6 +182,18 @@ config PINCTRL_TEGRA_XUSB
+@@ -199,6 +199,18 @@ config PINCTRL_TEGRA_XUSB
  	select PINCONF
  	select PINMUX
  
@@ -68,7 +68,7 @@ index 100d9ac..05290b5 100644
  	bool "Toumaz Xenif TZ1090 pin control driver"
  	depends on SOC_TZ1090
 diff --git a/drivers/pinctrl/Makefile b/drivers/pinctrl/Makefile
-index f4216d9..d5d4567 100644
+index bf1b5ca..7d786e1 100644
 --- a/drivers/pinctrl/Makefile
 +++ b/drivers/pinctrl/Makefile
 @@ -29,6 +29,7 @@ obj-$(CONFIG_PINCTRL_TEGRA114)	+= pinctrl-tegra114.o
@@ -1049,7 +1049,7 @@ index 0000000..e4c6e25
 +MODULE_DESCRIPTION("Pinconf driver for TI's IO Delay module");
 +MODULE_LICENSE("GPL v2");
 diff --git a/include/dt-bindings/pinctrl/dra.h b/include/dt-bindings/pinctrl/dra.h
-index 4379e29..a7e4ae3 100644
+index 5c75e80..5a60e3b 100644
 --- a/include/dt-bindings/pinctrl/dra.h
 +++ b/include/dt-bindings/pinctrl/dra.h
 @@ -50,6 +50,8 @@
@@ -1061,9 +1061,9 @@ index 4379e29..a7e4ae3 100644
  #define PULL_ENA		(0 << 16)
  #define PULL_DIS		(1 << 16)
  #define PULL_UP			(1 << 17)
-@@ -67,5 +69,9 @@
- #define PIN_INPUT_PULLUP	(PULL_ENA | INPUT_EN | PULL_UP)
- #define PIN_INPUT_PULLDOWN	(PULL_ENA | INPUT_EN)
+@@ -73,5 +75,9 @@
+  */
+ #define DRA7XX_CORE_IOPAD(pa, val)	(((pa) & 0xffff) - 0x3400) (val)
  
 +/* DRA7 IODELAY configuration parameters */
 +#define A_DELAY(val)		((val) & 0xFFFF)
