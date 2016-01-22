@@ -1,0 +1,35 @@
+From 006b1cd303d405013e23dfb5b3bf93aed6e4ed6a Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sun, 20 Dec 2015 18:06:19 -0600
+Subject: [PATCH 2/2] am335x-olimex-som: no regulator for voltdm
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/mach-omap2/opp33xx_data.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/opp33xx_data.c b/arch/arm/mach-omap2/opp33xx_data.c
+index c4f5e1e..7472a15 100644
+--- a/arch/arm/mach-omap2/opp33xx_data.c
++++ b/arch/arm/mach-omap2/opp33xx_data.c
+@@ -14,6 +14,7 @@
+  */
+ #include <linux/io.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ 
+ #include "control.h"
+ #include "omap_opp_data.h"
+@@ -82,6 +83,9 @@ int __init am33xx_opp_init(void)
+ 	if (WARN(!soc_is_am33xx(), "Cannot init OPPs: unsupported SoC.\n"))
+ 		return r;
+ 
++	if (of_machine_is_compatible("olimex,am335x-olimex-som"))
++		return r;
++
+ 	rev = omap_rev();
+ 
+ 	switch (rev) {
+-- 
+2.7.0.rc3
+

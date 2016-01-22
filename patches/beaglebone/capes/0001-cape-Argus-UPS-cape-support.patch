@@ -1,31 +1,35 @@
-From 2e99c264d9e8dcf24d6052833a0bfc06a28103cf Mon Sep 17 00:00:00 2001
+From d1ff3c8695355c4454678cb17f684eba0831f23f Mon Sep 17 00:00:00 2001
 From: Dave Lambert <dave@lambsys.com>
 Date: Mon, 16 Jun 2014 14:19:17 -0500
-Subject: [PATCH 1/3] cape: Argus UPS cape support
+Subject: [PATCH 1/4] cape: Argus UPS cape support
 
 Rewritten using includes, v3.16.1
 
 Signed-off-by: Dave Lambert <dave@lambsys.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-argus.dtsi       |  85 +++++
- drivers/misc/Kconfig                           |   1 +
- drivers/misc/Makefile                          |   1 +
- drivers/misc/cape_bone_argus/Kconfig           |   7 +
- drivers/misc/cape_bone_argus/Makefile          |   5 +
- drivers/misc/cape_bone_argus/cape_bone_argus.c | 415 +++++++++++++++++++++++++
- 6 files changed, 514 insertions(+)
+ arch/arm/boot/dts/am335x-bone-argus.dtsi           | 109 ++++++
+ arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts  |  28 ++
+ .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  98 +++++
+ drivers/misc/Kconfig                               |   1 +
+ drivers/misc/Makefile                              |   1 +
+ drivers/misc/cape_bone_argus/Kconfig               |   7 +
+ drivers/misc/cape_bone_argus/Makefile              |   5 +
+ drivers/misc/cape_bone_argus/cape_bone_argus.c     | 415 +++++++++++++++++++++
+ 8 files changed, 664 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-argus.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
  create mode 100644 drivers/misc/cape_bone_argus/Kconfig
  create mode 100644 drivers/misc/cape_bone_argus/Makefile
  create mode 100644 drivers/misc/cape_bone_argus/cape_bone_argus.c
 
 diff --git a/arch/arm/boot/dts/am335x-bone-argus.dtsi b/arch/arm/boot/dts/am335x-bone-argus.dtsi
 new file mode 100644
-index 0000000..0bbe050
+index 0000000..21afad3
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-argus.dtsi
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,109 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -33,6 +37,9 @@ index 0000000..0bbe050
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
++
++#include <dt-bindings/board/am335x-bbw-bbb-base.h>
++
 +/ {
 +	ocp {
 +		P8_07_pinmux {
@@ -73,6 +80,7 @@ index 0000000..0bbe050
 +		};
 +	};
 +};
++
 +/ {
 +	argus-ups {
 +		compatible = "argus-ups";
@@ -110,21 +118,179 @@ index 0000000..0bbe050
 +			0x164 (PIN_OUTPUT_PULLUP | MUX_MODE7) /* ecap0_in_pwm0_out.gpio0_7 */
 +		>;
 +	};
++
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			BONE_P9_20 0x73 /* (SLEWCTRL_SLOW | PIN_INPUT_PULLUP | MUX_MODE3) uart1_ctsn.i2c2_sda */
++			BONE_P9_19 0x73 /* (SLEWCTRL_SLOW | PIN_INPUT_PULLUP | MUX_MODE3) uart1_rtsn.i2c2_scl */
++		>;
++	};
 +};
++
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
++
++	status = "okay";
++	clock-frequency = <100000>;
++
++	rtc@68 {
++		compatible = "maxim,ds1307";
++		reg = <0x68>;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
+new file mode 100644
+index 0000000..82218f5
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
+@@ -0,0 +1,28 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone";
++	compatible = "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&ldo3_reg>;
++};
++
++#include "am335x-bone-argus.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
+new file mode 100644
+index 0000000..cecb0fcc
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
+@@ -0,0 +1,98 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone Black";
++	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&vmmcsd_fixed>;
++};
++
++&mmc2 {
++	vmmc-supply = <&vmmcsd_fixed>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&emmc_pins>;
++	bus-width = <8>;
++	status = "okay";
++};
++
++&am33xx_pinmux {
++	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
++			AM33XX_IOPAD(0x8a0, PIN_OUTPUT | MUX_MODE0)		/* lcd_data0.lcd_data0 */
++			AM33XX_IOPAD(0x8a4, PIN_OUTPUT | MUX_MODE0)		/* lcd_data1.lcd_data1 */
++			AM33XX_IOPAD(0x8a8, PIN_OUTPUT | MUX_MODE0)		/* lcd_data2.lcd_data2 */
++			AM33XX_IOPAD(0x8ac, PIN_OUTPUT | MUX_MODE0)		/* lcd_data3.lcd_data3 */
++			AM33XX_IOPAD(0x8b0, PIN_OUTPUT | MUX_MODE0)		/* lcd_data4.lcd_data4 */
++			AM33XX_IOPAD(0x8b4, PIN_OUTPUT | MUX_MODE0)		/* lcd_data5.lcd_data5 */
++			AM33XX_IOPAD(0x8b8, PIN_OUTPUT | MUX_MODE0)		/* lcd_data6.lcd_data6 */
++			AM33XX_IOPAD(0x8bc, PIN_OUTPUT | MUX_MODE0)		/* lcd_data7.lcd_data7 */
++			AM33XX_IOPAD(0x8c0, PIN_OUTPUT | MUX_MODE0)		/* lcd_data8.lcd_data8 */
++			AM33XX_IOPAD(0x8c4, PIN_OUTPUT | MUX_MODE0)		/* lcd_data9.lcd_data9 */
++			AM33XX_IOPAD(0x8c8, PIN_OUTPUT | MUX_MODE0)		/* lcd_data10.lcd_data10 */
++			AM33XX_IOPAD(0x8cc, PIN_OUTPUT | MUX_MODE0)		/* lcd_data11.lcd_data11 */
++			AM33XX_IOPAD(0x8d0, PIN_OUTPUT | MUX_MODE0)		/* lcd_data12.lcd_data12 */
++			AM33XX_IOPAD(0x8d4, PIN_OUTPUT | MUX_MODE0)		/* lcd_data13.lcd_data13 */
++			AM33XX_IOPAD(0x8d8, PIN_OUTPUT | MUX_MODE0)		/* lcd_data14.lcd_data14 */
++			AM33XX_IOPAD(0x8dc, PIN_OUTPUT | MUX_MODE0)		/* lcd_data15.lcd_data15 */
++			AM33XX_IOPAD(0x8e0, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* lcd_vsync.lcd_vsync */
++			AM33XX_IOPAD(0x8e4, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* lcd_hsync.lcd_hsync */
++			AM33XX_IOPAD(0x8e8, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* lcd_pclk.lcd_pclk */
++			AM33XX_IOPAD(0x8ec, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* lcd_ac_bias_en.lcd_ac_bias_en */
++		>;
++	};
++	nxp_hdmi_bonelt_off_pins: nxp_hdmi_bonelt_off_pins {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
++		>;
++	};
++};
++
++&lcdc {
++	status = "okay";
++	port {
++		lcdc_0: endpoint@0 {
++			remote-endpoint = <&hdmi_0>;
++		};
++	};
++};
++
++&i2c0 {
++	tda19988 {
++		compatible = "nxp,tda998x";
++		reg = <0x70>;
++		pinctrl-names = "default", "off";
++		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
++		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
++
++		port {
++			hdmi_0: endpoint@0 {
++				remote-endpoint = <&lcdc_0>;
++			};
++		};
++	};
++};
++
++&rtc {
++	system-power-controller;
++};
++
++#include "am335x-bone-argus.dtsi"
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index c9577d6..09c422c 100644
+index 24afa9e..8997680 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -544,6 +544,7 @@ source "drivers/misc/altera-stapl/Kconfig"
+@@ -565,6 +565,7 @@ source "drivers/misc/altera-stapl/Kconfig"
  source "drivers/misc/mei/Kconfig"
  source "drivers/misc/vmw_vmci/Kconfig"
  source "drivers/misc/mic/Kconfig"
 +source "drivers/misc/cape_bone_argus/Kconfig"
  source "drivers/misc/genwqe/Kconfig"
+ source "drivers/misc/cape/Kconfig"
  source "drivers/misc/echo/Kconfig"
- source "drivers/misc/cxl/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 7009f26..bf0e13d 100644
+index 5ffaf53..44d2a52 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
 @@ -52,6 +52,7 @@ obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
@@ -133,8 +299,8 @@ index 7009f26..bf0e13d 100644
  obj-y				+= mic/
 +obj-y				+= cape_bone_argus/
  obj-$(CONFIG_GENWQE)		+= genwqe/
+ obj-y				+= cape/
  obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
 diff --git a/drivers/misc/cape_bone_argus/Kconfig b/drivers/misc/cape_bone_argus/Kconfig
 new file mode 100644
 index 0000000..1b39661
@@ -581,5 +747,5 @@ index 0000000..c434218
 +MODULE_ALIAS("platform:argus-ups");
 +MODULE_DEVICE_TABLE(of, argus_ups_of_ids);
 -- 
-2.1.4
+2.7.0.rc3
 

@@ -1,7 +1,7 @@
-From f2b0dc200480e8af107841be98d13cd0af5d9b62 Mon Sep 17 00:00:00 2001
+From 8478b3e6ddb4e4b6d46543b26f93ad027072ce03 Mon Sep 17 00:00:00 2001
 From: Eyal Reizer <eyalr@ti.com>
 Date: Tue, 5 May 2015 11:33:42 +0300
-Subject: [PATCH 3/3] ARM: dts: am335x-boneblack: enable wl1835mod cape support
+Subject: [PATCH 2/4] ARM: dts: am335x-boneblack: enable wl1835mod cape support
 
 Add support for the WL1835MOD cape.
 This cape conflicts with the eMMC and HDMI on board the BeagleBone Black.
@@ -12,8 +12,8 @@ holding the user/boot button down at power on and reset.
 Signed-off-by: Eyal Reizer <eyalr@ti.com>
 ---
  .../boot/dts/am335x-boneblack-wl1835mod-cape.dtsi  | 128 +++++++++++++++++++++
- arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |  41 +++++++
- 2 files changed, 169 insertions(+)
+ arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |  42 +++++++
+ 2 files changed, 170 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-wl1835mod-cape.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
 
@@ -153,10 +153,10 @@ index 0000000..94caa22
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
 new file mode 100644
-index 0000000..7027d84
+index 0000000..e376613
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,42 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -167,15 +167,12 @@ index 0000000..7027d84
 +/dts-v1/;
 +
 +#include "am33xx.dtsi"
-+#include "am335x-bone-common.dtsi"
++#include "am335x-bone-common-no-capemgr.dtsi"
 +
 +/ {
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
-+
-+/* Max Core Speed */
-+#include "am335x-boneblack-1ghz.dtsi"
 +
 +&ldo3_reg {
 +	regulator-min-microvolt = <1800000>;
@@ -185,6 +182,10 @@ index 0000000..7027d84
 +
 +&mmc1 {
 +	vmmc-supply = <&vmmcsd_fixed>;
++};
++
++&rtc {
++	system-power-controller;
 +};
 +
 +/* EMMC in reset */
@@ -199,5 +200,5 @@ index 0000000..7027d84
 +
 +#include "am335x-boneblack-wl1835mod-cape.dtsi"
 -- 
-2.1.4
+2.7.0.rc3
 
