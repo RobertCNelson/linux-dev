@@ -184,17 +184,16 @@ lts44_backports () {
 
 	#is_44="enable"
 	if [ "x${is_44}" = "xenable" ] ; then
+		echo "dir: lts44_backports/fixes"
+		#4.5.0-rc0
+		${git} "${DIR}/patches/lts44_backports/fixes/0001-dmaengine-edma-Fix-paRAM-slot-allocation-for-entry-c.patch"
 
-	echo "dir: lts44_backports/fixes"
-	#4.5.0-rc0
-	${git} "${DIR}/patches/lts44_backports/fixes/0001-dmaengine-edma-Fix-paRAM-slot-allocation-for-entry-c.patch"
-
-	echo "dir: lts44_backports/dmtimer"
-	#4.5.0-rc0
-	${git} "${DIR}/patches/lts44_backports/dmtimer/0001-pwm-Add-PWM-driver-for-OMAP-using-dual-mode-timers.patch"
-	${git} "${DIR}/patches/lts44_backports/dmtimer/0002-pwm-omap-dmtimer-Potential-NULL-dereference-on-error.patch"
-
+		echo "dir: lts44_backports/dmtimer"
+		#4.5.0-rc0
+		${git} "${DIR}/patches/lts44_backports/dmtimer/0001-pwm-Add-PWM-driver-for-OMAP-using-dual-mode-timers.patch"
+		${git} "${DIR}/patches/lts44_backports/dmtimer/0002-pwm-omap-dmtimer-Potential-NULL-dereference-on-error.patch"
 	fi
+	unset is_44
 }
 
 reverts () {
@@ -406,8 +405,12 @@ bbb_overlays () {
 		exit 2
 	fi
 
-	#(< 4.5.0-rc0)
-#	${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
+	#is_44="enable"
+	if [ "x${is_44}" = "xenable" ] ; then
+		#(< 4.5.0-rc0)
+		${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
+	fi
+	unset is_44
 
 
 	echo "dir: bbb_overlays/of"
@@ -419,8 +422,12 @@ bbb_overlays () {
 		exit 2
 	fi
 
-	#(< 4.5.0-rc0)
-#	${git} "${DIR}/patches/bbb_overlays/of/0001-drivers-of-Export-OF-changeset-functions.patch"
+	#is_44="enable"
+	if [ "x${is_44}" = "xenable" ] ; then
+		#(< 4.5.0-rc0)
+		${git} "${DIR}/patches/bbb_overlays/of/0001-drivers-of-Export-OF-changeset-functions.patch"
+	fi
+	unset is_44
 
 	echo "dir: bbb_overlays"
 	#regenerate="enable"
@@ -793,14 +800,18 @@ etnaviv () {
 		exit 2
 	fi
 
-#	echo "dir: etnaviv/mainline"
-	#merged in 4.5.0-rc0
-#	${git} "${DIR}/patches/etnaviv/mainline/0001-drm-etnaviv-add-devicetree-bindings.patch"
-#	${git} "${DIR}/patches/etnaviv/mainline/0002-drm-etnaviv-add-initial-etnaviv-DRM-driver.patch"
-#	${git} "${DIR}/patches/etnaviv/mainline/0004-drm-etnaviv-unlock-on-error-in-etnaviv_gem_get_iova.patch"
-#	${git} "${DIR}/patches/etnaviv/mainline/0003-MAINTAINERS-add-maintainer-and-reviewers-for-the-etn.patch"
-#	${git} "${DIR}/patches/etnaviv/mainline/0005-drm-etnaviv-fix-workaround-for-GC500.patch"
-#	${git} "${DIR}/patches/etnaviv/mainline/0006-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
+	#is_44="enable"
+	if [ "x${is_44}" = "xenable" ] ; then
+		echo "dir: etnaviv/mainline"
+		#merged in 4.5.0-rc0
+		${git} "${DIR}/patches/etnaviv/mainline/0001-drm-etnaviv-add-devicetree-bindings.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0002-drm-etnaviv-add-initial-etnaviv-DRM-driver.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0004-drm-etnaviv-unlock-on-error-in-etnaviv_gem_get_iova.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0003-MAINTAINERS-add-maintainer-and-reviewers-for-the-etn.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0005-drm-etnaviv-fix-workaround-for-GC500.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0006-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
+	fi
+	unset is_44
 }
 
 quieter () {
