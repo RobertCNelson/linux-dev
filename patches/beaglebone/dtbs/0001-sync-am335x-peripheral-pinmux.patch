@@ -1,15 +1,15 @@
-From 8140c52eff705c840ee9bf85b6e5cae71187574c Mon Sep 17 00:00:00 2001
+From 7e14b76352e962f028922f78f083914655fc1a36 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 21 Jan 2016 20:55:17 -0600
+Date: Fri, 22 Jan 2016 09:57:32 -0600
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/am335x-abbbi.dts                 | 158 ++++++
- arch/arm/boot/dts/am335x-arduino-tre.dts           | 566 +++++++++++++++++++++
+ arch/arm/boot/dts/am335x-arduino-tre.dts           | 577 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-bone-argus.dtsi           |   4 +
  arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts  |  41 ++
- .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 361 +++++++++++++
+ .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 359 +++++++++++++
  arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi   |  18 +
  arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi     |  45 ++
  arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi     |  45 ++
@@ -27,7 +27,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone.dts                  |   1 +
  arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  44 ++
  arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  44 ++
- arch/arm/boot/dts/am335x-boneblack-bbbmini.dts     | 201 ++++++++
+ arch/arm/boot/dts/am335x-boneblack-bbbmini.dts     | 201 +++++++
  .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  44 ++
  .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  39 ++
  .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |  89 ++++
@@ -55,10 +55,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi     |  13 +
  arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 +
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +
- arch/arm/boot/dts/am335x-som-common.dtsi           | 459 +++++++++++++++++
+ arch/arm/boot/dts/am335x-som-common.dtsi           | 459 ++++++++++++++++
  arch/arm/boot/dts/am33xx-overlay-edma-fix.dtsi     |  37 ++
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 ++++
- 53 files changed, 4068 insertions(+), 11 deletions(-)
+ 53 files changed, 4077 insertions(+), 11 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-abbbi.dts
  create mode 100644 arch/arm/boot/dts/am335x-arduino-tre.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-cape-bone-argus.dts
@@ -272,10 +272,10 @@ index 0000000..2c6d9e0
 +};
 diff --git a/arch/arm/boot/dts/am335x-arduino-tre.dts b/arch/arm/boot/dts/am335x-arduino-tre.dts
 new file mode 100644
-index 0000000..ae76692f
+index 0000000..a594582
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-arduino-tre.dts
-@@ -0,0 +1,566 @@
+@@ -0,0 +1,577 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -303,32 +303,33 @@ index 0000000..ae76692f
 +	};
 +
 +	leds {
-+		compatible = "gpio-leds";
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&userled_pins>;
 +
-+		led0 {
++		compatible = "gpio-leds";
++
++		led@0 {
 +			label = "arduino_tre:yel:usr0";
 +			gpios = <&gpio1 21 0>;
 +			linux,default-trigger = "mmc0";
 +			default-state = "off";
 +		};
 +
-+		led1 {
++		led@1 {
 +			label = "arduino_tre:red:usr1";
 +			gpios = <&gpio1 22 0>;
 +			linux,default-trigger = "none";
 +			default-state = "off";
 +		};
 +
-+		led2 {
++		led@2 {
 +			label = "arduino_tre:blu:usr2";
 +			gpios = <&gpio1 23 0>;
 +			linux,default-trigger = "none";
 +			default-state = "off";
 +		};
 +
-+		led3 {
++		led@3 {
 +			label = "arduino_tre:grn:usr3";
 +			gpios = <&gpio1 24 0>;
 +			linux,default-trigger = "cpu0";
@@ -728,7 +729,11 @@ index 0000000..ae76692f
 +	interrupts = <7>;	/* NNMI */
 +
 +	regulators {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
 +		dcdc1_reg: regulator@0 {
++			reg = <0>;
 +			regulator-name = "vdd_ddr";
 +			regulator-min-microvolt = <1350000>;
 +			regulator-max-microvolt = <1350000>;
@@ -737,7 +742,8 @@ index 0000000..ae76692f
 +		};
 +
 +		dcdc2_reg: regulator@1 {
-+			/* VDD_MPU voltage limits 0.925V - 1.325V with +/-4% tolerance */
++			reg = <1>;
++			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
 +			regulator-name = "vdd_mpu";
 +			regulator-min-microvolt = <925000>;
 +			regulator-max-microvolt = <1325000>;
@@ -746,7 +752,8 @@ index 0000000..ae76692f
 +		};
 +
 +		dcdc3_reg: regulator@2 {
-+			/* VDD_CORE voltage limits 0.925V - 1.15V with +/-4% tolerance */
++			reg = <2>;
++			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
 +			regulator-name = "vdd_core";
 +			regulator-min-microvolt = <925000>;
 +			regulator-max-microvolt = <1150000>;
@@ -755,20 +762,24 @@ index 0000000..ae76692f
 +		};
 +
 +		ldo1_reg: regulator@3 {
++			reg = <3>;
 +			regulator-always-on;
 +		};
 +
 +		ldo2_reg: regulator@4 {
++			reg = <4>;
 +			regulator-always-on;
 +		};
 +
 +		ldo3_reg: regulator@5 {
++			reg = <5>;
 +			regulator-min-microvolt = <1800000>;
 +			regulator-max-microvolt = <1800000>;
 +			regulator-always-on;
 +		};
 +
 +		ldo4_reg: regulator@6 {
++			reg = <6>;
 +			regulator-always-on;
 +		};
 +
@@ -913,10 +924,10 @@ index 0000000..a92d891
 +#include "am335x-bone-argus.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 0000000..4e99dbd
+index 0000000..f440182
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,361 @@
+@@ -0,0 +1,359 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1156,8 +1167,6 @@ index 0000000..4e99dbd
 +		};
 +	};
 +};
-+
-+/include/ "tps65217.dtsi"
 +
 +&tps {
 +	compatible = "ti,tps65217";
