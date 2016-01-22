@@ -182,14 +182,19 @@ lts44_backports () {
 		exit 2
 	fi
 
-	#echo "dir: lts44_backports/fixes"
-	#4.5.0-rc0
-	#${git} "${DIR}/patches/lts44_backports/fixes/0001-dmaengine-edma-Fix-paRAM-slot-allocation-for-entry-c.patch"
+	#is_44="enable"
+	if [ "x${is_44}" = "xenable" ] ; then
 
-	#echo "dir: lts44_backports/dmtimer"
+	echo "dir: lts44_backports/fixes"
 	#4.5.0-rc0
-	#${git} "${DIR}/patches/lts44_backports/dmtimer/0001-pwm-Add-PWM-driver-for-OMAP-using-dual-mode-timers.patch"
-	#${git} "${DIR}/patches/lts44_backports/dmtimer/0002-pwm-omap-dmtimer-Potential-NULL-dereference-on-error.patch"
+	${git} "${DIR}/patches/lts44_backports/fixes/0001-dmaengine-edma-Fix-paRAM-slot-allocation-for-entry-c.patch"
+
+	echo "dir: lts44_backports/dmtimer"
+	#4.5.0-rc0
+	${git} "${DIR}/patches/lts44_backports/dmtimer/0001-pwm-Add-PWM-driver-for-OMAP-using-dual-mode-timers.patch"
+	${git} "${DIR}/patches/lts44_backports/dmtimer/0002-pwm-omap-dmtimer-Potential-NULL-dereference-on-error.patch"
+
+	fi
 }
 
 reverts () {
