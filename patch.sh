@@ -242,9 +242,10 @@ ti () {
 #	${git} "${DIR}/patches/ti/cpu_freq/0022-ARM-dts-dra7-add-voltage-domains.patch"
 #	${git} "${DIR}/patches/ti/cpu_freq/0023-ARM-dts-dra7-evm-Add-vdd-regulators-for-voltage-doma.patch"
 #	${git} "${DIR}/patches/ti/cpu_freq/0024-ARM-dts-dra72-evm-Add-mapping-of-voltage-domains-to-.patch"
+#	${git} "${DIR}/patches/ti/iodelay/0001-ARM-dts-am57xx-beagle-x15-Map-regulators-to-voltage-.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=24
+		number=25
 		cleanup
 	fi
 
@@ -254,12 +255,11 @@ ti () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/ti/iodelay/0001-ARM-dts-am57xx-beagle-x15-Map-regulators-to-voltage-.patch"
 	${git} "${DIR}/patches/ti/iodelay/0002-pinctrl-bindings-pinctrl-Add-support-for-TI-s-IODela.patch"
 	${git} "${DIR}/patches/ti/iodelay/0003-pinctrl-Introduce-TI-IOdelay-configuration-driver.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=3
+		number=2
 		cleanup
 	fi
 }
