@@ -1,7 +1,7 @@
-From d3e2dd94ed47bdfbd1cce104b8e2d0f5584a35e8 Mon Sep 17 00:00:00 2001
+From 0721b230a4e1a33abd5693f65b1e87cb74bb945e Mon Sep 17 00:00:00 2001
 From: Dave Gerlach <d-gerlach@ti.com>
 Date: Wed, 22 Jul 2015 16:01:41 -0500
-Subject: [PATCH] cpufreq: cpufreq-voltdm: Split cpufreq-dt to use clk
+Subject: [PATCH 16/25] cpufreq: cpufreq-voltdm: Split cpufreq-dt to use clk
  rate-change notifiers
 
 Introduce cpufreq-voltdm driver which is based on cpufreq-dt driver but
@@ -50,10 +50,10 @@ index 659879a..9558cf9 100644
  source "drivers/cpufreq/Kconfig.x86"
  endif
 diff --git a/drivers/cpufreq/Makefile b/drivers/cpufreq/Makefile
-index cdce92a..6941136 100644
+index 9e63fb1..ba0ee69 100644
 --- a/drivers/cpufreq/Makefile
 +++ b/drivers/cpufreq/Makefile
-@@ -14,6 +14,7 @@ obj-$(CONFIG_CPU_FREQ_GOV_CONSERVATIVE)	+= cpufreq_conservative.o
+@@ -13,6 +13,7 @@ obj-$(CONFIG_CPU_FREQ_GOV_CONSERVATIVE)	+= cpufreq_conservative.o
  obj-$(CONFIG_CPU_FREQ_GOV_COMMON)		+= cpufreq_governor.o
  
  obj-$(CONFIG_CPUFREQ_DT)		+= cpufreq-dt.o
@@ -63,7 +63,7 @@ index cdce92a..6941136 100644
  # x86 drivers.
 diff --git a/drivers/cpufreq/cpufreq-voltdm.c b/drivers/cpufreq/cpufreq-voltdm.c
 new file mode 100644
-index 0000000..08881d9
+index 0000000..2c7f532b
 --- /dev/null
 +++ b/drivers/cpufreq/cpufreq-voltdm.c
 @@ -0,0 +1,333 @@
@@ -401,5 +401,5 @@ index 0000000..08881d9
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:cpufreq-voltdm");
 -- 
-2.1.4
+2.7.0.rc3
 
