@@ -155,6 +155,16 @@ config="CONFIG_ARM_TEGRA124_CPUFREQ" ; config_enable
 config="CONFIG_QORIQ_CPUFREQ" ; config_enable
 
 #
+# CPU Idle
+#
+config="CONFIG_CPU_IDLE" ; config_enable
+
+#
+# ARM CPU Idle Drivers
+#
+config="CONFIG_ARM_CPUIDLE" ; config_enable
+
+#
 # At least one emulation must be selected
 #
 config="CONFIG_KERNEL_MODE_NEON" ; config_enable
