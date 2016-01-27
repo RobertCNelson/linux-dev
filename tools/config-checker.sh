@@ -52,7 +52,6 @@ config="CONFIG_IKCONFIG_PROC" ; config_enable
 config="CONFIG_LOG_BUF_SHIFT" ; option="18" ; config_value
 config="CONFIG_CGROUP_PIDS" ; config_enable
 config="CONFIG_MEMCG_SWAP_ENABLED" ; config_enable
-config="CONFIG_MEMCG_KMEM" ; config_enable
 config="CONFIG_RT_GROUP_SCHED" ; config_enable
 config="CONFIG_SYSFS_SYSCALL" ; config_enable
 config="CONFIG_SYSCTL_SYSCALL" ; config_enable
@@ -125,8 +124,6 @@ config="CONFIG_ARM_ERRATA_773022" ; config_disable
 #
 # Kernel Features
 #
-config="CONFIG_HZ_100" ; config_enable
-config="CONFIG_HZ_250" ; config_disable
 config="CONFIG_MEMORY_ISOLATION" ; config_enable
 config="CONFIG_CMA" ; config_enable
 config="CONFIG_CMA_DEBUG" ; config_disable
@@ -216,7 +213,7 @@ config="CONFIG_BT_HCIBCM203X" ; config_module
 config="CONFIG_BT_HCIBPA10X" ; config_module
 config="CONFIG_BT_HCIBFUSB" ; config_module
 config="CONFIG_NFC_NCI" ; config_module
-config="CONFIG_NFC_NCI_SPI" ; config_enable
+config="CONFIG_NFC_NCI_SPI" ; config_module
 config="CONFIG_NFC_HCI" ; config_module
 config="CONFIG_NFC_SHDLC" ; config_enable
 
@@ -350,8 +347,6 @@ config="CONFIG_DP83848_PHY" ; config_enable
 #
 config="CONFIG_USB_LAN78XX" ; config_module
 config="CONFIG_USB_NET_CH9200" ; config_module
-config="CONFIG_WCN36XX" ; config_module
-config="CONFIG_WCN36XX_DEBUGFS" ; config_disable
 config="CONFIG_LIBERTAS_SPI" ; config_module
 config="CONFIG_MWIFIEX" ; config_module
 config="CONFIG_MWIFIEX_SDIO" ; config_module
@@ -785,16 +780,6 @@ config="CONFIG_VIDEOBUF2_MEMOPS" ; config_enable
 config="CONFIG_VIDEOBUF2_DMA_CONTIG" ; config_enable
 
 #
-# Media drivers
-#
-config="CONFIG_IR_HIX5HD2" ; config_module
-
-#
-# Webcam devices
-#
-config="CONFIG_USB_GSPCA_TOUPTEK" ; config_module
-
-#
 # Software defined radio USB devices
 #
 config="CONFIG_VIDEO_OMAP3" ; config_module
@@ -806,17 +791,6 @@ config="CONFIG_VIDEO_CODA" ; config_enable
 config="CONFIG_VIDEO_MEM2MEM_DEINTERLACE" ; config_module
 config="CONFIG_DVB_PLATFORM_DRIVERS" ; config_enable
 config="CONFIG_DVB_C8SECTPFE" ; config_module
-
-#
-# Supported MMC/SDIO adapters
-#
-config="CONFIG_I2C_SI470X" ; config_module
-config="CONFIG_USB_SI4713" ; config_module
-config="CONFIG_USB_DSBR" ; config_module
-config="CONFIG_RADIO_TEA5764" ; config_module
-config="CONFIG_RADIO_SAA7706H" ; config_module
-config="CONFIG_RADIO_TEF6862" ; config_module
-config="CONFIG_RADIO_WL1273" ; config_module
 
 #
 # soc_camera sensor drivers
@@ -1001,7 +975,6 @@ config="CONFIG_USB_DWC3_OF_SIMPLE" ; config_enable
 # Debugging features
 #
 config="CONFIG_USB_CHIPIDEA" ; config_enable
-config="CONFIG_USB_CHIPIDEA_DEBUG" ; config_disable
 
 #
 # USB Miscellaneous drivers
@@ -1340,6 +1313,7 @@ config="CONFIG_RPMSG" ; config_enable
 #
 config="CONFIG_ROCKCHIP_PM_DOMAINS" ; config_enable
 config="CONFIG_SOC_TI" ; config_enable
+config="CONFIG_WKUP_M3_IPC" ; config_enable
 
 #
 # DEVFREQ Governors
@@ -1578,6 +1552,7 @@ config="CONFIG_MLX90614" ; config_module
 config="CONFIG_TMP006" ; config_module
 config="CONFIG_TSYS01" ; config_module
 config="CONFIG_TSYS02D" ; config_module
+config="CONFIG_PWM_OMAP_DMTIMER" ; config_module
 config="CONFIG_PWM_PCA9685" ; config_module
 config="CONFIG_PWM_ROCKCHIP" ; config_module
 
