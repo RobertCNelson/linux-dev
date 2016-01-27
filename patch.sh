@@ -826,6 +826,41 @@ etnaviv () {
 		${git} "${DIR}/patches/etnaviv/mainline/0006-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
 	fi
 	unset is_44
+
+	echo "dir: etnaviv/drm-etnaviv-fixes"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	#http://git.pengutronix.de/?p=lst/linux.git;a=shortlog;h=refs/heads/drm-etnaviv-fixes
+	#cd ~/linux-src
+	#git checkout v4.5-rc1 -b tmp
+	#git pull --no-edit git://git.pengutronix.de/git/lst/linux.git drm-etnaviv-fixes
+	#git rebase v4.5-rc1
+	#git format-patch -14 | grep rc1 ; rm *.patch
+
+	#git format-patch -13 -o /opt/github/linux-dev/patches/etnaviv/drm-etnaviv-fixes
+	#git checkout master -f ; git branch -D tmp
+
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0001-drm-etnaviv-remove-owner-assignment-from-platform_dr.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0002-drm-etnaviv-hold-object-lock-while-getting-pages-for.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0003-drm-etnaviv-fix-failure-path-if-model-is-zero.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0004-drm-etnaviv-ignore-VG-GPUs-with-FE2.0.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0005-drm-etnaviv-update-common-and-state_hi-xml.h-files.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0006-drm-etnaviv-use-defined-constants-for-the-chip-model.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0007-drm-etnaviv-add-helper-to-extract-bitfields.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0008-drm-etnaviv-add-helper-for-comparing-model-revision-.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0009-drm-etnaviv-add-further-minor-features-and-varyings-.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0010-drm-etnaviv-fix-memory-leak-in-IOMMU-init-path.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0011-drm-etnaviv-fix-get-pages-error-path-in-etnaviv_gem_.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0012-drm-etnaviv-rename-etnaviv_gem_vaddr-to-etnaviv_gem_.patch"
+	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0013-drm-etnaviv-call-correct-function-when-trying-to-vma.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=13
+		cleanup
+	fi
 }
 
 quieter () {
