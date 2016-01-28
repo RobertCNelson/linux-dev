@@ -1,7 +1,7 @@
-From 0db57158f72a83347b716af2ff26ee98505bfb6a Mon Sep 17 00:00:00 2001
+From 9110b9790e3d3d8d976e3c91f6f1e634c549c96d Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Tue, 20 Jan 2015 16:15:05 +0200
-Subject: [PATCH 09/38] of: Custom printk format specifier for device node
+Subject: [PATCH 09/37] of: Custom printk format specifier for device node
 
 90% of the usage of device node's full_name is printing it out
 in a kernel message. Preparing for the eventual delayed allocation
@@ -25,10 +25,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 179 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/printk-formats.txt b/Documentation/printk-formats.txt
-index 6389551..1993652 100644
+index 5d1128b..10e3af5 100644
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -315,10 +315,40 @@ Command from struct task_struct
+@@ -306,10 +306,40 @@ Network device features:
  
  	Passed by reference.
  
@@ -71,7 +71,7 @@ index 6389551..1993652 100644
  
  
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index ac3f947..cc6c5e2 100644
+index 48ff9c3..a4b2034 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
 @@ -31,6 +31,7 @@
@@ -82,7 +82,7 @@ index ac3f947..cc6c5e2 100644
  #ifdef CONFIG_BLOCK
  #include <linux/blkdev.h>
  #endif
-@@ -1384,6 +1385,141 @@ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
+@@ -1407,6 +1408,141 @@ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
  	}
  }
  
@@ -224,7 +224,7 @@ index ac3f947..cc6c5e2 100644
  int kptr_restrict __read_mostly;
  
  /*
-@@ -1472,6 +1608,16 @@ int kptr_restrict __read_mostly;
+@@ -1495,6 +1631,16 @@ int kptr_restrict __read_mostly;
   * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
   *        (legacy clock framework) of the clock
   * - 'Cr' For a clock, it prints the current rate of the clock
@@ -241,7 +241,7 @@ index ac3f947..cc6c5e2 100644
   *
   * ** Please update also Documentation/printk-formats.txt when making changes **
   *
-@@ -1624,6 +1770,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+@@ -1643,6 +1789,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
  		return dentry_name(buf, end,
  				   ((const struct file *)ptr)->f_path.dentry,
  				   spec, fmt);
@@ -251,5 +251,5 @@ index ac3f947..cc6c5e2 100644
  	case 'g':
  		return bdev_name(buf, end, ptr, spec, fmt);
 -- 
-2.6.4
+2.7.0.rc3
 

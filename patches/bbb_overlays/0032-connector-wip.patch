@@ -1,7 +1,7 @@
-From 7fc4af11984ab0c702c574ae3dd934a7a7f70175 Mon Sep 17 00:00:00 2001
+From f9852884aa2136684f4bb0ed208dff3daaa81099 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 16 Sep 2015 13:02:34 +0300
-Subject: [PATCH 33/38] connector wip
+Subject: [PATCH 32/37] connector wip
 
 ---
  arch/arm/boot/dts/am335x-bone-common.dtsi | 459 ++++++++++++++++++++++++++++++
@@ -12,10 +12,10 @@ Subject: [PATCH 33/38] connector wip
  create mode 100644 drivers/extcon/extcon-dt-con.c
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index e668c39..75e24b4 100644
+index 0d41adc..2ca70bf 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -417,4 +417,463 @@
+@@ -425,4 +425,463 @@
  			};
  		};
  	};
@@ -480,7 +480,7 @@ index e668c39..75e24b4 100644
 +	};
  };
 diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
-index 0cebbf6..26887b3 100644
+index 3d89e60..6747559 100644
 --- a/drivers/extcon/Kconfig
 +++ b/drivers/extcon/Kconfig
 @@ -35,6 +35,13 @@ config EXTCON_AXP288
@@ -498,7 +498,7 @@ index 0cebbf6..26887b3 100644
  	tristate "GPIO extcon support"
  	depends on GPIOLIB || COMPILE_TEST
 diff --git a/drivers/extcon/Makefile b/drivers/extcon/Makefile
-index ba787d0..7ab396ee 100644
+index 2a0e4f4..81958e8 100644
 --- a/drivers/extcon/Makefile
 +++ b/drivers/extcon/Makefile
 @@ -6,6 +6,7 @@ obj-$(CONFIG_EXTCON)		+= extcon.o
@@ -508,7 +508,7 @@ index ba787d0..7ab396ee 100644
 +obj-$(CONFIG_EXTCON_DT_CON)	+= extcon-dt-con.o
  obj-$(CONFIG_EXTCON_GPIO)	+= extcon-gpio.o
  obj-$(CONFIG_EXTCON_MAX14577)	+= extcon-max14577.o
- obj-$(CONFIG_EXTCON_MAX77693)	+= extcon-max77693.o
+ obj-$(CONFIG_EXTCON_MAX3355)	+= extcon-max3355.o
 diff --git a/drivers/extcon/extcon-dt-con.c b/drivers/extcon/extcon-dt-con.c
 new file mode 100644
 index 0000000..ba77e7a
@@ -635,5 +635,5 @@ index 0000000..ba77e7a
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:extcon-dt-con");
 -- 
-2.6.4
+2.7.0.rc3
 

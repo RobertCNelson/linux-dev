@@ -213,6 +213,21 @@ reverts () {
 	fi
 }
 
+fixes () {
+	echo "dir: fixes"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/fixes/0001-drm-i2c-tda998x-Choose-between-atomic-or-non-atomic-.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
+		cleanup
+	fi
+}
+
 ti () {
 
 	#is_not_broken="enable"
@@ -394,13 +409,17 @@ bbb_overlays () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0001-nvmem-make-default-user-binary-file-root-access-only.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0002-nvmem-set-the-size-for-the-nvmem-binary-file.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0003-nvmem-add-permission-flags-in-nvmem_config.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0004-nvmem-fix-permissions-of-readonly-nvmem-binattr.patch"
+	#[PATCH 0/7] Convert exiting EEPROM drivers to NVMEM
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0001-nvmem-Add-flag-to-export-NVMEM-to-root-only.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0002-nvmem-Add-backwards-compatibility-support-for-older-.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0003-eeprom-at24-extend-driver-to-plug-into-the-NVMEM-fra.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0004-eeprom-at25-Remove-in-kernel-API-for-accessing-the-E.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0005-eeprom-at25-extend-driver-to-plug-into-the-NVMEM-fra.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0006-eeprom-93xx46-extend-driver-to-plug-into-the-NVMEM-f.patch"
+	${git} "${DIR}/patches/bbb_overlays/nvmem/0007-misc-at24-replace-memory_accessor-with-nvmem_device_.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=7
 		cleanup
 	fi
 
@@ -471,43 +490,42 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0014-of-overlay-add-per-overlay-sysfs-attributes.patch"
 
 	${git} "${DIR}/patches/bbb_overlays/0015-Documentation-ABI-overlays-per-overlay-docs.patch"
-	${git} "${DIR}/patches/bbb_overlays/0016-i2c-nvmem-at24-Provide-an-EEPROM-framework-interface.patch"
-	${git} "${DIR}/patches/bbb_overlays/0017-misc-Beaglebone-capemanager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0018-doc-misc-Beaglebone-capemanager-documentation.patch"
-	${git} "${DIR}/patches/bbb_overlays/0019-doc-dt-beaglebone-cape-manager-bindings.patch"
-	${git} "${DIR}/patches/bbb_overlays/0020-doc-ABI-bone_capemgr-sysfs-API.patch"
-	${git} "${DIR}/patches/bbb_overlays/0021-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
-	${git} "${DIR}/patches/bbb_overlays/0022-arm-dts-Enable-beaglebone-cape-manager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0023-of-overlay-Implement-indirect-target-support.patch"
-	${git} "${DIR}/patches/bbb_overlays/0024-of-unittest-Add-indirect-overlay-target-test.patch"
-	${git} "${DIR}/patches/bbb_overlays/0025-doc-dt-Document-the-indirect-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0026-of-overlay-Introduce-target-root-capability.patch"
-	${git} "${DIR}/patches/bbb_overlays/0027-of-unittest-Unit-tests-for-target-root-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0028-doc-dt-Document-the-target-root-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0029-of-dynamic-Add-__of_node_dupv.patch"
+	${git} "${DIR}/patches/bbb_overlays/0016-misc-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0017-doc-misc-Beaglebone-capemanager-documentation.patch"
+	${git} "${DIR}/patches/bbb_overlays/0018-doc-dt-beaglebone-cape-manager-bindings.patch"
+	${git} "${DIR}/patches/bbb_overlays/0019-doc-ABI-bone_capemgr-sysfs-API.patch"
+	${git} "${DIR}/patches/bbb_overlays/0020-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
+	${git} "${DIR}/patches/bbb_overlays/0021-arm-dts-Enable-beaglebone-cape-manager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0022-of-overlay-Implement-indirect-target-support.patch"
+	${git} "${DIR}/patches/bbb_overlays/0023-of-unittest-Add-indirect-overlay-target-test.patch"
+	${git} "${DIR}/patches/bbb_overlays/0024-doc-dt-Document-the-indirect-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0025-of-overlay-Introduce-target-root-capability.patch"
+	${git} "${DIR}/patches/bbb_overlays/0026-of-unittest-Unit-tests-for-target-root-overlays.patch"
+	${git} "${DIR}/patches/bbb_overlays/0027-doc-dt-Document-the-target-root-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0028-of-dynamic-Add-__of_node_dupv.patch"
 
 	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0030-of-changesets-Introduce-changeset-helper-methods.patch"
+	${git} "${DIR}/patches/bbb_overlays/0029-of-changesets-Introduce-changeset-helper-methods.patch"
 
 	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0031-RFC-Device-overlay-manager-PCI-USB-DT.patch"
+	${git} "${DIR}/patches/bbb_overlays/0030-RFC-Device-overlay-manager-PCI-USB-DT.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/bbb_overlays/0032-boneblack-defconfig.patch"
-	${git} "${DIR}/patches/bbb_overlays/0033-connector-wip.patch"
+	${git} "${DIR}/patches/bbb_overlays/0031-boneblack-defconfig.patch"
+	${git} "${DIR}/patches/bbb_overlays/0032-connector-wip.patch"
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/0034-of-remove-bogus-return-in-of_core_init.patch"
-	${git} "${DIR}/patches/bbb_overlays/0035-of-Maintainer-fixes-for-dynamic.patch"
+	${git} "${DIR}/patches/bbb_overlays/0033-of-remove-bogus-return-in-of_core_init.patch"
+	${git} "${DIR}/patches/bbb_overlays/0034-of-Maintainer-fixes-for-dynamic.patch"
 
 	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0036-of-unittest-changeset-helpers.patch"
+	${git} "${DIR}/patches/bbb_overlays/0035-of-unittest-changeset-helpers.patch"
 
-	${git} "${DIR}/patches/bbb_overlays/0037-of-rename-_node_sysfs-to-_node_post.patch"
-	${git} "${DIR}/patches/bbb_overlays/0038-of-Support-hashtable-lookups-for-phandles.patch"
+	${git} "${DIR}/patches/bbb_overlays/0036-of-rename-_node_sysfs-to-_node_post.patch"
+	${git} "${DIR}/patches/bbb_overlays/0037-of-Support-hashtable-lookups-for-phandles.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=38
+		number=37
 		cleanup
 	fi
 }
@@ -684,6 +702,19 @@ beaglebone () {
 		cleanup
 	fi
 
+	echo "dir: beaglebone/broken-voltdm"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/beaglebone/broken-voltdm/0001-am335x-broken-voltdm.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
+		cleanup
+	fi
+
 	#This has to be last...
 	echo "dir: beaglebone/dtbs"
 	#regenerate="enable"
@@ -698,19 +729,6 @@ beaglebone () {
 	fi
 
 	${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-
-	echo "dir: beaglebone/broken-voltdm"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/broken-voltdm/0001-am335x-broken-voltdm.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=1
@@ -896,6 +914,7 @@ quieter () {
 ###
 lts44_backports
 reverts
+fixes
 ti
 dts
 wand
