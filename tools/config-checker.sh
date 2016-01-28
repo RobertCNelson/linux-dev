@@ -145,7 +145,6 @@ config="CONFIG_CPU_FREQ_GOV_CONSERVATIVE" ; config_enable
 # CPU frequency scaling drivers
 #
 config="CONFIG_CPUFREQ_DT" ; config_enable
-config="CONFIG_CPUFREQ_VOLTDM" ; config_enable
 config="CONFIG_ARM_IMX6Q_CPUFREQ" ; config_enable
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
 config="CONFIG_ARM_TEGRA124_CPUFREQ" ; config_enable
