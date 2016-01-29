@@ -785,6 +785,48 @@ etnaviv () {
 
 		#ARM: dts: imx6: add Vivante GPU nodes
 		SHA="419e202b260ba5913affd7cb3c36f129c036e8f7" ; cherrypick
+
+		#merged in 4.5.0-rc1
+
+		#drm/etnaviv: remove owner assignment from platform_driver
+		SHA="23a9d5dcb6ae114733fac4757b0b154571c21129" ; cherrypick
+
+		#drm/etnaviv: hold object lock while getting pages for coredump
+		SHA="339073ef77e45e87ec4cc8671b2d2328dcfd31f0" ; cherrypick
+
+		#drm/etnaviv: fix failure path if model is zero
+		SHA="f6427760a29ba3fd968e27ea567b1ebdd500740b" ; cherrypick
+
+		#drm/etnaviv: ignore VG GPUs with FE2.0
+		SHA="b98c66887ee1aec661dcb88fe17399d5d112ed98" ; cherrypick
+
+		#drm/etnaviv: update common and state_hi xml.h files
+		SHA="e2a2e263e06a0c153234b3e93fb85612d1c454d3" ; cherrypick
+
+		#drm/etnaviv: use defined constants for the chip model
+		SHA="507f899137f9e4f1405820b946063a6db78b2295" ; cherrypick
+
+		#drm/etnaviv: add helper to extract bitfields
+		SHA="52f36ba1d6134f5c1c45deb0da53442a5971358e" ; cherrypick
+
+		#drm/etnaviv: add helper for comparing model/revision IDs
+		SHA="472f79dcf21d34f4d667910002482efe3ca4ba34" ; cherrypick
+
+		#drm/etnaviv: add further minor features and varyings count
+		SHA="602eb48966d7b7f7e64dca8d9ea2842d83bfae73" ; cherrypick
+
+		#drm/etnaviv: fix memory leak in IOMMU init path
+		SHA="45d16a6d94580cd3c6baed69b5fe441ece599fc4" ; cherrypick
+
+		#drm/etnaviv: fix get pages error path in etnaviv_gem_vaddr
+		SHA="9f07bb0d4ada68f05b2e51c10720d4688e6adea4" ; cherrypick
+
+		#drm/etnaviv: rename etnaviv_gem_vaddr to etnaviv_gem_vmap
+		SHA="ce3088fdb51eda7b9ef3d119e7c302c08428f274" ; cherrypick
+
+		#drm/etnaviv: call correct function when trying to vmap a DMABUF
+		SHA="a0a5ab3e99b8e617221caabf074dcabd1659b9d8" ; cherrypick
+
 		exit 2
 	fi
 
@@ -798,10 +840,23 @@ etnaviv () {
 		${git} "${DIR}/patches/etnaviv/mainline/0003-MAINTAINERS-add-maintainer-and-reviewers-for-the-etn.patch"
 		${git} "${DIR}/patches/etnaviv/mainline/0005-drm-etnaviv-fix-workaround-for-GC500.patch"
 		${git} "${DIR}/patches/etnaviv/mainline/0006-ARM-dts-imx6-add-Vivante-GPU-nodes.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0007-drm-etnaviv-remove-owner-assignment-from-platform_dr.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0008-drm-etnaviv-hold-object-lock-while-getting-pages-for.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0009-drm-etnaviv-fix-failure-path-if-model-is-zero.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0010-drm-etnaviv-ignore-VG-GPUs-with-FE2.0.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0011-drm-etnaviv-update-common-and-state_hi-xml.h-files.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0012-drm-etnaviv-use-defined-constants-for-the-chip-model.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0013-drm-etnaviv-add-helper-to-extract-bitfields.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0014-drm-etnaviv-add-helper-for-comparing-model-revision-.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0015-drm-etnaviv-add-further-minor-features-and-varyings-.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0016-drm-etnaviv-fix-memory-leak-in-IOMMU-init-path.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0017-drm-etnaviv-fix-get-pages-error-path-in-etnaviv_gem_.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0018-drm-etnaviv-rename-etnaviv_gem_vaddr-to-etnaviv_gem_.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0019-drm-etnaviv-call-correct-function-when-trying-to-vma.patch"
 	fi
 	unset is_44
 
-	echo "dir: etnaviv/drm-etnaviv-fixes"
+	#echo "dir: etnaviv/drm-etnaviv-fixes"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
@@ -816,20 +871,6 @@ etnaviv () {
 
 	#git format-patch -13 -o /opt/github/linux-dev/patches/etnaviv/drm-etnaviv-fixes
 	#git checkout master -f ; git branch -D tmp
-
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0001-drm-etnaviv-remove-owner-assignment-from-platform_dr.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0002-drm-etnaviv-hold-object-lock-while-getting-pages-for.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0003-drm-etnaviv-fix-failure-path-if-model-is-zero.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0004-drm-etnaviv-ignore-VG-GPUs-with-FE2.0.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0005-drm-etnaviv-update-common-and-state_hi-xml.h-files.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0006-drm-etnaviv-use-defined-constants-for-the-chip-model.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0007-drm-etnaviv-add-helper-to-extract-bitfields.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0008-drm-etnaviv-add-helper-for-comparing-model-revision-.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0009-drm-etnaviv-add-further-minor-features-and-varyings-.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0010-drm-etnaviv-fix-memory-leak-in-IOMMU-init-path.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0011-drm-etnaviv-fix-get-pages-error-path-in-etnaviv_gem_.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0012-drm-etnaviv-rename-etnaviv_gem_vaddr-to-etnaviv_gem_.patch"
-	${git} "${DIR}/patches/etnaviv/drm-etnaviv-fixes/0013-drm-etnaviv-call-correct-function-when-trying-to-vma.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=13
