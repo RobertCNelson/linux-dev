@@ -1,0 +1,34 @@
+From c43054edee87d4c7e849c12cb7438fe0a43456dc Mon Sep 17 00:00:00 2001
+From: Matthijs van Duin <matthijsvanduin@gmail.com>
+Date: Mon, 1 Feb 2016 08:27:15 +0100
+Subject: [PATCH 2/2] ASoC: davinci_mcasp: 20-bit word support
+
+Signed-off-by: Matthijs van Duin <matthijsvanduin@gmail.com>
+---
+ sound/soc/davinci/davinci-mcasp.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 2ccb8bc..916544d 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -1073,11 +1073,13 @@ static int davinci_mcasp_hw_params(struct snd_pcm_substream *substream,
+ 		word_length = 16;
+ 		break;
+ 
+-	case SNDRV_PCM_FORMAT_U24_3LE:
+-	case SNDRV_PCM_FORMAT_S24_3LE:
+-		word_length = 24;
++	case SNDRV_PCM_FORMAT_U20_3LE:
++	case SNDRV_PCM_FORMAT_S20_3LE:
++		word_length = 20;
+ 		break;
+ 
++	case SNDRV_PCM_FORMAT_U24_3LE:
++	case SNDRV_PCM_FORMAT_S24_3LE:
+ 	case SNDRV_PCM_FORMAT_U24_LE:
+ 	case SNDRV_PCM_FORMAT_S24_LE:
+ 		word_length = 24;
+-- 
+2.6.4
+
