@@ -236,12 +236,22 @@ debian_regs () {
 		fi
 
 		if [ "x${deb_distro}" = "xsana" ] ; then
+			#EOL: 15th of April 2016.
 			#lsb_release -a
 			#Distributor ID:    Kali
 			#Description:    Kali GNU/Linux 2.0
 			#Release:    2.0
 			#Codename:    sana
 			deb_distro="jessie"
+		fi
+
+		if [ "x${deb_distro}" = "xkali-rolling" ] ; then
+			#lsb_release -a:
+			#Distributor ID:    Kali
+			#Description:    Kali GNU/Linux Rolling
+			#Release:    kali-rolling
+			#Codename:    kali-rolling
+			deb_distro="stretch"
 		fi
 
 		#Linux Mint: Compatibility Matrix
