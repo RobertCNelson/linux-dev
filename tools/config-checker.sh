@@ -733,6 +733,7 @@ config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 # Watchdog Device Drivers
 #
 config="CONFIG_DA9052_WATCHDOG" ; config_enable
+config="CONFIG_DW_WATCHDOG" ; config_enable
 config="CONFIG_OMAP_WATCHDOG" ; config_enable
 config="CONFIG_SUNXI_WATCHDOG" ; config_enable
 config="CONFIG_TWL4030_WATCHDOG" ; config_enable
