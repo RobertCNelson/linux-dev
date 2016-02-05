@@ -1,0 +1,54 @@
+From 4bebaf1ce2132d4c4bfcb8e0ca3ad003edcf53a5 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 4 Feb 2016 11:31:06 +0200
+Subject: [PATCH 13/21] drm/tilcdc: split reset to a separate function
+
+Split reset to a separate function and use usleep_range(250, 1000)
+instead of msleep(1) to to keep the reset bit on long enough.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+[Added description to the patch, changed mdelay(500) to usleep_range(250, 1000)]
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+index 3a6f11e..ec7be2c 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+@@ -112,17 +112,24 @@ static void update_scanout(struct drm_crtc *crtc)
+ 	}
+ }
+ 
+-static void start(struct drm_crtc *crtc)
++static void reset(struct drm_crtc *crtc)
+ {
+ 	struct drm_device *dev = crtc->dev;
+ 	struct tilcdc_drm_private *priv = dev->dev_private;
+ 
+-	if (priv->rev == 2) {
+-		tilcdc_set(dev, LCDC_CLK_RESET_REG, LCDC_CLK_MAIN_RESET);
+-		msleep(1);
+-		tilcdc_clear(dev, LCDC_CLK_RESET_REG, LCDC_CLK_MAIN_RESET);
+-		msleep(1);
+-	}
++	if (priv->rev != 2)
++		return;
++
++	tilcdc_set(dev, LCDC_CLK_RESET_REG, LCDC_CLK_MAIN_RESET);
++	usleep_range(250, 1000);
++	tilcdc_clear(dev, LCDC_CLK_RESET_REG, LCDC_CLK_MAIN_RESET);
++}
++
++static void start(struct drm_crtc *crtc)
++{
++	struct drm_device *dev = crtc->dev;
++
++	reset(crtc);
+ 
+ 	tilcdc_set(dev, LCDC_DMA_CTRL_REG, LCDC_DUAL_FRAME_BUFFER_ENABLE);
+ 	tilcdc_set(dev, LCDC_RASTER_CTRL_REG, LCDC_PALETTE_LOAD_MODE(DATA_ONLY));
+-- 
+2.7.0
+

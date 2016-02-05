@@ -1,0 +1,39 @@
+From ee064038cd68622d2c66cc14493770a078b78513 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 4 Feb 2016 11:31:07 +0200
+Subject: [PATCH 14/21] drm/tilcdc: remove broken error handling
+
+Remove broken error handling. The condition for handling the
+LCDC_SYNC_LOST and LCDC_FIFO_UNDERFLOW could never be satisfied as the
+LCDC_SYNC_LOST interrupt is not enabled. Also the requirement to have
+both LCDC_SYNC_LOST and LCDC_FIFO_UNDERFLOW fired at once before
+handling the error looks weird.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+[Added description to the patch]
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+index ec7be2c..fe2aed7 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+@@ -658,12 +658,7 @@ irqreturn_t tilcdc_crtc_irq(struct drm_crtc *crtc)
+ 	struct tilcdc_drm_private *priv = dev->dev_private;
+ 	uint32_t stat = tilcdc_read_irqstatus(dev);
+ 
+-	if ((stat & LCDC_SYNC_LOST) && (stat & LCDC_FIFO_UNDERFLOW)) {
+-		stop(crtc);
+-		dev_err(dev->dev, "error: %08x\n", stat);
+-		tilcdc_clear_irqstatus(dev, stat);
+-		start(crtc);
+-	} else if (stat & LCDC_PL_LOAD_DONE) {
++	if (stat & LCDC_PL_LOAD_DONE) {
+ 		tilcdc_clear_irqstatus(dev, stat);
+ 	} else {
+ 		struct drm_pending_vblank_event *event;
+-- 
+2.7.0
+

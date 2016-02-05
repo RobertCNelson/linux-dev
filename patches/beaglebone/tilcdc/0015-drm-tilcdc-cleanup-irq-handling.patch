@@ -1,0 +1,39 @@
+From bb22195ae1f5791b97b95312ea889222c3f8b922 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Thu, 4 Feb 2016 11:31:08 +0200
+Subject: [PATCH 15/21] drm/tilcdc: cleanup irq handling
+
+Cleanup irq handling. Clear the irq status unconditionally and
+restructure the status bit conditions.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+[Added description to the patch]
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+index fe2aed7..280c76a 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+@@ -656,11 +656,12 @@ irqreturn_t tilcdc_crtc_irq(struct drm_crtc *crtc)
+ 	struct tilcdc_crtc *tilcdc_crtc = to_tilcdc_crtc(crtc);
+ 	struct drm_device *dev = crtc->dev;
+ 	struct tilcdc_drm_private *priv = dev->dev_private;
+-	uint32_t stat = tilcdc_read_irqstatus(dev);
++	uint32_t stat;
+ 
+-	if (stat & LCDC_PL_LOAD_DONE) {
+-		tilcdc_clear_irqstatus(dev, stat);
+-	} else {
++	stat = tilcdc_read_irqstatus(dev);
++	tilcdc_clear_irqstatus(dev, stat);
++
++	if ((stat & LCDC_END_OF_FRAME0) || (stat & LCDC_END_OF_FRAME1)) {
+ 		struct drm_pending_vblank_event *event;
+ 		unsigned long flags;
+ 		uint32_t dirty = tilcdc_crtc->dirty & stat;
+-- 
+2.7.0
+

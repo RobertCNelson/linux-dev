@@ -1,0 +1,90 @@
+From 1668db11aa780114812d036be13adc20dfa5a142 Mon Sep 17 00:00:00 2001
+From: Jyri Sarha <jsarha@ti.com>
+Date: Thu, 4 Feb 2016 11:31:03 +0200
+Subject: [PATCH 10/21] drm/tilcdc: Allocate register storage based on the
+ actual number registers
+
+Allocate suspend/resume register storage based on the actual number
+registers the driver is aware of. The static allocation for register
+storage had falen behind badly.
+
+Reported-by: Michael Bode <michael@bumbleB.de>
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c | 20 +++++++++++++++++++-
+ drivers/gpu/drm/tilcdc/tilcdc_drv.h |  2 +-
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index 5cbb250..9bc15e7 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -141,11 +141,14 @@ static int tilcdc_unload(struct drm_device *dev)
+ 
+ 	pm_runtime_disable(dev->dev);
+ 
++	kfree(priv->saved_register);
+ 	kfree(priv);
+ 
+ 	return 0;
+ }
+ 
++static size_t tilcdc_num_regs(void);
++
+ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
+ {
+ 	struct platform_device *pdev = dev->platformdev;
+@@ -157,7 +160,11 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
+ 	int ret;
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv) {
++	if (priv)
++		priv->saved_register = kcalloc(sizeof(*priv->saved_register),
++					       tilcdc_num_regs(), GFP_KERNEL);
++	if (!priv || !priv->saved_register) {
++		kfree(priv);
+ 		dev_err(dev->dev, "failed to allocate private data\n");
+ 		return -ENOMEM;
+ 	}
+@@ -347,6 +354,7 @@ fail_free_wq:
+ 
+ fail_free_priv:
+ 	dev->dev_private = NULL;
++	kfree(priv->saved_register);
+ 	kfree(priv);
+ 	return ret;
+ }
+@@ -471,6 +479,16 @@ static const struct {
+ 		REG(2, true,  LCDC_INT_ENABLE_SET_REG),
+ #undef REG
+ };
++
++static size_t tilcdc_num_regs(void)
++{
++	return ARRAY_SIZE(registers);
++}
++#else
++static size_t tilcdc_num_regs(void)
++{
++	return 0;
++}
+ #endif
+ 
+ #ifdef CONFIG_DEBUG_FS
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.h b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
+index 77c600d..80badad 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.h
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
+@@ -66,7 +66,7 @@ struct tilcdc_drm_private {
+ 	uint32_t max_width;
+ 
+ 	/* register contents saved across suspend/resume: */
+-	u32 saved_register[12];
++	u32 *saved_register;
+ 	bool ctx_valid;
+ 
+ #ifdef CONFIG_CPU_FREQ
+-- 
+2.7.0
+

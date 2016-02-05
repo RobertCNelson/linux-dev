@@ -1,0 +1,48 @@
+From 603615e92b31ccd9e882fcc216afe5c8415c3533 Mon Sep 17 00:00:00 2001
+From: Jyri Sarha <jsarha@ti.com>
+Date: Thu, 4 Feb 2016 11:31:01 +0200
+Subject: [PATCH 08/21] drm/tilcdc: Implement dma-buf support for tilcdc
+
+There is nothing special about tilcdc HW when the video memory is
+concerned. Just using the standard drm helpers for implementation is
+enough.
+
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index ef52731..f947007 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -557,7 +557,8 @@ static const struct file_operations fops = {
+ };
+ 
+ static struct drm_driver tilcdc_driver = {
+-	.driver_features    = DRIVER_HAVE_IRQ | DRIVER_GEM | DRIVER_MODESET,
++	.driver_features    = (DRIVER_HAVE_IRQ | DRIVER_GEM | DRIVER_MODESET |
++			       DRIVER_PRIME),
+ 	.load               = tilcdc_load,
+ 	.unload             = tilcdc_unload,
+ 	.preclose           = tilcdc_preclose,
+@@ -575,6 +576,16 @@ static struct drm_driver tilcdc_driver = {
+ 	.dumb_create        = drm_gem_cma_dumb_create,
+ 	.dumb_map_offset    = drm_gem_cma_dumb_map_offset,
+ 	.dumb_destroy       = drm_gem_dumb_destroy,
++
++	.prime_handle_to_fd	= drm_gem_prime_handle_to_fd,
++	.prime_fd_to_handle	= drm_gem_prime_fd_to_handle,
++	.gem_prime_import	= drm_gem_prime_import,
++	.gem_prime_export	= drm_gem_prime_export,
++	.gem_prime_get_sg_table	= drm_gem_cma_prime_get_sg_table,
++	.gem_prime_import_sg_table = drm_gem_cma_prime_import_sg_table,
++	.gem_prime_vmap		= drm_gem_cma_prime_vmap,
++	.gem_prime_vunmap	= drm_gem_cma_prime_vunmap,
++	.gem_prime_mmap		= drm_gem_cma_prime_mmap,
+ #ifdef CONFIG_DEBUG_FS
+ 	.debugfs_init       = tilcdc_debugfs_init,
+ 	.debugfs_cleanup    = tilcdc_debugfs_cleanup,
+-- 
+2.7.0
+

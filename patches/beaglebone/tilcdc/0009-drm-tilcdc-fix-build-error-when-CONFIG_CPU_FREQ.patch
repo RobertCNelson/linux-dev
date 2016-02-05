@@ -1,0 +1,35 @@
+From de645a5b33d968f2bcf7651992cfa107db32b96b Mon Sep 17 00:00:00 2001
+From: Grygorii Strashko <Grygorii.Strashko@linaro.org>
+Date: Thu, 4 Feb 2016 11:31:02 +0200
+Subject: [PATCH 09/21] drm/tilcdc: fix build error when !CONFIG_CPU_FREQ
+
+Fix build error when !CONFIG_CPU_FREQ
+drivers/gpu/drm/tilcdc/tilcdc_drv.c: In function 'tilcdc_load':
+drivers/gpu/drm/tilcdc/tilcdc_drv.c:327:1: error: label 'fail_put_clk' defined but not used [-Werror=unused-label]
+ fail_put_clk:
+ ^
+
+Signed-off-by: Grygorii Strashko <Grygorii.Strashko@linaro.org>
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index f947007..5cbb250 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -333,9 +333,9 @@ fail_cpufreq_unregister:
+ #ifdef CONFIG_CPU_FREQ
+ 	cpufreq_unregister_notifier(&priv->freq_transition,
+ 			CPUFREQ_TRANSITION_NOTIFIER);
+-#endif
+ 
+ fail_put_clk:
++#endif
+ 	clk_put(priv->clk);
+ 
+ fail_iounmap:
+-- 
+2.7.0
+

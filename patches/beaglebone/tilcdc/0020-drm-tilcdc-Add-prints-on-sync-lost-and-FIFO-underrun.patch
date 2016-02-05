@@ -1,0 +1,58 @@
+From 1066d7a099192b9c66f1463eee22162be8e8c776 Mon Sep 17 00:00:00 2001
+From: Jyri Sarha <jsarha@ti.com>
+Date: Thu, 4 Feb 2016 11:31:13 +0200
+Subject: [PATCH 20/21] drm/tilcdc: Add prints on sync lost and FIFO underrun
+ interrupts
+
+Add ratelimited prints on sync lost and FIFO underrun interrupts.
+
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
+---
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 8 ++++++++
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c  | 4 ++--
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+index 7445356..87c4765 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+@@ -717,6 +717,14 @@ irqreturn_t tilcdc_crtc_irq(struct drm_crtc *crtc)
+ 		tilcdc_write(dev, LCDC_END_OF_INT_IND_REG, 0);
+ 	}
+ 
++	if (stat & LCDC_SYNC_LOST)
++		dev_err_ratelimited(dev->dev, "%s(0x%08x): Sync lost",
++				    __func__, stat);
++
++	if (stat & LCDC_FIFO_UNDERFLOW)
++		dev_err_ratelimited(dev->dev, "%s(0x%08x): FIFO underfow",
++				    __func__, stat);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index be5c4f1..209c748 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -396,7 +396,7 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
+ 		tilcdc_write(dev, LCDC_INT_ENABLE_SET_REG,
+ 			   LCDC_V2_UNDERFLOW_INT_ENA |
+ 			   LCDC_V2_END_OF_FRAME0_INT_ENA |
+-			   LCDC_FRAME_DONE);
++			   LCDC_FRAME_DONE | LCDC_SYNC_LOST);
+ 	}
+ 
+ 	return 0;
+@@ -415,7 +415,7 @@ static void tilcdc_irq_uninstall(struct drm_device *dev)
+ 		tilcdc_write(dev, LCDC_INT_ENABLE_CLR_REG,
+ 			LCDC_V2_UNDERFLOW_INT_ENA | LCDC_V2_PL_INT_ENA |
+ 			LCDC_V2_END_OF_FRAME0_INT_ENA |
+-			LCDC_FRAME_DONE);
++			LCDC_FRAME_DONE | LCDC_SYNC_LOST);
+ 	}
+ }
+ 
+-- 
+2.7.0
+
