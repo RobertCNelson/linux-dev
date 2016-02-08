@@ -266,11 +266,19 @@ if [ "x${CC}" = "x" ] && [ "x${ARCH}" != "xarmv7l" ] ; then
 	gcc_toolchain
 fi
 
-GCC_TEST=$(LC_ALL=C "${CC}gcc" -v 2>&1 | grep "Target:" | grep arm || true)
+unset check
+if [ "x${KERNEL_ARCH}" = "xarm" ] ; then
+	check="arm"
+fi
+if [ "x${KERNEL_ARCH}" = "xarm64" ] ; then
+	check="aarch64"
+fi
+
+GCC_TEST=$(LC_ALL=C "${CC}gcc" -v 2>&1 | grep "Target:" | grep ${check} || true)
 
 if [ "x${GCC_TEST}" = "x" ] ; then
 	echo "-----------------------------"
-	echo "scripts/gcc: Error: The GCC ARM Cross Compiler you setup in system.sh (CC variable) is invalid."
+	echo "scripts/gcc: Error: The GCC Cross Compiler you setup in system.sh (CC variable) is invalid."
 	echo "-----------------------------"
 	gcc_toolchain
 fi

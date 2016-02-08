@@ -1,5 +1,26 @@
 #!/bin/sh -e
 
+DIR=$PWD
+ARCH=$(uname -m)
+
+. "${DIR}/version.sh"
+
+unset ignore_32bit
+
+if [ "x${ARCH}" = "xx86_64" ] ; then
+	case "${toolchain}" in
+	gcc_linaro_eabi_5)
+		ignore_32bit="true"
+		;;
+	gcc_linaro_gnueabihf_5)
+		ignore_32bit="true"
+		;;
+	gcc_linaro_aarch64_gnu_5)
+		ignore_32bit="true"
+		;;
+	esac
+fi
+
 #opensuse support added by: Antonio Cavallo
 #https://launchpad.net/~a.cavallo
 
@@ -56,12 +77,14 @@ redhat_reqs () {
 	if [ "x${arch}" = "xx86_64" ] ; then
 		pkg="ncurses-devel.x86_64"
 		check_rpm
-		pkg="ncurses-devel.i686"
-		check_rpm
-		pkg="libstdc++.i686"
-		check_rpm
-		pkg="zlib.i686"
-		check_rpm
+		if [ "x${ignore_32bit}" = "xtrue" ] ; then
+			pkg="ncurses-devel.i686"
+			check_rpm
+			pkg="libstdc++.i686"
+			check_rpm
+			pkg="zlib.i686"
+			check_rpm
+		fi
 	fi
 
 	if [ "$(which lsb_release)" ] ; then
@@ -406,19 +429,23 @@ debian_regs () {
 			unset dpkg_multiarch
 			case "${deb_distro}" in
 			squeeze|precise)
-				pkg="ia32-libs"
-				check_dpkg
+				if [ "x${ignore_32bit}" = "xtrue" ] ; then
+					pkg="ia32-libs"
+					check_dpkg
+				fi
 				;;
 			*)
-				pkg="libc6:i386"
-				check_dpkg
-				pkg="libncurses5:i386"
-				check_dpkg
-				pkg="libstdc++6:i386"
-				check_dpkg
-				pkg="zlib1g:i386"
-				check_dpkg
-				dpkg_multiarch=1
+				if [ "x${ignore_32bit}" = "xtrue" ] ; then
+					pkg="libc6:i386"
+					check_dpkg
+					pkg="libncurses5:i386"
+					check_dpkg
+					pkg="libstdc++6:i386"
+					check_dpkg
+					pkg="zlib1g:i386"
+					check_dpkg
+					dpkg_multiarch=1
+				fi
 				;;
 			esac
 
