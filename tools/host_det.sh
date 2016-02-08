@@ -492,6 +492,7 @@ DIR=$PWD
 
 ARCH=$(uname -m)
 
+ignore_32bit="false"
 if [ "x${ARCH}" = "xx86_64" ] ; then
 	case "${toolchain}" in
 	gcc_linaro_eabi_5|gcc_linaro_gnueabihf_5|gcc_linaro_aarch64_gnu_5)
