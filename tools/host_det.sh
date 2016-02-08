@@ -1,25 +1,4 @@
-#!/bin/sh -e
-
-DIR=$PWD
-ARCH=$(uname -m)
-
-. "${DIR}/version.sh"
-
-unset ignore_32bit
-
-if [ "x${ARCH}" = "xx86_64" ] ; then
-	case "${toolchain}" in
-	gcc_linaro_eabi_5)
-		ignore_32bit="true"
-		;;
-	gcc_linaro_gnueabihf_5)
-		ignore_32bit="true"
-		;;
-	gcc_linaro_aarch64_gnu_5)
-		ignore_32bit="true"
-		;;
-	esac
-fi
+#!/bin/bash -e
 
 #opensuse support added by: Antonio Cavallo
 #https://launchpad.net/~a.cavallo
@@ -77,7 +56,7 @@ redhat_reqs () {
 	if [ "x${arch}" = "xx86_64" ] ; then
 		pkg="ncurses-devel.x86_64"
 		check_rpm
-		if [ "x${ignore_32bit}" = "xtrue" ] ; then
+		if [ "x${ignore_32bit}" = "xfalse" ] ; then
 			pkg="ncurses-devel.i686"
 			check_rpm
 			pkg="libstdc++.i686"
@@ -429,13 +408,13 @@ debian_regs () {
 			unset dpkg_multiarch
 			case "${deb_distro}" in
 			squeeze|precise)
-				if [ "x${ignore_32bit}" = "xtrue" ] ; then
+				if [ "x${ignore_32bit}" = "xfalse" ] ; then
 					pkg="ia32-libs"
 					check_dpkg
 				fi
 				;;
 			*)
-				if [ "x${ignore_32bit}" = "xtrue" ] ; then
+				if [ "x${ignore_32bit}" = "xfalse" ] ; then
 					pkg="libc6:i386"
 					check_dpkg
 					pkg="libncurses5:i386"
@@ -507,6 +486,23 @@ else
 	info "host: [$(uname -m)]"
 	info "git HEAD commit: [$(git rev-parse HEAD)]"
 fi
+
+DIR=$PWD
+. "${DIR}/version.sh"
+
+ARCH=$(uname -m)
+
+if [ "x${ARCH}" = "xx86_64" ] ; then
+	case "${toolchain}" in
+	gcc_linaro_eabi_5|gcc_linaro_gnueabihf_5|gcc_linaro_aarch64_gnu_5)
+		ignore_32bit="true"
+		;;
+	*)
+		ignore_32bit="false"
+		;;
+	esac
+fi
+
 case "$BUILD_HOST" in
     redhat*)
 	    redhat_reqs || error "Failed dependency check"
