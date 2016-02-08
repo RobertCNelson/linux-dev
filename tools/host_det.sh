@@ -344,13 +344,13 @@ debian_regs () {
 			#16.04 trusty: (EOL: April 20xx) lts: xenial -> xyz
 			unset warn_eol_distro
 			;;
-		vivid|wily)
-			#15.04 vivid: (EOL: February 4, 2016)
+		wily)
 			#15.10 wily: (EOL: July 2016)
 			unset warn_eol_distro
 			;;
-		utopic)
+		utopic|vivid)
 			#14.10 utopic: (EOL: July 23, 2015)
+			#15.04 vivid: (EOL: February 4, 2016)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
