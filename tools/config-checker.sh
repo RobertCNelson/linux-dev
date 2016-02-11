@@ -50,7 +50,6 @@ cd ${DIR}/KERNEL/
 config="CONFIG_IKCONFIG" ; config_enable
 config="CONFIG_IKCONFIG_PROC" ; config_enable
 config="CONFIG_LOG_BUF_SHIFT" ; option="18" ; config_value
-config="CONFIG_CGROUP_PIDS" ; config_enable
 config="CONFIG_MEMCG_SWAP_ENABLED" ; config_enable
 config="CONFIG_RT_GROUP_SCHED" ; config_enable
 config="CONFIG_SYSFS_SYSCALL" ; config_enable
@@ -61,7 +60,6 @@ config="CONFIG_EMBEDDED" ; config_enable
 #
 # Kernel Performance Events And Counters
 #
-config="CONFIG_OPROFILE" ; config_enable
 config="CONFIG_SECCOMP_FILTER" ; config_enable
 
 #
@@ -545,8 +543,6 @@ config="CONFIG_I2C_DLN2" ; config_module
 config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
-config="CONFIG_SPI_TI_QSPI" ; config_module
-config="CONFIG_SPI_ROCKCHIP" ; config_module
 config="CONFIG_SPI_TEGRA114" ; config_module
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 
@@ -630,11 +626,6 @@ config="CONFIG_POWER_RESET_GPIO_RESTART" ; config_enable
 config="CONFIG_POWER_RESET_IMX" ; config_enable
 config="CONFIG_POWER_AVS" ; config_enable
 config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
-
-#
-# Voltage Domain Framework Drivers
-#
-config="CONFIG_VOLTAGE_DOMAIN_OMAP" ; config_enable
 
 #exit
 
@@ -894,8 +885,6 @@ config="CONFIG_HID_GENERIC" ; config_enable
 # Special HID drivers
 #
 config="CONFIG_HID_APPLEIR" ; config_module
-config="CONFIG_HID_CORSAIR" ; config_module
-config="CONFIG_HID_GEMBIRD" ; config_module
 config="CONFIG_HID_GFRM" ; config_module
 config="CONFIG_HID_GT683R" ; config_module
 config="CONFIG_HID_LOGITECH" ; config_enable
