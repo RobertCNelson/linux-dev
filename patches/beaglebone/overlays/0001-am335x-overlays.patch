@@ -1,11 +1,11 @@
-From 8c3feeb74b34aaedf0e599a0342ad25553d18b1e Mon Sep 17 00:00:00 2001
+From eebf924a1f8d00440364d45e7844ea64cdb889bd Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 5 Feb 2016 09:51:39 -0600
+Date: Fri, 12 Feb 2016 15:00:13 -0600
 Subject: [PATCH] am335x: overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 359 +++++++++++++++++++++
+ .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 353 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-bone.dts                  |   1 +
  .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  39 +++
  .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |  99 ++++++
@@ -16,7 +16,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bonegreen.dts             |   1 +
  arch/arm/boot/dts/am33xx-overlay-edma-fix.dtsi     |  25 ++
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 ++++++
- 11 files changed, 809 insertions(+)
+ 11 files changed, 803 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
@@ -28,10 +28,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 0000000..f440182
+index 0000000..6c79cc7
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,359 @@
+@@ -0,0 +1,353 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -123,12 +123,6 @@ index 0000000..f440182
 +		pinctrl-single,pins = <
 +			AM33XX_IOPAD(0x970, PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
 +			AM33XX_IOPAD(0x974, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* uart0_txd.uart0_txd */
-+		>;
-+	};
-+
-+	clkout2_pin: pinmux_clkout2_pin {
-+		pinctrl-single,pins = <
-+			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
 +		>;
 +	};
 +
@@ -706,7 +700,7 @@ index 0000000..880629c
 +	system-power-controller;
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index eadbba3..deb5c10 100644
+index 55c0e95..db5beb5 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
 @@ -9,6 +9,7 @@
@@ -765,7 +759,7 @@ index 0000000..b87a606
 +	system-power-controller;
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
-index 0f65bda..dec84cb 100644
+index dce3c86..42ac698 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen.dts
 @@ -9,6 +9,7 @@
