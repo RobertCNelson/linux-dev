@@ -1,4 +1,4 @@
-From 9110b9790e3d3d8d976e3c91f6f1e634c549c96d Mon Sep 17 00:00:00 2001
+From b0e14d244a58f9668f248f7f4701e9a947e2d174 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Tue, 20 Jan 2015 16:15:05 +0200
 Subject: [PATCH 09/37] of: Custom printk format specifier for device node
@@ -20,18 +20,27 @@ documentation entry.
 
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- Documentation/printk-formats.txt |  32 ++++++++-
- lib/vsprintf.c                   | 148 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 179 insertions(+), 1 deletion(-)
+ Documentation/printk-formats.txt |  41 ++++++++++-
+ lib/vsprintf.c                   | 149 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 188 insertions(+), 2 deletions(-)
 
 diff --git a/Documentation/printk-formats.txt b/Documentation/printk-formats.txt
-index 5d1128b..10e3af5 100644
+index 5d1128b..1993652 100644
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -306,10 +306,40 @@ Network device features:
+@@ -306,10 +306,49 @@ Network device features:
  
  	Passed by reference.
  
++Command from struct task_struct
++
++	%pT	ls
++
++	For printing executable name excluding path from struct
++	task_struct.
++
++	Passed by reference.
++
 +Device tree nodes:
 +
 +	%pO[fnpPcCFr]
@@ -71,17 +80,17 @@ index 5d1128b..10e3af5 100644
  
  
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index 48ff9c3..a4b2034 100644
+index 48ff9c3..ed6f62d 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
-@@ -31,6 +31,7 @@
- #include <linux/dcache.h>
- #include <linux/cred.h>
- #include <net/addrconf.h>
-+#include <linux/of.h>
+@@ -34,6 +34,7 @@
  #ifdef CONFIG_BLOCK
  #include <linux/blkdev.h>
  #endif
++#include <linux/of.h>
+ 
+ #include <asm/page.h>		/* for PAGE_SIZE */
+ #include <asm/sections.h>	/* for dereference_function_descriptor() */
 @@ -1407,6 +1408,141 @@ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
  	}
  }
@@ -241,15 +250,16 @@ index 48ff9c3..a4b2034 100644
   *
   * ** Please update also Documentation/printk-formats.txt when making changes **
   *
-@@ -1643,6 +1789,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
- 		return dentry_name(buf, end,
- 				   ((const struct file *)ptr)->f_path.dentry,
- 				   spec, fmt);
-+	case 'O':
-+		return device_node_string(buf, end, ptr, spec, fmt);
- #ifdef CONFIG_BLOCK
+@@ -1647,7 +1793,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
  	case 'g':
  		return bdev_name(buf, end, ptr, spec, fmt);
+ #endif
+-
++	case 'O':
++		return device_node_string(buf, end, ptr, spec, fmt);
+ 	}
+ 	spec.flags |= SMALL;
+ 	if (spec.field_width == -1) {
 -- 
-2.7.0.rc3
+2.7.0
 

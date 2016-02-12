@@ -1,18 +1,18 @@
-From fe22f1ffa845c63f336e7639ff6f475138045f0e Mon Sep 17 00:00:00 2001
+From 3b6f304f99341e2cdbe90a98597ad8688260d99d Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 14 Oct 2015 13:16:15 +0300
 Subject: [PATCH 35/37] of: unittest: changeset helpers
 
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- drivers/of/unittest.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ drivers/of/unittest.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
 diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 6a1270e..71e47c4 100644
+index 6a1270e..6501252 100644
 --- a/drivers/of/unittest.c
 +++ b/drivers/of/unittest.c
-@@ -543,6 +543,49 @@ static void __init of_unittest_changeset(void)
+@@ -543,6 +543,45 @@ static void __init of_unittest_changeset(void)
  #endif
  }
  
@@ -39,18 +39,14 @@ index 6a1270e..71e47c4 100644
 +	of_changeset_init(&chgset);
 +	unittest(!of_changeset_add_property_string(&chgset, parent,
 +				"prop-add", "foo"), "fail add prop\n");
-+	mutex_lock(&of_mutex);
 +	unittest(!__of_changeset_apply(&chgset), "apply failed\n");
-+	mutex_unlock(&of_mutex);
 +
 +	/* Make sure node names are constructed correctly */
 +	unittest((np = of_find_node_by_path("/testcase-data/changeset/n2/n21")),
 +		 "'%s' not added\n", n21->full_name);
 +	of_node_put(np);
 +
-+	mutex_lock(&of_mutex);
-+	unittest(!of_changeset_revert(&chgset), "revert failed\n");
-+	mutex_unlock(&of_mutex);
++	unittest(!__of_changeset_revert(&chgset), "revert failed\n");
 +
 +	of_changeset_destroy(&chgset);
 +
@@ -62,7 +58,7 @@ index 6a1270e..71e47c4 100644
  static void __init of_unittest_parse_interrupts(void)
  {
  	struct device_node *np;
-@@ -2236,6 +2279,7 @@ static int __init of_unittest(void)
+@@ -2236,6 +2275,7 @@ static int __init of_unittest(void)
  	of_unittest_property_string();
  	of_unittest_property_copy();
  	of_unittest_changeset();
@@ -71,5 +67,5 @@ index 6a1270e..71e47c4 100644
  	of_unittest_parse_interrupts_extended();
  	of_unittest_match_node();
 -- 
-2.7.0.rc3
+2.7.0
 
