@@ -1,6 +1,6 @@
-From c8dd026c03c49873f1caebd0bc19de1d4f46e79c Mon Sep 17 00:00:00 2001
+From c630de20e54b59b0909569bffa3be43ce50b4632 Mon Sep 17 00:00:00 2001
 From: Andrew Lunn <andrew@lunn.ch>
-Date: Thu, 28 Jan 2016 16:42:32 +0100
+Date: Wed, 17 Feb 2016 00:41:32 +0100
 Subject: [PATCH 2/7] nvmem: Add backwards compatibility support for older
  EEPROM drivers.
 
@@ -10,12 +10,12 @@ compatibility.
 
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
 ---
- drivers/nvmem/core.c           | 77 +++++++++++++++++++++++++++++++++++++-----
- include/linux/nvmem-provider.h |  4 ++-
- 2 files changed, 72 insertions(+), 9 deletions(-)
+ drivers/nvmem/core.c           | 84 ++++++++++++++++++++++++++++++++++++++----
+ include/linux/nvmem-provider.h |  4 +-
+ 2 files changed, 79 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 4ccf03d..15b09ff 100644
+index 96b4c4b..8f42c37 100644
 --- a/drivers/nvmem/core.c
 +++ b/drivers/nvmem/core.c
 @@ -38,8 +38,13 @@ struct nvmem_device {
@@ -32,7 +32,17 @@ index 4ccf03d..15b09ff 100644
  struct nvmem_cell {
  	const char		*name;
  	int			offset;
-@@ -62,10 +67,16 @@ static ssize_t bin_attr_nvmem_read(struct file *filp, struct kobject *kobj,
+@@ -56,16 +61,26 @@ static DEFINE_IDA(nvmem_ida);
+ static LIST_HEAD(nvmem_cells);
+ static DEFINE_MUTEX(nvmem_cells_mutex);
+ 
++#ifdef CONFIG_DEBUG_LOCK_ALLOC
++static struct lock_class_key eeprom_lock_key;
++#endif
++
+ #define to_nvmem_device(d) container_of(d, struct nvmem_device, dev)
+ 
+ static ssize_t bin_attr_nvmem_read(struct file *filp, struct kobject *kobj,
  				    struct bin_attribute *attr,
  				    char *buf, loff_t pos, size_t count)
  {
@@ -51,7 +61,7 @@ index 4ccf03d..15b09ff 100644
  	/* Stop the user from reading */
  	if (pos >= nvmem->size)
  		return 0;
-@@ -87,10 +98,16 @@ static ssize_t bin_attr_nvmem_write(struct file *filp, struct kobject *kobj,
+@@ -90,10 +105,16 @@ static ssize_t bin_attr_nvmem_write(struct file *filp, struct kobject *kobj,
  				     struct bin_attribute *attr,
  				     char *buf, loff_t pos, size_t count)
  {
@@ -70,7 +80,7 @@ index 4ccf03d..15b09ff 100644
  	/* Stop the user from writing */
  	if (pos >= nvmem->size)
  		return 0;
-@@ -341,6 +358,40 @@ err:
+@@ -347,6 +368,43 @@ err:
  	return rval;
  }
  
@@ -93,6 +103,9 @@ index 4ccf03d..15b09ff 100644
 +		nvmem->eeprom = bin_attr_rw_root_nvmem;
 +	nvmem->eeprom.attr.name = "eeprom";
 +	nvmem->eeprom.size = nvmem->size;
++#ifdef CONFIG_DEBUG_LOCK_ALLOC
++	nvmem->eeprom.attr.key = &eeprom_lock_key;
++#endif
 +	nvmem->eeprom.private = &nvmem->dev;
 +	nvmem->base_dev = config->base_dev;
 +
@@ -111,7 +124,7 @@ index 4ccf03d..15b09ff 100644
  /**
   * nvmem_register() - Register a nvmem device for given nvmem_config.
   * Also creates an binary entry in /sys/bus/nvmem/devices/dev-name/nvmem
-@@ -408,16 +459,23 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+@@ -414,16 +472,23 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
  
  	rval = device_add(&nvmem->dev);
@@ -139,7 +152,7 @@ index 4ccf03d..15b09ff 100644
  }
  EXPORT_SYMBOL_GPL(nvmem_register);
  
-@@ -437,6 +495,9 @@ int nvmem_unregister(struct nvmem_device *nvmem)
+@@ -443,6 +508,9 @@ int nvmem_unregister(struct nvmem_device *nvmem)
  	}
  	mutex_unlock(&nvmem_mutex);
  
@@ -170,5 +183,5 @@ index d24fefa..a4fcc90 100644
 -
  #endif  /* ifndef _LINUX_NVMEM_PROVIDER_H */
 -- 
-2.7.0.rc3
+2.7.0
 
