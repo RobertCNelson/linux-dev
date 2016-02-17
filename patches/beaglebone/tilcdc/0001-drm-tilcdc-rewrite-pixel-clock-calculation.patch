@@ -1,7 +1,7 @@
-From e9b25f19f12e454a136f6f4d8213e882a8f1f3a1 Mon Sep 17 00:00:00 2001
+From 0d02f71f5a48f1a9af3fe3d267f08da595cd7c37 Mon Sep 17 00:00:00 2001
 From: Darren Etheridge <detheridge@ti.com>
-Date: Thu, 4 Feb 2016 11:30:55 +0200
-Subject: [PATCH 02/21] drm/tilcdc: rewrite pixel clock calculation
+Date: Tue, 16 Feb 2016 16:18:18 +0200
+Subject: [PATCH 01/21] drm/tilcdc: rewrite pixel clock calculation
 
 Updating the tilcdc DRM driver code to calculate the LCD controller
 pixel clock more accurately. Based on a suggested implementation by
@@ -70,10 +70,10 @@ index 7d07733..7b687ae 100644
  
  	if (priv->rev == 2)
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 90ed233..c6acce9 100644
+index d7f5b89..4d75ee3 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -193,13 +193,6 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
+@@ -192,13 +192,6 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
  		goto fail_iounmap;
  	}
  
@@ -87,7 +87,7 @@ index 90ed233..c6acce9 100644
  #ifdef CONFIG_CPU_FREQ
  	priv->lcd_fck_rate = clk_get_rate(priv->clk);
  	priv->freq_transition.notifier_call = cpufreq_transition;
-@@ -207,7 +200,7 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
+@@ -206,7 +199,7 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
  			CPUFREQ_TRANSITION_NOTIFIER);
  	if (ret) {
  		dev_err(dev->dev, "failed to register cpufreq notifier\n");
@@ -96,7 +96,7 @@ index 90ed233..c6acce9 100644
  	}
  #endif
  
-@@ -339,8 +332,6 @@ fail_cpufreq_unregister:
+@@ -330,8 +323,6 @@ fail_cpufreq_unregister:
  #ifdef CONFIG_CPU_FREQ
  	cpufreq_unregister_notifier(&priv->freq_transition,
  			CPUFREQ_TRANSITION_NOTIFIER);

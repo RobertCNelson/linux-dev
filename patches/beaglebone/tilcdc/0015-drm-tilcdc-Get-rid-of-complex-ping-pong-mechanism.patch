@@ -1,7 +1,7 @@
-From 5fa7e107d9be7d37b7345e5dc9ba48fd10783e3b Mon Sep 17 00:00:00 2001
+From 719fd88cc8ac70c9468144e1044e93e5008b0670 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Date: Thu, 4 Feb 2016 11:31:09 +0200
-Subject: [PATCH 16/21] drm/tilcdc: Get rid of complex ping-pong mechanism
+Date: Tue, 16 Feb 2016 16:18:32 +0200
+Subject: [PATCH 15/21] drm/tilcdc: Get rid of complex ping-pong mechanism
 
 Get rid of complex ping-pong mechanism and replace it with simpler
 single buffer flipping code.
@@ -258,10 +258,10 @@ index 280c76a..7514d40 100644
  	spin_unlock_irqrestore(&dev->event_lock, flags);
  }
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 33aa40d..41c8c96 100644
+index ab62aa4..24f232b 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -395,6 +395,7 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
+@@ -388,6 +388,7 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
  	else
  		tilcdc_set(dev, LCDC_INT_ENABLE_SET_REG,
  			   LCDC_V2_UNDERFLOW_INT_ENA |
@@ -269,7 +269,7 @@ index 33aa40d..41c8c96 100644
  			   LCDC_FRAME_DONE);
  
  	return 0;
-@@ -412,41 +413,19 @@ static void tilcdc_irq_uninstall(struct drm_device *dev)
+@@ -405,41 +406,19 @@ static void tilcdc_irq_uninstall(struct drm_device *dev)
  	} else {
  		tilcdc_clear(dev, LCDC_INT_ENABLE_SET_REG,
  			LCDC_V2_UNDERFLOW_INT_ENA | LCDC_V2_PL_INT_ENA |

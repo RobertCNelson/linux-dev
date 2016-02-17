@@ -1,7 +1,7 @@
-From 1668db11aa780114812d036be13adc20dfa5a142 Mon Sep 17 00:00:00 2001
+From 44989d9ff48c0a83f841aff3acdcaa836fb4a559 Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
-Date: Thu, 4 Feb 2016 11:31:03 +0200
-Subject: [PATCH 10/21] drm/tilcdc: Allocate register storage based on the
+Date: Tue, 16 Feb 2016 16:18:26 +0200
+Subject: [PATCH 09/21] drm/tilcdc: Allocate register storage based on the
  actual number registers
 
 Allocate suspend/resume register storage based on the actual number
@@ -11,12 +11,12 @@ storage had falen behind badly.
 Reported-by: Michael Bode <michael@bumbleB.de>
 Signed-off-by: Jyri Sarha <jsarha@ti.com>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_drv.c | 20 +++++++++++++++++++-
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c | 21 ++++++++++++++++++++-
  drivers/gpu/drm/tilcdc/tilcdc_drv.h |  2 +-
- 2 files changed, 20 insertions(+), 2 deletions(-)
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 5cbb250..9bc15e7 100644
+index 893ef18..ab1789b 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 @@ -141,11 +141,14 @@ static int tilcdc_unload(struct drm_device *dev)
@@ -34,20 +34,21 @@ index 5cbb250..9bc15e7 100644
  static int tilcdc_load(struct drm_device *dev, unsigned long flags)
  {
  	struct platform_device *pdev = dev->platformdev;
-@@ -157,7 +160,11 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
+@@ -157,7 +160,12 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
  	int ret;
  
  	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 -	if (!priv) {
 +	if (priv)
-+		priv->saved_register = kcalloc(sizeof(*priv->saved_register),
-+					       tilcdc_num_regs(), GFP_KERNEL);
++		priv->saved_register = kcalloc(tilcdc_num_regs(),
++					       sizeof(*priv->saved_register),
++					       GFP_KERNEL);
 +	if (!priv || !priv->saved_register) {
 +		kfree(priv);
  		dev_err(dev->dev, "failed to allocate private data\n");
  		return -ENOMEM;
  	}
-@@ -347,6 +354,7 @@ fail_free_wq:
+@@ -339,6 +347,7 @@ fail_free_wq:
  
  fail_free_priv:
  	dev->dev_private = NULL;
@@ -55,7 +56,7 @@ index 5cbb250..9bc15e7 100644
  	kfree(priv);
  	return ret;
  }
-@@ -471,6 +479,16 @@ static const struct {
+@@ -463,6 +472,16 @@ static const struct {
  		REG(2, true,  LCDC_INT_ENABLE_SET_REG),
  #undef REG
  };

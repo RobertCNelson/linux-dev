@@ -1,7 +1,7 @@
-From 0b55144f765e9aa36056476f2e89f2fc1f12ce2d Mon Sep 17 00:00:00 2001
+From 00d2d244a9572f43ab829258a17201152fc07579 Mon Sep 17 00:00:00 2001
 From: Dave Gerlach <d-gerlach@ti.com>
-Date: Thu, 4 Feb 2016 11:30:57 +0200
-Subject: [PATCH 04/21] drm/tilcdc: adopt pinctrl support
+Date: Tue, 16 Feb 2016 16:18:20 +0200
+Subject: [PATCH 03/21] drm/tilcdc: adopt pinctrl support
 
 Update tilcdc driver to set the state of the pins to:
 - "default on resume
@@ -17,22 +17,23 @@ Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
 Signed-off-by: Darren Etheridge <detheridge@ti.com>
 Signed-off-by: Jyri Sarha <jsarha@ti.com>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_drv.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index c6acce9..e25db59 100644
+index 4d75ee3..64f1de2 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -18,6 +18,7 @@
+@@ -18,6 +18,8 @@
  /* LCDC DRM driver, based on da8xx-fb */
  
  #include <linux/component.h>
 +#include <linux/pinctrl/consumer.h>
- #include <linux/suspend.h>
++#include <linux/suspend.h>
  
  #include "tilcdc_drv.h"
-@@ -602,6 +603,9 @@ static int tilcdc_pm_suspend(struct device *dev)
+ #include "tilcdc_regs.h"
+@@ -593,6 +595,9 @@ static int tilcdc_pm_suspend(struct device *dev)
  		if (registers[i].save && (priv->rev >= registers[i].rev))
  			priv->saved_register[n++] = tilcdc_read(ddev, registers[i].reg);
  
@@ -42,7 +43,7 @@ index c6acce9..e25db59 100644
  	return 0;
  }
  
-@@ -611,6 +615,9 @@ static int tilcdc_pm_resume(struct device *dev)
+@@ -602,6 +607,9 @@ static int tilcdc_pm_resume(struct device *dev)
  	struct tilcdc_drm_private *priv = ddev->dev_private;
  	unsigned i, n = 0;
  

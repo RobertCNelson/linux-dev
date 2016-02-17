@@ -1,7 +1,7 @@
-From 69b71c83207b6486a0a5929b452af137080073d6 Mon Sep 17 00:00:00 2001
+From 9baaee6c838afed173d35b0b9b6a655b006fcc08 Mon Sep 17 00:00:00 2001
 From: Darren Etheridge <detheridge@ti.com>
-Date: Thu, 4 Feb 2016 11:30:59 +0200
-Subject: [PATCH 06/21] drm/tilcdc: make frame_done interrupt active at all
+Date: Tue, 16 Feb 2016 16:18:22 +0200
+Subject: [PATCH 05/21] drm/tilcdc: make frame_done interrupt active at all
  times
 
 The frame_done interrupt was only being enabled when the vsync
@@ -18,10 +18,10 @@ Signed-off-by: Jyri Sarha <jsarha@ti.com>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 188c3ce..149befa 100644
+index d7b60b4..41720ad 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -384,7 +384,9 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
+@@ -376,7 +376,9 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
  	if (priv->rev == 1)
  		tilcdc_set(dev, LCDC_RASTER_CTRL_REG, LCDC_V1_UNDERFLOW_INT_ENA);
  	else
@@ -32,7 +32,7 @@ index 188c3ce..149befa 100644
  
  	return 0;
  }
-@@ -418,7 +420,7 @@ static void enable_vblank(struct drm_device *dev, bool enable)
+@@ -410,7 +412,7 @@ static void enable_vblank(struct drm_device *dev, bool enable)
  	} else {
  		reg = LCDC_INT_ENABLE_SET_REG;
  		mask = LCDC_V2_END_OF_FRAME0_INT_ENA |

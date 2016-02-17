@@ -1,7 +1,7 @@
-From 1066d7a099192b9c66f1463eee22162be8e8c776 Mon Sep 17 00:00:00 2001
+From 9d2aa2feeb60f8831db7e6192d464afa3a4ac490 Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
-Date: Thu, 4 Feb 2016 11:31:13 +0200
-Subject: [PATCH 20/21] drm/tilcdc: Add prints on sync lost and FIFO underrun
+Date: Tue, 16 Feb 2016 16:18:36 +0200
+Subject: [PATCH 19/21] drm/tilcdc: Add prints on sync lost and FIFO underrun
  interrupts
 
 Add ratelimited prints on sync lost and FIFO underrun interrupts.
@@ -32,10 +32,10 @@ index 7445356..87c4765 100644
  }
  
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index be5c4f1..209c748 100644
+index 3205ac2..3a39328 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -396,7 +396,7 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
+@@ -389,7 +389,7 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
  		tilcdc_write(dev, LCDC_INT_ENABLE_SET_REG,
  			   LCDC_V2_UNDERFLOW_INT_ENA |
  			   LCDC_V2_END_OF_FRAME0_INT_ENA |
@@ -44,7 +44,7 @@ index be5c4f1..209c748 100644
  	}
  
  	return 0;
-@@ -415,7 +415,7 @@ static void tilcdc_irq_uninstall(struct drm_device *dev)
+@@ -408,7 +408,7 @@ static void tilcdc_irq_uninstall(struct drm_device *dev)
  		tilcdc_write(dev, LCDC_INT_ENABLE_CLR_REG,
  			LCDC_V2_UNDERFLOW_INT_ENA | LCDC_V2_PL_INT_ENA |
  			LCDC_V2_END_OF_FRAME0_INT_ENA |

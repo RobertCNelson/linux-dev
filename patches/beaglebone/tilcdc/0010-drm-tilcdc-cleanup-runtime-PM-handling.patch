@@ -1,7 +1,7 @@
-From 38c8b25594de841015720b19d2070c74f3644417 Mon Sep 17 00:00:00 2001
+From ba22fc2a514f43833e62f47e48745a724c3a5707 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Date: Thu, 4 Feb 2016 11:31:04 +0200
-Subject: [PATCH 11/21] drm/tilcdc: cleanup runtime PM handling
+Date: Tue, 16 Feb 2016 16:18:27 +0200
+Subject: [PATCH 10/21] drm/tilcdc: cleanup runtime PM handling
 
 Cleanup runtime PM handling. Before the patch the usage of pm_runtime
 calls was inconsistent and hard to follow. After the update the
@@ -95,17 +95,17 @@ index cc45818..3a6f11e 100644
  }
  
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 9bc15e7..715e160 100644
+index ab1789b..ecbf0fd 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -229,7 +229,6 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
+@@ -230,7 +230,6 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
  	DBG("Maximum Pixel Clock Value %dKHz", priv->max_pixelclock);
  
  	pm_runtime_enable(dev->dev);
 -	pm_runtime_irq_safe(dev->dev);
  
- 	/*
- 	 * disable creation of new console during suspend.
+ 	/* Determine LCD IP Version */
+ 	pm_runtime_get_sync(dev->dev);
 -- 
 2.7.0
 

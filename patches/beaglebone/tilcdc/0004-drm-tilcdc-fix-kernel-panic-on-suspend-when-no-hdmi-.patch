@@ -1,7 +1,7 @@
-From c59a184aec9dd5d7bd600e8b2f5ebac571e6b454 Mon Sep 17 00:00:00 2001
+From 07f51199d5a90d73c978af6b5ffa2266f2e42eba Mon Sep 17 00:00:00 2001
 From: Darren Etheridge <detheridge@ti.com>
-Date: Thu, 4 Feb 2016 11:30:58 +0200
-Subject: [PATCH 05/21] drm/tilcdc: fix kernel panic on suspend when no hdmi
+Date: Tue, 16 Feb 2016 16:18:21 +0200
+Subject: [PATCH 04/21] drm/tilcdc: fix kernel panic on suspend when no hdmi
  monitor connected
 
 On BeagleBone Black if no HDMI monitor is connected and suspend
@@ -47,10 +47,10 @@ Signed-off-by: Jyri Sarha <jsarha@ti.com>
  2 files changed, 18 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index e25db59..188c3ce 100644
+index 64f1de2..d7b60b4 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -598,13 +598,20 @@ static int tilcdc_pm_suspend(struct device *dev)
+@@ -590,13 +590,20 @@ static int tilcdc_pm_suspend(struct device *dev)
  
  	drm_kms_helper_poll_disable(ddev);
  
@@ -73,7 +73,7 @@ index e25db59..188c3ce 100644
  
  	return 0;
  }
-@@ -618,10 +625,14 @@ static int tilcdc_pm_resume(struct device *dev)
+@@ -610,10 +617,14 @@ static int tilcdc_pm_resume(struct device *dev)
  	/* Select default pin state */
  	pinctrl_pm_select_default_state(dev);
  

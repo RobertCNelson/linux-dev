@@ -1,7 +1,7 @@
-From 603615e92b31ccd9e882fcc216afe5c8415c3533 Mon Sep 17 00:00:00 2001
+From e828011bfa1a85126413198dff191f461122f27d Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
-Date: Thu, 4 Feb 2016 11:31:01 +0200
-Subject: [PATCH 08/21] drm/tilcdc: Implement dma-buf support for tilcdc
+Date: Tue, 16 Feb 2016 16:18:24 +0200
+Subject: [PATCH 07/21] drm/tilcdc: Implement dma-buf support for tilcdc
 
 There is nothing special about tilcdc HW when the video memory is
 concerned. Just using the standard drm helpers for implementation is
@@ -13,10 +13,10 @@ Signed-off-by: Jyri Sarha <jsarha@ti.com>
  1 file changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index ef52731..f947007 100644
+index d2533e26..4406cbd 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -557,7 +557,8 @@ static const struct file_operations fops = {
+@@ -549,7 +549,8 @@ static const struct file_operations fops = {
  };
  
  static struct drm_driver tilcdc_driver = {
@@ -26,7 +26,7 @@ index ef52731..f947007 100644
  	.load               = tilcdc_load,
  	.unload             = tilcdc_unload,
  	.preclose           = tilcdc_preclose,
-@@ -575,6 +576,16 @@ static struct drm_driver tilcdc_driver = {
+@@ -567,6 +568,16 @@ static struct drm_driver tilcdc_driver = {
  	.dumb_create        = drm_gem_cma_dumb_create,
  	.dumb_map_offset    = drm_gem_cma_dumb_map_offset,
  	.dumb_destroy       = drm_gem_dumb_destroy,
