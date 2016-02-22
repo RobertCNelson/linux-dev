@@ -1,19 +1,20 @@
-From 2c95946d070b9e213e55412d5a793dad132c7ff4 Mon Sep 17 00:00:00 2001
+From da672b48185079b2f0266100573b7273c73080b3 Mon Sep 17 00:00:00 2001
 From: Andrew Lunn <andrew@lunn.ch>
-Date: Wed, 17 Feb 2016 00:41:36 +0100
+Date: Fri, 19 Feb 2016 00:17:41 +0100
 Subject: [PATCH 6/7] eeprom: 93xx46: extend driver to plug into the NVMEM
  framework
 
 Add a regmap for accessing the EEPROM, and then use that with the
-NVMEM framework. Enable backward compatibility in the MVMEM config
+NVMEM framework. Enable backward compatibility in the NVMEM config
 structure, so that the 'eeprom' file in sys is provided by the
 framework.
 
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
  drivers/misc/eeprom/Kconfig         |   2 +
- drivers/misc/eeprom/eeprom_93xx46.c | 122 ++++++++++++++++++++++++++++--------
- 2 files changed, 98 insertions(+), 26 deletions(-)
+ drivers/misc/eeprom/eeprom_93xx46.c | 120 ++++++++++++++++++++++++++++--------
+ 2 files changed, 95 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
 index 8c43a22..cfc493c 100644
@@ -29,7 +30,7 @@ index 8c43a22..cfc493c 100644
  	  Driver for the microwire EEPROM chipsets 93xx46x. The driver
  	  supports both read and write commands and also the command to
 diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
-index ff63f05..feb74d3 100644
+index ff63f05..f5de326 100644
 --- a/drivers/misc/eeprom/eeprom_93xx46.c
 +++ b/drivers/misc/eeprom/eeprom_93xx46.c
 @@ -15,7 +15,8 @@
@@ -80,15 +81,7 @@ index ff63f05..feb74d3 100644
  
  	cmd_addr = OP_READ << edev->addrlen;
  
-@@ -94,6 +99,7 @@ eeprom_93xx46_bin_read(struct file *filp, struct kobject *kobj,
- 	return ret ? : count;
- }
- 
-+
- static int eeprom_93xx46_ew(struct eeprom_93xx46_dev *edev, int is_on)
- {
- 	struct spi_message m;
-@@ -182,16 +188,17 @@ eeprom_93xx46_write_word(struct eeprom_93xx46_dev *edev,
+@@ -182,16 +187,17 @@ eeprom_93xx46_write_word(struct eeprom_93xx46_dev *edev,
  }
  
  static ssize_t
@@ -113,7 +106,7 @@ index ff63f05..feb74d3 100644
  
  	/* only write even number of bytes on 16-bit devices */
  	if (edev->addrlen == 6) {
-@@ -228,6 +235,49 @@ eeprom_93xx46_bin_write(struct file *filp, struct kobject *kobj,
+@@ -228,6 +234,49 @@ eeprom_93xx46_bin_write(struct file *filp, struct kobject *kobj,
  	return ret ? : count;
  }
  
@@ -163,7 +156,7 @@ index ff63f05..feb74d3 100644
  static int eeprom_93xx46_eral(struct eeprom_93xx46_dev *edev)
  {
  	struct eeprom_93xx46_platform_data *pd = edev->pdata;
-@@ -298,6 +348,7 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
+@@ -298,6 +347,7 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
  {
  	struct eeprom_93xx46_platform_data *pd;
  	struct eeprom_93xx46_dev *edev;
@@ -171,7 +164,7 @@ index ff63f05..feb74d3 100644
  	int err;
  
  	pd = spi->dev.platform_data;
-@@ -325,19 +376,37 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
+@@ -325,19 +375,34 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
  	edev->spi = spi_dev_get(spi);
  	edev->pdata = pd;
  
@@ -180,15 +173,11 @@ index ff63f05..feb74d3 100644
 -	edev->bin.attr.mode = S_IRUSR;
 -	edev->bin.read = eeprom_93xx46_bin_read;
 -	edev->bin.size = 128;
-+	edev->size = 128;
-+
- 	if (!(pd->flags & EE_READONLY)) {
+-	if (!(pd->flags & EE_READONLY)) {
 -		edev->bin.write = eeprom_93xx46_bin_write;
 -		edev->bin.attr.mode |= S_IWUSR;
- 	}
- 
--	err = sysfs_create_bin_file(&spi->dev.kobj, &edev->bin);
--	if (err)
++	edev->size = 128;
++
 +	edev->regmap_config.reg_bits = 32;
 +	edev->regmap_config.val_bits = 8;
 +	edev->regmap_config.reg_stride = 1;
@@ -199,9 +188,11 @@ index ff63f05..feb74d3 100644
 +	if (IS_ERR(regmap)) {
 +		dev_err(&spi->dev, "regmap init failed\n");
 +		err = PTR_ERR(regmap);
- 		goto fail;
-+	}
-+
++		goto fail;
+ 	}
+ 
+-	err = sysfs_create_bin_file(&spi->dev.kobj, &edev->bin);
+-	if (err)
 +	edev->nvmem_config.name = dev_name(&spi->dev);
 +	edev->nvmem_config.dev = &spi->dev;
 +	edev->nvmem_config.read_only = pd->flags & EE_READONLY;
@@ -213,12 +204,12 @@ index ff63f05..feb74d3 100644
 +	edev->nvmem = nvmem_register(&edev->nvmem_config);
 +	if (IS_ERR(edev->nvmem)) {
 +		err = PTR_ERR(edev->nvmem);
-+		goto fail;
+ 		goto fail;
 +	}
  
  	dev_info(&spi->dev, "%d-bit eeprom %s\n",
  		(pd->flags & EE_ADDR8) ? 8 : 16,
-@@ -359,10 +428,11 @@ static int eeprom_93xx46_remove(struct spi_device *spi)
+@@ -359,10 +424,11 @@ static int eeprom_93xx46_remove(struct spi_device *spi)
  {
  	struct eeprom_93xx46_dev *edev = spi_get_drvdata(spi);
  

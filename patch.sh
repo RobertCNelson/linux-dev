@@ -366,7 +366,7 @@ bbb_overlays () {
 		start_cleanup
 	fi
 
-	#[PATCHv4 0/7] Convert exiting EEPROM drivers to NVMEM
+	#[PATCHv6 0/7] Convert exiting EEPROM drivers to NVMEM
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0001-nvmem-Add-flag-to-export-NVMEM-to-root-only.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0002-nvmem-Add-backwards-compatibility-support-for-older-.patch"
 	${git} "${DIR}/patches/bbb_overlays/nvmem/0003-eeprom-at24-extend-driver-to-plug-into-the-NVMEM-fra.patch"
