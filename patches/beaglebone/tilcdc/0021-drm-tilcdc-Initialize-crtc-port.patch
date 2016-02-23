@@ -1,18 +1,22 @@
-From 289560bde17d480cc0287b9caa2094b4f7d0bacd Mon Sep 17 00:00:00 2001
+From cdd9650b06df78cb507baa65c414e506dd60ecf4 Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
-Date: Tue, 16 Feb 2016 16:18:38 +0200
-Subject: [PATCH 21/21] drm/tilcdc: Initialize crtc->port
+Date: Tue, 23 Feb 2016 17:03:29 +0200
+Subject: [PATCH 21/22] drm/tilcdc: Initialize crtc->port
 
 Initialize port device node pointer in the tilcdc crtc. Fixes "Falling
 back to first CRTC" warning from tda998x driver.
 
+The tda998x encoder driver calls drm_of_find_possible_crtcs() to
+initialize possible_crtcs of struct drm_encoder. The crtc->port needs
+to be initialized for drm_of_find_possible_crtcs() to work.
+
 Signed-off-by: Jyri Sarha <jsarha@ti.com>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index e886277..cfd3fd1 100644
+index e886277..6990908 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -124,6 +124,7 @@ static void tilcdc_crtc_destroy(struct drm_crtc *crtc)
@@ -31,17 +35,22 @@ index e886277..cfd3fd1 100644
  	struct tilcdc_crtc *tilcdc_crtc;
  	struct drm_crtc *crtc;
  	int ret;
-@@ -794,6 +796,15 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
+@@ -794,6 +796,20 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  
  	drm_crtc_helper_add(crtc, &tilcdc_crtc_helper_funcs);
  
 +	if (priv->is_componentized) {
-+		crtc->port =
-+			of_get_child_by_name(dev->dev->of_node, "port");
-+		if (!crtc->port) {
-+			dev_warn(dev->dev, "no port node found in %s\n",
-+				 dev->dev->of_node->full_name);
++		struct device_node *ports =
++			of_get_child_by_name(dev->dev->of_node, "ports");
++
++		if (ports) {
++			crtc->port = of_get_child_by_name(ports, "port");
++			of_node_put(ports);
++		} else {
++			crtc->port =
++				of_get_child_by_name(dev->dev->of_node, "port");
 +		}
++		WARN_ON(!crtc->port);
 +	}
 +
  	return crtc;

@@ -664,7 +664,7 @@ beaglebone () {
 		start_cleanup
 	fi
 
-	#[PATCH v2 00/21] drm/ticdc: Accumulated fixes over the past couple of years
+	#[PATCH v3 00/22] drm/ticdc: Accumulated fixes over the past couple of years
 	${git} "${DIR}/patches/beaglebone/tilcdc/0001-drm-tilcdc-rewrite-pixel-clock-calculation.patch"
 	${git} "${DIR}/patches/beaglebone/tilcdc/0002-drm-tilcdc-verify-fb-pitch.patch"
 	${git} "${DIR}/patches/beaglebone/tilcdc/0003-drm-tilcdc-adopt-pinctrl-support.patch"
@@ -686,9 +686,10 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/tilcdc/0019-drm-tilcdc-Add-prints-on-sync-lost-and-FIFO-underrun.patch"
 	${git} "${DIR}/patches/beaglebone/tilcdc/0020-drm-tilcdc-Disable-sync-lost-interrupt-if-it-fires-o.patch"
 	${git} "${DIR}/patches/beaglebone/tilcdc/0021-drm-tilcdc-Initialize-crtc-port.patch"
+	${git} "${DIR}/patches/beaglebone/tilcdc/0022-drm-tilcdc-Use-devm_kzalloc-and-devm_kcalloc-for-pri.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=21
+		number=22
 		cleanup
 	fi
 
