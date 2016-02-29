@@ -663,7 +663,6 @@ beaglebone () {
 		start_cleanup
 	fi
 
-	#[PATCH v3 00/22] drm/ticdc: Accumulated fixes over the past couple of years
 	${git} "${DIR}/patches/beaglebone/tilcdc/0001-drm-tilcdc-rewrite-pixel-clock-calculation.patch"
 	${git} "${DIR}/patches/beaglebone/tilcdc/0002-drm-tilcdc-verify-fb-pitch.patch"
 	${git} "${DIR}/patches/beaglebone/tilcdc/0003-drm-tilcdc-adopt-pinctrl-support.patch"

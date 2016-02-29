@@ -1,6 +1,6 @@
-From d577dee104226869d4d4929e7ddf25d4b4958fa5 Mon Sep 17 00:00:00 2001
+From 6d12328ed25e1e22b48f2bda65636d0875f7b388 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Date: Tue, 16 Feb 2016 16:18:32 +0200
+Date: Tue, 20 Oct 2015 09:37:27 +0300
 Subject: [PATCH 15/22] drm/tilcdc: Get rid of complex ping-pong mechanism
 
 Get rid of complex ping-pong mechanism and replace it with simpler
@@ -27,12 +27,12 @@ Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 [Added description to the patch]
 Signed-off-by: Jyri Sarha <jsarha@ti.com>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 122 ++++++++++++++---------------------
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 121 +++++++++++++++--------------------
  drivers/gpu/drm/tilcdc/tilcdc_drv.c  |  27 +-------
- 2 files changed, 53 insertions(+), 96 deletions(-)
+ 2 files changed, 53 insertions(+), 95 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 280c76a..7514d40 100644
+index 280c76a..245b6fe 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -25,15 +25,12 @@ struct tilcdc_crtc {
@@ -249,14 +249,6 @@ index 280c76a..7514d40 100644
  	}
  
  	if (priv->rev == 2) {
-@@ -713,7 +692,6 @@ void tilcdc_crtc_cancel_page_flip(struct drm_crtc *crtc, struct drm_file *file)
- 	if (event && event->base.file_priv == file) {
- 		tilcdc_crtc->event = NULL;
- 		event->base.destroy(&event->base);
--		drm_vblank_put(dev, 0);
- 	}
- 	spin_unlock_irqrestore(&dev->event_lock, flags);
- }
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 index ab62aa4..24f232b 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c

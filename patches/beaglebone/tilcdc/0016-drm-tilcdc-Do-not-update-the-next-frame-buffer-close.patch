@@ -1,6 +1,6 @@
-From b384377eb18f595b809d7ac773add73ad46b39ff Mon Sep 17 00:00:00 2001
+From 4be25355d98c05dd0880bff3c30a71e66d606510 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Date: Tue, 16 Feb 2016 16:18:33 +0200
+Date: Tue, 3 Nov 2015 12:00:51 +0200
 Subject: [PATCH 16/22] drm/tilcdc: Do not update the next frame buffer close
  to vertical blank
 
@@ -16,7 +16,7 @@ Signed-off-by: Jyri Sarha <jsarha@ti.com>
  1 file changed, 53 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 7514d40..7445356 100644
+index 245b6fe..64a2272 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -21,6 +21,8 @@
@@ -133,7 +133,7 @@ index 7514d40..7445356 100644
  	}
  
  	if (priv->rev == 2) {
-@@ -716,6 +759,8 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
+@@ -717,6 +760,8 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  	drm_flip_work_init(&tilcdc_crtc->unref_work,
  			"unref", unref_worker);
  

@@ -1,6 +1,6 @@
-From cdd9650b06df78cb507baa65c414e506dd60ecf4 Mon Sep 17 00:00:00 2001
+From 194809d42b33a6dae0667a65e8ea1591fb7321c5 Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
-Date: Tue, 23 Feb 2016 17:03:29 +0200
+Date: Wed, 27 May 2015 11:58:37 +0300
 Subject: [PATCH 21/22] drm/tilcdc: Initialize crtc->port
 
 Initialize port device node pointer in the tilcdc crtc. Fixes "Falling
@@ -11,12 +11,13 @@ initialize possible_crtcs of struct drm_encoder. The crtc->port needs
 to be initialized for drm_of_find_possible_crtcs() to work.
 
 Signed-off-by: Jyri Sarha <jsarha@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index e886277..6990908 100644
+index 81530d5..664c7ed 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -124,6 +124,7 @@ static void tilcdc_crtc_destroy(struct drm_crtc *crtc)
@@ -27,7 +28,7 @@ index e886277..6990908 100644
  	drm_crtc_cleanup(crtc);
  	drm_flip_work_cleanup(&tilcdc_crtc->unref_work);
  
-@@ -768,6 +769,7 @@ void tilcdc_crtc_cancel_page_flip(struct drm_crtc *crtc, struct drm_file *file)
+@@ -769,6 +770,7 @@ void tilcdc_crtc_cancel_page_flip(struct drm_crtc *crtc, struct drm_file *file)
  
  struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  {
@@ -35,7 +36,7 @@ index e886277..6990908 100644
  	struct tilcdc_crtc *tilcdc_crtc;
  	struct drm_crtc *crtc;
  	int ret;
-@@ -794,6 +796,20 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
+@@ -795,6 +797,24 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  
  	drm_crtc_helper_add(crtc, &tilcdc_crtc_helper_funcs);
  
@@ -50,7 +51,11 @@ index e886277..6990908 100644
 +			crtc->port =
 +				of_get_child_by_name(dev->dev->of_node, "port");
 +		}
-+		WARN_ON(!crtc->port);
++		if (!crtc->port) { /* This should never happen */
++			dev_err(dev->dev, "Port node not found in %s\n",
++				dev->dev->of_node->full_name);
++			goto fail;
++		}
 +	}
 +
  	return crtc;

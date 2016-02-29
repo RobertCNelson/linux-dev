@@ -1,6 +1,6 @@
-From 2a3590978b0e79a2723ac0c495c67bcca4ad63a5 Mon Sep 17 00:00:00 2001
+From d54f1e4e8bd48ef0246b1f65691214e5acd60f1e Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
-Date: Tue, 16 Feb 2016 16:18:37 +0200
+Date: Fri, 8 Jan 2016 14:33:09 +0200
 Subject: [PATCH 20/22] drm/tilcdc: Disable sync lost interrupt if it fires on
  every frame
 
@@ -10,12 +10,13 @@ lost interrupt being stuck and firing on every frame even if the
 display otherwise appears to work OK.
 
 Signed-off-by: Jyri Sarha <jsarha@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
  drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 21 ++++++++++++++++++++-
  1 file changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 87c4765..e886277 100644
+index 979a527..81530d5 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -43,6 +43,9 @@ struct tilcdc_crtc {

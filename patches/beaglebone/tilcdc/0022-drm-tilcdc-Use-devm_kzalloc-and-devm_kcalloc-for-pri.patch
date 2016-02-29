@@ -1,6 +1,6 @@
-From d683840bbc66d618b276aa14404f7d41acb7a942 Mon Sep 17 00:00:00 2001
+From 5c715b4b76696cb6756b63373ab04f7ec24bf86b Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
-Date: Tue, 23 Feb 2016 17:03:30 +0200
+Date: Tue, 23 Feb 2016 12:44:27 +0200
 Subject: [PATCH 22/22] drm/tilcdc: Use devm_kzalloc() and devm_kcalloc() for
  private data
 
@@ -8,6 +8,7 @@ Use devm_kzalloc() and devm_kcalloc() for private data allocation at
 driver load time.
 
 Signed-off-by: Jyri Sarha <jsarha@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 ---
  drivers/gpu/drm/tilcdc/tilcdc_crtc.c   |  4 +---
  drivers/gpu/drm/tilcdc/tilcdc_drv.c    | 19 +++++++------------
@@ -16,7 +17,7 @@ Signed-off-by: Jyri Sarha <jsarha@ti.com>
  4 files changed, 21 insertions(+), 46 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 6990908..e83fe43 100644
+index 664c7ed..28672b6 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -127,8 +127,6 @@ static void tilcdc_crtc_destroy(struct drm_crtc *crtc)
@@ -28,7 +29,7 @@ index 6990908..e83fe43 100644
  }
  
  static int tilcdc_verify_fb(struct drm_crtc *crtc, struct drm_framebuffer *fb)
-@@ -774,7 +772,7 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
+@@ -775,7 +773,7 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  	struct drm_crtc *crtc;
  	int ret;
  
