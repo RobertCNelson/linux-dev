@@ -300,10 +300,9 @@ pru_uio () {
 	fi
 
 	${git} "${DIR}/patches/pru_uio/0001-Making-the-uio-pruss-driver-work.patch"
-	${git} "${DIR}/patches/pru_uio/0002-Cleaned-up-error-reporting.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=2
+		number=1
 		cleanup
 	fi
 }
