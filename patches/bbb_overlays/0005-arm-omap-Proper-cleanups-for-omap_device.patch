@@ -15,7 +15,7 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  1 file changed, 26 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/omap_device.c b/arch/arm/mach-omap2/omap_device.c
-index 20068ba..8a35c13 100644
+index 956fffa..32319d2 100644
 --- a/arch/arm/mach-omap2/omap_device.c
 +++ b/arch/arm/mach-omap2/omap_device.c
 @@ -206,6 +206,26 @@ odbfd_exit:
@@ -45,8 +45,8 @@ index 20068ba..8a35c13 100644
  static int _omap_device_notifier_call(struct notifier_block *nb,
  				      unsigned long event, void *dev)
  {
-@@ -213,9 +233,12 @@ static int _omap_device_notifier_call(struct notifier_block *nb,
- 	struct omap_device *od;
+@@ -214,9 +234,12 @@ static int _omap_device_notifier_call(struct notifier_block *nb,
+ 	int err;
  
  	switch (event) {
 -	case BUS_NOTIFY_DEL_DEVICE:
@@ -59,8 +59,8 @@ index 20068ba..8a35c13 100644
 +		if (od)
 +			_omap_device_cleanup(od);
  		break;
- 	case BUS_NOTIFY_ADD_DEVICE:
- 		if (pdev->dev.of_node)
+ 	case BUS_NOTIFY_UNBOUND_DRIVER:
+ 		od = to_omap_device(pdev);
 -- 
 2.7.0
 

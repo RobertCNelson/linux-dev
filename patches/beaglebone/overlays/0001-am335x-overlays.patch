@@ -1,11 +1,11 @@
-From eebf924a1f8d00440364d45e7844ea64cdb889bd Mon Sep 17 00:00:00 2001
+From ec4fb28e1fd6e75b8988e9e09689723fcaf05d38 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 12 Feb 2016 15:00:13 -0600
+Date: Sun, 28 Feb 2016 20:02:48 -0600
 Subject: [PATCH] am335x: overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 353 +++++++++++++++++++++
+ .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 344 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-bone.dts                  |   1 +
  .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  39 +++
  .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |  99 ++++++
@@ -16,7 +16,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bonegreen.dts             |   1 +
  arch/arm/boot/dts/am33xx-overlay-edma-fix.dtsi     |  25 ++
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 ++++++
- 11 files changed, 803 insertions(+)
+ 11 files changed, 794 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
@@ -28,10 +28,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 0000000..6c79cc7
+index 0000000..1f272a1
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,353 @@
+@@ -0,0 +1,344 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -266,8 +266,9 @@ index 0000000..6c79cc7
 +	};
 +};
 +
++/include/ "tps65217.dtsi"
++
 +&tps {
-+	compatible = "ti,tps65217";
 +	/*
 +	 * Configure pmic to enter OFF-state instead of SLEEP-state ("RTC-only
 +	 * mode") at poweroff.  Most BeagleBone versions do not support RTC-only
@@ -291,17 +292,12 @@ index 0000000..6c79cc7
 +	interrupts = <7>;	/* NNMI */
 +
 +	regulators {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
 +		dcdc1_reg: regulator@0 {
-+			reg = <0>;
 +			regulator-name = "vdds_dpr";
 +			regulator-always-on;
 +		};
 +
 +		dcdc2_reg: regulator@1 {
-+			reg = <1>;
 +			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
 +			regulator-name = "vdd_mpu";
 +			regulator-min-microvolt = <925000>;
@@ -311,7 +307,6 @@ index 0000000..6c79cc7
 +		};
 +
 +		dcdc3_reg: regulator@2 {
-+			reg = <2>;
 +			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
 +			regulator-name = "vdd_core";
 +			regulator-min-microvolt = <925000>;
@@ -321,25 +316,21 @@ index 0000000..6c79cc7
 +		};
 +
 +		ldo1_reg: regulator@3 {
-+			reg = <3>;
 +			regulator-name = "vio,vrtc,vdds";
 +			regulator-always-on;
 +		};
 +
 +		ldo2_reg: regulator@4 {
-+			reg = <4>;
 +			regulator-name = "vdd_3v3aux";
 +			regulator-always-on;
 +		};
 +
 +		ldo3_reg: regulator@5 {
-+			reg = <5>;
 +			regulator-name = "vdd_1v8";
 +			regulator-always-on;
 +		};
 +
 +		ldo4_reg: regulator@6 {
-+			reg = <6>;
 +			regulator-name = "vdd_3v3a";
 +			regulator-always-on;
 +		};
