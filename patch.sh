@@ -610,6 +610,19 @@ beaglebone () {
 		cleanup
 	fi
 
+	echo "dir: beaglebone/sancloud"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/beaglebone/sancloud/0001-add-sancloud-beaglebone-enhanced.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
+		cleanup
+	fi
+
 	echo "dir: beaglebone/tre"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -737,6 +750,8 @@ beaglebone () {
 		device="am335x-boneblack-bbbmini.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-bbb-exp-c.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-bbb-exp-r.dtb" ; dtb_makefile_append
+
+		device="am335x-boneenhanced.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/
