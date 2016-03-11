@@ -410,6 +410,22 @@ bbb_overlays () {
 	fi
 	unset is_44
 
+	echo "dir: bbb_overlays/omap"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		cherrypick_dir="bbb_overlays/omap"
+		#merged in 4.5.0-rc6?
+		SHA="cf26f1137333251f3515dea31f95775b99df0fd5" ; num="1" ; cherrypick
+		exit 2
+	fi
+
+	#is_44="enable"
+	if [ "x${is_44}" = "xenable" ] ; then
+		#merged in 4.5.0-rc6?
+		${git} "${DIR}/patches/bbb_overlays/omap/0001-ARM-OMAP2-Fix-omap_device-for-module-reload-on-PM-ru.patch"
+	fi
+	unset is_44
+
 	echo "dir: bbb_overlays"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -424,7 +440,9 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0004-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
 	fi
 
-	#${git} "${DIR}/patches/bbb_overlays/0005-arm-omap-Proper-cleanups-for-omap_device.patch"
+	#depends on: cf26f1137333251f3515dea31f95775b99df0fd5
+	${git} "${DIR}/patches/bbb_overlays/0005-omap-Fix-crash-when-omap-device-is-disabled.patch"
+
 	${git} "${DIR}/patches/bbb_overlays/0006-serial-omap-Fix-port-line-number-without-aliases.patch"
 	${git} "${DIR}/patches/bbb_overlays/0007-tty-omap-serial-Fix-up-platform-data-alloc.patch"
 	${git} "${DIR}/patches/bbb_overlays/0008-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
