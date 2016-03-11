@@ -6,14 +6,14 @@ Subject: [PATCH] add beaglebone green wireless
 Good news, BBGW born out.
 ---
  arch/arm/boot/dts/am335x-bonegreen-wireless.dts |  47 +++++++++
- arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi  | 134 ++++++++++++++++++++++++
- 2 files changed, 181 insertions(+)
+ arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi  | 125 ++++++++++++++++++++++++
+ 2 files changed, 172 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bonegreen-wireless.dts
  create mode 100644 arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
 new file mode 100644
-index 0000000..788a2bd
+index 0000000..b4fabfe
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
 @@ -0,0 +1,47 @@
@@ -31,7 +31,7 @@ index 0000000..788a2bd
 +#include "am335x-bonegreen-wl1835.dtsi"
 +
 +/ {
-+	model = "TI AM335x BeagleBone Green";
++	model = "TI AM335x BeagleBone Green Wireless";
 +	compatible = "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
 +};
 +
@@ -66,10 +66,10 @@ index 0000000..788a2bd
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi b/arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi
 new file mode 100644
-index 0000000..940a6c6
+index 0000000..f26b22f
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,125 @@
 +
 +#include <dt-bindings/interrupt-controller/irq.h>
 +
@@ -81,8 +81,8 @@ index 0000000..940a6c6
 +		regulator-max-microvolt = <1800000>;
 +
 +		/* WL_EN */
-+		//gpio = <&gpio0 26 1>;
-+		//enable-active-high;
++		gpio = <&gpio0 26 0>;
++		enable-active-high;
 +	};
 +
 +	tibt {
@@ -167,9 +167,9 @@ index 0000000..940a6c6
 +&mmc3 {
 +	dmas = <&edma_xbar 12 0 1
 +		&edma_xbar 13 0 2>;
++	dma-names = "tx", "rx";
 +	status = "okay";
-+	//vmmc-supply = <&wlan_en_reg>;
-+	vmmc-supply = <&vmmcsd_fixed>;
++	vmmc-supply = <&wlan_en_reg>;
 +	bus-width = <4>;
 +	pinctrl-names = "default", "sleep";
 +	pinctrl-0 = <&mmc3_pins &wlan_pins>;
@@ -189,15 +189,6 @@ index 0000000..940a6c6
 +	};
 +};
 +
-+&gpio0 {
-+	wl_en {
-+		gpio-hog;
-+		gpios = <26 GPIO_ACTIVE_HIGH>;
-+		output-high;
-+		line-name = "WL_EN";
-+	};
-+};
-+
 +&uart3 {
 +	pinctrl-names = "default", "sleep";
 +	pinctrl-0 = <&uart3_pins_default>;
@@ -205,5 +196,5 @@ index 0000000..940a6c6
 +	status = "okay";
 +};
 -- 
-2.7.0.rc3
+2.7.0
 
