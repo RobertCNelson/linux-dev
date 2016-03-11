@@ -220,8 +220,6 @@ fixes () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/fixes/0001-drm-i2c-tda998x-Choose-between-atomic-or-non-atomic-.patch"
-
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=1
 		cleanup
@@ -946,7 +944,7 @@ quieter () {
 ###
 lts44_backports
 reverts
-fixes
+#fixes
 ti
 dts
 wand
