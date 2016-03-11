@@ -335,12 +335,16 @@ debian_regs () {
 		#https://wiki.ubuntu.com/Releases
 		unset error_unknown_deb_distro
 		case "${deb_distro}" in
-		squeeze|wheezy|jessie|stretch|sid)
-			#6 squeeze: 2016-02-06 https://wiki.debian.org/DebianSqueeze
+		wheezy|jessie|stretch|sid)
 			#7 wheezy: https://wiki.debian.org/DebianWheezy
 			#8 jessie: https://wiki.debian.org/DebianJessie
 			#9 stretch: https://wiki.debian.org/DebianStretch
 			unset warn_eol_distro
+			;;
+		squeeze)
+			#6 squeeze: 2016-02-06 https://wiki.debian.org/DebianSqueeze
+			warn_eol_distro=1
+			stop_pkg_search=1
 			;;
 		xenial)
 			#16.04 trusty: (EOL: April 20xx) lts: xenial -> xyz
@@ -393,7 +397,7 @@ debian_regs () {
 		
 		#Libs; starting with jessie/sid, lib<pkg_name>-dev:<arch>
 		case "${deb_distro}" in
-		squeeze|wheezy|precise)
+		wheezy|precise)
 			pkg="libncurses5-dev"
 			check_dpkg
 			;;
@@ -407,7 +411,7 @@ debian_regs () {
 		if [ "x${deb_arch}" = "xamd64" ] ; then
 			unset dpkg_multiarch
 			case "${deb_distro}" in
-			squeeze|precise)
+			precise)
 				if [ "x${ignore_32bit}" = "xfalse" ] ; then
 					pkg="ia32-libs"
 					check_dpkg
