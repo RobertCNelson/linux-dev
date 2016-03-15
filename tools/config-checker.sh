@@ -132,21 +132,13 @@ config="CONFIG_XEN" ; config_disable
 #
 # CPU Frequency scaling
 #
-config="CONFIG_CPU_FREQ_STAT" ; config_enable
 config="CONFIG_CPU_FREQ_STAT_DETAILS" ; config_enable
-config="CONFIG_CPU_FREQ_GOV_POWERSAVE" ; config_enable
-config="CONFIG_CPU_FREQ_GOV_USERSPACE" ; config_enable
-config="CONFIG_CPU_FREQ_GOV_ONDEMAND" ; config_enable
-config="CONFIG_CPU_FREQ_GOV_CONSERVATIVE" ; config_enable
 
 #
 # CPU frequency scaling drivers
 #
-config="CONFIG_CPUFREQ_DT" ; config_enable
-config="CONFIG_ARM_IMX6Q_CPUFREQ" ; config_enable
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
-config="CONFIG_ARM_TEGRA124_CPUFREQ" ; config_enable
-config="CONFIG_QORIQ_CPUFREQ" ; config_enable
+config="CONFIG_QORIQ_CPUFREQ" ; config_module
 
 #
 # CPU Idle
@@ -342,12 +334,6 @@ config="CONFIG_DP83848_PHY" ; config_enable
 #
 # USB Network Adapters
 #
-config="CONFIG_USB_LAN78XX" ; config_module
-config="CONFIG_USB_NET_CH9200" ; config_module
-config="CONFIG_LIBERTAS_SPI" ; config_module
-config="CONFIG_MWIFIEX" ; config_module
-config="CONFIG_MWIFIEX_SDIO" ; config_module
-config="CONFIG_MWIFIEX_USB" ; config_module
 config="CONFIG_RTL8XXXU" ; config_module
 config="CONFIG_USB_ZD1201" ; config_module
 
@@ -592,8 +578,12 @@ config="CONFIG_GPIO_TPS65910" ; config_enable
 #
 config="CONFIG_GPIO_74X164" ; config_module
 config="CONFIG_GPIO_MAX7301" ; config_module
-config="CONFIG_GPIO_MCP23S08" ; config_module
 config="CONFIG_GPIO_MC33880" ; config_module
+
+#
+# SPI or I2C GPIO expanders
+#
+config="CONFIG_GPIO_MCP23S08" ; config_module
 
 #
 # 1-wire Bus Masters
