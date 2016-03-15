@@ -1,0 +1,51 @@
+From 9a95e9f9f3a709ca6eba676e90adfb11d3a68a5e Mon Sep 17 00:00:00 2001
+From: Chanwoo Choi <cw00.choi@samsung.com>
+Date: Mon, 14 Mar 2016 11:04:14 +0900
+Subject: [PATCH 08/10] ARM: dts: Add rtc and adc dt node for exynos3250-artik5
+ module
+
+This patch adds the RTC (Real Time Clock) and ADC (Analog Digital Converter)
+Device Tree node for exynos3250-artik5 module. The RTC is used for wakeup
+source and the ADC is used to read the analog data such as battery temperature.
+
+ADC need to connect the some H/W device such as battery. So, this patch just
+adds the default setting (clock, regulator).
+
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ arch/arm/boot/dts/exynos3250-artik5.dtsi | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm/boot/dts/exynos3250-artik5.dtsi b/arch/arm/boot/dts/exynos3250-artik5.dtsi
+index 877e482..673883f 100644
+--- a/arch/arm/boot/dts/exynos3250-artik5.dtsi
++++ b/arch/arm/boot/dts/exynos3250-artik5.dtsi
+@@ -48,6 +48,12 @@
+ 	};
+ };
+ 
++&adc {
++	vdd-supply = <&ldo7_reg>;
++	assigned-clocks = <&cmu CLK_SCLK_TSADC>;
++	assigned-clock-rates = <6000000>;
++};
++
+ &cpu0 {
+ 	cpu0-supply = <&buck2_reg>;
+ };
+@@ -319,6 +325,12 @@
+ 	status = "okay";
+ };
+ 
++&rtc {
++	clocks = <&cmu CLK_RTC>, <&s2mps14_osc S2MPS11_CLK_AP>;
++	clock-names = "rtc", "rtc_src";
++	status = "okay";
++};
++
+ &xusbxti {
+ 	clock-frequency = <24000000>;
+ };
+-- 
+2.7.0
+

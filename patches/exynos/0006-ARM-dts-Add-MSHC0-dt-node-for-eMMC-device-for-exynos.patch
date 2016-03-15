@@ -1,0 +1,49 @@
+From 771a47741330d4bae2a00bab74ced6779393e2fc Mon Sep 17 00:00:00 2001
+From: Jaehoon Chung <jh80.chung@samsung.com>
+Date: Mon, 14 Mar 2016 11:04:11 +0900
+Subject: [PATCH 06/10] ARM: dts: Add MSHC0 dt node for eMMC device for
+ exynos3250-artik5 module
+
+This patch adds MSHC (Mobile Storage Host Controller) dt node for Exynos3250
+SoC. MSHC is an interface between the system and the eMMC device.
+
+Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
+Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ arch/arm/boot/dts/exynos3250-artik5.dtsi | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/arch/arm/boot/dts/exynos3250-artik5.dtsi b/arch/arm/boot/dts/exynos3250-artik5.dtsi
+index 97d0087..75b291c 100644
+--- a/arch/arm/boot/dts/exynos3250-artik5.dtsi
++++ b/arch/arm/boot/dts/exynos3250-artik5.dtsi
+@@ -277,6 +277,25 @@
+ 	};
+ };
+ 
++&mshc_0 {
++	num-slots = <1>;
++	broken-cd;
++	non-removable;
++	cap-mmc-highspeed;
++	desc-num = <4>;
++	card-detect-delay = <200>;
++	vmmc-supply = <&ldo11_reg>;
++	clock-frequency = <100000000>;
++	clock-freq-min-max = <400000 100000000>;
++	samsung,dw-mshc-ciu-div = <1>;
++	samsung,dw-mshc-sdr-timing = <0 1>;
++	samsung,dw-mshc-ddr-timing = <1 2>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&sd0_cmd &sd0_bus1 &sd0_bus4 &sd0_bus8>;
++	bus-width = <8>;
++	status = "okay";
++};
++
+ &xusbxti {
+ 	clock-frequency = <24000000>;
+ };
+-- 
+2.7.0
+
