@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2013 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2013-2016 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -54,9 +54,9 @@ else
 fi
 
 if [ ! "${KERNEL_SHA}" ] ; then
-	echo "kernel: [v${KERNEL_TAG}-${BUILD}]"
+	echo "kernel: [v${KERNEL_TAG}${BUILD}]"
 else
-	echo "kernel: [v${KERNEL_TAG}-${BUILD}] + [${KERNEL_SHA}]"
+	echo "kernel: [v${KERNEL_TAG}${BUILD}] + [${KERNEL_SHA}]"
 fi
 
 echo "uname -m"

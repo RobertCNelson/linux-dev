@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2016 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,18 +41,18 @@ if [ -e ${DIR}/version.sh ]; then
 	git add arch/${KERNEL_ARCH}/configs/${example}_defconfig
 
 	if [ "x${ti_git_old_release}" = "x${ti_git_post}" ] ; then
-		git commit -a -m "${KERNEL_TAG}-${BUILD} ${example}_defconfig" -s
+		git commit -a -m "${KERNEL_TAG}${BUILD} ${example}_defconfig" -s
 	else
-		git commit -a -m "${KERNEL_TAG}-${BUILD} ${example}_defconfig" -m "${KERNEL_REL} TI Delta: ${compare}/${ti_git_old_release}...${ti_git_post}" -s
+		git commit -a -m "${KERNEL_TAG}${BUILD} ${example}_defconfig" -m "${KERNEL_REL} TI Delta: ${compare}/${ti_git_old_release}...${ti_git_post}" -s
 	fi
 
-	git tag -a "${KERNEL_TAG}-${BUILD}" -m "${KERNEL_TAG}-${BUILD}" -f
+	git tag -a "${KERNEL_TAG}${BUILD}" -m "${KERNEL_TAG}${BUILD}" -f
 
 	#push tag
-	git push -f ${repo} "${KERNEL_TAG}-${BUILD}"
+	git push -f ${repo} "${KERNEL_TAG}${BUILD}"
 
 	git branch -D ${KERNEL_REL} || true
-	git branch -m v${KERNEL_TAG}-${BUILD} ${KERNEL_REL}
+	git branch -m v${KERNEL_TAG}${BUILD} ${KERNEL_REL}
 
 	#push branch
 	echo "log: git push -f ${repo} ${KERNEL_REL}"

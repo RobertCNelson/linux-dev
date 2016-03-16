@@ -494,6 +494,10 @@ fi
 DIR=$PWD
 . "${DIR}/version.sh"
 
+if [  -f "${DIR}/.yakbuild" ] ; then
+	. "${DIR}/recipe.sh"
+fi
+
 ARCH=$(uname -m)
 
 ignore_32bit="false"

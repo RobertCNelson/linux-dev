@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2016 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ patch_kernel () {
 
 	if [ ! "${RUN_BISECT}" ] ; then
 		git add --all
-		git commit --allow-empty -a -m "${KERNEL_TAG}-${BUILD} patchset"
+		git commit --allow-empty -a -m "${KERNEL_TAG}${BUILD} patchset"
 	fi
 
 	cd "${DIR}/" || exit
@@ -42,16 +42,22 @@ patch_kernel () {
 copy_defconfig () {
 	cd "${DIR}/KERNEL" || exit
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" distclean
-	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" "${config}"
-	cp -v .config "${DIR}/patches/ref_${config}"
-	cp -v "${DIR}/patches/defconfig" .config
+	if [ ! -f "${DIR}/.yakbuild" ] ; then
+		make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" "${config}"
+		cp -v .config "${DIR}/patches/ref_${config}"
+		cp -v "${DIR}/patches/defconfig" .config
+	else
+		make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" rcn-ee_defconfig
+	fi
 	cd "${DIR}/" || exit
 }
 
 make_menuconfig () {
 	cd "${DIR}/KERNEL" || exit
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" menuconfig
-	cp -v .config "${DIR}/patches/defconfig"
+	if [ ! -f "${DIR}/.yakbuild" ] ; then
+		cp -v .config "${DIR}/patches/defconfig"
+	fi
 	cd "${DIR}/" || exit
 }
 
@@ -66,7 +72,7 @@ make_deb () {
 	build_opts="-j${CORES}"
 	build_opts="${build_opts} ARCH=${KERNEL_ARCH}"
 	build_opts="${build_opts} KBUILD_DEBARCH=${DEBARCH}"
-	build_opts="${build_opts} LOCALVERSION=-${BUILD}"
+	build_opts="${build_opts} LOCALVERSION=${BUILD}"
 	build_opts="${build_opts} KDEB_CHANGELOG_DIST=${deb_distro}"
 	build_opts="${build_opts} KDEB_PKGVERSION=1${DISTRO}"
 	#Just use "linux-upstream"...
@@ -87,6 +93,14 @@ make_deb () {
 
 	cd "${DIR}/" || exit
 }
+
+if [  -f "${DIR}/.yakbuild" ] ; then
+	if [ -f "${DIR}/recipe.sh.sample" ] ; then
+		if [ ! -f "${DIR}/recipe.sh" ] ; then
+			cp -v "${DIR}/recipe.sh.sample" "${DIR}/recipe.sh"
+		fi
+	fi
+fi
 
 /bin/sh -e "${DIR}/tools/host_det.sh" || { exit 1 ; }
 
@@ -118,6 +132,9 @@ fi
 unset CC
 unset LINUX_GIT
 . "${DIR}/system.sh"
+if [  -f "${DIR}/.yakbuild" ] ; then
+	. "${DIR}/recipe.sh"
+fi
 /bin/sh -e "${DIR}/scripts/gcc.sh" || { exit 1 ; }
 . "${DIR}/.CC"
 echo "CROSS_COMPILE=${CC}"
@@ -138,11 +155,16 @@ if [ "${FULL_REBUILD}" ] ; then
 		/bin/sh -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
 	fi
 
-	patch_kernel
+	if [ ! -f "${DIR}/.yakbuild" ] ; then
+		patch_kernel
+	fi
 	copy_defconfig
 fi
 if [ ! "${AUTO_BUILD}" ] ; then
 	make_menuconfig
+fi
+if [  -f "${DIR}/.yakbuild" ] ; then
+	BUILD=$(echo ${kernel_tag} | sed 's/[^-]*//'|| true)
 fi
 make_deb
 echo "-----------------------------"

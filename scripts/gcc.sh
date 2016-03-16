@@ -29,6 +29,10 @@ DIR=$PWD
 #toolchain
 . "${DIR}/version.sh"
 
+if [  -f "${DIR}/.yakbuild" ] ; then
+	. "${DIR}/recipe.sh"
+fi
+
 if [ -d $HOME/dl/gcc/ ] ; then
 	gcc_dir="$HOME/dl/gcc"
 else

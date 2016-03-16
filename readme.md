@@ -23,11 +23,15 @@ git clone directory.
 
 Build Kernel Image:
 
+```
 ./build_kernel.sh
+```
 
 Optional: Build Debian Package:
 
+```
 ./build_deb.sh
+```
 
 Development/Hacking:
 
