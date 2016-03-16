@@ -21,14 +21,14 @@ documentation entry.
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
  Documentation/printk-formats.txt |  41 ++++++++++-
- lib/vsprintf.c                   | 149 ++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 188 insertions(+), 2 deletions(-)
+ lib/vsprintf.c                   | 148 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 188 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/printk-formats.txt b/Documentation/printk-formats.txt
-index 5d1128b..1993652 100644
+index 5962949..d1ba882 100644
 --- a/Documentation/printk-formats.txt
 +++ b/Documentation/printk-formats.txt
-@@ -306,10 +306,49 @@ Network device features:
+@@ -324,10 +324,49 @@ Network device features:
  
  	Passed by reference.
  
@@ -80,7 +80,7 @@ index 5d1128b..1993652 100644
  
  
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index 48ff9c3..ed6f62d 100644
+index 525c8e1..9bad344 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
 @@ -34,6 +34,7 @@
@@ -89,10 +89,10 @@ index 48ff9c3..ed6f62d 100644
  #endif
 +#include <linux/of.h>
  
- #include <asm/page.h>		/* for PAGE_SIZE */
- #include <asm/sections.h>	/* for dereference_function_descriptor() */
-@@ -1407,6 +1408,141 @@ char *clock(char *buf, char *end, struct clk *clk, struct printf_spec spec,
- 	}
+ #include "../mm/internal.h"	/* For the trace_print_flags arrays */
+ 
+@@ -1475,6 +1476,141 @@ char *flags_string(char *buf, char *end, void *flags_ptr, const char *fmt)
+ 	return format_flags(buf, end, flags, names);
  }
  
 +/* helper method for calculating extends on first pass  and filling in later */
@@ -233,10 +233,10 @@ index 48ff9c3..ed6f62d 100644
  int kptr_restrict __read_mostly;
  
  /*
-@@ -1495,6 +1631,16 @@ int kptr_restrict __read_mostly;
-  * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
-  *        (legacy clock framework) of the clock
-  * - 'Cr' For a clock, it prints the current rate of the clock
+@@ -1568,6 +1704,16 @@ int kptr_restrict __read_mostly;
+  *       p page flags (see struct page) given as pointer to unsigned long
+  *       g gfp flags (GFP_* and __GFP_*) given as pointer to gfp_t
+  *       v vma flags (VM_*) given as pointer to unsigned long
 + * - 'O[fnpPcCFr]' For an DT device node
 + *                Without any optional arguments prints the full_name
 + *                f device node full_name
@@ -250,11 +250,10 @@ index 48ff9c3..ed6f62d 100644
   *
   * ** Please update also Documentation/printk-formats.txt when making changes **
   *
-@@ -1647,7 +1793,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
- 	case 'g':
- 		return bdev_name(buf, end, ptr, spec, fmt);
- #endif
--
+@@ -1723,6 +1869,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+ 
+ 	case 'G':
+ 		return flags_string(buf, end, ptr, fmt);
 +	case 'O':
 +		return device_node_string(buf, end, ptr, spec, fmt);
  	}
