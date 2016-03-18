@@ -1,8 +1,7 @@
-From ec09b903e131ba8539c877cd1dca578686d5cc56 Mon Sep 17 00:00:00 2001
+From 3ccea0e1fdf896645f8cccddcfcf60cb289fdf76 Mon Sep 17 00:00:00 2001
 From: Andrew Lunn <andrew@lunn.ch>
-Date: Fri, 19 Feb 2016 00:17:39 +0100
-Subject: [PATCH 4/7] eeprom: at25: Remove in kernel API for accessing the
- EEPROM
+Date: Fri, 26 Feb 2016 20:59:21 +0100
+Subject: [PATCH] eeprom: at25: Remove in kernel API for accessing the EEPROM
 
 The setup() callback is not used by any in kernel code. Remove it.
 Any new code which requires access to the eeprom can use the NVMEM
@@ -10,13 +9,15 @@ API.
 
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
 Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/misc/eeprom/at25.c | 26 --------------------------
  include/linux/spi/eeprom.h |  2 --
  2 files changed, 28 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
-index f850ef5..4732f69 100644
+index 3e9e5a2..00f859c 100644
 --- a/drivers/misc/eeprom/at25.c
 +++ b/drivers/misc/eeprom/at25.c
 @@ -29,7 +29,6 @@

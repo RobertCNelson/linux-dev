@@ -1,7 +1,7 @@
-From 1ea00ed7966f54b54ca2fc4cc45a00f65bbd7a0c Mon Sep 17 00:00:00 2001
+From 811b0d6538b9f26f3eb0f90fe4e6118f2480ec6f Mon Sep 17 00:00:00 2001
 From: Andrew Lunn <andrew@lunn.ch>
-Date: Fri, 19 Feb 2016 00:17:36 +0100
-Subject: [PATCH 1/7] nvmem: Add flag to export NVMEM to root only
+Date: Fri, 26 Feb 2016 20:59:18 +0100
+Subject: [PATCH] nvmem: Add flag to export NVMEM to root only
 
 Legacy AT24, AT25 EEPROMs are exported in sys so that only root can
 read the contents. The EEPROMs may contain sensitive information. Add
@@ -9,13 +9,15 @@ a flag so the provide can indicate that NVMEM should also restrict
 access to root only.
 
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/nvmem/core.c           | 57 ++++++++++++++++++++++++++++++++++++++++--
  include/linux/nvmem-provider.h |  1 +
  2 files changed, 56 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 9d11d98..96b4c4b 100644
+index de14fae..b03690b 100644
 --- a/drivers/nvmem/core.c
 +++ b/drivers/nvmem/core.c
 @@ -161,6 +161,53 @@ static const struct attribute_group *nvmem_ro_dev_groups[] = {
@@ -72,7 +74,7 @@ index 9d11d98..96b4c4b 100644
  static void nvmem_release(struct device *dev)
  {
  	struct nvmem_device *nvmem = to_nvmem_device(dev);
-@@ -353,8 +400,14 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+@@ -355,8 +402,14 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  	nvmem->read_only = of_property_read_bool(np, "read-only") |
  			   config->read_only;
  

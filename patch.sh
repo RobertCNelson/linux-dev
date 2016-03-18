@@ -384,22 +384,30 @@ bbb_overlays () {
 	echo "dir: bbb_overlays/nvmem"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
+		cherrypick_dir="bbb_overlays/nvmem"
+		#merged in 4.6.0-rc0
+		SHA="811b0d6538b9f26f3eb0f90fe4e6118f2480ec6f" ; num="1" ; cherrypick
+		SHA="b6c217ab9be6895384cf0b284ace84ad79e5c53b" ; cherrypick
+		SHA="57d155506dd5e8f8242d0310d3822c486f70dea7" ; cherrypick
+		SHA="3ccea0e1fdf896645f8cccddcfcf60cb289fdf76" ; cherrypick
+		SHA="5a99f570dab9f626d3b0b87a4ddf5de8c648aae8" ; cherrypick
+		SHA="1c4b6e2c7534b9b193f440f77dd47e420a150288" ; cherrypick
+		SHA="bec3c11bad0e7ac05fb90f204d0ab6f79945822b" ; cherrypick
+		exit 2
 	fi
 
-	#[PATCHv6 0/7] Convert exiting EEPROM drivers to NVMEM
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0001-nvmem-Add-flag-to-export-NVMEM-to-root-only.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0002-nvmem-Add-backwards-compatibility-support-for-older-.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0003-eeprom-at24-extend-driver-to-plug-into-the-NVMEM-fra.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0004-eeprom-at25-Remove-in-kernel-API-for-accessing-the-E.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0005-eeprom-at25-extend-driver-to-plug-into-the-NVMEM-fra.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0006-eeprom-93xx46-extend-driver-to-plug-into-the-NVMEM-f.patch"
-	${git} "${DIR}/patches/bbb_overlays/nvmem/0007-misc-at24-replace-memory_accessor-with-nvmem_device_.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=7
-		cleanup
+	#is_44="enable"
+	if [ "x${is_44}" = "xenable" ] ; then
+		#merged in 4.6.0-rc0
+		${git} "${DIR}/patches/bbb_overlays/nvmem/0001-nvmem-Add-flag-to-export-NVMEM-to-root-only.patch"
+		${git} "${DIR}/patches/bbb_overlays/nvmem/0002-nvmem-Add-backwards-compatibility-support-for-older-.patch"
+		${git} "${DIR}/patches/bbb_overlays/nvmem/0003-eeprom-at24-extend-driver-to-plug-into-the-NVMEM-fra.patch"
+		${git} "${DIR}/patches/bbb_overlays/nvmem/0004-eeprom-at25-Remove-in-kernel-API-for-accessing-the-E.patch"
+		${git} "${DIR}/patches/bbb_overlays/nvmem/0005-eeprom-at25-extend-driver-to-plug-into-the-NVMEM-fra.patch"
+		${git} "${DIR}/patches/bbb_overlays/nvmem/0006-eeprom-93xx46-extend-driver-to-plug-into-the-NVMEM-f.patch"
+		${git} "${DIR}/patches/bbb_overlays/nvmem/0007-misc-at24-replace-memory_accessor-with-nvmem_device_.patch"
 	fi
+	unset is_44
 
 	echo "dir: bbb_overlays/configfs"
 	#regenerate="enable"
@@ -412,7 +420,7 @@ bbb_overlays () {
 
 	#is_44="enable"
 	if [ "x${is_44}" = "xenable" ] ; then
-		#(< 4.5.0-rc0)
+		#merged in 4.5.0-rc0
 		${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
 	fi
 	unset is_44
@@ -429,7 +437,7 @@ bbb_overlays () {
 
 	#is_44="enable"
 	if [ "x${is_44}" = "xenable" ] ; then
-		#(< 4.5.0-rc0)
+		#merged in 4.5.0-rc0
 		${git} "${DIR}/patches/bbb_overlays/of/0001-drivers-of-Export-OF-changeset-functions.patch"
 	fi
 	unset is_44

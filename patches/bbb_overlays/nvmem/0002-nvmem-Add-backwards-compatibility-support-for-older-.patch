@@ -1,21 +1,23 @@
-From 1a92898867547531298720f2206e2e340c241d43 Mon Sep 17 00:00:00 2001
+From b6c217ab9be6895384cf0b284ace84ad79e5c53b Mon Sep 17 00:00:00 2001
 From: Andrew Lunn <andrew@lunn.ch>
-Date: Fri, 19 Feb 2016 00:17:37 +0100
-Subject: [PATCH 2/7] nvmem: Add backwards compatibility support for older
- EEPROM drivers.
+Date: Fri, 26 Feb 2016 20:59:19 +0100
+Subject: [PATCH] nvmem: Add backwards compatibility support for older EEPROM
+ drivers.
 
 Older drivers made an 'eeprom' file available in the /sys device
 directory. Have the NVMEM core provide this to retain backwards
 compatibility.
 
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/nvmem/core.c           | 84 ++++++++++++++++++++++++++++++++++++++----
  include/linux/nvmem-provider.h |  4 +-
  2 files changed, 79 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 96b4c4b..8f42c37 100644
+index b03690b..0de3d87 100644
 --- a/drivers/nvmem/core.c
 +++ b/drivers/nvmem/core.c
 @@ -38,8 +38,13 @@ struct nvmem_device {
@@ -80,7 +82,7 @@ index 96b4c4b..8f42c37 100644
  	/* Stop the user from writing */
  	if (pos >= nvmem->size)
  		return 0;
-@@ -347,6 +368,43 @@ err:
+@@ -349,6 +370,43 @@ err:
  	return rval;
  }
  
@@ -124,7 +126,7 @@ index 96b4c4b..8f42c37 100644
  /**
   * nvmem_register() - Register a nvmem device for given nvmem_config.
   * Also creates an binary entry in /sys/bus/nvmem/devices/dev-name/nvmem
-@@ -414,16 +472,23 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+@@ -416,16 +474,23 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
  
  	rval = device_add(&nvmem->dev);
@@ -152,7 +154,7 @@ index 96b4c4b..8f42c37 100644
  }
  EXPORT_SYMBOL_GPL(nvmem_register);
  
-@@ -443,6 +508,9 @@ int nvmem_unregister(struct nvmem_device *nvmem)
+@@ -445,6 +510,9 @@ int nvmem_unregister(struct nvmem_device *nvmem)
  	}
  	mutex_unlock(&nvmem_mutex);
  

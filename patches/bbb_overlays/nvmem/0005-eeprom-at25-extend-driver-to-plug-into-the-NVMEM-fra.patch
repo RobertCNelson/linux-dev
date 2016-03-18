@@ -1,8 +1,7 @@
-From 75fc90a9f120d8dfd19ab382790899cce882b84e Mon Sep 17 00:00:00 2001
+From 5a99f570dab9f626d3b0b87a4ddf5de8c648aae8 Mon Sep 17 00:00:00 2001
 From: Andrew Lunn <andrew@lunn.ch>
-Date: Fri, 19 Feb 2016 00:17:40 +0100
-Subject: [PATCH 5/7] eeprom: at25: extend driver to plug into the NVMEM
- framework
+Date: Fri, 26 Feb 2016 20:59:22 +0100
+Subject: [PATCH] eeprom: at25: extend driver to plug into the NVMEM framework
 
 Add a regmap for accessing the EEPROM, and then use that with the
 NVMEM framework. Enable backwards compatibility in the NVMEM config,
@@ -10,6 +9,7 @@ so that the 'eeprom' file in sys is provided by the framework.
 
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
 Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/misc/eeprom/Kconfig |   2 +
  drivers/misc/eeprom/at25.c  | 124 ++++++++++++++++++++++++--------------------
@@ -29,7 +29,7 @@ index 2493547..8c43a22 100644
  	  Enable this driver to get read/write support to most SPI EEPROMs,
  	  after you configure the board init code to know about each eeprom
 diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
-index 4732f69..fa36a6e 100644
+index 00f859c..fa36a6e 100644
 --- a/drivers/misc/eeprom/at25.c
 +++ b/drivers/misc/eeprom/at25.c
 @@ -16,6 +16,8 @@
@@ -81,7 +81,7 @@ index 4732f69..fa36a6e 100644
 -	struct device		*dev;
 -	struct at25_data	*at25;
 -
--	dev = container_of(kobj, struct device, kobj);
+-	dev = kobj_to_dev(kobj);
 -	at25 = dev_get_drvdata(dev);
 +	struct at25_data *at25 = context;
 +	off_t offset = *(u32 *)reg;
@@ -130,7 +130,7 @@ index 4732f69..fa36a6e 100644
 +	size_t len;
 +	int err;
  
--	dev = container_of(kobj, struct device, kobj);
+-	dev = kobj_to_dev(kobj);
 -	at25 = dev_get_drvdata(dev);
 +	memcpy(&offset, data, sizeof(offset));
 +	buf = (const char *)data + sizeof(offset);

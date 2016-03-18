@@ -1,7 +1,7 @@
-From da672b48185079b2f0266100573b7273c73080b3 Mon Sep 17 00:00:00 2001
+From 1c4b6e2c7534b9b193f440f77dd47e420a150288 Mon Sep 17 00:00:00 2001
 From: Andrew Lunn <andrew@lunn.ch>
-Date: Fri, 19 Feb 2016 00:17:41 +0100
-Subject: [PATCH 6/7] eeprom: 93xx46: extend driver to plug into the NVMEM
+Date: Fri, 26 Feb 2016 20:59:23 +0100
+Subject: [PATCH] eeprom: 93xx46: extend driver to plug into the NVMEM
  framework
 
 Add a regmap for accessing the EEPROM, and then use that with the
@@ -11,6 +11,7 @@ framework.
 
 Signed-off-by: Andrew Lunn <andrew@lunn.ch>
 Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/misc/eeprom/Kconfig         |   2 +
  drivers/misc/eeprom/eeprom_93xx46.c | 120 ++++++++++++++++++++++++++++--------
@@ -30,11 +31,11 @@ index 8c43a22..cfc493c 100644
  	  Driver for the microwire EEPROM chipsets 93xx46x. The driver
  	  supports both read and write commands and also the command to
 diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
-index ff63f05..f5de326 100644
+index f62ab29..426fe2f 100644
 --- a/drivers/misc/eeprom/eeprom_93xx46.c
 +++ b/drivers/misc/eeprom/eeprom_93xx46.c
-@@ -15,7 +15,8 @@
- #include <linux/mutex.h>
+@@ -19,7 +19,8 @@
+ #include <linux/of_gpio.h>
  #include <linux/slab.h>
  #include <linux/spi/spi.h>
 -#include <linux/sysfs.h>
@@ -43,7 +44,7 @@ index ff63f05..f5de326 100644
  #include <linux/eeprom_93xx46.h>
  
  #define OP_START	0x4
-@@ -28,25 +29,29 @@
+@@ -41,9 +42,12 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
  struct eeprom_93xx46_dev {
  	struct spi_device *spi;
  	struct eeprom_93xx46_platform_data *pdata;
@@ -56,6 +57,10 @@ index ff63f05..f5de326 100644
 +	int size;
  };
  
+ static inline bool has_quirk_single_word_read(struct eeprom_93xx46_dev *edev)
+@@ -57,16 +61,17 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
+ }
+ 
  static ssize_t
 -eeprom_93xx46_bin_read(struct file *filp, struct kobject *kobj,
 -		       struct bin_attribute *bin_attr,
@@ -65,12 +70,9 @@ index ff63f05..f5de326 100644
  {
 -	struct eeprom_93xx46_dev *edev;
 -	struct device *dev;
- 	struct spi_message m;
- 	struct spi_transfer t[2];
- 	int bits, ret;
- 	u16 cmd_addr;
+ 	ssize_t ret = 0;
  
--	dev = container_of(kobj, struct device, kobj);
+-	dev = kobj_to_dev(kobj);
 -	edev = dev_get_drvdata(dev);
 +	if (unlikely(off >= edev->size))
 +		return 0;
@@ -79,9 +81,9 @@ index ff63f05..f5de326 100644
 +	if (unlikely(!count))
 +		return count;
  
- 	cmd_addr = OP_READ << edev->addrlen;
+ 	mutex_lock(&edev->lock);
  
-@@ -182,16 +187,17 @@ eeprom_93xx46_write_word(struct eeprom_93xx46_dev *edev,
+@@ -226,16 +231,17 @@ eeprom_93xx46_write_word(struct eeprom_93xx46_dev *edev,
  }
  
  static ssize_t
@@ -95,7 +97,7 @@ index ff63f05..f5de326 100644
 -	struct device *dev;
  	int i, ret, step = 1;
  
--	dev = container_of(kobj, struct device, kobj);
+-	dev = kobj_to_dev(kobj);
 -	edev = dev_get_drvdata(dev);
 +	if (unlikely(off >= edev->size))
 +		return -EFBIG;
@@ -106,7 +108,7 @@ index ff63f05..f5de326 100644
  
  	/* only write even number of bytes on 16-bit devices */
  	if (edev->addrlen == 6) {
-@@ -228,6 +234,49 @@ eeprom_93xx46_bin_write(struct file *filp, struct kobject *kobj,
+@@ -272,6 +278,49 @@ eeprom_93xx46_bin_write(struct file *filp, struct kobject *kobj,
  	return ret ? : count;
  }
  
@@ -156,15 +158,15 @@ index ff63f05..f5de326 100644
  static int eeprom_93xx46_eral(struct eeprom_93xx46_dev *edev)
  {
  	struct eeprom_93xx46_platform_data *pd = edev->pdata;
-@@ -298,6 +347,7 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
+@@ -431,6 +480,7 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
  {
  	struct eeprom_93xx46_platform_data *pd;
  	struct eeprom_93xx46_dev *edev;
 +	struct regmap *regmap;
  	int err;
  
- 	pd = spi->dev.platform_data;
-@@ -325,19 +375,34 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
+ 	if (spi->dev.of_node) {
+@@ -464,19 +514,34 @@ static int eeprom_93xx46_probe(struct spi_device *spi)
  	edev->spi = spi_dev_get(spi);
  	edev->pdata = pd;
  
@@ -209,7 +211,7 @@ index ff63f05..f5de326 100644
  
  	dev_info(&spi->dev, "%d-bit eeprom %s\n",
  		(pd->flags & EE_ADDR8) ? 8 : 16,
-@@ -359,10 +424,11 @@ static int eeprom_93xx46_remove(struct spi_device *spi)
+@@ -498,10 +563,11 @@ static int eeprom_93xx46_remove(struct spi_device *spi)
  {
  	struct eeprom_93xx46_dev *edev = spi_get_drvdata(spi);
  
