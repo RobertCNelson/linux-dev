@@ -14,10 +14,10 @@ Signed-off-by: Nathaniel Lewis <linux.robotdude@gmail.com>
  create mode 100644 drivers/misc/tieqep.c
 
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 257c2af..1dde0a1 100644
+index 8fa6409..7a39eb5 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -653,6 +653,15 @@
+@@ -706,6 +706,15 @@
  				ti,hwmods = "ehrpwm0";
  				status = "disabled";
  			};
@@ -33,7 +33,7 @@ index 257c2af..1dde0a1 100644
  		};
  
  		epwmss1: epwmss@48302000 {
-@@ -683,6 +692,15 @@
+@@ -736,6 +745,15 @@
  				ti,hwmods = "ehrpwm1";
  				status = "disabled";
  			};
@@ -49,7 +49,7 @@ index 257c2af..1dde0a1 100644
  		};
  
  		epwmss2: epwmss@48304000 {
-@@ -713,6 +731,15 @@
+@@ -766,6 +784,15 @@
  				ti,hwmods = "ehrpwm2";
  				status = "disabled";
  			};
@@ -66,10 +66,10 @@ index 257c2af..1dde0a1 100644
  
  		mac: ethernet@4a100000 {
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index a5385b3..b65f22c 100644
+index 99bc62a..de389a9 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -544,6 +544,17 @@ config DEV_OVERLAYMGR
+@@ -823,6 +823,17 @@ config DEV_OVERLAYMGR
  	  Say Y here to include support for the automagical dev
  	  overlay manager.
  
@@ -88,16 +88,17 @@ index a5385b3..b65f22c 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 56b158f..44d2a52 100644
+index a9b2138..030754b 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -58,5 +58,6 @@ obj-y				+= cape/
- obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
- obj-$(CONFIG_CXL_BASE)		+= cxl/
-+obj-$(CONFIG_TIEQEP)		+= tieqep.o
+@@ -38,6 +38,7 @@ obj-$(CONFIG_TI_DAC7512)	+= ti_dac7512.o
+ obj-$(CONFIG_C2PORT)		+= c2port/
  obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
  obj-$(CONFIG_DEV_OVERLAYMGR)	+= devovmgr.o
++obj-$(CONFIG_TIEQEP)		+= tieqep.o
+ obj-$(CONFIG_HMC6352)		+= hmc6352.o
+ obj-y				+= eeprom/
+ obj-y				+= cb710/
 diff --git a/drivers/misc/tieqep.c b/drivers/misc/tieqep.c
 new file mode 100644
 index 0000000..e0ae946
@@ -849,5 +850,5 @@ index 0000000..e0ae946
 +MODULE_AUTHOR("Nathaniel R. Lewis");
 +MODULE_LICENSE("GPL");
 -- 
-2.7.0.rc3
+2.7.0
 

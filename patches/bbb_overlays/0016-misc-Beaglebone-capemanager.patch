@@ -29,12 +29,12 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  create mode 100644 drivers/misc/bone_capemgr.c
 
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 054fc10..97cfa10 100644
+index a216b46..7d156db 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -526,6 +526,16 @@ config VEXPRESS_SYSCFG
- 	  bus. System Configuration interface is one of the possible means
- 	  of generating transactions on this bus.
+@@ -804,6 +804,16 @@ config PANEL_BOOT_MESSAGE
+ 	  An empty message will only clear the display at driver init time. Any other
+ 	  printf()-formatted message is valid with newline and escape codes.
  
 +config BONE_CAPEMGR
 +	tristate "Beaglebone cape manager"
@@ -50,14 +50,17 @@ index 054fc10..97cfa10 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 537d7f3..dd885de 100644
+index b2fb6dbf..f688a7e 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -56,3 +56,4 @@ obj-$(CONFIG_GENWQE)		+= genwqe/
- obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
- obj-$(CONFIG_CXL_BASE)		+= cxl/
+@@ -36,6 +36,7 @@ obj-$(CONFIG_SENSORS_TSL2550)	+= tsl2550.o
+ obj-$(CONFIG_DS1682)		+= ds1682.o
+ obj-$(CONFIG_TI_DAC7512)	+= ti_dac7512.o
+ obj-$(CONFIG_C2PORT)		+= c2port/
 +obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
+ obj-$(CONFIG_HMC6352)		+= hmc6352.o
+ obj-y				+= eeprom/
+ obj-y				+= cb710/
 diff --git a/drivers/misc/bone_capemgr.c b/drivers/misc/bone_capemgr.c
 new file mode 100644
 index 0000000..094ea75
