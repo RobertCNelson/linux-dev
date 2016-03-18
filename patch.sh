@@ -705,18 +705,26 @@ beaglebone () {
 	echo "dir: beaglebone/rs485"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
+		cherrypick_dir="beaglebone/rs485"
+		#merged in 4.6.0-rc0
+		SHA="a07a70bcb72e4a766c8d3173986a773cef842d30" ; num="1" ; cherrypick
+		SHA="e490c9144cfaa8e2242c1e5d5187230928f27417" ; cherrypick
+		SHA="344cee2470ff70801c95c62ab2762da0834c8c6c" ; cherrypick
+		SHA="bf2a0be45ffc5ab706f9be71a2cdc3f4600cb444" ; cherrypick
+		SHA="b18a183eaac25bd8dc51eab85437c7253f5c31d1" ; cherrypick
+		exit 2
 	fi
 
-	#[PATCH v8 0/3] tty: Introduce software RS485 direction control support
-	${git} "${DIR}/patches/beaglebone/rs485/0001-tty-Move-serial8250_stop_rx-in-front-of-serial8250_s.patch"
-	${git} "${DIR}/patches/beaglebone/rs485/0002-tty-Add-software-emulated-RS485-support-for-8250.patch"
-	${git} "${DIR}/patches/beaglebone/rs485/0003-tty-8250_omap-Use-software-emulated-RS485-direction-.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=3
-		cleanup
+	#is_44="enable"
+	if [ "x${is_44}" = "xenable" ] ; then
+		#merged in 4.6.0-rc0
+		${git} "${DIR}/patches/beaglebone/rs485/0001-tty-Move-serial8250_stop_rx-in-front-of-serial8250_s.patch"
+		${git} "${DIR}/patches/beaglebone/rs485/0002-tty-Add-software-emulated-RS485-support-for-8250.patch"
+		${git} "${DIR}/patches/beaglebone/rs485/0003-tty-8250_omap-Use-software-emulated-RS485-direction-.patch"
+		${git} "${DIR}/patches/beaglebone/rs485/0004-tty-serial-8250-Cleanup-p-em485-in-serial8250_unregi.patch"
+		${git} "${DIR}/patches/beaglebone/rs485/0005-tty-serial-Use-GFP_ATOMIC-instead-of-GFP_KERNEL-in-s.patch"
 	fi
+	unset is_44
 
 	echo "dir: beaglebone/tilcdc"
 	#regenerate="enable"

@@ -1,7 +1,7 @@
-From 676644b465cf818ac986e567bbe612d639710881 Mon Sep 17 00:00:00 2001
+From e490c9144cfaa8e2242c1e5d5187230928f27417 Mon Sep 17 00:00:00 2001
 From: "Matwey V. Kornilov" <matwey@sai.msu.ru>
 Date: Mon, 1 Feb 2016 21:09:21 +0300
-Subject: [PATCH 2/3] tty: Add software emulated RS485 support for 8250
+Subject: [PATCH] tty: Add software emulated RS485 support for 8250
 
 Implementation of software emulation of RS485 direction handling is based
 on omap_serial driver.
@@ -15,6 +15,7 @@ Both serial8250_em485_init() and serial8250_em485_destroy() are
 idempotent functions.
 
 Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/tty/serial/8250/8250.h      |   2 +
  drivers/tty/serial/8250/8250_port.c | 223 +++++++++++++++++++++++++++++++++++-
@@ -35,7 +36,7 @@ index d54dcd8..ce587c0 100644
  #if defined(__alpha__) && !defined(CONFIG_PCI)
  /*
 diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index b82fcae..c908b77 100644
+index 04681e5..01a85a7 100644
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
 @@ -37,6 +37,7 @@

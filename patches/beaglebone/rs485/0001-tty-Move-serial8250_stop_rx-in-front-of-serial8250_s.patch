@@ -1,7 +1,7 @@
-From d67a78094e6a243b8b3197081ee673b56897623a Mon Sep 17 00:00:00 2001
+From a07a70bcb72e4a766c8d3173986a773cef842d30 Mon Sep 17 00:00:00 2001
 From: "Matwey V. Kornilov" <matwey@sai.msu.ru>
 Date: Mon, 1 Feb 2016 21:09:20 +0300
-Subject: [PATCH 1/3] tty: Move serial8250_stop_rx() in front of
+Subject: [PATCH] tty: Move serial8250_stop_rx() in front of
  serial8250_start_tx()
 
 Software RS485 emultaion is to be added in the following commit.
@@ -10,12 +10,13 @@ Move serial8250_stop_rx() in front of serial8250_start_tx() in order
 to avoid function forward declaration.
 
 Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/tty/serial/8250/8250_port.c | 26 +++++++++++++-------------
  1 file changed, 13 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 8d262bc..b82fcae 100644
+index 0bd3c6b..04681e5 100644
 --- a/drivers/tty/serial/8250/8250_port.c
 +++ b/drivers/tty/serial/8250/8250_port.c
 @@ -1304,6 +1304,19 @@ static void autoconfig_irq(struct uart_8250_port *up)

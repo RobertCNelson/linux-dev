@@ -1,0 +1,38 @@
+From b18a183eaac25bd8dc51eab85437c7253f5c31d1 Mon Sep 17 00:00:00 2001
+From: "Matwey V. Kornilov" <matwey@sai.msu.ru>
+Date: Fri, 19 Feb 2016 08:29:10 +0300
+Subject: [PATCH] tty: serial: Use GFP_ATOMIC instead of GFP_KERNEL in
+ serial8250_em485_init()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+serial8250_em485_init() is supposed to be protected with
+p->port.lock spinlock.
+This may lead to issues when kmalloc sleeps, so it is better to use
+GFP_ATOMIC in this spinlocked context.
+
+Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
+Reported-by: Ильяс Гасанов <torso.nafi@gmail.com>
+Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/8250/8250_port.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index e376cfa..2ffda79 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -588,7 +588,7 @@ int serial8250_em485_init(struct uart_8250_port *p)
+ 	if (p->em485 != NULL)
+ 		return 0;
+ 
+-	p->em485 = kmalloc(sizeof(struct uart_8250_em485), GFP_KERNEL);
++	p->em485 = kmalloc(sizeof(struct uart_8250_em485), GFP_ATOMIC);
+ 	if (p->em485 == NULL)
+ 		return -ENOMEM;
+ 
+-- 
+2.7.0
+

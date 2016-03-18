@@ -1,0 +1,40 @@
+From bf2a0be45ffc5ab706f9be71a2cdc3f4600cb444 Mon Sep 17 00:00:00 2001
+From: "Matwey V. Kornilov" <matwey@sai.msu.ru>
+Date: Mon, 15 Feb 2016 21:42:12 +0300
+Subject: [PATCH] tty: serial: 8250: Cleanup p->em485 in
+ serial8250_unregister_port
+
+Formally, currently there is no memory leak, but if
+serial8250_ports[line] is reused with other 8250 driver, then em485
+will be already activated and it will cause issues.
+
+Fixes: e490c9144cfa ("tty: Add software emulated RS485 support for 8250")
+Signed-off-by: Matwey V. Kornilov <matwey@sai.msu.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/8250/8250_core.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
+index 7775221..2f4f5ee 100644
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -1074,6 +1074,15 @@ void serial8250_unregister_port(int line)
+ 	struct uart_8250_port *uart = &serial8250_ports[line];
+ 
+ 	mutex_lock(&serial_mutex);
++
++	if (uart->em485) {
++		unsigned long flags;
++
++		spin_lock_irqsave(&uart->port.lock, flags);
++		serial8250_em485_destroy(uart);
++		spin_unlock_irqrestore(&uart->port.lock, flags);
++	}
++
+ 	uart_remove_one_port(&serial8250_reg, &uart->port);
+ 	if (serial8250_isa_devs) {
+ 		uart->port.flags &= ~UPF_BOOT_AUTOCONF;
+-- 
+2.7.0
+
