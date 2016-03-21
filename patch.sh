@@ -358,7 +358,7 @@ bbb_overlays () {
 		fi
 		git clone https://git.kernel.org/pub/scm/utils/dtc/dtc.git
 		cd dtc
-		git pull --no-edit https://github.com/pantoniou/dtc dt-overlays5
+		git pull --no-edit https://github.com/RobertCNelson/dtc bb.org-4.1-dt-overlays5-dtc-b06e55c88b9b
 
 		cd ../KERNEL/
 		sed -i -e 's:git commit:#git commit:g' ./scripts/dtc/update-dtc-source.sh
