@@ -373,6 +373,7 @@ bbb_overlays () {
 			start_cleanup
 		fi
 
+		#4.6.0-rc: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=91feabc2e2240ee80dc8ac08103cb83f497e4d12
 		${git} "${DIR}/patches/bbb_overlays/dtc/0001-scripts-dtc-Update-to-upstream-version-overlays.patch"
 
 		if [ "x${regenerate}" = "xenable" ] ; then
