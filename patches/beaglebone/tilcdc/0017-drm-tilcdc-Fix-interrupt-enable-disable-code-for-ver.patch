@@ -1,8 +1,8 @@
-From b4bcc210b4b90815ff8f7a2bbf03b25f1aba0fcc Mon Sep 17 00:00:00 2001
+From 947df7e3f019bba902a55485635060e5970fb9a2 Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
 Date: Wed, 9 Dec 2015 12:16:11 +0200
-Subject: [PATCH 17/22] drm/tilcdc: Fix interrupt enable/disable code for
- version 2 tilcdc
+Subject: [PATCH] drm/tilcdc: Fix interrupt enable/disable code for version 2
+ tilcdc
 
 Fix interrupt enable/disable code for version 2 tilcdc. In version 2
 tilcdc there is a separate register for disabling interrupts. Writing
@@ -21,10 +21,10 @@ Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 24f232b..3b36747 100644
+index c5d9e3a..964e192 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -383,13 +383,14 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
+@@ -376,13 +376,14 @@ static int tilcdc_irq_postinstall(struct drm_device *dev)
  	struct tilcdc_drm_private *priv = dev->dev_private;
  
  	/* enable FIFO underflow irq: */
@@ -42,7 +42,7 @@ index 24f232b..3b36747 100644
  
  	return 0;
  }
-@@ -404,7 +405,7 @@ static void tilcdc_irq_uninstall(struct drm_device *dev)
+@@ -397,7 +398,7 @@ static void tilcdc_irq_uninstall(struct drm_device *dev)
  				LCDC_V1_UNDERFLOW_INT_ENA | LCDC_V1_PL_INT_ENA);
  		tilcdc_clear(dev, LCDC_DMA_CTRL_REG, LCDC_V1_END_OF_FRAME_INT_ENA);
  	} else {
@@ -51,7 +51,7 @@ index 24f232b..3b36747 100644
  			LCDC_V2_UNDERFLOW_INT_ENA | LCDC_V2_PL_INT_ENA |
  			LCDC_V2_END_OF_FRAME0_INT_ENA |
  			LCDC_FRAME_DONE);
-@@ -449,7 +450,7 @@ static const struct {
+@@ -442,7 +443,7 @@ static const struct {
  		REG(2, false, LCDC_INT_ENABLE_CLR_REG),
  		REG(2, false, LCDC_END_OF_INT_IND_REG),
  		REG(2, true,  LCDC_CLK_ENABLE_REG),

@@ -1,8 +1,8 @@
-From 5c715b4b76696cb6756b63373ab04f7ec24bf86b Mon Sep 17 00:00:00 2001
+From d0ec32caef0baa490b419895ef61c8481d49f7cd Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
 Date: Tue, 23 Feb 2016 12:44:27 +0200
-Subject: [PATCH 22/22] drm/tilcdc: Use devm_kzalloc() and devm_kcalloc() for
- private data
+Subject: [PATCH] drm/tilcdc: Use devm_kzalloc() and devm_kcalloc() for private
+ data
 
 Use devm_kzalloc() and devm_kcalloc() for private data allocation at
 driver load time.
@@ -17,7 +17,7 @@ Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  4 files changed, 21 insertions(+), 46 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 664c7ed..28672b6 100644
+index 5f4da8c..051e5e1 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -127,8 +127,6 @@ static void tilcdc_crtc_destroy(struct drm_crtc *crtc)
@@ -29,7 +29,7 @@ index 664c7ed..28672b6 100644
  }
  
  static int tilcdc_verify_fb(struct drm_crtc *crtc, struct drm_framebuffer *fb)
-@@ -775,7 +773,7 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
+@@ -755,7 +753,7 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  	struct drm_crtc *crtc;
  	int ret;
  
@@ -39,7 +39,7 @@ index 664c7ed..28672b6 100644
  		dev_err(dev->dev, "allocation failed\n");
  		return NULL;
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 3a39328..a964135 100644
+index 41ec890..709bc90 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 @@ -143,9 +143,6 @@ static int tilcdc_unload(struct drm_device *dev)
@@ -93,7 +93,7 @@ index 3a39328..a964135 100644
  }
  
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-index 4dda6e2..cd19dc8 100644
+index 8dcf02a..ff7774c 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
 @@ -45,14 +45,6 @@ struct panel_encoder {
@@ -111,7 +111,7 @@ index 4dda6e2..cd19dc8 100644
  static void panel_encoder_dpms(struct drm_encoder *encoder, int mode)
  {
  	struct panel_encoder *panel_encoder = to_panel_encoder(encoder);
-@@ -98,7 +90,7 @@ static void panel_encoder_mode_set(struct drm_encoder *encoder,
+@@ -90,7 +82,7 @@ static void panel_encoder_mode_set(struct drm_encoder *encoder,
  }
  
  static const struct drm_encoder_funcs panel_encoder_funcs = {
@@ -120,7 +120,7 @@ index 4dda6e2..cd19dc8 100644
  };
  
  static const struct drm_encoder_helper_funcs panel_encoder_helper_funcs = {
-@@ -116,7 +108,8 @@ static struct drm_encoder *panel_encoder_create(struct drm_device *dev,
+@@ -107,7 +99,8 @@ static struct drm_encoder *panel_encoder_create(struct drm_device *dev,
  	struct drm_encoder *encoder;
  	int ret;
  
@@ -130,7 +130,7 @@ index 4dda6e2..cd19dc8 100644
  	if (!panel_encoder) {
  		dev_err(dev->dev, "allocation failed\n");
  		return NULL;
-@@ -137,7 +130,7 @@ static struct drm_encoder *panel_encoder_create(struct drm_device *dev,
+@@ -128,7 +121,7 @@ static struct drm_encoder *panel_encoder_create(struct drm_device *dev,
  	return encoder;
  
  fail:
@@ -139,7 +139,7 @@ index 4dda6e2..cd19dc8 100644
  	return NULL;
  }
  
-@@ -156,10 +149,8 @@ struct panel_connector {
+@@ -147,10 +140,8 @@ struct panel_connector {
  
  static void panel_connector_destroy(struct drm_connector *connector)
  {
@@ -150,7 +150,7 @@ index 4dda6e2..cd19dc8 100644
  }
  
  static enum drm_connector_status panel_connector_detect(
-@@ -232,7 +223,8 @@ static struct drm_connector *panel_connector_create(struct drm_device *dev,
+@@ -223,7 +214,8 @@ static struct drm_connector *panel_connector_create(struct drm_device *dev,
  	struct drm_connector *connector;
  	int ret;
  
@@ -161,7 +161,7 @@ index 4dda6e2..cd19dc8 100644
  		dev_err(dev->dev, "allocation failed\n");
  		return NULL;
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
-index 5052a8a..f83579f 100644
+index 1c23017..7716f42 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_tfp410.c
 @@ -54,14 +54,6 @@ struct tfp410_encoder {
@@ -179,7 +179,7 @@ index 5052a8a..f83579f 100644
  static void tfp410_encoder_dpms(struct drm_encoder *encoder, int mode)
  {
  	struct tfp410_encoder *tfp410_encoder = to_tfp410_encoder(encoder);
-@@ -107,7 +99,7 @@ static void tfp410_encoder_mode_set(struct drm_encoder *encoder,
+@@ -99,7 +91,7 @@ static void tfp410_encoder_mode_set(struct drm_encoder *encoder,
  }
  
  static const struct drm_encoder_funcs tfp410_encoder_funcs = {
@@ -188,7 +188,7 @@ index 5052a8a..f83579f 100644
  };
  
  static const struct drm_encoder_helper_funcs tfp410_encoder_helper_funcs = {
-@@ -125,7 +117,8 @@ static struct drm_encoder *tfp410_encoder_create(struct drm_device *dev,
+@@ -116,7 +108,8 @@ static struct drm_encoder *tfp410_encoder_create(struct drm_device *dev,
  	struct drm_encoder *encoder;
  	int ret;
  
@@ -198,7 +198,7 @@ index 5052a8a..f83579f 100644
  	if (!tfp410_encoder) {
  		dev_err(dev->dev, "allocation failed\n");
  		return NULL;
-@@ -147,7 +140,7 @@ static struct drm_encoder *tfp410_encoder_create(struct drm_device *dev,
+@@ -138,7 +131,7 @@ static struct drm_encoder *tfp410_encoder_create(struct drm_device *dev,
  	return encoder;
  
  fail:
@@ -207,7 +207,7 @@ index 5052a8a..f83579f 100644
  	return NULL;
  }
  
-@@ -166,10 +159,8 @@ struct tfp410_connector {
+@@ -157,10 +150,8 @@ struct tfp410_connector {
  
  static void tfp410_connector_destroy(struct drm_connector *connector)
  {
@@ -218,7 +218,7 @@ index 5052a8a..f83579f 100644
  }
  
  static enum drm_connector_status tfp410_connector_detect(
-@@ -237,7 +228,8 @@ static struct drm_connector *tfp410_connector_create(struct drm_device *dev,
+@@ -228,7 +219,8 @@ static struct drm_connector *tfp410_connector_create(struct drm_device *dev,
  	struct drm_connector *connector;
  	int ret;
  
@@ -228,7 +228,7 @@ index 5052a8a..f83579f 100644
  	if (!tfp410_connector) {
  		dev_err(dev->dev, "allocation failed\n");
  		return NULL;
-@@ -322,7 +314,7 @@ static int tfp410_probe(struct platform_device *pdev)
+@@ -313,7 +305,7 @@ static int tfp410_probe(struct platform_device *pdev)
  		return -ENXIO;
  	}
  
@@ -237,7 +237,7 @@ index 5052a8a..f83579f 100644
  	if (!tfp410_mod)
  		return -ENOMEM;
  
-@@ -375,7 +367,6 @@ fail_adapter:
+@@ -366,7 +358,6 @@ fail_adapter:
  	i2c_put_adapter(tfp410_mod->i2c);
  
  fail:
@@ -245,7 +245,7 @@ index 5052a8a..f83579f 100644
  	tilcdc_module_cleanup(mod);
  	return ret;
  }
-@@ -389,7 +380,6 @@ static int tfp410_remove(struct platform_device *pdev)
+@@ -380,7 +371,6 @@ static int tfp410_remove(struct platform_device *pdev)
  	gpio_free(tfp410_mod->gpio);
  
  	tilcdc_module_cleanup(mod);

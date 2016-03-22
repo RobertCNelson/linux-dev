@@ -1,8 +1,8 @@
-From 4be25355d98c05dd0880bff3c30a71e66d606510 Mon Sep 17 00:00:00 2001
+From 2b3a8cd71c2b830164df5de07e4ddebe0faa58f5 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Tue, 3 Nov 2015 12:00:51 +0200
-Subject: [PATCH 16/22] drm/tilcdc: Do not update the next frame buffer close
- to vertical blank
+Subject: [PATCH] drm/tilcdc: Do not update the next frame buffer close to
+ vertical blank
 
 Do not update the next frame buffer close to vertical blank. This is
 to avoid situation when the frame changes between writing of
@@ -16,7 +16,7 @@ Signed-off-by: Jyri Sarha <jsarha@ti.com>
  1 file changed, 53 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 245b6fe..64a2272 100644
+index 3257228..b1df046 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -21,6 +21,8 @@
@@ -55,11 +55,11 @@ index 245b6fe..64a2272 100644
  	pm_runtime_get_sync(dev->dev);
  
 +	spin_lock_irqsave(&tilcdc_crtc->irq_lock, flags);
- 
--	set_scanout(crtc, fb);
++
 +	next_vblank = ktime_add_us(tilcdc_crtc->last_vblank,
 +		1000000 / crtc->hwmode.vrefresh);
-+
+ 
+-	set_scanout(crtc, fb);
 +	tdiff = ktime_to_us(ktime_sub(next_vblank, ktime_get()));
 +
 +	if (tdiff >= TILCDC_VBLANK_SAFETY_THRESHOLD_US)
@@ -116,11 +116,11 @@ index 245b6fe..64a2272 100644
 -		spin_lock_irqsave(&dev->event_lock, flags);
 +		if (!skip_event) {
 +			struct drm_pending_vblank_event *event;
-+
-+			spin_lock_irqsave(&dev->event_lock, flags);
  
 -		if (tilcdc_crtc->event) {
 -			drm_send_vblank_event(dev, 0, tilcdc_crtc->event);
++			spin_lock_irqsave(&dev->event_lock, flags);
++
 +			event = tilcdc_crtc->event;
  			tilcdc_crtc->event = NULL;
 -		}
@@ -133,7 +133,7 @@ index 245b6fe..64a2272 100644
  	}
  
  	if (priv->rev == 2) {
-@@ -717,6 +760,8 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
+@@ -697,6 +740,8 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  	drm_flip_work_init(&tilcdc_crtc->unref_work,
  			"unref", unref_worker);
  

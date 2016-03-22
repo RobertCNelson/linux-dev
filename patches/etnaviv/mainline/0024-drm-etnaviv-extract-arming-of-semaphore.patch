@@ -1,0 +1,52 @@
+From 18060f4d87665e974950cb36133bbbf5e1b350f3 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Thu, 21 Jan 2016 15:20:14 +0000
+Subject: [PATCH] drm: etnaviv: extract arming of semaphore
+
+Extract out the arming of a semaphore from the pipe select code.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+---
+ drivers/gpu/drm/etnaviv/etnaviv_buffer.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
+index 975c11b..cfd08ef 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
+@@ -85,10 +85,16 @@ static inline void CMD_STALL(struct etnaviv_cmdbuf *buffer,
+ 	OUT(buffer, VIV_FE_STALL_TOKEN_FROM(from) | VIV_FE_STALL_TOKEN_TO(to));
+ }
+ 
++static inline void CMD_SEM(struct etnaviv_cmdbuf *buffer, u32 from, u32 to)
++{
++	CMD_LOAD_STATE(buffer, VIVS_GL_SEMAPHORE_TOKEN,
++		       VIVS_GL_SEMAPHORE_TOKEN_FROM(from) |
++		       VIVS_GL_SEMAPHORE_TOKEN_TO(to));
++}
++
+ static void etnaviv_cmd_select_pipe(struct etnaviv_cmdbuf *buffer, u8 pipe)
+ {
+ 	u32 flush;
+-	u32 stall;
+ 
+ 	/*
+ 	 * This assumes that if we're switching to 2D, we're switching
+@@ -101,12 +107,8 @@ static void etnaviv_cmd_select_pipe(struct etnaviv_cmdbuf *buffer, u8 pipe)
+ 	else
+ 		flush = VIVS_GL_FLUSH_CACHE_PE2D;
+ 
+-	stall = VIVS_GL_SEMAPHORE_TOKEN_FROM(SYNC_RECIPIENT_FE) |
+-		VIVS_GL_SEMAPHORE_TOKEN_TO(SYNC_RECIPIENT_PE);
+-
+ 	CMD_LOAD_STATE(buffer, VIVS_GL_FLUSH_CACHE, flush);
+-	CMD_LOAD_STATE(buffer, VIVS_GL_SEMAPHORE_TOKEN, stall);
+-
++	CMD_SEM(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
+ 	CMD_STALL(buffer, SYNC_RECIPIENT_FE, SYNC_RECIPIENT_PE);
+ 
+ 	CMD_LOAD_STATE(buffer, VIVS_GL_PIPE_SELECT,
+-- 
+2.7.0
+

@@ -1,0 +1,254 @@
+From b6325f409959c7e1065ef1537f2e54cf4d7ab465 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Thu, 21 Jan 2016 15:20:50 +0000
+Subject: [PATCH] drm: etnaviv: clean up vram_mapping submission/retire path
+
+Currently, we scan the list of mappings each time we want to operate on
+the vram_mapping struct.  Rather than repeatedly scanning these, look
+them up once in the submission path, and then use _reference and
+_unreference methods as necessary to manage this object.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+---
+ drivers/gpu/drm/etnaviv/etnaviv_drv.h        |  3 --
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c        | 54 ++++++++++++++++------------
+ drivers/gpu/drm/etnaviv/etnaviv_gem.h        |  6 ++++
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c | 18 +++++-----
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c        | 14 ++++----
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.h        |  3 +-
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c        |  2 +-
+ 7 files changed, 57 insertions(+), 43 deletions(-)
+
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.h b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
+index 1cd6046..115c5bc 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_drv.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
+@@ -75,9 +75,6 @@ int etnaviv_ioctl_gem_submit(struct drm_device *dev, void *data,
+ int etnaviv_gem_mmap(struct file *filp, struct vm_area_struct *vma);
+ int etnaviv_gem_fault(struct vm_area_struct *vma, struct vm_fault *vmf);
+ int etnaviv_gem_mmap_offset(struct drm_gem_object *obj, u64 *offset);
+-int etnaviv_gem_get_iova(struct etnaviv_gpu *gpu,
+-	struct drm_gem_object *obj, u32 *iova);
+-void etnaviv_gem_put_iova(struct etnaviv_gpu *gpu, struct drm_gem_object *obj);
+ struct sg_table *etnaviv_gem_prime_get_sg_table(struct drm_gem_object *obj);
+ void *etnaviv_gem_prime_vmap(struct drm_gem_object *obj);
+ void etnaviv_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem.c b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+index 4b519e4..937a775 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+@@ -260,8 +260,32 @@ etnaviv_gem_get_vram_mapping(struct etnaviv_gem_object *obj,
+ 	return NULL;
+ }
+ 
+-int etnaviv_gem_get_iova(struct etnaviv_gpu *gpu,
+-	struct drm_gem_object *obj, u32 *iova)
++void etnaviv_gem_mapping_reference(struct etnaviv_vram_mapping *mapping)
++{
++	struct etnaviv_gem_object *etnaviv_obj = mapping->object;
++
++	drm_gem_object_reference(&etnaviv_obj->base);
++
++	mutex_lock(&etnaviv_obj->lock);
++	WARN_ON(mapping->use == 0);
++	mapping->use += 1;
++	mutex_unlock(&etnaviv_obj->lock);
++}
++
++void etnaviv_gem_mapping_unreference(struct etnaviv_vram_mapping *mapping)
++{
++	struct etnaviv_gem_object *etnaviv_obj = mapping->object;
++
++	mutex_lock(&etnaviv_obj->lock);
++	WARN_ON(mapping->use == 0);
++	mapping->use -= 1;
++	mutex_unlock(&etnaviv_obj->lock);
++
++	drm_gem_object_unreference_unlocked(&etnaviv_obj->base);
++}
++
++struct etnaviv_vram_mapping *etnaviv_gem_mapping_get(
++	struct drm_gem_object *obj, struct etnaviv_gpu *gpu)
+ {
+ 	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+ 	struct etnaviv_vram_mapping *mapping;
+@@ -329,28 +353,12 @@ int etnaviv_gem_get_iova(struct etnaviv_gpu *gpu,
+ out:
+ 	mutex_unlock(&etnaviv_obj->lock);
+ 
+-	if (!ret) {
+-		/* Take a reference on the object */
+-		drm_gem_object_reference(obj);
+-		*iova = mapping->iova;
+-	}
+-
+-	return ret;
+-}
+-
+-void etnaviv_gem_put_iova(struct etnaviv_gpu *gpu, struct drm_gem_object *obj)
+-{
+-	struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+-	struct etnaviv_vram_mapping *mapping;
+-
+-	mutex_lock(&etnaviv_obj->lock);
+-	mapping = etnaviv_gem_get_vram_mapping(etnaviv_obj, gpu->mmu);
+-
+-	WARN_ON(mapping->use == 0);
+-	mapping->use -= 1;
+-	mutex_unlock(&etnaviv_obj->lock);
++	if (ret)
++		return ERR_PTR(ret);
+ 
+-	drm_gem_object_unreference_unlocked(obj);
++	/* Take a reference on the object */
++	drm_gem_object_reference(obj);
++	return mapping;
+ }
+ 
+ void *etnaviv_gem_vmap(struct drm_gem_object *obj)
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem.h b/drivers/gpu/drm/etnaviv/etnaviv_gem.h
+index ab5df81..22f350b 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.h
+@@ -102,6 +102,7 @@ struct etnaviv_gem_submit {
+ 	struct {
+ 		u32 flags;
+ 		struct etnaviv_gem_object *obj;
++		struct etnaviv_vram_mapping *mapping;
+ 		u32 iova;
+ 	} bos[0];
+ };
+@@ -115,4 +116,9 @@ int etnaviv_gem_obj_add(struct drm_device *dev, struct drm_gem_object *obj);
+ struct page **etnaviv_gem_get_pages(struct etnaviv_gem_object *obj);
+ void etnaviv_gem_put_pages(struct etnaviv_gem_object *obj);
+ 
++struct etnaviv_vram_mapping *etnaviv_gem_mapping_get(
++	struct drm_gem_object *obj, struct etnaviv_gpu *gpu);
++void etnaviv_gem_mapping_reference(struct etnaviv_vram_mapping *mapping);
++void etnaviv_gem_mapping_unreference(struct etnaviv_vram_mapping *mapping);
++
+ #endif /* __ETNAVIV_GEM_H__ */
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+index 1aba01a..a5c7f79 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -187,12 +187,11 @@ static void submit_unpin_objects(struct etnaviv_gem_submit *submit)
+ 	int i;
+ 
+ 	for (i = 0; i < submit->nr_bos; i++) {
+-		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
+-
+ 		if (submit->bos[i].flags & BO_PINNED)
+-			etnaviv_gem_put_iova(submit->gpu, &etnaviv_obj->base);
++			etnaviv_gem_mapping_unreference(submit->bos[i].mapping);
+ 
+ 		submit->bos[i].iova = 0;
++		submit->bos[i].mapping = NULL;
+ 		submit->bos[i].flags &= ~BO_PINNED;
+ 	}
+ }
+@@ -203,15 +202,18 @@ static int submit_pin_objects(struct etnaviv_gem_submit *submit)
+ 
+ 	for (i = 0; i < submit->nr_bos; i++) {
+ 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
+-		u32 iova;
++		struct etnaviv_vram_mapping *mapping;
+ 
+-		ret = etnaviv_gem_get_iova(submit->gpu, &etnaviv_obj->base,
+-					   &iova);
+-		if (ret)
++		mapping = etnaviv_gem_mapping_get(&etnaviv_obj->base,
++						  submit->gpu);
++		if (IS_ERR(mapping)) {
++			ret = PTR_ERR(mapping);
+ 			break;
++		}
+ 
+ 		submit->bos[i].flags |= BO_PINNED;
+-		submit->bos[i].iova = iova;
++		submit->bos[i].mapping = mapping;
++		submit->bos[i].iova = mapping->iova;
+ 	}
+ 
+ 	return ret;
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+index 2adee13..d13303c 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -1103,7 +1103,7 @@ struct etnaviv_cmdbuf *etnaviv_gpu_cmdbuf_new(struct etnaviv_gpu *gpu, u32 size,
+ 	size_t nr_bos)
+ {
+ 	struct etnaviv_cmdbuf *cmdbuf;
+-	size_t sz = size_vstruct(nr_bos, sizeof(cmdbuf->bo[0]),
++	size_t sz = size_vstruct(nr_bos, sizeof(cmdbuf->bo_map[0]),
+ 				 sizeof(*cmdbuf));
+ 
+ 	cmdbuf = kzalloc(sz, GFP_KERNEL);
+@@ -1147,11 +1147,12 @@ static void retire_worker(struct work_struct *work)
+ 		fence_put(cmdbuf->fence);
+ 
+ 		for (i = 0; i < cmdbuf->nr_bos; i++) {
+-			struct etnaviv_gem_object *etnaviv_obj = cmdbuf->bo[i];
++			struct etnaviv_vram_mapping *mapping = cmdbuf->bo_map[i];
++			struct etnaviv_gem_object *etnaviv_obj = mapping->object;
+ 
+ 			atomic_dec(&etnaviv_obj->gpu_active);
+ 			/* drop the refcount taken in etnaviv_gpu_submit */
+-			etnaviv_gem_put_iova(gpu, &etnaviv_obj->base);
++			etnaviv_gem_mapping_unreference(mapping);
+ 		}
+ 
+ 		etnaviv_gpu_cmdbuf_free(cmdbuf);
+@@ -1309,11 +1310,10 @@ int etnaviv_gpu_submit(struct etnaviv_gpu *gpu,
+ 
+ 	for (i = 0; i < submit->nr_bos; i++) {
+ 		struct etnaviv_gem_object *etnaviv_obj = submit->bos[i].obj;
+-		u32 iova;
+ 
+-		/* Each cmdbuf takes a refcount on the iova */
+-		etnaviv_gem_get_iova(gpu, &etnaviv_obj->base, &iova);
+-		cmdbuf->bo[i] = etnaviv_obj;
++		/* Each cmdbuf takes a refcount on the mapping */
++		etnaviv_gem_mapping_reference(submit->bos[i].mapping);
++		cmdbuf->bo_map[i] = submit->bos[i].mapping;
+ 		atomic_inc(&etnaviv_obj->gpu_active);
+ 
+ 		if (submit->bos[i].flags & ETNA_SUBMIT_BO_WRITE)
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
+index 0523f73..f5321e2 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
+@@ -23,6 +23,7 @@
+ #include "etnaviv_drv.h"
+ 
+ struct etnaviv_gem_submit;
++struct etnaviv_vram_mapping;
+ 
+ struct etnaviv_chip_identity {
+ 	/* Chip model. */
+@@ -167,7 +168,7 @@ struct etnaviv_cmdbuf {
+ 	struct list_head node;
+ 	/* BOs attached to this command buffer */
+ 	unsigned int nr_bos;
+-	struct etnaviv_gem_object *bo[0];
++	struct etnaviv_vram_mapping *bo_map[0];
+ };
+ 
+ static inline void gpu_write(struct etnaviv_gpu *gpu, u32 reg, u32 data)
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+index 6743bc6..29a723f 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+@@ -193,7 +193,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu *mmu,
+ 
+ 		/*
+ 		 * Unmap the blocks which need to be reaped from the MMU.
+-		 * Clear the mmu pointer to prevent the get_iova finding
++		 * Clear the mmu pointer to prevent the mapping_get finding
+ 		 * this mapping.
+ 		 */
+ 		list_for_each_entry_safe(m, n, &list, scan_node) {
+-- 
+2.7.0
+

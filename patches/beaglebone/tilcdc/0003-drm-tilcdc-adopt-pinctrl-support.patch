@@ -1,7 +1,7 @@
-From f38ba16f0dd8f8d441720f818d70735acff68235 Mon Sep 17 00:00:00 2001
+From 416a07fbe7b1f1a6f7e0595b43b5a85a1c877e05 Mon Sep 17 00:00:00 2001
 From: Dave Gerlach <d-gerlach@ti.com>
 Date: Tue, 29 Jul 2014 06:27:58 +0000
-Subject: [PATCH 03/22] drm/tilcdc: adopt pinctrl support
+Subject: [PATCH] drm/tilcdc: adopt pinctrl support
 
 Update tilcdc driver to set the state of the pins to:
 - "default on resume
@@ -22,7 +22,7 @@ Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 4d75ee3..64f1de2 100644
+index b3dbbe9..420a237 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 @@ -18,6 +18,8 @@
@@ -34,7 +34,7 @@ index 4d75ee3..64f1de2 100644
  
  #include "tilcdc_drv.h"
  #include "tilcdc_regs.h"
-@@ -593,6 +595,9 @@ static int tilcdc_pm_suspend(struct device *dev)
+@@ -585,6 +587,9 @@ static int tilcdc_pm_suspend(struct device *dev)
  		if (registers[i].save && (priv->rev >= registers[i].rev))
  			priv->saved_register[n++] = tilcdc_read(ddev, registers[i].reg);
  
@@ -44,7 +44,7 @@ index 4d75ee3..64f1de2 100644
  	return 0;
  }
  
-@@ -602,6 +607,9 @@ static int tilcdc_pm_resume(struct device *dev)
+@@ -594,6 +599,9 @@ static int tilcdc_pm_resume(struct device *dev)
  	struct tilcdc_drm_private *priv = ddev->dev_private;
  	unsigned i, n = 0;
  

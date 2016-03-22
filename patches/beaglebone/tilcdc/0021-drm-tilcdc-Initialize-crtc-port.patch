@@ -1,7 +1,7 @@
-From 194809d42b33a6dae0667a65e8ea1591fb7321c5 Mon Sep 17 00:00:00 2001
+From d66284fba15014daacef64cfc610a249553534c6 Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
 Date: Wed, 27 May 2015 11:58:37 +0300
-Subject: [PATCH 21/22] drm/tilcdc: Initialize crtc->port
+Subject: [PATCH] drm/tilcdc: Initialize crtc->port
 
 Initialize port device node pointer in the tilcdc crtc. Fixes "Falling
 back to first CRTC" warning from tda998x driver.
@@ -17,7 +17,7 @@ Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  1 file changed, 20 insertions(+)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 81530d5..664c7ed 100644
+index 248e3ea..5f4da8c 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -124,6 +124,7 @@ static void tilcdc_crtc_destroy(struct drm_crtc *crtc)
@@ -28,7 +28,7 @@ index 81530d5..664c7ed 100644
  	drm_crtc_cleanup(crtc);
  	drm_flip_work_cleanup(&tilcdc_crtc->unref_work);
  
-@@ -769,6 +770,7 @@ void tilcdc_crtc_cancel_page_flip(struct drm_crtc *crtc, struct drm_file *file)
+@@ -749,6 +750,7 @@ irqreturn_t tilcdc_crtc_irq(struct drm_crtc *crtc)
  
  struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  {
@@ -36,7 +36,7 @@ index 81530d5..664c7ed 100644
  	struct tilcdc_crtc *tilcdc_crtc;
  	struct drm_crtc *crtc;
  	int ret;
-@@ -795,6 +797,24 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
+@@ -775,6 +777,24 @@ struct drm_crtc *tilcdc_crtc_create(struct drm_device *dev)
  
  	drm_crtc_helper_add(crtc, &tilcdc_crtc_helper_funcs);
  

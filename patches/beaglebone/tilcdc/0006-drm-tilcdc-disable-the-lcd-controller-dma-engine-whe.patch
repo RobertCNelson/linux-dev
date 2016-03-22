@@ -1,7 +1,7 @@
-From ece9f85a6516c37a27e709bd4f940490fea4801b Mon Sep 17 00:00:00 2001
+From 614b3cfeb8d22e2b0f49bcfeaf5b52900242a944 Mon Sep 17 00:00:00 2001
 From: Darren Etheridge <detheridge@ti.com>
 Date: Thu, 25 Sep 2014 00:59:32 +0000
-Subject: [PATCH 06/22] drm/tilcdc: disable the lcd controller/dma engine when
+Subject: [PATCH] drm/tilcdc: disable the lcd controller/dma engine when
  suspend invoked
 
 The LCD controller must be deactivated and all DMA transactions stopped
@@ -22,7 +22,7 @@ Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  3 files changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 105f286..cc45818 100644
+index 6485e1c..465fd04 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -138,7 +138,6 @@ static void stop(struct drm_crtc *crtc)
@@ -43,10 +43,10 @@ index 105f286..cc45818 100644
  	struct tilcdc_crtc *tilcdc_crtc = to_tilcdc_crtc(crtc);
  	struct drm_device *dev = crtc->dev;
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index 41720ad..d2533e26 100644
+index 7c39362..30d8ac6 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-@@ -600,6 +600,9 @@ static int tilcdc_pm_suspend(struct device *dev)
+@@ -592,6 +592,9 @@ static int tilcdc_pm_suspend(struct device *dev)
  		return 0;
  	}
  
@@ -57,10 +57,10 @@ index 41720ad..d2533e26 100644
  	for (i = 0; i < ARRAY_SIZE(registers); i++)
  		if (registers[i].save && (priv->rev >= registers[i].rev))
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.h b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
-index 7d214cc..77c600d 100644
+index 55d17b3..95324f1 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.h
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
-@@ -172,5 +172,6 @@ void tilcdc_crtc_set_simulate_vesa_sync(struct drm_crtc *crtc,
+@@ -171,5 +171,6 @@ void tilcdc_crtc_set_simulate_vesa_sync(struct drm_crtc *crtc,
  					bool simulate_vesa_sync);
  int tilcdc_crtc_mode_valid(struct drm_crtc *crtc, struct drm_display_mode *mode);
  int tilcdc_crtc_max_width(struct drm_crtc *crtc);

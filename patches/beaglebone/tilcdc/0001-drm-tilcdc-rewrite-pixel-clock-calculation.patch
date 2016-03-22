@@ -1,7 +1,7 @@
-From e834926974854806b60c536b7d2c6e4f2e6c7628 Mon Sep 17 00:00:00 2001
+From 3d19306a8240a163f6b02bb46213c277d6d44e08 Mon Sep 17 00:00:00 2001
 From: Darren Etheridge <detheridge@ti.com>
 Date: Wed, 15 Jan 2014 15:52:36 -0600
-Subject: [PATCH 01/22] drm/tilcdc: rewrite pixel clock calculation
+Subject: [PATCH] drm/tilcdc: rewrite pixel clock calculation
 
 Updating the tilcdc DRM driver code to calculate the LCD controller
 pixel clock more accurately. Based on a suggested implementation by
@@ -28,7 +28,7 @@ Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  3 files changed, 9 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 7d07733..7b687ae 100644
+index 4802da8..aaf8989 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -573,7 +573,8 @@ void tilcdc_crtc_update_clk(struct drm_crtc *crtc)
@@ -71,7 +71,7 @@ index 7d07733..7b687ae 100644
  
  	if (priv->rev == 2)
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index d7f5b89..4d75ee3 100644
+index 8190ac3..b3dbbe9 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 @@ -192,13 +192,6 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)
@@ -107,7 +107,7 @@ index d7f5b89..4d75ee3 100644
  
  fail_put_clk:
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.h b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
-index e863ad0..c00f518 100644
+index 66105d8..62a1d68 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.h
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.h
 @@ -49,7 +49,6 @@

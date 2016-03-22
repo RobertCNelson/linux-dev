@@ -1,7 +1,7 @@
-From 8e9b761a69cbcb5e9aa767dc077b0e4b5e879f7e Mon Sep 17 00:00:00 2001
+From 65734a262350a746100dcfd85a81f7dc1b69dd10 Mon Sep 17 00:00:00 2001
 From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Date: Mon, 19 Oct 2015 12:30:03 +0300
-Subject: [PATCH 10/22] drm/tilcdc: cleanup runtime PM handling
+Subject: [PATCH] drm/tilcdc: cleanup runtime PM handling
 
 Cleanup runtime PM handling. Before the patch the usage of pm_runtime
 calls was inconsistent and hard to follow. After the update the
@@ -19,7 +19,7 @@ Signed-off-by: Jyri Sarha <jsarha@ti.com>
  2 files changed, 11 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index cc45818..3a6f11e 100644
+index 465fd04..08b1e03 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -71,7 +71,6 @@ static void set_scanout(struct drm_crtc *crtc, int n)
@@ -95,7 +95,7 @@ index cc45818..3a6f11e 100644
  }
  
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
-index ab1789b..ecbf0fd 100644
+index 47096b1..47f0e02 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
 @@ -230,7 +230,6 @@ static int tilcdc_load(struct drm_device *dev, unsigned long flags)

@@ -1,8 +1,8 @@
-From d54f1e4e8bd48ef0246b1f65691214e5acd60f1e Mon Sep 17 00:00:00 2001
+From 5895d08f6ff2175dabc373dada7d1bfa26123fc9 Mon Sep 17 00:00:00 2001
 From: Jyri Sarha <jsarha@ti.com>
 Date: Fri, 8 Jan 2016 14:33:09 +0200
-Subject: [PATCH 20/22] drm/tilcdc: Disable sync lost interrupt if it fires on
- every frame
+Subject: [PATCH] drm/tilcdc: Disable sync lost interrupt if it fires on every
+ frame
 
 Disable the sync lost interrupt if it fires on every frame for 50
 consecutive frames in a row. This is relatively sure sign of the sync
@@ -16,7 +16,7 @@ Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
  1 file changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 979a527..81530d5 100644
+index 5ee22c6..248e3ea 100644
 --- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 +++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
 @@ -43,6 +43,9 @@ struct tilcdc_crtc {

@@ -727,39 +727,110 @@ beaglebone () {
 	fi
 	unset is_44
 
-	echo "dir: beaglebone/tilcdc"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
+		cherrypick_dir="beaglebone/tilcdc"
+		#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/log/?qt=grep&q=tilcdc
+
+		#merged in 4.5.0-rc0
+
+		#drm/tilcdc: rewrite pixel clock calculation
+		SHA="3d19306a8240a163f6b02bb46213c277d6d44e08" ; num="1" ; cherrypick
+
+		#drm/tilcdc: verify fb pitch
+		SHA="6f206e9d2a965771e99bca4c22dbadac1b58a0e8" ; cherrypick
+
+		#drm/tilcdc: adopt pinctrl support
+		SHA="416a07fbe7b1f1a6f7e0595b43b5a85a1c877e05" ; cherrypick
+
+		#drm/tilcdc: fix kernel panic on suspend when no hdmi monitor connected
+		SHA="85fd27f80b3641c9af9f04cde1b712c8c20916d8" ; cherrypick
+
+		#drm/tilcdc: make frame_done interrupt active at all times
+		SHA="b62222fcaab994177f121d58acdab269f0f54897" ; cherrypick
+
+		#drm/tilcdc: disable the lcd controller/dma engine when suspend invoked
+		SHA="614b3cfeb8d22e2b0f49bcfeaf5b52900242a944" ; cherrypick
+
+		#drm/tilcdc: Implement dma-buf support for tilcdc
+		SHA="9c15390506d6888978fa98094f7578142d2e2f01" ; cherrypick
+
+		#drm/tilcdc: fix build error when !CONFIG_CPU_FREQ
+		SHA="7974dff4957f953f0f6fd71c30e02a7c25aea7f0" ; cherrypick
+
+		#drm/tilcdc: Allocate register storage based on the actual number registers
+		SHA="29ddd6e171abae990a881b9e221359f13c546369" ; cherrypick
+
+		#drm/tilcdc: cleanup runtime PM handling
+		SHA="65734a262350a746100dcfd85a81f7dc1b69dd10" ; cherrypick
+
+		#drm/tilcdc: disable crtc on unload
+		SHA="1aea1e79dbfd65a99da11868829c3e147b85cc32" ; cherrypick
+
+		#drm/tilcdc: split reset to a separate function
+		SHA="2efec4f3064d084bac1b2c1e1513a7452e8e245d" ; cherrypick
+
+		#drm/tilcdc: remove broken error handling
+		SHA="31ec5a2c7eed3a3e182a592591f4fb04304668a1" ; cherrypick
+
+		#drm/tilcdc: cleanup irq handling
+		SHA="317aae738b6402cd66fb9b52434b783f17ff5dd4" ; cherrypick
+
+		#drm/tilcdc: Get rid of complex ping-pong mechanism
+		SHA="2b2080d7e9ae2463b15a003629d2ea7d733759a0" ; cherrypick
+
+		#drm/tilcdc: Do not update the next frame buffer close to vertical blank
+		SHA="2b3a8cd71c2b830164df5de07e4ddebe0faa58f5" ; cherrypick
+
+		#drm/tilcdc: Fix interrupt enable/disable code for version 2 tilcdc
+		SHA="947df7e3f019bba902a55485635060e5970fb9a2" ; cherrypick
+
+		#drm/tilcdc: Remove the duplicate LCDC_INT_ENABLE_SET_REG in registers[]
+		SHA="f3a99946a95b3482eabec63b9f662963d7d2e3c8" ; cherrypick
+
+		#drm/tilcdc: Add prints on sync lost and FIFO underrun interrupts
+		SHA="c0c2baaab1b553df92a24e9175440f15e6ad3e2c" ; cherrypick
+
+		#drm/tilcdc: Disable sync lost interrupt if it fires on every frame
+		SHA="5895d08f6ff2175dabc373dada7d1bfa26123fc9" ; cherrypick
+
+		#drm/tilcdc: Initialize crtc->port
+		SHA="d66284fba15014daacef64cfc610a249553534c6" ; cherrypick
+
+		#drm/tilcdc: Use devm_kzalloc() and devm_kcalloc() for private data
+		SHA="d0ec32caef0baa490b419895ef61c8481d49f7cd" ; cherrypick
+
+		exit 2
 	fi
 
-	${git} "${DIR}/patches/beaglebone/tilcdc/0001-drm-tilcdc-rewrite-pixel-clock-calculation.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0002-drm-tilcdc-verify-fb-pitch.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0003-drm-tilcdc-adopt-pinctrl-support.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0004-drm-tilcdc-fix-kernel-panic-on-suspend-when-no-hdmi-.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0005-drm-tilcdc-make-frame_done-interrupt-active-at-all-t.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0006-drm-tilcdc-disable-the-lcd-controller-dma-engine-whe.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0007-drm-tilcdc-Implement-dma-buf-support-for-tilcdc.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0008-drm-tilcdc-fix-build-error-when-CONFIG_CPU_FREQ.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0009-drm-tilcdc-Allocate-register-storage-based-on-the-ac.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0010-drm-tilcdc-cleanup-runtime-PM-handling.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0011-drm-tilcdc-disable-crtc-on-unload.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0012-drm-tilcdc-split-reset-to-a-separate-function.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0013-drm-tilcdc-remove-broken-error-handling.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0014-drm-tilcdc-cleanup-irq-handling.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0015-drm-tilcdc-Get-rid-of-complex-ping-pong-mechanism.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0016-drm-tilcdc-Do-not-update-the-next-frame-buffer-close.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0017-drm-tilcdc-Fix-interrupt-enable-disable-code-for-ver.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0018-drm-tilcdc-Remove-the-duplicate-LCDC_INT_ENABLE_SET_.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0019-drm-tilcdc-Add-prints-on-sync-lost-and-FIFO-underrun.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0020-drm-tilcdc-Disable-sync-lost-interrupt-if-it-fires-o.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0021-drm-tilcdc-Initialize-crtc-port.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0022-drm-tilcdc-Use-devm_kzalloc-and-devm_kcalloc-for-pri.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=22
-		cleanup
+	#is_45="enable"
+	if [ "x${is_45}" = "xenable" ] ; then
+		echo "dir: beaglebone/tilcdc"
+		#merged in 4.6.0-rc0
+		${git} "${DIR}/patches/beaglebone/tilcdc/0001-drm-tilcdc-rewrite-pixel-clock-calculation.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0002-drm-tilcdc-verify-fb-pitch.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0003-drm-tilcdc-adopt-pinctrl-support.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0004-drm-tilcdc-fix-kernel-panic-on-suspend-when-no-hdmi-.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0005-drm-tilcdc-make-frame_done-interrupt-active-at-all-t.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0006-drm-tilcdc-disable-the-lcd-controller-dma-engine-whe.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0007-drm-tilcdc-Implement-dma-buf-support-for-tilcdc.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0008-drm-tilcdc-fix-build-error-when-CONFIG_CPU_FREQ.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0009-drm-tilcdc-Allocate-register-storage-based-on-the-ac.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0010-drm-tilcdc-cleanup-runtime-PM-handling.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0011-drm-tilcdc-disable-crtc-on-unload.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0012-drm-tilcdc-split-reset-to-a-separate-function.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0013-drm-tilcdc-remove-broken-error-handling.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0014-drm-tilcdc-cleanup-irq-handling.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0015-drm-tilcdc-Get-rid-of-complex-ping-pong-mechanism.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0016-drm-tilcdc-Do-not-update-the-next-frame-buffer-close.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0017-drm-tilcdc-Fix-interrupt-enable-disable-code-for-ver.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0018-drm-tilcdc-Remove-the-duplicate-LCDC_INT_ENABLE_SET_.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0019-drm-tilcdc-Add-prints-on-sync-lost-and-FIFO-underrun.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0020-drm-tilcdc-Disable-sync-lost-interrupt-if-it-fires-o.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0021-drm-tilcdc-Initialize-crtc-port.patch"
+		${git} "${DIR}/patches/beaglebone/tilcdc/0022-drm-tilcdc-Use-devm_kzalloc-and-devm_kcalloc-for-pri.patch"
 	fi
+	unset is_44
 
 	#This has to be last...
 	echo "dir: beaglebone/dtbs"
@@ -933,6 +1004,44 @@ etnaviv () {
 		#drm/etnaviv: call correct function when trying to vmap a DMABUF
 		SHA="a0a5ab3e99b8e617221caabf074dcabd1659b9d8" ; cherrypick
 
+		#merged in 4.6.0-rc0
+
+		#drm/etnaviv: move runtime PM balance into retire worker
+		SHA="d9fd0c7d259e6e041890764f21f3033d248e0ac8" ; cherrypick
+
+		#drm/etnaviv: move GPU linear window to end of DMA window
+		SHA="471070abd2f53e579ebeb362e78ce62d04287f49" ; cherrypick
+
+		#drm: etnaviv: extract command ring reservation
+		SHA="584a13c6e65d9f986424594e41c6a7114d37391b" ; cherrypick
+
+		#drm: etnaviv: extract replacement of WAIT command
+		SHA="6e138f76b676b8c6dfa744db183776b0668ec272" ; cherrypick
+
+		#drm: etnaviv: extract arming of semaphore
+		SHA="18060f4d87665e974950cb36133bbbf5e1b350f3" ; cherrypick
+
+		#drm: etnaviv: track current execution state
+		SHA="f60863116b4026713fba1810927f8639bfd6ae80" ; cherrypick
+
+		#drm: etnaviv: flush all GPU caches when stopping GPU
+		SHA="8581d8149750e19fc363ad93327f4382b26959f9" ; cherrypick
+
+		#drm: etnaviv: use previous GPU pipe state when pipe switching
+		SHA="90747b9511d14a2eb6c7dbd78ea9251e3b2b092a" ; cherrypick
+
+		#drm: etnaviv: clean up GPU command submission
+		SHA="33b1be99fb4cfd0d7d483a9947f9c95d6d17ede9" ; cherrypick
+
+		#drm: etnaviv: improve readability of command insertion to ring buffer
+		SHA="41db12df64ace13c98865340b5c076cdf9a99a93" ; cherrypick
+
+		#drm: etnaviv: clean up vram_mapping submission/retire path
+		SHA="b6325f409959c7e1065ef1537f2e54cf4d7ab465" ; cherrypick
+
+		#drm: etnaviv: clean up submit_bo()
+		SHA="8779aa8f8b7fa397a0abe9e6af3334ea41e15836" ; cherrypick
+
 		exit 2
 	fi
 
@@ -961,6 +1070,25 @@ etnaviv () {
 		${git} "${DIR}/patches/etnaviv/mainline/0019-drm-etnaviv-call-correct-function-when-trying-to-vma.patch"
 	fi
 	unset is_44
+
+	#is_45="enable"
+	if [ "x${is_45}" = "xenable" ] ; then
+		echo "dir: etnaviv/mainline"
+		#merged in 4.6.0-rc0
+		${git} "${DIR}/patches/etnaviv/mainline/0020-drm-etnaviv-move-runtime-PM-balance-into-retire-work.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0021-drm-etnaviv-move-GPU-linear-window-to-end-of-DMA-win.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0022-drm-etnaviv-extract-command-ring-reservation.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0023-drm-etnaviv-extract-replacement-of-WAIT-command.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0024-drm-etnaviv-extract-arming-of-semaphore.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0025-drm-etnaviv-track-current-execution-state.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0026-drm-etnaviv-flush-all-GPU-caches-when-stopping-GPU.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0027-drm-etnaviv-use-previous-GPU-pipe-state-when-pipe-sw.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0028-drm-etnaviv-clean-up-GPU-command-submission.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0029-drm-etnaviv-improve-readability-of-command-insertion.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0030-drm-etnaviv-clean-up-vram_mapping-submission-retire-.patch"
+		${git} "${DIR}/patches/etnaviv/mainline/0031-drm-etnaviv-clean-up-submit_bo.patch"
+	fi
+	unset is_45
 
 	#echo "dir: etnaviv/drm-etnaviv-fixes"
 	#regenerate="enable"

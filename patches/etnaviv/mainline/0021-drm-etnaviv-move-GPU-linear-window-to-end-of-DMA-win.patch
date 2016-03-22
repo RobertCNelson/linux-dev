@@ -1,0 +1,56 @@
+From 471070abd2f53e579ebeb362e78ce62d04287f49 Mon Sep 17 00:00:00 2001
+From: Lucas Stach <l.stach@pengutronix.de>
+Date: Mon, 25 Jan 2016 17:03:09 +0100
+Subject: [PATCH] drm/etnaviv: move GPU linear window to end of DMA window
+
+If the end of the system DMA window is farther away from the start of
+physical RAM than the size of the GPU linear window, move the linear
+window so that it ends at the same address than the system DMA window.
+
+This allows to map command buffer from CMA, which is likely to reside
+at the end of the system DMA window, while also overlapping as much
+RAM as possible, in order to optimize regular buffer mappings through
+the linear window.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+---
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+index 40f2a37..e9e66b9 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -1563,6 +1563,7 @@ static int etnaviv_gpu_platform_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct etnaviv_gpu *gpu;
++	u32 dma_mask;
+ 	int err = 0;
+ 
+ 	gpu = devm_kzalloc(dev, sizeof(*gpu), GFP_KERNEL);
+@@ -1573,12 +1574,16 @@ static int etnaviv_gpu_platform_probe(struct platform_device *pdev)
+ 	mutex_init(&gpu->lock);
+ 
+ 	/*
+-	 * Set the GPU base address to the start of physical memory.  This
+-	 * ensures that if we have up to 2GB, the v1 MMU can address the
+-	 * highest memory.  This is important as command buffers may be
+-	 * allocated outside of this limit.
++	 * Set the GPU linear window to be at the end of the DMA window, where
++	 * the CMA area is likely to reside. This ensures that we are able to
++	 * map the command buffers while having the linear window overlap as
++	 * much RAM as possible, so we can optimize mappings for other buffers.
+ 	 */
+-	gpu->memory_base = PHYS_OFFSET;
++	dma_mask = (u32)dma_get_required_mask(dev);
++	if (dma_mask < PHYS_OFFSET + SZ_2G)
++		gpu->memory_base = PHYS_OFFSET;
++	else
++		gpu->memory_base = dma_mask - SZ_2G + 1;
+ 
+ 	/* Map registers: */
+ 	gpu->mmio = etnaviv_ioremap(pdev, NULL, dev_name(gpu->dev));
+-- 
+2.7.0
+
