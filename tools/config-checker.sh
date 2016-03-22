@@ -544,6 +544,7 @@ config="CONFIG_SPI_SPIDEV" ; config_module
 #
 # PPS clients support
 #
+config="CONFIG_NTP_PPS" ; config_enable
 config="CONFIG_PPS_CLIENT_GPIO" ; config_module
 
 #
@@ -1303,8 +1304,8 @@ config="CONFIG_ARM_SMMU" ; config_enable
 #
 # Remoteproc drivers
 #
-config="CONFIG_REMOTEPROC" ; config_enable
-config="CONFIG_OMAP_REMOTEPROC" ; config_enable
+config="CONFIG_REMOTEPROC" ; config_module
+config="CONFIG_OMAP_REMOTEPROC" ; config_module
 config="CONFIG_WKUP_M3_RPROC" ; config_enable
 
 #
