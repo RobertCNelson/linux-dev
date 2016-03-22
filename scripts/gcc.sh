@@ -113,11 +113,11 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_eabi_5)
 		#
-		#https://releases.linaro.org/components/toolchain/binaries/5.2-2015.11-2/arm-eabi/gcc-linaro-5.2-2015.11-2-x86_64_arm-eabi.tar.xz
+		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.02/arm-eabi/gcc-linaro-5.3-2016.02-x86_64_arm-eabi.tar.xz
 		#
 
-		gcc_version="5.2"
-		release="15.11-2"
+		gcc_version="5.3"
+		release="16.02"
 		target="arm-eabi"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
@@ -206,11 +206,11 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_gnueabihf_5)
 		#
-		#https://releases.linaro.org/components/toolchain/binaries/5.2-2015.11-2/arm-linux-gnueabihf/gcc-linaro-5.2-2015.11-2-x86_64_arm-linux-gnueabihf.tar.xz
+		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.02/arm-linux-gnueabihf/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf.tar.xz
 		#
 
-		gcc_version="5.2"
-		release="15.11-2"
+		gcc_version="5.3"
+		release="16.02"
 		target="arm-linux-gnueabihf"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
@@ -223,11 +223,11 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_aarch64_gnu_5)
 		#
-		#https://releases.linaro.org/components/toolchain/binaries/5.2-2015.11-2/aarch64-linux-gnu/gcc-linaro-5.2-2015.11-2-x86_64_aarch64-linux-gnu.tar.xz
+		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.02/aarch64-linux-gnu/gcc-linaro-5.3-2016.02-x86_64_aarch64-linux-gnu.tar.xz
 		#
 
-		gcc_version="5.2"
-		release="15.11-2"
+		gcc_version="5.3"
+		release="16.02"
 		target="aarch64-linux-gnu"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
