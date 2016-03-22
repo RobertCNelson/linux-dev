@@ -1,7 +1,7 @@
-From ec5db93a44d1ced12d4d7312eee37dd61c6b8292 Mon Sep 17 00:00:00 2001
+From 52a607e7c45e44e09f50233384cc352417556966 Mon Sep 17 00:00:00 2001
 From: Nishanth Menon <nm@ti.com>
-Date: Thu, 23 Jul 2015 09:53:33 -0500
-Subject: [PATCH 2/2] pinctrl: Introduce TI IOdelay configuration driver
+Date: Thu, 17 Mar 2016 05:11:37 -0500
+Subject: [PATCH] pinctrl: Introduce TI IOdelay configuration driver
 
 SoC family such as DRA7 family of processors have, in addition
 to the regular muxing of pins (as done by pinctrl-single), an
@@ -34,14 +34,29 @@ a limited subset of IODelay configuration requirements that need to
 be dynamic and whose glitchy behavior will not cause functionality
 failure for that interface.
 
+NOTE: this approach has already been rejected in upstream:
+http://marc.info/?t=142542741200007&r=1&w=2 However, upstream synced
+series involves core framework changes that are out of immediate scope
+atm.
+
+IMPORTANT NOTE: we take the approach of keeping LOCK_BITs cleared
+to 0x0 at all times, even when configuring Manual IO Timing Modes.
+This is done by eliminating the LOCK_BIT=1 setting from Step
+of the Manual IO timing Mode configuration procedure. This option
+leaves the CFG_* registers unprotected from unintended writes to the
+CTRL_CORE_PAD_* registers while Manual IO Timing Modes are configured.
+
+This approach is taken to allow for a generic driver to exist in kernel
+world that has to be used carefully in required usecases.
+
 Signed-off-by: Nishanth Menon <nm@ti.com>
 Signed-off-by: Lokesh Vutla <lokeshvutla@ti.com>
 ---
  drivers/pinctrl/Kconfig              |  12 +
  drivers/pinctrl/Makefile             |   1 +
- drivers/pinctrl/pinctrl-ti-iodelay.c | 963 +++++++++++++++++++++++++++++++++++
+ drivers/pinctrl/pinctrl-ti-iodelay.c | 968 +++++++++++++++++++++++++++++++++++
  include/dt-bindings/pinctrl/dra.h    |   6 +
- 4 files changed, 982 insertions(+)
+ 4 files changed, 987 insertions(+)
  create mode 100644 drivers/pinctrl/pinctrl-ti-iodelay.c
 
 diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
@@ -81,10 +96,10 @@ index e4bc115..8ffdf30 100644
  obj-$(CONFIG_PINCTRL_U300)	+= pinctrl-u300.o
 diff --git a/drivers/pinctrl/pinctrl-ti-iodelay.c b/drivers/pinctrl/pinctrl-ti-iodelay.c
 new file mode 100644
-index 0000000..e4c6e25
+index 0000000..8d334147
 --- /dev/null
 +++ b/drivers/pinctrl/pinctrl-ti-iodelay.c
-@@ -0,0 +1,963 @@
+@@ -0,0 +1,968 @@
 +/*
 + * Support for configuration of IO Delay module found on Texas Instruments SoCs
 + * such as DRA7
@@ -366,9 +381,14 @@ index 0000000..e4c6e25
 +	}
 +	reg_val |= tmp_val;
 +
-+	/* Write with lock value - we DONOT want h/w updates */
++	/*
++	 * NOTE: we leave the iodelay values unlocked - this is to work around
++	 * situations such as those found with mmc mode change.
++	 * However, this leaves open any unwarranted changes to padconf register
++	 * impacting iodelay configuration. Use with care!
++	 */
 +	reg_mask |= reg->lock_mask;
-+	reg_val |= reg->lock_val << __ffs(reg->lock_mask);
++	reg_val |= reg->unlock_val << __ffs(reg->lock_mask);
 +	r = regmap_update_bits(iod->regmap, val->offset, reg_mask, reg_val);
 +
 +	dev_dbg(dev, "Set reg 0x%x Delay(a=%d g=%d), Elements(C=%d F=%d)0x%x\n",
