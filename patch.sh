@@ -855,19 +855,6 @@ beaglebone () {
 	fi
 	unset is_44
 
-	echo "dir: beaglebone/acc1340"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/acc1340/0001-wireless-import-acc1340.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-
 	#This has to be last...
 	echo "dir: beaglebone/dtbs"
 	#regenerate="enable"
