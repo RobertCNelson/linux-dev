@@ -403,7 +403,7 @@ bbb_overlays () {
 	fi
 
 	echo "dir: bbb_overlays/nvmem"
-	regenerate="enable"
+	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cherrypick_dir="bbb_overlays/nvmem"
 		#merged in 4.6.0-rc0
