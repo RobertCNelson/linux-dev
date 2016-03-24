@@ -1,0 +1,39 @@
+From 7b0883f33809ff0aeca9848193c31629a752bb77 Mon Sep 17 00:00:00 2001
+From: David Rivshin <drivshin@allworx.com>
+Date: Fri, 29 Jan 2016 23:26:53 -0500
+Subject: [PATCH] pwm: omap-dmtimer: Round load and match values rather than
+ truncate
+
+When converting period and duty_cycle from nanoseconds to fclk cycles,
+the error introduced by the integer division can be appreciable, especially
+in the case of slow fclk or short period. Use DIV_ROUND_CLOSEST_ULL() so
+that the error is kept to +/- 0.5 clock cycles.
+
+Fixes: 6604c6556db9 ("pwm: Add PWM driver for OMAP using dual-mode timers")
+Signed-off-by: David Rivshin <drivshin@allworx.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+---
+ drivers/pwm/pwm-omap-dmtimer.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
+index 54641e45..e0679eb 100644
+--- a/drivers/pwm/pwm-omap-dmtimer.c
++++ b/drivers/pwm/pwm-omap-dmtimer.c
+@@ -49,11 +49,7 @@ to_pwm_omap_dmtimer_chip(struct pwm_chip *chip)
+ 
+ static u32 pwm_omap_dmtimer_get_clock_cycles(unsigned long clk_rate, int ns)
+ {
+-	u64 c = (u64)clk_rate * ns;
+-
+-	do_div(c, NSEC_PER_SEC);
+-
+-	return c;
++	return DIV_ROUND_CLOSEST_ULL((u64)clk_rate * ns, NSEC_PER_SEC);
+ }
+ 
+ static void pwm_omap_dmtimer_start(struct pwm_omap_dmtimer_chip *omap)
+-- 
+2.8.0.rc3
+

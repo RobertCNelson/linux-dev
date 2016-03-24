@@ -1,0 +1,47 @@
+From 922201d129c8f9d0c3207dca90ea6ffd8e2242f0 Mon Sep 17 00:00:00 2001
+From: David Rivshin <drivshin@allworx.com>
+Date: Fri, 29 Jan 2016 23:26:54 -0500
+Subject: [PATCH] pwm: omap-dmtimer: Add debug message for effective period and
+ duty cycle
+
+After going through the math and constraints checking to compute load
+and match values, it is helpful to know what the resultant period and
+duty cycle are.
+
+Signed-off-by: David Rivshin <drivshin@allworx.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+---
+ drivers/pwm/pwm-omap-dmtimer.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pwm/pwm-omap-dmtimer.c b/drivers/pwm/pwm-omap-dmtimer.c
+index e0679eb..b7e6ecb 100644
+--- a/drivers/pwm/pwm-omap-dmtimer.c
++++ b/drivers/pwm/pwm-omap-dmtimer.c
+@@ -102,7 +102,8 @@ static int pwm_omap_dmtimer_config(struct pwm_chip *chip,
+ 	unsigned long clk_rate;
+ 	bool timer_active;
+ 
+-	dev_dbg(chip->dev, "duty cycle: %d, period %d\n", duty_ns, period_ns);
++	dev_dbg(chip->dev, "requested duty cycle: %d ns, period: %d ns\n",
++		duty_ns, period_ns);
+ 
+ 	mutex_lock(&omap->mutex);
+ 	if (duty_ns == pwm_get_duty_cycle(pwm) &&
+@@ -166,6 +167,12 @@ static int pwm_omap_dmtimer_config(struct pwm_chip *chip,
+ 		duty_cycles = period_cycles - 1;
+ 	}
+ 
++	dev_dbg(chip->dev, "effective duty cycle: %lld ns, period: %lld ns\n",
++		DIV_ROUND_CLOSEST_ULL((u64)NSEC_PER_SEC * duty_cycles,
++				      clk_rate),
++		DIV_ROUND_CLOSEST_ULL((u64)NSEC_PER_SEC * period_cycles,
++				      clk_rate));
++
+ 	load_value = (DM_TIMER_MAX - period_cycles) + 1;
+ 	match_value = load_value + duty_cycles - 1;
+ 
+-- 
+2.8.0.rc3
+
