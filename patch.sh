@@ -475,6 +475,7 @@ bbb_overlays () {
 		#merged in 4.5.0-rc0
 		${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
 	fi
+	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-dlm-config-Fix-ENOMEM-failures-in-make_cluste.patch"
 	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-configfs-switch-default-groups-to-a-linked-li.patch"
 
 	echo "dir: bbb_overlays/of"
@@ -707,9 +708,10 @@ beaglebone () {
 	fi
 
 	${git} "${DIR}/patches/beaglebone/sancloud/0001-add-sancloud-beaglebone-enhanced.patch"
+	${git} "${DIR}/patches/beaglebone/sancloud/0002-am335x-sancloud-bbe-update-lps331ap-mpu6050-irq-pins.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
+		number=2
 		cleanup
 	fi
 
