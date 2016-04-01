@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/sh -e
 #
-# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2016 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -123,13 +123,37 @@ aufs4 () {
 
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
+		echo "dir: aufs4"
+
+		cd ../
+		if [ ! -f ./aufs4-standalone ] ; then
+			git clone https://github.com/sfjro/aufs4-standalone
+			cd ./aufs4-standalone
+			git checkout origin/aufs${KERNEL_REL} -b tmp
+			cd ../
+		fi
+		cd ./KERNEL/
+
+		cp -v ../aufs4-standalone/Documentation/ABI/testing/*aufs ./Documentation/ABI/testing/
+		mkdir -p ./Documentation/filesystems/aufs/
+		cp -rv ../aufs4-standalone/Documentation/filesystems/aufs/* ./Documentation/filesystems/aufs/
+		mkdir -p ./fs/aufs/
+		cp -v ../aufs4-standalone/fs/aufs/* ./fs/aufs/
+		cp -v ../aufs4-standalone/include/uapi/linux/aufs_type.h ./include/uapi/linux/
+
+		git add .
+		git commit -a -m 'merge: aufs4' -s
+		git format-patch -5 -o ../patches/aufs4/
+
+		exit 2
+	fi
+
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	#patch -p1 < "${DIR}/patches/aufs4/0005-aufs-why-this-isnt-a-patch.patch"
-	#exit 2
-
-	${git} "${DIR}/patches/aufs4/0005-aufs-why-this-isnt-a-patch.patch"
+	${git} "${DIR}/patches/aufs4/0005-merge-aufs4.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=5
