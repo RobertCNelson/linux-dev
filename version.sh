@@ -25,12 +25,12 @@ toolchain="gcc_linaro_gnueabihf_5"
 #Kernel/Build
 KERNEL_REL=4.6
 KERNEL_TAG=${KERNEL_REL}-rc1
-BUILD=${build_prefix}31
+BUILD=${build_prefix}32
 kernel_rt=".X-rtY"
 
 #v4.X-rcX + upto SHA
-prev_KERNEL_SHA="f55532a0c0b8bb6148f4e07853b876ef73bc69ca"
-KERNEL_SHA="c05c2ec96bb8b7310da1055c7b9d786a3ec6dc0c"
+prev_KERNEL_SHA="c05c2ec96bb8b7310da1055c7b9d786a3ec6dc0c"
+KERNEL_SHA="6ddf37da05cd71bf9e43349d607e810b43c9008a"
 
 #git branch
 #BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
