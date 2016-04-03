@@ -1,0 +1,51 @@
+From 5f12199e107887446a37868df2325c7e9f0a4bfd Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sun, 3 Apr 2016 12:42:00 -0500
+Subject: [PATCH 2/2] Revert "target: initialize the nacl base CIT begfore
+ init_nodeacl"
+
+This reverts commit e6e202edf000004422a901dfa301d600e32f17e3.
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/target/target_core_fabric_configfs.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/target/target_core_fabric_configfs.c b/drivers/target/target_core_fabric_configfs.c
+index 31a096a..2db235b 100644
+--- a/drivers/target/target_core_fabric_configfs.c
++++ b/drivers/target/target_core_fabric_configfs.c
+@@ -381,6 +381,14 @@ static struct config_group *target_fabric_make_nodeacl(
+ 	if (IS_ERR(se_nacl))
+ 		return ERR_CAST(se_nacl);
+ 
++	if (tf->tf_ops->fabric_init_nodeacl) {
++		int ret = tf->tf_ops->fabric_init_nodeacl(se_nacl, name);
++		if (ret) {
++			core_tpg_del_initiator_node_acl(se_nacl);
++			return ERR_PTR(ret);
++		}
++	}
++
+ 	config_group_init_type_name(&se_nacl->acl_group, name,
+ 			&tf->tf_tpg_nacl_base_cit);
+ 
+@@ -404,15 +412,6 @@ static struct config_group *target_fabric_make_nodeacl(
+ 	configfs_add_default_group(&se_nacl->acl_fabric_stat_group,
+ 			&se_nacl->acl_group);
+ 
+-	if (tf->tf_ops->fabric_init_nodeacl) {
+-		int ret = tf->tf_ops->fabric_init_nodeacl(se_nacl, name);
+-		if (ret) {
+-			configfs_remove_default_groups(&se_nacl->acl_fabric_stat_group);
+-			core_tpg_del_initiator_node_acl(se_nacl);
+-			return ERR_PTR(ret);
+-		}
+-	}
+-
+ 	return &se_nacl->acl_group;
+ }
+ 
+-- 
+2.8.0.rc3
+

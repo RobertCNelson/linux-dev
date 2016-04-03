@@ -475,6 +475,9 @@ bbb_overlays () {
 		#merged in 4.5.0-rc0
 		${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
 	fi
+	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-target-add-a-new-add_wwn_groups-fabrics-metho.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0002-Revert-target-initialize-the-nacl-base-CIT-begfore-i.patch"
+	${git} "${DIR}/patches/bbb_overlays/configfs/0003-Revert-target-remove-fabric_cleanup_nodeacl.patch"
 	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-dlm-config-Fix-ENOMEM-failures-in-make_cluste.patch"
 	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-configfs-switch-default-groups-to-a-linked-li.patch"
 
