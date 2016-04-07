@@ -48,11 +48,7 @@ dl_gcc_generic () {
 		if [ -d "${gcc_dir}/${directory}" ] ; then
 			rm -rf "${gcc_dir}/${directory}" || true
 		fi
-		if [ -d /mnt/c/Windows/ ] ; then
-			tar -xfh "${gcc_dir}/${filename}" -C "${gcc_dir}/"
-		else
-			tar -xf "${gcc_dir}/${filename}" -C "${gcc_dir}/"
-		fi
+		tar -xf "${gcc_dir}/${filename}" -C "${gcc_dir}/"
 		if [ -f "${gcc_dir}/${directory}/${binary}gcc" ] ; then
 			touch "${gcc_dir}/${directory}/${datestamp}"
 		fi
