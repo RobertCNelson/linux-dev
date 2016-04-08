@@ -891,6 +891,11 @@ beaglebone () {
 		${git} "${DIR}/patches/beaglebone/tilcdc/0022-drm-tilcdc-Use-devm_kzalloc-and-devm_kcalloc-for-pri.patch"
 	fi
 
+	#[PATCH v2 0/3] Recover from sync lost error flood by resetting the LCDC
+	${git} "${DIR}/patches/beaglebone/tilcdc/0023-drm-tilcdc-Write-to-LCDC_END_OF_INT_IND_REG-at-the-e.patch"
+	${git} "${DIR}/patches/beaglebone/tilcdc/0024-drm-tilcdc-Move-waiting-of-LCDC_FRAME_DONE-IRQ-into-.patch"
+	${git} "${DIR}/patches/beaglebone/tilcdc/0025-drm-tilcdc-Recover-from-sync-lost-error-flood-by-res.patch"
+
 	#This has to be last...
 	echo "dir: beaglebone/dtbs"
 	#regenerate="enable"
