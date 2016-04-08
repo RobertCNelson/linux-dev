@@ -1,0 +1,70 @@
+From 2ce3323aed1868b1145c686ee6d69b1d18f69e0a Mon Sep 17 00:00:00 2001
+From: Henrik Langer <henni19790@googlemail.com>
+Date: Sat, 27 Feb 2016 19:32:39 +0100
+Subject: [PATCH 3/6] Added support for AD193X and CTAG face2|4 Audio Card in
+ configuration files
+
+---
+ sound/soc/codecs/Kconfig   | 8 ++++++--
+ sound/soc/davinci/Kconfig  | 6 ++++++
+ sound/soc/davinci/Makefile | 2 ++
+ 3 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 061c465..578fe8d 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -221,12 +221,16 @@ config SND_SOC_AD193X
+ 	tristate
+ 
+ config SND_SOC_AD193X_SPI
+-	tristate
++	tristate "Analog Devices AD193x CODEC (SPI)"
++	depends on SPI_MASTER
+ 	select SND_SOC_AD193X
++	select REGMAP_SPI
+ 
+ config SND_SOC_AD193X_I2C
+-	tristate
++	tristate "Analog Devices AD193x CODEC (I2C)"
++	depends on I2C
+ 	select SND_SOC_AD193X
++	select REGMAP_I2C
+ 
+ config SND_SOC_AD1980
+ 	select REGMAP_AC97
+diff --git a/sound/soc/davinci/Kconfig b/sound/soc/davinci/Kconfig
+index 50ca291..8e60456 100644
+--- a/sound/soc/davinci/Kconfig
++++ b/sound/soc/davinci/Kconfig
+@@ -100,3 +100,9 @@ config  SND_DA850_SOC_EVM
+ 	  Say Y if you want to add support for SoC audio on TI
+ 	  DA850/OMAP-L138 EVM
+ 
++config	SND_DAVINCI_SOC_CTAG_FACE_2_4
++	tristate "SoC Audio Support for CTAG face-2-4 (AD1938)"
++	depends on SND_DAVINCI_SOC_MCASP
++	select SND_SOC_AD193X_SPI
++	help
++	  Say Y if you want to add support for SoC audio on CTAG face-2-4.
+diff --git a/sound/soc/davinci/Makefile b/sound/soc/davinci/Makefile
+index f883933..75e218e 100644
+--- a/sound/soc/davinci/Makefile
++++ b/sound/soc/davinci/Makefile
+@@ -3,11 +3,13 @@ snd-soc-edma-objs := edma-pcm.o
+ snd-soc-davinci-i2s-objs := davinci-i2s.o
+ snd-soc-davinci-mcasp-objs:= davinci-mcasp.o
+ snd-soc-davinci-vcif-objs:= davinci-vcif.o
++snd-soc-davinci-ctag-face-2-4-objs := davinci-ctag-face-2-4.o
+ 
+ obj-$(CONFIG_SND_EDMA_SOC) += snd-soc-edma.o
+ obj-$(CONFIG_SND_DAVINCI_SOC_I2S) += snd-soc-davinci-i2s.o
+ obj-$(CONFIG_SND_DAVINCI_SOC_MCASP) += snd-soc-davinci-mcasp.o
+ obj-$(CONFIG_SND_DAVINCI_SOC_VCIF) += snd-soc-davinci-vcif.o
++obj-$(CONFIG_SND_DAVINCI_SOC_CTAG_FACE_2_4) += snd-soc-davinci-ctag-face-2-4.o
+ 
+ # Generic DAVINCI/AM33xx Machine Support
+ snd-soc-evm-objs := davinci-evm.o
+-- 
+2.7.0
+

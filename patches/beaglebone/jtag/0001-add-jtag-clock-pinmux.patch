@@ -1,0 +1,40 @@
+From dd209ec38149ea96d9e0319ee115990176c1a29d Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 3 Mar 2016 10:30:58 -0600
+Subject: [PATCH] add: jtag clock pinmux
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-jtag.dtsi | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-jtag.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-jtag.dtsi b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
+new file mode 100644
+index 0000000..a92db8e
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Device Tree Source for bone jtag
++ *
++ * Copyright (C) 2015 Robert Nelson <robertcnelson@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++
++	clkout2_pin: pinmux_clkout2_pin {
++		pinctrl-single,pins = <
++			0x1b4 (PIN_OUTPUT_PULLDOWN | MUX_MODE3) /* xdma_event_intr1.clkout2 */
++		>;
++	};
++};
+-- 
+2.7.0
+

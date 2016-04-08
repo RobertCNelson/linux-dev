@@ -710,7 +710,7 @@ beaglebone () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/beaglebone/sancloud/0001-add-sancloud-beaglebone-enhanced.patch"
+	${git} "${DIR}/patches/beaglebone/sancloud/0001-add-am335x-sancloud-bbe.patch"
 	${git} "${DIR}/patches/beaglebone/sancloud/0002-am335x-sancloud-bbe-update-lps331ap-mpu6050-irq-pins.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -731,6 +731,24 @@ beaglebone () {
 		cleanup
 	fi
 
+	#echo "dir: beaglebone/CTAG"
+	#regenerate="enable"
+	#if [ "x${regenerate}" = "xenable" ] ; then
+	#	start_cleanup
+	#fi
+
+	#${git} "${DIR}/patches/beaglebone/CTAG/0001-Added-driver-and-device-tree-for-CTAG-face2-4-Audio-.patch"
+	#${git} "${DIR}/patches/beaglebone/CTAG/0002-Added-support-for-higher-sampling-rates-in-AD193X-dr.patch"
+	#${git} "${DIR}/patches/beaglebone/CTAG/0003-Added-support-for-AD193X-and-CTAG-face2-4-Audio-Card.patch"
+	#${git} "${DIR}/patches/beaglebone/CTAG/0004-Modified-ASOC-platform-driver-for-McASP-to-use-async.patch"
+	#${git} "${DIR}/patches/beaglebone/CTAG/0005-Changed-descriptions-in-files-belonging-to-CTAG-face.patch"
+	#${git} "${DIR}/patches/beaglebone/CTAG/0006-add-black-version-of-ctag-face-pass-uboot-cape-ctag-.patch"
+
+	#if [ "x${regenerate}" = "xenable" ] ; then
+	#	number=6
+	#	cleanup
+	#fi
+
 	echo "dir: beaglebone/capes"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -741,34 +759,13 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/capes/0002-ARM-dts-am335x-boneblack-enable-wl1835mod-cape-suppo.patch"
 	${git} "${DIR}/patches/beaglebone/capes/0003-add-am335x-boneblack-bbbmini.dts.patch"
 	${git} "${DIR}/patches/beaglebone/capes/0004-add-lcd-am335x-boneblack-bbb-exp-c.dtb-am335x-bonebl.patch"
+	${git} "${DIR}/patches/beaglebone/capes/0005-bb-audio-cape.patch"
 
 	#Replicape use am335x-boneblack-overlay.dtb???
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=4
 		cleanup
-	fi
-
-	echo "dir: beaglebone/rs485"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cherrypick_dir="beaglebone/rs485"
-		#merged in 4.6.0-rc0
-		SHA="a07a70bcb72e4a766c8d3173986a773cef842d30" ; num="1" ; cherrypick
-		SHA="e490c9144cfaa8e2242c1e5d5187230928f27417" ; cherrypick
-		SHA="344cee2470ff70801c95c62ab2762da0834c8c6c" ; cherrypick
-		SHA="bf2a0be45ffc5ab706f9be71a2cdc3f4600cb444" ; cherrypick
-		SHA="b18a183eaac25bd8dc51eab85437c7253f5c31d1" ; cherrypick
-		exit 2
-	fi
-
-	if [ "x${merged_in_4_6}" = "xenable" ] ; then
-		#merged in 4.6.0-rc0
-		${git} "${DIR}/patches/beaglebone/rs485/0001-tty-Move-serial8250_stop_rx-in-front-of-serial8250_s.patch"
-		${git} "${DIR}/patches/beaglebone/rs485/0002-tty-Add-software-emulated-RS485-support-for-8250.patch"
-		${git} "${DIR}/patches/beaglebone/rs485/0003-tty-8250_omap-Use-software-emulated-RS485-direction-.patch"
-		${git} "${DIR}/patches/beaglebone/rs485/0004-tty-serial-8250-Cleanup-p-em485-in-serial8250_unregi.patch"
-		${git} "${DIR}/patches/beaglebone/rs485/0005-tty-serial-Use-GFP_ATOMIC-instead-of-GFP_KERNEL-in-s.patch"
 	fi
 
 	echo "dir: beaglebone/mctrl_gpio"
@@ -785,6 +782,19 @@ beaglebone () {
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=5
+		cleanup
+	fi
+
+	echo "dir: beaglebone/jtag"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/beaglebone/jtag/0001-add-jtag-clock-pinmux.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
 		cleanup
 	fi
 
@@ -942,8 +952,12 @@ beaglebone () {
 		device="am335x-boneblack-bbbmini.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-bbb-exp-c.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-bbb-exp-r.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-audio.dtb" ; dtb_makefile_append
 
 		device="am335x-sancloud-bbe.dtb" ; dtb_makefile_append
+
+		#device="am335x-boneblack-ctag-face.dtb" ; dtb_makefile_append
+		#device="am335x-bonegreen-ctag-face.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/

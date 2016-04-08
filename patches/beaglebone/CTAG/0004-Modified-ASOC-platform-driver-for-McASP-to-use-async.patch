@@ -1,0 +1,26 @@
+From 1ad4f0c08aaa2a3cd232b09de91695f4a13eed07 Mon Sep 17 00:00:00 2001
+From: Henrik Langer <henni19790@googlemail.com>
+Date: Sat, 27 Feb 2016 19:34:41 +0100
+Subject: [PATCH 4/6] Modified ASOC platform driver for McASP to use
+ asynchronous sampling rates in i2s mode.
+
+---
+ sound/soc/davinci/davinci-mcasp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 2bec747..eb1c948 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -918,7 +918,7 @@ static int mcasp_i2s_hw_param(struct davinci_mcasp *mcasp, int stream,
+ 		for (i = 0; i < active_slots; i++)
+ 			mask |= (1 << i);
+ 	}
+-	mcasp_clr_bits(mcasp, DAVINCI_MCASP_ACLKXCTL_REG, TX_ASYNC);
++	mcasp_set_bits(mcasp, DAVINCI_MCASP_ACLKXCTL_REG, TX_ASYNC);
+ 
+ 	if (!mcasp->dat_port)
+ 		busel = TXSEL;
+-- 
+2.7.0
+
