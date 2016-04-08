@@ -284,6 +284,19 @@ ti () {
 		fi
 	fi
 	unset is_mainline
+
+	echo "dir: ti/dtbs"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/ti/dtbs/0001-sync-with-ti-4.4.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
+		cleanup
+	fi
 }
 
 exynos () {
@@ -764,7 +777,7 @@ beaglebone () {
 	#Replicape use am335x-boneblack-overlay.dtb???
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=4
+		number=5
 		cleanup
 	fi
 

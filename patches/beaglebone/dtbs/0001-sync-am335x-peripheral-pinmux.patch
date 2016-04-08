@@ -1,10 +1,14 @@
-From 90214addc224f34968377f6579acc9351a20d023 Mon Sep 17 00:00:00 2001
+From b077a58b83f3564fcecd97872ed8fd5c527db368 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 22 Jan 2016 11:53:31 -0600
+Date: Fri, 8 Apr 2016 18:18:07 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
+ arch/arm/boot/dts/am335x-abbbi.dts                 |  19 ++--
+ arch/arm/boot/dts/am335x-arduino-tre.dts           |   1 +
+ .../boot/dts/am335x-bone-common-no-capemgr.dtsi    |  10 +-
+ arch/arm/boot/dts/am335x-bone-common.dtsi          |   6 +-
  arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi   |  18 ++++
  arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi     |  45 ++++++++
  arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi     |  88 +++++++++++++++
@@ -14,6 +18,20 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone-pinmux-spi1.dtsi     |  27 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-spi1a.dtsi    |  28 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi    |  48 +++++++++
+ arch/arm/boot/dts/am335x-boneblack-audio.dts       |  15 +--
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |   5 +-
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |   5 +-
+ arch/arm/boot/dts/am335x-boneblack-bbbmini.dts     |   5 +-
+ .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |   5 +-
+ .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |   5 +-
+ .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |   5 +-
+ .../boot/dts/am335x-boneblack-nhdmi-overlay.dts    |   5 +-
+ arch/arm/boot/dts/am335x-boneblack-overlay.dts     |   5 +-
+ arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |   5 +-
+ arch/arm/boot/dts/am335x-boneblack.dts             |   6 +-
+ arch/arm/boot/dts/am335x-bonegreen-overlay.dts     |   5 +-
+ arch/arm/boot/dts/am335x-bonegreen-wireless.dts    |   1 +
+ arch/arm/boot/dts/am335x-bonegreen.dts             |  20 +---
  arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++++++
  arch/arm/boot/dts/am335x-peripheral-can1.dtsi      |  13 +++
  arch/arm/boot/dts/am335x-peripheral-emmc.dtsi      |  15 +++
@@ -23,7 +41,9 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-spi1.dtsi      |  13 +++
  arch/arm/boot/dts/am335x-peripheral-spi1a.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +++
- 18 files changed, 623 insertions(+)
+ arch/arm/boot/dts/am335x-sancloud-bbe.dts          |   5 +-
+ arch/arm/boot/dts/am33xx-es2.dtsi                  |  34 ++++++
+ 38 files changed, 697 insertions(+), 93 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi
@@ -42,7 +62,113 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-spi1.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-spi1a.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi
+ create mode 100644 arch/arm/boot/dts/am33xx-es2.dtsi
 
+diff --git a/arch/arm/boot/dts/am335x-abbbi.dts b/arch/arm/boot/dts/am335x-abbbi.dts
+index cc9b1f4..5fa9349 100644
+--- a/arch/arm/boot/dts/am335x-abbbi.dts
++++ b/arch/arm/boot/dts/am335x-abbbi.dts
+@@ -9,6 +9,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ 
+@@ -129,21 +130,21 @@
+ 
+ / {
+ 	clk_mcasp0_fixed: clk_mcasp0_fixed {
+-	      #clock-cells = <0>;
+-	      compatible = "fixed-clock";
+-	      clock-frequency = <24576000>;
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <24576000>;
+ 	};
+ 
+ 	clk_mcasp0: clk_mcasp0 {
+-	      #clock-cells = <0>;
+-	      compatible = "gpio-gate-clock";
+-	      clocks = <&clk_mcasp0_fixed>;
+-	      enable-gpios = <&gpio1 27 0>; /* BeagleBone Black Clk enable on GPIO1_27 */
++		#clock-cells = <0>;
++		compatible = "gpio-gate-clock";
++		clocks = <&clk_mcasp0_fixed>;
++		enable-gpios = <&gpio1 27 0>; /* BeagleBone Black Clk enable on GPIO1_27 */
+ 	};
+ 
+ 	hdmi_audio: hdmi_audio@0 {
+-	       compatible = "linux,hdmi-audio";
+-	       status = "okay";
++		compatible = "linux,hdmi-audio";
++		status = "okay";
+ 	};
+ 
+ 	sound {
+diff --git a/arch/arm/boot/dts/am335x-arduino-tre.dts b/arch/arm/boot/dts/am335x-arduino-tre.dts
+index 9e27df0..0e6b364 100644
+--- a/arch/arm/boot/dts/am335x-arduino-tre.dts
++++ b/arch/arm/boot/dts/am335x-arduino-tre.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ 
+ / {
+ 	model = "TI AM335x Arduino Tre";
+diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+index 1f272a1..fa5311f 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+@@ -308,15 +308,11 @@
+ 	phy-mode = "mii";
+ };
+ 
+-&cpsw_emac1 {
+-	phy_id = <&davinci_mdio>, <1>;
+-	phy-mode = "mii";
+-};
+-
+ &mac {
+ 	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&cpsw_default>;
+ 	pinctrl-1 = <&cpsw_sleep>;
++	slaves = <1>;
+ 	status = "okay";
+ };
+ 
+@@ -342,3 +338,7 @@
+ &sham {
+ 	status = "okay";
+ };
++
++&rtc {
++	system-power-controller;
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 7e59d0b..b34f3bb 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -357,15 +357,11 @@
+ 	phy-mode = "mii";
+ };
+ 
+-&cpsw_emac1 {
+-	phy_id = <&davinci_mdio>, <1>;
+-	phy-mode = "mii";
+-};
+-
+ &mac {
+ 	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&cpsw_default>;
+ 	pinctrl-1 = <&cpsw_sleep>;
++	slaves = <1>;
+ 	status = "okay";
+ };
+ 
 diff --git a/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi b/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
 new file mode 100644
 index 0000000..7d8f673
@@ -567,6 +693,318 @@ index 0000000..01d0aec
 +&uart5 {
 +	pinctrl-0 = <&uart5_pins>;
 +};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-audio.dts b/arch/arm/boot/dts/am335x-boneblack-audio.dts
+index cac3626..1c5299c 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-audio.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-audio.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ 
+ / {
+@@ -15,16 +16,16 @@
+ 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ 
+ 	clk_mcasp0_fixed: clk_mcasp0_fixed {
+-	      #clock-cells = <0>;
+-	      compatible = "fixed-clock";
+-	      clock-frequency = <24576000>;
++		#clock-cells = <0>;
++		compatible = "fixed-clock";
++		clock-frequency = <24576000>;
+ 	};
+ 
+ 	clk_mcasp0: clk_mcasp0 {
+-	      #clock-cells = <0>;
+-	      compatible = "gpio-gate-clock";
+-	      clocks = <&clk_mcasp0_fixed>;
+-	      enable-gpios = <&gpio1 27 GPIO_ACTIVE_HIGH>; /* BeagleBone Black Clk enable on GPIO1_27 */
++		#clock-cells = <0>;
++		compatible = "gpio-gate-clock";
++		clocks = <&clk_mcasp0_fixed>;
++		enable-gpios = <&gpio1 27 GPIO_ACTIVE_HIGH>; /* BeagleBone Black Clk enable on GPIO1_27 */
+ 	};
+ };
+ 
+diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
+index 857c21e..f5ec278 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common-no-capemgr.dtsi"
+ 
+ / {
+@@ -33,8 +34,4 @@
+ 	status = "okay";
+ };
+ 
+-&rtc {
+-	system-power-controller;
+-};
+-
+ #include "am335x-cape-bbb-exp-c.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
+index b834fa2..27b3b72 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common-no-capemgr.dtsi"
+ 
+ / {
+@@ -33,8 +34,4 @@
+ 	status = "okay";
+ };
+ 
+-&rtc {
+-	system-power-controller;
+-};
+-
+ #include "am335x-cape-bbb-exp-r.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts b/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts
+index adb317c..8e41afc 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts
+@@ -9,6 +9,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ 
+ #include <dt-bindings/board/am335x-bbw-bbb-base.h>
+@@ -194,7 +195,3 @@
+ 	pinctrl-0 = <&uart5_pins>;
+ 	status = "okay";
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
+index cecb0fcc..6f16d4c 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common-no-capemgr.dtsi"
+ 
+ / {
+@@ -91,8 +92,4 @@
+ 	};
+ };
+ 
+-&rtc {
+-	system-power-controller;
+-};
+-
+ #include "am335x-bone-argus.dtsi"
+diff --git a/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
+index 5946a7e..68ae67c 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ 
+@@ -33,7 +34,3 @@
+ 	bus-width = <8>;
+ 	status = "okay";
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
+index 9b0a7ba..6d419f7 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ 
+@@ -93,7 +94,3 @@
+ 		};
+ 	};
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
+index 9b0a7ba..6d419f7 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ 
+@@ -93,7 +94,3 @@
+ 		};
+ 	};
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
+index 880629c..d8051b6 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-overlay.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ 
+@@ -35,7 +36,3 @@
+ 		line-name = "EMMC ResetN";
+ 	};
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
+index e376613..ec953a9 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common-no-capemgr.dtsi"
+ 
+ / {
+@@ -25,10 +26,6 @@
+ 	vmmc-supply = <&vmmcsd_fixed>;
+ };
+ 
+-&rtc {
+-	system-power-controller;
+-};
+-
+ /* EMMC in reset */
+ &gpio1 {
+ 	emmc_rst {
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index db5beb5..11e4a16 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -8,8 +8,10 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Black";
+@@ -91,7 +93,3 @@
+ 		};
+ 	};
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-overlay.dts b/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
+index b87a606..c4bb320 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ 
+@@ -35,7 +36,3 @@
+ 		line-name = "EMMC ResetN";
+ 	};
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+index b4fabfe..44c872d 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-bonegreen-wl1835.dtsi"
+ 
+diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
+index 42ac698..ef2e6cd 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ 
+@@ -33,22 +34,3 @@
+ 	bus-width = <8>;
+ 	status = "okay";
+ };
+-
+-&am33xx_pinmux {
+-	uart2_pins: uart2_pins {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x950, PIN_INPUT | MUX_MODE1)	/* spi0_sclk.uart2_rxd */
+-			AM33XX_IOPAD(0x954, PIN_OUTPUT | MUX_MODE1)	/* spi0_d0.uart2_txd */
+-		>;
+-	};
+-};
+-
+-&uart2 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&uart2_pins>;
+-	status = "okay";
+-};
+-
+-&rtc {
+-	system-power-controller;
+-};
 diff --git a/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi b/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
 new file mode 100644
 index 0000000..bce6ac5
@@ -774,6 +1212,66 @@ index 0000000..8b42fb0
 +
 +	status = "okay";
 +};
+diff --git a/arch/arm/boot/dts/am335x-sancloud-bbe.dts b/arch/arm/boot/dts/am335x-sancloud-bbe.dts
+index 561f98a..1212a53 100644
+--- a/arch/arm/boot/dts/am335x-sancloud-bbe.dts
++++ b/arch/arm/boot/dts/am335x-sancloud-bbe.dts
+@@ -8,6 +8,7 @@
+ /dts-v1/;
+ 
+ #include "am33xx.dtsi"
++#include "am33xx-es2.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am33xx-overlay-edma-fix.dtsi"
+ #include <dt-bindings/interrupt-controller/irq.h>
+@@ -199,7 +200,3 @@
+ 		//orientation = <0xff 0 0 0 1 0 0 0 0xff>;
+ 	};
+ };
+-
+-&rtc {
+-	system-power-controller;
+-};
+diff --git a/arch/arm/boot/dts/am33xx-es2.dtsi b/arch/arm/boot/dts/am33xx-es2.dtsi
+new file mode 100644
+index 0000000..6e252d42
+--- /dev/null
++++ b/arch/arm/boot/dts/am33xx-es2.dtsi
+@@ -0,0 +1,34 @@
++/*
++ * Device Tree Source for AM33XX SoC
++ *
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++/ {
++	cpus {
++		cpu@0 {
++			/*
++			 * To consider voltage drop between PMIC and SoC,
++			 * tolerance value is reduced to 2% from 4% and
++			 * voltage value is increased as a precaution.
++			 */
++			operating-points = <
++				/* kHz    uV */
++				1000000	1325000
++				800000	1300000
++				600000	1112000
++				300000	969000
++			>;
++			voltage-tolerance = <2>; /* 2 percentage */
++
++			clocks = <&dpll_mpu_ck>;
++			clock-names = "cpu";
++
++			clock-latency = <300000>; /* From omap-cpufreq driver */
++		};
++	};
++};
 -- 
-2.7.0.rc3
+2.8.0.rc3
 
