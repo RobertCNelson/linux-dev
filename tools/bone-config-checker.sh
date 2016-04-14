@@ -77,6 +77,7 @@ config="CONFIG_ARCH_ROCKCHIP" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_SUNXI" ; config_disable
 config="CONFIG_ARCH_TEGRA" ; config_disable
+config="CONFIG_ARCH_ZYNQ" ; config_disable
 
 #
 # Processor Features
@@ -107,6 +108,7 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 #
 config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_disable
+config="CONFIG_SERIAL_XILINX_PS_UART" ; config_disable
 
 #
 # Input Device Drivers

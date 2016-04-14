@@ -98,6 +98,7 @@ config="CONFIG_ARCH_EXYNOS4" ; config_disable
 config="CONFIG_ARCH_EXYNOS5" ; config_disable
 config="CONFIG_MACH_SUN4I" ; config_disable
 config="CONFIG_MACH_SUN5I" ; config_disable
+config="CONFIG_ARCH_ZYNQ" ; config_disable
 
 #
 # Processor Features
@@ -134,6 +135,7 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 config="CONFIG_SERIAL_SAMSUNG" ; config_enable
 config="CONFIG_SERIAL_SAMSUNG_CONSOLE" ; config_enable
 config="CONFIG_SERIAL_OMAP" ; config_disable
+config="CONFIG_SERIAL_XILINX_PS_UART" ; config_disable
 
 #
 # SPI Master Controller Drivers
