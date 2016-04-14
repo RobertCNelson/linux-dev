@@ -49,7 +49,6 @@ cd ${DIR}/KERNEL/
 #
 config="CONFIG_IKCONFIG" ; config_enable
 config="CONFIG_IKCONFIG_PROC" ; config_enable
-config="CONFIG_LOG_BUF_SHIFT" ; option="18" ; config_value
 config="CONFIG_MEMCG_SWAP_ENABLED" ; config_enable
 config="CONFIG_RT_GROUP_SCHED" ; config_enable
 config="CONFIG_SYSFS_SYSCALL" ; config_enable
@@ -61,6 +60,11 @@ config="CONFIG_EMBEDDED" ; config_enable
 # Kernel Performance Events And Counters
 #
 config="CONFIG_SECCOMP_FILTER" ; config_enable
+
+#
+# GCOV-based kernel profiling
+#
+config="CONFIG_MODULE_SIG" ; config_disable
 
 #
 # CPU Core family selection
@@ -108,6 +112,7 @@ config="CONFIG_MACH_NOKIA_RX51" ; config_disable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
+config="CONFIG_ARCH_ZYNQ" ; config_enable
 
 #
 # Processor Features
@@ -120,8 +125,14 @@ config="CONFIG_ARM_ERRATA_773022" ; config_disable
 #exit
 
 #
+# PCI host controller drivers
+#
+config="CONFIG_PCI_DRA7XX" ; config_enable
+
+#
 # Kernel Features
 #
+config="CONFIG_NR_CPUS" ; option="4" ; config_value
 config="CONFIG_MEMORY_ISOLATION" ; config_enable
 config="CONFIG_CMA" ; config_enable
 config="CONFIG_CMA_DEBUG" ; config_disable
@@ -149,6 +160,7 @@ config="CONFIG_CPU_IDLE" ; config_enable
 # ARM CPU Idle Drivers
 #
 config="CONFIG_ARM_CPUIDLE" ; config_enable
+config="CONFIG_ARM_ZYNQ_CPUIDLE" ; config_enable
 
 #
 # At least one emulation must be selected
@@ -179,6 +191,7 @@ config="CONFIG_MAC802154" ; config_module
 #
 # CAN Device Drivers
 #
+config="CONFIG_CAN_XILINXCAN" ; config_module
 config="CONFIG_CAN_C_CAN" ; config_module
 config="CONFIG_CAN_C_CAN_PLATFORM" ; config_module
 
@@ -335,7 +348,13 @@ config="CONFIG_DP83848_PHY" ; config_enable
 #
 # USB Network Adapters
 #
+config="CONFIG_P54_SPI" ; config_module
+config="CONFIG_LIBERTAS_SPI" ; config_module
 config="CONFIG_RTL8XXXU" ; config_module
+config="CONFIG_RSI_SDIO" ; config_module
+config="CONFIG_CW1200" ; config_module
+config="CONFIG_CW1200_WLAN_SDIO" ; config_module
+config="CONFIG_CW1200_WLAN_SPI" ; config_module
 config="CONFIG_USB_ZD1201" ; config_module
 
 #
@@ -496,6 +515,8 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 # Non-8250 serial port support
 #
 config="CONFIG_SERIAL_OMAP" ; config_disable
+config="CONFIG_SERIAL_XILINX_PS_UART" ; config_enable
+config="CONFIG_SERIAL_XILINX_PS_UART_CONSOLE" ; config_enable
 
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
@@ -517,10 +538,12 @@ config="CONFIG_I2C_MUX_PINCTRL" ; config_enable
 #
 # I2C system bus drivers (mostly embedded / system-on-chip)
 #
+config="CONFIG_I2C_CADENCE" ; config_enable
 config="CONFIG_I2C_IMX" ; config_enable
 config="CONFIG_I2C_MV64XXX" ; config_enable
 config="CONFIG_I2C_RK3X" ; config_enable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
+config="CONFIG_I2C_XILINX" ; config_enable
 
 #
 # External I2C/SMBus adapter drivers
@@ -535,6 +558,8 @@ config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
 config="CONFIG_SPI_TEGRA114" ; config_module
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
+config="CONFIG_SPI_XILINX" ; config_module
+config="CONFIG_SPI_ZYNQMP_GQSPI" ; config_module
 
 #
 # SPI Protocol Masters
@@ -557,6 +582,8 @@ config="CONFIG_GPIO_MAX730X" ; config_module
 # Memory mapped GPIO drivers
 #
 config="CONFIG_GPIO_SYSCON" ; config_enable
+config="CONFIG_GPIO_XILINX" ; config_enable
+config="CONFIG_GPIO_ZYNQ" ; config_enable
 
 #
 # I2C GPIO expanders:
@@ -725,6 +752,8 @@ config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 # Watchdog Device Drivers
 #
 config="CONFIG_DA9052_WATCHDOG" ; config_enable
+config="CONFIG_XILINX_WATCHDOG" ; config_enable
+config="CONFIG_CADENCE_WATCHDOG" ; config_enable
 config="CONFIG_DW_WATCHDOG" ; config_enable
 config="CONFIG_OMAP_WATCHDOG" ; config_enable
 config="CONFIG_SUNXI_WATCHDOG" ; config_enable
@@ -815,6 +844,7 @@ config="CONFIG_DRM_KMS_HELPER" ; config_enable
 # I2C encoder or helper chips
 #
 config="CONFIG_DRM_I2C_ADV7511" ; config_module
+config="CONFIG_DRM_I2C_ADIHDMI" ; config_module
 config="CONFIG_DRM_I2C_CH7006" ; config_module
 config="CONFIG_DRM_I2C_SIL164" ; config_module
 
@@ -1007,6 +1037,7 @@ config="CONFIG_MMC_BLOCK_MINORS" ; option="8" ; config_value
 #
 config="CONFIG_MMC_SDHCI" ; config_enable
 config="CONFIG_MMC_SDHCI_PLTFM" ; config_enable
+config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
 config="CONFIG_MMC_SDHCI_TEGRA" ; config_enable
@@ -1132,6 +1163,7 @@ config="CONFIG_AXI_DMAC" ; config_enable
 config="CONFIG_DMA_SUN6I" ; config_enable
 config="CONFIG_FSL_EDMA" ; config_enable
 config="CONFIG_TI_CPPI41" ; config_enable
+config="CONFIG_XILINX_VDMA" ; config_enable
 config="CONFIG_DW_DMAC_CORE" ; config_enable
 config="CONFIG_DW_DMAC" ; config_enable
 
@@ -1287,6 +1319,7 @@ config="CONFIG_FB_TFT_FBTFT_DEVICE" ; config_module
 # Common Clock Framework
 #
 config="CONFIG_CLK_TWL6040" ; config_enable
+config="CONFIG_COMMON_CLK_AXI_CLKGEN" ; config_enable
 config="CONFIG_COMMON_CLK_PALMAS" ; config_enable
 config="CONFIG_HWSPINLOCK" ; config_enable
 
@@ -1393,6 +1426,7 @@ config="CONFIG_TI_ADS1015" ; config_module
 config="CONFIG_TI_ADS8688" ; config_module
 config="CONFIG_TWL6030_GPADC" ; config_module
 config="CONFIG_VF610_ADC" ; config_module
+config="CONFIG_XILINX_XADC" ; config_module
 
 #
 # Amplifiers
@@ -1405,11 +1439,6 @@ config="CONFIG_AD8366" ; config_module
 config="CONFIG_ATLAS_PH_SENSOR" ; config_module
 config="CONFIG_IAQCORE" ; config_module
 config="CONFIG_VZ89X" ; config_module
-
-#
-# Hid Sensor IIO Common
-#
-config="CONFIG_IIO_MS_SENSORS_I2C" ; config_module
 
 #
 # SSP Sensor Common
@@ -1640,6 +1669,7 @@ config="CONFIG_FAT_DEFAULT_IOCHARSET" ; option="iso8859-1" ; config_string
 #
 # Pseudo filesystems
 #
+config="CONFIG_ORANGEFS_FS" ; config_enable
 config="CONFIG_SQUASHFS_LZ4" ; config_enable
 config="CONFIG_NFS_FS" ; config_enable
 config="CONFIG_NFS_V2" ; config_enable
@@ -1649,6 +1679,13 @@ config="CONFIG_ROOT_NFS" ; config_enable
 config="CONFIG_NLS_DEFAULT" ; option="iso8859-1" ; config_string
 config="CONFIG_NLS_CODEPAGE_437" ; config_enable
 config="CONFIG_NLS_ISO8859_1" ; config_enable
+
+#
+# Compile-time checks and compiler options
+#
+config="CONFIG_DEBUG_INFO" ; config_enable
+config="CONFIG_DEBUG_INFO_SPLIT" ; config_enable
+config="CONFIG_DEBUG_INFO_DWARF4" ; config_enable
 
 #
 # Debug Lockups and Hangs
