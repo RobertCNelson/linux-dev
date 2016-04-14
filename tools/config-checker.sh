@@ -1718,6 +1718,7 @@ config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_module
 #
 # Certificates for signature checking
 #
+config="CONFIG_SYSTEM_TRUSTED_KEYRING" ; config_disable
 config="CONFIG_ARM_CRYPTO" ; config_enable
 config="CONFIG_CRYPTO_SHA1_ARM" ; config_module
 config="CONFIG_CRYPTO_SHA1_ARM_NEON" ; config_module
