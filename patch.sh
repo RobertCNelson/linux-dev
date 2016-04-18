@@ -156,8 +156,8 @@ aufs4 () {
 	${git} "${DIR}/patches/aufs4/0005-merge-aufs4.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=5
-		cleanup
+		git format-patch -5 -o ../patches/aufs4/
+		exit 2
 	fi
 }
 
