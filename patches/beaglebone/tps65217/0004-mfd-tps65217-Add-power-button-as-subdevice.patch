@@ -1,0 +1,43 @@
+From 0467724dd1801362eb84ce5c77c2519b2e203c90 Mon Sep 17 00:00:00 2001
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Date: Mon, 4 Apr 2016 19:11:04 +0200
+Subject: [PATCH 4/6] mfd: tps65217: Add power button as subdevice
+
+Add tps65217 power buttor subdevice with assigned IRQ resources.
+
+Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+---
+ drivers/mfd/tps65217.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
+index a20980f..fd3b5d8 100644
+--- a/drivers/mfd/tps65217.c
++++ b/drivers/mfd/tps65217.c
+@@ -38,6 +38,10 @@ static struct resource charger_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
+ };
+ 
++static struct resource pb_resources[] = {
++	DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
++};
++
+ struct tps65217_irq {
+ 	int mask;
+ 	int interrupt;
+@@ -122,6 +126,12 @@ static struct mfd_cell tps65217s[] = {
+ 		.resources = charger_resources,
+ 		.of_compatible = "ti,tps65217-charger",
+ 	},
++	{
++		.name = "tps65217-pwrbutton",
++		.num_resources = ARRAY_SIZE(pb_resources),
++		.resources = pb_resources,
++		.of_compatible = "ti,tps65217-pwrbutton",
++	},
+ };
+ 
+ static irqreturn_t tps65217_irq_thread(int irq, void *data)
+-- 
+2.8.0.rc3
+
