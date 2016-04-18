@@ -125,11 +125,6 @@ config="CONFIG_ARM_ERRATA_773022" ; config_disable
 #exit
 
 #
-# PCI host controller drivers
-#
-config="CONFIG_PCI_DRA7XX" ; config_enable
-
-#
 # Kernel Features
 #
 config="CONFIG_NR_CPUS" ; option="4" ; config_value
@@ -365,6 +360,7 @@ config="CONFIG_IEEE802154_AT86RF230" ; config_module
 config="CONFIG_IEEE802154_MRF24J40" ; config_module
 config="CONFIG_IEEE802154_CC2520" ; config_module
 config="CONFIG_IEEE802154_ATUSB" ; config_module
+config="CONFIG_IEEE802154_ADF7242" ; config_module
 
 #
 # Input Device Drivers
@@ -604,6 +600,7 @@ config="CONFIG_GPIO_TPIC2810" ; config_module
 config="CONFIG_GPIO_DA9052" ; config_enable
 config="CONFIG_GPIO_DA9055" ; config_enable
 config="CONFIG_GPIO_DLN2" ; config_module
+config="CONFIG_GPIO_TPS65218" ; config_enable
 config="CONFIG_GPIO_TPS65910" ; config_enable
 
 #
