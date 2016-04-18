@@ -184,6 +184,28 @@ config="CONFIG_NETLABEL" ; config_enable
 config="CONFIG_MAC802154" ; config_module
 
 #
+# Network testing
+#
+config="CONFIG_HAMRADIO" ; config_enable
+
+#
+# Packet Radio protocols
+#
+config="CONFIG_AX25" ; config_module
+config="CONFIG_NETROM" ; config_module
+config="CONFIG_ROSE" ; config_module
+
+#
+# AX.25 network device drivers
+#
+config="CONFIG_MKISS" ; config_module
+config="CONFIG_6PACK" ; config_module
+config="CONFIG_BPQETHER" ; config_module
+config="CONFIG_BAYCOM_SER_FDX" ; config_module
+config="CONFIG_BAYCOM_SER_HDX" ; config_module
+config="CONFIG_YAM" ; config_module
+
+#
 # CAN Device Drivers
 #
 config="CONFIG_CAN_XILINXCAN" ; config_module
