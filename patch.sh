@@ -402,20 +402,6 @@ bbb_overlays () {
 		fi
 	fi
 
-	echo "dir: bbb_overlays/configfs"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cherrypick_dir="bbb_overlays/configfs"
-		#merged in 4.5.0-rc0
-		SHA="03607ace807b414eab46323c794b6fb8fcc2d48c" ; num="1" ; cherrypick
-		exit 2
-	fi
-
-	if [ "x${merged_in_4_5}" = "xenable" ] ; then
-		#merged in 4.5.0-rc0
-		${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
-	fi
-
 	echo "dir: bbb_overlays/of"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
