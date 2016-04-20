@@ -402,42 +402,6 @@ bbb_overlays () {
 		fi
 	fi
 
-	echo "dir: bbb_overlays/nvmem"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cherrypick_dir="bbb_overlays/nvmem"
-		#merged in 4.6.0-rc0
-		SHA="092462c2b52259edba80a6748acb3305f7f70423" ; num="1" ; cherrypick
-		SHA="cb54ad6cddb606add2481b82901d69670b480d1b" ; cherrypick
-		SHA="c074abe02e5e3479b2dfd109fa2620d22d351c34" ; cherrypick
-		SHA="e1379b56e9e88653fcb58cbaa71cd6b1cc304918" ; cherrypick
-		SHA="3ca9b1ac28398c6fe0bed335d2d71a35e1c5f7c9" ; cherrypick
-		SHA="811b0d6538b9f26f3eb0f90fe4e6118f2480ec6f" ; cherrypick
-		SHA="b6c217ab9be6895384cf0b284ace84ad79e5c53b" ; cherrypick
-		SHA="57d155506dd5e8f8242d0310d3822c486f70dea7" ; cherrypick
-		SHA="3ccea0e1fdf896645f8cccddcfcf60cb289fdf76" ; cherrypick
-		SHA="5a99f570dab9f626d3b0b87a4ddf5de8c648aae8" ; cherrypick
-		SHA="1c4b6e2c7534b9b193f440f77dd47e420a150288" ; cherrypick
-		SHA="bec3c11bad0e7ac05fb90f204d0ab6f79945822b" ; cherrypick
-		exit 2
-	fi
-
-	if [ "x${merged_in_4_6}" = "xenable" ] ; then
-		#merged in 4.6.0-rc0
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0001-misc-eeprom-use-kobj_to_dev.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0002-misc-eeprom_93xx46-Fix-16-bit-read-and-write-accesse.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0003-misc-eeprom_93xx46-Implement-eeprom_93xx46-DT-bindin.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0004-misc-eeprom_93xx46-Add-quirks-to-support-Atmel-AT93C.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0005-misc-eeprom_93xx46-Add-support-for-a-GPIO-select-lin.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0006-nvmem-Add-flag-to-export-NVMEM-to-root-only.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0007-nvmem-Add-backwards-compatibility-support-for-older-.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0008-eeprom-at24-extend-driver-to-plug-into-the-NVMEM-fra.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0009-eeprom-at25-Remove-in-kernel-API-for-accessing-the-E.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0010-eeprom-at25-extend-driver-to-plug-into-the-NVMEM-fra.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0011-eeprom-93xx46-extend-driver-to-plug-into-the-NVMEM-f.patch"
-		${git} "${DIR}/patches/bbb_overlays/nvmem/0012-misc-at24-replace-memory_accessor-with-nvmem_device_.patch"
-	fi
-
 	echo "dir: bbb_overlays/configfs"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
