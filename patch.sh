@@ -402,20 +402,6 @@ bbb_overlays () {
 		fi
 	fi
 
-	echo "dir: bbb_overlays/omap"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cherrypick_dir="bbb_overlays/omap"
-		#merged in 4.5.0-rc6?
-		SHA="cf26f1137333251f3515dea31f95775b99df0fd5" ; num="1" ; cherrypick
-		exit 2
-	fi
-
-	if [ "x${merged_in_4_5}" = "xenable" ] ; then
-		#merged in 4.5.0-rc6?
-		${git} "${DIR}/patches/bbb_overlays/omap/0001-ARM-OMAP2-Fix-omap_device-for-module-reload-on-PM-ru.patch"
-	fi
-
 	echo "dir: bbb_overlays"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
