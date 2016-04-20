@@ -1,7 +1,7 @@
-From 6d62ec306739c850b69c6b81137298f5b44a39ab Mon Sep 17 00:00:00 2001
+From 1431479996f365eaf76508092b05cbee0d3ed5d4 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Thu, 21 May 2015 12:08:54 +0300
-Subject: [PATCH 30/37] RFC: Device overlay manager (PCI/USB + DT)
+Subject: [PATCH 30/38] RFC: Device overlay manager (PCI/USB + DT)
 
 This probably misplaced (in drivers/misc) patch allows use
 of device tree overlays on the two kinds of probeable busses
@@ -20,8 +20,8 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
  drivers/misc/Kconfig    |    9 +
  drivers/misc/Makefile   |    1 +
- drivers/misc/devovmgr.c | 1300 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 1310 insertions(+)
+ drivers/misc/devovmgr.c | 1306 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 1316 insertions(+)
  create mode 100644 drivers/misc/devovmgr.c
 
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
@@ -45,23 +45,20 @@ index 7d156db..6a8f575 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index f688a7e..dfaf89d 100644
+index 32715fa..7b753be 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -37,6 +37,7 @@ obj-$(CONFIG_DS1682)		+= ds1682.o
- obj-$(CONFIG_TI_DAC7512)	+= ti_dac7512.o
- obj-$(CONFIG_C2PORT)		+= c2port/
+@@ -58,3 +58,4 @@ obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
+ obj-$(CONFIG_CXL_BASE)		+= cxl/
+ obj-$(CONFIG_PANEL)             += panel.o
  obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
 +obj-$(CONFIG_DEV_OVERLAYMGR)	+= devovmgr.o
- obj-$(CONFIG_HMC6352)		+= hmc6352.o
- obj-y				+= eeprom/
- obj-y				+= cb710/
 diff --git a/drivers/misc/devovmgr.c b/drivers/misc/devovmgr.c
 new file mode 100644
-index 0000000..18ea187
+index 0000000..d5c8d1d
 --- /dev/null
 +++ b/drivers/misc/devovmgr.c
-@@ -0,0 +1,1300 @@
+@@ -0,0 +1,1306 @@
 +/*
 + * Device overlay manager
 + *
@@ -154,7 +151,6 @@ index 0000000..18ea187
 +		return 0;
 +
 +	ret = 0;
-+	mutex_lock(&group->cg_subsys->su_mutex);
 +	list_for_each_entry(cfsitem, &group->cg_children, ci_entry) {
 +		item = to_dovmgr_item(cfsitem);
 +		if (!item->enable || !(*do_match)(item, dev))
@@ -164,7 +160,6 @@ index 0000000..18ea187
 +		if (ret != 0)
 +			break;
 +	}
-+	mutex_unlock(&group->cg_subsys->su_mutex);
 +	return ret;
 +}
 +
@@ -1153,7 +1148,7 @@ index 0000000..18ea187
 +			goto out_cset_fail;
 +	}
 +
-+	ret = __of_changeset_apply(&cset);
++	ret = of_changeset_apply(&cset);
 +	if (ret != 0)
 +		goto out_cset_fail;
 +
@@ -1219,7 +1214,7 @@ index 0000000..18ea187
 +			goto out_cset_fail;
 +	}
 +
-+	ret = __of_changeset_apply(&cset);
++	ret = of_changeset_apply(&cset);
 +	if (ret != 0)
 +		goto out_cset_fail;
 +
@@ -1330,6 +1325,14 @@ index 0000000..18ea187
 +	int ret;
 +
 +	config_group_init(&dovmgr_subsys.su_group);
++#if IS_ENABLED(CONFIG_PCI)
++	configfs_add_default_group(&dovmgr_pci_group,
++			&dovmgr_subsys.su_group);
++#endif
++#if IS_ENABLED(CONFIG_USB)
++	configfs_add_default_group(&dovmgr_usb_group,
++			&dovmgr_subsys.su_group);
++#endif
 +
 +#if IS_ENABLED(CONFIG_PCI)
 +	ret = dovmgr_pci_init();
@@ -1363,5 +1366,5 @@ index 0000000..18ea187
 +}
 +late_initcall(dovmgr_init);
 -- 
-2.7.0
+2.8.0.rc3
 

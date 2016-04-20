@@ -1,7 +1,7 @@
-From a04dc0499bd026ed82857184b9225abd2e25e8c0 Mon Sep 17 00:00:00 2001
+From 11f55514d5b2371c5c0f19b373209ad8e64151c4 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Thu, 21 May 2015 12:31:06 +0300
-Subject: [PATCH 22/37] of: overlay: Implement indirect target support
+Subject: [PATCH 22/38] of: overlay: Implement indirect target support
 
 Some applications require applying the same overlay to a different
 target according to some external condition (for instance depending
@@ -29,7 +29,7 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 110 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index a8bfbf0..6508565 100644
+index fdfc487..364b619 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
 @@ -75,6 +75,7 @@ struct of_overlay {
@@ -200,7 +200,7 @@ index a8bfbf0..6508565 100644
 + * of the overlay in a list. This list can be used to prevent
 + * illegal overlay removals.
 + *
-+ * Returns the id of the created overlay, or an negative error number
++ * Returns the id of the created overlay, or a negative error number
 + */
 +int of_overlay_create(struct device_node *tree)
 +{
@@ -217,7 +217,7 @@ index a8bfbf0..6508565 100644
 + * of the overlay in a list. This list can be used to prevent
 + * illegal overlay removals.
 + *
-+ * Returns the id of the created overlay, or an negative error number
++ * Returns the id of the created overlay, or a negative error number
 + */
 +int of_overlay_create_indirect(struct device_node *tree, const char *id)
 +{
@@ -229,7 +229,7 @@ index a8bfbf0..6508565 100644
  static int overlay_subtree_check(struct device_node *tree,
  		struct device_node *dn)
 diff --git a/include/linux/of.h b/include/linux/of.h
-index dc6e396..14763c1 100644
+index 7fcb681..56bed18 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
 @@ -1083,6 +1083,8 @@ int of_overlay_create(struct device_node *tree);
@@ -255,5 +255,5 @@ index dc6e396..14763c1 100644
  
  #endif /* _LINUX_OF_H */
 -- 
-2.7.0
+2.8.0.rc3
 

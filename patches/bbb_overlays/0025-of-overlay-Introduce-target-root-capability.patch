@@ -1,7 +1,7 @@
-From 9a1139364e1dbb754745a7f8f0ac71a48d473e9c Mon Sep 17 00:00:00 2001
+From 78960ae372cef93cf1ee87b1938e53bac4d995f6 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Fri, 12 Jun 2015 15:32:55 +0300
-Subject: [PATCH 25/37] of: overlay: Introduce target root capability.
+Subject: [PATCH 25/38] of: overlay: Introduce target root capability.
 
 The target facility of an overlay allows the target to be any point
 in the live kernel tree, since it usually that's required when
@@ -22,7 +22,7 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 102 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 6508565..de5aae1 100644
+index 364b619..a274d65 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
 @@ -76,6 +76,7 @@ struct of_overlay {
@@ -33,7 +33,7 @@ index 6508565..de5aae1 100644
  };
  
  /* master enable switch; once set to 0 can't be re-enabled */
-@@ -224,21 +225,84 @@ static int of_overlay_apply(struct of_overlay *ov)
+@@ -224,20 +225,83 @@ static int of_overlay_apply(struct of_overlay *ov)
  static struct device_node *find_target_node_direct(struct of_overlay *ov,
  		struct device_node *info_node)
  {
@@ -101,9 +101,9 @@ index 6508565..de5aae1 100644
 +		}
 +		goto check_root;
 +	}
- 
- 	return NULL;
 +
++	return NULL;
+ 
 +check_root:
 +	if (!ov->target_root)
 +		return target;
@@ -118,10 +118,9 @@ index 6508565..de5aae1 100644
 +			of_node_full_name(ov->target_root));
 +	/* target is not under target_root */
 +	of_node_put(target);
-+	return NULL;
+ 	return NULL;
  }
  
- /*
 @@ -462,6 +526,7 @@ void of_overlay_release(struct kobject *kobj)
  {
  	struct of_overlay *ov = kobj_to_overlay(kobj);
@@ -197,7 +196,7 @@ index 6508565..de5aae1 100644
  static int overlay_subtree_check(struct device_node *tree,
  		struct device_node *dn)
 diff --git a/include/linux/of.h b/include/linux/of.h
-index 14763c1..f7c91b3 100644
+index 56bed18..c20e9a5 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
 @@ -1084,6 +1084,8 @@ int of_overlay_destroy(int id);
@@ -223,5 +222,5 @@ index 14763c1..f7c91b3 100644
  
  #endif /* _LINUX_OF_H */
 -- 
-2.7.0
+2.8.0.rc3
 

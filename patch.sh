@@ -493,11 +493,6 @@ bbb_overlays () {
 		#merged in 4.5.0-rc0
 		${git} "${DIR}/patches/bbb_overlays/configfs/0001-configfs-implement-binary-attributes.patch"
 	fi
-	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-target-add-a-new-add_wwn_groups-fabrics-metho.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0002-Revert-target-initialize-the-nacl-base-CIT-begfore-i.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0003-Revert-target-remove-fabric_cleanup_nodeacl.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-dlm-config-Fix-ENOMEM-failures-in-make_cluste.patch"
-	${git} "${DIR}/patches/bbb_overlays/configfs/0001-Revert-configfs-switch-default-groups-to-a-linked-li.patch"
 
 	echo "dir: bbb_overlays/of"
 	#regenerate="enable"
@@ -533,7 +528,7 @@ bbb_overlays () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/0001-OF-DT-Overlay-configfs-interface-v6.patch"
+	${git} "${DIR}/patches/bbb_overlays/0001-OF-DT-Overlay-configfs-interface-v7.patch"
 	${git} "${DIR}/patches/bbb_overlays/0002-gitignore-Ignore-DTB-files.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -585,20 +580,25 @@ bbb_overlays () {
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 	${git} "${DIR}/patches/bbb_overlays/0031-boneblack-defconfig.patch"
-	${git} "${DIR}/patches/bbb_overlays/0032-connector-wip.patch"
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/0033-of-remove-bogus-return-in-of_core_init.patch"
-	${git} "${DIR}/patches/bbb_overlays/0034-of-Maintainer-fixes-for-dynamic.patch"
+	${git} "${DIR}/patches/bbb_overlays/0032-of-remove-bogus-return-in-of_core_init.patch"
+	${git} "${DIR}/patches/bbb_overlays/0033-of-Maintainer-fixes-for-dynamic.patch"
 
 	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0035-of-unittest-changeset-helpers.patch"
+	${git} "${DIR}/patches/bbb_overlays/0034-of-unittest-changeset-helpers.patch"
 
-	${git} "${DIR}/patches/bbb_overlays/0036-of-rename-_node_sysfs-to-_node_post.patch"
-	${git} "${DIR}/patches/bbb_overlays/0037-of-Support-hashtable-lookups-for-phandles.patch"
+	${git} "${DIR}/patches/bbb_overlays/0035-of-rename-_node_sysfs-to-_node_post.patch"
+	${git} "${DIR}/patches/bbb_overlays/0036-of-Support-hashtable-lookups-for-phandles.patch"
+	${git} "${DIR}/patches/bbb_overlays/0037-of-overlay-Pick-up-label-symbols-from-overlays.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=37
+	${git} "${DIR}/patches/bbb_overlays/0038-connector-wip.patch"
+	fi
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="bbb_overlays"
+		number=38
 		cleanup
 	fi
 }

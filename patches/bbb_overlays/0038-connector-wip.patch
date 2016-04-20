@@ -1,0 +1,3111 @@
+From 0c3710cae0a260d97f18ac4fd51d717795335048 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Wed, 16 Sep 2015 13:02:34 +0300
+Subject: [PATCH 38/38] connector wip
+
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 1703 +++++++++++++++++++++++++++++
+ drivers/extcon/Kconfig                    |   20 +
+ drivers/extcon/Makefile                   |    3 +
+ drivers/extcon/extcon-dt-con-gpio.c       |  672 ++++++++++++
+ drivers/extcon/extcon-dt-con-uart.c       |   66 ++
+ drivers/extcon/extcon-dt-con.c            |  485 ++++++++
+ drivers/extcon/extcon-dt-con.h            |   85 ++
+ 7 files changed, 3034 insertions(+)
+ create mode 100644 drivers/extcon/extcon-dt-con-gpio.c
+ create mode 100644 drivers/extcon/extcon-dt-con-uart.c
+ create mode 100644 drivers/extcon/extcon-dt-con.c
+ create mode 100644 drivers/extcon/extcon-dt-con.h
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index a9e9eb1..e9b9ee0 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -421,4 +421,1707 @@
+ 			};
+ 		};
+ 	};
++
++};
++
++
++/* the muxes for the dtcon */
++&am33xx_pinmux {
++	/* P8.3 GPIO1_6 */
++	gpio1_6_in: gpio1_6_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x818, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_6_out: gpio1_6_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x818, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.4 */
++	gpio1_7_in: gpio1_7_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x81c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_7_out: gpio1_7_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x81c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.5 */
++	gpio1_2_in: gpio1_2_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x808, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++
++	gpio1_2_out: gpio1_2_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x808, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.6 */
++	gpio1_3_in: gpio1_3_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x80c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_3_out: gpio1_3_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x80c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.7 */
++	gpio2_2_in: gpio2_2_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x890, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_2_out: gpio2_2_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x890, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.8 */
++	gpio2_3_in: gpio2_3_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x894, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_3_out: gpio2_3_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x894, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.9 */
++	gpio2_5_in: gpio2_5_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x89c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_5_out: gpio2_5_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x89c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.10 */
++	gpio2_4_in: gpio2_4_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x898, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_4_out: gpio2_4_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x898, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.11 */
++	gpio1_13_in: gpio1_13_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x834, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_13_out: gpio1_13_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x834, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.12 */
++	gpio1_12_in: gpio1_12_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x830, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_12_out: gpio1_12_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x830, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.13 */
++	gpio0_23_in: gpio0_23_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x824, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_23_out: gpio0_23_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x824, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.14 */
++	gpio0_26_in: gpio0_26_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x828, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_26_out: gpio0_26_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x828, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.15 */
++	gpio1_15_in: gpio1_15_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x83c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_15_out: gpio1_15_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x83c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.16 */
++	gpio1_14_in: gpio1_14_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x838, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_14_out: gpio1_14_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x838, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.17 */
++	gpio0_27_in: gpio0_27_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x82c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_27_out: gpio0_27_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x82c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.18 */
++	gpio2_1_in: gpio2_1_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x88c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_1_out: gpio2_1_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x88c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.19 */
++	gpio0_22_in: gpio0_22_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x820, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_22_out: gpio0_22_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x820, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.20 */
++	gpio1_31_in: gpio1_31_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x884, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_31_out: gpio1_31_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x884, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.21 */
++	gpio1_30_in: gpio1_30_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x880, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_30_out: gpio1_30_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x880, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.22 */
++	gpio1_5_in: gpio1_5_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x814, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_5_out: gpio1_5_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x814, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.23 */
++	gpio1_4_in: gpio1_4_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x810, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_4_out: gpio1_4_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x810, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.24 */
++	gpio1_1_in: gpio1_1_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x804, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_1_out: gpio1_1_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x804, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.25 */
++	gpio1_0_in: gpio1_0_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x800, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_0_out: gpio1_0_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x800, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.26 */
++	gpio1_29_in: gpio1_29_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x87c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_29_out: gpio1_29_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x87c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.27 */
++	gpio2_22_in: gpio2_22_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8e0, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_22_out: gpio2_22_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8e0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.28 */
++	gpio2_24_in: gpio2_24_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8e8, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_24_out: gpio2_24_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8e8, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.29 */
++	gpio2_23_in: gpio2_23_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8e4, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_23_out: gpio2_23_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8e4, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.30 */
++	gpio2_25_in: gpio2_25_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8ec, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_25_out: gpio2_25_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8ec, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.31 */
++	uart5_rxd_mux1: uart5_rxd_mux1 {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d8, PIN_INPUT_PULLUP | MUX_MODE4)
++		>;
++	};
++	uart5_ctsn: uart5_ctsn {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d8, PIN_INPUT_PULLUP | MUX_MODE6)
++		>;
++	};
++	gpio0_10_in: gpio0_10_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d8, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_10_out: gpio0_10_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d8, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.32 */
++	uart5_rtsn: uart5_rtsn {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8dc, PIN_INPUT_PULLUP | MUX_MODE6)
++		>;
++	};
++	gpio0_11_in: gpio0_11_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8dc, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_11_out: gpio0_11_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8dc, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.33 */
++	gpio0_9_in: gpio0_9_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d4, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_9_out: gpio0_9_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d4, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.34 */
++	gpio2_17_in: gpio2_17_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8cc, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_17_out: gpio2_17_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8cc, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.35 */
++	gpio0_8_in: gpio0_8_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d0, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_8_out: gpio0_8_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8d0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.36 */
++	gpio2_16_in: gpio2_16_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c8, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_16_out: gpio2_16_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c8, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.37 */
++	uart5_txd: uart5_txd {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c0, PIN_OUTPUT_PULLDOWN | MUX_MODE4)
++		>;
++	};
++	uart2_ctsn: uart2_ctsn {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c0, PIN_INPUT_PULLUP | MUX_MODE6)
++		>;
++	};
++	gpio2_14_in: gpio2_14_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c0, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_14_out: gpio2_14_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.38 */
++	uart5_rxd: uart5_rxd {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c4, PIN_OUTPUT_PULLDOWN | MUX_MODE4)
++		>;
++	};
++	uart2_rtsn: uart2_rtsn {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c4, PIN_OUTPUT_PULLDOWN | MUX_MODE6)
++		>;
++	};
++	gpio2_15_in: gpio2_15_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c4, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_15_out: gpio2_15_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8c4, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.39 */
++	gpio2_12_in: gpio2_12_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8b8, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_12_out: gpio2_12_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8b8, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.40 */
++	gpio2_13_in: gpio2_13_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8bc, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++
++	gpio2_13_out: gpio2_13_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8bc, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.41 */
++	gpio2_10_in: gpio2_10_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8b0, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++
++	gpio2_10_out: gpio2_10_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8b0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.42 */
++	gpio2_11_in: gpio2_11_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8b4, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_11_out: gpio2_11_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8b4, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.43 */
++	gpio2_8_in: gpio2_8_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8a8, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_8_out: gpio2_8_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8a8, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.44 */
++	gpio2_9_in: gpio2_9_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8ac, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_9_out: gpio2_9_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8ac, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.45 */
++	gpio2_6_in: gpio2_6_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8a0, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++
++	gpio2_6_out: gpio2_6_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8a0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P8.46 */
++	gpio2_7_in: gpio2_7_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8a4, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio2_7_out: gpio2_7_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x8a4, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.11 */
++	gpio0_30_in: gpio0_30_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x870, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_30_out: gpio0_30_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x870, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.12 */
++	gpio1_28_in: gpio1_28_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x878, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_28_out: gpio1_28_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x878, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.13 */
++	gpio0_31_in: gpio0_31_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x874, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_31_out: gpio0_31_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x874, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.14 */
++	gpio1_18_in: gpio1_18_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x848, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_18_out: gpio1_18_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x848, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.15 */
++	gpio1_16_in: gpio1_16_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x840, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_16_out: gpio1_16_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x840, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.16 */
++	gpio0_19_in: gpio0_19_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x84c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_19_out: gpio0_19_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x84c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.17 */
++	i2c1_scl: i2c1_scl {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x95c, PIN_INPUT_PULLUP | MUX_MODE2)
++		>;
++	};
++	gpio0_5_in: gpio0_5_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x95c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_5_out: gpio0_5_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x95c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.18 */
++	i2c1_sda: i2c1_sda {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x958, PIN_INPUT_PULLUP | MUX_MODE2)
++		>;
++	};
++	gpio0_4_in: gpio0_4_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x958, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_4_out: gpio0_4_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x958, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.19 */
++	uart1_rtsn: uart1_rtsn {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x87c, PIN_OUTPUT_PULLDOWN | MUX_MODE0)
++		>;
++	};
++	gpio0_13_in: gpio0_13_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x97c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_13_out: gpio0_13_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x97c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.20 */
++	uart1_ctsn: uart1_ctsn {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x878, PIN_INPUT_PULLUP | MUX_MODE0)
++		>;
++	};
++	gpio0_12_in: gpio0_12_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x978, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_12_out: gpio0_12_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x978, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.21 */
++	uart2_txd: uart2_txd {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x954, PIN_OUTPUT_PULLDOWN | MUX_MODE1)
++		>;
++	};
++	gpio0_3_in: gpio0_3_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x954, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_3_out: gpio0_3_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x954, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.22 */
++	uart2_rxd: uart2_rxd {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x950, PIN_INPUT_PULLUP | MUX_MODE1)
++		>;
++	};
++	gpio0_2_in: gpio0_2_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x950, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_2_out: gpio0_2_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x950, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.23 */
++	gpio1_17_in: gpio1_17_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x844, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio1_17_out: gpio1_17_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x844, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.24 */
++	uart1_txd: uart1_txd {
++		pinctrl-single = <
++			AM33XX_IOPAD(0x984, PIN_OUTPUT_PULLDOWN | MUX_MODE0)
++		>;
++	};
++	i2c1_scl_mux1: i2c1_scl_mux1 {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x984, PIN_INPUT_PULLUP | MUX_MODE3)
++		>;
++	};
++	gpio0_15_in: gpio0_15_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x984, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_15_out: gpio0_15_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x984, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++	/* P9.25 */
++	gpio3_21_in: gpio3_21_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9ac, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_21_out: gpio3_21_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9ac, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.26 */
++	uart1_rxd: uart1_rxd {
++		pinctrl-single = <
++			AM33XX_IOPAD(0x980, PIN_INPUT_PULLUP | MUX_MODE0)
++		>;
++	};
++	i2c1_sda_mux1: i2c1_sda_mux1 {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x980, PIN_INPUT_PULLUP | MUX_MODE3)
++		>;
++	};
++	gpio0_14_in: gpio0_14_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x980, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_14_out: gpio0_14_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x980, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.27 */
++	gpio3_19_in: gpio3_19_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9a4, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_19_out: gpio3_19_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9a4, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.28 */
++	gpio3_17_in: gpio3_17_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x99c, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_17_out: gpio3_17_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x99c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.29 */
++	gpio3_15_in: gpio3_15_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x994, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_15_out: gpio3_15_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x994, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.30 */
++	gpio3_16_in: gpio3_16_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x998, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_16_out: gpio3_16_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x998, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.31 */
++	gpio3_14_in: gpio3_14_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x990, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_14_out: gpio3_14_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x990, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.40 */
++	gpio0_20_in: gpio0_20_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9b4, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_20_out: gpio0_20_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.41 */
++	gpio3_20_in: gpio3_20_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9a8, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_20_out: gpio3_20_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9a8, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	/* P9.42 GPIO0_7 wired to GPIO3_18 */
++	gpio0_7_in: gpio0_7_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x964, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio0_7_out: gpio0_7_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x964, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++	gpio3_18_in: gpio3_18_in {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9a0, PIN_INPUT_PULLUP | MUX_MODE7)
++		>;
++	};
++	gpio3_18_out: gpio3_18_out {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9a0, PIN_OUTPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++};
++
++/* the device tree based connector */
++/ {
++	dtcon {
++		compatible = "extcon,dt-con";
++		status = "okay";
++
++		connector {
++
++			#address-cells = <2>;
++			#size-cells = <0>;
++
++			GPIO1_6: GPIO1_6 {
++				reg = <8 3>;
++				pad = "R9";
++				modes = "gpmc_ad6", "mmc1_dat6", "", "", "", "", "", "gpio1_6";
++
++				pinmuxes = <&gpio1_6_in &gpio1_6_out>;
++			};
++			GPIO1_7: GPIO1_7 {
++				reg = <8 4>;
++				pad = "T9";
++				modes = "gpmc_ad7", "mmc1_dat7", "", "", "", "", "", "gpio1_7";
++				pinmuxes = <&gpio1_7_in &gpio1_7_out>;
++			};
++			GPIO1_2: GPIO1_2 {
++				reg = <8 5>;
++				pad = "R8";
++				modes = "gpmc_ad2", "mmc1_dat2", "", "", "", "", "", "gpio1_2";
++				pinmuxes = <&gpio1_2_in &gpio1_2_out>;
++			};
++			GPIO1_3: GPIO1_3 {
++				reg = <8 6>;
++				pad = "T8";
++				modes = "gpmc_ad3", "mmc1_dat3", "", "", "", "", "", "gpio1_3";
++				pinmuxes = <&gpio1_3_in &gpio1_3_out>;
++			};
++			TIMER4: TIMER4 {
++				reg = <8 7>;
++				pad = "R7";
++				modes = "gpmc_advn_ale", "", "timer4", "", "", "", "", "gpio2_2";
++				pinmuxes = <&gpio2_2_in &gpio2_2_out>;
++			};
++			TIMER7: TIMER7 {
++				reg = <8 8>;
++				pad = "T7";
++				modes = "gpmc_oen_ren", "", "timer7", "", "", "", "", "gpio2_3";
++				pinmuxes = <&gpio2_3_in &gpio2_3_out>;
++			};
++			TIMER5: TIMER5 {
++				reg = <8 9>;
++				pad = "T6";
++				modes = "gpmc_be0n_cle", "", "timer5", "", "", "", "", "gpio2_5";
++				pinmuxes = <&gpio2_5_in &gpio2_5_out>;
++			};
++			TIMER6: TIMER6 {
++				reg = <8 10>;
++				pad = "U6";
++				modes = "gpmc_wen", "", "timer6", "", "", "", "", "gpio2_4";
++				pinmuxes = <&gpio2_4_in &gpio2_4_out>;
++			};
++			GPIO1_13: GPIO1_13 {
++				reg = <8 11>;
++				pad = "R12";
++				modes = "gpmc_ad13", "lcd_data18", "mmc1_dat5", "mmc2_dat1", "eqep2b_in", "", "", "gpio1_13";
++				pinmuxes = <&gpio1_13_in &gpio1_13_out>;
++			};
++			GPIO1_12: GPIO1_12 {
++				reg = <8 12>;
++				pad = "T12";
++				modes = "gpmc_ad12", "lcd_data19", "mmc1_dat4", "mmc2_dat0", "eqep2a_in", "", "", "gpio1_12";
++				pinmuxes = <&gpio1_12_in &gpio1_12_out>;
++			};
++			EHRPWM2B: EHRPWM2B {
++				reg = <8 13>;
++				pad = "T10";
++				modes = "gpmc_ad9", "lcd_data22", "mmc1_dat1", "mmc2_dat5", "ehrpwm2B", "", "", "gpio0_23";
++				pinmuxes = <&gpio0_23_in &gpio0_23_out>;
++			};
++			GPIO0_26: GPIO0_26 {
++				reg = <8 14>;
++				pad = "T11";
++				modes = "gpmc_ad10", "lcd_data21", "mmc1_dat2", "mmc2_dat6", "ehrpwm2_tripzone_in", "", "", "gpio0_26";
++				pinmuxes = <&gpio0_26_in &gpio0_26_out>;
++			};
++			GPIO1_15: GPIO1_15 {
++				reg = <8 15>;
++				pad = "U13";
++				modes = "gpmc_ad15", "lcd_data16", "mmc1_dat7", "mmc2_dat3", "eqep2_strobe", "", "", "gpio1_15";
++				pinmuxes = <&gpio1_15_in &gpio1_15_out>;
++			};
++			GPIO1_14: GPIO1_14 {
++				reg = <8 16>;
++				pad = "V13";
++				modes = "gpmc_ad14", "lcd_data17", "mmc1_dat6", "mmc2_dat2", "eqep2_index", "", "", "gpio1_14";
++				pinmuxes = <&gpio1_14_in &gpio1_14_out>;
++			};
++			GPIO0_27: GPIO0_27 {
++				reg = <8 17>;
++				pad = "U12";
++				modes = "gpmc_ad11", "lcd_data20", "mmc1_dat3", "mmc2_dat7", "ehrpwm0_synco", "", "", "gpio0_27";
++				pinmuxes = <&gpio0_27_in &gpio0_27_out>;
++			};
++			GPIO2_1: GPIO2_1 {
++				reg = <8 18>;
++				pad = "V12";
++				modes = "gpmc_clk_mux0", "lcd_memory_clk", "gpmc_wait1", "mmc2_clk", "", "", "mcasp0_fsr", "gpio2_1";
++				pinmuxes = <&gpio2_1_in &gpio2_1_out>;
++			};
++			EHRPWM2A: EHRPWM2A {
++				reg = <8 19>;
++				pad = "U10";
++				modes = "gpmc_ad8", "lcd_data23", "mmc1_dat0", "mmc2_dat4", "ehrpwm2A", "", "", "gpio0_22";
++				pinmuxes = <&gpio0_22_in &gpio0_22_out>;
++			};
++			GPIO1_31: GPIO1_31 {
++				reg = <8 20>;
++				pad = "V9";
++				modes = "gpmc_csn2", "gpmc_be1n", "mmc1_cmd", "", "", "", "", "gpio1_31";
++				pinmuxes = <&gpio1_31_in &gpio1_31_out>;
++			};
++			GPIO1_30: GPIO1_30 {
++				reg = <8 21>;
++				pad = "U9";
++				modes = "gpmc_csn1", "gpmc_clk", "mmc1_clk", "", "", "", "", "gpio1_30";
++				pinmuxes = <&gpio1_30_in &gpio1_30_out>;
++			};
++			GPIO1_5: GPIO1_5 {
++				reg = <8 22>;
++				pad = "V8";
++				modes = "gpmc_ad5", "mmc1_dat5", "", "", "", "", "", "gpio1_5";
++				pinmuxes = <&gpio1_5_in &gpio1_5_out>;
++			};
++			GPIO1_4: GPIO1_4 {
++				reg = <8 23>;
++				pad = "U8";
++				modes = "gpmc_ad4", "mmc1_dat4", "", "", "", "", "", "gpio1_4";
++				pinmuxes = <&gpio1_4_in &gpio1_4_out>;
++			};
++			GPIO1_1: GPIO1_1 {
++				reg = <8 24>;
++				pad = "V7";
++				modes = "gpmc_ad1", "mmc1_dat1", "", "", "", "", "", "gpio1_1";
++				pinmuxes = <&gpio1_1_in &gpio1_1_out>;
++			};
++			GPIO1_0: GPIO1_0 {
++				reg = <8 25>;
++				pad = "U7";
++				modes = "gpmc_ad0", "mmc1_dat0", "", "", "", "", "", "gpio1_0";
++				pinmuxes = <&gpio1_0_in &gpio1_0_out>;
++			};
++			GPIO1_29: GPIO1_29 {
++				reg = <8 26>;
++				pad = "V6";
++				modes = "gpmc_csn0", "", "", "", "", "", "", "gpio1_29";
++				pinmuxes = <&gpio1_29_in &gpio1_29_out>;
++			};
++			GPIO2_22: GPIO2_22 {
++				reg = <8 27>;
++				pad = "U5";
++				modes = "lcd_vsync", "gpmc_a8", "", "", "", "", "", "gpio2_22";
++				pinmuxes = <&gpio2_22_in &gpio2_22_out>;
++			};
++			GPIO2_24: GPIO2_24 {
++				reg = <8 28>;
++				pad = "V5";
++				modes = "lcd_pclk", "gpmc_a10", "", "", "", "", "", "gpio2_24";
++				pinmuxes = <&gpio2_24_in &gpio2_24_out>;
++			};
++			GPIO2_23: GPIO2_23 {
++				reg = <8 29>;
++				pad = "R5";
++				modes = "lcd_hsync", "gpmc_a9", "", "", "", "", "", "gpio2_23";
++				pinmuxes = <&gpio2_23_in &gpio2_23_out>;
++			};
++			GPIO2_25: GPIO2_25 {
++				reg = <8 30>;
++				pad = "R6";
++				modes = "lcd_ac_bias_en", "gpmc_a11", "", "", "", "", "", "gpio2_25";
++				pinmuxes = <&gpio2_25_in &gpio2_25_out>;
++			};
++			UART5_CTSN: UART5_CTSN {
++				reg = <8 31>;
++				pad = "V4";
++				modes = "lcd_data14", "gpmc_a18", "eqep1_index", "mcasp0_axr1", "uart5_rxd_mux1", "", "uart5_ctsn", "gpio0_10";
++				pinmuxes = <&uart5_rxd_mux1 &uart5_ctsn &gpio0_10_in &gpio0_10_out>;
++			};
++			UART5_RTSN: UART5_RTSN {
++				reg = <8 32>;
++				pad = "T5";
++				modes = "lcd_data15", "gpmc_a19", "eqep1_strobe", "mcasp0_ahclkx", "mcasp0_axr3", "", "uart5_rtsn", "gpio0_11";
++				pinmuxes = <&uart5_rtsn &gpio0_11_in &gpio0_11_out>;
++			};
++			UART4_RTSN: UART4_RTSN {
++				reg = <8 33>;
++				pad = "V3";
++				modes = "lcd_data13", "gpmc_a17", "eqep1b_in", "mcasp0_fsr", "mcasp0_axr3", "", "uart4_rtsn", "gpio0_9";
++				pinmuxes = <&gpio0_9_in &gpio0_9_out>;
++			};
++			UART3_RTSN: UART3_RTSN {
++				reg = <8 34>;
++				pad = "U4";
++				modes = "lcd_data11", "gpmc_a15", "ehrpwm1B", "mcasp0_ahclkr", "mcasp0_axr2", "", "uart3_rtsn", "gpio2_17";
++				pinmuxes = <&gpio2_17_in &gpio2_17_out>;
++			};
++			UART4_CTSN: UART4_CTSN {
++				reg = <8 35>;
++				pad = "V2";
++				modes = "lcd_data12", "gpmc_a16", "eqep1a_in", "mcasp0_aclkr", "mcasp0_axr2", "", "uart4_ctsn", "gpio0_8";
++				pinmuxes = <&gpio0_8_in &gpio0_8_out>;
++			};
++			UART3_CTSN: UART3_CTSN {
++				reg = <8 36>;
++				pad = "U3";
++				modes = "lcd_data10", "gpmc_a14", "ehrpwm1A", "mcasp0_axr0", "", "", "uart3_ctsn", "gpio2_16";
++				pinmuxes = <&gpio2_16_in &gpio2_16_out>;
++			};
++			UART5_TXD: UART5_TXD {
++				reg = <8 37>;
++				pad = "U1";
++				modes = "lcd_data8", "gpmc_a12", "ehrpwm1_tripzone_in", "mcasp0_aclkx", "uart5_txd", "", "uart2_ctsn", "gpio2_14";
++				pinmuxes = <&uart5_txd &uart2_ctsn &gpio2_14_in &gpio2_14_out>;
++			};
++			UART5_RXD: UART5_RXD {
++				reg = <8 38>;
++				pad = "U2";
++				modes = "lcd_data9", "gpmc_a13", "ehrpwm0_synco", "mcasp0_fsx", "uart5_rxd", "", "uart2_rtsn", "gpio2_15";
++				pinmuxes = <&uart5_rxd &uart2_rtsn &gpio2_15_in &gpio2_15_out>;
++			};
++			GPIO2_12: GPIO2_12 {
++				reg = <8 39>;
++				pad = "T3";
++				modes = "lcd_data6", "gpmc_a6", "", "eqep2_index", "", "", "", "gpio2_12";
++				pinmuxes = <&gpio2_12_in &gpio2_12_out>;
++			};
++			GPIO2_13: GPIO2_13 {
++				reg = <8 40>;
++				pad = "T4";
++				modes = "lcd_data7", "gpmc_a7", "", "eqep2_strobe", "pr1_edio_data_out7", "", "", "gpio2_13";
++				pinmuxes = <&gpio2_13_in &gpio2_13_out>;
++			};
++			GPIO2_10: GPIO2_10 {
++				reg = <8 41>;
++				pad = "T1";
++				modes = "lcd_data4", "gpmc_a4", "", "eqep2a_in", "", "", "", "gpio2_10";
++				pinmuxes = <&gpio2_10_in &gpio2_10_out>;
++			};
++			GPIO2_11: GPIO2_11 {
++				reg = <8 42>;
++				pad = "T2";
++				modes = "lcd_data5", "gpmc_a5", "", "eqep2b_in", "", "", "", "gpio2_11";
++				pinmuxes = <&gpio2_11_in &gpio2_11_out>;
++			};
++			GPIO2_8: GPIO2_8 {
++				reg = <8 43>;
++				pad = "R3";
++				modes = "lcd_data2", "gpmc_a2", "", "ehrpwm2_tripzone_in", "", "", "", "gpio2_8";
++				pinmuxes = <&gpio2_8_in &gpio2_8_out>;
++			};
++			GPIO2_9: GPIO2_9 {
++				reg = <8 44>;
++				pad = "R4";
++				modes = "lcd_data3", "gpmc_a3", "", "ehrpwm0_synco", "", "", "", "gpio2_9";
++				pinmuxes = <&gpio2_9_in &gpio2_9_out>;
++			};
++			GPIO2_6: GPIO2_6 {
++				reg = <8 45>;
++				pad = "R1";
++				modes = "lcd_data0", "gpmc_a0", "", "ehrpwm2A", "", "", "", "gpio2_6";
++				pinmuxes = <&gpio2_6_in &gpio2_6_out>;
++			};
++			GPIO2_7: GPIO2_7 {
++				reg = <8 46>;
++				pad = "R2";
++				modes = "lcd_data1", "gpmc_a1", "", "ehrpwm2B", "", "", "", "gpio2_7";
++				pinmuxes = <&gpio2_7_in &gpio2_7_out>;
++			};
++
++
++			/* P9 */
++
++			GND {
++				reg = <9 1>, <9 2>, <9 43>, <9 44>, <9 45>, <9 46>;
++			};
++			DC_3_3V {
++				reg = <9 3>, <9 4>;
++			};
++			VDD_5V {
++				reg = <9 5>, <9 6>;
++			};
++			SYS_5V {
++				reg = <9 7>, <9 8>;
++			};
++			PWR_BUT {
++				reg = <9 9>;
++			};
++			SYS_RESETn: SYS_RESETn {
++				reg = <9 10>;
++				pad = "A10";
++				modes = "RESET_OUT", "", "", "", "", "", "", "";
++			};
++			UART4_RXD: UART4_RXD {
++				reg = <9 11>;
++				pad = "T17";
++				modes = "gpmc_wait0", "mii2_crs", "gpmc_csn4", "rmii2_crs_dv", "mmc1_sdcd", "", "uart4_rxd_mux2", "gpio0_30";
++				pinmuxes = <&gpio0_30_in &gpio0_30_out>;
++			};
++			GPIO1_28: GPIO1_28 {
++				reg = <9 12>;
++				pad = "U18";
++				modes = "gpmc_be1n", "mii2_col", "gpmc_csn6", "mmc2_dat3", "gpmc_dir", "", "mcasp0_aclkr_mux3", "gpio1_28";
++				pinmuxes = <&gpio1_28_in &gpio1_28_out>;
++			};
++			UART4_TXD: UART4_TXD {
++				reg = <9 13>;
++				pad = "U17";
++				modes = "gpmc_wpn", "mii2_rxerr", "gpmc_csn5", "rmii2_rxerr", "mmc2_sdcd", "", "uart4_txd_mux2", "gpio0_31";
++				pinmuxes = <&gpio0_31_in &gpio0_31_out>;
++			};
++			EHRPWM1A: EHRPWM1A {
++				reg = <9 14>;
++				pad = "U14";
++				modes = "gpmc_a2", "mii2_txd3", "rgmii2_td3", "mmc2_dat1", "gpmc_a18", "", "ehrpwm1A_mux1", "gpio1_18";
++				pinmuxes = <&gpio1_18_in &gpio1_18_out>;
++			};
++			GPIO1_16: GPIO1_16 {
++				reg = <9 15>;
++				pad = "R13";
++				modes = "gpmc_a0", "gmii2_txen", "rmii2_tctl", "mii2_txen", "gpmc_a16", "", "ehrpwm1_tripzone_input", "gpio1_16";
++				pinmuxes = <&gpio1_16_in &gpio1_16_out>;
++			};
++			EHRPWM1B: EHRPWM1B {
++				reg = <9 16>;
++				pad = "T14";
++				modes = "gpmc_a3", "mii2_txd2", "rgmii2_td2", "mmc2_dat2", "gpmc_a19", "", "ehrpwm1B_mux1", "gpio1_19";
++				pinmuxes = <&i2c1_scl &gpio0_19_in &gpio0_19_out>;
++			};
++			I2C1_SCL: I2C1_SCL {
++				reg = <9 17>;
++				pad = "A16";
++				modes = "spi0_cs0", "mmc2_sdwp", "i2c1_scl", "ehrpwm0_synci", "", "", "", "gpio0_5";
++				pinmuxes = <&i2c1_scl &gpio0_5_in &gpio0_5_out>;
++			};
++			I2C1_SDA: I2C1_SDA {
++				reg = <9 18>;
++				pad = "B16";
++				modes = "spi0_d1", "mmc1_sdwp", "i2c1_sda", "ehrpwm0_tripzone", "", "", "", "gpio0_4";
++				pinmuxes = <&i2c1_sda &gpio0_4_in &gpio0_4_out>;
++			};
++			I2C2_SCL: I2C2_SCL {
++				reg = <9 19>;
++				pad = "D17";
++				modes = "uart1_rtsn", "timer5", "dcan0_rx", "i2c2_scl", "spi1_cs1", "", "", "gpio0_13";
++				pinmuxes = <&uart1_rtsn &gpio0_13_in &gpio0_13_out>;
++			};
++			I2C2_SDA: I2C2_SDA {
++				reg = <9 20>;
++				pad = "D18";
++				modes = "uart1_ctsn", "timer6", "dcan0_tx", "i2c2_sda", "spi1_cs0", "", "", "gpio0_12";
++				pinmuxes = <&uart1_ctsn &gpio0_12_in &gpio0_12_out>;
++			};
++			UART2_TXD: UART2_TXD {
++				reg = <9 21>;
++				pad = "B17";
++				modes = "spi0_d0", "uart2_txd", "i2c2_scl", "ehrpwm0B", "", "", "emu3_mux1", "gpio0_3";
++				pinmuxes = <&uart2_txd &gpio0_3_in &gpio0_3_out>;
++			};
++			UART2_RXD: UART2_RXD {
++				reg = <9 22>;
++				pad = "A17";
++				modes = "spi0_sclk", "uart2_rxd", "i2c2_sda", "ehrpwm0A", "", "", "emu2_mux1", "gpio0_2";
++				pinmuxes = <&uart2_rxd &gpio0_2_in &gpio0_2_out>;
++			};
++			GPIO1_17: GPIO1_17 {
++				reg = <9 23>;
++				pad = "V14";
++				modes = "gpmc_a1", "gmii2_rxdv", "rgmii2_rxdv", "mmc2_dat0", "gpmc_a17", "", "ehrpwm0_synco", "gpio1_17";
++				pinmuxes = <&gpio1_17_in &gpio1_17_out>;
++			};
++			UART1_TXD: UART1_TXD {
++				reg = <9 24>;
++				pad = "D15";
++				modes = "uart1_txd", "mmc2_sdwp", "dcan1_rx", "i2c1_scl_mux1", "", "", "", "gpio0_15";
++				pinmuxes = <&uart1_txd &i2c1_scl_mux1 &gpio0_15_in &gpio0_15_out>;
++			};
++			GPIO3_21: GPIO3_21 {
++				reg = <9 25>;
++				pad = "A14";
++				modes = "mcasp0_ahclkx", "eqep0_strobe", "mcasp0_axr3", "mcasp1_axr1", "emu4_mux2", "", "", "gpio3_21";
++				pinmuxes = <&gpio3_21_in &gpio3_21_out>;
++			};
++			UART1_RXD: UART1_RXD {
++				reg = <9 26>;
++				pad = "D16";
++				modes = "uart1_rxd", "mmc1_sdwp", "dcan1_tx", "i2c1_sda_mux1", "", "", "", "gpio0_14";
++				pinmuxes = <&uart1_rxd &i2c1_sda_mux1 &gpio0_14_in &gpio0_14_out>;
++			};
++			GPIO3_19: GPIO3_19 {
++				reg = <9 27>;
++				pad = "C13";
++				modes = "mcasp0_fsr", "eqep0b_in", "mcasp0_axr3", "mcasp1_fsx", "emu2_mux2", "", "", "gpio3_19";
++				pinmuxes = <&gpio3_19_in &gpio3_19_out>;
++			};
++			SPI1_CS0: SPI1_CS0 {
++				reg = <9 28>;
++				pad = "C12";
++				modes = "mcasp0_ahclkr", "ehrpwm0_synci", "mcasp0_axr2", "spi1_cs0", "ecap2_in_pwm2_out", "", "", "gpio3_17";
++				pinmuxes = <&gpio3_17_in &gpio3_17_out>;
++			};
++			SPI1_D0: SPI1_D0 {
++				reg = <9 29>;
++				pad = "B13";
++				modes = "mcasp0_fsx", "ehrpwm0b", "", "spi1_d0", "mmc1_sdcd_mux1", "", "", "gpio3_15";
++				pinmuxes = <&gpio3_15_in &gpio3_15_out>;
++			};
++			SPI1_D1: SPI1_D1 {
++				reg = <9 30>;
++				pad = "D12";
++				modes = "mcasp0_axr0", "ehrpwm0_tripzone", "", "spi1_d1", "mmc2_sdcd_mux1", "", "", "gpio3_16";
++				pinmuxes = <&gpio3_16_in &gpio3_16_out>;
++			};
++			SPI1_SCLK: SPI1_SCLK {
++				reg = <9 31>;
++				pad = "A13";
++				modes = "mcasp0_aclkx", "ehrpwm0a", "", "spi1_sclk", "mmc0_sdcd_mux1", "", "", "gpio3_14";
++				pinmuxes = <&gpio3_14_in &gpio3_14_out>;
++			};
++			VADC: VADC {
++				reg = <9 32>;
++			};
++			AIN4: AIN4 {
++				reg = <9 33>;
++				pad = "C8";
++			};
++			AGND: AGND {
++				reg = <9 34>;
++			};
++			AIN6: AIN6 {
++				reg = <9 35>;
++				pad = "A8";
++			};
++			AIN5: AIN5 {
++				reg = <9 36>;
++				pad = "B8";
++			};
++			AIN2: AIN2 {
++				reg = <9 37>;
++				pad = "B7";
++			};
++			AIN3: AIN3 {
++				reg = <9 38>;
++				pad = "A7";
++			};
++			AIN0: AIN0 {
++				reg = <9 39>;
++				pad = "B6";
++			};
++			AIN1: AIN1 {
++				reg = <9 40>;
++				pad = "C7";
++			};
++			CLKOUT2: CLKOUT2 {
++				/* wired with GPIO3_20 */
++				reg = <9 41>;
++				pad = "D14";
++				modes = "xdma_event_intr1", "", "tclkin", "clkout2", "timer7_mux1", "", "emu3_mux0", "gpio0_20";
++				pinmuxes = <&gpio0_20_in &gpio0_20_out>;
++			};
++			GPIO3_20: GPIO3_20 {
++				/* wired with CLKOUT2 */
++				reg = <9 41>;
++				pad = "D13";
++				modes = "mcasp0_axr1", "eqep0_index", "", "mcasp1_axr0", "emu3", "", "", "gpio3_20";
++				pinmuxes = <&gpio3_20_in &gpio3_20_out>;
++			};
++			GPIO0_7: GPIO0_7 {
++				/* wired with GPIO3_18 */
++				reg = <9 42>;
++				pad = "C18";
++				modes = "ecap0_in_pwm0_out", "uart3_txd", "spi1_cs1", "pr1_ecap0_ecap_capin_apwm_o", "spi1_sclk", "mmc0_sdwp", "xdma_event_intr2", "gpio0_7";
++				pinmuxes = <&gpio0_7_in &gpio0_7_out>;
++			};
++			GPIO3_18: GPIO3_18 {
++				/* wired with GPIO0_7 */
++				reg = <9 42>;
++				pad = "B12";
++				modes = "mcasp0_aclkr", "eqep0a_in", "mcaspo_axr2", "mcasp1_aclkx", "", "", "", "gpio3_18";
++				pinmuxes = <&gpio3_18_in &gpio3_18_out>;
++			};
++		};
++
++		functions {
++
++			dtcon_gpio: gpio {
++				/* base of allocation - this is global for the connector */
++				gpio-base = <256>;
++
++				#modes = <2>;
++				modes = "in", "out";
++
++				/* format: <gpio-phandle> <gpio-nr> <connector-pin-phandle> <modes>.. */
++				gpio = 	<&gpio0  2 &UART2_RXD  &gpio0_2_in  &gpio0_2_out >,
++					<&gpio0  3 &UART2_TXD  &gpio0_3_in  &gpio0_3_out >,
++					<&gpio0  4 &I2C1_SDA   &gpio0_4_in  &gpio0_4_out >,
++					<&gpio0  5 &I2C1_SCL   &gpio0_5_in  &gpio0_5_out >,
++					<&gpio0  7 &GPIO0_7    &gpio0_7_in  &gpio0_7_out >,
++					<&gpio0  8 &UART4_CTSN &gpio0_8_in  &gpio0_8_out >,
++					<&gpio0  9 &UART4_RTSN &gpio0_9_in  &gpio0_9_out >,
++					<&gpio0 10 &UART5_CTSN &gpio0_10_in &gpio0_10_out>,
++					<&gpio0 11 &UART5_RTSN &gpio0_11_in &gpio0_11_out>,
++					<&gpio0 12 &I2C2_SDA   &gpio0_12_in &gpio0_12_out>,
++					<&gpio0 13 &I2C2_SCL   &gpio0_13_in &gpio0_13_out>,
++					<&gpio0 14 &UART1_RXD  &gpio0_14_in &gpio0_14_out>,
++					<&gpio0 15 &UART1_TXD  &gpio0_15_in &gpio0_15_out>,
++					<&gpio0 19 &EHRPWM1B   &gpio0_19_in &gpio0_19_out>,
++					<&gpio0 20 &CLKOUT2    &gpio0_20_in &gpio0_20_out>,
++					<&gpio0 22 &EHRPWM2A   &gpio0_22_in &gpio0_22_out>,
++					<&gpio0 23 &EHRPWM2B   &gpio0_23_in &gpio0_23_out>,
++					<&gpio0 26 &GPIO0_26   &gpio0_26_in &gpio0_26_out>,
++					<&gpio0 27 &GPIO0_27   &gpio0_27_in &gpio0_27_out>,
++					<&gpio0 30 &UART4_RXD  &gpio0_30_in &gpio0_30_out>,
++					<&gpio0 31 &UART4_TXD  &gpio0_31_in &gpio0_31_out>,
++					<&gpio1  0 &GPIO1_0    &gpio1_0_in  &gpio1_0_out >,
++					<&gpio1  1 &GPIO1_1    &gpio1_1_in  &gpio1_1_out >,
++					<&gpio1  2 &GPIO1_2    &gpio1_2_in  &gpio1_2_out >,
++					<&gpio1  3 &GPIO1_3    &gpio1_3_in  &gpio1_3_out >,
++					<&gpio1  4 &GPIO1_4    &gpio1_4_in  &gpio1_4_out >,
++					<&gpio1  5 &GPIO1_5    &gpio1_5_in  &gpio1_5_out >,
++					<&gpio1  6 &GPIO1_6    &gpio1_6_in  &gpio1_6_out >,
++					<&gpio1  7 &GPIO1_7    &gpio1_7_in  &gpio1_7_out >,
++					<&gpio1 12 &GPIO1_12   &gpio1_12_in &gpio1_12_out>,
++					<&gpio1 13 &GPIO1_13   &gpio1_13_in &gpio1_13_out>,
++					<&gpio1 14 &GPIO1_14   &gpio1_14_in &gpio1_14_out>,
++					<&gpio1 15 &GPIO1_15   &gpio1_15_in &gpio1_15_out>,
++					<&gpio1 16 &GPIO1_16   &gpio1_16_in &gpio1_16_out>,
++					<&gpio1 17 &GPIO1_17   &gpio1_17_in &gpio1_17_out>,
++					<&gpio1 18 &EHRPWM1A   &gpio1_18_in &gpio1_18_out>,
++					<&gpio1 28 &GPIO1_28   &gpio1_28_in &gpio1_28_out>,
++					<&gpio1 29 &GPIO1_29   &gpio1_29_in &gpio1_29_out>,
++					<&gpio1 30 &GPIO1_30   &gpio1_30_in &gpio1_30_out>,
++					<&gpio1 31 &GPIO1_31   &gpio1_31_in &gpio1_31_out>,
++					<&gpio2  1 &GPIO2_1    &gpio2_1_in  &gpio2_1_out >,
++					<&gpio2  2 &TIMER4     &gpio2_2_in  &gpio2_2_out >,
++					<&gpio2  3 &TIMER7     &gpio2_3_in  &gpio2_3_out >,
++					<&gpio2  4 &TIMER6     &gpio2_4_in  &gpio2_4_out >,
++					<&gpio2  5 &TIMER5     &gpio2_5_in  &gpio2_5_out >,
++					<&gpio2  6 &GPIO2_6    &gpio2_6_in  &gpio2_6_out >,
++					<&gpio2  7 &GPIO2_7    &gpio2_7_in  &gpio2_7_out >,
++					<&gpio2  8 &GPIO2_8    &gpio2_8_in  &gpio2_8_out >,
++					<&gpio2  9 &GPIO2_9    &gpio2_9_in  &gpio2_9_out >,
++					<&gpio2 10 &GPIO2_10   &gpio2_10_in &gpio2_10_out>,
++					<&gpio2 11 &GPIO2_11   &gpio2_11_in &gpio2_11_out>,
++					<&gpio2 12 &GPIO2_12   &gpio2_12_in &gpio2_12_out>,
++					<&gpio2 13 &GPIO2_13   &gpio2_13_in &gpio2_13_out>,
++					<&gpio2 14 &UART5_TXD  &gpio2_14_in &gpio2_14_out>,
++					<&gpio2 15 &UART5_RXD  &gpio2_15_in &gpio2_15_out>,
++					<&gpio2 16 &UART3_CTSN &gpio2_16_in &gpio2_16_out>,
++					<&gpio2 17 &UART3_RTSN &gpio2_17_in &gpio2_17_out>,
++					<&gpio2 22 &GPIO2_22   &gpio2_22_in &gpio2_22_out>,
++					<&gpio2 23 &GPIO2_23   &gpio2_23_in &gpio2_23_out>,
++					<&gpio2 24 &GPIO2_24   &gpio2_24_in &gpio2_24_out>,
++					<&gpio2 25 &GPIO2_25   &gpio2_25_in &gpio2_25_out>,
++					<&gpio3 14 &SPI1_SCLK  &gpio3_14_in &gpio3_14_out>,
++					<&gpio3 15 &SPI1_D0    &gpio3_15_in &gpio3_15_out>,
++					<&gpio3 16 &SPI1_D1    &gpio3_16_in &gpio3_16_out>,
++					<&gpio3 17 &SPI1_CS0   &gpio3_17_in &gpio3_17_out>,
++					<&gpio3 18 &GPIO3_18   &gpio3_18_in &gpio3_18_out>,
++					<&gpio3 19 &GPIO3_19   &gpio3_19_in &gpio3_19_out>,
++					<&gpio3 20 &GPIO3_20   &gpio3_20_in &gpio3_20_out>,
++					<&gpio3 21 &GPIO3_21   &gpio3_21_in &gpio3_21_out>;
++			};
++
++			/* connector uart0 is uart2 of the bone */
++			uart {
++				params {
++					txd {
++						required;
++					};
++
++					rxd {
++						required;
++					};
++
++					cts {
++						optional;
++						gpio-property = "cts-gpios";
++						gpio-mode = "in";
++					};
++
++					rts {
++						optional;
++						gpio-property = "rts-gpios";
++						gpio-mode = "out";
++					};
++
++					dtr {
++						optional;
++						gpio-property = "dtr-gpios";
++						gpio-mode = "out";
++					};
++
++					dsr {
++						optional;
++						gpio-property = "dsr-gpios";
++						gpio-mode = "in";
++					};
++
++					dcd {
++						optional;
++						gpio-property = "dcd-gpios";
++						gpio-mode = "in";
++					};
++
++					rng {
++						optional;
++						gpio-property = "rnd-gpios";
++						gpio-mode = "in";
++					};
++				};
++
++				uart@0 {
++					device = <&uart1>;
++					gpio = <&dtcon_gpio>;
++					mux@0 {
++						txd = <&UART1_TXD &uart1_txd>;
++						rxd = <&UART1_RXD &uart1_rxd>;
++						cts = <&I2C2_SDA  &uart1_ctsn>;
++						rts = <&I2C2_SCL  &uart1_rtsn>;
++					};
++				};
++				uart@1 {
++					device = <&uart2>;
++					gpio = <&dtcon_gpio>;
++					mux@0 {
++						txd = <&UART2_TXD &uart2_txd>;
++						rxd = <&UART2_RXD &uart2_rxd>;
++						cts = <&UART5_TXD &uart2_ctsn>;
++						rts = <&UART5_RXD &uart2_rtsn>;
++					};
++				};
++				uart@2 {
++					device = <&uart5>;
++					gpio = <&dtcon_gpio>;
++					mux@0 {
++						txd = <&UART5_TXD  &uart5_txd>;
++						rxd = <&UART5_RXD  &uart5_rxd>,
++						      <&UART5_CTSN &uart5_rxd_mux1>;	/* muxed */
++						cts = <&UART5_CTSN &uart5_ctsn>;
++						rts = <&UART5_RTSN &uart5_rtsn>;
++					};
++				};
++			};
++
++			i2c {
++				params {
++					scl {
++						required;
++					};
++
++					sda {
++						required;
++					};
++				};
++
++				i2c@0 {
++					device = <&i2c1>;
++
++					mux@0 {
++						scl = <&EHRPWM1B &i2c1_scl>,
++						      <&I2C1_SDA &i2c1_sda>;
++						sda = <&UART1_TXD &i2c1_scl_mux1>,
++						      <&UART1_RXD &i2c1_sda_mux1>;
++					};
++				};
++			};
++		};
++
++		plugged {
++			compatible = "simple-bus";
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++#if 0
++			BB_BONE_UART {
++				compatible = "simple-bus";
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				uart@0 {
++					compatible = "dtcon-uart";
++					status = "okay";
++					txd = <9 21>;	/* at P9.21 */
++					rxd = <9 22>;	/* at P9.22 */
++				};
++			};
++#endif
++
++			BB_RELAY_4PORT {
++				compatible = "simple-bus";
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				gpio_relay_4port: gpio_relay_4port@0 {
++					compatible = "dtcon-gpio";
++					status = "okay";
++
++					gpio-controller;
++					#gpio-cells = <2>;
++
++					pin-list = <9 15>,	/* #0 P9.15 */
++						   <9 23>,	/* #1 P9.23 */
++						   <9 12>,	/* #2 P9.12 */
++						   <9 27>,	/* #3 P9.27 */
++						   <9 28>;	/* #4 P9.28 */
++				};
++
++				leds@0 {
++					compatible = "gpio-leds";
++					status = "okay";
++
++					jp@1 {
++						label = "relay-jp1";
++						gpios = <&gpio_relay_4port 0 GPIO_ACTIVE_HIGH>;
++						default-state = "keep";
++					};
++
++					jp@2 {
++						label = "relay-jp2";
++						gpios = <&gpio_relay_4port 1 GPIO_ACTIVE_HIGH>;
++						default-state = "keep";
++					};
++
++					jp@3 {
++						label = "relay-jp3";
++						gpios = <&gpio_relay_4port 2 GPIO_ACTIVE_HIGH>;
++						default-state = "keep";
++					};
++
++					jp@4 {
++						label = "relay-jp4";
++						gpios = <&gpio_relay_4port 3 GPIO_ACTIVE_HIGH>;
++						default-state = "keep";
++					};
++				};
++			};
++
++
++#if 0
++			BB_BONE_UART_RTSCTS {
++				uart@0 {
++					compatible = "dtcon-uart";
++					status = "okay";
++
++					txd = <9 21>;	/* at P9.21 */
++					rxd = <9 22>;	/* at P9.22 */
++					rts = <8 38>;	/* at P8.38 */
++					cts = <8 37>;	/* at P8.37 */
++				};
++			};
++
++			BB_RTC {
++				bb_rtc_i2c: i2c@0 {
++					compatible = "dtcon-i2c";
++					status = "okay";
++
++					scl = <9 17>;
++					sda = <9 18>;
++
++					clock-frequency = <100000>;
++
++					#address-cells = <1>;
++					#size-cells = <0>;
++
++					/* MCP79410 RTC module */
++					rtc@68 {
++						compatible = "maxim,ds1338";
++						reg = <0x68>;
++					};
++				};
++			};
++#endif
++		};
++	};
+ };
+diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
+index 3d89e60..341d7b1 100644
+--- a/drivers/extcon/Kconfig
++++ b/drivers/extcon/Kconfig
+@@ -35,6 +35,26 @@ config EXTCON_AXP288
+ 	  Say Y here to enable support for USB peripheral detection
+ 	  and USB MUX switching by X-Power AXP288 PMIC.
+ 
++config EXTCON_DT_CON
++	tristate "Device Tree Overlay based connector"
++	depends on OF || COMPILE_TEST
++	select OF_OVERLAY
++	help
++	  Say Y here to enable Device Tree Overlay based connector
++
++config EXTCON_DT_CON_UART
++	tristate "Device Tree Connector UART proxy driver"
++	select EXTCONF_DT_CON
++	help
++	  Say Y here to enable Device Tree UART proxy connector driver
++
++config EXTCON_DT_CON_GPIO
++	tristate "Device Tree Connector GPIO proxy driver"
++	depends on GPIOLIB && OF_GPIO
++	select EXTCONF_DT_GPIO
++	help
++	  Say Y here to enable Device Tree GPIO proxy connector driver
++
+ config EXTCON_GPIO
+ 	tristate "GPIO extcon support"
+ 	depends on GPIOLIB || COMPILE_TEST
+diff --git a/drivers/extcon/Makefile b/drivers/extcon/Makefile
+index 2a0e4f4..7b136be 100644
+--- a/drivers/extcon/Makefile
++++ b/drivers/extcon/Makefile
+@@ -6,6 +6,9 @@ obj-$(CONFIG_EXTCON)		+= extcon.o
+ obj-$(CONFIG_EXTCON_ADC_JACK)	+= extcon-adc-jack.o
+ obj-$(CONFIG_EXTCON_ARIZONA)	+= extcon-arizona.o
+ obj-$(CONFIG_EXTCON_AXP288)	+= extcon-axp288.o
++obj-$(CONFIG_EXTCON_DT_CON)	+= extcon-dt-con.o
++obj-$(CONFIG_EXTCON_DT_CON_GPIO)+= extcon-dt-con-gpio.o
++obj-$(CONFIG_EXTCON_DT_CON_UART)+= extcon-dt-con-uart.o
+ obj-$(CONFIG_EXTCON_GPIO)	+= extcon-gpio.o
+ obj-$(CONFIG_EXTCON_MAX14577)	+= extcon-max14577.o
+ obj-$(CONFIG_EXTCON_MAX3355)	+= extcon-max3355.o
+diff --git a/drivers/extcon/extcon-dt-con-gpio.c b/drivers/extcon/extcon-dt-con-gpio.c
+new file mode 100644
+index 0000000..1dd0f91
+--- /dev/null
++++ b/drivers/extcon/extcon-dt-con-gpio.c
+@@ -0,0 +1,672 @@
++/*
++ * Copyright (C) 2016 Konsulko Group
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/spinlock.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++#include <linux/of.h>
++#include <linux/of_platform.h>
++#include <linux/gpio.h>
++#include <linux/slab.h>
++
++#include "extcon-dt-con.h"
++
++struct dtcon_gpio_func_data {
++	struct dtcon_function *function;
++	int gpio_base;
++	int gpio_cells;
++};
++
++/* indexed by gpio number */
++struct dtcon_gpio_pin_data {
++	struct dtcon_pin *dtcp;
++	int gpio_index;
++	struct device_node *chip_np;
++	struct gpio_chip *chip;	/* when requested */
++	int hwnum;
++	char *label;
++};
++
++struct dtcon_gpio_data {
++	struct platform_device *pdev;
++	struct gpio_chip chip;
++	struct dtcon_proxy *proxy;
++	struct dtcon_gpio_pin_data *pin_data;
++};
++#define to_dtcon_gpio_data(x) container_of((x), struct dtcon_gpio_data, chip)
++
++static int dtcon_gpio_get_gpio_value_count(struct dtcon_gpio_data *dtcg)
++{
++	struct dtcon_proxy *proxy = dtcg->proxy;
++	struct dtcon_function *dtcf = proxy->dtcf;
++	struct dtcon_gpio_func_data *dtcgf = dtcf->data;
++	const void *value;
++	int len;
++
++	/* get the gpio property */
++	value = of_get_property(dtcf->np, "gpio", &len);
++	if (!value)
++		return -EINVAL;
++
++	/* must be a cell multiple */
++	if (len % sizeof(u32))
++		return -EINVAL;
++
++	/* convert to cells */
++	len /= sizeof(u32);
++
++	/* make sure it's a gpio cell multiple */
++	if (len % dtcgf->gpio_cells)
++		return -EINVAL;
++
++	/* convert to gpio cells */
++	len /= dtcgf->gpio_cells;
++
++	return len;
++}
++
++static const __be32 *dtcon_gpio_get_gpio_value_index(
++		struct dtcon_gpio_data *dtcg, int index)
++{
++	struct dtcon_proxy *proxy = dtcg->proxy;
++	struct dtcon_function *dtcf = proxy->dtcf;
++	struct dtcon_gpio_func_data *dtcgf = dtcf->data;
++	const void *value;
++	int len;
++
++	/* get the gpio property */
++	value = of_get_property(dtcf->np, "gpio", &len);
++	if (!value)
++		return NULL;
++
++	/* must be a cell multiple */
++	if (len % sizeof(u32))
++		return NULL;
++
++	/* convert to cells */
++	len /= sizeof(u32);
++
++	/* make sure it's a gpio cell multiple */
++	if (len % dtcgf->gpio_cells)
++		return NULL;
++
++	/* convert to gpio cells */
++	len /= dtcgf->gpio_cells;
++
++	/* must fit */
++	if (index >= len)
++		return NULL;
++
++	/* return pointer */
++	return value + index * sizeof(u32) * dtcgf->gpio_cells;
++}
++
++static int dtcon_gpio_get_info(struct dtcon_gpio_data *dtcg, int index,
++		struct device_node **gpio_node, int *gpio,
++		struct device_node **pin_node)
++{
++	const __be32 *value;
++	phandle phandle;
++
++	/* get pointer to the value array */
++	value = dtcon_gpio_get_gpio_value_index(dtcg, index);
++	if (!value)
++		return -EINVAL;
++
++	phandle = be32_to_cpu(value[0]);
++	if (gpio_node) {
++		*gpio_node =  of_find_node_by_phandle(phandle);
++		if (!*gpio_node)
++			return -EINVAL;
++	}
++	if (gpio)
++		*gpio = be32_to_cpu(value[1]);
++
++	phandle = be32_to_cpu(value[2]);
++	if (pin_node) {
++		*pin_node =  of_find_node_by_phandle(phandle);
++		if (!*pin_node) {
++			if (gpio_node)
++				of_node_put(*gpio_node);
++			return -EINVAL;
++		}
++	}
++
++	return 0;
++}
++
++/* map from a connector reg address to a function gpio index */
++static int dtcon_gpio_address_to_gpio_index(struct dtcon_gpio_data *dtcg,
++		const void *regp, int regsz)
++{
++	int i, j, count, err, len;
++	struct device_node *np = NULL;
++	const void *value;
++
++	count = dtcon_gpio_get_gpio_value_count(dtcg);
++	if (count < 0)
++		return count;
++
++	if (count == 0)
++		return -EINVAL;
++
++	for (j = 0; j < count; j++) {
++		/* get pin node */
++		err = dtcon_gpio_get_info(dtcg, j, NULL, NULL, &np);
++		if (err)
++			continue;
++
++		value = of_get_property(np, "reg", &len);
++
++		/* check that it exists and is a multiple */
++		if (!value || (len % regsz) != 0) {
++			of_node_put(np);
++			continue;
++		}
++
++		/* iterate over all */
++		for (i = 0; i < len; i += regsz, value += regsz) {
++			if (memcmp(value, regp, regsz) == 0) {
++				of_node_put(np);
++				return j;	/* got index */
++			}
++		}
++	}
++
++	return -1;
++}
++
++/* match when we got the same device node */
++static int dtcon_find_gpiochip(struct gpio_chip *gc, void *data)
++{
++	return gc->of_node == data;
++}
++
++static struct gpio_chip *dtcon_gpio_get_gpiochip(struct dtcon_gpio_data *dtcg,
++		unsigned offset)
++{
++	struct dtcon_gpio_pin_data *pin_data;
++	struct dtcon_pin *dtcp;
++
++	if (offset >= dtcg->chip.ngpio)
++		return NULL;
++
++	pin_data = &dtcg->pin_data[offset];
++	dtcp = pin_data->dtcp;
++
++	return gpiochip_find(pin_data->chip_np, dtcon_find_gpiochip);
++}
++
++/* methods */
++
++static int dtcon_gpio_request(struct gpio_chip *chip, unsigned offset)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++	int err;
++
++	if (offset >= dtcg->chip.ngpio)
++		return -EINVAL;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++	err = gc->request(gc, pin_data->hwnum);
++	if (IS_ERR_VALUE(err)) {
++		dev_err(dev, "%s(%u) - %d failed\n", __func__, offset, err);
++		return err;
++	}
++
++	dev_info(dev, "%s(%u) -> %d\n", __func__, offset, err);
++
++	return err;
++}
++
++static void dtcon_gpio_free(struct gpio_chip *chip, unsigned offset)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++
++	if (offset >= dtcg->chip.ngpio)
++		return;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++
++	if (gc->free)
++		gc->free(gc, pin_data->hwnum);
++
++	dev_info(dev, "%s(%u)\n", __func__, offset);
++
++}
++
++static int dtcon_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++	int err;
++
++	if (offset >= dtcg->chip.ngpio)
++		return -EINVAL;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++	if (!gc->get_direction)
++		return -EINVAL;
++
++	err = gc->get_direction(gc, pin_data->hwnum);
++	if (IS_ERR_VALUE(err)) {
++		dev_err(dev, "%s(%u) - %d failed\n", __func__, offset, err);
++		return err;
++	}
++
++	dev_info(dev, "%s(%u) -> %d\n", __func__, offset, err);
++
++	return err;
++}
++
++static int dtcon_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++	int err;
++
++	if (offset >= dtcg->chip.ngpio)
++		return -EINVAL;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++	if (!gc->direction_input)
++		return -EINVAL;
++
++	err = gc->direction_input(gc, pin_data->hwnum);
++	if (IS_ERR_VALUE(err)) {
++		dev_err(dev, "%s(%u) - %d failed\n", __func__, offset, err);
++		return err;
++	}
++
++	dev_info(dev, "%s(%u) -> %d\n", __func__, offset, err);
++
++	return err;
++}
++
++static int dtcon_gpio_get(struct gpio_chip *chip, unsigned offset)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++	int err;
++
++	if (offset >= dtcg->chip.ngpio)
++		return -EINVAL;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++	if (!gc->get)
++		return -EINVAL;
++
++	err = gc->get(gc, pin_data->hwnum);
++	if (IS_ERR_VALUE(err)) {
++		dev_err(dev, "%s(%u) - %d failed\n", __func__, offset, err);
++		return err;
++	}
++
++	dev_info(dev, "%s(%u) -> %d\n", __func__, offset, err);
++
++	return err;
++}
++
++static int dtcon_gpio_direction_output(struct gpio_chip *chip, unsigned offset,
++		int value)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++	int err;
++
++	if (offset >= dtcg->chip.ngpio)
++		return -EINVAL;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++	if (!gc->direction_output)
++		return -EINVAL;
++
++	err = gc->direction_output(gc, pin_data->hwnum, value);
++	if (IS_ERR_VALUE(err)) {
++		dev_err(dev, "%s(%u) - %d failed\n", __func__, offset, err);
++		return err;
++	}
++
++	dev_info(dev, "%s(%u, %d) -> %d\n", __func__, offset, value, err);
++
++	return err;
++}
++
++static int dtcon_gpio_set_debounce(struct gpio_chip *chip, unsigned offset,
++		unsigned debounce)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++	int err;
++
++	if (offset >= dtcg->chip.ngpio)
++		return -EINVAL;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++	if (!gc->set_debounce)
++		return -EINVAL;
++
++	err = gc->set_debounce(gc, pin_data->hwnum, debounce);
++	if (IS_ERR_VALUE(err)) {
++		dev_err(dev, "%s(%u) - %d failed\n", __func__, offset, err);
++		return err;
++	}
++
++	dev_info(dev, "%s(%u, %d) -> %d\n", __func__, offset, debounce, err);
++
++	return err;
++}
++
++static void dtcon_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
++{
++	struct dtcon_gpio_data *dtcg = to_dtcon_gpio_data(chip);
++	struct device *dev = &dtcg->pdev->dev;
++	struct dtcon_gpio_pin_data *pin_data;
++	struct gpio_chip *gc;
++	int err;
++
++	if (offset >= dtcg->chip.ngpio)
++		return;
++
++	pin_data = &dtcg->pin_data[offset];
++	gc = pin_data->chip;
++	if (!gc->set)
++		return;
++
++	gc->set(gc, pin_data->hwnum, value);
++
++	dev_info(dev, "%s(%u, %d) -> %d\n", __func__, offset, value, err);
++}
++
++/* gpio function methods */
++static int dtcon_gpio_function_init(struct dtcon_function *dtcf)
++{
++	struct dtcon_data *dtcd = dtcf->dtcd;
++	struct device *dev = &dtcd->pdev->dev;
++	struct dtcon_gpio_func_data *dtcgf = NULL;
++	int err;
++	u32 num;
++
++	if (!dtcf->np) {
++		dev_err(dev, "No gpio function configuration node\n");
++		return -EINVAL;
++	}
++
++	dtcgf = kzalloc(sizeof(*dtcgf), GFP_KERNEL);
++	if (!dtcgf) {
++		dev_err(dev, "No memory for function data\n");
++		return -ENOMEM;
++	}
++	dtcf->data = dtcgf;
++
++	err = of_property_read_u32(dtcf->np, "gpio-base", &num);
++	if (err) {
++		dev_err(dev, "No gpio-base in function configuration\n");
++		err = -EINVAL;
++		goto err_out;
++	}
++
++	dtcgf->gpio_base = num;
++
++	err = of_property_read_u32(dtcf->np, "#modes", &num);
++	if (err) {
++		dev_err(dev, "No gpio-base in function configuration\n");
++		err = -EINVAL;
++		goto err_out;
++	}
++
++	/* format: <gpio-phandle> <gpio-nr> <connector-pin-phandle> <modes>.. */
++	dtcgf->gpio_cells = 3 + num;
++
++	dev_info(dev, "%s\n", __func__);
++
++	return 0;
++
++err_out:
++	kfree(dtcgf);
++	return err;
++}
++
++static void dtcon_gpio_function_fini(struct dtcon_function *dtcf)
++{
++	struct dtcon_data *dtcd = dtcf->dtcd;
++	struct device *dev = &dtcd->pdev->dev;
++	struct dtcon_gpio_func_data *dtcgf = dtcf->data;
++
++	dev_info(dev, "%s\n", __func__);
++
++	kfree(dtcgf);
++}
++
++static int dtcon_gpio_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node;
++	struct dtcon_gpio_data *dtcg;
++	struct dtcon_data *dtcd;
++	struct dtcon_function *dtcf;
++	struct dtcon_gpio_func_data *dtcgf;
++	struct dtcon_proxy *proxy;
++	struct dtcon_pin *dtcp;
++	struct dtcon_gpio_pin_data *pin_data;
++	const void *pin_regs;
++	int i, err, count, regsz, index;
++
++	if (!np) {
++		dev_err(dev, "No OF configuration node\n");
++		return -EINVAL;
++	}
++
++	count = of_property_count_elems_of_size(np, "pin-list", sizeof(u32));
++	pin_regs = of_get_property(np, "pin-list", NULL);
++	if (count <= 0 || !pin_regs) {
++		dev_err(dev, "Invalid configuration\n");
++		return -EINVAL;
++	}
++
++	dtcg = devm_kzalloc(dev, sizeof(*dtcg), GFP_KERNEL);
++	if (!dtcg) {
++		dev_err(dev, "Failed to allocate device data\n");
++		return -ENOMEM;
++	}
++	dtcg->pdev = pdev;
++
++	proxy = dtcon_proxy_create(pdev, "gpio", dtcon_gpio_function_init);
++	if (IS_ERR(proxy))
++		return PTR_ERR(proxy);
++
++	proxy->data = dtcg;
++	dtcg->proxy = proxy;
++
++	dtcf = dtcg->proxy->dtcf;
++	dtcgf = dtcf->data;
++	dtcd = dtcf->dtcd;
++
++	/* the count must be a multiple of address cell numbers */
++	if ((count % dtcd->connector_address_cells) != 0) {
++		dev_err(dev, "Bad pin-list \n");
++		err = -EINVAL;
++		goto out_destroy_proxy;
++	}
++
++	count /= dtcd->connector_address_cells;
++
++	dtcg->pin_data = devm_kzalloc(dev, sizeof(*dtcg->pin_data) * count,
++			GFP_KERNEL);
++	if (!dtcg->pin_data) {
++		dev_err(dev, "Failed to allocate pin data\n");
++		err = -ENOMEM;
++		goto out_destroy_proxy;
++	}
++
++	dtcg->chip.request = dtcon_gpio_request;
++	dtcg->chip.free = dtcon_gpio_free;
++	dtcg->chip.get_direction = dtcon_gpio_get_direction;
++	dtcg->chip.direction_input = dtcon_gpio_direction_input;
++	dtcg->chip.get = dtcon_gpio_get;
++	dtcg->chip.direction_output = dtcon_gpio_direction_output;
++	dtcg->chip.set_debounce = dtcon_gpio_set_debounce;
++	dtcg->chip.set = dtcon_gpio_set;
++	dtcg->chip.label = np->name;
++	dtcg->chip.base = dtcgf->gpio_base;
++	dtcg->chip.ngpio = count;
++	dtcg->chip.of_node = of_node_get(np);
++
++	err = gpiochip_add_data(&dtcg->chip, dtcg);
++	if (err) {
++		dev_err(dev, "Could not register gpio chip %d\n", err);
++		goto out_destroy_proxy;
++	}
++
++	/* advance base */
++	dtcgf->gpio_base += count;
++
++	/* request all pins */
++	regsz = sizeof(u32) * dtcd->connector_address_cells;
++	for (i = 0; i < count; i++, pin_regs += regsz) {
++
++		pin_data = &dtcg->pin_data[i];
++
++		dtcp = dtcon_proxy_pin_request(proxy, pin_regs, regsz, 0);
++		if (IS_ERR(dtcp)) {
++			dev_err(dev, "could not request gpio #%d\n", i);
++			err = PTR_ERR(dtcp);
++			goto out_gpiochip_remove;
++		}
++
++		pin_data->dtcp = dtcp;
++
++		/* keep it */
++		index = dtcon_gpio_address_to_gpio_index(dtcg, pin_regs, regsz);
++		if (index < 0) {
++			err = index;
++			dev_err(dev, "gpio #%d not pointing to pin\n", i);
++			goto out_release_pin;
++		}
++		pin_data->gpio_index = index;
++
++		err = dtcon_gpio_get_info(dtcg, index, &pin_data->chip_np,
++				&pin_data->hwnum, NULL);
++		if (err) {
++			dev_err(dev, "gpio #%d index #%d no info\n",
++					i, index);
++			goto out_release_pin;
++		}
++
++		pin_data->chip = dtcon_gpio_get_gpiochip(dtcg, i);
++		if (!pin_data->chip) {
++			dev_err(dev, "gpio #%d index #%d not found\n",
++					i, index);
++			/* the other device might not come up yet */
++			err = -EPROBE_DEFER;
++			goto out_release_pin;
++		}
++		pin_data->label = devm_kasprintf(dev, GFP_KERNEL,
++				"%s:%d", np->name, i);
++		if (!pin_data->label) {
++			dev_err(dev, "gpio #%d index #%d label alloc\n",
++					i, index);
++			/* the other device might not come up yet */
++			err = -ENOMEM;
++			goto out_release_pin;
++		}
++
++		dev_err(dev, "gpio #%d -> [%d] %-8s @ %s\n",
++				i, dtcg->pin_data[i].gpio_index,
++				dtcp->regstr, dtcp->np->name);
++	}
++
++	platform_set_drvdata(pdev, dtcg);
++
++	dev_info(dev, "OK\n");
++
++	return 0;
++
++out_release_pin:
++	while (i-- >= 0) {
++		pin_data = &dtcg->pin_data[i];
++		of_node_put(pin_data->chip_np);
++		dtcon_proxy_pin_release(proxy, pin_data->dtcp);
++	}
++
++out_gpiochip_remove:
++	gpiochip_remove(&dtcg->chip);
++out_destroy_proxy:
++	dtcon_proxy_destroy(dtcg->proxy, dtcon_gpio_function_fini);
++	return err;
++}
++
++static int dtcon_gpio_remove(struct platform_device *pdev)
++{
++	struct dtcon_gpio_data *dtcg = platform_get_drvdata(pdev);
++	struct dtcon_proxy *proxy = dtcg->proxy;
++	struct dtcon_gpio_pin_data *pin_data;
++	int i;
++
++	for (i = 0; i < dtcg->chip.ngpio; i++) {
++		pin_data = &dtcg->pin_data[i];
++		of_node_put(pin_data->chip_np);
++		dtcon_proxy_pin_release(proxy, pin_data->dtcp);
++	}
++
++	gpiochip_remove(&dtcg->chip);
++	dtcon_proxy_destroy(dtcg->proxy, dtcon_gpio_function_fini);
++	return 0;
++}
++
++static const struct of_device_id dtcon_gpio_of_match[] = {
++	{ .compatible = "dtcon-gpio", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, dtcon_gpio_of_match);
++
++static struct platform_driver dtcon_gpio = {
++	.probe = dtcon_gpio_probe,
++	.remove = dtcon_gpio_remove,
++	.driver = {
++		.name = "dtcon-gpio",
++		.owner = THIS_MODULE,
++		.of_match_table = dtcon_gpio_of_match,
++	}
++};
++
++module_platform_driver(dtcon_gpio);
++MODULE_AUTHOR("Pantelis Antoniou <pantelis.antoniou@konsulko.com>");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/extcon/extcon-dt-con-uart.c b/drivers/extcon/extcon-dt-con-uart.c
+new file mode 100644
+index 0000000..59418c9
+--- /dev/null
++++ b/drivers/extcon/extcon-dt-con-uart.c
+@@ -0,0 +1,66 @@
++/*
++ * Copyright (C) 2016 Konsulko Group
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/spinlock.h>
++#include <linux/miscdevice.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++#include <linux/of.h>
++
++#include "extcon-dt-con.h"
++
++static int dtcon_uart_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct dtcon_proxy *proxy;
++
++	proxy = dtcon_proxy_create(pdev, "uart", NULL);
++	if (IS_ERR(proxy))
++		return PTR_ERR(proxy);
++
++	platform_set_drvdata(pdev, proxy);
++
++	dev_info(dev, "OK\n");
++
++	return 0;
++}
++
++static int dtcon_uart_remove(struct platform_device *pdev)
++{
++	dtcon_proxy_destroy(platform_get_drvdata(pdev), NULL);
++	return 0;
++}
++
++static const struct of_device_id dtcon_uart_of_match[] = {
++	{ .compatible = "dtcon-uart", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, dtcon_uart_of_match);
++
++static struct platform_driver dtcon_uart = {
++	.probe = dtcon_uart_probe,
++	.remove = dtcon_uart_remove,
++	.driver = {
++		.name = "dtcon-uart",
++		.owner = THIS_MODULE,
++		.of_match_table = dtcon_uart_of_match,
++	}
++};
++
++module_platform_driver(dtcon_uart);
++MODULE_AUTHOR("Pantelis Antoniou <pantelis.antoniou@konsulko.com>");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/extcon/extcon-dt-con.c b/drivers/extcon/extcon-dt-con.c
+new file mode 100644
+index 0000000..a51f605
+--- /dev/null
++++ b/drivers/extcon/extcon-dt-con.c
+@@ -0,0 +1,485 @@
++/*
++ *  drivers/extcon/extcon-dt-conn.c
++ *
++ *  Device Tree Overlay based connector driver.
++ *
++ * Copyright (C) 2015 Konsulko Group.
++ * Author: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++*/
++
++#include <linux/extcon.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/of.h>
++#include <linux/of_platform.h>
++
++#include "extcon-dt-con.h"
++
++static const unsigned int dtcon_cable[] = {
++	EXTCON_NONE,
++};
++
++static int dtcon_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node, *npn;
++	struct dtcon_data *dtcd;
++	struct dtcon_pin *dtcp;
++	const __be32 *regp;
++	int regsz, regcells, sz, count, len, i, j, err;
++	char *s, *e;
++	u32 num;
++
++	if (!np) {
++		dev_err(dev, "No device node\n");
++		return -ENODEV;
++	}
++
++	dtcd = devm_kzalloc(dev, sizeof(*dtcd), GFP_KERNEL);
++	if (!dtcd) {
++		dev_err(dev, "Failed to allocated data structure\n");
++		return -ENOMEM;
++	}
++	INIT_LIST_HEAD(&dtcd->pin_list);
++	INIT_LIST_HEAD(&dtcd->function_list);
++
++	dtcd->pdev = pdev;
++	dtcd->edev = devm_extcon_dev_allocate(dev, dtcon_cable);
++	if (IS_ERR(dtcd->edev)) {
++		dev_err(dev, "Failed to allocate extcon device\n");
++		err = PTR_ERR(dtcd->edev);
++		return err;
++	}
++
++	err = devm_extcon_dev_register(dev, dtcd->edev);
++	if (err < 0) {
++		dev_err(dev, "Failed to register extcon device\n");
++		return err;
++	}
++
++	platform_set_drvdata(pdev, dtcd);
++
++	dtcd->connector = of_get_child_by_name(np, "connector");
++	dtcd->functions = of_get_child_by_name(np, "functions");
++	dtcd->plugged = of_get_child_by_name(np, "plugged");
++
++	err = -EINVAL;
++
++	if (!dtcd->connector || !dtcd->functions || !dtcd->plugged) {
++		dev_err(dev, "Bad OF configuration\n");
++		goto out_err;
++	}
++
++	/* if no property return 1 */
++	err = of_property_read_u32(dtcd->connector, "#address-cells", &num);
++	if (err < 0)
++		num = 1;
++	dtcd->connector_address_cells = num;
++
++	/* if no property return 0 */
++	err = of_property_read_u32(dtcd->connector, "#size-cells", &num);
++	if (err < 0)
++		num = 0;
++	dtcd->connector_size_cells = num;
++	if (dtcd->connector_size_cells != 0) {
++		dev_err(dev, "Only #size-cells = <0>; supported for now\n");
++		err = -EINVAL;
++		goto out_err;
++	}
++
++	regcells = dtcd->connector_address_cells;
++	regsz = sizeof(u32) * regcells;
++	for_each_child_of_node(dtcd->connector, npn) {
++		regp = of_get_property(npn, "reg", &len);
++		if (!regp || (len % regsz)) {
++			dev_err(dev, "Bad connector pin @%s\n", npn->name);
++			of_node_put(npn);
++			goto out_err;
++		}
++
++		dtcp = devm_kzalloc(dev, sizeof(*dtcp), GFP_KERNEL);
++		if (!dtcp) {
++			dev_err(dev, "Failed to allocate pin node\n");
++			err = -ENOMEM;
++			of_node_put(npn);
++			goto out_err;
++		}
++		/* keep it and add it to the list */
++		dtcp->np = of_node_get(npn);
++
++		/* convert to number of reg ranges */
++		count = len / regsz;
++		/* max reg is ,<4294967295> */
++		sz = strlen(",<4294967295>") * count * regcells + 2;
++		dtcp->regstr = devm_kmalloc(dev, sz, GFP_KERNEL);
++		if (!dtcp->regstr) {
++			dev_err(dev, "Failed to allocate reg string\n");
++			err = -ENOMEM;
++			of_node_put(npn);
++			goto out_err;
++		}
++		s = dtcp->regstr;
++		e = dtcp->regstr + sz;
++		for (i = 0; i < count; i++, regp += regcells) {
++			if (i > 0)
++				*s++ = ',';
++			*s++ = '<';
++			for (j = 0; j < regcells; j++) {
++				len = scnprintf(s, e - s, "%u",
++						be32_to_cpu(regp[j]));
++				s += len;
++				if (j + 1 < regcells)
++					*s++ = ' ';
++			}
++			*s++ = '>';
++		}
++		*s = '\0';
++
++		list_add_tail(&dtcp->node, &dtcd->pin_list);
++	}
++
++	/* populate anything in plugged */
++	of_platform_default_populate(dtcd->plugged, NULL, dev);
++
++	dev_info(dev, "OK\n");
++
++	return 0;
++
++out_err:
++	if (dtcd) {
++		list_for_each_entry_reverse(dtcp, &dtcd->pin_list, node)
++			of_node_put(dtcp->np);
++		of_node_put(dtcd->connector);
++		of_node_put(dtcd->functions);
++		of_node_put(dtcd->plugged);
++	}
++
++	/* no need to manually deallocate, it's all devm */
++	return err;
++}
++
++static int dtcon_remove(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct dtcon_data *dtcd = platform_get_drvdata(pdev);
++	struct dtcon_pin *dtcp;
++
++	dev_info(dev, "removing\n");
++
++	list_for_each_entry_reverse(dtcp, &dtcd->pin_list, node)
++		of_node_put(dtcp->np);
++	of_node_put(dtcd->connector);
++	of_node_put(dtcd->functions);
++	of_node_put(dtcd->plugged);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int dtcon_resume(struct device *dev)
++{
++	struct dtcon_data *dtcd;
++
++	dtcd = dev_get_drvdata(dev);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(dtcon_pm_ops, NULL, dtcon_resume);
++
++static const struct of_device_id dtcon_of_match[] = {
++	{
++		.compatible = "extcon,dt-con",
++	},
++	{ },
++};
++MODULE_DEVICE_TABLE(of, capemgr_of_match);
++
++static struct platform_driver dtcon_driver = {
++	.probe		= dtcon_probe,
++	.remove		= dtcon_remove,
++	.driver		= {
++		.name	= "extcon-dt-con",
++		.pm	= &dtcon_pm_ops,
++		.of_match_table = of_match_ptr(dtcon_of_match),
++	},
++};
++
++module_platform_driver(dtcon_driver);
++
++/* get the dtcon data from a platform device that's a descendant */
++struct dtcon_data *dtcon_data_from_platform_device(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct dtcon_data *dtcd;
++	struct device *parent;
++
++	/* we need to find the connector which must be a parent */
++	for (parent = dev->parent; parent; parent = parent->parent) {
++		if (parent->of_node &&
++			of_device_is_compatible(parent->of_node,
++				dtcon_of_match[0].compatible)) {
++			break;
++		}
++	}
++
++	if (!parent) {
++		dev_err(dev, "Device is not a child of a connector\n");
++		return NULL;
++	}
++
++	/* get pointer to connector data */
++	dtcd = platform_get_drvdata(to_platform_device(parent));
++	if (!dtcd) {
++		dev_err(dev, "Missing connector data\n");
++		return NULL;
++	}
++
++	return dtcd;
++}
++EXPORT_SYMBOL(dtcon_data_from_platform_device);
++
++struct dtcon_pin *dtcon_pin_lookup(struct dtcon_data *dtcd,
++		const void *regp, int regsz)
++{
++	struct dtcon_pin *dtcp = NULL;
++	const void *value;
++	int i, len;
++
++	if (!dtcd || !regp)
++		return NULL;
++
++	/* must be the same size as the address cells */
++	if (regsz != dtcd->connector_address_cells * sizeof(u32))
++		return NULL;
++
++	/* no size cells supported */
++	if (dtcd->connector_size_cells != 0)
++		return NULL;
++
++	/* find pin with the given reg */
++	list_for_each_entry(dtcp, &dtcd->pin_list, node) {
++		value = of_get_property(dtcp->np, "reg", &len);
++
++		/* check that it exists and is a multiple */
++		if (!value || (len % regsz) != 0)
++			continue;
++
++		/* iterate over all */
++		for (i = 0; i < len; i += regsz, value += regsz) {
++			if (memcmp(value, regp, regsz) == 0)
++				goto found;
++		}
++	}
++
++	return NULL;
++
++found:
++	return dtcp;
++}
++EXPORT_SYMBOL(dtcon_pin_lookup);
++
++struct dtcon_pin *dtcon_pin_lookup_by_node(struct dtcon_data *dtcd,
++		struct device_node *np)
++{
++	struct dtcon_pin *dtcp = NULL;
++
++	if (!dtcd)
++		return NULL;
++
++	/* release all pins of this proxy */
++	list_for_each_entry(dtcp, &dtcd->pin_list, node) {
++		if (dtcp->np == np)
++			return dtcp;
++	}
++
++	return NULL;
++}
++EXPORT_SYMBOL(dtcon_pin_lookup_by_node);
++
++struct dtcon_pin *dtcon_pin_lookup_by_phandle(struct dtcon_data *dtcd,
++		phandle phandle)
++{
++	struct device_node *np = of_find_node_by_phandle(phandle);
++	struct dtcon_pin *dtcp;
++
++	if (!np)
++		return NULL;
++
++	dtcp = dtcon_pin_lookup_by_node(dtcd, np);
++	of_node_put(np);
++	return dtcp;
++}
++EXPORT_SYMBOL(dtcon_pin_lookup_by_phandle);
++
++struct dtcon_pin *dtcon_proxy_pin_request(struct dtcon_proxy *proxy,
++		const void *regp, int regsz, unsigned int flags)
++{
++	struct dtcon_data *dtcd;
++	struct dtcon_pin *dtcp;
++	struct device *dev;
++
++	if (!proxy || !regp)
++		return ERR_PTR(-EINVAL);
++
++	dtcd = proxy->dtcf->dtcd;
++	dev = &dtcd->pdev->dev;
++	dtcp = dtcon_pin_lookup(dtcd, regp, regsz);
++	if (!dtcp)
++		return ERR_PTR(-ENXIO);
++
++	dtcp->proxy = proxy;
++	dtcp->data = NULL;
++	list_add_tail(&dtcp->proxy_node, &proxy->proxy_pin_list);
++
++	return dtcp;
++}
++EXPORT_SYMBOL(dtcon_proxy_pin_request);
++
++int dtcon_proxy_pin_release(struct dtcon_proxy *proxy, struct dtcon_pin *dtcp)
++{
++	if (!proxy || !dtcp || dtcp->proxy != proxy)
++		return -EINVAL;
++
++	list_del(&dtcp->proxy_node);
++	dtcp->proxy = NULL;
++	dtcp->data = NULL;
++	return 0;
++}
++EXPORT_SYMBOL(dtcon_proxy_pin_release);
++
++/* dtcon function methods */
++struct dtcon_function *dtcon_function_lookup(struct dtcon_data *dtcd,
++		const char *kind)
++{
++	struct dtcon_function *dtcf;
++
++	/* lookup function by kind */
++	list_for_each_entry(dtcf, &dtcd->function_list, node) {
++		if (strcmp(dtcf->kind, kind) == 0)
++			return dtcf;
++	}
++
++	return NULL;
++}
++EXPORT_SYMBOL(dtcon_function_lookup);
++
++/* proxy device methods */
++struct dtcon_proxy *dtcon_proxy_create(struct platform_device *pdev,
++		const char *kind,
++		int (*func_init)(struct dtcon_function *dtcf))
++{
++	struct device *dev = &pdev->dev;
++	struct dtcon_data *dtcd;
++	struct dtcon_proxy *proxy;
++	struct dtcon_function *dtcf;
++	int err;
++
++	/* get connector data from a parent */
++	dtcd = dtcon_data_from_platform_device(pdev);
++	if (!dtcd) {
++		err = -ENOMEM;
++		goto err_out;
++	}
++
++	proxy = kzalloc(sizeof(*proxy), GFP_KERNEL);
++	if (!proxy) {
++		dev_err(dev, "Failed to allocate proxy data\n");
++		err = -ENOMEM;
++		goto err_out;
++	}
++
++	/* lookup function */
++	dtcf = dtcon_function_lookup(dtcd, kind);
++	if (dtcf == NULL) {
++		dtcf = kzalloc(sizeof(*dtcf), GFP_KERNEL);
++		if (!dtcf) {
++			dev_err(dev, "Failed to allocate proxy data\n");
++			err = -ENOMEM;
++			goto err_free_proxy;
++		}
++		dtcf->dtcd = dtcd;
++		dtcf->kind = kind;
++		dtcf->np = of_get_child_by_name(dtcd->functions, kind);
++		INIT_LIST_HEAD(&dtcf->proxy_list);
++
++		if (func_init) {
++			err = (*func_init)(dtcf);
++			if (err) {
++				dev_err(dev, "function init failed\n");
++				kfree(dtcf);
++				goto err_free_proxy;
++			}
++		}
++		list_add_tail(&dtcf->node, &dtcd->function_list);
++	}
++
++	proxy->pdev = pdev;
++	proxy->dtcf = dtcf;
++
++	INIT_LIST_HEAD(&proxy->proxy_pin_list);
++
++	list_add_tail(&proxy->node, &dtcf->proxy_list);
++
++	return proxy;
++
++err_free_proxy:
++	kfree(proxy);
++err_out:
++	return ERR_PTR(err);
++}
++EXPORT_SYMBOL(dtcon_proxy_create);
++
++void dtcon_proxy_destroy(struct dtcon_proxy *proxy,
++		void (*func_fini)(struct dtcon_function *dtcf))
++{
++	struct dtcon_data *dtcd;
++	struct dtcon_function *dtcf;
++	struct dtcon_pin *dtcp, *dtcpn;
++
++	if (!proxy || !proxy->dtcf)
++		return;
++
++	dtcf = proxy->dtcf;
++	dtcd = dtcf->dtcd;
++
++	list_del(&dtcp->node);
++
++	/* last proxy; remove function */
++	if (list_empty(&dtcf->proxy_list)) {
++		list_del(&dtcf->node);
++		if (func_fini)
++			(*func_fini)(dtcf);
++		of_node_put(dtcf->np);
++		kfree(dtcf);
++	}
++
++	/* release all pins of this proxy */
++	list_for_each_entry_safe_reverse(dtcp, dtcpn,
++			&proxy->proxy_pin_list, proxy_node)
++		dtcon_proxy_pin_release(proxy, dtcp);
++
++	kfree(proxy);
++}
++EXPORT_SYMBOL(dtcon_proxy_destroy);
++
++MODULE_AUTHOR("Pantelis Antoniou <pantelis.antoniou@konsulko.com>");
++MODULE_DESCRIPTION("DT connector extcon driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:extcon-dt-con");
+diff --git a/drivers/extcon/extcon-dt-con.h b/drivers/extcon/extcon-dt-con.h
+new file mode 100644
+index 0000000..ac54499
+--- /dev/null
++++ b/drivers/extcon/extcon-dt-con.h
+@@ -0,0 +1,85 @@
++/*
++ * dt-con.h
++ *
++ * Copyright (c) 2016 Konsulko Group
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#ifndef __LINUX_EXTCON_DT_CON_H
++#define __LINUX_EXTCON_DT_CON_H
++
++#include <linux/device.h>
++#include <linux/platform_device.h>
++
++struct dtcon_proxy;
++
++struct dtcon_pin {
++	struct list_head node;
++	struct device_node *np;
++	char *regstr;	/* connector reg prop */
++
++	/* owner of the pin */
++	struct dtcon_proxy *proxy;
++	struct list_head proxy_node;
++	void *data;
++};
++
++struct dtcon_data {
++	struct platform_device *pdev;
++	struct extcon_dev *edev;
++
++	struct device_node *connector;
++	unsigned int connector_address_cells;
++	unsigned int connector_size_cells;
++
++	struct device_node *functions;
++	struct device_node *plugged;
++	struct list_head pin_list;
++
++	struct list_head function_list;
++};
++
++struct dtcon_function {
++	struct dtcon_data *dtcd;
++	struct list_head node;
++	const char *kind;
++	struct device_node *np;
++	struct list_head proxy_list;
++	void *data;
++};
++
++struct dtcon_proxy {
++	struct platform_device *pdev;
++	struct dtcon_function *dtcf;
++	struct list_head node;
++
++	struct list_head proxy_pin_list;
++
++	void *data;
++};
++
++struct dtcon_data *dtcon_data_from_platform_device(
++		struct platform_device *pdev);
++
++struct dtcon_proxy *dtcon_proxy_create(struct platform_device *pdev,
++		const char *kind,
++		int (*func_init)(struct dtcon_function *dtcf));
++void dtcon_proxy_destroy(struct dtcon_proxy *proxy,
++		void (*func_fini)(struct dtcon_function *dtcf));
++
++struct dtcon_pin *dtcon_pin_lookup(struct dtcon_data *dtcd,
++		const void *regp, int regsz);
++struct dtcon_pin *dtcon_pin_lookup_by_node(struct dtcon_data *dtcd,
++		struct device_node *np);
++struct dtcon_pin *dtcon_pin_lookup_by_phandle(struct dtcon_data *dtcd,
++		phandle phandle);
++struct dtcon_pin *dtcon_proxy_pin_request(struct dtcon_proxy *proxy,
++		const void *regp, int regsz, unsigned int flags);
++int dtcon_proxy_pin_release(struct dtcon_proxy *proxy, struct dtcon_pin *dtcp);
++
++
++#endif /* __LINUX_EXTCON_DT_CON_H */
+-- 
+2.8.0.rc3
+

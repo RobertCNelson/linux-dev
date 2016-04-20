@@ -1,7 +1,7 @@
-From b0e14d244a58f9668f248f7f4701e9a947e2d174 Mon Sep 17 00:00:00 2001
+From 13308de3b99d8ab79557ca461f900b4708abc6fa Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Tue, 20 Jan 2015 16:15:05 +0200
-Subject: [PATCH 09/37] of: Custom printk format specifier for device node
+Subject: [PATCH 09/38] of: Custom printk format specifier for device node
 
 90% of the usage of device node's full_name is printing it out
 in a kernel message. Preparing for the eventual delayed allocation
@@ -21,8 +21,8 @@ documentation entry.
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
  Documentation/printk-formats.txt |  41 ++++++++++-
- lib/vsprintf.c                   | 148 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 188 insertions(+), 1 deletion(-)
+ lib/vsprintf.c                   | 150 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 190 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/printk-formats.txt b/Documentation/printk-formats.txt
 index 5962949..d1ba882 100644
@@ -80,7 +80,7 @@ index 5962949..d1ba882 100644
  
  
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index 525c8e1..9bad344 100644
+index ccb664b..f03c70a 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
 @@ -34,6 +34,7 @@
@@ -250,15 +250,17 @@ index 525c8e1..9bad344 100644
   *
   * ** Please update also Documentation/printk-formats.txt when making changes **
   *
-@@ -1723,6 +1869,8 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+@@ -1723,6 +1869,10 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
  
  	case 'G':
  		return flags_string(buf, end, ptr, fmt);
++
 +	case 'O':
 +		return device_node_string(buf, end, ptr, spec, fmt);
++
  	}
  	spec.flags |= SMALL;
  	if (spec.field_width == -1) {
 -- 
-2.7.0
+2.8.0.rc3
 

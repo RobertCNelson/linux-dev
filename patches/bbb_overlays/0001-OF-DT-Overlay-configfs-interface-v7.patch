@@ -1,13 +1,16 @@
-From bd8a21b7abd24851724542de9f4886f78c138110 Mon Sep 17 00:00:00 2001
+From 8677541391d96648adc67627cf9e9df0e9039075 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 4 Dec 2013 19:32:00 +0200
-Subject: [PATCH 01/37] OF: DT-Overlay configfs interface (v6)
+Subject: [PATCH 01/38] OF: DT-Overlay configfs interface (v7)
 
 Add a runtime interface to using configfs for generic device tree overlay
 usage. With it its possible to use device tree overlays without having
 to use a per-platform overlay manager.
 
 Please see Documentation/devicetree/configfs-overlays.txt for more info.
+
+Changes since v6:
+- Default groups properties API changed.
 
 Changes since v5:
 - New style configfs.
@@ -34,8 +37,8 @@ cfs-of
  Documentation/devicetree/configfs-overlays.txt |  31 +++
  drivers/of/Kconfig                             |   7 +
  drivers/of/Makefile                            |   1 +
- drivers/of/configfs.c                          | 311 +++++++++++++++++++++++++
- 4 files changed, 350 insertions(+)
+ drivers/of/configfs.c                          | 307 +++++++++++++++++++++++++
+ 4 files changed, 346 insertions(+)
  create mode 100644 Documentation/devicetree/configfs-overlays.txt
  create mode 100644 drivers/of/configfs.c
 
@@ -104,10 +107,10 @@ index 156c072..46c8f57 100644
  obj-$(CONFIG_OF_EARLY_FLATTREE) += fdt_address.o
 diff --git a/drivers/of/configfs.c b/drivers/of/configfs.c
 new file mode 100644
-index 0000000..b68dea8
+index 0000000..fa73b98f
 --- /dev/null
 +++ b/drivers/of/configfs.c
-@@ -0,0 +1,311 @@
+@@ -0,0 +1,307 @@
 +/*
 + * Configfs entries for device-tree
 + *
@@ -383,18 +386,12 @@ index 0000000..b68dea8
 +
 +struct config_group of_cfs_overlay_group;
 +
-+struct config_group *of_cfs_def_groups[] = {
-+	&of_cfs_overlay_group,
-+	NULL
-+};
-+
 +static struct configfs_subsystem of_cfs_subsys = {
 +	.su_group = {
 +		.cg_item = {
 +			.ci_namebuf = "device-tree",
 +			.ci_type = &of_cfs_type,
 +		},
-+		.default_groups = of_cfs_def_groups,
 +	},
 +	.su_mutex = __MUTEX_INITIALIZER(of_cfs_subsys.su_mutex),
 +};
@@ -408,6 +405,8 @@ index 0000000..b68dea8
 +	config_group_init(&of_cfs_subsys.su_group);
 +	config_group_init_type_name(&of_cfs_overlay_group, "overlays",
 +			&overlays_type);
++	configfs_add_default_group(&of_cfs_overlay_group,
++			&of_cfs_subsys.su_group);
 +
 +	ret = configfs_register_subsystem(&of_cfs_subsys);
 +	if (ret != 0) {
@@ -420,5 +419,5 @@ index 0000000..b68dea8
 +}
 +late_initcall(of_cfs_init);
 -- 
-2.7.0
+2.8.0.rc3
 
