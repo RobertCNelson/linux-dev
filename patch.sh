@@ -402,20 +402,6 @@ bbb_overlays () {
 		fi
 	fi
 
-	echo "dir: bbb_overlays/of"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cherrypick_dir="bbb_overlays/of"
-		#merged in 4.5.0-rc0
-		SHA="183223770ae8625df8966ed15811d1b3ee8720aa" ; num="1" ; cherrypick
-		exit 2
-	fi
-
-	if [ "x${merged_in_4_5}" = "xenable" ] ; then
-		#merged in 4.5.0-rc0
-		${git} "${DIR}/patches/bbb_overlays/of/0001-drivers-of-Export-OF-changeset-functions.patch"
-	fi
-
 	echo "dir: bbb_overlays/omap"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
