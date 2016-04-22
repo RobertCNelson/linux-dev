@@ -346,8 +346,12 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
+		yakkety)
+			#16.10 yakkety: (EOL: July 2017)
+			unset warn_eol_distro
+			;;
 		xenial)
-			#16.04 trusty: (EOL: April 20xx) lts: xenial -> xyz
+			#16.04 xenial: (EOL: April 2021) lts: xenial -> xyz
 			unset warn_eol_distro
 			;;
 		wily)
