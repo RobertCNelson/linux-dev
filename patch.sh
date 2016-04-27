@@ -694,11 +694,10 @@ beaglebone () {
 		${git} "${DIR}/patches/beaglebone/mctrl_gpio/0001-tty-serial-8250-make-UART_MCR-register-access-consis.patch"
 		${git} "${DIR}/patches/beaglebone/mctrl_gpio/0002-serial-mctrl_gpio-add-modem-control-read-routine.patch"
 		${git} "${DIR}/patches/beaglebone/mctrl_gpio/0003-serial-mctrl_gpio-add-IRQ-locking.patch"
-		${git} "${DIR}/patches/beaglebone/mctrl_gpio/0004-tty-serial-8250-use-mctrl_gpio-helpers.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="beaglebone/mctrl_gpio"
-		number=4
+		number=3
 		cleanup
 	fi
 
