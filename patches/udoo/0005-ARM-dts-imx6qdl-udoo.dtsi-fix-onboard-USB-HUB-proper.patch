@@ -9,11 +9,11 @@ under USB controller.
 
 Signed-off-by: Peter Chen <peter.chen@freescale.com>
 ---
- arch/arm/boot/dts/imx6qdl-udoo.dtsi | 35 ++++++++++++++---------------------
- 1 file changed, 14 insertions(+), 21 deletions(-)
+ arch/arm/boot/dts/imx6qdl-udoo.dtsi | 29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index d3e54e4..bd0e0eb 100644
+index 3bee2f9..c68f622 100644
 --- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
 @@ -9,6 +9,8 @@
@@ -23,17 +23,12 @@ index d3e54e4..bd0e0eb 100644
 +#include <dt-bindings/gpio/gpio.h>
 +
  / {
- 	chosen {
- 		stdout-path = &uart2;
-@@ -18,23 +20,6 @@
- 		reg = <0x10000000 0x40000000>;
- 	};
+ 	aliases {
+ 		backlight = &backlight;
+@@ -58,17 +60,6 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
  
--	regulators {
--		compatible = "simple-bus";
--		#address-cells = <1>;
--		#size-cells = <0>;
--
 -		reg_usb_h1_vbus: regulator@0 {
 -			compatible = "regulator-fixed";
 -			reg = <0>;
@@ -44,19 +39,18 @@ index d3e54e4..bd0e0eb 100644
 -			startup-delay-us = <2>; /* USB2415 requires a POR of 1 us minimum */
 -			gpio = <&gpio7 12 0>;
 -		};
--	};
 -
- 	sound {
- 		compatible = "fsl,imx6q-udoo-ac97",
- 			     "fsl,imx-audio-ac97";
-@@ -161,11 +146,19 @@
+ 		reg_panel: regulator@1 {
+ 			compatible = "regulator-fixed";
+ 			reg = <1>;
+@@ -257,11 +248,19 @@
  };
  
  &usbh1 {
 -	pinctrl-names = "default";
 -	pinctrl-0 = <&pinctrl_usbh>;
 -	vbus-supply = <&reg_usb_h1_vbus>;
--	clocks = <&clks 201>;
+-	clocks = <&clks IMX6QDL_CLK_CKO>;
  	status = "okay";
 +
 +	#address-cells = <1>;
@@ -74,5 +68,5 @@ index d3e54e4..bd0e0eb 100644
  
  &usdhc3 {
 -- 
-2.8.0.rc3
+2.8.1
 

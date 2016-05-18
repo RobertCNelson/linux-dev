@@ -1,35 +1,33 @@
-From baecb49624047dda9cd56f27b8c23879d148aadf Mon Sep 17 00:00:00 2001
+From a1e922a8769eded7cd27d0dd731d58bc09ad4656 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 28 Apr 2016 16:00:16 -0500
+Date: Wed, 18 May 2016 16:00:19 -0500
 Subject: [PATCH 9/9] mcimx6ul-bb and ism43362-b81-evb
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/Makefile                         |   3 +-
- .../boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts | 381 +++++++++++++++++++++
- 2 files changed, 383 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/Makefile                         |   1 +
+ .../boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts | 455 +++++++++++++++++++++
+ 2 files changed, 456 insertions(+)
  create mode 100644 arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 659bf7a..062848f 100644
+index 78b23f2..3bb61bf 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -379,7 +379,8 @@ dtb-$(CONFIG_SOC_IMX6SX) += \
- 	imx6sx-sdb-reva.dtb \
+@@ -397,6 +397,7 @@ dtb-$(CONFIG_SOC_IMX6SX) += \
  	imx6sx-sdb.dtb
  dtb-$(CONFIG_SOC_IMX6UL) += \
--	imx6ul-14x14-evk.dtb
-+	imx6ul-14x14-evk.dtb \
-+	imx6ul-14x14-evk-ism43362-b81-evb.dtb
- dtb-$(CONFIG_SOC_IMX7D) += \
- 	imx7d-cl-som-imx7.dtb \
- 	imx7d-sbc-imx7.dtb \
+ 	imx6ul-14x14-evk.dtb \
++	imx6ul-14x14-evk-ism43362-b81-evb.dtb \
+ 	imx6ul-pico-hobbit.dtb \
+ 	imx6ul-tx6ul-0010.dtb \
+ 	imx6ul-tx6ul-0011.dtb \
 diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts b/arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts
 new file mode 100644
-index 0000000..5687142
+index 0000000..ffcbc73
 --- /dev/null
 +++ b/arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts
-@@ -0,0 +1,381 @@
+@@ -0,0 +1,455 @@
 +/*
 + * Copyright (C) 2015 Freescale Semiconductor, Inc.
 + *
@@ -78,11 +76,64 @@ index 0000000..5687142
 +			enable-active-high;
 +		};
 +	};
++
++	sound {
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "mx6ul-wm8960";
++		simple-audio-card,format = "i2s";
++		simple-audio-card,bitclock-master = <&dailink_master>;
++		simple-audio-card,frame-master = <&dailink_master>;
++		simple-audio-card,widgets =
++			"Microphone", "Mic Jack",
++			"Line", "Line In",
++			"Line", "Line Out",
++			"Speaker", "Speaker",
++			"Headphone", "Headphone Jack";
++		simple-audio-card,routing =
++			"Headphone Jack", "HP_L",
++			"Headphone Jack", "HP_R",
++			"Speaker", "SPK_LP",
++			"Speaker", "SPK_LN",
++			"Speaker", "SPK_RP",
++			"Speaker", "SPK_RN",
++			"LINPUT1", "Mic Jack",
++			"LINPUT3", "Mic Jack",
++			"RINPUT1", "Mic Jack",
++			"RINPUT2", "Mic Jack";
++
++		simple-audio-card,cpu {
++			sound-dai = <&sai2>;
++		};
++
++		dailink_master: simple-audio-card,codec {
++			sound-dai = <&codec>;
++			clocks = <&clks IMX6UL_CLK_SAI2>;
++		};
++	};
++};
++
++&clks {
++	assigned-clocks = <&clks IMX6UL_CLK_PLL4_AUDIO_DIV>;
++	assigned-clock-rates = <786432000>;
 +};
 +
 +&cpu0 {
 +	arm-supply = <&reg_arm>;
 +	soc-supply = <&reg_soc>;
++};
++
++&i2c2 {
++	clock_frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2>;
++	status = "okay";
++
++	codec: wm8960@1a {
++		#sound-dai-cells = <0>;
++		compatible = "wlf,wm8960";
++		reg = <0x1a>;
++		wlf,shared-lrclk;
++	};
 +};
 +
 +&fec1 {
@@ -126,6 +177,16 @@ index 0000000..5687142
 +		spi-max-frequency = <29000000>;
 +		reg = <0>;
 +	};
++};
++
++&sai2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_sai2>;
++	assigned-clocks = <&clks IMX6UL_CLK_SAI2_SEL>,
++			  <&clks IMX6UL_CLK_SAI2>;
++	assigned-clock-parents = <&clks IMX6UL_CLK_PLL4_AUDIO_DIV>;
++	assigned-clock-rates = <0>, <12288000>;
++	status = "okay";
 +};
 +
 +&snvs_poweroff {
@@ -316,6 +377,17 @@ index 0000000..5687142
 +			MX6UL_PAD_NAND_CE1_B__QSPI_A_DATA02	0x70a1
 +			MX6UL_PAD_NAND_CLE__QSPI_A_DATA03	0x70a1
 +			MX6UL_PAD_NAND_DQS__QSPI_A_SS0_B	0x70a1
++		>;
++	};
++
++	pinctrl_sai2: sai2grp {
++		fsl,pins = <
++			MX6UL_PAD_JTAG_TDI__SAI2_TX_BCLK	0x17088
++			MX6UL_PAD_JTAG_TDO__SAI2_TX_SYNC	0x17088
++			MX6UL_PAD_JTAG_TRST_B__SAI2_TX_DATA	0x11088
++			MX6UL_PAD_JTAG_TCK__SAI2_RX_DATA	0x11088
++			MX6UL_PAD_JTAG_TMS__SAI2_MCLK		0x17088
++			MX6UL_PAD_SNVS_TAMPER4__GPIO5_IO04	0x17059
 +		>;
 +	};
 +

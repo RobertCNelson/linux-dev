@@ -6,22 +6,18 @@ Subject: [PATCH 6/6] udoo: sync pincfgs with
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/imx6qdl-udoo.dtsi | 77 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 77 insertions(+)
+ arch/arm/boot/dts/imx6qdl-udoo.dtsi | 64 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
 diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index bd0e0eb..ee91732 100644
+index c68f622..10df0f2 100644
 --- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-@@ -52,8 +52,57 @@
- 	status = "okay";
- };
- 
-+&i2c3 { // CSI camera (CN11) and LVDS 7 inches touch panel (CN13)
-+	clock-frequency = <100000>;
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_i2c3>;
-+	status = "okay";
+@@ -117,10 +117,53 @@
+ 		gpios = <&gpio1 15 0>;
+ 		status = "disabled";
+ 	};
++
 +	ov5640_mipi: ov5640_mipi@3c {
 +		compatible = "ovti,ov5640_mipi";
 +		reg = <0x3c>;
@@ -33,8 +29,8 @@ index bd0e0eb..ee91732 100644
 +		mclk = <24000000>;
 +		mclk_source = <0>;
 +	};
-+};
-+
+ };
+ 
  &iomuxc {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&pinctrl_hog>;
@@ -71,21 +67,7 @@ index bd0e0eb..ee91732 100644
  		pinctrl_enet: enetgrp {
  			fsl,pins = <
  				MX6QDL_PAD_RGMII_RXC__RGMII_RXC		0x1b0b0
-@@ -82,6 +131,13 @@
- 			>;
- 		};
- 
-+		pinctrl_i2c3: i2c3grp {
-+			fsl,pins = <
-+				MX6QDL_PAD_GPIO_5__I2C3_SCL		0x4001b8b1
-+				MX6QDL_PAD_GPIO_6__I2C3_SDA		0x4001b8b1
-+			>;
-+		};
-+
- 		pinctrl_uart2: uart2grp {
- 			fsl,pins = <
- 				MX6QDL_PAD_EIM_D26__UART2_TX_DATA	0x1b0b1
-@@ -89,6 +145,13 @@
+@@ -177,6 +220,13 @@
  			>;
  		};
  
@@ -99,7 +81,7 @@ index bd0e0eb..ee91732 100644
  		pinctrl_usbh: usbhgrp {
  			fsl,pins = <
  				MX6QDL_PAD_GPIO_17__GPIO7_IO12 0x80000000
-@@ -145,6 +208,12 @@
+@@ -247,6 +297,12 @@
  	status = "okay";
  };
  
@@ -112,7 +94,7 @@ index bd0e0eb..ee91732 100644
  &usbh1 {
  	status = "okay";
  
-@@ -182,3 +251,11 @@
+@@ -284,3 +340,11 @@
  	ac97-gpios = <&gpio4 19 0 &gpio4 18 0 &gpio2 30 0>;
  	status = "okay";
  };
@@ -125,5 +107,5 @@ index bd0e0eb..ee91732 100644
 +	lanes = <2>;
 +};
 -- 
-2.8.0.rc3
+2.8.1
 
