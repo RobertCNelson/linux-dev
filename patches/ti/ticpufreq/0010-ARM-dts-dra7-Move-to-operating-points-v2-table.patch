@@ -1,0 +1,85 @@
+From bd4416ee6a2f660ff413840025e683584f2bdc20 Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 18 May 2016 18:36:33 -0500
+Subject: [PATCH 10/10] ARM: dts: dra7: Move to operating-points-v2 table
+
+Add an operating-points-v2 table with all OPPs available for all silicon
+revisions along with necessary data for use by ti-opp driver to selectively
+enable the appropriate OPPs at runtime and handle voltage transitions
+
+As we now need to define voltage ranges for each OPP, we define the
+minimum and maximum voltage to match the ranges possible for AVS class0
+voltage as defined by the DRA7/AM57 Data Manual, with the exception of
+using a range for OPP_OD based on historical data to ensure that SoCs
+from older lots still continue to boot, even though more optimal voltages
+are now the standard. Once an AVS Class0 driver is in place it will be
+possible for these OPP voltages to be adjusted to any voltage within the
+provided range.
+
+Information from SPRS953, Revised December 2015.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/dra7.dtsi   | 26 +++++++++++++++++++++-----
+ arch/arm/boot/dts/dra74x.dtsi |  1 +
+ 2 files changed, 22 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index 7ff4ae4..3df9dce 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -82,11 +82,9 @@
+ 			compatible = "arm,cortex-a15";
+ 			reg = <0>;
+ 
+-			operating-points = <
+-				/* kHz    uV */
+-				1000000	1060000
+-				1176000	1160000
+-				>;
++			operating-points-v2 = <&cpu0_opp_table>;
++			ti,syscon-efuse = <&scm_wkup 0x20c 0xf80000 19>;
++			ti,syscon-rev = <&scm_wkup 0x204>;
+ 
+ 			clocks = <&dpll_mpu_ck>;
+ 			clock-names = "cpu";
+@@ -100,6 +98,24 @@
+ 		};
+ 	};
+ 
++	cpu0_opp_table: opp_table0 {
++		compatible = "operating-points-v2";
++		opp-shared;
++
++		opp_nom@1000000000 {
++			opp-hz = /bits/ 64 <1000000000>;
++			opp-microvolt = <1060000 850000 1150000>;
++			opp-supported-hw = <0xFF 0x01>;
++			opp-suspend;
++		};
++
++		opp_od@1176000000 {
++			opp-hz = /bits/ 64 <1176000000>;
++			opp-microvolt = <1160000 885000 1160000>;
++			opp-supported-hw = <0xFF 0x02>;
++		};
++	};
++
+ 	/*
+ 	 * The soc node represents the soc top level view. It is used for IPs
+ 	 * that are not memory mapped in the MPU view or for the MPU itself.
+diff --git a/arch/arm/boot/dts/dra74x.dtsi b/arch/arm/boot/dts/dra74x.dtsi
+index 0c31db3..0a8a5ee 100644
+--- a/arch/arm/boot/dts/dra74x.dtsi
++++ b/arch/arm/boot/dts/dra74x.dtsi
+@@ -17,6 +17,7 @@
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a15";
+ 			reg = <1>;
++			operating-points-v2 = <&cpu0_opp_table>;
+ 		};
+ 	};
+ 
+-- 
+2.8.1
+

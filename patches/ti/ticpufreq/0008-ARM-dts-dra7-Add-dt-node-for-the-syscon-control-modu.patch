@@ -1,0 +1,33 @@
+From 52b3516ac04333459f0b030cd2cdc1a36ad83d5a Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 18 May 2016 18:36:31 -0500
+Subject: [PATCH 08/10] ARM: dts: dra7: Add dt node for the syscon control
+ module wkup
+
+Create a system control module node for the control module portion that
+resides under l4_wkup.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/dra7.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index e73edc2..dfe9678 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -233,6 +233,11 @@
+ 				prm_clockdomains: clockdomains {
+ 				};
+ 			};
++
++			scm_wkup: scm_conf@c000 {
++				compatible = "syscon";
++				reg = <0xc000 0x1000>;
++			};
+ 		};
+ 
+ 		axi@0 {
+-- 
+2.8.1
+

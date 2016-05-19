@@ -1,0 +1,40 @@
+From 9cd95617ef8775bf10d3c113c9a9e564e083b9ec Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 18 May 2016 18:36:28 -0500
+Subject: [PATCH 05/10] ARM: dts: am335x-boneblack: Enable 1GHz OPP for cpu
+
+Although all PG2.0 silicon may not support 1GHz OPP for the MPU, older
+Beaglebone Blacks may have PG2.0 silicon populated and these particular
+parts are guaranteed to support the OPP, so enable it for PG2.0 on
+am335x-boneblack only.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/am335x-boneblack.dts | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 55c0e95..ca72167 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -33,6 +33,17 @@
+ 	status = "okay";
+ };
+ 
++&cpu0_opp_table {
++	/*
++	 * All PG 2.0 silicon may not support 1GHz but some of the early
++	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++	 */
++	oppnitro@1000000000 {
++		opp-supported-hw = <0x06 0x0100>;
++	};
++};
++
+ &am33xx_pinmux {
+ 	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
+ 		pinctrl-single,pins = <
+-- 
+2.8.1
+
