@@ -1,11 +1,11 @@
-From 844a63fc5e8ab2480f9d69fca9b187b9dd88e193 Mon Sep 17 00:00:00 2001
+From 4dd586aa83374beea68154e9f4232ac2b9e1c582 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 21 Mar 2016 10:15:27 -0500
+Date: Sat, 21 May 2016 14:00:34 -0500
 Subject: [PATCH] scripts/dtc: Update to upstream version overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- scripts/dtc/checks.c                 | 132 ++++++-
+ scripts/dtc/checks.c                 | 106 ++++-
  scripts/dtc/dtc-lexer.l              |   5 +
  scripts/dtc/dtc-lexer.lex.c_shipped  | 539 ++++++++++++++------------
  scripts/dtc/dtc-parser.tab.c_shipped | 732 ++++++++++++++++++-----------------
@@ -13,48 +13,16 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  scripts/dtc/dtc-parser.y             |  22 +-
  scripts/dtc/dtc.c                    |   9 +-
  scripts/dtc/dtc.h                    |  40 ++
- scripts/dtc/flattree.c               | 206 +++++++++-
- scripts/dtc/libfdt/fdt_ro.c          |   6 +-
+ scripts/dtc/flattree.c               | 202 ++++++++++
  scripts/dtc/libfdt/libfdt.h          |  60 +--
  scripts/dtc/version_gen.h            |   2 +-
- 12 files changed, 1132 insertions(+), 675 deletions(-)
+ 11 files changed, 1102 insertions(+), 669 deletions(-)
 
 diff --git a/scripts/dtc/checks.c b/scripts/dtc/checks.c
-index 0c03ac9..207a923 100644
+index 386f956..207a923 100644
 --- a/scripts/dtc/checks.c
 +++ b/scripts/dtc/checks.c
-@@ -294,6 +294,30 @@ static void check_node_name_format(struct check *c, struct node *dt,
- }
- NODE_ERROR(node_name_format, NULL, &node_name_chars);
- 
-+static void check_unit_address_vs_reg(struct check *c, struct node *dt,
-+			     struct node *node)
-+{
-+	const char *unitname = get_unitname(node);
-+	struct property *prop = get_property(node, "reg");
-+
-+	if (!prop) {
-+		prop = get_property(node, "ranges");
-+		if (prop && !prop->val.len)
-+			prop = NULL;
-+	}
-+
-+	if (prop) {
-+		if (!unitname[0])
-+			FAIL(c, "Node %s has a reg or ranges property, but no unit name",
-+			    node->fullpath);
-+	} else {
-+		if (unitname[0])
-+			FAIL(c, "Node %s has a unit name, but no reg property",
-+			    node->fullpath);
-+	}
-+}
-+NODE_WARNING(unit_address_vs_reg, NULL);
-+
- static void check_property_name_chars(struct check *c, struct node *dt,
- 				      struct node *node, struct property *prop)
- {
-@@ -458,6 +482,8 @@ static void fixup_phandle_references(struct check *c, struct node *dt,
+@@ -482,6 +482,8 @@ static void fixup_phandle_references(struct check *c, struct node *dt,
  				     struct node *node, struct property *prop)
  {
  	struct marker *m = prop->val.markers;
@@ -63,7 +31,7 @@ index 0c03ac9..207a923 100644
  	struct node *refnode;
  	cell_t phandle;
  
-@@ -466,14 +492,73 @@ static void fixup_phandle_references(struct check *c, struct node *dt,
+@@ -490,14 +492,73 @@ static void fixup_phandle_references(struct check *c, struct node *dt,
  
  		refnode = get_node_by_ref(dt, m->ref);
  		if (! refnode) {
@@ -139,7 +107,7 @@ index 0c03ac9..207a923 100644
  }
  ERROR(phandle_references, NULL, NULL, fixup_phandle_references, NULL,
        &duplicate_node_names, &explicit_phandles);
-@@ -652,6 +737,45 @@ static void check_obsolete_chosen_interrupt_controller(struct check *c,
+@@ -676,6 +737,45 @@ static void check_obsolete_chosen_interrupt_controller(struct check *c,
  }
  TREE_WARNING(obsolete_chosen_interrupt_controller, NULL);
  
@@ -185,12 +153,7 @@ index 0c03ac9..207a923 100644
  static struct check *check_table[] = {
  	&duplicate_node_names, &duplicate_property_names,
  	&node_name_chars, &node_name_format, &property_name_chars,
-@@ -667,9 +791,13 @@ static struct check *check_table[] = {
- 
- 	&addr_size_cells, &reg_format, &ranges_format,
- 
-+	&unit_address_vs_reg,
-+
+@@ -696,6 +796,8 @@ static struct check *check_table[] = {
  	&avoid_default_addr_size,
  	&obsolete_chosen_interrupt_controller,
  
@@ -216,7 +179,7 @@ index 790fbf6..40bbc87 100644
  			DPRINT("Keyword: /memreserve/\n");
  			BEGIN_DEFAULT();
 diff --git a/scripts/dtc/dtc-lexer.lex.c_shipped b/scripts/dtc/dtc-lexer.lex.c_shipped
-index ba525c2..d29e2a9 100644
+index ba525c2..ee26017 100644
 --- a/scripts/dtc/dtc-lexer.lex.c_shipped
 +++ b/scripts/dtc/dtc-lexer.lex.c_shipped
 @@ -8,8 +8,8 @@
@@ -676,7 +639,7 @@ index ba525c2..d29e2a9 100644
  #endif
  
 +#ifndef YY_NO_UNPUT
-+
++    
 +#endif
 +
  #ifndef yytext_ptr
@@ -1012,7 +975,7 @@ index ba525c2..d29e2a9 100644
 -    	register char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
 -	register char *source = (yytext_ptr);
 -	register int number_to_move, i;
-+	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
++    	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
 +	char *source = (yytext_ptr);
 +	yy_size_t number_to_move, i;
  	int ret_val;
@@ -1074,7 +1037,7 @@ index ba525c2..d29e2a9 100644
 -	register int yy_is_jam;
 -    	register char *yy_cp = (yy_c_buf_p);
 +	int yy_is_jam;
-+	char *yy_cp = (yy_c_buf_p);
++    	char *yy_cp = (yy_c_buf_p);
  
 -	register YY_CHAR yy_c = 1;
 +	YY_CHAR yy_c = 1;
@@ -1194,7 +1157,7 @@ index ba525c2..d29e2a9 100644
  static void yy_flex_strncpy (char* s1, yyconst char * s2, int n )
  {
 -	register int i;
-+
++		
 +	int i;
  	for ( i = 0; i < n; ++i )
  		s1[i] = s2[i];
@@ -1218,7 +1181,7 @@ index ba525c2..d29e2a9 100644
  
  void *yyrealloc  (void * ptr, yy_size_t  size )
  {
-+
++		
  	/* The cast to (char *) in the following accommodates both
  	 * implementations that use char* generic pointers, and those
  	 * that use void* generic pointers.  It works with the latter
@@ -2749,7 +2712,7 @@ index 56212c8..f163b22 100644
  void delete_labels(struct label **labels);
  
 diff --git a/scripts/dtc/flattree.c b/scripts/dtc/flattree.c
-index bd99fa2..f8f1e34 100644
+index ec14954..f8f1e34 100644
 --- a/scripts/dtc/flattree.c
 +++ b/scripts/dtc/flattree.c
 @@ -255,6 +255,204 @@ static int stringtable_insert(struct data *d, const char *str)
@@ -2968,41 +2931,6 @@ index bd99fa2..f8f1e34 100644
  	emit->endnode(etarget, tree->labels);
  }
  
-@@ -889,7 +1091,7 @@ struct boot_info *dt_from_blob(const char *fname)
- 
- 	if (version >= 3) {
- 		uint32_t size_str = fdt32_to_cpu(fdt->size_dt_strings);
--		if (off_str+size_str > totalsize)
-+		if ((off_str+size_str < off_str) || (off_str+size_str > totalsize))
- 			die("String table extends past total size\n");
- 		inbuf_init(&strbuf, blob + off_str, blob + off_str + size_str);
- 	} else {
-@@ -898,7 +1100,7 @@ struct boot_info *dt_from_blob(const char *fname)
- 
- 	if (version >= 17) {
- 		size_dt = fdt32_to_cpu(fdt->size_dt_struct);
--		if (off_dt+size_dt > totalsize)
-+		if ((off_dt+size_dt < off_dt) || (off_dt+size_dt > totalsize))
- 			die("Structure block extends past total size\n");
- 	}
- 
-diff --git a/scripts/dtc/libfdt/fdt_ro.c b/scripts/dtc/libfdt/fdt_ro.c
-index e5b3136..50cce86 100644
---- a/scripts/dtc/libfdt/fdt_ro.c
-+++ b/scripts/dtc/libfdt/fdt_ro.c
-@@ -647,10 +647,8 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
- 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
- 	if (!prop)
- 		return len;
--	if (fdt_stringlist_contains(prop, len, compatible))
--		return 0;
--	else
--		return 1;
-+
-+	return !fdt_stringlist_contains(prop, len, compatible);
- }
- 
- int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 diff --git a/scripts/dtc/libfdt/libfdt.h b/scripts/dtc/libfdt/libfdt.h
 index 59ca339..f7e3989 100644
 --- a/scripts/dtc/libfdt/libfdt.h
@@ -3195,12 +3123,12 @@ index 59ca339..f7e3989 100644
   *		the given name
   *	-FDT_ERR_NOSPACE, if there is insufficient free space in the
 diff --git a/scripts/dtc/version_gen.h b/scripts/dtc/version_gen.h
-index 11d93e6..d2c2bd3 100644
+index ad9b05a..d2c2bd3 100644
 --- a/scripts/dtc/version_gen.h
 +++ b/scripts/dtc/version_gen.h
 @@ -1 +1 @@
--#define DTC_VERSION "DTC 1.4.1-gb06e55c8"
+-#define DTC_VERSION "DTC 1.4.1-g53bf130b"
 +#define DTC_VERSION "DTC 1.4.1-g640cd742"
 -- 
-2.7.0
+2.8.1
 

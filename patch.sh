@@ -689,21 +689,6 @@ beaglebone () {
 		cleanup
 	fi
 
-	echo "dir: beaglebone/mctrl_gpio"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-		${git} "${DIR}/patches/beaglebone/mctrl_gpio/0001-tty-serial-8250-make-UART_MCR-register-access-consis.patch"
-		${git} "${DIR}/patches/beaglebone/mctrl_gpio/0002-serial-mctrl_gpio-add-modem-control-read-routine.patch"
-		${git} "${DIR}/patches/beaglebone/mctrl_gpio/0003-serial-mctrl_gpio-add-IRQ-locking.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="beaglebone/mctrl_gpio"
-		number=3
-		cleanup
-	fi
-
 	echo "dir: beaglebone/jtag"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then

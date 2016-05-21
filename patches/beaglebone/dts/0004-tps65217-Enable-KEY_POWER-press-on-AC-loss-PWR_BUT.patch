@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  3 files changed, 128 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index da93a73..7e59d0b 100644
+index 807894a..483ece1 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -303,6 +303,9 @@
@@ -28,7 +28,7 @@ index da93a73..7e59d0b 100644
  		dcdc1_reg: regulator@0 {
  			regulator-name = "vdds_dpr";
 diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
-index d32b5442..ca19130 100644
+index 049a6fc..403f795 100644
 --- a/drivers/mfd/tps65217.c
 +++ b/drivers/mfd/tps65217.c
 @@ -24,8 +24,12 @@
@@ -191,8 +191,8 @@ index d32b5442..ca19130 100644
 +		}
 +	}
 +
- 	ret = mfd_add_devices(tps->dev, -1, tps65217s,
- 			      ARRAY_SIZE(tps65217s), NULL, 0, NULL);
+ 	ret = devm_mfd_add_devices(tps->dev, -1, tps65217s,
+ 				   ARRAY_SIZE(tps65217s), NULL, 0, NULL);
  	if (ret < 0) {
 diff --git a/include/linux/mfd/tps65217.h b/include/linux/mfd/tps65217.h
 index ac7fba4..05d24a6 100644
@@ -211,5 +211,5 @@ index ac7fba4..05d24a6 100644
  
  static inline struct tps65217 *dev_to_tps65217(struct device *dev)
 -- 
-2.8.0.rc3
+2.8.1
 
