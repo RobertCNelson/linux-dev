@@ -1,0 +1,142 @@
+From ef743f063ee9aa05bfc1b168ae316be324aa5181 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Thu, 21 May 2015 12:37:27 +0300
+Subject: [PATCH 29/41] of: unittest: Add indirect overlay target test
+
+Add a unittest for the indirect overlay target case.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ drivers/of/unittest-data/testcases.dts      |  5 +++
+ drivers/of/unittest-data/tests-overlay.dtsi | 15 ++++++++
+ drivers/of/unittest.c                       | 60 +++++++++++++++++++++++++++++
+ 3 files changed, 80 insertions(+)
+
+diff --git a/drivers/of/unittest-data/testcases.dts b/drivers/of/unittest-data/testcases.dts
+index 12f7c3d..74e8805 100644
+--- a/drivers/of/unittest-data/testcases.dts
++++ b/drivers/of/unittest-data/testcases.dts
+@@ -75,5 +75,10 @@
+ 				target = <0x00000000>;
+ 			};
+ 		};
++		overlay16 {
++			fragment@0 {
++				target = <0x00000000 0x00000004>;
++			};
++		};
+ 	};
+ }; };
+diff --git a/drivers/of/unittest-data/tests-overlay.dtsi b/drivers/of/unittest-data/tests-overlay.dtsi
+index 02ba56c..ab32996 100644
+--- a/drivers/of/unittest-data/tests-overlay.dtsi
++++ b/drivers/of/unittest-data/tests-overlay.dtsi
+@@ -110,6 +110,12 @@
+ 						};
+ 					};
+ 				};
++
++				unittest16: test-unittest16 {
++					compatible = "unittest";
++					status = "disabled";
++					reg = <16>;
++				};
+ 			};
+ 		};
+ 
+@@ -325,5 +331,14 @@
+ 			};
+ 		};
+ 
++		/* test enable using indirect functionality */
++		overlay16 {
++			fragment@0 {
++				target = <&unittest17>, <&unittest16>;
++				__overlay__ {
++					status = "okay";
++				};
++			};
++		};
+ 	};
+ };
+diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
+index d8dd3c8..15cd995 100644
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -1907,6 +1907,64 @@ static inline void of_unittest_overlay_i2c_15(void) { }
+ 
+ #endif
+ 
++static void of_unittest_overlay_16(void)
++{
++	int ret;
++	int overlay_nr = 16;
++	int unittest_nr = 16;
++	enum overlay_type ovtype = PDEV_OVERLAY;
++	int before = 0;
++	int after = 1;
++	struct device_node *np = NULL;
++	int id = -1;
++
++	/* unittest device must not be in before state */
++	if (of_unittest_device_exists(unittest_nr, ovtype) != before) {
++		unittest(0, "overlay @\"%s\" with device @\"%s\" %s\n",
++				overlay_path(overlay_nr),
++				unittest_path(unittest_nr, ovtype),
++				!before ? "enabled" : "disabled");
++		return;
++	}
++
++	np = of_find_node_by_path(overlay_path(overlay_nr));
++	if (np == NULL) {
++		unittest(0, "could not find overlay node @\"%s\"\n",
++				overlay_path(overlay_nr));
++		ret = -EINVAL;
++		goto out;
++	}
++
++	/* unittest16 is at index #1 */
++	ret = of_overlay_create_target_index(np, 1);
++	if (ret < 0) {
++		unittest(0, "could not create overlay from \"%s\"\n",
++				overlay_path(overlay_nr));
++		goto out;
++	}
++	id = ret;
++	of_unittest_track_overlay(id);
++
++	ret = 0;
++
++out:
++	of_node_put(np);
++
++	if (ret)
++		return;
++
++	/* unittest device must be to set to after state */
++	if (of_unittest_device_exists(unittest_nr, ovtype) != after) {
++		unittest(0, "overlay @\"%s\" failed to create @\"%s\" %s\n",
++				overlay_path(overlay_nr),
++				unittest_path(unittest_nr, ovtype),
++				!after ? "enabled" : "disabled");
++		return;
++	}
++
++	unittest(1, "overlay test %d passed\n", 16);
++}
++
+ static void __init of_unittest_overlay(void)
+ {
+ 	struct device_node *bus_np = NULL;
+@@ -1958,6 +2016,8 @@ static void __init of_unittest_overlay(void)
+ 	of_unittest_overlay_10();
+ 	of_unittest_overlay_11();
+ 
++	of_unittest_overlay_16();
++
+ #if IS_BUILTIN(CONFIG_I2C)
+ 	if (unittest(of_unittest_overlay_i2c_init() == 0, "i2c init failed\n"))
+ 		goto out;
+-- 
+2.8.1
+

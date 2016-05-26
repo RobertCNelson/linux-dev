@@ -1,7 +1,11 @@
-From 4225054e76c8db4bbc3ddc21f8fca7f89cf99425 Mon Sep 17 00:00:00 2001
+From db2f3d8e0214d643db0be330244ebfe4aafa9983 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 14 Oct 2015 13:20:54 +0300
-Subject: [PATCH 35/38] of: rename *_node_sysfs to _node_post
+Subject: [PATCH 35/41] of: rename *_node_sysfs to _node_post
+
+Renames the *_node_sysfs methods to _node_post which is more accurate
+when more work takes place besides sysfs tweaking (as in with
+phandle hash management).
 
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
@@ -12,7 +16,7 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  4 files changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/of/base.c b/drivers/of/base.c
-index 9bbca56..20bbc2f 100644
+index ccd2ef3..de6925e 100644
 --- a/drivers/of/base.c
 +++ b/drivers/of/base.c
 @@ -156,7 +156,7 @@ int __of_add_property_sysfs(struct device_node *np, struct property *pp)
@@ -34,7 +38,7 @@ index 9bbca56..20bbc2f 100644
  
  	/* Symlink in /proc as required by userspace ABI */
 diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
-index eca22b4..fcbcd38 100644
+index 4cef6eb..bf6ecd8 100644
 --- a/drivers/of/dynamic.c
 +++ b/drivers/of/dynamic.c
 @@ -41,7 +41,7 @@ void of_node_put(struct device_node *node)
@@ -64,7 +68,7 @@ index eca22b4..fcbcd38 100644
  	mutex_unlock(&of_mutex);
  
  	of_reconfig_notify(OF_RECONFIG_DETACH_NODE, &rd);
-@@ -623,10 +623,10 @@ static int __of_changeset_entry_apply(struct of_changeset_entry *ce)
+@@ -629,10 +629,10 @@ static int __of_changeset_entry_apply(struct of_changeset_entry *ce)
  
  	switch (ce->action) {
  	case OF_RECONFIG_ATTACH_NODE:
@@ -94,10 +98,10 @@ index 092cba7..10b0342 100644
  /* iterators for transactions, used for overlays */
  /* forward iterator */
 diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 2bfe0bc..0c5994f 100644
+index 94d5dfe..04dfaac 100644
 --- a/drivers/of/unittest.c
 +++ b/drivers/of/unittest.c
-@@ -917,7 +917,7 @@ static int attach_node_and_children(struct device_node *np)
+@@ -930,7 +930,7 @@ static int attach_node_and_children(struct device_node *np)
  	of_node_clear_flag(np, OF_DETACHED);
  	raw_spin_unlock_irqrestore(&devtree_lock, flags);
  
@@ -106,7 +110,7 @@ index 2bfe0bc..0c5994f 100644
  	mutex_unlock(&of_mutex);
  
  	while (child) {
-@@ -975,7 +975,7 @@ static int __init unittest_data_add(void)
+@@ -988,7 +988,7 @@ static int __init unittest_data_add(void)
  	if (!of_root) {
  		of_root = unittest_data_node;
  		for_each_of_allnodes(np)
@@ -116,5 +120,5 @@ index 2bfe0bc..0c5994f 100644
  		of_chosen = of_find_node_by_path("/chosen");
  		return 0;
 -- 
-2.8.0.rc3
+2.8.1
 

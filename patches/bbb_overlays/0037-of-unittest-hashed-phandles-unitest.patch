@@ -1,0 +1,119 @@
+From f579548c6f24c0ee03c39348443f5046d7aa7094 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Mon, 16 May 2016 17:36:59 +0300
+Subject: [PATCH 37/41] of: unittest: hashed phandles unitest
+
+Add a benchmarking hashed phandles unittest which report what kind
+of speed up we get switching to hashed phandle lookups.
+
+ ### dt-test ### the hash method is 8.2 times faster than the original
+
+On the beaglebone we perform about 1877 phandle lookups until that
+point in the unittest. Each non-hashed lookup takes about 23us when
+the cash is hot, while the hash lookup takes about 3us.
+
+For those 1877 lookup we get a speedup in the boot sequence of
+1877 * (23 - 3) = 37.5ms, which is not spectacular but there's no
+point in wasting cycles and energy.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ drivers/of/unittest.c | 68 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
+
+diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
+index 04dfaac..86de457 100644
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -24,6 +24,9 @@
+ 
+ #include <linux/bitops.h>
+ 
++#include <linux/timekeeping.h>
++#include <linux/random.h>
++
+ #include "of_private.h"
+ 
+ static struct unittest_results {
+@@ -2253,6 +2256,70 @@ out:
+ static inline void __init of_unittest_overlay(void) { }
+ #endif
+ 
++#define PHANDLE_LOOKUPS	1000
++
++static void __init of_unittest_phandle_hash(void)
++{
++	struct device_node *node;
++	phandle max_phandle;
++	u32 ph;
++	unsigned long flags;
++	int i, j, total;
++	ktime_t start, end;
++	s64 dur[2];
++	int dec, frac;
++
++	/* test only available when hashing is available */
++	if (!of_phandle_ht_available()) {
++		pr_warn("phandle hash test requires hash to be initialized\n");
++		return;
++	}
++
++	/* find the maximum phandle of the tree */
++	raw_spin_lock_irqsave(&devtree_lock, flags);
++	max_phandle = 0;
++	total = 0;
++	for_each_of_allnodes(node) {
++		if (node->phandle != (phandle)-1U &&
++				node->phandle > max_phandle)
++			max_phandle = node->phandle;
++		total++;
++	}
++	raw_spin_unlock_irqrestore(&devtree_lock, flags);
++	max_phandle++;
++
++	pr_debug("phandle: max-phandle #%u, #%d total nodes\n",
++			(u32)max_phandle, total);
++
++	/* perform random lookups using the hash */
++	for (j = 0; j < 2; j++) {
++
++		/* disabled for pass #0, enabled for pass #1 */
++		of_phandle_ht_is_disabled = j == 0;
++
++		start = ktime_get_raw();
++		for (i = 0; i < PHANDLE_LOOKUPS; i++) {
++			ph = prandom_u32() % max_phandle;
++			node = of_find_node_by_phandle(ph);
++			of_node_put(node);
++		}
++		end = ktime_get_raw();
++
++		dur[j] = ktime_to_us(end) - ktime_to_us(start);
++		pr_debug("#%d lookups in %lld us (%s)\n",
++				PHANDLE_LOOKUPS, dur[j],
++				j == 0 ? "original" : "hashed");
++	}
++
++	unittest(dur[0] > dur[1], "Non hashing phandles are faster!?");
++
++	dec = (int)div64_s64(dur[0] * 10 + 5, dur[1]);
++	frac = dec % 10;
++	dec /= 10;
++	pr_info("the hash method is %d.%d times faster than the original\n",
++			dec, frac);
++}
++
+ static int __init of_unittest(void)
+ {
+ 	struct device_node *np;
+@@ -2287,6 +2354,7 @@ static int __init of_unittest(void)
+ 	of_unittest_match_node();
+ 	of_unittest_platform_populate();
+ 	of_unittest_overlay();
++	of_unittest_phandle_hash();
+ 
+ 	/* Double check linkage after removing testcase data */
+ 	of_unittest_check_tree_linkage();
+-- 
+2.8.1
+

@@ -1,7 +1,7 @@
-From 84bf0a3c5700c1a74f9c71ac36ba6f75fbc7ec4c Mon Sep 17 00:00:00 2001
+From de54fecde8c33c8b524dc66991431c4bc6fe961e Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Tue, 8 Mar 2016 20:01:46 +0200
-Subject: [PATCH 05/38] omap: Fix crash when omap device is disabled
+Subject: [PATCH 05/41] omap: Fix crash when omap device is disabled
 
 When disabling an omap device (not when removing the driver), the
 device is removed but the hwmod's linger.
@@ -15,10 +15,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  1 file changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/omap_device.c b/arch/arm/mach-omap2/omap_device.c
-index 956fffa..efcce61 100644
+index f7ff3b9..7f5647b 100644
 --- a/arch/arm/mach-omap2/omap_device.c
 +++ b/arch/arm/mach-omap2/omap_device.c
-@@ -211,12 +211,21 @@ static int _omap_device_notifier_call(struct notifier_block *nb,
+@@ -191,12 +191,21 @@ static int _omap_device_notifier_call(struct notifier_block *nb,
  {
  	struct platform_device *pdev = to_platform_device(dev);
  	struct omap_device *od;
@@ -43,7 +43,7 @@ index 956fffa..efcce61 100644
  		break;
  	case BUS_NOTIFY_UNBOUND_DRIVER:
  		od = to_omap_device(pdev);
-@@ -790,6 +799,8 @@ int omap_device_idle(struct platform_device *pdev)
+@@ -770,6 +779,8 @@ int omap_device_idle(struct platform_device *pdev)
  	struct omap_device *od;
  
  	od = to_omap_device(pdev);
@@ -53,5 +53,5 @@ index 956fffa..efcce61 100644
  	if (od->_state != OMAP_DEVICE_STATE_ENABLED) {
  		dev_warn(&pdev->dev,
 -- 
-2.8.0.rc3
+2.8.1
 

@@ -371,47 +371,13 @@ pru_rpmsg () {
 }
 
 bbb_overlays () {
-	echo "dir: bbb_overlays/dtc"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-
-		cd ../
-		if [ -d dtc ] ; then
-			rm -rf dtc
-		fi
-		git clone https://git.kernel.org/pub/scm/utils/dtc/dtc.git
-		cd dtc
-		git pull --no-edit https://github.com/RobertCNelson/dtc bb.org-4.1-dt-overlays5-dtc-b06e55c88b9b
-
-		cd ../KERNEL/
-		sed -i -e 's:git commit:#git commit:g' ./scripts/dtc/update-dtc-source.sh
-		./scripts/dtc/update-dtc-source.sh
-		sed -i -e 's:#git commit:git commit:g' ./scripts/dtc/update-dtc-source.sh
-		git commit -a -m "scripts/dtc: Update to upstream version overlays" -s
-		git format-patch -1 -o ../patches/bbb_overlays/dtc/
-		exit 2
-	else
-		#regenerate="enable"
-		if [ "x${regenerate}" = "xenable" ] ; then
-			start_cleanup
-		fi
-
-		#4.6.0-rc: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=91feabc2e2240ee80dc8ac08103cb83f497e4d12
-		${git} "${DIR}/patches/bbb_overlays/dtc/0001-scripts-dtc-Update-to-upstream-version-overlays.patch"
-
-		if [ "x${regenerate}" = "xenable" ] ; then
-			number=1
-			cleanup
-		fi
-	fi
-
 	echo "dir: bbb_overlays"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/bbb_overlays/0001-OF-DT-Overlay-configfs-interface-v7.patch"
+	${git} "${DIR}/patches/bbb_overlays/0001-scripts-dtc-Update-to-upstream-version-1.4.1-Overlay.patch"
 	${git} "${DIR}/patches/bbb_overlays/0002-gitignore-Ignore-DTB-files.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -419,69 +385,50 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0004-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
 	fi
 
-	#depends on: cf26f1137333251f3515dea31f95775b99df0fd5
 	${git} "${DIR}/patches/bbb_overlays/0005-omap-Fix-crash-when-omap-device-is-disabled.patch"
-
 	${git} "${DIR}/patches/bbb_overlays/0006-serial-omap-Fix-port-line-number-without-aliases.patch"
 	${git} "${DIR}/patches/bbb_overlays/0007-tty-omap-serial-Fix-up-platform-data-alloc.patch"
-	${git} "${DIR}/patches/bbb_overlays/0008-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
-
-	#v4.5.0-rc0 merge...
-	#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=33caf82acf4dc420bf0f0136b886f7b27ecf90c5
-	${git} "${DIR}/patches/bbb_overlays/0009-of-Custom-printk-format-specifier-for-device-node.patch"
-
-	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0010-of-overlay-kobjectify-overlay-objects.patch"
-
-	${git} "${DIR}/patches/bbb_overlays/0011-of-overlay-global-sysfs-enable-attribute.patch"
-	${git} "${DIR}/patches/bbb_overlays/0012-Documentation-ABI-overlays-global-attributes.patch"
-	${git} "${DIR}/patches/bbb_overlays/0013-Documentation-document-of_overlay_disable-parameter.patch"
-
-	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0014-of-overlay-add-per-overlay-sysfs-attributes.patch"
-
-	${git} "${DIR}/patches/bbb_overlays/0015-Documentation-ABI-overlays-per-overlay-docs.patch"
-	${git} "${DIR}/patches/bbb_overlays/0016-misc-Beaglebone-capemanager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0017-doc-misc-Beaglebone-capemanager-documentation.patch"
-	${git} "${DIR}/patches/bbb_overlays/0018-doc-dt-beaglebone-cape-manager-bindings.patch"
-	${git} "${DIR}/patches/bbb_overlays/0019-doc-ABI-bone_capemgr-sysfs-API.patch"
-	${git} "${DIR}/patches/bbb_overlays/0020-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
-	${git} "${DIR}/patches/bbb_overlays/0021-arm-dts-Enable-beaglebone-cape-manager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0022-of-overlay-Implement-indirect-target-support.patch"
-	${git} "${DIR}/patches/bbb_overlays/0023-of-unittest-Add-indirect-overlay-target-test.patch"
-	${git} "${DIR}/patches/bbb_overlays/0024-doc-dt-Document-the-indirect-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0025-of-overlay-Introduce-target-root-capability.patch"
-	${git} "${DIR}/patches/bbb_overlays/0026-of-unittest-Unit-tests-for-target-root-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0027-doc-dt-Document-the-target-root-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0028-of-dynamic-Add-__of_node_dupv.patch"
-
-	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0029-of-changesets-Introduce-changeset-helper-methods.patch"
-
-	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0030-RFC-Device-overlay-manager-PCI-USB-DT.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/bbb_overlays/0031-boneblack-defconfig.patch"
-	fi
-
-	${git} "${DIR}/patches/bbb_overlays/0032-of-remove-bogus-return-in-of_core_init.patch"
-	${git} "${DIR}/patches/bbb_overlays/0033-of-Maintainer-fixes-for-dynamic.patch"
-
-	#v4.5.0-rc0 (api change):183223770ae8625df8966ed15811d1b3ee8720aa
-	${git} "${DIR}/patches/bbb_overlays/0034-of-unittest-changeset-helpers.patch"
-
+	${git} "${DIR}/patches/bbb_overlays/0008-of-Custom-printk-format-specifier-for-device-node.patch"
+	${git} "${DIR}/patches/bbb_overlays/0009-of-overlay-kobjectify-overlay-objects.patch"
+	${git} "${DIR}/patches/bbb_overlays/0010-of-overlay-global-sysfs-enable-attribute.patch"
+	${git} "${DIR}/patches/bbb_overlays/0011-Documentation-ABI-overlays-global-attributes.patch"
+	${git} "${DIR}/patches/bbb_overlays/0012-Documentation-document-of_overlay_disable-parameter.patch"
+	${git} "${DIR}/patches/bbb_overlays/0013-of-overlay-add-per-overlay-sysfs-attributes.patch"
+	${git} "${DIR}/patches/bbb_overlays/0014-Documentation-ABI-overlays-per-overlay-docs.patch"
+	${git} "${DIR}/patches/bbb_overlays/0015-of-dynamic-Add-__of_node_dupv.patch"
+	${git} "${DIR}/patches/bbb_overlays/0016-of-changesets-Introduce-changeset-helper-methods.patch"
+	${git} "${DIR}/patches/bbb_overlays/0017-of-changeset-Add-of_changeset_node_move-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0018-of-unittest-changeset-helpers.patch"
+	${git} "${DIR}/patches/bbb_overlays/0019-i2c-demux-Use-changeset-helpers-for-clarity.patch"
+	${git} "${DIR}/patches/bbb_overlays/0020-OF-DT-Overlay-configfs-interface-v7.patch"
+	${git} "${DIR}/patches/bbb_overlays/0021-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
+	${git} "${DIR}/patches/bbb_overlays/0022-misc-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0023-doc-misc-Beaglebone-capemanager-documentation.patch"
+	${git} "${DIR}/patches/bbb_overlays/0024-doc-dt-beaglebone-cape-manager-bindings.patch"
+	${git} "${DIR}/patches/bbb_overlays/0025-doc-ABI-bone_capemgr-sysfs-API.patch"
+	${git} "${DIR}/patches/bbb_overlays/0026-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
+	${git} "${DIR}/patches/bbb_overlays/0027-arm-dts-Enable-beaglebone-cape-manager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0028-of-overlay-Implement-target-index-support.patch"
+	${git} "${DIR}/patches/bbb_overlays/0029-of-unittest-Add-indirect-overlay-target-test.patch"
+	${git} "${DIR}/patches/bbb_overlays/0030-doc-dt-Document-the-indirect-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0031-of-overlay-Introduce-target-root-capability.patch"
+	${git} "${DIR}/patches/bbb_overlays/0032-of-unittest-Unit-tests-for-target-root-overlays.patch"
+	${git} "${DIR}/patches/bbb_overlays/0033-doc-dt-Document-the-target-root-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0034-RFC-Device-overlay-manager-PCI-USB-DT.patch"
 	${git} "${DIR}/patches/bbb_overlays/0035-of-rename-_node_sysfs-to-_node_post.patch"
 	${git} "${DIR}/patches/bbb_overlays/0036-of-Support-hashtable-lookups-for-phandles.patch"
-	${git} "${DIR}/patches/bbb_overlays/0037-of-overlay-Pick-up-label-symbols-from-overlays.patch"
+	${git} "${DIR}/patches/bbb_overlays/0037-of-unittest-hashed-phandles-unitest.patch"
+	${git} "${DIR}/patches/bbb_overlays/0038-of-overlay-Pick-up-label-symbols-from-overlays.patch"
+	${git} "${DIR}/patches/bbb_overlays/0039-of-overlay-Add-pr_fmt-for-clarity.patch"
+	${git} "${DIR}/patches/bbb_overlays/0040-of-Portable-Device-Tree-connector.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/bbb_overlays/0038-connector-wip.patch"
+	${git} "${DIR}/patches/bbb_overlays/0041-boneblack-defconfig.patch"
 	fi
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="bbb_overlays"
-		number=38
+		number=41
 		cleanup
 	fi
 }
@@ -702,113 +649,21 @@ beaglebone () {
 		cleanup
 	fi
 
+	echo "dir: beaglebone/tilcdc"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
-		cherrypick_dir="beaglebone/tilcdc"
-		#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/log/?qt=grep&q=tilcdc
-
-		#merged in 4.5.0-rc0
-
-		#drm/tilcdc: rewrite pixel clock calculation
-		SHA="3d19306a8240a163f6b02bb46213c277d6d44e08" ; num="1" ; cherrypick
-
-		#drm/tilcdc: verify fb pitch
-		SHA="6f206e9d2a965771e99bca4c22dbadac1b58a0e8" ; cherrypick
-
-		#drm/tilcdc: adopt pinctrl support
-		SHA="416a07fbe7b1f1a6f7e0595b43b5a85a1c877e05" ; cherrypick
-
-		#drm/tilcdc: fix kernel panic on suspend when no hdmi monitor connected
-		SHA="85fd27f80b3641c9af9f04cde1b712c8c20916d8" ; cherrypick
-
-		#drm/tilcdc: make frame_done interrupt active at all times
-		SHA="b62222fcaab994177f121d58acdab269f0f54897" ; cherrypick
-
-		#drm/tilcdc: disable the lcd controller/dma engine when suspend invoked
-		SHA="614b3cfeb8d22e2b0f49bcfeaf5b52900242a944" ; cherrypick
-
-		#drm/tilcdc: Implement dma-buf support for tilcdc
-		SHA="9c15390506d6888978fa98094f7578142d2e2f01" ; cherrypick
-
-		#drm/tilcdc: fix build error when !CONFIG_CPU_FREQ
-		SHA="7974dff4957f953f0f6fd71c30e02a7c25aea7f0" ; cherrypick
-
-		#drm/tilcdc: Allocate register storage based on the actual number registers
-		SHA="29ddd6e171abae990a881b9e221359f13c546369" ; cherrypick
-
-		#drm/tilcdc: cleanup runtime PM handling
-		SHA="65734a262350a746100dcfd85a81f7dc1b69dd10" ; cherrypick
-
-		#drm/tilcdc: disable crtc on unload
-		SHA="1aea1e79dbfd65a99da11868829c3e147b85cc32" ; cherrypick
-
-		#drm/tilcdc: split reset to a separate function
-		SHA="2efec4f3064d084bac1b2c1e1513a7452e8e245d" ; cherrypick
-
-		#drm/tilcdc: remove broken error handling
-		SHA="31ec5a2c7eed3a3e182a592591f4fb04304668a1" ; cherrypick
-
-		#drm/tilcdc: cleanup irq handling
-		SHA="317aae738b6402cd66fb9b52434b783f17ff5dd4" ; cherrypick
-
-		#drm/tilcdc: Get rid of complex ping-pong mechanism
-		SHA="2b2080d7e9ae2463b15a003629d2ea7d733759a0" ; cherrypick
-
-		#drm/tilcdc: Do not update the next frame buffer close to vertical blank
-		SHA="2b3a8cd71c2b830164df5de07e4ddebe0faa58f5" ; cherrypick
-
-		#drm/tilcdc: Fix interrupt enable/disable code for version 2 tilcdc
-		SHA="947df7e3f019bba902a55485635060e5970fb9a2" ; cherrypick
-
-		#drm/tilcdc: Remove the duplicate LCDC_INT_ENABLE_SET_REG in registers[]
-		SHA="f3a99946a95b3482eabec63b9f662963d7d2e3c8" ; cherrypick
-
-		#drm/tilcdc: Add prints on sync lost and FIFO underrun interrupts
-		SHA="c0c2baaab1b553df92a24e9175440f15e6ad3e2c" ; cherrypick
-
-		#drm/tilcdc: Disable sync lost interrupt if it fires on every frame
-		SHA="5895d08f6ff2175dabc373dada7d1bfa26123fc9" ; cherrypick
-
-		#drm/tilcdc: Initialize crtc->port
-		SHA="d66284fba15014daacef64cfc610a249553534c6" ; cherrypick
-
-		#drm/tilcdc: Use devm_kzalloc() and devm_kcalloc() for private data
-		SHA="d0ec32caef0baa490b419895ef61c8481d49f7cd" ; cherrypick
-
-		exit 2
+		start_cleanup
 	fi
 
-	if [ "x${merged_in_4_6}" = "xenable" ] ; then
-		echo "dir: beaglebone/tilcdc"
-		#merged in 4.6.0-rc0
-		${git} "${DIR}/patches/beaglebone/tilcdc/0001-drm-tilcdc-rewrite-pixel-clock-calculation.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0002-drm-tilcdc-verify-fb-pitch.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0003-drm-tilcdc-adopt-pinctrl-support.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0004-drm-tilcdc-fix-kernel-panic-on-suspend-when-no-hdmi-.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0005-drm-tilcdc-make-frame_done-interrupt-active-at-all-t.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0006-drm-tilcdc-disable-the-lcd-controller-dma-engine-whe.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0007-drm-tilcdc-Implement-dma-buf-support-for-tilcdc.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0008-drm-tilcdc-fix-build-error-when-CONFIG_CPU_FREQ.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0009-drm-tilcdc-Allocate-register-storage-based-on-the-ac.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0010-drm-tilcdc-cleanup-runtime-PM-handling.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0011-drm-tilcdc-disable-crtc-on-unload.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0012-drm-tilcdc-split-reset-to-a-separate-function.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0013-drm-tilcdc-remove-broken-error-handling.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0014-drm-tilcdc-cleanup-irq-handling.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0015-drm-tilcdc-Get-rid-of-complex-ping-pong-mechanism.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0016-drm-tilcdc-Do-not-update-the-next-frame-buffer-close.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0017-drm-tilcdc-Fix-interrupt-enable-disable-code-for-ver.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0018-drm-tilcdc-Remove-the-duplicate-LCDC_INT_ENABLE_SET_.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0019-drm-tilcdc-Add-prints-on-sync-lost-and-FIFO-underrun.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0020-drm-tilcdc-Disable-sync-lost-interrupt-if-it-fires-o.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0021-drm-tilcdc-Initialize-crtc-port.patch"
-		${git} "${DIR}/patches/beaglebone/tilcdc/0022-drm-tilcdc-Use-devm_kzalloc-and-devm_kcalloc-for-pri.patch"
-	fi
+	${git} "${DIR}/patches/beaglebone/tilcdc/0001-drm-tilcdc-Write-to-LCDC_END_OF_INT_IND_REG-at-the-e.patch"
+	${git} "${DIR}/patches/beaglebone/tilcdc/0002-drm-tilcdc-Move-waiting-of-LCDC_FRAME_DONE-IRQ-into-.patch"
+	${git} "${DIR}/patches/beaglebone/tilcdc/0003-drm-tilcdc-Recover-from-sync-lost-error-flood-by-res.patch"
 
-	#[PATCH v2 0/3] Recover from sync lost error flood by resetting the LCDC
-	${git} "${DIR}/patches/beaglebone/tilcdc/0023-drm-tilcdc-Write-to-LCDC_END_OF_INT_IND_REG-at-the-e.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0024-drm-tilcdc-Move-waiting-of-LCDC_FRAME_DONE-IRQ-into-.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0025-drm-tilcdc-Recover-from-sync-lost-error-flood-by-res.patch"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="beaglebone/tilcdc"
+		number=3
+		cleanup
+	fi
 
 	#This has to be last...
 	echo "dir: beaglebone/dtbs"

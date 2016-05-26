@@ -1,18 +1,22 @@
-From f10143bbcaeac1f6e2bf0676e9c93b8cf18096f7 Mon Sep 17 00:00:00 2001
+From 0a97e951f23db39ae794d1c89ff682e7547ed6ff Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 14 Oct 2015 13:29:23 +0300
-Subject: [PATCH 36/38] of: Support hashtable lookups for phandles
+Subject: [PATCH 36/41] of: Support hashtable lookups for phandles
+
+When a device tree contains a lot of phandles, resolving one
+takes time because the original method uses a search against
+all nodes (not just the ones with phandles).
 
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- drivers/of/base.c       | 35 ++++++++++++++++++++++++++++++++---
+ drivers/of/base.c       | 41 ++++++++++++++++++++++++++++++++++++++---
  drivers/of/dynamic.c    |  8 ++++++++
- drivers/of/of_private.h | 31 +++++++++++++++++++++++++++++++
+ drivers/of/of_private.h | 33 +++++++++++++++++++++++++++++++++
  include/linux/of.h      |  2 ++
- 4 files changed, 73 insertions(+), 3 deletions(-)
+ 4 files changed, 81 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/of/base.c b/drivers/of/base.c
-index 20bbc2f..770cb95 100644
+index de6925e..ecc7914 100644
 --- a/drivers/of/base.c
 +++ b/drivers/of/base.c
 @@ -27,6 +27,7 @@
@@ -23,7 +27,7 @@ index 20bbc2f..770cb95 100644
  
  #include "of_private.h"
  
-@@ -41,6 +42,16 @@ static const char *of_stdout_options;
+@@ -41,6 +42,18 @@ static const char *of_stdout_options;
  
  struct kset *of_kset;
  
@@ -34,13 +38,15 @@ index 20bbc2f..770cb95 100644
 +	.automatic_shrinking = true,
 +};
 +
-+struct rhashtable of_phandle_ht;
-+bool of_phandle_ht_initialized;
++struct rhashtable *of_phandle_ht;
++
++/* default is false */
++bool of_phandle_ht_is_disabled;
 +
  /*
   * Used to protect the of_aliases, to hold off addition of nodes to sysfs.
   * This mutex must be held whenever modifications are being made to the
-@@ -162,6 +173,12 @@ int __of_attach_node_post(struct device_node *np)
+@@ -162,6 +175,12 @@ int __of_attach_node_post(struct device_node *np)
  	struct property *pp;
  	int rc;
  
@@ -53,29 +59,33 @@ index 20bbc2f..770cb95 100644
  	if (!IS_ENABLED(CONFIG_SYSFS))
  		return 0;
  
-@@ -194,6 +211,13 @@ void __init of_core_init(void)
+@@ -194,6 +213,17 @@ void __init of_core_init(void)
  	struct device_node *np;
  	int ret;
  
-+	ret = rhashtable_init(&of_phandle_ht, &of_phandle_ht_params);
++	of_phandle_ht = kzalloc(sizeof(*of_phandle_ht), GFP_KERNEL);
++	if (!of_phandle_ht) {
++		pr_warn("devicetree: Failed to allocate hashtable\n");
++		return;
++	}
++	ret = rhashtable_init(of_phandle_ht, &of_phandle_ht_params);
 +	if (ret) {
 +		pr_warn("devicetree: Failed to initialize hashtable\n");
 +		return;
 +	}
-+	of_phandle_ht_initialized = 1;
 +
  	/* Create the kset, and register existing nodes */
  	mutex_lock(&of_mutex);
  	of_kset = kset_create_and_add("devicetree", NULL, firmware_kobj);
-@@ -1073,9 +1097,14 @@ struct device_node *of_find_node_by_phandle(phandle handle)
+@@ -1074,9 +1104,14 @@ struct device_node *of_find_node_by_phandle(phandle handle)
  		return NULL;
  
  	raw_spin_lock_irqsave(&devtree_lock, flags);
 -	for_each_of_allnodes(np)
 -		if (np->phandle == handle)
 -			break;
-+	/* when we're ready use the hash table */
-+	if (of_phandle_ht_available() && !in_interrupt())
++	/* when we're ready use the hash table (and not disabled) */
++	if (of_phandle_ht_available() && !of_phandle_ht_is_disabled)
 +		np = of_phandle_ht_lookup(handle);
 +	else { /* fallback */
 +		for_each_of_allnodes(np)
@@ -86,7 +96,7 @@ index 20bbc2f..770cb95 100644
  	raw_spin_unlock_irqrestore(&devtree_lock, flags);
  	return np;
 diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
-index fcbcd38..24af842 100644
+index bf6ecd8..2bfaeaa 100644
 --- a/drivers/of/dynamic.c
 +++ b/drivers/of/dynamic.c
 @@ -11,6 +11,7 @@
@@ -112,27 +122,29 @@ index fcbcd38..24af842 100644
  	if (!IS_ENABLED(CONFIG_SYSFS))
  		return;
 diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
-index 10b0342..88b3b8f 100644
+index 10b0342..386ae71 100644
 --- a/drivers/of/of_private.h
 +++ b/drivers/of/of_private.h
-@@ -101,4 +101,35 @@ static inline int of_overlay_init(void)
+@@ -101,4 +101,37 @@ static inline int of_overlay_init(void)
  }
  #endif
  
 +extern const struct rhashtable_params of_phandle_ht_params;
-+extern struct rhashtable of_phandle_ht;
-+extern bool of_phandle_ht_initialized;
++extern struct rhashtable *of_phandle_ht;
++
++/* for unittest use */
++extern bool of_phandle_ht_is_disabled;
 +
 +static inline bool of_phandle_ht_available(void)
 +{
-+	return of_phandle_ht_initialized;
++	return of_phandle_ht != NULL;
 +}
 +
 +static inline int of_phandle_ht_insert(struct device_node *np)
 +{
 +	if (!np || !np->phandle)
 +		return 0;
-+	return rhashtable_insert_fast(&of_phandle_ht,
++	return rhashtable_insert_fast(of_phandle_ht,
 +		&np->ht_node, of_phandle_ht_params);
 +}
 +
@@ -140,19 +152,19 @@ index 10b0342..88b3b8f 100644
 +{
 +	if (!np || !np->phandle)
 +		return 0;
-+	return rhashtable_remove_fast(&of_phandle_ht,
++	return rhashtable_remove_fast(of_phandle_ht,
 +		&np->ht_node, of_phandle_ht_params);
 +}
 +
 +static inline struct device_node *of_phandle_ht_lookup(phandle handle)
 +{
-+	return rhashtable_lookup_fast(&of_phandle_ht,
++	return rhashtable_lookup_fast(of_phandle_ht,
 +			&handle, of_phandle_ht_params);
 +}
 +
  #endif /* _LINUX_OF_PRIVATE_H */
 diff --git a/include/linux/of.h b/include/linux/of.h
-index da4eae5..8d3f423 100644
+index f835026..aa0d28d 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
 @@ -25,6 +25,7 @@
@@ -172,5 +184,5 @@ index da4eae5..8d3f423 100644
  	struct	property *properties;
  	struct	property *deadprops;	/* removed properties */
 -- 
-2.8.0.rc3
+2.8.1
 
