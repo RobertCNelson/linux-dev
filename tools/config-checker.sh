@@ -128,22 +128,26 @@ config="CONFIG_ARM_ERRATA_773022" ; config_disable
 # Kernel Features
 #
 config="CONFIG_NR_CPUS" ; option="4" ; config_value
-config="CONFIG_MEMORY_ISOLATION" ; config_enable
-config="CONFIG_CMA" ; config_enable
-config="CONFIG_CMA_DEBUG" ; config_disable
 config="CONFIG_SECCOMP" ; config_enable
 config="CONFIG_PARAVIRT" ; config_disable
 config="CONFIG_XEN" ; config_disable
 
 #
+# Boot options
+#
+config="CONFIG_EFI" ; config_disable
+
+#
 # CPU Frequency scaling
 #
 config="CONFIG_CPU_FREQ_STAT_DETAILS" ; config_enable
+config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_module
 
 #
 # CPU frequency scaling drivers
 #
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
+config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
 config="CONFIG_QORIQ_CPUFREQ" ; config_module
 
 #
@@ -242,6 +246,8 @@ config="CONFIG_NFC_SHDLC" ; config_enable
 config="CONFIG_NFC_WILINK" ; config_module
 config="CONFIG_NFC_PN544" ; config_module
 config="CONFIG_NFC_PN544_I2C" ; config_module
+config="CONFIG_NFC_PN533_USB" ; config_module
+config="CONFIG_NFC_PN533_I2C" ; config_module
 config="CONFIG_NFC_MICROREAD" ; config_module
 config="CONFIG_NFC_MICROREAD_I2C" ; config_module
 
@@ -254,7 +260,9 @@ config="CONFIG_FIRMWARE_IN_KERNEL" ; config_enable
 config="CONFIG_EXTRA_FIRMWARE" ; option="am335x-pm-firmware.elf am335x-bone-scale-data.bin am335x-evm-scale-data.bin am43x-evm-scale-data.bin" ; config_string
 config="CONFIG_EXTRA_FIRMWARE_DIR" ; option="firmware" ; config_string
 
-config="CONFIG_DMA_CMA" ; config_enable
+#
+# Default contiguous memory area size:
+#
 config="CONFIG_CMA_SIZE_MBYTES" ; option=24 ; config_value
 
 #
@@ -700,6 +708,7 @@ config="CONFIG_SENSORS_LTC4222" ; config_module
 config="CONFIG_SENSORS_LTC4260" ; config_module
 config="CONFIG_SENSORS_MAX1619" ; config_module
 config="CONFIG_SENSORS_MAX197" ; config_module
+config="CONFIG_SENSORS_MAX31722" ; config_module
 config="CONFIG_SENSORS_MAX6697" ; config_module
 config="CONFIG_SENSORS_MAX31790" ; config_module
 config="CONFIG_SENSORS_MCP3021" ; config_module
@@ -766,6 +775,11 @@ config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 config="CONFIG_TI_SOC_THERMAL" ; config_enable
 config="CONFIG_OMAP3_THERMAL" ; config_enable
 config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
+
+#
+# NVIDIA Tegra thermal drivers
+#
+config="CONFIG_GENERIC_ADC_THERMAL" ; config_module
 
 #
 # Watchdog Device Drivers
@@ -867,6 +881,7 @@ config="CONFIG_DRM_I2C_ADIHDMI" ; config_module
 config="CONFIG_DRM_I2C_CH7006" ; config_module
 config="CONFIG_DRM_I2C_SIL164" ; config_module
 
+config="CONFIG_DRM_SUN4I" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_OMAP2_DSS" ; config_enable
 
@@ -911,6 +926,7 @@ config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 # HD-Audio
 #
 config="CONFIG_SND_EDMA_SOC" ; config_module
+config="CONFIG_SND_DAVINCI_SOC_I2S" ; config_module
 config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM" ; config_module
 config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 
@@ -980,6 +996,7 @@ config="CONFIG_USB_STORAGE" ; config_enable
 config="CONFIG_USBIP_CORE" ; config_module
 config="CONFIG_USBIP_VHCI_HCD" ; config_module
 config="CONFIG_USBIP_HOST" ; config_module
+config="CONFIG_USBIP_VUDC" ; config_module
 config="CONFIG_USBIP_DEBUG" ; config_disable
 config="CONFIG_USB_MUSB_HDRC" ; config_enable
 config="CONFIG_USB_MUSB_HOST" ; config_disable
@@ -1060,7 +1077,6 @@ config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
 config="CONFIG_MMC_SDHCI_TEGRA" ; config_enable
-config="CONFIG_MMC_OMAP" ; config_enable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
 config="CONFIG_MMC_DW" ; config_enable
 config="CONFIG_MMC_DW_ROCKCHIP" ; config_enable
@@ -1130,6 +1146,7 @@ config="CONFIG_RTC_DRV_RV8803" ; config_module
 #
 config="CONFIG_RTC_DRV_M41T93" ; config_module
 config="CONFIG_RTC_DRV_M41T94" ; config_module
+config="CONFIG_RTC_DRV_DS1302" ; config_module
 config="CONFIG_RTC_DRV_DS1305" ; config_module
 config="CONFIG_RTC_DRV_DS1343" ; config_module
 config="CONFIG_RTC_DRV_DS1347" ; config_module
@@ -1379,6 +1396,7 @@ config="CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND" ; config_enable
 config="CONFIG_DEVFREQ_GOV_PERFORMANCE" ; config_enable
 config="CONFIG_DEVFREQ_GOV_POWERSAVE" ; config_enable
 config="CONFIG_DEVFREQ_GOV_USERSPACE" ; config_enable
+config="CONFIG_DEVFREQ_GOV_PASSIVE" ; config_enable
 
 #
 # DEVFREQ Drivers
@@ -1388,6 +1406,9 @@ config="CONFIG_ARM_TEGRA_DEVFREQ" ; config_enable
 #
 # Extcon Device Drivers
 #
+config="CONFIG_EXTCON_DT_CON" ; config_enable
+config="CONFIG_EXTCON_DT_CON_PROXY" ; config_enable
+config="CONFIG_EXTCON_DT_CON_GPIO" ; config_enable
 config="CONFIG_EXTCON_GPIO" ; config_enable
 config="CONFIG_EXTCON_PALMAS" ; config_enable
 config="CONFIG_EXTCON_USB_GPIO" ; config_enable
@@ -1473,6 +1494,8 @@ config="CONFIG_AD5380" ; config_module
 config="CONFIG_AD5421" ; config_module
 config="CONFIG_AD5446" ; config_module
 config="CONFIG_AD5449" ; config_module
+config="CONFIG_AD5592R" ; config_module
+config="CONFIG_AD5593R" ; config_module
 config="CONFIG_AD5504" ; config_module
 config="CONFIG_AD5624R_SPI" ; config_module
 config="CONFIG_AD5686" ; config_module
@@ -1526,6 +1549,7 @@ config="CONFIG_MAX30100" ; config_module
 #
 # Humidity sensors
 #
+config="CONFIG_AM2315" ; config_module
 config="CONFIG_DHT11" ; config_module
 config="CONFIG_HDC100X" ; config_module
 config="CONFIG_HTU21" ; config_module
@@ -1537,6 +1561,8 @@ config="CONFIG_SI7020" ; config_module
 #
 config="CONFIG_ADIS16400" ; config_module
 config="CONFIG_ADIS16480" ; config_module
+config="CONFIG_BMI160_I2C" ; config_module
+config="CONFIG_BMI160_SPI" ; config_module
 config="CONFIG_KMX61" ; config_module
 config="CONFIG_INV_MPU6050_I2C" ; config_module
 config="CONFIG_INV_MPU6050_SPI" ; config_module
@@ -1550,6 +1576,7 @@ config="CONFIG_AL3320A" ; config_module
 config="CONFIG_APDS9300" ; config_module
 config="CONFIG_APDS9960" ; config_module
 config="CONFIG_BH1750" ; config_module
+config="CONFIG_BH1780" ; config_module
 config="CONFIG_CM32181" ; config_module
 config="CONFIG_CM3232" ; config_module
 config="CONFIG_CM3323" ; config_module
@@ -1559,6 +1586,7 @@ config="CONFIG_ISL29125" ; config_module
 config="CONFIG_JSA1212" ; config_module
 config="CONFIG_RPR0521" ; config_module
 config="CONFIG_LTR501" ; config_module
+config="CONFIG_MAX44000" ; config_module
 config="CONFIG_OPT3001" ; config_module
 config="CONFIG_PA12203001" ; config_module
 config="CONFIG_STK3310" ; config_module
@@ -1567,12 +1595,15 @@ config="CONFIG_TCS3472" ; config_module
 config="CONFIG_TSL4531" ; config_module
 config="CONFIG_US5182D" ; config_module
 config="CONFIG_VCNL4000" ; config_module
+config="CONFIG_VEML6070" ; config_module
 
 #
 # Magnetometer sensors
 #
 config="CONFIG_AK8975" ; config_module
 config="CONFIG_AK09911" ; config_module
+config="CONFIG_BMC150_MAGN_I2C" ; config_module
+config="CONFIG_BMC150_MAGN_SPI" ; config_module
 config="CONFIG_MAG3110" ; config_module
 config="CONFIG_MMC35240" ; config_module
 config="CONFIG_IIO_ST_MAGN_3AXIS" ; config_module
@@ -1589,6 +1620,8 @@ config="CONFIG_IIO_SYSFS_TRIGGER" ; config_module
 #
 # Digital potentiometers
 #
+config="CONFIG_DS1803" ; config_module
+config="CONFIG_MCP4131" ; config_module
 config="CONFIG_MCP4531" ; config_module
 config="CONFIG_TPL0102" ; config_module
 
@@ -1596,6 +1629,7 @@ config="CONFIG_TPL0102" ; config_module
 # Pressure sensors
 #
 config="CONFIG_BMP280" ; config_module
+config="CONFIG_HP03" ; config_module
 config="CONFIG_MPL115_I2C" ; config_module
 config="CONFIG_MPL115_SPI" ; config_module
 config="CONFIG_MPL115" ; config_module
@@ -1608,6 +1642,7 @@ config="CONFIG_IIO_ST_PRESS" ; config_module
 config="CONFIG_IIO_ST_PRESS_I2C" ; config_module
 config="CONFIG_IIO_ST_PRESS_SPI" ; config_module
 config="CONFIG_T5403" ; config_module
+config="CONFIG_HP206C" ; config_module
 
 #
 # Lightning sensors
@@ -1641,6 +1676,7 @@ config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_PHY_SUN9I_USB" ; config_enable
 config="CONFIG_PHY_ROCKCHIP_USB" ; config_enable
+config="CONFIG_PHY_TEGRA_XUSB" ; config_enable
 
 #
 # Android
