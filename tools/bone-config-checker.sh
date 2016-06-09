@@ -212,6 +212,7 @@ config="CONFIG_RTC_DRV_OMAP" ; config_enable
 #
 # Graphics support
 #
+config="CONFIG_DRM_EXYNOS" ; config_disable
 config="CONFIG_DRM_OMAP" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
 config="CONFIG_DRM_ETNAVIV" ; config_disable
