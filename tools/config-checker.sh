@@ -109,6 +109,7 @@ config="CONFIG_MACH_OMAP_LDP" ; config_disable
 config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_MACH_NOKIA_RX51" ; config_disable
+config="CONFIG_OMAP5_ERRATA_801819" ; config_enable
 config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
@@ -765,7 +766,6 @@ config="CONFIG_CLOCK_THERMAL" ; config_enable
 config="CONFIG_DEVFREQ_THERMAL" ; config_enable
 config="CONFIG_IMX_THERMAL" ; config_enable
 config="CONFIG_ROCKCHIP_THERMAL" ; config_enable
-config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 
 #exit
 
@@ -774,12 +774,12 @@ config="CONFIG_TEGRA_SOCTHERM" ; config_enable
 #
 config="CONFIG_TI_SOC_THERMAL" ; config_enable
 config="CONFIG_OMAP3_THERMAL" ; config_enable
-config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 
 #
 # NVIDIA Tegra thermal drivers
 #
 config="CONFIG_GENERIC_ADC_THERMAL" ; config_module
+config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 
 #
 # Watchdog Device Drivers
@@ -877,7 +877,6 @@ config="CONFIG_DRM_KMS_HELPER" ; config_enable
 # I2C encoder or helper chips
 #
 config="CONFIG_DRM_I2C_ADV7511" ; config_module
-config="CONFIG_DRM_I2C_ADIHDMI" ; config_module
 config="CONFIG_DRM_I2C_CH7006" ; config_module
 config="CONFIG_DRM_I2C_SIL164" ; config_module
 
@@ -909,8 +908,6 @@ config="CONFIG_DRM_IMX_TVE" ; config_enable
 config="CONFIG_DRM_IMX_LDB" ; config_enable
 config="CONFIG_DRM_IMX_IPUV3" ; config_enable
 config="CONFIG_DRM_IMX_HDMI" ; config_enable
-
-config="CONFIG_DRM_ETNAVIV" ; config_module
 
 #exit
 
