@@ -202,4 +202,11 @@ config="CONFIG_CRYPTO_DEV_S5P" ; config_module
 #
 config="CONFIG_FPGA" ; config_disable
 config="CONFIG_FPGA_MGR_SOCFPGA" ; config_disable
+
+#
+# DEVFREQ Drivers
+#
+config="CONFIG_ARM_EXYNOS_BUS_DEVFREQ" ; config_enable
+config="CONFIG_PM_DEVFREQ_EVENT" ; config_enable
+config="CONFIG_DEVFREQ_EVENT_EXYNOS_NOCP" ; config_enable
 #

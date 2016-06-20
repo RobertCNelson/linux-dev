@@ -976,6 +976,7 @@ config="CONFIG_USB_OTG" ; config_enable
 #
 config="CONFIG_USB_XHCI_HCD" ; config_enable
 config="CONFIG_USB_XHCI_PLATFORM" ; config_enable
+config="CONFIG_USB_XHCI_TEGRA" ; config_enable
 config="CONFIG_USB_EHCI_HCD" ; config_enable
 config="CONFIG_USB_EHCI_HCD_OMAP" ; config_enable
 config="CONFIG_USB_EHCI_TEGRA" ; config_enable
