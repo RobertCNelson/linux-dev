@@ -106,6 +106,11 @@ config="CONFIG_ARCH_ZYNQ" ; config_disable
 config="CONFIG_ARM_ERRATA_430973" ; config_disable
 
 #
+# Kernel Features
+#
+config="CONFIG_THUMB2_KERNEL" ; config_enable
+
+#
 # ARM CPU Idle Drivers
 #
 config="CONFIG_ARM_EXYNOS_CPUIDLE" ; config_enable
@@ -136,6 +141,11 @@ config="CONFIG_SERIAL_SAMSUNG" ; config_enable
 config="CONFIG_SERIAL_SAMSUNG_CONSOLE" ; config_enable
 config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_XILINX_PS_UART" ; config_disable
+
+#
+# I2C system bus drivers (mostly embedded / system-on-chip)
+#
+config="CONFIG_I2C_S3C2410" ; config_enable
 
 #
 # SPI Master Controller Drivers
