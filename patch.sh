@@ -832,7 +832,7 @@ reverts
 ti
 dts
 wand
-sunxi
+#sunxi
 udoo
 exynos
 pru_uio
