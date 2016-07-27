@@ -317,6 +317,12 @@ wand () {
 	${git} "${DIR}/patches/wand/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
 }
 
+sunxi () {
+	echo "dir: sunxi"
+	${git} "${DIR}/patches/sunxi/0001-PATCH-v1-ARM-dtsi-sun4i-Add-clocks-and-hardware-defs.patch"
+	${git} "${DIR}/patches/sunxi/0002-PATCH-v1-ARM-dts-mk802-Switch-OTG-to-host-mode.patch"
+}
+
 udoo () {
 	echo "dir: udoo"
 	#regenerate="enable"
@@ -826,6 +832,7 @@ reverts
 ti
 dts
 wand
+sunxi
 udoo
 exynos
 pru_uio
