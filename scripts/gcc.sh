@@ -113,16 +113,16 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_eabi_5)
 		#
-		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.02/arm-eabi/gcc-linaro-5.3-2016.02-x86_64_arm-eabi.tar.xz
+		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/arm-eabi/gcc-linaro-5.3.1-2016.05-rc2-i686_arm-eabi.tar.xz
 		#
 
 		gcc_version="5.3"
-		release="16.02"
+		release="16.05"
 		target="arm-eabi"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
-		filename="gcc-linaro-${gcc_version}-20${release}-x86_64_arm-eabi.tar.xz"
-		directory="gcc-linaro-${gcc_version}-20${release}-x86_64_arm-eabi"
+		filename="gcc-linaro-${gcc_version}.1-20${release}-x86_64_arm-eabi.tar.xz"
+		directory="gcc-linaro-${gcc_version}.1-20${release}-x86_64_arm-eabi"
 
 		datestamp="${gcc_version}-20${release}-${target}"
 
@@ -206,16 +206,16 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_gnueabihf_5)
 		#
-		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.02/arm-linux-gnueabihf/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf.tar.xz
+		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/arm-linux-gnueabihf/gcc-linaro-5.3.1-2016.05-x86_64_arm-linux-gnueabihf.tar.xz
 		#
 
 		gcc_version="5.3"
-		release="16.02"
+		release="16.05"
 		target="arm-linux-gnueabihf"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
-		filename="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}.tar.xz"
-		directory="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}"
+		filename="gcc-linaro-${gcc_version}.1-20${release}-x86_64_${target}.tar.xz"
+		directory="gcc-linaro-${gcc_version}.1-20${release}-x86_64_${target}"
 
 		datestamp="${gcc_version}-20${release}-${target}"
 
@@ -223,16 +223,16 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_aarch64_gnu_5)
 		#
-		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.02/aarch64-linux-gnu/gcc-linaro-5.3-2016.02-x86_64_aarch64-linux-gnu.tar.xz
+		#https://releases.linaro.org/components/toolchain/binaries/5.3-2016.05/aarch64-linux-gnu/gcc-linaro-5.3.1-2016.05-x86_64_aarch64-linux-gnu.tar.xz
 		#
 
 		gcc_version="5.3"
-		release="16.02"
+		release="16.05"
 		target="aarch64-linux-gnu"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
-		filename="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}.tar.xz"
-		directory="gcc-linaro-${gcc_version}-20${release}-x86_64_${target}"
+		filename="gcc-linaro-${gcc_version}.1-20${release}-x86_64_${target}.tar.xz"
+		directory="gcc-linaro-${gcc_version}.1-20${release}-x86_64_${target}"
 
 		datestamp="${gcc_version}-20${release}-${target}"
 

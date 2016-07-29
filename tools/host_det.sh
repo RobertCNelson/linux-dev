@@ -330,6 +330,10 @@ debian_regs () {
 			#Debian 10
 			deb_distro="sid"
 			;;
+		bullseye)
+			#Debian 11
+			deb_distro="sid"
+			;;
 		esac
 
 		#https://wiki.ubuntu.com/Releases
@@ -354,13 +358,10 @@ debian_regs () {
 			#16.04 xenial: (EOL: April 2021) lts: xenial -> xyz
 			unset warn_eol_distro
 			;;
-		wily)
-			#15.10 wily: (EOL: July 2016)
-			unset warn_eol_distro
-			;;
-		utopic|vivid)
+		utopic|vivid|wily)
 			#14.10 utopic: (EOL: July 23, 2015)
 			#15.04 vivid: (EOL: February 4, 2016)
+			#15.10 wily: (EOL: July 28, 2016)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
