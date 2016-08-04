@@ -256,6 +256,15 @@ debian_regs () {
 			deb_distro="stretch"
 		fi
 
+		#https://www.bunsenlabs.org/
+		if [ "x${deb_distro}" = "xbunsen-hydrogen" ] ; then
+			#Distributor ID:    BunsenLabs
+			#Description:    BunsenLabs GNU/Linux 8.5 (Hydrogen)
+			#Release:    8.5
+			#Codename:    bunsen-hydrogen
+			deb_distro="jessie"
+		fi
+
 		#Linux Mint: Compatibility Matrix
 		#http://www.linuxmint.com/download_all.php (lists current versions)
 		#http://www.linuxmint.com/oldreleases.php
