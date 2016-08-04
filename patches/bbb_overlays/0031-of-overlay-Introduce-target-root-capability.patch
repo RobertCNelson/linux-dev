@@ -1,7 +1,7 @@
-From 42bf1cb2609f9be4e1d5492bec24a5a21b50fd31 Mon Sep 17 00:00:00 2001
+From 5a283d945fb7c22af34459a2b1ea1922891d1f90 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Fri, 12 Jun 2015 15:32:55 +0300
-Subject: [PATCH 31/41] of: overlay: Introduce target root capability.
+Subject: [PATCH 31/40] of: overlay: Introduce target root capability.
 
 The target facility of an overlay allows the target to be any point
 in the live kernel tree, since it usually that's required when
@@ -22,10 +22,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 102 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 2efd4b7..49bdcba 100644
+index c6972ea..722350b 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
-@@ -76,6 +76,7 @@ struct of_overlay {
+@@ -78,6 +78,7 @@ struct of_overlay {
  	struct of_changeset cset;
  	struct kobject kobj;
  	int target_index;
@@ -148,7 +148,7 @@ index 2efd4b7..49bdcba 100644
  
  	INIT_LIST_HEAD(&ov->node);
  
-@@ -565,6 +631,7 @@ err_free_idr:
+@@ -558,6 +624,7 @@ err_free_idr:
  	idr_remove(&ov_idr, ov->id);
  err_destroy_trans:
  	of_changeset_destroy(&ov->cset);
@@ -156,7 +156,7 @@ index 2efd4b7..49bdcba 100644
  	kfree(ov);
  	mutex_unlock(&of_mutex);
  
-@@ -583,7 +650,7 @@ err_destroy_trans:
+@@ -576,7 +643,7 @@ err_destroy_trans:
   */
  int of_overlay_create(struct device_node *tree)
  {
@@ -165,7 +165,7 @@ index 2efd4b7..49bdcba 100644
  }
  EXPORT_SYMBOL_GPL(of_overlay_create);
  
-@@ -600,10 +667,30 @@ EXPORT_SYMBOL_GPL(of_overlay_create);
+@@ -593,10 +660,30 @@ EXPORT_SYMBOL_GPL(of_overlay_create);
   */
  int of_overlay_create_target_index(struct device_node *tree, int index)
  {
@@ -198,10 +198,10 @@ index 2efd4b7..49bdcba 100644
  static int overlay_subtree_check(struct device_node *tree,
  		struct device_node *dn)
 diff --git a/include/linux/of.h b/include/linux/of.h
-index ca41b2f..f835026 100644
+index 5cd40eb..672539c 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
-@@ -1486,6 +1486,8 @@ int of_overlay_destroy(int id);
+@@ -1491,6 +1491,8 @@ int of_overlay_destroy(int id);
  int of_overlay_destroy_all(void);
  
  int of_overlay_create_target_index(struct device_node *tree, int index);
@@ -210,7 +210,7 @@ index ca41b2f..f835026 100644
  
  #else
  
-@@ -1510,6 +1512,12 @@ static inline int of_overlay_create_target_index(struct device_node *tree,
+@@ -1515,6 +1517,12 @@ static inline int of_overlay_create_target_index(struct device_node *tree,
  	return -ENOTSUPP;
  }
  

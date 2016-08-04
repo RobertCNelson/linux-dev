@@ -1,7 +1,7 @@
-From 0dafdbbcf212947ffe94f428a2c7ea2935e5c39c Mon Sep 17 00:00:00 2001
+From 305f19d3712e07cda34359d67add1ae265aa1f8d Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Mon, 16 May 2016 14:21:35 +0300
-Subject: [PATCH 17/41] of: changeset: Add of_changeset_node_move method
+Subject: [PATCH 17/40] of: changeset: Add of_changeset_node_move method
 
 Adds a changeset helper for moving a subtree to a different place
 in the running tree. This is useful in advances cases of dynamic
@@ -14,10 +14,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 75 insertions(+)
 
 diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
-index 6a54bad..4cef6eb 100644
+index 0599cfc..696e93d 100644
 --- a/drivers/of/dynamic.c
 +++ b/drivers/of/dynamic.c
-@@ -1055,3 +1055,69 @@ int __of_changeset_add_update_property_string_list(
+@@ -1056,3 +1056,69 @@ int __of_changeset_add_update_property_string_list(
  	return ret;
  }
  EXPORT_SYMBOL_GPL(__of_changeset_add_update_property_string_list);
@@ -88,10 +88,10 @@ index 6a54bad..4cef6eb 100644
 +}
 +EXPORT_SYMBOL_GPL(of_changeset_node_move);
 diff --git a/include/linux/of.h b/include/linux/of.h
-index 9f7fa3d..28b88bb 100644
+index 401bc94..6617d23 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
-@@ -1121,6 +1121,9 @@ int __of_changeset_add_update_property_string_list(
+@@ -1126,6 +1126,9 @@ int __of_changeset_add_update_property_string_list(
  		struct of_changeset *ocs, struct device_node *np,
  		const char *name, const char **strs, int count, bool update);
  
@@ -101,7 +101,7 @@ index 9f7fa3d..28b88bb 100644
  #else /* CONFIG_OF_DYNAMIC */
  static inline int of_reconfig_notifier_register(struct notifier_block *nb)
  {
-@@ -1183,6 +1186,12 @@ static inline int __of_changeset_add_update_property_string_list(
+@@ -1188,6 +1191,12 @@ static inline int __of_changeset_add_update_property_string_list(
  	return -EINVAL;
  }
  

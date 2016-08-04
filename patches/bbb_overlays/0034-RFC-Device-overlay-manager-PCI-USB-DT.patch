@@ -1,7 +1,7 @@
-From fc11ece52cf28abb28ab0d8a01808c879465cc29 Mon Sep 17 00:00:00 2001
+From 8b470503c0690180a4914be491ca64ff5b2fe4af Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Thu, 21 May 2015 12:08:54 +0300
-Subject: [PATCH 34/41] RFC: Device overlay manager (PCI/USB + DT)
+Subject: [PATCH 34/40] RFC: Device overlay manager (PCI/USB + DT)
 
 This probably misplaced (in drivers/misc) patch allows use
 of device tree overlays on the two kinds of probeable busses
@@ -45,14 +45,17 @@ index 7d156db..6a8f575 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 32715fa..7b753be 100644
+index e9d5b06..92dd224 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -58,3 +58,4 @@ obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
+@@ -58,6 +58,7 @@ obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
  obj-$(CONFIG_PANEL)             += panel.o
  obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
 +obj-$(CONFIG_DEV_OVERLAYMGR)	+= devovmgr.o
+ 
+ lkdtm-$(CONFIG_LKDTM)		+= lkdtm_core.o
+ lkdtm-$(CONFIG_LKDTM)		+= lkdtm_bugs.o
 diff --git a/drivers/misc/devovmgr.c b/drivers/misc/devovmgr.c
 new file mode 100644
 index 0000000..d5c8d1d

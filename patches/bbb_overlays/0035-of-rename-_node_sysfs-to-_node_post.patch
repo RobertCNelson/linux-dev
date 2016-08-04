@@ -1,7 +1,7 @@
-From db2f3d8e0214d643db0be330244ebfe4aafa9983 Mon Sep 17 00:00:00 2001
+From b0ddb2590e78d87c40046971f654bd1ddcd7cee0 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 14 Oct 2015 13:20:54 +0300
-Subject: [PATCH 35/41] of: rename *_node_sysfs to _node_post
+Subject: [PATCH 35/40] of: rename *_node_sysfs to _node_post
 
 Renames the *_node_sysfs methods to _node_post which is more accurate
 when more work takes place besides sysfs tweaking (as in with
@@ -16,10 +16,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  4 files changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/of/base.c b/drivers/of/base.c
-index ccd2ef3..de6925e 100644
+index 409d667..8499a18 100644
 --- a/drivers/of/base.c
 +++ b/drivers/of/base.c
-@@ -156,7 +156,7 @@ int __of_add_property_sysfs(struct device_node *np, struct property *pp)
+@@ -163,7 +163,7 @@ int __of_add_property_sysfs(struct device_node *np, struct property *pp)
  	return rc;
  }
  
@@ -27,8 +27,8 @@ index ccd2ef3..de6925e 100644
 +int __of_attach_node_post(struct device_node *np)
  {
  	const char *name;
- 	struct property *pp;
-@@ -203,7 +203,7 @@ void __init of_core_init(void)
+ 	struct kobject *parent;
+@@ -212,7 +212,7 @@ void __init of_core_init(void)
  		return;
  	}
  	for_each_of_allnodes(np)
@@ -38,10 +38,10 @@ index ccd2ef3..de6925e 100644
  
  	/* Symlink in /proc as required by userspace ABI */
 diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
-index 4cef6eb..bf6ecd8 100644
+index 696e93d..5dd01708a 100644
 --- a/drivers/of/dynamic.c
 +++ b/drivers/of/dynamic.c
-@@ -41,7 +41,7 @@ void of_node_put(struct device_node *node)
+@@ -43,7 +43,7 @@ void of_node_put(struct device_node *node)
  }
  EXPORT_SYMBOL(of_node_put);
  
@@ -50,7 +50,7 @@ index 4cef6eb..bf6ecd8 100644
  {
  	struct property *pp;
  
-@@ -251,7 +251,7 @@ int of_attach_node(struct device_node *np)
+@@ -253,7 +253,7 @@ int of_attach_node(struct device_node *np)
  	__of_attach_node(np);
  	raw_spin_unlock_irqrestore(&devtree_lock, flags);
  
@@ -59,7 +59,7 @@ index 4cef6eb..bf6ecd8 100644
  	mutex_unlock(&of_mutex);
  
  	of_reconfig_notify(OF_RECONFIG_ATTACH_NODE, &rd);
-@@ -304,7 +304,7 @@ int of_detach_node(struct device_node *np)
+@@ -306,7 +306,7 @@ int of_detach_node(struct device_node *np)
  	__of_detach_node(np);
  	raw_spin_unlock_irqrestore(&devtree_lock, flags);
  
@@ -68,7 +68,7 @@ index 4cef6eb..bf6ecd8 100644
  	mutex_unlock(&of_mutex);
  
  	of_reconfig_notify(OF_RECONFIG_DETACH_NODE, &rd);
-@@ -629,10 +629,10 @@ static int __of_changeset_entry_apply(struct of_changeset_entry *ce)
+@@ -631,10 +631,10 @@ static int __of_changeset_entry_apply(struct of_changeset_entry *ce)
  
  	switch (ce->action) {
  	case OF_RECONFIG_ATTACH_NODE:
@@ -82,7 +82,7 @@ index 4cef6eb..bf6ecd8 100644
  	case OF_RECONFIG_ADD_PROPERTY:
  		/* ignore duplicate names */
 diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
-index 092cba7..10b0342 100644
+index 350cec2..8c2e400 100644
 --- a/drivers/of/of_private.h
 +++ b/drivers/of/of_private.h
 @@ -79,9 +79,9 @@ extern void __of_update_property_sysfs(struct device_node *np,
@@ -95,10 +95,10 @@ index 092cba7..10b0342 100644
 -extern void __of_detach_node_sysfs(struct device_node *np);
 +extern void __of_detach_node_post(struct device_node *np);
  
- /* iterators for transactions, used for overlays */
- /* forward iterator */
+ extern void __of_sysfs_remove_bin_file(struct device_node *np,
+ 				       struct property *prop);
 diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 94d5dfe..04dfaac 100644
+index a8184bf..e9c8228 100644
 --- a/drivers/of/unittest.c
 +++ b/drivers/of/unittest.c
 @@ -930,7 +930,7 @@ static int attach_node_and_children(struct device_node *np)

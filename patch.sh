@@ -256,18 +256,10 @@ ti () {
 
 		${git} "${DIR}/patches/ti/ticpufreq/0001-Documentation-dt-add-bindings-for-ti-cpufreq.patch"
 		${git} "${DIR}/patches/ti/ticpufreq/0002-cpufreq-ti-Add-cpufreq-driver-to-determine-available.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0003-ARM-dts-am335x-Update-MPU-regulator-range-for-TI-boa.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0004-ARM-dts-am33xx-Move-to-operating-points-v2-table-and.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0005-ARM-dts-am335x-boneblack-Enable-1GHz-OPP-for-cpu.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0006-ARM-dts-am4372-Add-operating-points-v2-table.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0007-ARM-dts-am437x-gp-evm-Hook-dcdc2-as-the-cpu0-supply.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0008-ARM-dts-dra7-Add-dt-node-for-the-syscon-control-modu.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0009-ARM-dts-dra7-Move-cpus-node-to-parent-dts-for-dra74x.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0010-ARM-dts-dra7-Move-to-operating-points-v2-table.patch"
 
 		if [ "x${regenerate}" = "xenable" ] ; then
 			wdir="ti/ticpufreq"
-			number=10
+			number=2
 			cleanup
 		fi
 	fi
@@ -440,16 +432,15 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0036-of-Support-hashtable-lookups-for-phandles.patch"
 	${git} "${DIR}/patches/bbb_overlays/0037-of-unittest-hashed-phandles-unitest.patch"
 	${git} "${DIR}/patches/bbb_overlays/0038-of-overlay-Pick-up-label-symbols-from-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0039-of-overlay-Add-pr_fmt-for-clarity.patch"
-	${git} "${DIR}/patches/bbb_overlays/0040-of-Portable-Device-Tree-connector.patch"
+	${git} "${DIR}/patches/bbb_overlays/0039-of-Portable-Device-Tree-connector.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/bbb_overlays/0041-boneblack-defconfig.patch"
+	${git} "${DIR}/patches/bbb_overlays/0040-boneblack-defconfig.patch"
 	fi
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="bbb_overlays"
-		number=41
+		number=40
 		cleanup
 	fi
 }

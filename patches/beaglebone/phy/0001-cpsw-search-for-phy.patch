@@ -21,21 +21,21 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 97 insertions(+)
 
 diff --git a/drivers/net/ethernet/ti/davinci_mdio.c b/drivers/net/ethernet/ti/davinci_mdio.c
-index c00084d..cfbe9a5 100644
+index 33df340..425856f 100644
 --- a/drivers/net/ethernet/ti/davinci_mdio.c
 +++ b/drivers/net/ethernet/ti/davinci_mdio.c
-@@ -102,6 +102,10 @@ struct davinci_mdio_data {
- 	bool		skip_scan;
+@@ -106,6 +106,10 @@ struct davinci_mdio_data {
+ 	u32		clk_div;
  };
  
 +#if IS_ENABLED(CONFIG_OF)
 +static void davinci_mdio_update_dt_from_phymask(u32 phy_mask);
 +#endif
 +
- static void __davinci_mdio_reset(struct davinci_mdio_data *data)
+ static void davinci_mdio_init_clk(struct davinci_mdio_data *data)
  {
  	u32 mdio_in, div, mdio_out_khz, access_time;
-@@ -158,6 +162,12 @@ static int davinci_mdio_reset(struct mii_bus *bus)
+@@ -171,6 +175,12 @@ static int davinci_mdio_reset(struct mii_bus *bus)
  		/* restrict mdio bus to live phys only */
  		dev_info(data->dev, "detected phy mask %x\n", ~phy_mask);
  		phy_mask = ~phy_mask;
@@ -48,7 +48,7 @@ index c00084d..cfbe9a5 100644
  	} else {
  		/* desperately scan all phys */
  		dev_warn(data->dev, "no live phy, scanning all\n");
-@@ -318,6 +328,93 @@ static int davinci_mdio_probe_dt(struct mdio_platform_data *data,
+@@ -334,6 +344,93 @@ static int davinci_mdio_probe_dt(struct mdio_platform_data *data,
  
  	return 0;
  }
@@ -141,7 +141,7 @@ index c00084d..cfbe9a5 100644
 +}
  #endif
  
- static int davinci_mdio_probe(struct platform_device *pdev)
+ #if IS_ENABLED(CONFIG_OF)
 -- 
-2.5.1
+2.8.1
 

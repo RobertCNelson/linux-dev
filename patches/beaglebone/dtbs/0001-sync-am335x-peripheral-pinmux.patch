@@ -1,13 +1,12 @@
-From 6e850c61dea58fd2ea70855af701dcfbfc9b9bc4 Mon Sep 17 00:00:00 2001
+From c94451e2dd775ef3e9c24fb4921c52f2450f9e70 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 18 May 2016 20:26:44 -0500
+Date: Thu, 4 Aug 2016 13:01:42 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/am335x-abbbi.dts                 |  29 +++--
  .../boot/dts/am335x-bone-common-no-capemgr.dtsi    |  12 +--
- arch/arm/boot/dts/am335x-bone-common.dtsi          |   6 +-
  arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi   |  18 ++++
  arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi     |  45 ++++++++
  arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi     |  88 +++++++++++++++
@@ -40,7 +39,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-spi1a.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-sancloud-bbe.dts          |   4 -
- 35 files changed, 762 insertions(+), 86 deletions(-)
+ 34 files changed, 761 insertions(+), 81 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi
@@ -151,27 +150,6 @@ index 1f272a1..12464cc 100644
 +&rtc {
 +	system-power-controller;
 +};
-diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 483ece1..05fce10 100644
---- a/arch/arm/boot/dts/am335x-bone-common.dtsi
-+++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -357,15 +357,11 @@
- 	phy-mode = "mii";
- };
- 
--&cpsw_emac1 {
--	phy_id = <&davinci_mdio>, <1>;
--	phy-mode = "mii";
--};
--
- &mac {
- 	pinctrl-names = "default", "sleep";
- 	pinctrl-0 = <&cpsw_default>;
- 	pinctrl-1 = <&cpsw_sleep>;
-+	slaves = <1>;
- 	status = "okay";
- };
- 
 diff --git a/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi b/arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
 new file mode 100644
 index 0000000..7d8f673

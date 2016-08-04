@@ -1,19 +1,21 @@
-From b4f3c160c1869fa3bd0e1591882910a1b465d81f Mon Sep 17 00:00:00 2001
+From 47c6149454f86179320edf26bf4196c6cb064021 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 1 Jun 2015 08:41:52 -0500
+Date: Thu, 4 Aug 2016 11:26:37 -0500
 Subject: [PATCH 1/2] Revert "spi: spidev: Warn loudly if instantiated from DT
  as "spidev""
 
 This reverts commit 956b200a846e324322f6211034c734c65a38e550.
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  drivers/spi/spidev.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index ef008e5..5c8afb1 100644
+index 2e05046..3c6dfad 100644
 --- a/drivers/spi/spidev.c
 +++ b/drivers/spi/spidev.c
-@@ -713,11 +713,11 @@ static int spidev_probe(struct spi_device *spi)
+@@ -751,11 +751,11 @@ static int spidev_probe(struct spi_device *spi)
  	 * compatible string, it is a Linux implementation thing
  	 * rather than a description of the hardware.
  	 */
@@ -28,8 +30,8 @@ index ef008e5..5c8afb1 100644
 +//			!of_match_device(spidev_dt_ids, &spi->dev));
 +//	}
  
- 	/* Allocate driver data */
- 	spidev = kzalloc(sizeof(*spidev), GFP_KERNEL);
+ 	spidev_probe_acpi(spi);
+ 
 -- 
-2.6.1
+2.8.1
 

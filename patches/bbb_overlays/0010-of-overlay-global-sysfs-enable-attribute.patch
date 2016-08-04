@@ -1,7 +1,7 @@
-From 99d2e12fd6e67d5ac56d3d125269c2916275a89c Mon Sep 17 00:00:00 2001
+From 08ed78de8f877d13253dbae2deb8bc8e7ff4e2a0 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Tue, 17 Mar 2015 15:25:46 +0200
-Subject: [PATCH 10/41] of: overlay: global sysfs enable attribute
+Subject: [PATCH 10/40] of: overlay: global sysfs enable attribute
 
 A throw once master enable switch to protect against any
 further overlay applications if the administrator desires so.
@@ -15,10 +15,10 @@ Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  1 file changed, 49 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 4e06c34..47e8d3a 100644
+index 4a3f63b..053f4b2 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
-@@ -21,6 +21,7 @@
+@@ -23,6 +23,7 @@
  #include <linux/err.h>
  #include <linux/idr.h>
  #include <linux/sysfs.h>
@@ -26,7 +26,7 @@ index 4e06c34..47e8d3a 100644
  
  #include "of_private.h"
  
-@@ -55,8 +56,19 @@ struct of_overlay {
+@@ -57,8 +58,19 @@ struct of_overlay {
  	struct kobject kobj;
  };
  
@@ -93,7 +93,7 @@ index 4e06c34..47e8d3a 100644
  	/* allocate the overlay structure */
  	ov = kzalloc(sizeof(*ov), GFP_KERNEL);
  	if (ov == NULL)
-@@ -597,5 +642,8 @@ int of_overlay_init(void)
+@@ -586,5 +631,8 @@ int of_overlay_init(void)
  	if (!ov_kset)
  		return -ENOMEM;
  

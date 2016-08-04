@@ -1,7 +1,7 @@
-From 54c46996fcdba218a52e8ba324e02915fe02f486 Mon Sep 17 00:00:00 2001
+From f6aef036525dce7d3ed539ad71e5456078442122 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Thu, 23 Apr 2015 19:02:16 +0300
-Subject: [PATCH 13/41] of: overlay: add per overlay sysfs attributes
+Subject: [PATCH 13/40] of: overlay: add per overlay sysfs attributes
 
 * A per overlay can_remove sysfs attribute that reports whether
 the overlay can be removed or not due to another overlapping overlay.
@@ -16,10 +16,10 @@ Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  1 file changed, 99 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 47e8d3a..fdfc487 100644
+index 053f4b2..73336d9 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
-@@ -25,8 +25,23 @@
+@@ -27,8 +27,23 @@
  
  #include "of_private.h"
  
@@ -43,7 +43,7 @@ index 47e8d3a..fdfc487 100644
   * @target:	target of the overlay operation
   * @overlay:	pointer to the overlay contents node
   *
-@@ -34,8 +49,13 @@
+@@ -36,8 +51,13 @@
   * records.
   */
  struct of_overlay_info {
@@ -57,7 +57,7 @@ index 47e8d3a..fdfc487 100644
  };
  
  /**
-@@ -52,6 +72,7 @@ struct of_overlay {
+@@ -54,6 +74,7 @@ struct of_overlay {
  	struct list_head node;
  	int count;
  	struct of_overlay_info *ovinfo_tab;
@@ -192,7 +192,7 @@ index 47e8d3a..fdfc487 100644
  };
  
  static struct kset *ov_kset;
-@@ -462,13 +548,21 @@ int of_overlay_create(struct device_node *tree)
+@@ -455,13 +541,21 @@ int of_overlay_create(struct device_node *tree)
  		goto err_cancel_overlay;
  	}
  
@@ -215,7 +215,7 @@ index 47e8d3a..fdfc487 100644
  err_cancel_overlay:
  	of_changeset_revert(&ov->cset);
  err_revert_overlay:
-@@ -589,6 +683,7 @@ int of_overlay_destroy(int id)
+@@ -578,6 +672,7 @@ int of_overlay_destroy(int id)
  
  
  	list_del(&ov->node);

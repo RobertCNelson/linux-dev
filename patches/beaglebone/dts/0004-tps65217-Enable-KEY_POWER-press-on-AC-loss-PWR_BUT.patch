@@ -14,10 +14,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  3 files changed, 128 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 807894a..483ece1 100644
+index f5bf9cf..043cd38 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -303,6 +303,9 @@
+@@ -307,6 +307,9 @@
  	 */
  	ti,pmic-shutdown-controller;
  
@@ -195,13 +195,13 @@ index 049a6fc..403f795 100644
  				   ARRAY_SIZE(tps65217s), NULL, 0, NULL);
  	if (ret < 0) {
 diff --git a/include/linux/mfd/tps65217.h b/include/linux/mfd/tps65217.h
-index ac7fba4..05d24a6 100644
+index 1c88231..c4f47e5 100644
 --- a/include/linux/mfd/tps65217.h
 +++ b/include/linux/mfd/tps65217.h
-@@ -257,6 +257,11 @@ struct tps65217 {
- 	unsigned long id;
+@@ -258,6 +258,11 @@ struct tps65217 {
  	struct regulator_desc desc[TPS65217_NUM_REGULATOR];
  	struct regmap *regmap;
+ 	u8 *strobes;
 +
 +	/* Power button and IRQ handling */
 +	int irq_gpio;	/* might not be set */

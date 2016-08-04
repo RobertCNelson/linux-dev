@@ -1,7 +1,7 @@
-From ebae43447d426d0afdb7eee84fdcd9cf4c25ad95 Mon Sep 17 00:00:00 2001
+From 53ea6e96dafaee687fadf6f3476c26b567e1e04c Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Wed, 10 Jun 2015 18:35:53 +0300
-Subject: [PATCH 16/41] of: changesets: Introduce changeset helper methods
+Subject: [PATCH 16/40] of: changesets: Introduce changeset helper methods
 
 Changesets are very powerful, but the lack of a helper API
 makes using them cumbersome. Introduce a simple copy based
@@ -28,10 +28,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 554 insertions(+)
 
 diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
-index b3111ad..6a54bad 100644
+index cc64675..0599cfc 100644
 --- a/drivers/of/dynamic.c
 +++ b/drivers/of/dynamic.c
-@@ -829,3 +829,229 @@ int of_changeset_action(struct of_changeset *ocs, unsigned long action,
+@@ -830,3 +830,229 @@ int of_changeset_action(struct of_changeset *ocs, unsigned long action,
  	return 0;
  }
  EXPORT_SYMBOL_GPL(of_changeset_action);
@@ -262,10 +262,10 @@ index b3111ad..6a54bad 100644
 +}
 +EXPORT_SYMBOL_GPL(__of_changeset_add_update_property_string_list);
 diff --git a/include/linux/of.h b/include/linux/of.h
-index c7292e8..9f7fa3d 100644
+index 3d9ff8e..401bc94 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
-@@ -1059,6 +1059,8 @@ enum of_reconfig_change {
+@@ -1064,6 +1064,8 @@ enum of_reconfig_change {
  };
  
  #ifdef CONFIG_OF_DYNAMIC
@@ -274,7 +274,7 @@ index c7292e8..9f7fa3d 100644
  extern int of_reconfig_notifier_register(struct notifier_block *);
  extern int of_reconfig_notifier_unregister(struct notifier_block *);
  extern int of_reconfig_notify(unsigned long, struct of_reconfig_data *rd);
-@@ -1102,6 +1104,23 @@ static inline int of_changeset_update_property(struct of_changeset *ocs,
+@@ -1107,6 +1109,23 @@ static inline int of_changeset_update_property(struct of_changeset *ocs,
  {
  	return of_changeset_action(ocs, OF_RECONFIG_UPDATE_PROPERTY, np, prop);
  }
@@ -298,7 +298,7 @@ index c7292e8..9f7fa3d 100644
  #else /* CONFIG_OF_DYNAMIC */
  static inline int of_reconfig_notifier_register(struct notifier_block *nb)
  {
-@@ -1121,8 +1140,317 @@ static inline int of_reconfig_get_state_change(unsigned long action,
+@@ -1126,8 +1145,317 @@ static inline int of_reconfig_get_state_change(unsigned long action,
  {
  	return -EINVAL;
  }

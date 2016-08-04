@@ -1,14 +1,14 @@
-From f32c8280ab343a969ca1852b77ea7371b4c21835 Mon Sep 17 00:00:00 2001
+From 83f99e046960b97dada2dd02dc4479a4318401c2 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Mon, 23 May 2016 16:33:22 +0300
-Subject: [PATCH 01/41] scripts/dtc: Update to upstream version 1.4.1+Overlays
+Subject: [PATCH 01/40] scripts/dtc: Update to upstream version 1.4.1+Overlays
 
 ---
  scripts/dtc/checks.c                 |    8 +-
  scripts/dtc/dtc-lexer.l              |    5 +
  scripts/dtc/dtc-lexer.lex.c_shipped  |  490 +++----
- scripts/dtc/dtc-parser.tab.c_shipped | 2382 ++++++++++++++++++----------------
- scripts/dtc/dtc-parser.tab.h_shipped |  109 +-
+ scripts/dtc/dtc-parser.tab.c_shipped | 2373 ++++++++++++++++++----------------
+ scripts/dtc/dtc-parser.tab.h_shipped |  101 +-
  scripts/dtc/dtc-parser.y             |   56 +-
  scripts/dtc/dtc.c                    |   37 +-
  scripts/dtc/dtc.h                    |   32 +-
@@ -20,7 +20,7 @@ Subject: [PATCH 01/41] scripts/dtc: Update to upstream version 1.4.1+Overlays
  scripts/dtc/libfdt/libfdt_internal.h |    1 +
  scripts/dtc/livetree.c               |  217 +++-
  scripts/dtc/version_gen.h            |    2 +-
- 16 files changed, 1982 insertions(+), 1437 deletions(-)
+ 16 files changed, 1973 insertions(+), 1429 deletions(-)
 
 diff --git a/scripts/dtc/checks.c b/scripts/dtc/checks.c
 index 386f956..3d4c3c6 100644
@@ -952,46 +952,23 @@ index ba525c2..39b9f60 100644
  
  
 diff --git a/scripts/dtc/dtc-parser.tab.c_shipped b/scripts/dtc/dtc-parser.tab.c_shipped
-index 31cec50..ed31164 100644
+index 31cec50..74e6899 100644
 --- a/scripts/dtc/dtc-parser.tab.c_shipped
 +++ b/scripts/dtc/dtc-parser.tab.c_shipped
-@@ -1,19 +1,21 @@
+@@ -1,8 +1,10 @@
 -/* A Bison parser, made by GNU Bison 3.0.2.  */
  
 -/* Bison implementation for Yacc-like parsers in C
--
--   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 +/* A Bison parser, made by GNU Bison 2.4.1.  */
  
+-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 +/* Skeleton implementation for Bison's Yacc-like parsers in C
-+   
++
 +      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
 +   Free Software Foundation, Inc.
-+   
+ 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
--
-+   
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
--
-+   
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
- 
-@@ -26,7 +28,7 @@
-    special exception, which will cause the skeleton and the resulting
-    Bison output files to be licensed under the GNU General Public
-    License without this special exception.
--
-+   
-    This special exception was added by the Free Software Foundation in
-    version 2.2 of Bison.  */
- 
 @@ -44,7 +46,7 @@
  #define YYBISON 1
  
@@ -1920,23 +1897,23 @@ index 31cec50..ed31164 100644
 +#define yyclearin	(yychar = YYEMPTY)
 +#define YYEMPTY		(-2)
 +#define YYEOF		0
++
++#define YYACCEPT	goto yyacceptlab
++#define YYABORT		goto yyabortlab
++#define YYERROR		goto yyerrorlab
  
 -#define yyerrok         (yyerrstatus = 0)
 -#define yyclearin       (yychar = YYEMPTY)
 -#define YYEMPTY         (-2)
 -#define YYEOF           0
-+#define YYACCEPT	goto yyacceptlab
-+#define YYABORT		goto yyabortlab
-+#define YYERROR		goto yyerrorlab
  
 -#define YYACCEPT        goto yyacceptlab
 -#define YYABORT         goto yyabortlab
 -#define YYERROR         goto yyerrorlab
- 
 +/* Like YYERROR except do call yyerror.  This remains here temporarily
 +   to ease the transition to the new meaning of YYERROR, for GCC.
 +   Once GCC version 2 has supplanted version 1, this can go.  */
-+
+ 
 +#define YYFAIL		goto yyerrlab
  
  #define YYRECOVERING()  (!!yyerrstatus)
@@ -2085,20 +2062,20 @@ index 31cec50..ed31164 100644
 -  return res;
 - }
 +/* YYLEX -- calling `yylex' with the right arguments.  */
- 
--#  define YY_LOCATION_PRINT(File, Loc)          \
--  yy_location_print_ (File, &(Loc))
++
 +#ifdef YYLEX_PARAM
 +# define YYLEX yylex (YYLEX_PARAM)
 +#else
 +# define YYLEX yylex ()
 +#endif
  
--# else
--#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+-#  define YY_LOCATION_PRINT(File, Loc)          \
+-  yy_location_print_ (File, &(Loc))
 +/* Enable debugging if requested.  */
 +#if YYDEBUG
-+
+ 
+-# else
+-#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 +# ifndef YYFPRINTF
 +#  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
 +#  define YYFPRINTF fprintf
@@ -2240,11 +2217,11 @@ index 31cec50..ed31164 100644
  
 +#if (defined __STDC__ || defined __C99__FUNC__ \
 +     || defined __cplusplus || defined _MSC_VER)
- static void
--yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
++static void
 +yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
 +#else
-+static void
+ static void
+-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
 +yy_reduce_print (yyvsp, yylsp, yyrule)
 +    YYSTYPE *yyvsp;
 +    YYLTYPE *yylsp;
@@ -2480,8 +2457,7 @@ index 31cec50..ed31164 100644
 -              }
 -        }
 -    }
-+  int yyn = yypact[yystate];
- 
+-
 -  switch (yycount)
 -    {
 -# define YYCASE_(N, S)                      \
@@ -2503,7 +2479,8 @@ index 31cec50..ed31164 100644
 -      return 2;
 -    yysize = yysize1;
 -  }
--
++  int yyn = yypact[yystate];
+ 
 -  if (*yymsg_alloc < yysize)
 +  if (! (YYPACT_NINF < yyn && yyn <= YYLAST))
 +    return 0;
@@ -4202,7 +4179,7 @@ index 31cec50..ed31164 100644
        YYPOPSTACK (1);
      }
  #ifndef yyoverflow
-@@ -2260,12 +2460,18 @@ yyreturn:
+@@ -2260,9 +2460,14 @@ yyreturn:
    if (yymsg != yymsgbuf)
      YYSTACK_FREE (yymsg);
  #endif
@@ -4219,48 +4196,25 @@ index 31cec50..ed31164 100644
  
  
  void yyerror(char const *s)
- {
- 	ERROR(&yylloc, "%s", s);
- }
-+
 diff --git a/scripts/dtc/dtc-parser.tab.h_shipped b/scripts/dtc/dtc-parser.tab.h_shipped
-index 30867c6..18c7d5b 100644
+index 30867c6..bcaf6f8 100644
 --- a/scripts/dtc/dtc-parser.tab.h_shipped
 +++ b/scripts/dtc/dtc-parser.tab.h_shipped
-@@ -1,19 +1,21 @@
+@@ -1,8 +1,10 @@
 -/* A Bison parser, made by GNU Bison 3.0.2.  */
  
 -/* Bison interface for Yacc-like parsers in C
--
--   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 +/* A Bison parser, made by GNU Bison 2.4.1.  */
  
+-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 +/* Skeleton interface for Bison's Yacc-like parsers in C
-+   
++
 +      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
 +   Free Software Foundation, Inc.
-+   
+ 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
--
-+   
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
--
-+   
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
- 
-@@ -26,55 +28,50 @@
-    special exception, which will cause the skeleton and the resulting
-    Bison output files to be licensed under the GNU General Public
-    License without this special exception.
--
-+   
+@@ -30,51 +32,46 @@
     This special exception was added by the Free Software Foundation in
     version 2.2 of Bison.  */
  
@@ -4350,10 +4304,10 @@ index 30867c6..18c7d5b 100644
  	struct reserve_info *re;
  	uint64_t integer;
 +	unsigned int flags;
-+
  
 -#line 97 "dtc-parser.tab.h" /* yacc.c:1909  */
 -};
++
 +
 +/* Line 1676 of yacc.c  */
 +#line 98 "dtc-parser.tab.h"

@@ -1,7 +1,7 @@
-From 31a95ab6fd487e3eb8492a4270569fc45ed46539 Mon Sep 17 00:00:00 2001
+From 85c5803bf240cdf847f61a3f0e4f3e33b52877c9 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Sun, 15 Mar 2015 20:39:36 +0200
-Subject: [PATCH 09/41] of: overlay: kobjectify overlay objects
+Subject: [PATCH 09/40] of: overlay: kobjectify overlay objects
 
 We are going to need the overlays to appear on sysfs with runtime
 global properties (like master enable) so turn them into kobjects.
@@ -20,10 +20,10 @@ Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  3 files changed, 62 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/of/base.c b/drivers/of/base.c
-index ebf84e3..ccd2ef3 100644
+index 7792266..409d667 100644
 --- a/drivers/of/base.c
 +++ b/drivers/of/base.c
-@@ -192,6 +192,7 @@ int __of_attach_node_sysfs(struct device_node *np)
+@@ -201,6 +201,7 @@ int __of_attach_node_sysfs(struct device_node *np)
  void __init of_core_init(void)
  {
  	struct device_node *np;
@@ -31,7 +31,7 @@ index ebf84e3..ccd2ef3 100644
  
  	/* Create the kset, and register existing nodes */
  	mutex_lock(&of_mutex);
-@@ -208,6 +209,10 @@ void __init of_core_init(void)
+@@ -217,6 +218,10 @@ void __init of_core_init(void)
  	/* Symlink in /proc as required by userspace ABI */
  	if (of_root)
  		proc_symlink("device-tree", NULL, "/sys/firmware/devicetree/base");
@@ -43,10 +43,10 @@ index ebf84e3..ccd2ef3 100644
  
  static struct property *__of_find_property(const struct device_node *np,
 diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
-index 829469f..092cba7 100644
+index 18bbb451..350cec2 100644
 --- a/drivers/of/of_private.h
 +++ b/drivers/of/of_private.h
-@@ -92,4 +92,13 @@ extern void __of_detach_node_sysfs(struct device_node *np);
+@@ -95,4 +95,13 @@ extern void __of_sysfs_remove_bin_file(struct device_node *np,
  #define for_each_transaction_entry_reverse(_oft, _te) \
  	list_for_each_entry_reverse(_te, &(_oft)->te_list, node)
  
@@ -61,10 +61,10 @@ index 829469f..092cba7 100644
 +
  #endif /* _LINUX_OF_PRIVATE_H */
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 8225081..4e06c34 100644
+index 318dbb5..4a3f63b 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
-@@ -20,6 +20,7 @@
+@@ -22,6 +22,7 @@
  #include <linux/slab.h>
  #include <linux/err.h>
  #include <linux/idr.h>
@@ -72,7 +72,7 @@ index 8225081..4e06c34 100644
  
  #include "of_private.h"
  
-@@ -51,6 +52,7 @@ struct of_overlay {
+@@ -53,6 +54,7 @@ struct of_overlay {
  	int count;
  	struct of_overlay_info *ovinfo_tab;
  	struct of_changeset cset;
@@ -115,9 +115,9 @@ index 8225081..4e06c34 100644
  	mutex_lock(&of_mutex);
  
  	id = idr_alloc(&ov_idr, ov, 0, 0, GFP_KERNEL);
-@@ -386,6 +409,14 @@ int of_overlay_create(struct device_node *tree)
+@@ -379,6 +402,14 @@ int of_overlay_create(struct device_node *tree)
  		goto err_revert_overlay;
- 	}
+ 
  
 +	ov->kobj.kset = ov_kset;
 +	err = kobject_add(&ov->kobj, NULL, "%d", id);
@@ -130,7 +130,7 @@ index 8225081..4e06c34 100644
  	/* add to the tail of the overlay list */
  	list_add_tail(&ov->node, &ov_list);
  
-@@ -393,6 +424,8 @@ int of_overlay_create(struct device_node *tree)
+@@ -386,6 +417,8 @@ int of_overlay_create(struct device_node *tree)
  
  	return id;
  
@@ -139,7 +139,7 @@ index 8225081..4e06c34 100644
  err_revert_overlay:
  err_abort_trans:
  	of_free_overlay_info(ov);
-@@ -515,7 +548,8 @@ int of_overlay_destroy(int id)
+@@ -504,7 +537,8 @@ int of_overlay_destroy(int id)
  	of_free_overlay_info(ov);
  	idr_remove(&ov_idr, id);
  	of_changeset_destroy(&ov->cset);
@@ -149,7 +149,7 @@ index 8225081..4e06c34 100644
  
  	err = 0;
  
-@@ -545,7 +579,7 @@ int of_overlay_destroy_all(void)
+@@ -534,7 +568,7 @@ int of_overlay_destroy_all(void)
  		__of_changeset_revert(&ov->cset);
  		of_free_overlay_info(ov);
  		idr_remove(&ov_idr, ov->id);
@@ -158,7 +158,7 @@ index 8225081..4e06c34 100644
  	}
  
  	mutex_unlock(&of_mutex);
-@@ -553,3 +587,15 @@ int of_overlay_destroy_all(void)
+@@ -542,3 +576,15 @@ int of_overlay_destroy_all(void)
  	return 0;
  }
  EXPORT_SYMBOL_GPL(of_overlay_destroy_all);
