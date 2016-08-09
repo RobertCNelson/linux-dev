@@ -512,21 +512,6 @@ beaglebone () {
 		cleanup
 	fi
 
-	echo "dir: beaglebone/eqep"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/eqep/0001-Provides-a-sysfs-interface-to-the-eQEP-hardware-on-t.patch"
-	${git} "${DIR}/patches/beaglebone/eqep/0002-tieqep.c-devres-remove-devm_request_and_ioremap.patch"
-	${git} "${DIR}/patches/beaglebone/eqep/0003-tieqep-cleanup.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=3
-		cleanup
-	fi
-
 	echo "dir: beaglebone/overlays"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
