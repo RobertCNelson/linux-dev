@@ -1791,6 +1791,9 @@ config="CONFIG_CRYPTO_SHA512_ARM" ; config_module
 config="CONFIG_CRYPTO_AES_ARM" ; config_module
 config="CONFIG_CRYPTO_AES_ARM_BS" ; config_module
 
+#breaks wheezy:
+config="CONFIG_SCSI_SNIC" ; config_disable
+
 cd ${DIR}/
 
 #
