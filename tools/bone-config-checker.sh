@@ -73,6 +73,7 @@ config="CONFIG_SOC_DRA7XX" ; config_disable
 #
 # OMAP Legacy Platform Data Board Type
 #
+config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_ROCKCHIP" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_SUNXI" ; config_disable
