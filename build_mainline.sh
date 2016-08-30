@@ -22,6 +22,7 @@
 
 DIR=$PWD
 CORES=$(getconf _NPROCESSORS_ONLN)
+git_bin=$(which git)
 
 mkdir -p "${DIR}/deploy/"
 
@@ -29,11 +30,11 @@ patch_kernel () {
 	cd "${DIR}/KERNEL" || exit
 
 	export DIR
-	/bin/sh -e "${DIR}/patch.sh" || { git add . ; exit 1 ; }
+	/bin/sh -e "${DIR}/patch.sh" || { ${git_bin} add . ; exit 1 ; }
 
 	if [ ! "${RUN_BISECT}" ] ; then
-		git add --all
-		git commit --allow-empty -a -m "${KERNEL_TAG}${BUILD} patchset"
+		${git_bin} add --all
+		${git_bin} commit --allow-empty -a -m "${KERNEL_TAG}${BUILD} patchset"
 	fi
 
 	cd "${DIR}/" || exit

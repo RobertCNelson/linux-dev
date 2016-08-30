@@ -21,18 +21,55 @@
 # THE SOFTWARE.
 
 DIR=$PWD
+CORES=$(getconf _NPROCESSORS_ONLN)
+debian_stable_git="2.1.4"
+#git hard requirements:
+#git: --local
+#git: --list
+#git: --no-edit
+
+build_git () {
+	echo "-----------------------------"
+	echo "scripts/git: git is too old: [`LC_ALL=C ${git_bin} --version | awk '{print $3}'`], building and installing: [${debian_stable_git}] to /usr/local/"
+
+	wget --quiet -c --directory-prefix="${DIR}/ignore/" https://www.kernel.org/pub/software/scm/git/git-${debian_stable_git}.tar.gz
+	if [ -f "${DIR}/ignore/git-${debian_stable_git}.tar.gz" ] ; then
+		cd "${DIR}/ignore/" || true
+		tar xf git-${debian_stable_git}.tar.gz
+		if [ -d git-${debian_stable_git} ] ; then
+			cd ./git-${debian_stable_git}/ || true
+			echo "scripts/git: building: [${debian_stable_git}]"
+
+			echo "scripts/git: [make -j${CORES} prefix=/usr/local all]"
+			make -j${CORES} prefix=/usr/local all >/dev/null 2>&1
+
+			echo "scripts/git: [sudo make prefix=/usr/local install]"
+			sudo make prefix=/usr/local install >/dev/null 2>&1
+
+			cd "${DIR}/ignore/" || true
+			rm -rf git-${debian_stable_git}/ || true
+			git_bin=$(which git)
+		else
+			echo "scripts/git: failure to build: git-${debian_stable_git}.tar.gz"
+			exit 2
+		fi
+	else
+		echo "scripts/git: failure to download: git-${debian_stable_git}.tar.gz"
+		exit 2
+	fi
+}
 
 git_kernel_stable () {
 	echo "-----------------------------"
 	echo "scripts/git: fetching from: ${linux_stable}"
-	git fetch "${linux_stable}" master --tags || true
+	${git_bin} fetch "${linux_stable}" master --tags || true
 }
 
 git_kernel_torvalds () {
 	echo "-----------------------------"
 	echo "scripts/git: pulling from: ${torvalds_linux}"
-	git pull "${git_opts}" "${torvalds_linux}" master --tags || true
-	git tag | grep v"${KERNEL_TAG}" >/dev/null 2>&1 || git_kernel_stable
+	${git_bin} pull --no-edit "${torvalds_linux}" master --tags || true
+	${git_bin} tag | grep v"${KERNEL_TAG}" >/dev/null 2>&1 || git_kernel_stable
 }
 
 check_and_or_clone () {
@@ -50,7 +87,7 @@ check_and_or_clone () {
 			echo "-----------------------------"
 			echo "scripts/git: LINUX_GIT not defined in system.sh"
 			echo "cloning ${torvalds_linux} into default location: ${DIR}/ignore/linux-src"
-			git clone "${torvalds_linux}" "${DIR}/ignore/linux-src"
+			${git_bin} clone "${torvalds_linux}" "${DIR}/ignore/linux-src"
 		fi
 		LINUX_GIT="${DIR}/ignore/linux-src"
 	fi
@@ -87,84 +124,74 @@ git_kernel () {
 	echo "-----------------------------"
 	echo "scripts/git: Debug: LINUX_GIT is setup as: [${LINUX_GIT}]."
 	echo "scripts/git: [$(cat .git/config | grep url | sed 's/\t//g' | sed 's/ //g')]"
-	git fetch || true
+	${git_bin} fetch || true
 	echo "-----------------------------"
 	cd "${DIR}/" || exit
 
 	if [ ! -f "${DIR}/KERNEL/.git/config" ] ; then
 		rm -rf "${DIR}/KERNEL/" || true
-		git clone --shared "${LINUX_GIT}" "${DIR}/KERNEL"
+		${git_bin} clone --shared "${LINUX_GIT}" "${DIR}/KERNEL"
 	fi
 
 	#Automaticly, just recover the git repo from a git crash
 	if [ -f "${DIR}/KERNEL/.git/index.lock" ] ; then
 		rm -rf "${DIR}/KERNEL/" || true
-		git clone --shared "${LINUX_GIT}" "${DIR}/KERNEL"
+		${git_bin} clone --shared "${LINUX_GIT}" "${DIR}/KERNEL"
 	fi
 
 	cd "${DIR}/KERNEL/" || exit
 
-	if [ "x${git_has_local}" = "xenable" ] ; then
-		#Debian Jessie: git version 2.0.0.rc0
-		#Disable git's default setting of running `git gc --auto` in the background as the patch.sh script can fail.
-		git config --local --list | grep gc.autodetach >/dev/null 2>&1 || git config --local gc.autodetach 0
+	#Debian Jessie: git version 2.0.0.rc0
+	#Disable git's default setting of running `git gc --auto` in the background as the patch.sh script can fail.
+	${git_bin} config --local --list | grep gc.autodetach >/dev/null 2>&1 || ${git_bin} config --local gc.autodetach 0
 
-		#disable git's auto Cleanup, ./KERNEL is a throw away branch...
-		git config --local --list | grep gc.auto >/dev/null 2>&1 || git config --local gc.auto 0
+	#disable git's auto Cleanup, ./KERNEL is a throw away branch...
+	${git_bin} config --local --list | grep gc.auto >/dev/null 2>&1 || ${git_bin} config --local gc.auto 0
 
-		if [ ! "${git_config_user_email}" ] ; then
-			git config --local user.email you@example.com
-		fi
+	if [ ! "${git_config_user_email}" ] ; then
+		${git_bin} config --local user.email you@example.com
+	fi
 
-		if [ ! "${git_config_user_name}" ] ; then
-			git config --local user.name "Your Name"
-		fi
+	if [ ! "${git_config_user_name}" ] ; then
+		${git_bin} config --local user.name "Your Name"
 	fi
 
 	if [ "${RUN_BISECT}" ] ; then
-		git bisect reset || true
+		${git_bin} bisect reset || true
 	fi
 
-	git am --abort || echo "git tree is clean..."
-	git add --all
-	git commit --allow-empty -a -m 'empty cleanup commit'
+	${git_bin} am --abort || echo "${git_bin} tree is clean..."
+	${git_bin} add --all
+	${git_bin} commit --allow-empty -a -m 'empty cleanup commit'
 
-	git reset --hard HEAD
-	git checkout master -f
+	${git_bin} reset --hard HEAD
+	${git_bin} checkout master -f
 
-	git pull "${git_opts}" || true
+	${git_bin} pull --no-edit || true
 
-	git tag | grep "v${KERNEL_TAG}" | grep -v rc >/dev/null 2>&1 || git_kernel_torvalds
+	${git_bin} tag | grep "v${KERNEL_TAG}" | grep -v rc >/dev/null 2>&1 || git_kernel_torvalds
 
 	if [ "${KERNEL_SHA}" ] ; then
 		git_kernel_torvalds
 	fi
 
-	#CentOS 6.4: git version 1.7.1 (no --list option)
-	unset git_branch_has_list
-	LC_ALL=C git help branch | grep -m 1 -e "--list" >/dev/null 2>&1 && git_branch_has_list=enable
-	if [ "x${git_branch_has_list}" = "xenable" ] ; then
-		test_for_branch=$(git branch --list "v${KERNEL_TAG}${BUILD}")
-		if [ "x${test_for_branch}" != "x" ] ; then
-			git branch "v${KERNEL_TAG}${BUILD}" -D
-		fi
-	else
-		echo "git: the following error: [error: branch 'v${KERNEL_TAG}${BUILD}' not found.] is safe to ignore."
-		git branch "v${KERNEL_TAG}${BUILD}" -D || true
+	test_for_branch=$(${git_bin} branch --list "v${KERNEL_TAG}${BUILD}")
+	if [ "x${test_for_branch}" != "x" ] ; then
+		${git_bin} branch "v${KERNEL_TAG}${BUILD}" -D
 	fi
 
 	if [ ! "${KERNEL_SHA}" ] ; then
-		git checkout "v${KERNEL_TAG}" -b "v${KERNEL_TAG}${BUILD}"
+		${git_bin} checkout "v${KERNEL_TAG}" -b "v${KERNEL_TAG}${BUILD}"
 	else
-		git checkout "${KERNEL_SHA}" -b "v${KERNEL_TAG}${BUILD}"
+		${git_bin} checkout "${KERNEL_SHA}" -b "v${KERNEL_TAG}${BUILD}"
 	fi
 
 	if [ "${TOPOFTREE}" ] ; then
-		git pull "${git_opts}" "${torvalds_linux}" master || true
-		git pull "${git_opts}" "${torvalds_linux}" master --tags || true
+		${git_bin} pull --no-edit "${torvalds_linux}" master || true
+		${git_bin} pull --no-edit "${torvalds_linux}" master --tags || true
 	fi
 
-	git describe
+	${git_bin} describe
 
 	cd "${DIR}/" || exit
 }
@@ -180,7 +207,7 @@ git_shallow () {
 		fi
 		mkdir "${DIR}/KERNEL/" || true
 		echo "git: [git clone -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee]"
-		git clone --depth=100 -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee "${DIR}/KERNEL/"
+		${git_bin} clone --depth=100 -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee "${DIR}/KERNEL/"
 		touch "${DIR}/KERNEL/.ignore-${kernel_tag}"
 	fi
 }
@@ -188,30 +215,43 @@ git_shallow () {
 . "${DIR}/version.sh"
 . "${DIR}/system.sh"
 
-#Debian 7 (Wheezy): git version 1.7.10.4 and later needs "--no-edit"
-unset git_opts
-git_no_edit=$(LC_ALL=C git help pull | grep -m 1 -e "--no-edit" || true)
-if [ ! "x${git_no_edit}" = "x" ] ; then
-	git_opts="--no-edit"
+git_bin=$(which git)
+
+git_major=$(LC_ALL=C ${git_bin} --version | awk '{print $3}' | cut -d. -f1)
+git_minor=$(LC_ALL=C ${git_bin} --version | awk '{print $3}' | cut -d. -f2)
+git_sub=$(LC_ALL=C ${git_bin} --version | awk '{print $3}' | cut -d. -f3)
+
+#debian Stable:
+#https://packages.debian.org/stable/git -> 2.1.4
+
+compare_major="2"
+compare_minor="1"
+compare_sub="4"
+
+if [ "${git_major}" -lt "${compare_major}" ] ; then
+	build_git
+elif [ "${git_major}" -eq "${compare_major}" ] ; then
+	if [ "${git_minor}" -lt "${compare_minor}" ] ; then
+		build_git
+	elif [ "${git_minor}" -eq "${compare_minor}" ] ; then
+		if [ "${git_sub}" -lt "${compare_sub}" ] ; then
+			build_git
+		fi
+	fi
 fi
 
-#CentOS 6.4: git version 1.7.1 (no --local option)
-unset git_has_local
-LC_ALL=C git help | grep -m 1 -e "--local" >/dev/null 2>&1 && git_has_local=enable
+echo "scripts/git: [`LC_ALL=C ${git_bin} --version`]"
 
-#git 1.7.1 doesnt care if email/user is not set...
-if [ "x${git_has_local}" = "xenable" ] ; then
-	unset git_config_user_email
-	git_config_user_email=$(git config --global --get user.email || true)
-	if [ ! "${git_config_user_email}" ] ; then
-		git config --local user.email you@example.com
-	fi
+unset git_config_user_email
+git_config_user_email=$(${git_bin} config --global --get user.email || true)
+if [ ! "${git_config_user_email}" ] ; then
+	${git_bin} config --local user.email you@example.com
+fi
 
-	unset git_config_user_name
-	git_config_user_name=$(git config --global --get user.name || true)
-	if [ ! "${git_config_user_name}" ] ; then
-		git config --local user.name "Your Name"
-	fi
+unset git_config_user_name
+git_config_user_name=$(${git_bin} config --global --get user.name || true)
+if [ ! "${git_config_user_name}" ] ; then
+	${git_bin} config --local user.name "Your Name"
 fi
 
 torvalds_linux="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
