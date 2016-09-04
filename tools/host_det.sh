@@ -73,7 +73,7 @@ redhat_reqs () {
 		echo "RPM distro version: [${rpm_distro}]"
 
 		case "${rpm_distro}" in
-		22|23|24)
+		22|23|24|25)
 			pkgtool="dnf"
 			;;
 		esac
