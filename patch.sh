@@ -934,21 +934,6 @@ quieter () {
 	fi
 }
 
-more_fixes () {
-	echo "dir: more_fixes"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/more_fixes/0001-slab-gcc5-fixes.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-}
-
 ###
 #backports
 reverts
@@ -957,7 +942,7 @@ drivers
 soc
 beaglebone
 quieter
-more_fixes
+dir 'more_fixes'
 dir 'gpio'
 dir 'local'
 
