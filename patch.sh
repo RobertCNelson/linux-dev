@@ -408,7 +408,8 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0016-of-changesets-Introduce-changeset-helper-methods.patch"
 	${git} "${DIR}/patches/bbb_overlays/0017-of-changeset-Add-of_changeset_node_move-method.patch"
 	${git} "${DIR}/patches/bbb_overlays/0018-of-unittest-changeset-helpers.patch"
-	${git} "${DIR}/patches/bbb_overlays/0019-i2c-demux-Use-changeset-helpers-for-clarity.patch"
+#	https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e35478eac030990e23a56bf11dc074c5a069124a
+#	${git} "${DIR}/patches/bbb_overlays/0019-i2c-demux-Use-changeset-helpers-for-clarity.patch"
 	${git} "${DIR}/patches/bbb_overlays/0020-OF-DT-Overlay-configfs-interface-v7.patch"
 	${git} "${DIR}/patches/bbb_overlays/0021-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
 	${git} "${DIR}/patches/bbb_overlays/0022-misc-Beaglebone-capemanager.patch"
