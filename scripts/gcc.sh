@@ -130,12 +130,12 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_eabi_6)
 		#
-		#https://snapshots.linaro.org/components/toolchain/binaries/6.1-2016.08-rc1/arm-eabi/gcc-linaro-6.1.1-2016.08-rc1-x86_64_arm-eabi.tar.xz
+		#https://snapshots.linaro.org/components/toolchain/binaries/6.1-2016.08-rc2/arm-eabi/gcc-linaro-6.1.1-2016.08-rc2-x86_64_arm-eabi.tar.xz
 		#
 		site="https://snapshots.linaro.org"
 
 		gcc_version="6.1"
-		release="16.08-rc1"
+		release="16.08-rc2"
 		target="arm-eabi"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
@@ -241,12 +241,12 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_gnueabihf_6)
 		#
-		#https://snapshots.linaro.org/components/toolchain/binaries/6.1-2016.08-rc1/arm-linux-gnueabihf/gcc-linaro-6.1.1-2016.08-rc1-x86_64_arm-linux-gnueabihf.tar.xz
+		#https://snapshots.linaro.org/components/toolchain/binaries/6.1-2016.08-rc2/arm-linux-gnueabihf/gcc-linaro-6.1.1-2016.08-rc2-x86_64_arm-linux-gnueabihf.tar.xz
 		#
 		site="https://snapshots.linaro.org"
 
 		gcc_version="6.1"
-		release="16.08-rc1"
+		release="16.08-rc2"
 		target="arm-linux-gnueabihf"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
@@ -276,11 +276,11 @@ gcc_toolchain () {
 		;;
 	gcc_linaro_aarch64_gnu_6)
 		#
-		#https://snapshots.linaro.org/components/toolchain/binaries/6.1-2016.08-rc1/aarch64-linux-gnu/gcc-linaro-6.1.1-2016.08-rc1-x86_64_aarch64-linux-gnu.tar.xz
+		#https://snapshots.linaro.org/components/toolchain/binaries/6.1-2016.08-rc2/aarch64-linux-gnu/gcc-linaro-6.1.1-2016.08-rc2-x86_64_aarch64-linux-gnu.tar.xz
 		#
 
 		gcc_version="6.1"
-		release="16.08-rc1"
+		release="16.08-rc2"
 		target="aarch64-linux-gnu"
 
 		version="components/toolchain/binaries/${gcc_version}-20${release}/${target}"
