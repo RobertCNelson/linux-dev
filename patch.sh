@@ -291,10 +291,11 @@ dts () {
 	${git} "${DIR}/patches/dts/0007-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
 	${git} "${DIR}/patches/dts/0008-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
 	${git} "${DIR}/patches/dts/0009-mcimx6ul-bb-and-ism43362-b81-evb.patch"
+	${git} "${DIR}/patches/dts/0010-omap3-beagle-fixes.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="dts"
-		number=9
+		number=10
 		cleanup
 	fi
 }
@@ -408,36 +409,34 @@ bbb_overlays () {
 	${git} "${DIR}/patches/bbb_overlays/0016-of-changesets-Introduce-changeset-helper-methods.patch"
 	${git} "${DIR}/patches/bbb_overlays/0017-of-changeset-Add-of_changeset_node_move-method.patch"
 	${git} "${DIR}/patches/bbb_overlays/0018-of-unittest-changeset-helpers.patch"
-#	https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e35478eac030990e23a56bf11dc074c5a069124a
-#	${git} "${DIR}/patches/bbb_overlays/0019-i2c-demux-Use-changeset-helpers-for-clarity.patch"
-	${git} "${DIR}/patches/bbb_overlays/0020-OF-DT-Overlay-configfs-interface-v7.patch"
-	${git} "${DIR}/patches/bbb_overlays/0021-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
-	${git} "${DIR}/patches/bbb_overlays/0022-misc-Beaglebone-capemanager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0023-doc-misc-Beaglebone-capemanager-documentation.patch"
-	${git} "${DIR}/patches/bbb_overlays/0024-doc-dt-beaglebone-cape-manager-bindings.patch"
-	${git} "${DIR}/patches/bbb_overlays/0025-doc-ABI-bone_capemgr-sysfs-API.patch"
-	${git} "${DIR}/patches/bbb_overlays/0026-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
-	${git} "${DIR}/patches/bbb_overlays/0027-arm-dts-Enable-beaglebone-cape-manager.patch"
-	${git} "${DIR}/patches/bbb_overlays/0028-of-overlay-Implement-target-index-support.patch"
-	${git} "${DIR}/patches/bbb_overlays/0029-of-unittest-Add-indirect-overlay-target-test.patch"
-	${git} "${DIR}/patches/bbb_overlays/0030-doc-dt-Document-the-indirect-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0031-of-overlay-Introduce-target-root-capability.patch"
-	${git} "${DIR}/patches/bbb_overlays/0032-of-unittest-Unit-tests-for-target-root-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0033-doc-dt-Document-the-target-root-overlay-method.patch"
-	${git} "${DIR}/patches/bbb_overlays/0034-RFC-Device-overlay-manager-PCI-USB-DT.patch"
-	${git} "${DIR}/patches/bbb_overlays/0035-of-rename-_node_sysfs-to-_node_post.patch"
-	${git} "${DIR}/patches/bbb_overlays/0036-of-Support-hashtable-lookups-for-phandles.patch"
-	${git} "${DIR}/patches/bbb_overlays/0037-of-unittest-hashed-phandles-unitest.patch"
-	${git} "${DIR}/patches/bbb_overlays/0038-of-overlay-Pick-up-label-symbols-from-overlays.patch"
-	${git} "${DIR}/patches/bbb_overlays/0039-of-Portable-Device-Tree-connector.patch"
+	${git} "${DIR}/patches/bbb_overlays/0019-OF-DT-Overlay-configfs-interface-v7.patch"
+	${git} "${DIR}/patches/bbb_overlays/0020-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
+	${git} "${DIR}/patches/bbb_overlays/0021-misc-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0022-doc-misc-Beaglebone-capemanager-documentation.patch"
+	${git} "${DIR}/patches/bbb_overlays/0023-doc-dt-beaglebone-cape-manager-bindings.patch"
+	${git} "${DIR}/patches/bbb_overlays/0024-doc-ABI-bone_capemgr-sysfs-API.patch"
+	${git} "${DIR}/patches/bbb_overlays/0025-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
+	${git} "${DIR}/patches/bbb_overlays/0026-arm-dts-Enable-beaglebone-cape-manager.patch"
+	${git} "${DIR}/patches/bbb_overlays/0027-of-overlay-Implement-target-index-support.patch"
+	${git} "${DIR}/patches/bbb_overlays/0028-of-unittest-Add-indirect-overlay-target-test.patch"
+	${git} "${DIR}/patches/bbb_overlays/0029-doc-dt-Document-the-indirect-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0030-of-overlay-Introduce-target-root-capability.patch"
+	${git} "${DIR}/patches/bbb_overlays/0031-of-unittest-Unit-tests-for-target-root-overlays.patch"
+	${git} "${DIR}/patches/bbb_overlays/0032-doc-dt-Document-the-target-root-overlay-method.patch"
+	${git} "${DIR}/patches/bbb_overlays/0033-RFC-Device-overlay-manager-PCI-USB-DT.patch"
+	${git} "${DIR}/patches/bbb_overlays/0034-of-rename-_node_sysfs-to-_node_post.patch"
+	${git} "${DIR}/patches/bbb_overlays/0035-of-Support-hashtable-lookups-for-phandles.patch"
+	${git} "${DIR}/patches/bbb_overlays/0036-of-unittest-hashed-phandles-unitest.patch"
+	${git} "${DIR}/patches/bbb_overlays/0037-of-overlay-Pick-up-label-symbols-from-overlays.patch"
+	${git} "${DIR}/patches/bbb_overlays/0038-of-Portable-Device-Tree-connector.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/bbb_overlays/0040-boneblack-defconfig.patch"
+	${git} "${DIR}/patches/bbb_overlays/0039-boneblack-defconfig.patch"
 	fi
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="bbb_overlays"
-		number=40
+		number=39
 		cleanup
 	fi
 }
