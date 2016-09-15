@@ -559,9 +559,10 @@ beaglebone () {
 	fi
 
 	${git} "${DIR}/patches/beaglebone/bbgw/0001-add-beaglebone-green-wireless.patch"
+	${git} "${DIR}/patches/beaglebone/bbgw/0002-bbgw-wlan0-fixes.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
+		number=2
 		cleanup
 	fi
 
