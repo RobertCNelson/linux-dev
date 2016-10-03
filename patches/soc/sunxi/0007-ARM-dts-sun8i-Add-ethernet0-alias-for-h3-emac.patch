@@ -1,0 +1,34 @@
+From 79a03577078511a5780409c9d2e4f19f0cf12f37 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Wed, 27 Jul 2016 17:23:36 +0200
+Subject: [PATCH 7/7] ARM: dts: sun8i: Add ethernet0 alias for h3 emac
+
+Add ethernet0 alias for the h3 emac ethernet controller.
+
+Specifically, this will make u-boot set a local-mac-address variable
+so that the kernel can use the same (fixed) mac-address as u-boot
+rather then using a random mac-address.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ arch/arm/boot/dts/sun8i-h3.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
+index aa56cec..93c88f3 100644
+--- a/arch/arm/boot/dts/sun8i-h3.dtsi
++++ b/arch/arm/boot/dts/sun8i-h3.dtsi
+@@ -50,6 +50,10 @@
+ / {
+ 	interrupt-parent = <&gic>;
+ 
++	aliases {
++		ethernet0 = &emac;
++	};
++
+ 	cpus {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-- 
+2.8.1
+

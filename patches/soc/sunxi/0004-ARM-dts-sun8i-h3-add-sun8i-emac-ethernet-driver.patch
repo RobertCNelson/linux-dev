@@ -1,0 +1,44 @@
+From 850e8178807b76f4fb57f4d96eb3ad473d0f48e5 Mon Sep 17 00:00:00 2001
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+Date: Wed, 20 Jul 2016 10:03:19 +0200
+Subject: [PATCH 4/7] ARM: dts: sun8i-h3: add sun8i-emac ethernet driver
+
+The sun8i-emac is an ethernet MAC hardware that support 10/100/1000
+speed.
+
+This patch enable the sun8i-emac on the Allwinner H3 SoC Device-tree.
+The SoC H3 have an internal PHY, so optionals syscon and ephy are set.
+
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+---
+ arch/arm/boot/dts/sun8i-h3.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
+index fdf9fdb..aa56cec 100644
+--- a/arch/arm/boot/dts/sun8i-h3.dtsi
++++ b/arch/arm/boot/dts/sun8i-h3.dtsi
+@@ -441,6 +441,20 @@
+ 			status = "disabled";
+ 		};
+ 
++		emac: ethernet@1c30000 {
++			compatible = "allwinner,sun8i-h3-emac";
++			reg = <0x01c30000 0x104>, <0x01c00030 0x4>;
++			reg-names = "emac", "syscon";
++			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
++			resets = <&ccu RST_BUS_EMAC>, <&ccu RST_BUS_EPHY>;
++			reset-names = "ahb", "ephy";
++			clocks = <&ccu CLK_BUS_EMAC>, <&ccu CLK_BUS_EPHY>;
++			clock-names = "ahb", "ephy";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		gic: interrupt-controller@01c81000 {
+ 			compatible = "arm,cortex-a7-gic", "arm,cortex-a15-gic";
+ 			reg = <0x01c81000 0x1000>,
+-- 
+2.8.1
+

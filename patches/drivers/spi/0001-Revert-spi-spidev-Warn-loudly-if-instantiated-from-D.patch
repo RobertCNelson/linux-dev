@@ -1,0 +1,37 @@
+From ddce50b5094aae74331b4f5560801983fd6d6abc Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 4 Aug 2016 11:26:37 -0500
+Subject: [PATCH] Revert "spi: spidev: Warn loudly if instantiated from DT as
+ "spidev""
+
+This reverts commit 956b200a846e324322f6211034c734c65a38e550.
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/spi/spidev.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index 2e05046..3c6dfad 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -751,11 +751,11 @@ static int spidev_probe(struct spi_device *spi)
+ 	 * compatible string, it is a Linux implementation thing
+ 	 * rather than a description of the hardware.
+ 	 */
+-	if (spi->dev.of_node && !of_match_device(spidev_dt_ids, &spi->dev)) {
+-		dev_err(&spi->dev, "buggy DT: spidev listed directly in DT\n");
+-		WARN_ON(spi->dev.of_node &&
+-			!of_match_device(spidev_dt_ids, &spi->dev));
+-	}
++//	if (spi->dev.of_node && !of_match_device(spidev_dt_ids, &spi->dev)) {
++//		dev_err(&spi->dev, "buggy DT: spidev listed directly in DT\n");
++//		WARN_ON(spi->dev.of_node &&
++//			!of_match_device(spidev_dt_ids, &spi->dev));
++//	}
+ 
+ 	spidev_probe_acpi(spi);
+ 
+-- 
+2.9.3
+

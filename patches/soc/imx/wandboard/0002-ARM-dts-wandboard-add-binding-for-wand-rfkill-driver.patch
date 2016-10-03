@@ -1,0 +1,85 @@
+From f411d6ab2bedfc7e8c69aedf1ca36ea537e8cba9 Mon Sep 17 00:00:00 2001
+From: Vladimir Ermakov <vooon341@gmail.com>
+Date: Fri, 16 Aug 2013 06:52:26 +0400
+Subject: [PATCH 2/2] ARM: dts: wandboard: add binding for wand-rfkill driver
+
+Required gpios pincontrol selected in hog. Add binding only.
+Disabled non-removable, because after unblocking need to redetect SDIO device.
+
+extended to revc1, rcn-ee
+
+Signed-off-by: Vladimir Ermakov <vooon341@gmail.com>
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi | 19 ++++++++++++++++++-
+ arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi | 18 ++++++++++++++++++
+ 2 files changed, 36 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi
+index ef7fa62..b5d0f58 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi
+@@ -11,6 +11,24 @@
+ 
+ #include "imx6qdl-wandboard.dtsi"
+ 
++/ {
++	rfkill {
++		compatible = "wand,imx6qdl-wandboard-rfkill";
++		pinctrl-names = "default";
++		pinctrl-0 = <>;
++
++		bluetooth-on = <&gpio3 13 0>;
++		bluetooth-wake = <&gpio3 14 0>;
++		bluetooth-host-wake = <&gpio3 15 0>;
++
++		wifi-ref-on = <&gpio2 29 0>;
++		wifi-rst-n = <&gpio5 2 0>;
++		wifi-reg-on = <&gpio1 26 0>;
++		wifi-host-wake = <&gpio1 29 0>;
++		wifi-wake = <&gpio1 30 0>;
++	};
++};
++
+ &iomuxc {
+ 	pinctrl-0 = <&pinctrl_hog>;
+ 
+@@ -37,6 +55,5 @@
+ &usdhc2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_usdhc2>;
+-	non-removable;
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi
+index 8d893a7..b2097ef 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi
+@@ -11,6 +11,24 @@
+ 
+ #include "imx6qdl-wandboard.dtsi"
+ 
++/ {
++	rfkill {
++		compatible = "wand,imx6qdl-wandboard-rfkill";
++		pinctrl-names = "default";
++		pinctrl-0 = <>;
++
++		bluetooth-on = <&gpio5 21 0>;
++		bluetooth-wake = <&gpio5 30 0>;
++		bluetooth-host-wake = <&gpio5 20 0>;
++
++		wifi-ref-on = <&gpio5 31 0>; /* Wifi Power Enable */
++		wifi-rst-n = <&gpio6 0 0>; /* WIFI_ON reset */
++		wifi-reg-on = <&gpio1 26 0>; /* WL_REG_ON */
++		wifi-host-wake = <&gpio1 29 0>; /* WL_HOST_WAKE */
++		wifi-wake = <&gpio1 30 0>; /* WL_WAKE */
++	};
++};
++
+ &iomuxc {
+ 	pinctrl-0 = <&pinctrl_hog>;
+ 
+-- 
+2.9.3
+

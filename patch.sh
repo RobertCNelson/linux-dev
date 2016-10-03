@@ -59,6 +59,9 @@ cleanup () {
 		if [ "x${wdir}" = "x" ] ; then
 			${git_bin} format-patch -${number} -o ${DIR}/patches/
 		else
+			if [ ! -d ${DIR}/patches/${wdir}/ ] ; then
+				mkdir -p ${DIR}/patches/${wdir}/
+			fi
 			${git_bin} format-patch -${number} -o ${DIR}/patches/${wdir}/
 			unset wdir
 		fi
@@ -253,8 +256,6 @@ reverts () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/reverts/0001-Revert-spi-spidev-Warn-loudly-if-instantiated-from-D.patch"
-
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=1
 		cleanup
@@ -274,158 +275,171 @@ fixes () {
 	fi
 }
 
-ti () {
-	is_mainline="enable"
-	if [ "x${is_mainline}" = "xenable" ] ; then
-		echo "dir: ti/iodelay/"
-		#regenerate="enable"
-		if [ "x${regenerate}" = "xenable" ] ; then
-			start_cleanup
-		fi
-
-		${git} "${DIR}/patches/ti/iodelay/0001-pinctrl-bindings-pinctrl-Add-support-for-TI-s-IODela.patch"
-		${git} "${DIR}/patches/ti/iodelay/0002-pinctrl-Introduce-TI-IOdelay-configuration-driver.patch"
-		${git} "${DIR}/patches/ti/iodelay/0003-ARM-dts-dra7-Add-iodelay-module.patch"
-
-		if [ "x${regenerate}" = "xenable" ] ; then
-			number=3
-			cleanup
-		fi
-	fi
-
-	if [ "x${is_mainline}" = "xenable" ] ; then
-		echo "dir: ti/ticpufreq/"
-		#regenerate="enable"
-		if [ "x${regenerate}" = "xenable" ] ; then
-			start_cleanup
-		fi
-
-		${git} "${DIR}/patches/ti/ticpufreq/0001-Documentation-dt-add-bindings-for-ti-cpufreq.patch"
-		${git} "${DIR}/patches/ti/ticpufreq/0002-cpufreq-ti-Add-cpufreq-driver-to-determine-available.patch"
-
-		if [ "x${regenerate}" = "xenable" ] ; then
-			wdir="ti/ticpufreq"
-			number=2
-			cleanup
-		fi
-	fi
-	unset is_mainline
-
-	echo "dir: ti/dtbs"
+drivers () {
+	echo "dir: drivers/spi"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/ti/dtbs/0001-sync-with-ti-4.4.patch"
+	${git} "${DIR}/patches/drivers/spi/0001-Revert-spi-spidev-Warn-loudly-if-instantiated-from-D.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/spi"
 		number=1
 		cleanup
 	fi
-}
 
-dts () {
-	echo "dir: dts"
+	echo "dir: drivers/ti/iodelay"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/dts/0001-ARM-dts-omap3-beagle-add-i2c2.patch"
-	${git} "${DIR}/patches/dts/0002-ARM-dts-omap3-beagle-xm-spidev.patch"
-	${git} "${DIR}/patches/dts/0003-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
-	${git} "${DIR}/patches/dts/0004-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
-	${git} "${DIR}/patches/dts/0005-first-pass-imx6q-ccimx6sbc.patch"
-	${git} "${DIR}/patches/dts/0006-imx6-wl1835-base-boards.patch"
-	${git} "${DIR}/patches/dts/0007-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
-	${git} "${DIR}/patches/dts/0008-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
-	${git} "${DIR}/patches/dts/0009-mcimx6ul-bb-and-ism43362-b81-evb.patch"
-	${git} "${DIR}/patches/dts/0010-omap3-beagle-fixes.patch"
+	${git} "${DIR}/patches/drivers/ti/iodelay/0001-pinctrl-bindings-pinctrl-Add-support-for-TI-s-IODela.patch"
+	${git} "${DIR}/patches/drivers/ti/iodelay/0002-pinctrl-Introduce-TI-IOdelay-configuration-driver.patch"
+	${git} "${DIR}/patches/drivers/ti/iodelay/0003-ARM-dts-dra7-Add-iodelay-module.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="dts"
-		number=10
-		cleanup
-	fi
-}
-
-wand () {
-	echo "dir: wand"
-	${git} "${DIR}/patches/wand/0001-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
-	${git} "${DIR}/patches/wand/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
-}
-
-sunxi () {
-	echo "dir: sunxi"
-	${git} "${DIR}/patches/sunxi/0001-PATCH-v1-ARM-dtsi-sun4i-Add-clocks-and-hardware-defs.patch"
-	${git} "${DIR}/patches/sunxi/0002-PATCH-v1-ARM-dts-mk802-Switch-OTG-to-host-mode.patch"
-}
-
-udoo () {
-	echo "dir: udoo"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/udoo/0001-usb-hub-add-device-tree-support-for-populating-onboa.patch"
-	${git} "${DIR}/patches/udoo/0002-doc-dt-binding-generic-onboard-USB-device.patch"
-	${git} "${DIR}/patches/udoo/0003-usb-misc-generic_onboard_hub-add-generic-onboard-USB.patch"
-	${git} "${DIR}/patches/udoo/0004-usb-chipidea-host-let-the-hcd-know-s-parent-device-n.patch"
-	${git} "${DIR}/patches/udoo/0005-ARM-dts-imx6qdl-udoo.dtsi-fix-onboard-USB-HUB-proper.patch"
-	${git} "${DIR}/patches/udoo/0006-udoo-sync-pincfgs-with-https-github.com-UDOOboard-li.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=6
-		cleanup
-	fi
-}
-
-exynos () {
-	echo "dir: exynos"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/exynos/0001-exynos5422-artik10.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-}
-
-pru_uio () {
-	echo "dir: pru_uio"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/pru_uio/0001-Making-the-uio-pruss-driver-work.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-}
-
-pru_rpmsg () {
-	echo "dir: pru_rpmsg"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	#${git} "${DIR}/patches/pru_rpmsg/0001-Fix-remoteproc-to-work-with-the-PRU-GNU-Binutils-por.patch"
-#http://git.ti.com/gitweb/?p=ti-linux-kernel/ti-linux-kernel.git;a=commit;h=c2e6cfbcf2aafc77e9c7c8f1a3d45b062bd21876
-#	${git} "${DIR}/patches/pru_rpmsg/0002-Add-rpmsg_pru-support.patch"
-	${git} "${DIR}/patches/pru_rpmsg/0003-ARM-samples-seccomp-no-m32.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/iodelay"
 		number=3
+		cleanup
+	fi
+
+	echo "dir: drivers/ti/uio"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/ti/uio/0001-Making-the-uio-pruss-driver-work.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/uio"
+		number=1
+		cleanup
+	fi
+
+	echo "dir: drivers/ti/rpmsg"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/ti/rpmsg/0001-ARM-samples-seccomp-no-m32.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/rpmsg"
+		number=1
+		cleanup
+	fi
+}
+
+soc () {
+	echo "dir: soc/exynos"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/exynos/0001-exynos5422-artik10.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/exynos"
+		number=1
+		cleanup
+	fi
+
+	echo "dir: soc/imx/udoo"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/imx/udoo/0001-binding-doc-power-pwrseq-generic-add-binding-doc-for.patch"
+	${git} "${DIR}/patches/soc/imx/udoo/0002-power-add-power-sequence-library.patch"
+	${git} "${DIR}/patches/soc/imx/udoo/0003-binding-doc-usb-usb-device-add-optional-properties-f.patch"
+	${git} "${DIR}/patches/soc/imx/udoo/0004-usb-core-add-power-sequence-handling-for-USB-devices.patch"
+	${git} "${DIR}/patches/soc/imx/udoo/0005-usb-chipidea-let-chipidea-core-device-of_node-equal-.patch"
+	${git} "${DIR}/patches/soc/imx/udoo/0006-ARM-dts-imx6qdl-Enable-usb-node-children-with-reg.patch"
+	${git} "${DIR}/patches/soc/imx/udoo/0007-ARM-dts-imx6qdl-udoo.dtsi-fix-onboard-USB-HUB-proper.patch"
+	${git} "${DIR}/patches/soc/imx/udoo/0008-ARM-dts-imx6q-evi-Fix-onboard-hub-reset-line.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/imx/udoo"
+		number=8
+		cleanup
+	fi
+
+	echo "dir: soc/imx/wandboard"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/imx/wandboard/0001-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
+	${git} "${DIR}/patches/soc/imx/wandboard/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/imx/wandboard"
+		number=2
+		cleanup
+	fi
+
+	echo "dir: soc/imx"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/imx/0001-first-pass-imx6q-ccimx6sbc.patch"
+	${git} "${DIR}/patches/soc/imx/0002-imx6-wl1835-base-boards.patch"
+	${git} "${DIR}/patches/soc/imx/0003-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
+	${git} "${DIR}/patches/soc/imx/0004-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
+	${git} "${DIR}/patches/soc/imx/0005-mcimx6ul-bb-and-ism43362-b81-evb.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/imx"
+		number=5
+		cleanup
+	fi
+
+	echo "dir: soc/sunxi"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/sunxi/0001-ethernet-add-sun8i-emac-driver.patch"
+	${git} "${DIR}/patches/soc/sunxi/0002-MAINTAINERS-Add-myself-as-maintainers-of-sun8i-emac.patch"
+	${git} "${DIR}/patches/soc/sunxi/0003-ARM-sun8i-dt-Add-DT-bindings-documentation-for-Allwi.patch"
+	${git} "${DIR}/patches/soc/sunxi/0004-ARM-dts-sun8i-h3-add-sun8i-emac-ethernet-driver.patch"
+	${git} "${DIR}/patches/soc/sunxi/0005-ARM-dts-sun8i-Enable-sun8i-emac-on-the-Orange-PI-PC.patch"
+	${git} "${DIR}/patches/soc/sunxi/0006-ARM-dts-sun8i-Enable-sun8i-emac-on-the-Orange-PI-One.patch"
+	${git} "${DIR}/patches/soc/sunxi/0007-ARM-dts-sun8i-Add-ethernet0-alias-for-h3-emac.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/sunxi"
+		number=7
+		cleanup
+	fi
+
+	echo "dir: soc/ti"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/0001-sync-with-ti-4.4.patch"
+	${git} "${DIR}/patches/soc/ti/0002-ARM-dts-omap3-beagle-add-i2c2.patch"
+	${git} "${DIR}/patches/soc/ti/0003-ARM-dts-omap3-beagle-xm-spidev.patch"
+	${git} "${DIR}/patches/soc/ti/0004-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
+	${git} "${DIR}/patches/soc/ti/0005-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
+	${git} "${DIR}/patches/soc/ti/0006-omap3-beagle-fixes.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti"
+		number=6
 		cleanup
 	fi
 }
@@ -788,25 +802,33 @@ beaglebone () {
 		start_cleanup
 	fi
 
-	#http://git.ti.com/gitweb/?p=ti-cm3-pm-firmware/amx3-cm3.git;a=summary
-	#git clone git://git.ti.com/ti-cm3-pm-firmware/amx3-cm3.git
-	#cd amx3-cm3/
-	#git checkout origin/ti-v4.1.y -b tmp
+	#http://git.ti.com/gitweb/?p=processor-firmware/ti-amx3-cm3-pm-firmware.git;a=summary
+	#git clone git://git.ti.com/processor-firmware/ti-amx3-cm3-pm-firmware.git
 
-	#commit 730f0695ca2dda65abcff5763e8f108517bc0d43
+	#cd ti-amx3-cm3-pm-firmware/
+	#git checkout origin/ti-v4.1.y-next -b tmp
+
+	#commit ee4acf427055d7e87d9d1d82296cbd05e388642e
 	#Author: Dave Gerlach <d-gerlach@ti.com>
-	#Date:   Wed Mar 4 21:34:54 2015 -0600
+	#Date:   Tue Sep 6 14:33:11 2016 -0500
 	#
-	#    CM3: Bump firmware release to 0x191
+	#    CM3: Firmware release 0x192
 	#    
-	#    This version, 0x191, includes the following changes:
-	#         - Add trace output on boot for kernel remoteproc driver
-	#         - Fix resouce table as RSC_INTMEM is no longer used in kernel
-	#         - Add header dependency checking
+	#    This version, 0x192, includes the following changes:
+	#         - Fix DDR IO CTRL handling during suspend so both am335x and am437x
+	#           use optimal low power state and restore the exact previous
+	#           configuration.
+	#        - Explicitly configure PER state in standby, even though it is
+	#           configured to ON state to ensure proper state.
+	#         - Add new 'halt' flag in IPC_REG4 bit 11 to allow HLOS to configure
+	#           the suspend path to wait immediately before suspending the system
+	#           entirely to allow JTAG visiblity for debug.
+	#         - Fix board voltage scaling binaries i2c speed configuration in
+	#           order to properly configure 100khz operation.
 	#    
 	#    Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
 
-	#cp -v bin/am* /opt/github/linux-dev/KERNEL/firmware/
+	#cp -v bin/am* /opt/github/bb.org/ti-4.4/normal/KERNEL/firmware/
 
 	#git add -f ./firmware/am*
 
@@ -851,16 +873,10 @@ more_fixes () {
 
 ###
 #backports
-reverts
+#reverts
 #fixes
-ti
-dts
-wand
-#sunxi
-udoo
-exynos
-pru_uio
-pru_rpmsg
+drivers
+soc
 bbb_overlays
 beaglebone
 quieter
