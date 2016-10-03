@@ -560,7 +560,6 @@ config="CONFIG_I2C_CHARDEV" ; config_enable
 #
 # Multiplexer I2C Chip support
 #
-config="CONFIG_I2C_MUX_PCA954x" ; config_enable
 config="CONFIG_I2C_MUX_PINCTRL" ; config_enable
 
 #
@@ -587,7 +586,6 @@ config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
 config="CONFIG_SPI_S3C64XX" ; config_module
-config="CONFIG_SPI_TEGRA114" ; config_module
 config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 config="CONFIG_SPI_XILINX" ; config_module
 config="CONFIG_SPI_ZYNQMP_GQSPI" ; config_module
