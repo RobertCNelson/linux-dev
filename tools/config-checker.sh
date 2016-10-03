@@ -86,13 +86,6 @@ config="CONFIG_SOC_VF610" ; config_enable
 config="CONFIG_WAND_RFKILL" ; config_enable
 
 #
-# OMAP Feature Selections
-#
-config="CONFIG_POWER_AVS_OMAP" ; config_enable
-config="CONFIG_POWER_AVS_OMAP_CLASS3" ; config_enable
-config="CONFIG_OMAP_MUX_DEBUG" ; config_enable
-
-#
 # TI OMAP/AM/DM/DRA Family
 #
 config="CONFIG_SOC_AM43XX" ; config_enable
@@ -119,13 +112,17 @@ config="CONFIG_PL310_ERRATA_753970" ; config_disable
 config="CONFIG_ARM_ERRATA_754327" ; config_disable
 config="CONFIG_ARM_ERRATA_773022" ; config_disable
 
+#
+# Bus support
+#
+config="CONFIG_PCI" ; config_disable
+
 #first check..
 #exit
 
 #
 # Kernel Features
 #
-config="CONFIG_NR_CPUS" ; option="8" ; config_value
 config="CONFIG_PARAVIRT" ; config_disable
 config="CONFIG_XEN" ; config_disable
 
@@ -145,7 +142,6 @@ config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_module
 # CPU frequency scaling drivers
 #
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
-config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
 config="CONFIG_QORIQ_CPUFREQ" ; config_module
 
 #
@@ -350,6 +346,7 @@ config="CONFIG_MII" ; config_enable
 # Distributed Switch Architecture drivers
 #
 config="CONFIG_SUN4I_EMAC" ; config_enable
+config="CONFIG_SUN8I_EMAC" ; config_enable
 config="CONFIG_MVMDIO" ; config_disable
 config="CONFIG_KS8851" ; config_module
 config="CONFIG_ENCX24J600" ; config_module
@@ -601,9 +598,13 @@ config="CONFIG_SPI_ZYNQMP_GQSPI" ; config_module
 config="CONFIG_SPI_SPIDEV" ; config_module
 
 #
-# PPS clients support
+# PPS support
 #
 config="CONFIG_NTP_PPS" ; config_enable
+
+#
+# PPS clients support
+#
 config="CONFIG_PPS_CLIENT_GPIO" ; config_module
 
 #
@@ -681,10 +682,14 @@ config="CONFIG_AXP288_FUEL_GAUGE" ; config_module
 config="CONFIG_CHARGER_GPIO" ; config_module
 config="CONFIG_CHARGER_TPS65217" ; config_module
 config="CONFIG_AXP20X_POWER" ; config_enable
-config="CONFIG_POWER_RESET_GPIO_RESTART" ; config_enable
 config="CONFIG_POWER_RESET_IMX" ; config_enable
-config="CONFIG_POWER_AVS" ; config_enable
 config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
+
+#
+# Power Sequence Support
+#
+config="CONFIG_PWRSEQ_GENERIC" ; config_enable
+#CONFIG_PWRSEQ_GENERIC_INSTANCE_NUMBER=2
 
 #exit
 
@@ -776,8 +781,6 @@ config="CONFIG_DEVFREQ_THERMAL" ; config_enable
 config="CONFIG_IMX_THERMAL" ; config_enable
 config="CONFIG_ROCKCHIP_THERMAL" ; config_enable
 
-#exit
-
 #
 # Texas Instruments thermal drivers
 #
@@ -790,18 +793,13 @@ config="CONFIG_OMAP3_THERMAL" ; config_enable
 config="CONFIG_GENERIC_ADC_THERMAL" ; config_module
 config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 
+#exit
+
 #
 # Watchdog Device Drivers
 #
-config="CONFIG_DA9052_WATCHDOG" ; config_enable
-config="CONFIG_XILINX_WATCHDOG" ; config_enable
-config="CONFIG_CADENCE_WATCHDOG" ; config_enable
-config="CONFIG_DW_WATCHDOG" ; config_enable
-config="CONFIG_OMAP_WATCHDOG" ; config_enable
-config="CONFIG_SUNXI_WATCHDOG" ; config_enable
-config="CONFIG_TWL4030_WATCHDOG" ; config_enable
-config="CONFIG_IMX2_WDT" ; config_enable
-config="CONFIG_TEGRA_WATCHDOG" ; config_enable
+config="CONFIG_XILINX_WATCHDOG" ; config_module
+config="CONFIG_CADENCE_WATCHDOG" ; config_module
 
 #
 # Multifunction device drivers
@@ -895,7 +893,6 @@ config="CONFIG_DRM_KMS_HELPER" ; config_enable
 #
 # I2C encoder or helper chips
 #
-config="CONFIG_DRM_I2C_ADV7511" ; config_module
 config="CONFIG_DRM_I2C_CH7006" ; config_module
 config="CONFIG_DRM_I2C_SIL164" ; config_module
 
@@ -920,6 +917,7 @@ config="CONFIG_DRM_TILCDC" ; config_enable
 #
 config="CONFIG_DRM_DW_HDMI" ; config_enable
 config="CONFIG_DRM_DW_HDMI_AHB_AUDIO" ; config_module
+config="CONFIG_DRM_I2C_ADV7511" ; config_module
 
 config="CONFIG_DRM_IMX" ; config_enable
 config="CONFIG_DRM_IMX_PARALLEL_DISPLAY" ; config_enable
@@ -1018,9 +1016,6 @@ config="CONFIG_USBIP_HOST" ; config_module
 config="CONFIG_USBIP_VUDC" ; config_module
 config="CONFIG_USBIP_DEBUG" ; config_disable
 config="CONFIG_USB_MUSB_HDRC" ; config_enable
-config="CONFIG_USB_MUSB_HOST" ; config_disable
-config="CONFIG_USB_MUSB_GADGET" ; config_disable
-config="CONFIG_USB_MUSB_DUAL_ROLE" ; config_enable
 
 #
 # Platform Glue Layer
@@ -1049,14 +1044,9 @@ config="CONFIG_USB_DWC3_EXYNOS" ; config_enable
 config="CONFIG_USB_DWC3_OF_SIMPLE" ; config_enable
 
 #
-# Debugging features
+# Gadget/Dual-role mode requires USB Gadget support to be enabled
 #
 config="CONFIG_USB_CHIPIDEA" ; config_enable
-
-#
-# USB Miscellaneous drivers
-#
-config="CONFIG_USB_ONBOARD_DEVICE" ; config_enable
 
 #
 # USB Physical Layer drivers
@@ -1418,7 +1408,6 @@ config="CONFIG_RPMSG" ; config_enable
 #
 # SOC (System On Chip) specific Drivers
 #
-config="CONFIG_ROCKCHIP_PM_DOMAINS" ; config_enable
 config="CONFIG_SOC_TI" ; config_enable
 config="CONFIG_WKUP_M3_IPC" ; config_enable
 
@@ -1440,9 +1429,9 @@ config="CONFIG_ARM_TEGRA_DEVFREQ" ; config_enable
 #
 # Extcon Device Drivers
 #
-config="CONFIG_EXTCON_DT_CON" ; config_enable
-config="CONFIG_EXTCON_DT_CON_PROXY" ; config_enable
-config="CONFIG_EXTCON_DT_CON_GPIO" ; config_enable
+#config="CONFIG_EXTCON_DT_CON" ; config_enable
+#config="CONFIG_EXTCON_DT_CON_PROXY" ; config_enable
+#config="CONFIG_EXTCON_DT_CON_GPIO" ; config_enable
 config="CONFIG_EXTCON_GPIO" ; config_enable
 config="CONFIG_EXTCON_PALMAS" ; config_enable
 config="CONFIG_EXTCON_USB_GPIO" ; config_enable
@@ -1701,7 +1690,6 @@ config="CONFIG_TSYS01" ; config_module
 config="CONFIG_TSYS02D" ; config_module
 config="CONFIG_PWM_OMAP_DMTIMER" ; config_module
 config="CONFIG_PWM_PCA9685" ; config_module
-config="CONFIG_PWM_ROCKCHIP" ; config_module
 config="CONFIG_TI_SYSCON_RESET" ; config_enable
 
 #
@@ -1714,6 +1702,8 @@ config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_PHY_SUN9I_USB" ; config_enable
 config="CONFIG_PHY_ROCKCHIP_USB" ; config_enable
+config="CONFIG_PHY_ROCKCHIP_EMMC" ; config_enable
+config="CONFIG_PHY_ROCKCHIP_DP" ; config_enable
 config="CONFIG_PHY_TEGRA_XUSB" ; config_enable
 
 #
@@ -1735,6 +1725,7 @@ config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 #
 config="CONFIG_FPGA" ; config_module
 config="CONFIG_FPGA_MGR_SOCFPGA" ; config_module
+config="CONFIG_FPGA_MGR_ZYNQ_FPGA" ; config_module
 
 #
 # File systems
@@ -1787,6 +1778,11 @@ config="CONFIG_KGDB_SERIAL_CONSOLE" ; config_enable
 config="CONFIG_KGDB_TESTS" ; config_disable
 config="CONFIG_KGDB_KDB" ; config_enable
 config="CONFIG_KDB_KEYBOARD" ; config_enable
+
+#
+# Digest
+#
+config="CONFIG_CRYPTO_SHA3" ; config_module
 
 #
 # Crypto core or helper
