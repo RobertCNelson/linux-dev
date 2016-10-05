@@ -1,0 +1,107 @@
+From 153835364d8666b33afdd85ce7522797882e1126 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 12 Feb 2016 14:52:52 -0600
+Subject: [PATCH 3/4] ARM: dts: am335x-bone-common: disable running JTAG
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi |  9 ---------
+ arch/arm/boot/dts/am335x-bone-jtag.dtsi   | 20 ++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone.dts         |  1 +
+ arch/arm/boot/dts/am335x-boneblack.dts    |  1 +
+ arch/arm/boot/dts/am335x-bonegreen.dts    |  1 +
+ 5 files changed, 23 insertions(+), 9 deletions(-)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-jtag.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index e3d28b6..56e2120 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -66,9 +66,6 @@
+ };
+ 
+ &am33xx_pinmux {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&clkout2_pin>;
+-
+ 	user_leds_s0: user_leds_s0 {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x854, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
+@@ -99,12 +96,6 @@
+ 		>;
+ 	};
+ 
+-	clkout2_pin: pinmux_clkout2_pin {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+-		>;
+-	};
+-
+ 	cpsw_default: cpsw_default {
+ 		pinctrl-single,pins = <
+ 			/* Slave 1 */
+diff --git a/arch/arm/boot/dts/am335x-bone-jtag.dtsi b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
+new file mode 100644
+index 0000000..603ef0a
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Device Tree Source for bone jtag
++ *
++ * Copyright (C) 2015 Robert Nelson <robertcnelson@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++
++	clkout2_pin: pinmux_clkout2_pin {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
++		>;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index 6b849372..3688fff 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -9,6 +9,7 @@
+ 
+ #include "am33xx.dtsi"
+ #include "am335x-bone-common.dtsi"
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone";
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index ca72167..42cffd0 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -9,6 +9,7 @@
+ 
+ #include "am33xx.dtsi"
+ #include "am335x-bone-common.dtsi"
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Black";
+diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
+index dce3c86..9144810 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen.dts
+@@ -9,6 +9,7 @@
+ 
+ #include "am33xx.dtsi"
+ #include "am335x-bone-common.dtsi"
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Green";
+-- 
+2.9.3
+

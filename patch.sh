@@ -394,6 +394,34 @@ drivers () {
 		number=39
 		cleanup
 	fi
+
+	echo "dir: drivers/ti/tps65217"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/ti/tps65217/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/tps65217"
+		number=1
+		cleanup
+	fi
+
+	echo "dir: drivers/ti/cpsw"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/ti/cpsw/0001-cpsw-search-for-phy.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/cpsw"
+		number=1
+		cleanup
+	fi
 }
 
 soc () {
@@ -503,6 +531,23 @@ soc () {
 		number=6
 		cleanup
 	fi
+
+	echo "dir: soc/ti/bone_common"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/bone_common/0001-ARM-dts-am335x-bone-common-update-leds-to-match-3.8..patch"
+	${git} "${DIR}/patches/soc/ti/bone_common/0002-ARM-dts-am335x-bone-common-add-collision-and-carrier.patch"
+	${git} "${DIR}/patches/soc/ti/bone_common/0003-ARM-dts-am335x-bone-common-disable-running-JTAG.patch"
+	${git} "${DIR}/patches/soc/ti/bone_common/0004-ARM-dts-am335x-bone-common-overlays.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/bone_common"
+		number=4
+		cleanup
+	fi
 }
 
 dtb_makefile_append () {
@@ -510,42 +555,6 @@ dtb_makefile_append () {
 }
 
 beaglebone () {
-	echo "dir: beaglebone/dts"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/dts/0001-dts-am335x-bone-common-fixup-leds-to-match-3.8.patch"
-	${git} "${DIR}/patches/beaglebone/dts/0002-arm-dts-am335x-bone-common-add-collision-and-carrier.patch"
-	${git} "${DIR}/patches/beaglebone/dts/0003-am335x-bone-common-disable-default-clkout2_pin.patch"
-	${git} "${DIR}/patches/beaglebone/dts/0004-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="beaglebone/dts"
-		number=4
-		cleanup
-	fi
-
-	#echo "dir: beaglebone/tps65217"
-	##regenerate="enable"
-	#if [ "x${regenerate}" = "xenable" ] ; then
-	#	start_cleanup
-	#fi
-
-	#${git} "${DIR}/patches/beaglebone/tps65217/0001-mfd-tps65217-Add-support-for-IRQs.patch"
-	#${git} "${DIR}/patches/beaglebone/tps65217/0002-power_supply-tps65217-charger-Fix-NULL-deref-during-.patch"
-	#${git} "${DIR}/patches/beaglebone/tps65217/0003-power_supply-tps65217-charger-Add-support-for-IRQs.patch"
-	#${git} "${DIR}/patches/beaglebone/tps65217/0004-mfd-tps65217-Add-power-button-as-subdevice.patch"
-	#${git} "${DIR}/patches/beaglebone/tps65217/0005-Input-Add-tps65217-power-button-driver.patch"
-	#${git} "${DIR}/patches/beaglebone/tps65217/0006-rtc-omap-Support-ext_wakeup-configuration.patch"
-
-	#if [ "x${regenerate}" = "xenable" ] ; then
-	#	wdir="beaglebone/tps65217"
-	#	number=6
-	#	cleanup
-	#fi
-
 	echo "dir: beaglebone/pinmux-helper"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -569,19 +578,6 @@ beaglebone () {
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=14
-		cleanup
-	fi
-
-	echo "dir: beaglebone/overlays"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/overlays/0001-am335x-overlays.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
 		cleanup
 	fi
 
@@ -657,24 +653,6 @@ beaglebone () {
 		cleanup
 	fi
 
-	#echo "dir: beaglebone/CTAG"
-	#regenerate="enable"
-	#if [ "x${regenerate}" = "xenable" ] ; then
-	#	start_cleanup
-	#fi
-
-	#${git} "${DIR}/patches/beaglebone/CTAG/0001-Added-driver-and-device-tree-for-CTAG-face2-4-Audio-.patch"
-	#${git} "${DIR}/patches/beaglebone/CTAG/0002-Added-support-for-higher-sampling-rates-in-AD193X-dr.patch"
-	#${git} "${DIR}/patches/beaglebone/CTAG/0003-Added-support-for-AD193X-and-CTAG-face2-4-Audio-Card.patch"
-	#${git} "${DIR}/patches/beaglebone/CTAG/0004-Modified-ASOC-platform-driver-for-McASP-to-use-async.patch"
-	#${git} "${DIR}/patches/beaglebone/CTAG/0005-Changed-descriptions-in-files-belonging-to-CTAG-face.patch"
-	#${git} "${DIR}/patches/beaglebone/CTAG/0006-add-black-version-of-ctag-face-pass-uboot-cape-ctag-.patch"
-
-	#if [ "x${regenerate}" = "xenable" ] ; then
-	#	number=6
-	#	cleanup
-	#fi
-
 	echo "dir: beaglebone/capes"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -691,35 +669,6 @@ beaglebone () {
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=5
-		cleanup
-	fi
-
-	echo "dir: beaglebone/jtag"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/jtag/0001-add-jtag-clock-pinmux.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-
-	echo "dir: beaglebone/tilcdc"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/tilcdc/0001-drm-tilcdc-Write-to-LCDC_END_OF_INT_IND_REG-at-the-e.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0002-drm-tilcdc-Move-waiting-of-LCDC_FRAME_DONE-IRQ-into-.patch"
-	${git} "${DIR}/patches/beaglebone/tilcdc/0003-drm-tilcdc-Recover-from-sync-lost-error-flood-by-res.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="beaglebone/tilcdc"
-		number=3
 		cleanup
 	fi
 
@@ -781,19 +730,6 @@ beaglebone () {
 		exit 2
 	else
 		${git} "${DIR}/patches/beaglebone/generated/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
-	fi
-
-	echo "dir: beaglebone/phy"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/phy/0001-cpsw-search-for-phy.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
 	fi
 
 	echo "dir: beaglebone/firmware"

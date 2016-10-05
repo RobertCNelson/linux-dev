@@ -1,11 +1,11 @@
-From ec4fb28e1fd6e75b8988e9e09689723fcaf05d38 Mon Sep 17 00:00:00 2001
+From 498da3ea9a5466f476e9534e12eec592c6fdd726 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 28 Feb 2016 20:02:48 -0600
-Subject: [PATCH] am335x: overlays
+Date: Wed, 5 Oct 2016 13:37:10 -0500
+Subject: [PATCH 4/4] ARM: dts: am335x-bone-common: overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 344 +++++++++++++++++++++
+ .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 348 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-bone.dts                  |   1 +
  .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  39 +++
  .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |  99 ++++++
@@ -16,7 +16,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bonegreen.dts             |   1 +
  arch/arm/boot/dts/am33xx-overlay-edma-fix.dtsi     |  25 ++
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 ++++++
- 11 files changed, 794 insertions(+)
+ 11 files changed, 798 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
@@ -28,10 +28,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 0000000..1f272a1
+index 0000000..cfb17df
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,344 @@
+@@ -0,0 +1,348 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -50,6 +50,10 @@ index 0000000..1f272a1
 +	memory {
 +		device_type = "memory";
 +		reg = <0x80000000 0x10000000>; /* 256 MB */
++	};
++
++	chosen {
++		stdout-path = &uart0;
 +	};
 +
 +	leds {
@@ -301,7 +305,7 @@ index 0000000..1f272a1
 +			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
 +			regulator-name = "vdd_mpu";
 +			regulator-min-microvolt = <925000>;
-+			regulator-max-microvolt = <1325000>;
++			regulator-max-microvolt = <1351500>;
 +			regulator-boot-on;
 +			regulator-always-on;
 +		};
@@ -342,12 +346,8 @@ index 0000000..1f272a1
 +	phy-mode = "mii";
 +};
 +
-+&cpsw_emac1 {
-+	phy_id = <&davinci_mdio>, <1>;
-+	phy-mode = "mii";
-+};
-+
 +&mac {
++	slaves = <1>;
 +	pinctrl-names = "default", "sleep";
 +	pinctrl-0 = <&cpsw_default>;
 +	pinctrl-1 = <&cpsw_sleep>;
@@ -376,18 +376,22 @@ index 0000000..1f272a1
 +&sham {
 +	status = "okay";
 +};
++
++&rtc {
++	system-power-controller;
++};
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 6b849372..b195b9e 100644
+index 3688fff..8b6256d 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
 @@ -9,6 +9,7 @@
  
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
-+#include "am33xx-overlay-edma-fix.dtsi"
++/* #include "am33xx-overlay-edma-fix.dtsi" */
+ /* #include "am335x-bone-jtag.dtsi" */
  
  / {
- 	model = "TI AM335x BeagleBone";
 diff --git a/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
 new file mode 100644
 index 0000000..5946a7e
@@ -691,17 +695,17 @@ index 0000000..880629c
 +	system-power-controller;
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 55c0e95..db5beb5 100644
+index 42cffd0..3def91b 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
 @@ -9,6 +9,7 @@
  
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
-+#include "am33xx-overlay-edma-fix.dtsi"
++/* #include "am33xx-overlay-edma-fix.dtsi" */
+ /* #include "am335x-bone-jtag.dtsi" */
  
  / {
- 	model = "TI AM335x BeagleBone Black";
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-overlay.dts b/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
 new file mode 100644
 index 0000000..b87a606
@@ -750,17 +754,17 @@ index 0000000..b87a606
 +	system-power-controller;
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
-index dce3c86..42ac698 100644
+index 9144810..c93b7a4 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen.dts
 @@ -9,6 +9,7 @@
  
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
-+#include "am33xx-overlay-edma-fix.dtsi"
++/* #include "am33xx-overlay-edma-fix.dtsi" */
+ /* #include "am335x-bone-jtag.dtsi" */
  
  / {
- 	model = "TI AM335x BeagleBone Green";
 diff --git a/arch/arm/boot/dts/am33xx-overlay-edma-fix.dtsi b/arch/arm/boot/dts/am33xx-overlay-edma-fix.dtsi
 new file mode 100644
 index 0000000..88c8d04
@@ -902,5 +906,5 @@ index 0000000..35f6d57
 +
 +#endif
 -- 
-2.7.0
+2.9.3
 
