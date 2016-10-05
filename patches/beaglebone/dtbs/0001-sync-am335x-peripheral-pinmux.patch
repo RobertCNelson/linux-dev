@@ -1,6 +1,6 @@
-From b492fb55ea491a34cd32bc3ea768da7442ca16a4 Mon Sep 17 00:00:00 2001
+From 1d0d049aae911e253ca570d12ca8477b7e75b899 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 5 Oct 2016 13:46:47 -0500
+Date: Wed, 5 Oct 2016 14:45:07 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -26,8 +26,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-boneblack-overlay.dts     |  11 +-
  arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |  15 ++-
  arch/arm/boot/dts/am335x-boneblack.dts             |   4 -
+ arch/arm/boot/dts/am335x-boneblue.dts              |  82 +++++++-------
  arch/arm/boot/dts/am335x-bonegreen-overlay.dts     |   4 -
- arch/arm/boot/dts/am335x-bonegreen.dts             |  19 ----
  arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++++++
  arch/arm/boot/dts/am335x-peripheral-can1.dtsi      |  13 +++
  arch/arm/boot/dts/am335x-peripheral-emmc.dtsi      |  15 +++
@@ -38,7 +38,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-spi1a.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-sancloud-bbe.dts          |   4 -
- 33 files changed, 754 insertions(+), 75 deletions(-)
+ 33 files changed, 795 insertions(+), 97 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi
@@ -928,6 +928,99 @@ index 3def91b..525a25a 100644
 -&rtc {
 -	system-power-controller;
 -};
+diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
+index 36b5676..0c7528f 100644
+--- a/arch/arm/boot/dts/am335x-boneblue.dts
++++ b/arch/arm/boot/dts/am335x-boneblue.dts
+@@ -180,47 +180,47 @@
+ };
+ 
+ 
+-&eqep0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&P9_92_qep_pin &P9_27_qep_pin>;
+-
+-	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
+-	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
+-	invert_qa = <1>;   /* Should we invert the channel A input?  */
+-	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
+-	invert_qi = <0>;   /* Should we invert the index input? */
+-	invert_qs = <0>;   /* Should we invert the strobe input? */
+-
+-	status = "okay";
+-};
+-
+-&eqep1 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&P8_33_qep_pin &P8_35_qep_pin>;
+-
+-	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
+-	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
+-	invert_qa = <1>;   /* Should we invert the channel A input?  */
+-	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
+-	invert_qi = <0>;   /* Should we invert the index input? */
+-	invert_qs = <0>;   /* Should we invert the strobe input? */
+-
+-	status = "okay";
+-};
+-
+-&eqep2 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&P8_12_qep_pin &P8_11_qep_pin>;
+-
+-	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
+-	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
+-	invert_qa = <1>;   /* Should we invert the channel A input?  */
+-	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
+-	invert_qi = <0>;   /* Should we invert the index input? */
+-	invert_qs = <0>;   /* Should we invert the strobe input? */
+-
+-	status = "okay";
+-};
++//&eqep0 {
++//	pinctrl-names = "default";
++//	pinctrl-0 = <&P9_92_qep_pin &P9_27_qep_pin>;
++//
++//	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
++//	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++//	invert_qa = <1>;   /* Should we invert the channel A input?  */
++//	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++//	invert_qi = <0>;   /* Should we invert the index input? */
++//	invert_qs = <0>;   /* Should we invert the strobe input? */
++//
++//	status = "okay";
++//};
++
++//&eqep1 {
++//	pinctrl-names = "default";
++//	pinctrl-0 = <&P8_33_qep_pin &P8_35_qep_pin>;
++//
++//	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
++//	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++//	invert_qa = <1>;   /* Should we invert the channel A input?  */
++//	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++//	invert_qi = <0>;   /* Should we invert the index input? */
++//	invert_qs = <0>;   /* Should we invert the strobe input? */
++//
++//	status = "okay";
++//};
++
++//&eqep2 {
++//	pinctrl-names = "default";
++//	pinctrl-0 = <&P8_12_qep_pin &P8_11_qep_pin>;
++//
++//	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
++//	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++//	invert_qa = <1>;   /* Should we invert the channel A input?  */
++//	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++//	invert_qi = <0>;   /* Should we invert the index input? */
++//	invert_qs = <0>;   /* Should we invert the strobe input? */
++//
++//	status = "okay";
++//};
+ 
+ 
+ /****************************************
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-overlay.dts b/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
 index b87a606..da54bf3 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
@@ -936,33 +1029,6 @@ index b87a606..da54bf3 100644
  		line-name = "EMMC ResetN";
  	};
  };
--
--&rtc {
--	system-power-controller;
--};
-diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
-index c93b7a4..fe86cca 100644
---- a/arch/arm/boot/dts/am335x-bonegreen.dts
-+++ b/arch/arm/boot/dts/am335x-bonegreen.dts
-@@ -34,22 +34,3 @@
- 	bus-width = <8>;
- 	status = "okay";
- };
--
--&am33xx_pinmux {
--	uart2_pins: uart2_pins {
--		pinctrl-single,pins = <
--			AM33XX_IOPAD(0x950, PIN_INPUT | MUX_MODE1)	/* spi0_sclk.uart2_rxd */
--			AM33XX_IOPAD(0x954, PIN_OUTPUT | MUX_MODE1)	/* spi0_d0.uart2_txd */
--		>;
--	};
--};
--
--&uart2 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&uart2_pins>;
--	status = "okay";
--};
 -
 -&rtc {
 -	system-power-controller;

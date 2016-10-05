@@ -1,0 +1,434 @@
+From e16b16254ce3f74706c390c7b676a0fb844c53cc Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 5 Oct 2016 14:24:32 -0500
+Subject: [PATCH] ARM: dts: add am335x-bonegreen-wireless.dtb
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../dts/am335x-bonegreen-wireless-led-hack.dts     |  47 +++++++
+ arch/arm/boot/dts/am335x-bonegreen-wireless.dts    |  47 +++++++
+ .../boot/dts/am335x-bonegreen-wl1835-led-hack.dtsi | 151 +++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi     | 145 ++++++++++++++++++++
+ 4 files changed, 390 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am335x-bonegreen-wireless-led-hack.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+ create mode 100644 arch/arm/boot/dts/am335x-bonegreen-wl1835-led-hack.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi
+
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless-led-hack.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless-led-hack.dts
+new file mode 100644
+index 0000000..c2a62e2
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bonegreen-wireless-led-hack.dts
+@@ -0,0 +1,47 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bonegreen-wl1835-led-hack.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone Green Wireless";
++	compatible = "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&vmmcsd_fixed>;
++};
++
++&mmc2 {
++	vmmc-supply = <&vmmcsd_fixed>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&emmc_pins>;
++	bus-width = <8>;
++	status = "okay";
++};
++
++&uart3 {
++	status = "okay";
++};
++
++&mmc3 {
++	status = "okay";
++};
++
++&mac {
++	status = "disabled";
++};
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+new file mode 100644
+index 0000000..b4fabfe
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+@@ -0,0 +1,47 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++/dts-v1/;
++
++#include "am33xx.dtsi"
++#include "am335x-bone-common.dtsi"
++#include "am335x-bonegreen-wl1835.dtsi"
++
++/ {
++	model = "TI AM335x BeagleBone Green Wireless";
++	compatible = "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++};
++
++&ldo3_reg {
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-always-on;
++};
++
++&mmc1 {
++	vmmc-supply = <&vmmcsd_fixed>;
++};
++
++&mmc2 {
++	vmmc-supply = <&vmmcsd_fixed>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&emmc_pins>;
++	bus-width = <8>;
++	status = "okay";
++};
++
++&uart3 {
++	status = "okay";
++};
++
++&mmc3 {
++	status = "okay";
++};
++
++&mac {
++	status = "disabled";
++};
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wl1835-led-hack.dtsi b/arch/arm/boot/dts/am335x-bonegreen-wl1835-led-hack.dtsi
+new file mode 100644
+index 0000000..b821598
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bonegreen-wl1835-led-hack.dtsi
+@@ -0,0 +1,151 @@
++
++#include <dt-bindings/interrupt-controller/irq.h>
++
++/ {
++//	wlan_en_reg: fixedregulator@2 {
++//		compatible = "regulator-fixed";
++//		regulator-name = "wlan-en-regulator";
++//		regulator-min-microvolt = <1800000>;
++//		regulator-max-microvolt = <1800000>;
++//
++//		/* WL_EN */
++//		gpio = <&gpio0 26 0>;
++//		enable-active-high;
++//	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&wl18xx_pins>;
++		compatible = "gpio-leds";
++
++		wl18xx_wl_en {
++			label = "wl18xx_wl_en";
++			gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++
++		wl18xx_bt_en {
++			label = "wl18xx_bt_en";
++			gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	tibt {
++		compatible = "tibt";
++		nshutdown_gpio = <60>;
++		dev_name = "/dev/ttyS3";
++		flow_cntrl = <1>;
++		baud_rate = <3000000>;
++	};
++
++	btwilink {
++		compatible = "btwilink";
++	};
++};
++
++&am33xx_pinmux {
++	wl18xx_pins: pinmux_wl18xx_pins {
++		pinctrl-single,pins = <
++			0x78 (PIN_OUTPUT_PULLUP | MUX_MODE7)    /* gpmc_ad12.gpio1_28 BT_EN*/
++			0x28 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)  /* gpmc_ad10.gpio0_26 WL_EN*/
++		>;
++	};
++
++	bt_pins: pinmux_bt_pins {
++		pinctrl-single,pins = <
++			0x78 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_ad12.gpio1_28 BT_EN*/
++		>;
++	};
++
++	mmc3_pins: pinmux_mmc3_pins {
++		pinctrl-single,pins = <
++			0x8c ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio2_1 gpmc_clk.mmc2_clk */
++			0x88 ( PIN_INPUT_PULLUP | MUX_MODE3) /* gpio2_0 gpmc_csn3.mmc2_cmd */
++			0x30 ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_12 gpmc_ad12.mmc2_dat0 */
++			0x34 ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_13 gpmc_ad13.mmc2_dat1 */
++			0x38 ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_14 gpmc_ad14.mmc2_dat2 */
++			0x3c ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_15 gpmc_ad15.mmc2_dat3 */
++		>;
++	};
++
++	mmc3_pins_sleep: pinmux_mmc3_pins_sleep {
++		pinctrl-single,pins = <
++			0x8c (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio2_1 gpmc_clk.mmc2_clk */
++			0x88 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio2_0 gpmc_csn3.mmc2_cmd */
++			0x30 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_12 gpmc_ad12.mmc2_dat0 */
++			0x34 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_13 gpmc_ad13.mmc2_dat1 */
++			0x38 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_14 gpmc_ad14.mmc2_dat2 */
++			0x3c (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_15 gpmc_ad15.mmc2_dat3 */
++		>;
++	};
++
++	/* wl18xx card enable/irq GPIOs. */
++	wlan_pins: pinmux_wlan_pins {
++		pinctrl-single,pins = <
++//			0x28 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_ad10.gpio0_26 WL_EN*/
++			0x2C (PIN_INPUT_PULLUP | MUX_MODE7)	    /* gpmc_ad11.gpio0_27 WL_IRQ*/
++			0x7C  (PIN_OUTPUT_PULLUP   | MUX_MODE0) /* gpmc_csn0.gpio1_29 Cape_Buffer_EN*/
++		>;
++	};
++
++	/* wl18xx card enable/irq GPIOs. */
++	wlan_pins_sleep: pinmux_wlan_pins_sleep {
++		pinctrl-single,pins = <
++//			0x28 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_ad10.gpio0_26 WL_EN*/
++			0x2C (PIN_INPUT_PULLUP | MUX_MODE7)	    /* gpmc_ad11.gpio0_27 WL_IRQ*/
++			0x7C  (PIN_OUTPUT_PULLUP   | MUX_MODE0) /* gpmc_csn0.gpio1_29 Cape_Buffer_EN*/
++		>;
++	};
++
++	uart3_pins_default: pinmux_uart3_pins_default {
++		pinctrl-single,pins = <
++			0x134 ( PIN_INPUT_PULLUP | MUX_MODE1 ) 		/* (L17) gmii1_rxd3.uart3_rxd */
++			0x138 ( PIN_OUTPUT_PULLDOWN | MUX_MODE1 )	/* (L16) gmii1_rxd2.uart3_txd */
++			0x148 ( PIN_INPUT | MUX_MODE3 ) 			/* (M17) mdio_data.uart3_ctsn */
++			0x14c ( PIN_OUTPUT_PULLDOWN | MUX_MODE3 ) 	/* (M18) mdio_clk.uart3_rtsn */
++		>;
++	};
++
++	uart3_pins_sleep: pinmux_uart3_pins_sleep {
++		pinctrl-single,pins = <
++			0x134 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (L17) gmii1_rxd3.uart3_rxd */
++			0x138 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (L16) gmii1_rxd2.uart3_txd */
++			0x148 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (M17) mdio_data.uart3_ctsn */
++			0x14c (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (M18) mdio_clk.uart3_rtsn */
++		>;
++	};
++};
++
++&mmc3 {
++	dmas = <&edma_xbar 12 0 1
++		&edma_xbar 13 0 2>;
++	dma-names = "tx", "rx";
++	status = "okay";
++//	vmmc-supply = <&wlan_en_reg>;
++	vmmc-supply = <&vmmcsd_fixed>;
++	bus-width = <4>;
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&mmc3_pins &wlan_pins>;
++	pinctrl-1 = <&mmc3_pins_sleep &wlan_pins_sleep>;
++	ti,non-removable;
++	ti,needs-special-hs-handling;
++	cap-power-off-card;
++	keep-power-in-suspend;
++
++	#address-cells = <1>;
++	#size-cells = <0>;
++	wlcore: wlcore@0 {
++		compatible = "ti,wl1835";
++		reg = <2>;
++		interrupt-parent = <&gpio0>;
++		interrupts = <27 IRQ_TYPE_LEVEL_HIGH>;
++	};
++};
++
++&uart3 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&uart3_pins_default>;
++	pinctrl-1 = <&uart3_pins_sleep>;
++	status = "okay";
++};
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi b/arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi
+new file mode 100644
+index 0000000..edd2e70
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bonegreen-wl1835.dtsi
+@@ -0,0 +1,145 @@
++
++#include <dt-bindings/interrupt-controller/irq.h>
++
++/ {
++	wlan_en_reg: fixedregulator@2 {
++		compatible = "regulator-fixed";
++		regulator-name = "wlan-en-regulator";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++
++		/* WL_EN */
++		gpio = <&gpio0 26 0>;
++		enable-active-high;
++	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&wl18xx_pins>;
++		compatible = "gpio-leds";
++
++		wl18xx_bt_en {
++			label = "wl18xx_bt_en";
++			gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	tibt {
++		compatible = "tibt";
++		nshutdown_gpio = <60>;
++		dev_name = "/dev/ttyS3";
++		flow_cntrl = <1>;
++		baud_rate = <3000000>;
++	};
++
++	btwilink {
++		compatible = "btwilink";
++	};
++};
++
++&am33xx_pinmux {
++	wl18xx_pins: pinmux_wl18xx_pins {
++		pinctrl-single,pins = <
++			0x78 (PIN_OUTPUT_PULLUP | MUX_MODE7)    /* gpmc_ad12.gpio1_28 BT_EN*/
++//			0x28 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)  /* gpmc_ad10.gpio0_26 WL_EN*/
++		>;
++	};
++
++	bt_pins: pinmux_bt_pins {
++		pinctrl-single,pins = <
++			0x78 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_ad12.gpio1_28 BT_EN*/
++		>;
++	};
++
++	mmc3_pins: pinmux_mmc3_pins {
++		pinctrl-single,pins = <
++			0x8c ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio2_1 gpmc_clk.mmc2_clk */
++			0x88 ( PIN_INPUT_PULLUP | MUX_MODE3) /* gpio2_0 gpmc_csn3.mmc2_cmd */
++			0x30 ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_12 gpmc_ad12.mmc2_dat0 */
++			0x34 ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_13 gpmc_ad13.mmc2_dat1 */
++			0x38 ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_14 gpmc_ad14.mmc2_dat2 */
++			0x3c ( PIN_INPUT_PULLUP | MUX_MODE3 ) /* gpio1_15 gpmc_ad15.mmc2_dat3 */
++		>;
++	};
++
++	mmc3_pins_sleep: pinmux_mmc3_pins_sleep {
++		pinctrl-single,pins = <
++			0x8c (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio2_1 gpmc_clk.mmc2_clk */
++			0x88 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio2_0 gpmc_csn3.mmc2_cmd */
++			0x30 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_12 gpmc_ad12.mmc2_dat0 */
++			0x34 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_13 gpmc_ad13.mmc2_dat1 */
++			0x38 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_14 gpmc_ad14.mmc2_dat2 */
++			0x3c (PIN_INPUT_PULLDOWN | MUX_MODE7) /* gpio1_15 gpmc_ad15.mmc2_dat3 */
++		>;
++	};
++
++	/* wl18xx card enable/irq GPIOs. */
++	wlan_pins: pinmux_wlan_pins {
++		pinctrl-single,pins = <
++			0x28 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_ad10.gpio0_26 WL_EN*/
++			0x2C (PIN_INPUT_PULLUP | MUX_MODE7)	    /* gpmc_ad11.gpio0_27 WL_IRQ*/
++			0x7C  (PIN_OUTPUT_PULLUP   | MUX_MODE0) /* gpmc_csn0.gpio1_29 Cape_Buffer_EN*/
++		>;
++	};
++
++	/* wl18xx card enable/irq GPIOs. */
++	wlan_pins_sleep: pinmux_wlan_pins_sleep {
++		pinctrl-single,pins = <
++			0x28 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_ad10.gpio0_26 WL_EN*/
++			0x2C (PIN_INPUT_PULLUP | MUX_MODE7)	    /* gpmc_ad11.gpio0_27 WL_IRQ*/
++			0x7C  (PIN_OUTPUT_PULLUP   | MUX_MODE0) /* gpmc_csn0.gpio1_29 Cape_Buffer_EN*/
++		>;
++	};
++
++	uart3_pins_default: pinmux_uart3_pins_default {
++		pinctrl-single,pins = <
++			0x134 ( PIN_INPUT_PULLUP | MUX_MODE1 ) 		/* (L17) gmii1_rxd3.uart3_rxd */
++			0x138 ( PIN_OUTPUT_PULLDOWN | MUX_MODE1 )	/* (L16) gmii1_rxd2.uart3_txd */
++			0x148 ( PIN_INPUT | MUX_MODE3 ) 			/* (M17) mdio_data.uart3_ctsn */
++			0x14c ( PIN_OUTPUT_PULLDOWN | MUX_MODE3 ) 	/* (M18) mdio_clk.uart3_rtsn */
++		>;
++	};
++
++	uart3_pins_sleep: pinmux_uart3_pins_sleep {
++		pinctrl-single,pins = <
++			0x134 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (L17) gmii1_rxd3.uart3_rxd */
++			0x138 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (L16) gmii1_rxd2.uart3_txd */
++			0x148 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (M17) mdio_data.uart3_ctsn */
++			0x14c (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (M18) mdio_clk.uart3_rtsn */
++		>;
++	};
++};
++
++&mmc3 {
++	dmas = <&edma_xbar 12 0 1
++		&edma_xbar 13 0 2>;
++	dma-names = "tx", "rx";
++	status = "okay";
++	vmmc-supply = <&wlan_en_reg>;
++//	vmmc-supply = <&vmmcsd_fixed>;
++	bus-width = <4>;
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&mmc3_pins &wlan_pins>;
++	pinctrl-1 = <&mmc3_pins_sleep &wlan_pins_sleep>;
++	ti,non-removable;
++	ti,needs-special-hs-handling;
++	cap-power-off-card;
++	keep-power-in-suspend;
++
++	#address-cells = <1>;
++	#size-cells = <0>;
++	wlcore: wlcore@0 {
++		compatible = "ti,wl1835";
++		reg = <2>;
++		interrupt-parent = <&gpio0>;
++		interrupts = <27 IRQ_TYPE_LEVEL_HIGH>;
++	};
++};
++
++&uart3 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&uart3_pins_default>;
++	pinctrl-1 = <&uart3_pins_sleep>;
++	status = "okay";
++};
+-- 
+2.9.3
+

@@ -282,7 +282,7 @@ drivers () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/drivers/spi/0001-Revert-spi-spidev-Warn-loudly-if-instantiated-from-D.patch"
+	${git} "${DIR}/patches/drivers/spi/0001-NFM-spi-spidev-allow-use-of-spidev-in-DT.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="drivers/spi"
@@ -548,6 +548,92 @@ soc () {
 		number=4
 		cleanup
 	fi
+
+	echo "dir: soc/ti/bbg"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/bbg/0001-NFM-ARM-dts-am335x-bonegreen.dts-disable-usart-for-o.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/bbg"
+		number=1
+		cleanup
+	fi
+
+	echo "dir: soc/ti/bbgw"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/bbgw/0001-ARM-dts-add-am335x-bonegreen-wireless.dtb.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/bbgw"
+		number=1
+		cleanup
+	fi
+
+	echo "dir: soc/ti/bbbw"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/bbbw/0001-ARM-dts-add-am335x-boneblack-wireless.dtb.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/bbbw"
+		number=1
+		cleanup
+	fi
+
+	echo "dir: soc/ti/blue"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/blue/0001-ARM-dts-add-am335x-boneblue.dtb.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/blue"
+		number=1
+		cleanup
+	fi
+
+	echo "dir: soc/ti/sancloud"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/sancloud/0001-add-am335x-sancloud-bbe.patch"
+	${git} "${DIR}/patches/soc/ti/sancloud/0002-am335x-sancloud-bbe-update-lps331ap-mpu6050-irq-pins.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/sancloud"
+		number=2
+		cleanup
+	fi
+
+	echo "dir: soc/ti/tre"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/soc/ti/tre/0001-add-am335x-arduino-tre.dts.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/tre"
+		number=1
+		cleanup
+	fi
+
 }
 
 dtb_makefile_append () {
@@ -577,6 +663,7 @@ beaglebone () {
 	${git} "${DIR}/patches/beaglebone/pinmux-helper/0014-gpio-of-helper-idr_alloc.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="beaglebone/pinmux-helper"
 		number=14
 		cleanup
 	fi
@@ -606,47 +693,6 @@ beaglebone () {
 	fi
 
 	${git} "${DIR}/patches/beaglebone/am335x_olimex_som/0001-ARM-dts-Add-support-for-Olimex-AM3352-SOM.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-
-	echo "dir: beaglebone/bbgw"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/bbgw/0001-add-beaglebone-green-wireless.patch"
-	${git} "${DIR}/patches/beaglebone/bbgw/0002-bbgw-wlan0-fixes.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=2
-		cleanup
-	fi
-
-	echo "dir: beaglebone/sancloud"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/sancloud/0001-add-am335x-sancloud-bbe.patch"
-	${git} "${DIR}/patches/beaglebone/sancloud/0002-am335x-sancloud-bbe-update-lps331ap-mpu6050-irq-pins.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=2
-		cleanup
-	fi
-
-	echo "dir: beaglebone/tre"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/tre/0001-add-am335x-arduino-tre.dts.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		number=1
@@ -708,10 +754,6 @@ beaglebone () {
 
 		device="am335x-olimex-som.dtb" ; dtb_makefile_append
 
-		device="am335x-bonegreen-wireless.dtb" ; dtb_makefile_append
-
-		device="am335x-arduino-tre.dtb" ; dtb_makefile_append
-
 		device="am335x-bone-cape-bone-argus.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-cape-bone-argus.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-wl1835mod.dtb" ; dtb_makefile_append
@@ -720,10 +762,15 @@ beaglebone () {
 		device="am335x-boneblack-bbb-exp-r.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-audio.dtb" ; dtb_makefile_append
 
+		device="am335x-bonegreen-wireless.dtb" ; dtb_makefile_append
+		device="am335x-bonegreen-wireless-led-hack.dtb" ; dtb_makefile_append
+
+		device="am335x-boneblack-wireless.dtb" ; dtb_makefile_append
+		device="am335x-boneblue.dtb" ; dtb_makefile_append
+
 		device="am335x-sancloud-bbe.dtb" ; dtb_makefile_append
 
-		#device="am335x-boneblack-ctag-face.dtb" ; dtb_makefile_append
-		#device="am335x-bonegreen-ctag-face.dtb" ; dtb_makefile_append
+		device="am335x-arduino-tre.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/

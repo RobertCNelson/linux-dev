@@ -1,0 +1,41 @@
+From 9fb8e27f3c19680261b874d82d816896180c384a Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 5 Oct 2016 14:17:03 -0500
+Subject: [PATCH] NFM: ARM: dts: am335x-bonegreen.dts disable usart, for
+ overlays
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bonegreen.dts | 19 -------------------
+ 1 file changed, 19 deletions(-)
+
+diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
+index c93b7a4..fe86cca 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen.dts
+@@ -34,22 +34,3 @@
+ 	bus-width = <8>;
+ 	status = "okay";
+ };
+-
+-&am33xx_pinmux {
+-	uart2_pins: uart2_pins {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x950, PIN_INPUT | MUX_MODE1)	/* spi0_sclk.uart2_rxd */
+-			AM33XX_IOPAD(0x954, PIN_OUTPUT | MUX_MODE1)	/* spi0_d0.uart2_txd */
+-		>;
+-	};
+-};
+-
+-&uart2 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&uart2_pins>;
+-	status = "okay";
+-};
+-
+-&rtc {
+-	system-power-controller;
+-};
+-- 
+2.9.3
+
