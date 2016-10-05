@@ -1,0 +1,37 @@
+From 78fdfea9de2db59f285e85ad1f7a346335d52ac8 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Mon, 9 Dec 2013 20:12:17 +0200
+Subject: [PATCH 07/39] tty: omap-serial: Fix up platform data alloc
+
+When using DT the driver devm_kalloc's platform data and assigns them
+directly to the pdev->dev.platform variable.
+
+This is wrong since device de-registration expects the data to be
+kmalloc'ed instead, resulting in a crash.
+
+Fix by copying the platform data to a kmalloc buffer.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ drivers/tty/serial/omap-serial.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
+index 202b8ba..b9b8b4d 100644
+--- a/drivers/tty/serial/omap-serial.c
++++ b/drivers/tty/serial/omap-serial.c
+@@ -1637,7 +1637,10 @@ static int serial_omap_probe(struct platform_device *pdev)
+ 			return -EPROBE_DEFER;
+ 		wakeirq = irq_of_parse_and_map(pdev->dev.of_node, 1);
+ 		omap_up_info = of_get_uart_port_info(&pdev->dev);
+-		pdev->dev.platform_data = omap_up_info;
++		ret = platform_device_add_data(pdev, omap_up_info,
++				sizeof(*omap_up_info));
++		if (ret != 0)
++			return ret;
+ 	} else {
+ 		uartirq = platform_get_irq(pdev, 0);
+ 		if (uartirq < 0)
+-- 
+2.9.3
+

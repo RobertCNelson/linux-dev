@@ -1,0 +1,61 @@
+From d746f4558f56a13251a7f139346be69063d00fbc Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Thu, 6 Nov 2014 14:12:14 +0200
+Subject: [PATCH 06/39] serial: omap: Fix port line number without aliases
+
+Having an omap serial device without a serial aliases doesn't
+work. For now fallback to using the hwmod instance.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ drivers/tty/serial/omap-serial.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
+index a2a5299..202b8ba 100644
+--- a/drivers/tty/serial/omap-serial.c
++++ b/drivers/tty/serial/omap-serial.c
+@@ -1595,6 +1595,31 @@ static int serial_omap_probe_rs485(struct uart_omap_port *up,
+ 	return 0;
+ }
+ 
++static int serial_omap_of_get_port_line(struct device_node *np)
++{
++	unsigned long val;
++	const char *hwmod;
++	int ret;
++
++	/* first try the serial alias */
++	ret = of_alias_get_id(np, "serial");
++	if (ret >= 0)
++		return ret;
++
++	/* no? calculate it from hwmods */
++	ret = of_property_read_string(np, "ti,hwmods", &hwmod);
++	if (ret != 0 || strncmp(hwmod, "uart", 4) ||
++			kstrtoul(hwmod + 4, 10, &val))
++		return -ENODEV;
++
++	/* numbering of hwmods is +1 */
++	ret = (int)val - 1;
++	if (ret < 0)
++		return -ENODEV;
++
++	return ret;
++}
++
+ static int serial_omap_probe(struct platform_device *pdev)
+ {
+ 	struct omap_uart_port_info *omap_up_info = dev_get_platdata(&pdev->dev);
+@@ -1638,7 +1663,7 @@ static int serial_omap_probe(struct platform_device *pdev)
+ 	up->port.ops = &serial_omap_pops;
+ 
+ 	if (pdev->dev.of_node)
+-		ret = of_alias_get_id(pdev->dev.of_node, "serial");
++		ret = serial_omap_of_get_port_line(pdev->dev.of_node);
+ 	else
+ 		ret = pdev->id;
+ 
+-- 
+2.9.3
+

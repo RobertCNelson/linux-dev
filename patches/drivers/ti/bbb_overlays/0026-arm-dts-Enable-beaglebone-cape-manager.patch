@@ -1,0 +1,48 @@
+From bbfff240792a53d6b1e36e577c23d336f2c23454 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Tue, 12 May 2015 14:35:13 +0300
+Subject: [PATCH 26/39] arm: dts: Enable beaglebone cape-manager
+
+Enable the cape manager on the beaglebone family of boards.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index e247c15..d0e15df 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -393,3 +393,28 @@
+ &sham {
+ 	status = "okay";
+ };
++
++/* the cape manager */
++/ {
++	bone_capemgr {
++		compatible = "ti,bone-capemgr";
++		status = "okay";
++
++		nvmem-cells = <&baseboard_data &cape0_data &cape1_data &cape2_data &cape3_data>;
++		nvmem-cell-names = "baseboard", "slot0", "slot1", "slot2", "slot3";
++		#slots = <4>;
++
++		/* map board revisions to compatible definitions */
++		baseboardmaps {
++			baseboard_beaglebone: board@0 {
++				board-name = "A335BONE";
++				compatible-name = "ti,beaglebone";
++			};
++
++			baseboard_beaglebone_black: board@1 {
++				board-name = "A335BNLT";
++				compatible-name = "ti,beaglebone-black";
++			};
++		};
++	};
++};
+-- 
+2.9.3
+
