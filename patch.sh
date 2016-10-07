@@ -395,20 +395,6 @@ drivers () {
 		cleanup
 	fi
 
-	echo "dir: drivers/ti/tps65217"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/drivers/ti/tps65217/0001-tps65217-Enable-KEY_POWER-press-on-AC-loss-PWR_BUT.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/ti/tps65217"
-		number=1
-		cleanup
-	fi
-
 	echo "dir: drivers/ti/cpsw"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
