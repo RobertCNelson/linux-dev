@@ -42,10 +42,10 @@ Tested-by: Matthias Kaehlcke <mka@chromium.org>
  create mode 100644 include/linux/power/pwrseq.h
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index f593300..a318461 100644
+index 768db96..9bd94b3 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -9353,6 +9353,15 @@ F:	include/linux/pm_*
+@@ -9496,6 +9496,15 @@ F:	include/linux/pm_*
  F:	include/linux/powercap.h
  F:	drivers/powercap/
  
@@ -60,25 +60,25 @@ index f593300..a318461 100644
 +
  POWER SUPPLY CLASS/SUBSYSTEM and DRIVERS
  M:	Sebastian Reichel <sre@kernel.org>
- M:	Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+ L:	linux-pm@vger.kernel.org
 diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
-index acd4a15..f6aa4fd 100644
+index 63454b5..b8beb87 100644
 --- a/drivers/power/Kconfig
 +++ b/drivers/power/Kconfig
-@@ -515,3 +515,4 @@ endif # POWER_SUPPLY
- 
- source "drivers/power/reset/Kconfig"
+@@ -1,3 +1,4 @@
  source "drivers/power/avs/Kconfig"
 +source "drivers/power/pwrseq/Kconfig"
+ source "drivers/power/reset/Kconfig"
+ source "drivers/power/supply/Kconfig"
 diff --git a/drivers/power/Makefile b/drivers/power/Makefile
-index e46b75d..4ed2e12 100644
+index ff35c71..7404732 100644
 --- a/drivers/power/Makefile
 +++ b/drivers/power/Makefile
-@@ -74,3 +74,4 @@ obj-$(CONFIG_CHARGER_TPS65217)	+= tps65217_charger.o
+@@ -1,3 +1,4 @@
+ obj-$(CONFIG_POWER_AVS)		+= avs/
  obj-$(CONFIG_POWER_RESET)	+= reset/
- obj-$(CONFIG_AXP288_FUEL_GAUGE) += axp288_fuel_gauge.o
- obj-$(CONFIG_AXP288_CHARGER)	+= axp288_charger.o
 +obj-$(CONFIG_POWER_SEQUENCE)	+= pwrseq/
+ obj-$(CONFIG_POWER_SUPPLY)	+= supply/
 diff --git a/drivers/power/pwrseq/Kconfig b/drivers/power/pwrseq/Kconfig
 new file mode 100644
 index 0000000..dff5e35
