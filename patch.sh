@@ -117,20 +117,15 @@ aufs4 () {
 		${git_bin} commit -a -m 'merge: aufs4-standalone' -s
 
 		${git_bin} format-patch -4 -o ../patches/aufs4/
-		exit 2
-	fi
-
-	${git} "${DIR}/patches/aufs4/0001-merge-aufs4-kbuild.patch"
-	${git} "${DIR}/patches/aufs4/0002-merge-aufs4-base.patch"
-	${git} "${DIR}/patches/aufs4/0003-merge-aufs4-mmap.patch"
-	${git} "${DIR}/patches/aufs4/0004-merge-aufs4-standalone.patch"
-
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		echo "dir: aufs4"
 
 		cd ../
 		if [ ! -f ./aufs4-standalone ] ; then
+			${git_bin} clone https://github.com/sfjro/aufs4-standalone
+			cd ./aufs4-standalone
+			${git_bin} checkout origin/aufs${KERNEL_REL} -b tmp
+			cd ../
+		else
+			rm -rf ./aufs4-standalone || true
 			${git_bin} clone https://github.com/sfjro/aufs4-standalone
 			cd ./aufs4-standalone
 			${git_bin} checkout origin/aufs${KERNEL_REL} -b tmp
@@ -157,11 +152,16 @@ aufs4 () {
 		start_cleanup
 	fi
 
+	${git} "${DIR}/patches/aufs4/0001-merge-aufs4-kbuild.patch"
+	${git} "${DIR}/patches/aufs4/0002-merge-aufs4-base.patch"
+	${git} "${DIR}/patches/aufs4/0003-merge-aufs4-mmap.patch"
+	${git} "${DIR}/patches/aufs4/0004-merge-aufs4-standalone.patch"
 	${git} "${DIR}/patches/aufs4/0005-merge-aufs4.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		${git_bin} format-patch -5 -o ../patches/aufs4/
-		exit 2
+		wdir="aufs4"
+		number=5
+		cleanup
 	fi
 }
 
@@ -528,10 +528,12 @@ soc () {
 	${git} "${DIR}/patches/soc/ti/bone_common/0002-ARM-dts-am335x-bone-common-add-collision-and-carrier.patch"
 	${git} "${DIR}/patches/soc/ti/bone_common/0003-ARM-dts-am335x-bone-common-disable-running-JTAG.patch"
 	${git} "${DIR}/patches/soc/ti/bone_common/0004-ARM-dts-am335x-bone-common-overlays.patch"
+	#FIXME: still broken...
+	${git} "${DIR}/patches/soc/ti/bone_common/0005-HACK-am335x-bone-common.dtsi-pwr-button.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="soc/ti/bone_common"
-		number=4
+		number=5
 		cleanup
 	fi
 
