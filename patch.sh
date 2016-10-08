@@ -468,10 +468,12 @@ soc () {
 	fi
 
 	${git} "${DIR}/patches/soc/imx/0001-first-pass-imx6q-ccimx6sbc.patch"
-	${git} "${DIR}/patches/soc/imx/0002-imx6-wl1835-base-boards.patch"
-	${git} "${DIR}/patches/soc/imx/0003-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
-	${git} "${DIR}/patches/soc/imx/0004-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
 	${git} "${DIR}/patches/soc/imx/0005-mcimx6ul-bb-and-ism43362-b81-evb.patch"
+
+	#need to be re-synced...
+	#${git} "${DIR}/patches/soc/imx/0002-imx6-wl1835-base-boards.patch"
+	#${git} "${DIR}/patches/soc/imx/0003-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
+	#${git} "${DIR}/patches/soc/imx/0004-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="soc/imx"

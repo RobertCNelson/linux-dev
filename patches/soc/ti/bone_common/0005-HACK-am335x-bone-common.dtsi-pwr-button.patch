@@ -35,12 +35,40 @@ Event: time 1475870099.660284, -------------- EV_SYN ------------
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi | 9 +++++++++
- drivers/input/misc/tps65218-pwrbutton.c   | 2 +-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi | 9 +++++++++
+ arch/arm/boot/dts/am335x-bone-common.dtsi            | 9 +++++++++
+ drivers/input/misc/tps65218-pwrbutton.c              | 2 +-
+ 3 files changed, 19 insertions(+), 1 deletion(-)
 
+diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+index d35961b..9dd36a6 100644
+--- a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+@@ -239,6 +239,11 @@
+ /include/ "tps65217.dtsi"
+ 
+ &tps {
++	//interrupts = <GIC_SPI 7 IRQ_TYPE_NONE>; /* NMIn */
++	interrupts = <0 7 0>; /* NMIn */
++	interrupt-controller;
++	#interrupt-cells = <2>;
++
+ 	/*
+ 	 * Configure pmic to enter OFF-state instead of SLEEP-state ("RTC-only
+ 	 * mode") at poweroff.  Most BeagleBone versions do not support RTC-only
+@@ -302,6 +307,10 @@
+ 			regulator-always-on;
+ 		};
+ 	};
++
++	tps65217-pwrbutton {
++		compatible = "ti,tps65217-pwrbutton";
++	};
+ };
+ 
+ &cpsw_emac0 {
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 8f8a1dd..f261cc6 100644
+index cdda427..635a6e3 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -288,6 +288,11 @@
