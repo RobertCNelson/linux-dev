@@ -1,6 +1,6 @@
-From 1d0d049aae911e253ca570d12ca8477b7e75b899 Mon Sep 17 00:00:00 2001
+From c6a104e360a80dad12591a8aed4cf48e6b3e8f24 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 5 Oct 2016 14:45:07 -0500
+Date: Mon, 10 Oct 2016 15:38:09 -0500
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -16,17 +16,17 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone-pinmux-spi1a.dtsi    |  28 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS5.dtsi    |  48 +++++++++
  arch/arm/boot/dts/am335x-boneblack-audio.dts       |  25 +++--
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  11 +-
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  11 +-
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  13 ++-
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  13 ++-
  arch/arm/boot/dts/am335x-boneblack-bbbmini.dts     |  15 ++-
  .../boot/dts/am335x-boneblack-cape-bone-argus.dts  |  15 ++-
- .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  11 +-
+ .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  13 ++-
  .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts |  16 ++-
  .../boot/dts/am335x-boneblack-nhdmi-overlay.dts    |  16 ++-
- arch/arm/boot/dts/am335x-boneblack-overlay.dts     |  11 +-
+ arch/arm/boot/dts/am335x-boneblack-overlay.dts     |  13 ++-
  arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |  15 ++-
  arch/arm/boot/dts/am335x-boneblack.dts             |   4 -
- arch/arm/boot/dts/am335x-boneblue.dts              |  82 +++++++-------
+ arch/arm/boot/dts/am335x-boneblue.dts              |  79 +++++++-------
  arch/arm/boot/dts/am335x-bonegreen-overlay.dts     |   4 -
  arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++++++
  arch/arm/boot/dts/am335x-peripheral-can1.dtsi      |  13 +++
@@ -38,7 +38,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-spi1a.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-sancloud-bbe.dts          |   4 -
- 33 files changed, 795 insertions(+), 97 deletions(-)
+ 33 files changed, 797 insertions(+), 100 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi
@@ -59,23 +59,23 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-abbbi.dts b/arch/arm/boot/dts/am335x-abbbi.dts
-index cc9b1f4..accf950 100644
+index cc9b1f4..ee63cd0 100644
 --- a/arch/arm/boot/dts/am335x-abbbi.dts
 +++ b/arch/arm/boot/dts/am335x-abbbi.dts
 @@ -35,6 +35,17 @@
  	status = "okay";
  };
  
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 +
  &am33xx_pinmux {
  	adi_hdmi_bbbi_pins: adi_hdmi_bbbi_pins {
@@ -636,7 +636,7 @@ index 0000000..01d0aec
 +	pinctrl-0 = <&uart5_pins>;
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-audio.dts b/arch/arm/boot/dts/am335x-boneblack-audio.dts
-index cac3626..44e9f9c 100644
+index cac3626..5f7d558 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-audio.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-audio.dts
 @@ -15,16 +15,16 @@
@@ -668,18 +668,18 @@ index cac3626..44e9f9c 100644
  	vmmc-supply = <&vmmcsd_fixed>;
  };
 +
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
-index 857c21e..8d795c0 100644
+index 857c21e..f4cd428 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 @@ -33,8 +33,15 @@
@@ -688,20 +688,21 @@ index 857c21e..8d795c0 100644
  
 -&rtc {
 -	system-power-controller;
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
- };
+-};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
  
  #include "am335x-cape-bbb-exp-c.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
-index b834fa2..5df881e 100644
+index b834fa2..dd961c6 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
 @@ -33,8 +33,15 @@
@@ -710,36 +711,37 @@ index b834fa2..5df881e 100644
  
 -&rtc {
 -	system-power-controller;
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
- };
+-};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
  
  #include "am335x-cape-bbb-exp-r.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts b/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts
-index adb317c..5ed89a2 100644
+index adb317c..29a8de2 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbbmini.dts
 @@ -37,6 +37,17 @@
  	status = "okay";
  };
  
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 +
  &am33xx_pinmux {
  	dcan1_pins: pinmux_dcan1_pins {
@@ -753,23 +755,23 @@ index adb317c..5ed89a2 100644
 -	system-power-controller;
 -};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
-index cecb0fcc..c97c912 100644
+index cecb0fcc..e381ff2 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-cape-bone-argus.dts
 @@ -33,6 +33,17 @@
  	status = "okay";
  };
  
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 +
  &am33xx_pinmux {
  	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
@@ -784,7 +786,7 @@ index cecb0fcc..c97c912 100644
 -
  #include "am335x-bone-argus.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
-index 5946a7e..3859359 100644
+index 5946a7e..abb3624 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
 @@ -34,6 +34,13 @@
@@ -793,18 +795,19 @@ index 5946a7e..3859359 100644
  
 -&rtc {
 -	system-power-controller;
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
- };
+-};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
-index 9b0a7ba..4c3a477 100644
+index 9b0a7ba..d187dec 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
 @@ -36,6 +36,18 @@
@@ -812,16 +815,16 @@ index 9b0a7ba..4c3a477 100644
  };
  
 +
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 +
  &am33xx_pinmux {
  	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
@@ -835,7 +838,7 @@ index 9b0a7ba..4c3a477 100644
 -	system-power-controller;
 -};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
-index 9b0a7ba..4c3a477 100644
+index 9b0a7ba..d187dec 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
 @@ -36,6 +36,18 @@
@@ -843,16 +846,16 @@ index 9b0a7ba..4c3a477 100644
  };
  
 +
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 +
  &am33xx_pinmux {
  	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
@@ -866,7 +869,7 @@ index 9b0a7ba..4c3a477 100644
 -	system-power-controller;
 -};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
-index 880629c..d8dece7 100644
+index 880629c..cd79133 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-overlay.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
 @@ -36,6 +36,13 @@
@@ -875,18 +878,19 @@ index 880629c..d8dece7 100644
  
 -&rtc {
 -	system-power-controller;
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
- };
+-};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
-index e376613..f35b64a 100644
+index e376613..3713ce38 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
 @@ -25,10 +25,6 @@
@@ -904,23 +908,23 @@ index e376613..f35b64a 100644
  	};
  };
  
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
++//&cpu0_opp_table {
++//	/*
++//	 * All PG 2.0 silicon may not support 1GHz but some of the early
++//	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++//	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++//	 */
++//	oppnitro@1000000000 {
++//		opp-supported-hw = <0x06 0x0100>;
++//	};
++//};
 +
  #include "am335x-boneblack-wl1835mod-cape.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 3def91b..525a25a 100644
+index d67b639..e108c2a 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -103,7 +103,3 @@
+@@ -92,7 +92,3 @@
  		};
  	};
  };
@@ -929,10 +933,18 @@ index 3def91b..525a25a 100644
 -	system-power-controller;
 -};
 diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
-index 36b5676..0c7528f 100644
+index 6293892..a44fb33 100644
 --- a/arch/arm/boot/dts/am335x-boneblue.dts
 +++ b/arch/arm/boot/dts/am335x-boneblue.dts
-@@ -180,47 +180,47 @@
+@@ -49,7 +49,6 @@
+ //	};
+ //};
+ 
+-
+ /****************************************
+ * Pin Muxing
+ ****************************************/
+@@ -180,47 +179,47 @@
  };
  
  
@@ -967,16 +979,6 @@ index 36b5676..0c7528f 100644
 -&eqep2 {
 -	pinctrl-names = "default";
 -	pinctrl-0 = <&P8_12_qep_pin &P8_11_qep_pin>;
--
--	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
--	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
--	invert_qa = <1>;   /* Should we invert the channel A input?  */
--	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
--	invert_qi = <0>;   /* Should we invert the index input? */
--	invert_qs = <0>;   /* Should we invert the strobe input? */
--
--	status = "okay";
--};
 +//&eqep0 {
 +//	pinctrl-names = "default";
 +//	pinctrl-0 = <&P9_92_qep_pin &P9_27_qep_pin>;
@@ -990,7 +992,13 @@ index 36b5676..0c7528f 100644
 +//
 +//	status = "okay";
 +//};
-+
+ 
+-	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
+-	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
+-	invert_qa = <1>;   /* Should we invert the channel A input?  */
+-	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
+-	invert_qi = <0>;   /* Should we invert the index input? */
+-	invert_qs = <0>;   /* Should we invert the strobe input? */
 +//&eqep1 {
 +//	pinctrl-names = "default";
 +//	pinctrl-0 = <&P8_33_qep_pin &P8_35_qep_pin>;
@@ -1004,7 +1012,9 @@ index 36b5676..0c7528f 100644
 +//
 +//	status = "okay";
 +//};
-+
+ 
+-	status = "okay";
+-};
 +//&eqep2 {
 +//	pinctrl-names = "default";
 +//	pinctrl-0 = <&P8_12_qep_pin &P8_11_qep_pin>;
