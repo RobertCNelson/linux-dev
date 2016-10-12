@@ -532,10 +532,11 @@ soc () {
 	${git} "${DIR}/patches/soc/ti/bone_common/0004-ARM-dts-am335x-bone-common-overlays.patch"
 	#FIXME: still broken...
 	${git} "${DIR}/patches/soc/ti/bone_common/0005-HACK-am335x-bone-common.dtsi-pwr-button.patch"
+	${git} "${DIR}/patches/soc/ti/bone_common/0006-ARM-dts-am335x-bone-common-rtc-defined-in-common.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="soc/ti/bone_common"
-		number=5
+		number=6
 		cleanup
 	fi
 
@@ -756,6 +757,7 @@ beaglebone () {
 		device="am335x-bonegreen-wireless-led-hack.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-wireless.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-wireless-emmc-overlay.dtb" ; dtb_makefile_append
 		device="am335x-boneblue.dtb" ; dtb_makefile_append
 
 		device="am335x-sancloud-bbe.dtb" ; dtb_makefile_append
