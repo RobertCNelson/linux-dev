@@ -603,11 +603,10 @@ soc () {
 	fi
 
 	${git} "${DIR}/patches/soc/ti/sancloud/0001-add-am335x-sancloud-bbe.patch"
-	${git} "${DIR}/patches/soc/ti/sancloud/0002-am335x-sancloud-bbe-update-lps331ap-mpu6050-irq-pins.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="soc/ti/sancloud"
-		number=2
+		number=1
 		cleanup
 	fi
 
