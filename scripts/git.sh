@@ -196,6 +196,44 @@ git_kernel () {
 	cd "${DIR}/" || exit
 }
 
+git_shallow_fail () {
+	echo "Sorry, ${kernel_tag} is not in git, trying via patch"
+	old_kernel=$(echo ${kernel_tag} | awk -F'-' '{print $1}')
+
+	echo "git: [git clone -b v${old_kernel} https://github.com/RobertCNelson/linux-stable-rcn-ee]"
+	${git_bin} clone --depth=1 -b v${old_kernel} https://github.com/RobertCNelson/linux-stable-rcn-ee "${DIR}/KERNEL/"
+
+	if [ -d "${DIR}/KERNEL/" ] ; then
+		cd "${DIR}/KERNEL/"
+
+		if [ -f patch-${kernel_tag}.diff.gz ] ; then
+			rm -f patch-${kernel_tag}.diff.gz || true
+		fi
+
+		wget https://rcn-ee.com/deb/sid-armhf/v${kernel_tag}/patch-${kernel_tag}.diff.gz
+
+		if [ -f patch-${kernel_tag}.diff.gz ] ; then
+			zcat patch-${kernel_tag}.diff.gz | ${git_bin} apply -v
+			rm -f patch-${kernel_tag}.diff.gz || true
+
+			if [ -f defconfig ] ; then
+				rm -f defconfig || true
+			fi
+
+			wget https://rcn-ee.com/deb/sid-armhf/v${kernel_tag}/defconfig
+			mv defconfig arch/arm/configs/rcn-ee_defconfig
+
+			${git_bin} add --all
+			${git_bin} commit --allow-empty -a -m "${kernel_tag} patchset"
+			cd "${DIR}"
+		else
+			echo "Sorry, unable to find kernel patch"
+			cd "${DIR}"
+			exit 2
+		fi
+	fi
+}
+
 git_shallow () {
 	if [ "x${kernel_tag}" = "x" ] ; then
 		echo "error: set kernel_tag in recipe.sh"
@@ -207,7 +245,7 @@ git_shallow () {
 		fi
 		mkdir "${DIR}/KERNEL/" || true
 		echo "git: [git clone -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee]"
-		${git_bin} clone --depth=100 -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee "${DIR}/KERNEL/"
+		${git_bin} clone --depth=100 -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee "${DIR}/KERNEL/" || git_shallow_fail
 		touch "${DIR}/KERNEL/.ignore-${kernel_tag}"
 	fi
 }
