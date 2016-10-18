@@ -114,7 +114,7 @@ config="CONFIG_EFI" ; config_disable
 #
 config="CONFIG_CPU_FREQ_STAT" ; config_enable
 config="CONFIG_CPU_FREQ_STAT_DETAILS" ; config_enable
-config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_module
+config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_enable
 
 #
 # CPU frequency scaling drivers
@@ -245,6 +245,11 @@ config="CONFIG_OMAP_OCP2SCP" ; config_enable
 #
 config="CONFIG_OF_CONFIGFS" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
+
+#
+# LPDDR & LPDDR2 PCM memory drivers
+#
+config="CONFIG_MTD_UBI" ; config_enable
 
 #
 # Misc devices
@@ -1270,7 +1275,6 @@ config="CONFIG_AD2S1210" ; config_module
 # Android
 #
 config="CONFIG_ASHMEM" ; config_enable
-config="CONFIG_ANDROID_TIMED_GPIO" ; config_module
 config="CONFIG_SYNC" ; config_enable
 config="CONFIG_SW_SYNC" ; config_disable
 config="CONFIG_ION" ; config_enable
@@ -1680,21 +1684,19 @@ config="CONFIG_OVERLAY_FS" ; config_enable
 config="CONFIG_FAT_FS" ; config_enable
 config="CONFIG_MSDOS_FS" ; config_enable
 config="CONFIG_VFAT_FS" ; config_enable
-#config="CONFIG_FAT_DEFAULT_IOCHARSET" ; option="iso8859-1" ; config_string
 
 #
 # Pseudo filesystems
 #
 config="CONFIG_ORANGEFS_FS" ; config_enable
+config="CONFIG_UBIFS_FS" ; config_enable
+config="CONFIG_LOGFS" ; config_disable
 config="CONFIG_SQUASHFS_LZ4" ; config_enable
 config="CONFIG_NFS_FS" ; config_enable
 config="CONFIG_NFS_V2" ; config_enable
 config="CONFIG_NFS_V3" ; config_enable
 config="CONFIG_NFS_V4" ; config_enable
 config="CONFIG_ROOT_NFS" ; config_enable
-#config="CONFIG_NLS_DEFAULT" ; option="iso8859-1" ; config_string
-#config="CONFIG_NLS_CODEPAGE_437" ; config_enable
-#config="CONFIG_NLS_ISO8859_1" ; config_enable
 
 #
 # Compile-time checks and compiler options
@@ -1720,6 +1722,11 @@ config="CONFIG_CRYPTO_SHA3" ; config_module
 # Crypto core or helper
 #
 config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS" ; config_enable
+
+#
+# Compression
+#
+config="CONFIG_CRYPTO_DEFLATE" ; config_enable
 
 #
 # Random Number Generation
