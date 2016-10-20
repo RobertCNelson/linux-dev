@@ -1,0 +1,58 @@
+From 6e55f82641f424efaf36135f083dc44f5ab4889f Mon Sep 17 00:00:00 2001
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Date: Thu, 20 Oct 2016 14:14:56 +0530
+Subject: [PATCH 2/8] PM / OPP: Don't use OPP structure outside of rcu
+ protected section
+
+The OPP structure must not be used out of the rcu protected section.
+Cache the values to be used in separate variables instead.
+
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ drivers/base/power/opp/core.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
+index 4c7c6da..056527a 100644
+--- a/drivers/base/power/opp/core.c
++++ b/drivers/base/power/opp/core.c
+@@ -584,6 +584,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+ 	struct clk *clk;
+ 	unsigned long freq, old_freq;
+ 	unsigned long u_volt, u_volt_min, u_volt_max;
++	unsigned long old_u_volt, old_u_volt_min, old_u_volt_max;
+ 	int ret;
+ 
+ 	if (unlikely(!target_freq)) {
+@@ -633,6 +634,14 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+ 		return ret;
+ 	}
+ 
++	if (IS_ERR(old_opp)) {
++		old_u_volt = 0;
++	} else {
++		old_u_volt = old_opp->u_volt;
++		old_u_volt_min = old_opp->u_volt_min;
++		old_u_volt_max = old_opp->u_volt_max;
++	}
++
+ 	u_volt = opp->u_volt;
+ 	u_volt_min = opp->u_volt_min;
+ 	u_volt_max = opp->u_volt_max;
+@@ -677,9 +686,10 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+ 			__func__, old_freq);
+ restore_voltage:
+ 	/* This shouldn't harm even if the voltages weren't updated earlier */
+-	if (!IS_ERR(old_opp))
+-		_set_opp_voltage(dev, reg, old_opp->u_volt,
+-				 old_opp->u_volt_min, old_opp->u_volt_max);
++	if (old_u_volt) {
++		_set_opp_voltage(dev, reg, old_u_volt, old_u_volt_min,
++				 old_u_volt_max);
++	}
+ 
+ 	return ret;
+ }
+-- 
+2.9.3
+

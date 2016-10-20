@@ -285,6 +285,45 @@ drivers () {
 		cleanup
 	fi
 
+	echo "dir: drivers/pm_opp"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/pm_opp/0001-PM-OPP-Reword-binding-supporting-multiple-regulators.patch"
+	${git} "${DIR}/patches/drivers/pm_opp/0002-PM-OPP-Don-t-use-OPP-structure-outside-of-rcu-protec.patch"
+	${git} "${DIR}/patches/drivers/pm_opp/0003-PM-OPP-Manage-supply-s-voltage-current-in-a-separate.patch"
+	${git} "${DIR}/patches/drivers/pm_opp/0004-PM-OPP-Pass-struct-dev_pm_opp_supply-to-_set_opp_vol.patch"
+	${git} "${DIR}/patches/drivers/pm_opp/0005-PM-OPP-Add-infrastructure-to-manage-multiple-regulat.patch"
+	${git} "${DIR}/patches/drivers/pm_opp/0006-PM-OPP-Separate-out-_generic_opp_set_rate.patch"
+	${git} "${DIR}/patches/drivers/pm_opp/0007-PM-OPP-Allow-platform-specific-custom-opp_set_rate-c.patch"
+	${git} "${DIR}/patches/drivers/pm_opp/0008-PM-OPP-Don-t-WARN-on-multiple-calls-to-dev_pm_opp_se.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/pm_opp"
+		number=8
+		cleanup
+	fi
+
+	echo "dir: drivers/tps65218"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/tps65218/0001-mfd-tps65218-Remove-redundant-read-wrapper.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0002-Documentation-regulator-tps65218-Update-examples.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0003-input-tps65218-pwrbutton-Add-platform_device_id-tabl.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0004-mfd-tps65218-Use-mfd_add_devices-instead-of-of_platf.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0005-regulator-tps65218-Remove-all-the-compatibles.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/tps65218"
+		number=5
+		cleanup
+	fi
+
 	echo "dir: drivers/ti/iodelay"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -463,16 +502,11 @@ soc () {
 	fi
 
 	${git} "${DIR}/patches/soc/imx/0001-first-pass-imx6q-ccimx6sbc.patch"
-	${git} "${DIR}/patches/soc/imx/0005-mcimx6ul-bb-and-ism43362-b81-evb.patch"
-
-	#need to be re-synced...
-	#${git} "${DIR}/patches/soc/imx/0002-imx6-wl1835-base-boards.patch"
-	#${git} "${DIR}/patches/soc/imx/0003-imx6q-sabresd-add-support-for-wilink8-wlan-and-bluet.patch"
-	#${git} "${DIR}/patches/soc/imx/0004-imx6sl-evk-add-support-for-wilink8-wlan-and-bluetoot.patch"
+	${git} "${DIR}/patches/soc/imx/0002-mcimx6ul-bb-and-ism43362-b81-evb.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="soc/imx"
-		number=5
+		number=2
 		cleanup
 	fi
 
@@ -748,7 +782,6 @@ beaglebone () {
 		device="am335x-boneblack-audio.dtb" ; dtb_makefile_append
 
 		device="am335x-bonegreen-wireless.dtb" ; dtb_makefile_append
-		device="am335x-bonegreen-wireless-led-hack.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-wireless.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-wireless-emmc-overlay.dtb" ; dtb_makefile_append

@@ -1,0 +1,32 @@
+From 96e9cbbb9e391e1ba49c88ad3756ec72c7b92f94 Mon Sep 17 00:00:00 2001
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Date: Thu, 20 Oct 2016 14:15:02 +0530
+Subject: [PATCH 8/8] PM / OPP: Don't WARN on multiple calls to
+ dev_pm_opp_set_regulators()
+
+If a platform specific OPP driver has called this routine first and set
+the regulators, then the second call from cpufreq-dt driver will hit the
+WARN_ON(). Remove the WARN_ON(), but continue to return error in such
+cases.
+
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ drivers/base/power/opp/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
+index f7c4ef1..51dd71d 100644
+--- a/drivers/base/power/opp/core.c
++++ b/drivers/base/power/opp/core.c
+@@ -1469,7 +1469,7 @@ int dev_pm_opp_set_regulators(struct device *dev, const char *names[],
+ 	}
+ 
+ 	/* Already have regulators set */
+-	if (WARN_ON(opp_table->regulators)) {
++	if (opp_table->regulators) {
+ 		ret = -EBUSY;
+ 		goto err;
+ 	}
+-- 
+2.9.3
+
