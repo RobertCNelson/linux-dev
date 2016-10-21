@@ -1,18 +1,18 @@
-From 660ad6711c89bb2ff0a856ffc59e6029566d15e7 Mon Sep 17 00:00:00 2001
+From e7f043ecc1ad95cb9091e0289d2c10959cc23e8e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 12 Oct 2016 08:48:39 -0500
+Date: Fri, 21 Oct 2016 15:09:50 -0500
 Subject: [PATCH 4/5] ARM: dts: am335x-bone-common: overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 345 +++++++++++++++++++++
+ .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 362 +++++++++++++++++++++
  .../arm/boot/dts/am335x-boneblack-emmc-overlay.dts |  40 +++
- .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts | 162 ++++++++++
+ .../arm/boot/dts/am335x-boneblack-hdmi-overlay.dts | 162 +++++++++
  .../boot/dts/am335x-boneblack-nhdmi-overlay.dts    | 103 ++++++
  arch/arm/boot/dts/am335x-boneblack-overlay.dts     |  42 +++
  arch/arm/boot/dts/am335x-bonegreen-overlay.dts     |  40 +++
  include/dt-bindings/board/am335x-bbw-bbb-base.h    | 103 ++++++
- 7 files changed, 835 insertions(+)
+ 7 files changed, 852 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
@@ -23,10 +23,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 0000000..d35961b
+index 0000000..56b9ccf
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,345 @@
+@@ -0,0 +1,362 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -34,6 +34,8 @@ index 0000000..d35961b
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
++
++#include <dt-bindings/mfd/tps65217.h>
 +
 +/ {
 +	cpus {
@@ -285,7 +287,22 @@ index 0000000..d35961b
 +	 * by the hardware problems. (Tip: double-check by performing a current
 +	 * measurement after shutdown: it should be less than 1 mA.)
 +	 */
++
++	interrupts = <7>; /* NMI */
++	interrupt-parent = <&intc>;
++
 +	ti,pmic-shutdown-controller;
++
++	charger {
++		interrupts = <TPS65217_IRQ_AC>, <TPS65217_IRQ_USB>;
++		interrupts-names = "AC", "USB";
++		status = "okay";
++	};
++
++	pwrbutton {
++		interrupts = <TPS65217_IRQ_PB>;
++		status = "okay";
++	};
 +
 +	regulators {
 +		dcdc1_reg: regulator@0 {

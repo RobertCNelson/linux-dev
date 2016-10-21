@@ -1,0 +1,43 @@
+From 57cf540228ff6b26543be45c514b19f1456aa606 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 21 Oct 2016 15:57:12 -0500
+Subject: [PATCH 13/13] HACK: tps65217_pwr_but
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/input/misc/tps65218-pwrbutton.c | 2 +-
+ include/dt-bindings/mfd/tps65217.h      | 9 +++++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+ create mode 100644 include/dt-bindings/mfd/tps65217.h
+
+diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/misc/tps65218-pwrbutton.c
+index cc74a41..f7e5492 100644
+--- a/drivers/input/misc/tps65218-pwrbutton.c
++++ b/drivers/input/misc/tps65218-pwrbutton.c
+@@ -36,7 +36,7 @@ struct tps6521x_data {
+ static const struct tps6521x_data tps65217_data = {
+ 	.reg_status = TPS65217_REG_STATUS,
+ 	.pb_mask = TPS65217_STATUS_PB,
+-	.name = "tps65217_pwrbutton",
++	.name = "tps65217_pwr_but",
+ };
+ 
+ static const struct tps6521x_data tps65218_data = {
+diff --git a/include/dt-bindings/mfd/tps65217.h b/include/dt-bindings/mfd/tps65217.h
+new file mode 100644
+index 0000000..26b2ba8
+--- /dev/null
++++ b/include/dt-bindings/mfd/tps65217.h
+@@ -0,0 +1,9 @@
++#ifndef __DT_BINDINGS_TPS65217_H
++#define __DT_BINDINGS_TPS65217_H
++
++#define TPS65217_IRQ_USB	0
++#define TPS65217_IRQ_AC		1
++#define TPS65217_IRQ_PB		2
++#define TPS65217_NUM_IRQ	3
++
++#endif /* __DT_BINDINGS_TPS65217_H */
+-- 
+2.9.3
+

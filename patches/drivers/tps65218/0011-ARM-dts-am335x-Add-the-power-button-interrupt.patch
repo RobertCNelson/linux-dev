@@ -1,0 +1,32 @@
+From 0d154945b67470d8781309633b6a2ba63ed832a0 Mon Sep 17 00:00:00 2001
+From: Milo Kim <woogyom.kim@gmail.com>
+Date: Fri, 21 Oct 2016 23:01:05 +0900
+Subject: [PATCH 11/13] ARM: dts: am335x: Add the power button interrupt
+
+This enables the power button driver gets corresponding IRQ number by
+using platform_get_irq().
+
+Signed-off-by: Milo Kim <woogyom.kim@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index cec9d91..0c0a90c 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -324,6 +324,11 @@
+ 		status = "okay";
+ 	};
+ 
++	pwrbutton {
++		interrupts = <TPS65217_IRQ_PB>;
++		status = "okay";
++	};
++
+ 	regulators {
+ 		dcdc1_reg: regulator@0 {
+ 			regulator-name = "vdds_dpr";
+-- 
+2.9.3
+

@@ -317,10 +317,18 @@ drivers () {
 	${git} "${DIR}/patches/drivers/tps65218/0003-input-tps65218-pwrbutton-Add-platform_device_id-tabl.patch"
 	${git} "${DIR}/patches/drivers/tps65218/0004-mfd-tps65218-Use-mfd_add_devices-instead-of-of_platf.patch"
 	${git} "${DIR}/patches/drivers/tps65218/0005-regulator-tps65218-Remove-all-the-compatibles.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0006-ARM-dts-tps65217-Specify-the-interrupt-controller.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0007-ARM-dts-tps65217-Add-the-charger-device.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0008-ARM-dts-tps65217-Add-the-power-button-device.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0009-ARM-dts-am335x-Support-the-PMIC-interrupt.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0010-ARM-dts-am335x-Add-the-charger-interrupt.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0011-ARM-dts-am335x-Add-the-power-button-interrupt.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0012-mfd-tps65217-Fix-mismatched-interrupt-number.patch"
+	${git} "${DIR}/patches/drivers/tps65218/0013-HACK-tps65217_pwr_but.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="drivers/tps65218"
-		number=5
+		number=13
 		cleanup
 	fi
 
@@ -559,13 +567,11 @@ soc () {
 	${git} "${DIR}/patches/soc/ti/bone_common/0002-ARM-dts-am335x-bone-common-add-collision-and-carrier.patch"
 	${git} "${DIR}/patches/soc/ti/bone_common/0003-ARM-dts-am335x-bone-common-disable-running-JTAG.patch"
 	${git} "${DIR}/patches/soc/ti/bone_common/0004-ARM-dts-am335x-bone-common-overlays.patch"
-	#FIXME: still broken...
-	${git} "${DIR}/patches/soc/ti/bone_common/0005-HACK-am335x-bone-common.dtsi-pwr-button.patch"
-	${git} "${DIR}/patches/soc/ti/bone_common/0006-ARM-dts-am335x-bone-common-rtc-defined-in-common.patch"
+	${git} "${DIR}/patches/soc/ti/bone_common/0005-ARM-dts-am335x-bone-common-rtc-defined-in-common.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="soc/ti/bone_common"
-		number=6
+		number=5
 		cleanup
 	fi
 

@@ -1,0 +1,32 @@
+From 301deebdf45278e959ef0d487c9de6c0e9192da1 Mon Sep 17 00:00:00 2001
+From: Milo Kim <woogyom.kim@gmail.com>
+Date: Fri, 21 Oct 2016 23:01:03 +0900
+Subject: [PATCH 09/13] ARM: dts: am335x: Support the PMIC interrupt
+
+AM335x bone based boards have the PMIC interrupt named NMI which is
+connected to TPS65217 device. AM335x main interrupt controller provides it
+and the number is 7.
+
+Signed-off-by: Milo Kim <woogyom.kim@gmail.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 007b5e5..25303d9 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -310,6 +310,10 @@
+ 	 * by the hardware problems. (Tip: double-check by performing a current
+ 	 * measurement after shutdown: it should be less than 1 mA.)
+ 	 */
++
++	interrupts = <7>; /* NMI */
++	interrupt-parent = <&intc>;
++
+ 	ti,pmic-shutdown-controller;
+ 
+ 	regulators {
+-- 
+2.9.3
+
