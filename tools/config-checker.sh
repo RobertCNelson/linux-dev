@@ -498,6 +498,7 @@ config="CONFIG_INPUT_MPU3050" ; config_module
 config="CONFIG_INPUT_GP2A" ; config_module
 config="CONFIG_INPUT_GPIO_BEEPER" ; config_module
 config="CONFIG_INPUT_GPIO_TILT_POLLED" ; config_module
+config="CONFIG_INPUT_GPIO_DECODER" ; config_module
 config="CONFIG_INPUT_KXTJ9" ; config_module
 config="CONFIG_INPUT_KXTJ9_POLLED_MODE" ; config_enable
 config="CONFIG_INPUT_REGULATOR_HAPTIC" ; config_module
@@ -1067,13 +1068,18 @@ config="CONFIG_USB_GADGET_VBUS_DRAW" ; option="500" ; config_value
 # USB Peripheral Controller
 #
 config="CONFIG_USB_LIBCOMPOSITE" ; config_enable
+config="CONFIG_USB_F_ACM" ; config_disable
+config="CONFIG_USB_U_SERIAL" ; config_disable
 config="CONFIG_USB_U_ETHER" ; config_enable
+config="CONFIG_USB_F_OBEX" ; config_disable
 config="CONFIG_USB_F_ECM" ; config_enable
+config="CONFIG_USB_F_PHONET" ; config_disable
 config="CONFIG_USB_F_SUBSET" ; config_enable
 config="CONFIG_USB_F_RNDIS" ; config_enable
 config="CONFIG_USB_ETH" ; config_enable
 config="CONFIG_USB_ETH_EEM" ; config_disable
 config="CONFIG_USB_GADGETFS" ; config_disable
+config="CONFIG_USB_G_NOKIA" ; config_disable
 
 #exit
 
@@ -1817,6 +1823,12 @@ config="CONFIG_KGDB_KDB" ; config_enable
 config="CONFIG_KDB_KEYBOARD" ; config_enable
 
 config="CONFIG_STRICT_DEVMEM" ; config_disable
+
+#
+# Security options
+#
+config="CONFIG_SECURITY_DMESG_RESTRICT" ; config_disable
+config="CONFIG_HARDENED_USERCOPY" ; config_disable
 
 #
 # Digest
