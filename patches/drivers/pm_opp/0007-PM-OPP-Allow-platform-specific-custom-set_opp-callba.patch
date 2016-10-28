@@ -1,75 +1,85 @@
-From 5c6efee864f01c487d6c4acdc5d068b5ecdf37f5 Mon Sep 17 00:00:00 2001
+From a4b7d72bb6f33820a4bd0a0ce0b40d8f7390c996 Mon Sep 17 00:00:00 2001
 From: Viresh Kumar <viresh.kumar@linaro.org>
-Date: Thu, 20 Oct 2016 14:15:01 +0530
-Subject: [PATCH 7/8] PM / OPP: Allow platform specific custom opp_set_rate()
+Date: Wed, 26 Oct 2016 12:03:02 +0530
+Subject: [PATCH 7/9] PM / OPP: Allow platform specific custom set_opp()
  callbacks
 
-The generic opp_set_rate() handler isn't sufficient for platforms with
+The generic set_opp() handler isn't sufficient for platforms with
 complex DVFS.  For example, some TI platforms have multiple regulators
 for a CPU device. The order in which various supplies need to be
 programmed is only known to the platform code and its best to leave it
 to it.
 
-This patch implements APIs to register platform specific opp_set_rate()
+This patch implements APIs to register platform specific set_opp()
 callback.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Dave Gerlach <d-gerlach@ti.com>
 ---
- drivers/base/power/opp/core.c | 114 +++++++++++++++++++++++++++++++++++++++++-
+ drivers/base/power/opp/core.c | 116 +++++++++++++++++++++++++++++++++++++++++-
  drivers/base/power/opp/opp.h  |   1 +
  include/linux/pm_opp.h        |  10 ++++
- 3 files changed, 124 insertions(+), 1 deletion(-)
+ 3 files changed, 125 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
-index 96f0439..f7c4ef1 100644
+index dedb08a..f4f6b1f 100644
 --- a/drivers/base/power/opp/core.c
 +++ b/drivers/base/power/opp/core.c
-@@ -677,6 +677,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+@@ -673,6 +673,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
  {
  	struct opp_table *opp_table;
  	unsigned long freq, old_freq;
-+	int (*set_rate)(struct device *dev, struct dev_pm_set_rate_data *data);
++	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data);
  	struct dev_pm_opp *old_opp, *opp;
  	struct regulator **regulators;
- 	struct dev_pm_set_rate_data *data;
-@@ -738,6 +739,11 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
- 		return _generic_opp_set_rate_clk_only(dev, clk, old_freq, freq);
+ 	struct dev_pm_set_opp_data *data;
+@@ -737,6 +738,11 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+ 		return _generic_set_opp_clk_only(dev, clk, old_freq, freq);
  	}
  
-+	if (opp_table->set_rate)
-+		set_rate = opp_table->set_rate;
++	if (opp_table->set_opp)
++		set_opp = opp_table->set_opp;
 +	else
-+		set_rate = _generic_opp_set_rate;
++		set_opp = _generic_set_opp;
 +
- 	data = opp_table->set_rate_data;
+ 	data = opp_table->set_opp_data;
  	data->regulators = regulators;
  	data->regulator_count = opp_table->regulator_count;
-@@ -755,7 +761,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+@@ -754,7 +760,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
  
  	rcu_read_unlock();
  
--	return _generic_opp_set_rate(dev, data);
-+	return set_rate(dev, data);
+-	return _generic_set_opp(dev, data);
++	return set_opp(dev, data);
  }
  EXPORT_SYMBOL_GPL(dev_pm_opp_set_rate);
  
-@@ -889,6 +895,9 @@ static void _remove_opp_table(struct opp_table *opp_table)
+@@ -888,6 +894,9 @@ static void _remove_opp_table(struct opp_table *opp_table)
  	if (opp_table->regulators)
  		return;
  
-+	if (opp_table->set_rate)
++	if (opp_table->set_opp)
 +		return;
 +
  	/* Release clk */
  	if (!IS_ERR(opp_table->clk))
  		clk_put(opp_table->clk);
-@@ -1562,6 +1571,109 @@ void dev_pm_opp_put_regulators(struct device *dev)
+@@ -1486,7 +1495,7 @@ int dev_pm_opp_set_regulators(struct device *dev, const char * const names[],
+ 
+ 	opp_table->regulator_count = count;
+ 
+-	/* Allocate block only once to pass to ->set_rate() */
++	/* Allocate block only once to pass to ->set_opp() */
+ 	ret = _allocate_set_opp_data(opp_table);
+ 	if (ret)
+ 		goto free_regulators;
+@@ -1561,6 +1570,109 @@ void dev_pm_opp_put_regulators(struct device *dev)
  EXPORT_SYMBOL_GPL(dev_pm_opp_put_regulators);
  
  /**
-+ * dev_pm_opp_register_set_rate_helper() - Register custom OPP set rate helper
++ * dev_pm_opp_register_set_opp_helper() - Register custom OPP set rate helper
 + * @dev: Device for which the helper is getting registered.
-+ * @set_rate: Custom OPP set rate helper.
++ * @set_opp: Custom set OPP helper.
 + *
 + * This is useful to support complex platforms (like platforms with multiple
 + * regulators per device), instead of the generic OPP set rate helper.
@@ -82,13 +92,13 @@ index 96f0439..f7c4ef1 100644
 + * that this function is *NOT* called under RCU protection or in contexts where
 + * mutex cannot be locked.
 + */
-+int dev_pm_opp_register_set_rate_helper(struct device *dev,
-+	int (*set_rate)(struct device *dev, struct dev_pm_set_rate_data *data))
++int dev_pm_opp_register_set_opp_helper(struct device *dev,
++	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data))
 +{
 +	struct opp_table *opp_table;
 +	int ret;
 +
-+	if (!set_rate)
++	if (!set_opp)
 +		return -EINVAL;
 +
 +	mutex_lock(&opp_table_lock);
@@ -105,13 +115,13 @@ index 96f0439..f7c4ef1 100644
 +		goto err;
 +	}
 +
-+	/* Already have custom set_rate helper */
-+	if (WARN_ON(opp_table->set_rate)) {
++	/* Already have custom set_opp helper */
++	if (WARN_ON(opp_table->set_opp)) {
 +		ret = -EBUSY;
 +		goto err;
 +	}
 +
-+	opp_table->set_rate = set_rate;
++	opp_table->set_opp = set_opp;
 +
 +	mutex_unlock(&opp_table_lock);
 +	return 0;
@@ -123,12 +133,12 @@ index 96f0439..f7c4ef1 100644
 +
 +	return ret;
 +}
-+EXPORT_SYMBOL_GPL(dev_pm_opp_register_set_rate_helper);
++EXPORT_SYMBOL_GPL(dev_pm_opp_register_set_opp_helper);
 +
 +/**
-+ * dev_pm_opp_register_put_rate_helper() - Releases resources blocked for
-+ *					   set_rate helper
-+ * @dev: Device for which custom set_rate helper has to be cleared.
++ * dev_pm_opp_register_put_opp_helper() - Releases resources blocked for
++ *					   set_opp helper
++ * @dev: Device for which custom set_opp helper has to be cleared.
 + *
 + * Locking: The internal opp_table and opp structures are RCU protected.
 + * Hence this function internally uses RCU updater strategy with mutex locks
@@ -136,7 +146,7 @@ index 96f0439..f7c4ef1 100644
 + * that this function is *NOT* called under RCU protection or in contexts where
 + * mutex cannot be locked.
 + */
-+void dev_pm_opp_register_put_rate_helper(struct device *dev)
++void dev_pm_opp_register_put_opp_helper(struct device *dev)
 +{
 +	struct opp_table *opp_table;
 +
@@ -150,8 +160,8 @@ index 96f0439..f7c4ef1 100644
 +		goto unlock;
 +	}
 +
-+	if (!opp_table->set_rate) {
-+		dev_err(dev, "%s: Doesn't have custom set_rate helper set\n",
++	if (!opp_table->set_opp) {
++		dev_err(dev, "%s: Doesn't have custom set_opp helper set\n",
 +			__func__);
 +		goto unlock;
 +	}
@@ -159,7 +169,7 @@ index 96f0439..f7c4ef1 100644
 +	/* Make sure there are no concurrent readers while updating opp_table */
 +	WARN_ON(!list_empty(&opp_table->opp_list));
 +
-+	opp_table->set_rate = NULL;
++	opp_table->set_opp = NULL;
 +
 +	/* Try freeing opp_table if this was the last blocking resource */
 +	_remove_opp_table(opp_table);
@@ -167,48 +177,48 @@ index 96f0439..f7c4ef1 100644
 +unlock:
 +	mutex_unlock(&opp_table_lock);
 +}
-+EXPORT_SYMBOL_GPL(dev_pm_opp_register_put_rate_helper);
++EXPORT_SYMBOL_GPL(dev_pm_opp_register_put_opp_helper);
 +
 +/**
   * dev_pm_opp_add()  - Add an OPP table from a table definitions
   * @dev:	device for which we do this operation
   * @freq:	Frequency in Hz for this OPP
 diff --git a/drivers/base/power/opp/opp.h b/drivers/base/power/opp/opp.h
-index 6629c53..86e31f0 100644
+index 26bc6c1..62a6020 100644
 --- a/drivers/base/power/opp/opp.h
 +++ b/drivers/base/power/opp/opp.h
 @@ -178,6 +178,7 @@ struct opp_table {
  	struct regulator **regulators;
  	unsigned int regulator_count;
  
-+	int (*set_rate)(struct device *dev, struct dev_pm_set_rate_data *data);
- 	struct dev_pm_set_rate_data *set_rate_data;
++	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data);
+ 	struct dev_pm_set_opp_data *set_opp_data;
  
  #ifdef CONFIG_DEBUG_FS
 diff --git a/include/linux/pm_opp.h b/include/linux/pm_opp.h
-index 73713a8..ce07025 100644
+index 2969519..cb5bc47 100644
 --- a/include/linux/pm_opp.h
 +++ b/include/linux/pm_opp.h
-@@ -95,6 +95,8 @@ int dev_pm_opp_set_prop_name(struct device *dev, const char *name);
+@@ -113,6 +113,8 @@ int dev_pm_opp_set_prop_name(struct device *dev, const char *name);
  void dev_pm_opp_put_prop_name(struct device *dev);
- int dev_pm_opp_set_regulators(struct device *dev, const char *names[], unsigned int count);
+ int dev_pm_opp_set_regulators(struct device *dev, const char * const names[], unsigned int count);
  void dev_pm_opp_put_regulators(struct device *dev);
-+int dev_pm_opp_register_set_rate_helper(struct device *dev, int (*set_rate)(struct device *dev, struct dev_pm_set_rate_data *data));
-+void dev_pm_opp_register_put_rate_helper(struct device *dev);
++int dev_pm_opp_register_set_opp_helper(struct device *dev, int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data));
++void dev_pm_opp_register_put_opp_helper(struct device *dev);
  int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq);
  int dev_pm_opp_set_sharing_cpus(struct device *cpu_dev, const struct cpumask *cpumask);
  int dev_pm_opp_get_sharing_cpus(struct device *cpu_dev, struct cpumask *cpumask);
-@@ -194,6 +196,14 @@ static inline int dev_pm_opp_set_supported_hw(struct device *dev,
+@@ -212,6 +214,14 @@ static inline int dev_pm_opp_set_supported_hw(struct device *dev,
  
  static inline void dev_pm_opp_put_supported_hw(struct device *dev) {}
  
-+static inline int dev_pm_opp_register_set_rate_helper(struct device *dev,
-+	int (*set_rate)(struct device *dev, struct dev_pm_set_rate_data *data))
++static inline int dev_pm_opp_register_set_opp_helper(struct device *dev,
++	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data))
 +{
 +	return -ENOTSUPP;
 +}
 +
-+static inline void dev_pm_opp_register_put_rate_helper(struct device *dev) {}
++static inline void dev_pm_opp_register_put_opp_helper(struct device *dev) {}
 +
  static inline int dev_pm_opp_set_prop_name(struct device *dev, const char *name)
  {

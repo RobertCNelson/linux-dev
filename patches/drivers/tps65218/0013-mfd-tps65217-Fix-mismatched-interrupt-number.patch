@@ -1,7 +1,7 @@
-From 8672b8f44c80413aaeee8c2e8242b98e8bf197fd Mon Sep 17 00:00:00 2001
+From 5680ab1abcaa691dfda2d3626bb79ce3125ced23 Mon Sep 17 00:00:00 2001
 From: Milo Kim <woogyom.kim@gmail.com>
-Date: Fri, 21 Oct 2016 23:01:06 +0900
-Subject: [PATCH 12/13] mfd: tps65217: Fix mismatched interrupt number
+Date: Fri, 28 Oct 2016 21:37:02 +0900
+Subject: [PATCH 13/14] mfd: tps65217: Fix mismatched interrupt number
 
 Enum value of 'tps65217_irq_type' is not matched with DT parsed hwirq
 number[*].
@@ -12,32 +12,38 @@ Eventually, the power button driver enables not PB but USB interrupt
 when it is probed.
 
 According to the TPS65217 register map[**], USB interrupt is the LSB.
-This patch synchronizes TPS65217 IRQ index.
+This patch defines synchronized IRQ value.
 
 [*]  include/dt-bindings/mfd/tps65217.h
 [**] http://www.ti.com/lit/ds/symlink/tps65217.pdf
 
 Signed-off-by: Milo Kim <woogyom.kim@gmail.com>
 ---
- include/linux/mfd/tps65217.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/mfd/tps65217.h | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/include/linux/mfd/tps65217.h b/include/linux/mfd/tps65217.h
-index 4ccda89..75a3a5f 100644
+index 4ccda89..3cbec4b 100644
 --- a/include/linux/mfd/tps65217.h
 +++ b/include/linux/mfd/tps65217.h
-@@ -235,9 +235,9 @@ struct tps65217_bl_pdata {
+@@ -234,12 +234,11 @@ struct tps65217_bl_pdata {
+ 	int dft_brightness;
  };
  
- enum tps65217_irq_type {
+-enum tps65217_irq_type {
 -	TPS65217_IRQ_PB,
 -	TPS65217_IRQ_AC,
- 	TPS65217_IRQ_USB,
-+	TPS65217_IRQ_AC,
-+	TPS65217_IRQ_PB,
- 	TPS65217_NUM_IRQ
- };
+-	TPS65217_IRQ_USB,
+-	TPS65217_NUM_IRQ
+-};
++/* Interrupt numbers */
++#define TPS65217_IRQ_USB		0
++#define TPS65217_IRQ_AC			1
++#define TPS65217_IRQ_PB			2
++#define TPS65217_NUM_IRQ		3
  
+ /**
+  * struct tps65217_board - packages regulator init data
 -- 
 2.9.3
 

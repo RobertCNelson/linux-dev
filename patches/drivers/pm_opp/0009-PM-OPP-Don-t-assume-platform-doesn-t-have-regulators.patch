@@ -1,0 +1,47 @@
+From 44ca7c73ab42649daec46d5e466d4c03f52b74de Mon Sep 17 00:00:00 2001
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Date: Wed, 26 Oct 2016 12:03:04 +0530
+Subject: [PATCH 9/9] PM / OPP: Don't assume platform doesn't have regulators
+
+If the regulators aren't set explicitly by the platform, the OPP core
+assumes that the platform doesn't have any regulator and uses the
+clk-only callback.
+
+If the platform failed to register a regulator with the core, then this
+can turn out to be a dangerous assumption as the OPP core will try to
+change clk without changing regulators.
+
+Handle that properly by making sure that the DT didn't had any entries
+for supply voltages as well.
+
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ drivers/base/power/opp/core.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
+index 3298fac..34cd48d 100644
+--- a/drivers/base/power/opp/core.c
++++ b/drivers/base/power/opp/core.c
+@@ -734,7 +734,17 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+ 
+ 	/* Only frequency scaling */
+ 	if (!regulators) {
+-		rcu_read_unlock();
++		/*
++		 * DT contained supply ratings? Consider platform failed to set
++		 * regulators.
++		 */
++		if (unlikely(opp->supplies[0].u_volt)) {
++			rcu_read_unlock();
++			dev_err(dev, "%s: Regulator not registered with OPP core\n",
++				__func__);
++			return -EINVAL;
++		}
++
+ 		return _generic_set_opp_clk_only(dev, clk, old_freq, freq);
+ 	}
+ 
+-- 
+2.9.3
+

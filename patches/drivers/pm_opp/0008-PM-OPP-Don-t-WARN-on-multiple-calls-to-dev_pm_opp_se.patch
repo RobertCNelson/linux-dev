@@ -1,7 +1,7 @@
-From 96e9cbbb9e391e1ba49c88ad3756ec72c7b92f94 Mon Sep 17 00:00:00 2001
+From 65cd2a936eb9769ebbb1f40ce13603be2ca9e500 Mon Sep 17 00:00:00 2001
 From: Viresh Kumar <viresh.kumar@linaro.org>
-Date: Thu, 20 Oct 2016 14:15:02 +0530
-Subject: [PATCH 8/8] PM / OPP: Don't WARN on multiple calls to
+Date: Wed, 26 Oct 2016 12:03:03 +0530
+Subject: [PATCH 8/9] PM / OPP: Don't WARN on multiple calls to
  dev_pm_opp_set_regulators()
 
 If a platform specific OPP driver has called this routine first and set
@@ -10,15 +10,17 @@ WARN_ON(). Remove the WARN_ON(), but continue to return error in such
 cases.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@codeaurora.org>
+Tested-by: Dave Gerlach <d-gerlach@ti.com>
 ---
  drivers/base/power/opp/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
-index f7c4ef1..51dd71d 100644
+index f4f6b1f..3298fac 100644
 --- a/drivers/base/power/opp/core.c
 +++ b/drivers/base/power/opp/core.c
-@@ -1469,7 +1469,7 @@ int dev_pm_opp_set_regulators(struct device *dev, const char *names[],
+@@ -1469,7 +1469,7 @@ int dev_pm_opp_set_regulators(struct device *dev, const char * const names[],
  	}
  
  	/* Already have regulators set */

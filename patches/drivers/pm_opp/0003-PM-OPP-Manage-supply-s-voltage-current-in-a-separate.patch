@@ -1,19 +1,21 @@
-From 68d4639a18c90192b5bc956eb64528242a25acc9 Mon Sep 17 00:00:00 2001
+From 1cbdd4d79b84b31aff0d8afaa6c774b94fd88f40 Mon Sep 17 00:00:00 2001
 From: Viresh Kumar <viresh.kumar@linaro.org>
-Date: Thu, 20 Oct 2016 14:14:57 +0530
-Subject: [PATCH 3/8] PM / OPP: Manage supply's voltage/current in a separate
+Date: Wed, 26 Oct 2016 12:02:58 +0530
+Subject: [PATCH 3/9] PM / OPP: Manage supply's voltage/current in a separate
  structure
 
 This is a preparatory step for multiple regulator per device support.
 Move the voltage/current variables to a new structure.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Dave Gerlach <d-gerlach@ti.com>
 ---
  drivers/base/power/opp/core.c    | 44 +++++++++++++++++++++-------------------
  drivers/base/power/opp/debugfs.c |  8 ++++----
  drivers/base/power/opp/of.c      | 18 ++++++++--------
- drivers/base/power/opp/opp.h     | 27 ++++++++++++++++--------
- 4 files changed, 55 insertions(+), 42 deletions(-)
+ drivers/base/power/opp/opp.h     | 11 +++-------
+ include/linux/pm_opp.h           | 16 +++++++++++++++
+ 5 files changed, 55 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
 index 056527a..8d60061 100644
@@ -181,13 +183,43 @@ index 5552211..b7fcd0a 100644
  	/*
  	 * Notify the changes in the availability of the operable
 diff --git a/drivers/base/power/opp/opp.h b/drivers/base/power/opp/opp.h
-index fabd5ca..1bda0d3 100644
+index fabd5ca..7912131 100644
 --- a/drivers/base/power/opp/opp.h
 +++ b/drivers/base/power/opp/opp.h
-@@ -47,6 +47,22 @@ extern struct list_head opp_tables;
-  */
+@@ -61,10 +61,7 @@ extern struct list_head opp_tables;
+  * @turbo:	true if turbo (boost) OPP
+  * @suspend:	true if suspend OPP
+  * @rate:	Frequency in hertz
+- * @u_volt:	Target voltage in microvolts corresponding to this OPP
+- * @u_volt_min:	Minimum voltage in microvolts corresponding to this OPP
+- * @u_volt_max:	Maximum voltage in microvolts corresponding to this OPP
+- * @u_amp:	Maximum current drawn by the device in microamperes
++ * @supply:	Power supply voltage/current values
+  * @clock_latency_ns: Latency (in nanoseconds) of switching to this OPP's
+  *		frequency from any other OPP's frequency.
+  * @opp_table:	points back to the opp_table struct this opp belongs to
+@@ -83,10 +80,8 @@ struct dev_pm_opp {
+ 	bool suspend;
+ 	unsigned long rate;
  
- /**
+-	unsigned long u_volt;
+-	unsigned long u_volt_min;
+-	unsigned long u_volt_max;
+-	unsigned long u_amp;
++	struct dev_pm_opp_supply supply;
++
+ 	unsigned long clock_latency_ns;
+ 
+ 	struct opp_table *opp_table;
+diff --git a/include/linux/pm_opp.h b/include/linux/pm_opp.h
+index bca2615..f69126e 100644
+--- a/include/linux/pm_opp.h
++++ b/include/linux/pm_opp.h
+@@ -24,6 +24,22 @@ enum dev_pm_opp_event {
+ 	OPP_EVENT_ADD, OPP_EVENT_REMOVE, OPP_EVENT_ENABLE, OPP_EVENT_DISABLE,
+ };
+ 
++/**
 + * struct dev_pm_opp_supply - Power supply voltage/current values
 + * @u_volt:	Target voltage in microvolts corresponding to this OPP
 + * @u_volt_min:	Minimum voltage in microvolts corresponding to this OPP
@@ -203,35 +235,9 @@ index fabd5ca..1bda0d3 100644
 +	unsigned long u_amp;
 +};
 +
-+/**
-  * struct dev_pm_opp - Generic OPP description structure
-  * @node:	opp table node. The nodes are maintained throughout the lifetime
-  *		of boot. It is expected only an optimal set of OPPs are
-@@ -61,10 +77,7 @@ extern struct list_head opp_tables;
-  * @turbo:	true if turbo (boost) OPP
-  * @suspend:	true if suspend OPP
-  * @rate:	Frequency in hertz
-- * @u_volt:	Target voltage in microvolts corresponding to this OPP
-- * @u_volt_min:	Minimum voltage in microvolts corresponding to this OPP
-- * @u_volt_max:	Maximum voltage in microvolts corresponding to this OPP
-- * @u_amp:	Maximum current drawn by the device in microamperes
-+ * @supply:	Power supply voltage/current values
-  * @clock_latency_ns: Latency (in nanoseconds) of switching to this OPP's
-  *		frequency from any other OPP's frequency.
-  * @opp_table:	points back to the opp_table struct this opp belongs to
-@@ -83,10 +96,8 @@ struct dev_pm_opp {
- 	bool suspend;
- 	unsigned long rate;
+ #if defined(CONFIG_PM_OPP)
  
--	unsigned long u_volt;
--	unsigned long u_volt_min;
--	unsigned long u_volt_max;
--	unsigned long u_amp;
-+	struct dev_pm_opp_supply supply;
-+
- 	unsigned long clock_latency_ns;
- 
- 	struct opp_table *opp_table;
+ unsigned long dev_pm_opp_get_voltage(struct dev_pm_opp *opp);
 -- 
 2.9.3
 
