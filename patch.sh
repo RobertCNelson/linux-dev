@@ -275,8 +275,15 @@ fixes () {
 		start_cleanup
 	fi
 
+	${git} "${DIR}/patches/fixes/0001-kbuild-add-fno-PIE.patch"
+	${git} "${DIR}/patches/fixes/0002-kbuild-modversions-for-EXPORT_SYMBOL-for-asm.patch"
+	${git} "${DIR}/patches/fixes/0003-kbuild-provide-include-asm-asm-prototypes.h-for-ARM.patch"
+	#v4.9.0-rc3:
+	#${git} "${DIR}/patches/fixes/0004-ARM-wire-up-new-pkey-syscalls.patch"
+
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
+		wdir="fixes"
+		number=3
 		cleanup
 	fi
 }
@@ -898,7 +905,7 @@ more_fixes () {
 ###
 #backports
 reverts
-#fixes
+fixes
 drivers
 soc
 beaglebone
