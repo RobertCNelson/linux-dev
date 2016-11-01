@@ -1,0 +1,34 @@
+From 38b596c188dc693625eabe55a53f5898aec735a7 Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Wed, 5 Oct 2016 11:13:18 -0500
+Subject: [PATCH 4/8] cpufreq: dt: Don't use generic platdev driver for
+ ti-cpufreq platforms
+
+Some TI platforms, specifically those in the am33xx, am43xx, dra7xx, and
+am57xx families of SoCs can make use of the ti-cpufreq driver to
+selectively enable OPPs based on the exact configuration in use. The
+ti-cpufreq is given the responsibility of creating the cpufreq-dt
+platform device when the driver is in use so drop am33xx and dra7xx
+from the cpufreq-dt-platdev driver so it is not created twice.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ drivers/cpufreq/cpufreq-dt-platdev.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
+index 7126762..d2637e1 100644
+--- a/drivers/cpufreq/cpufreq-dt-platdev.c
++++ b/drivers/cpufreq/cpufreq-dt-platdev.c
+@@ -72,8 +72,6 @@ static const struct of_device_id machines[] __initconst = {
+ 
+ 	{ .compatible = "sigma,tango4" },
+ 
+-	{ .compatible = "ti,am33xx", },
+-	{ .compatible = "ti,dra7", },
+ 	{ .compatible = "ti,omap2", },
+ 	{ .compatible = "ti,omap3", },
+ 	{ .compatible = "ti,omap4", },
+-- 
+2.10.1
+

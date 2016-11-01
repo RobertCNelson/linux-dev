@@ -1,0 +1,41 @@
+From 3894e03ba1a570e763d91e3e2c5bd5735ea3a4ae Mon Sep 17 00:00:00 2001
+From: Dave Gerlach <d-gerlach@ti.com>
+Date: Tue, 2 Aug 2016 13:53:49 -0500
+Subject: [PATCH 7/8] ARM: dts: am4372: Update operating-points-v2 table for
+ cpu
+
+The new ti-cpufreq driver expects the platform specific properties to be
+part of the operating-points-v2 table rather than the cpu node so let's
+move them there as the only user is the ti-cpufreq driver.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+---
+ arch/arm/boot/dts/am4372.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/am4372.dtsi b/arch/arm/boot/dts/am4372.dtsi
+index a275fa9..8bdb299 100644
+--- a/arch/arm/boot/dts/am4372.dtsi
++++ b/arch/arm/boot/dts/am4372.dtsi
+@@ -49,15 +49,15 @@
+ 			clock-names = "cpu";
+ 
+ 			operating-points-v2 = <&cpu0_opp_table>;
+-			ti,syscon-efuse = <&scm_conf 0x610 0x3f 0>;
+-			ti,syscon-rev = <&scm_conf 0x600>;
+ 
+ 			clock-latency = <300000>; /* From omap-cpufreq driver */
+ 		};
+ 	};
+ 
+ 	cpu0_opp_table: opp_table0 {
+-		compatible = "operating-points-v2";
++		compatible = "operating-points-v2-ti-cpu";
++		ti,syscon-efuse = <&scm_conf 0x610 0x3f 0>;
++		ti,syscon-rev = <&scm_conf 0x600>;
+ 
+ 		opp50@300000000 {
+ 			opp-hz = /bits/ 64 <300000000>;
+-- 
+2.10.1
+

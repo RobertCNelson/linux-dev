@@ -690,6 +690,27 @@ soc () {
 		cleanup
 	fi
 
+	echo "dir: soc/ti/opp"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	#https://github.com/dgerlach/linux-pm/commits/upstream/v4.9/ti-cpufreq-driver-v3
+	${git} "${DIR}/patches/soc/ti/opp/0001-PM-OPP-Expose-_of_get_opp_desc_node-as-dev_pm_opp-AP.patch"
+	${git} "${DIR}/patches/soc/ti/opp/0002-Documentation-dt-add-bindings-for-ti-cpufreq.patch"
+	${git} "${DIR}/patches/soc/ti/opp/0003-cpufreq-ti-Add-cpufreq-driver-to-determine-available.patch"
+	${git} "${DIR}/patches/soc/ti/opp/0004-cpufreq-dt-Don-t-use-generic-platdev-driver-for-ti-c.patch"
+	${git} "${DIR}/patches/soc/ti/opp/0005-ARM-dts-am33xx-Add-updated-operating-points-v2-table.patch"
+	${git} "${DIR}/patches/soc/ti/opp/0006-ARM-dts-am335x-boneblack-Enable-1GHz-OPP-for-cpu.patch"
+	${git} "${DIR}/patches/soc/ti/opp/0007-ARM-dts-am4372-Update-operating-points-v2-table-for-.patch"
+	${git} "${DIR}/patches/soc/ti/opp/0008-ARM-dts-dra7-Add-updated-operating-points-v2-table-f.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="soc/ti/opp"
+		number=8
+		cleanup
+	fi
 }
 
 dtb_makefile_append () {
