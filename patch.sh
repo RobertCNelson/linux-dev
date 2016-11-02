@@ -300,26 +300,6 @@ reverts () {
 	fi
 }
 
-fixes () {
-	echo "dir: fixes"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/fixes/0001-kbuild-add-fno-PIE.patch"
-	${git} "${DIR}/patches/fixes/0002-kbuild-modversions-for-EXPORT_SYMBOL-for-asm.patch"
-	${git} "${DIR}/patches/fixes/0003-kbuild-provide-include-asm-asm-prototypes.h-for-ARM.patch"
-	#v4.9.0-rc3:
-	#${git} "${DIR}/patches/fixes/0004-ARM-wire-up-new-pkey-syscalls.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="fixes"
-		number=3
-		cleanup
-	fi
-}
-
 drivers () {
 	echo "dir: drivers/spi"
 	#regenerate="enable"
@@ -972,7 +952,7 @@ more_fixes () {
 ###
 #backports
 reverts
-fixes
+dir 'fixes'
 drivers
 soc
 beaglebone
