@@ -481,6 +481,20 @@ drivers () {
 		number=1
 		cleanup
 	fi
+
+	echo "dir: drivers/ti/eqep"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/ti/eqep/0001-tieqep-forward-port-of-Nathaniel-Lewis-eQEP-driver.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/eqep"
+		number=1
+		cleanup
+	fi
 }
 
 soc () {
