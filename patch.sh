@@ -302,6 +302,7 @@ reverts () {
 
 drivers () {
 	dir 'drivers/spi'
+	dir 'drivers/pm_bus'
 
 	echo "dir: drivers/pm_opp"
 	#regenerate="enable"
@@ -436,6 +437,7 @@ drivers () {
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/mmc'
 	dir 'drivers/ti/rpmsg'
+	dir 'drivers/ti/rtc'
 	dir 'drivers/ti/spi'
 	dir 'drivers/ti/uio'
 
@@ -630,13 +632,12 @@ quieter () {
 ###
 #backports
 reverts
-dir 'fixes'
+dir 'build/kbuild'
 drivers
 soc
 beaglebone
 quieter
-dir 'more_fixes'
-dir 'gpio'
+dir 'build/gcc'
 dir 'local'
 
 packaging () {
