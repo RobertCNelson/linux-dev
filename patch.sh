@@ -301,19 +301,7 @@ reverts () {
 }
 
 drivers () {
-	echo "dir: drivers/spi"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/drivers/spi/0001-NFM-spi-spidev-allow-use-of-spidev-in-DT.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/spi"
-		number=1
-		cleanup
-	fi
+	dir 'drivers/spi'
 
 	echo "dir: drivers/pm_opp"
 	#regenerate="enable"
@@ -444,10 +432,13 @@ drivers () {
 		cleanup
 	fi
 
-	dir 'drivers/ti/uio'
-	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/cpsw'
 	dir 'drivers/ti/eqep'
+	dir 'drivers/ti/mmc'
+	dir 'drivers/ti/rpmsg'
+	dir 'drivers/ti/spi'
+	dir 'drivers/ti/uio'
+
 	dir 'drivers/ti/gpio'
 }
 
