@@ -383,34 +383,6 @@ drivers () {
 		cleanup
 	fi
 
-	echo "dir: drivers/ti/uio"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/drivers/ti/uio/0001-Making-the-uio-pruss-driver-work.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/ti/uio"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: drivers/ti/rpmsg"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/drivers/ti/rpmsg/0001-ARM-samples-seccomp-no-m32.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/ti/rpmsg"
-		number=1
-		cleanup
-	fi
-
 	#https://github.com/pantoniou/linux-beagle-track-mainline/tree/bbb-overlays
 	echo "dir: drivers/ti/bbb_overlays"
 	#regenerate="enable"
@@ -472,243 +444,29 @@ drivers () {
 		cleanup
 	fi
 
-	echo "dir: drivers/ti/cpsw"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/drivers/ti/cpsw/0001-cpsw-search-for-phy.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/ti/cpsw"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: drivers/ti/eqep"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/drivers/ti/eqep/0001-tieqep-forward-port-of-Nathaniel-Lewis-eQEP-driver.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/ti/eqep"
-		number=1
-		cleanup
-	fi
-
+	dir 'drivers/ti/uio'
+	dir 'drivers/ti/rpmsg'
+	dir 'drivers/ti/cpsw'
+	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/gpio'
 }
 
 soc () {
-	echo "dir: soc/exynos"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/exynos/0001-exynos5422-artik10.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/exynos"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: soc/imx/udoo"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/imx/udoo/0001-binding-doc-power-pwrseq-generic-add-binding-doc-for.patch"
-	${git} "${DIR}/patches/soc/imx/udoo/0002-power-add-power-sequence-library.patch"
-	${git} "${DIR}/patches/soc/imx/udoo/0003-binding-doc-usb-usb-device-add-optional-properties-f.patch"
-	${git} "${DIR}/patches/soc/imx/udoo/0004-usb-core-add-power-sequence-handling-for-USB-devices.patch"
-	${git} "${DIR}/patches/soc/imx/udoo/0005-usb-chipidea-let-chipidea-core-device-of_node-equal-.patch"
-	${git} "${DIR}/patches/soc/imx/udoo/0006-ARM-dts-imx6qdl-Enable-usb-node-children-with-reg.patch"
-	${git} "${DIR}/patches/soc/imx/udoo/0007-ARM-dts-imx6qdl-udoo.dtsi-fix-onboard-USB-HUB-proper.patch"
-	${git} "${DIR}/patches/soc/imx/udoo/0008-ARM-dts-imx6q-evi-Fix-onboard-hub-reset-line.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/imx/udoo"
-		number=8
-		cleanup
-	fi
-
-	echo "dir: soc/imx/wandboard"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/imx/wandboard/0001-ARM-i.MX6-Wandboard-add-wifi-bt-rfkill-driver.patch"
-	${git} "${DIR}/patches/soc/imx/wandboard/0002-ARM-dts-wandboard-add-binding-for-wand-rfkill-driver.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/imx/wandboard"
-		number=2
-		cleanup
-	fi
-
-	echo "dir: soc/imx"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/imx/0001-first-pass-imx6q-ccimx6sbc.patch"
-	${git} "${DIR}/patches/soc/imx/0002-mcimx6ul-bb-and-ism43362-b81-evb.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/imx"
-		number=2
-		cleanup
-	fi
-
-	echo "dir: soc/sunxi"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/sunxi/0001-ethernet-add-sun8i-emac-driver.patch"
-	${git} "${DIR}/patches/soc/sunxi/0002-MAINTAINERS-Add-myself-as-maintainers-of-sun8i-emac.patch"
-	${git} "${DIR}/patches/soc/sunxi/0003-ARM-sun8i-dt-Add-DT-bindings-documentation-for-Allwi.patch"
-	${git} "${DIR}/patches/soc/sunxi/0004-ARM-dts-sun8i-h3-add-sun8i-emac-ethernet-driver.patch"
-	${git} "${DIR}/patches/soc/sunxi/0005-ARM-dts-sun8i-Enable-sun8i-emac-on-the-Orange-PI-PC.patch"
-	${git} "${DIR}/patches/soc/sunxi/0006-ARM-dts-sun8i-Enable-sun8i-emac-on-the-Orange-PI-One.patch"
-	${git} "${DIR}/patches/soc/sunxi/0007-ARM-dts-sun8i-Add-ethernet0-alias-for-h3-emac.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/sunxi"
-		number=7
-		cleanup
-	fi
-
-	echo "dir: soc/ti"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/0001-sync-with-ti-4.4.patch"
-	${git} "${DIR}/patches/soc/ti/0002-ARM-dts-omap3-beagle-add-i2c2.patch"
-	${git} "${DIR}/patches/soc/ti/0003-ARM-dts-omap3-beagle-xm-spidev.patch"
-	${git} "${DIR}/patches/soc/ti/0004-ARM-DTS-omap3-beagle.dts-enable-twl4030-power-reset.patch"
-	${git} "${DIR}/patches/soc/ti/0005-arm-dts-omap4-move-emif-so-panda-es-b3-now-boots.patch"
-	${git} "${DIR}/patches/soc/ti/0006-omap3-beagle-fixes.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti"
-		number=6
-		cleanup
-	fi
-
-	echo "dir: soc/ti/bone_common"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/bone_common/0001-ARM-dts-am335x-bone-common-update-leds-to-match-3.8..patch"
-	${git} "${DIR}/patches/soc/ti/bone_common/0002-ARM-dts-am335x-bone-common-add-collision-and-carrier.patch"
-	${git} "${DIR}/patches/soc/ti/bone_common/0003-ARM-dts-am335x-bone-common-disable-running-JTAG.patch"
-	${git} "${DIR}/patches/soc/ti/bone_common/0004-ARM-dts-am335x-bone-common-overlays.patch"
-	${git} "${DIR}/patches/soc/ti/bone_common/0005-ARM-dts-am335x-bone-common-rtc-defined-in-common.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/bone_common"
-		number=5
-		cleanup
-	fi
-
-	echo "dir: soc/ti/bbg"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/bbg/0001-NFM-ARM-dts-am335x-bonegreen.dts-disable-usart-for-o.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/bbg"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: soc/ti/bbgw"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/bbgw/0001-ARM-dts-add-am335x-bonegreen-wireless.dtb.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/bbgw"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: soc/ti/bbbw"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/bbbw/0001-ARM-dts-add-am335x-boneblack-wireless.dtb.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/bbbw"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: soc/ti/blue"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/blue/0001-ARM-dts-add-am335x-boneblue.dtb.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/blue"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: soc/ti/sancloud"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/sancloud/0001-add-am335x-sancloud-bbe.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/sancloud"
-		number=1
-		cleanup
-	fi
-
-	echo "dir: soc/ti/tre"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/soc/ti/tre/0001-add-am335x-arduino-tre.dts.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/tre"
-		number=1
-		cleanup
-	fi
+	dir 'soc/exynos'
+	dir 'soc/imx/udoo'
+	dir 'soc/imx/wandboard'
+	dir 'soc/imx'
+	dir 'soc/sunxi'
+	dir 'soc/ti'
+	dir 'soc/ti/bone_common'
+	dir 'soc/ti/bbg'
+	dir 'soc/ti/bbgw'
+	dir 'soc/ti/bbbw'
+	dir 'soc/ti/blue'
+	dir 'soc/ti/sancloud'
+	dir 'soc/ti/tre'
+	dir 'soc/ti/abbbi'
+	dir 'soc/ti/am335x_olimex_som'
 
 	echo "dir: soc/ti/opp"
 	#regenerate="enable"
@@ -738,37 +496,6 @@ dtb_makefile_append () {
 }
 
 beaglebone () {
-	echo "dir: beaglebone/abbbi"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/abbbi/0001-gpu-drm-i2c-add-alternative-adv7511-driver-with-audi.patch"
-	${git} "${DIR}/patches/beaglebone/abbbi/0002-gpu-drm-i2c-adihdmi-componentize-driver-and-huge-ref.patch"
-	${git} "${DIR}/patches/beaglebone/abbbi/0003-ARM-dts-add-Arrow-BeagleBone-Black-Industrial-dts.patch"
-	${git} "${DIR}/patches/beaglebone/abbbi/0004-drm-adihdmi-Drop-dummy-save-restore-hooks.patch"
-	${git} "${DIR}/patches/beaglebone/abbbi/0005-drm-adihdmi-Pass-name-to-drm_encoder_init.patch"
-	${git} "${DIR}/patches/beaglebone/abbbi/0006-adihdmi_drv-reg_default-reg_sequence.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=6
-		cleanup
-	fi
-
-	echo "dir: beaglebone/am335x_olimex_som"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/am335x_olimex_som/0001-ARM-dts-Add-support-for-Olimex-AM3352-SOM.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-
 	echo "dir: beaglebone/capes"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
