@@ -126,6 +126,8 @@ check_dpkg () {
 
 debian_regs () {
 	unset deb_pkgs
+	pkg="bash"
+	check_dpkg
 	pkg="bc"
 	check_dpkg
 	pkg="build-essential"
