@@ -59,10 +59,14 @@ build_git () {
 	fi
 }
 
+unsecure_git_kernel_stable () {
+	${git_bin} fetch "${unsecure_linux_stable}" master --tags
+}
+
 git_kernel_stable () {
 	echo "-----------------------------"
 	echo "scripts/git: fetching from: ${linux_stable}"
-	${git_bin} fetch "${linux_stable}" master --tags || true
+	${git_bin} fetch "${linux_stable}" master --tags || unsecure_git_kernel_stable
 }
 
 git_kernel_torvalds () {
@@ -70,6 +74,10 @@ git_kernel_torvalds () {
 	echo "scripts/git: pulling from: ${torvalds_linux}"
 	${git_bin} pull --no-edit "${torvalds_linux}" master --tags || true
 	${git_bin} tag | grep v"${KERNEL_TAG}" >/dev/null 2>&1 || git_kernel_stable
+}
+
+unsecure_check_and_or_clone () {
+	${git_bin} clone "${unsecure_torvalds_linux}" "${DIR}/ignore/linux-src"
 }
 
 check_and_or_clone () {
@@ -87,7 +95,7 @@ check_and_or_clone () {
 			echo "-----------------------------"
 			echo "scripts/git: LINUX_GIT not defined in system.sh"
 			echo "cloning ${torvalds_linux} into default location: ${DIR}/ignore/linux-src"
-			${git_bin} clone "${torvalds_linux}" "${DIR}/ignore/linux-src"
+			${git_bin} clone "${torvalds_linux}" "${DIR}/ignore/linux-src" || unsecure_check_and_or_clone
 		fi
 		LINUX_GIT="${DIR}/ignore/linux-src"
 	fi
@@ -293,7 +301,9 @@ if [ ! "${git_config_user_name}" ] ; then
 fi
 
 torvalds_linux="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+unsecure_torvalds_linux="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
 linux_stable="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+unsecure_linux_stable="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
 
 if [ ! -f "${DIR}/.yakbuild" ] ; then
 	git_kernel
