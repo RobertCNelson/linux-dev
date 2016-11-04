@@ -300,6 +300,10 @@ reverts () {
 	fi
 }
 
+build () {
+	dir 'build/kbuild'
+}
+
 drivers () {
 	dir 'drivers/spi'
 	dir 'drivers/pm_bus'
@@ -433,11 +437,56 @@ drivers () {
 		cleanup
 	fi
 
+	echo "dir: drivers/ti/firmware"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	#http://git.ti.com/gitweb/?p=processor-firmware/ti-amx3-cm3-pm-firmware.git;a=summary
+	#git clone git://git.ti.com/processor-firmware/ti-amx3-cm3-pm-firmware.git
+
+	#cd ti-amx3-cm3-pm-firmware/
+	#git checkout origin/ti-v4.1.y-next -b tmp
+
+	#commit ee4acf427055d7e87d9d1d82296cbd05e388642e
+	#Author: Dave Gerlach <d-gerlach@ti.com>
+	#Date:   Tue Sep 6 14:33:11 2016 -0500
+	#
+	#    CM3: Firmware release 0x192
+	#    
+	#    This version, 0x192, includes the following changes:
+	#         - Fix DDR IO CTRL handling during suspend so both am335x and am437x
+	#           use optimal low power state and restore the exact previous
+	#           configuration.
+	#        - Explicitly configure PER state in standby, even though it is
+	#           configured to ON state to ensure proper state.
+	#         - Add new 'halt' flag in IPC_REG4 bit 11 to allow HLOS to configure
+	#           the suspend path to wait immediately before suspending the system
+	#           entirely to allow JTAG visiblity for debug.
+	#         - Fix board voltage scaling binaries i2c speed configuration in
+	#           order to properly configure 100khz operation.
+	#    
+	#    Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+
+	#cp -v bin/am* /opt/github/bb.org/ti-4.4/normal/KERNEL/firmware/
+
+	#git add -f ./firmware/am*
+
+	${git} "${DIR}/patches/drivers/ti/firmware/0001-add-am33x-firmware.patch"
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		number=1
+		cleanup
+	fi
+
 	dir 'drivers/ti/cpsw'
 	dir 'drivers/ti/eqep'
+	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/mmc'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/rtc'
+	dir 'drivers/ti/serial'
 	dir 'drivers/ti/spi'
 	dir 'drivers/ti/uio'
 
@@ -482,6 +531,8 @@ soc () {
 		number=8
 		cleanup
 	fi
+
+	dir 'soc/ti/beaglebone_capes'
 }
 
 dtb_makefile_append () {
@@ -489,25 +540,6 @@ dtb_makefile_append () {
 }
 
 beaglebone () {
-	echo "dir: beaglebone/capes"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/beaglebone/capes/0001-cape-Argus-UPS-cape-support.patch"
-	${git} "${DIR}/patches/beaglebone/capes/0002-ARM-dts-am335x-boneblack-enable-wl1835mod-cape-suppo.patch"
-	${git} "${DIR}/patches/beaglebone/capes/0003-add-am335x-boneblack-bbbmini.dts.patch"
-	${git} "${DIR}/patches/beaglebone/capes/0004-add-lcd-am335x-boneblack-bbb-exp-c.dtb-am335x-bonebl.patch"
-	${git} "${DIR}/patches/beaglebone/capes/0005-bb-audio-cape.patch"
-
-	#Replicape use am335x-boneblack-overlay.dtb???
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=5
-		cleanup
-	fi
-
 	#This has to be last...
 	echo "dir: beaglebone/dtbs"
 	#regenerate="enable"
@@ -568,77 +600,16 @@ beaglebone () {
 	else
 		${git} "${DIR}/patches/beaglebone/generated/0001-auto-generated-capes-add-dtbs-to-makefile.patch"
 	fi
-
-	echo "dir: beaglebone/firmware"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	#http://git.ti.com/gitweb/?p=processor-firmware/ti-amx3-cm3-pm-firmware.git;a=summary
-	#git clone git://git.ti.com/processor-firmware/ti-amx3-cm3-pm-firmware.git
-
-	#cd ti-amx3-cm3-pm-firmware/
-	#git checkout origin/ti-v4.1.y-next -b tmp
-
-	#commit ee4acf427055d7e87d9d1d82296cbd05e388642e
-	#Author: Dave Gerlach <d-gerlach@ti.com>
-	#Date:   Tue Sep 6 14:33:11 2016 -0500
-	#
-	#    CM3: Firmware release 0x192
-	#    
-	#    This version, 0x192, includes the following changes:
-	#         - Fix DDR IO CTRL handling during suspend so both am335x and am437x
-	#           use optimal low power state and restore the exact previous
-	#           configuration.
-	#        - Explicitly configure PER state in standby, even though it is
-	#           configured to ON state to ensure proper state.
-	#         - Add new 'halt' flag in IPC_REG4 bit 11 to allow HLOS to configure
-	#           the suspend path to wait immediately before suspending the system
-	#           entirely to allow JTAG visiblity for debug.
-	#         - Fix board voltage scaling binaries i2c speed configuration in
-	#           order to properly configure 100khz operation.
-	#    
-	#    Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
-
-	#cp -v bin/am* /opt/github/bb.org/ti-4.4/normal/KERNEL/firmware/
-
-	#git add -f ./firmware/am*
-
-	${git} "${DIR}/patches/beaglebone/firmware/0001-add-am33x-firmware.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
-}
-
-quieter () {
-	echo "dir: quieter"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	#quiet some hide obvious things...
-	${git} "${DIR}/patches/quieter/0001-quiet-8250_omap.c-use-pr_info-over-pr_err.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		number=1
-		cleanup
-	fi
 }
 
 ###
 #backports
 reverts
-dir 'build/kbuild'
+build
 drivers
 soc
 beaglebone
-quieter
 dir 'build/gcc'
-dir 'local'
 
 packaging () {
 	echo "dir: packaging"
