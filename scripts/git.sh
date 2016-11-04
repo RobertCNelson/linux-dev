@@ -70,7 +70,7 @@ git_kernel_stable () {
 }
 
 unsecure_git_kernel_torvalds () {
-	${git_bin} pull --no-edit "${torvalds_linux}" master --tags
+	${git_bin} pull --no-edit "${unsecure_torvalds_linux}" master --tags
 }
 
 git_kernel_torvalds () {
