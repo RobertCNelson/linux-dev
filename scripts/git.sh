@@ -69,10 +69,14 @@ git_kernel_stable () {
 	${git_bin} fetch "${linux_stable}" master --tags || unsecure_git_kernel_stable
 }
 
+unsecure_git_kernel_torvalds () {
+	${git_bin} pull --no-edit "${torvalds_linux}" master --tags
+}
+
 git_kernel_torvalds () {
 	echo "-----------------------------"
 	echo "scripts/git: pulling from: ${torvalds_linux}"
-	${git_bin} pull --no-edit "${torvalds_linux}" master --tags || true
+	${git_bin} pull --no-edit "${torvalds_linux}" master --tags || unsecure_git_kernel_torvalds
 	${git_bin} tag | grep v"${KERNEL_TAG}" >/dev/null 2>&1 || git_kernel_stable
 }
 

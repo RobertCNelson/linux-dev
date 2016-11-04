@@ -30,7 +30,7 @@ patch_kernel () {
 	cd "${DIR}/KERNEL" || exit
 
 	export DIR
-	/bin/sh -e "${DIR}/patch.sh" || { ${git_bin} add . ; exit 1 ; }
+	/bin/bash -e "${DIR}/patch.sh" || { ${git_bin} add . ; exit 1 ; }
 
 	if [ ! -f "${DIR}/.yakbuild" ] ; then
 		if [ ! "${RUN_BISECT}" ] ; then
