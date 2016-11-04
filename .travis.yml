@@ -1,0 +1,23 @@
+dist: trusty
+sudo: required
+language: c
+compiler: gcc
+cache: ccache
+addons:
+  apt:
+    packages:
+    - bc
+    - build-essential
+    - ca-certificates
+    - ccache
+    - lzma
+    - lzop
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y device-tree-compiler
+script:
+  - git config --global user.email "rcnee@example.com"
+  - git config --global user.name "rcnee"
+  - echo "#!/bin/sh" > system.sh
+  - echo "AUTO_BUILD=1" >> system.sh
+  - bash -e ./build_kernel.sh
