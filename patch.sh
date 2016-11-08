@@ -484,6 +484,7 @@ drivers () {
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/mmc'
+	dir 'drivers/ti/musb'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/rtc'
 	dir 'drivers/ti/serial'
@@ -506,7 +507,6 @@ soc () {
 	dir 'soc/ti/bbbw'
 	dir 'soc/ti/blue'
 	dir 'soc/ti/sancloud'
-	dir 'soc/ti/tre'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
 
@@ -591,8 +591,6 @@ beaglebone () {
 		device="am335x-boneblue.dtb" ; dtb_makefile_append
 
 		device="am335x-sancloud-bbe.dtb" ; dtb_makefile_append
-
-		device="am335x-arduino-tre.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/

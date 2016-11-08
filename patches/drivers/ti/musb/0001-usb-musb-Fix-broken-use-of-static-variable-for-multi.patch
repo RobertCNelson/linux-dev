@@ -1,0 +1,65 @@
+From 1a0734d555a872716142b4666e343104d3544645 Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Mon, 7 Nov 2016 14:50:17 -0700
+Subject: [PATCH 1/4] usb: musb: Fix broken use of static variable for multiple
+ instances
+
+We can't use static variable first for checking when musb is
+initialized when we have multiple musb instances like on am335x.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ drivers/usb/musb/musb_core.c | 9 +++++----
+ drivers/usb/musb/musb_core.h | 2 ++
+ 2 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index 27dadc0..e869473 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2296,6 +2296,7 @@ musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl)
+ 	if (status)
+ 		goto fail5;
+ 
++	musb->is_initialized = 1;
+ 	pm_runtime_mark_last_busy(musb->controller);
+ 	pm_runtime_put_autosuspend(musb->controller);
+ 
+@@ -2634,7 +2635,6 @@ static int musb_runtime_suspend(struct device *dev)
+ static int musb_runtime_resume(struct device *dev)
+ {
+ 	struct musb	*musb = dev_to_musb(dev);
+-	static int	first = 1;
+ 
+ 	/*
+ 	 * When pm_runtime_get_sync called for the first time in driver
+@@ -2645,9 +2645,10 @@ static int musb_runtime_resume(struct device *dev)
+ 	 * Also context restore without save does not make
+ 	 * any sense
+ 	 */
+-	if (!first)
+-		musb_restore_context(musb);
+-	first = 0;
++	if (!musb->is_initialized)
++		return 0;
++
++	musb_restore_context(musb);
+ 
+ 	if (musb->need_finish_resume) {
+ 		musb->need_finish_resume = 0;
+diff --git a/drivers/usb/musb/musb_core.h b/drivers/usb/musb/musb_core.h
+index 2cb88a49..c04abf4 100644
+--- a/drivers/usb/musb/musb_core.h
++++ b/drivers/usb/musb/musb_core.h
+@@ -385,6 +385,8 @@ struct musb {
+ 	int			a_wait_bcon;	/* VBUS timeout in msecs */
+ 	unsigned long		idle_timeout;	/* Next timeout in jiffies */
+ 
++	unsigned		is_initialized:1;
++
+ 	/* active means connected and not suspended */
+ 	unsigned		is_active:1;
+ 
+-- 
+2.10.2
+

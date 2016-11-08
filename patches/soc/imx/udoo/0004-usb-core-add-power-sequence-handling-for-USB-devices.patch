@@ -1,6 +1,6 @@
-From 2ad728d48842165f56e8149c9a7b26690ca18935 Mon Sep 17 00:00:00 2001
+From 1df06c7e8eb5921c1f8acae556f4a012cf03f1f3 Mon Sep 17 00:00:00 2001
 From: Peter Chen <peter.chen@nxp.com>
-Date: Tue, 20 Sep 2016 11:36:43 +0800
+Date: Tue, 8 Nov 2016 10:51:08 +0800
 Subject: [PATCH 4/8] usb: core: add power sequence handling for USB devices
 
 Some hard-wired USB devices need to do power sequence to let the
@@ -17,13 +17,15 @@ on list.
 
 Signed-off-by: Peter Chen <peter.chen@nxp.com>
 Tested-by Joshua Clayton <stillcompiling@gmail.com>
+Tested-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+Reviewed-by: Vaibhav Hiremath <hvaibhav.linux@gmail.com>
 ---
  drivers/usb/core/hub.c | 41 ++++++++++++++++++++++++++++++++++++++---
  drivers/usb/core/hub.h |  1 +
  2 files changed, 39 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 1d5fc32..22a9c75 100644
+index cbb1467..acbbf0a 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
 @@ -26,6 +26,7 @@
@@ -84,7 +86,7 @@ index 1d5fc32..22a9c75 100644
  
  	desc = intf->cur_altsetting;
  	hdev = interface_to_usbdev(intf);
-@@ -1834,6 +1865,7 @@ descriptor_error:
+@@ -1832,6 +1863,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	INIT_DELAYED_WORK(&hub->leds, led_work);
  	INIT_DELAYED_WORK(&hub->init_work, NULL);
  	INIT_WORK(&hub->events, hub_event);
@@ -92,7 +94,7 @@ index 1d5fc32..22a9c75 100644
  	usb_get_intf(intf);
  	usb_get_dev(hdev);
  
-@@ -1847,11 +1879,14 @@ descriptor_error:
+@@ -1845,11 +1877,14 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
  		hub->quirk_check_port_auto_suspend = 1;
  
@@ -123,5 +125,5 @@ index 34c1a7e..cd86f91 100644
  
  /**
 -- 
-2.9.3
+2.10.2
 
