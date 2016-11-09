@@ -476,6 +476,7 @@ drivers () {
 	${git} "${DIR}/patches/drivers/ti/firmware/0001-add-am33x-firmware.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/firmware"
 		number=1
 		cleanup
 	fi
