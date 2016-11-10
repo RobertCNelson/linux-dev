@@ -1,6 +1,6 @@
-From 9b0a79978bf294597057ddba8e40319737e191fb Mon Sep 17 00:00:00 2001
+From d46fa33ce8dd5c8446047481fdfdf73b032254f6 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 1 Nov 2016 16:45:50 -0500
+Date: Tue, 8 Nov 2016 09:50:56 -0600
 Subject: [PATCH] sync: am335x-peripheral/pinmux
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -23,7 +23,6 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../boot/dts/am335x-boneblack-nhdmi-overlay.dts    |  11 ++
  arch/arm/boot/dts/am335x-boneblack-overlay.dts     |  11 +-
  arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |  15 ++-
- arch/arm/boot/dts/am335x-boneblue.dts              |  82 +++++++-------
  arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi      |  31 ++++++
  arch/arm/boot/dts/am335x-peripheral-can1.dtsi      |  13 +++
  arch/arm/boot/dts/am335x-peripheral-emmc.dtsi      |  15 +++
@@ -33,7 +32,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-spi1.dtsi      |  13 +++
  arch/arm/boot/dts/am335x-peripheral-spi1a.dtsi     |  13 +++
  arch/arm/boot/dts/am335x-peripheral-ttyS5.dtsi     |  13 +++
- 28 files changed, 757 insertions(+), 59 deletions(-)
+ 27 files changed, 716 insertions(+), 18 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-emmc-in-reset.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can1.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-emmc.dtsi
@@ -796,99 +795,6 @@ index e376613..f35b64a 100644
 +};
 +
  #include "am335x-boneblack-wl1835mod-cape.dtsi"
-diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
-index 10db73a..8a853d6 100644
---- a/arch/arm/boot/dts/am335x-boneblue.dts
-+++ b/arch/arm/boot/dts/am335x-boneblue.dts
-@@ -172,47 +172,47 @@
- };
- 
- 
--&eqep0 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&P9_92_qep_pin &P9_27_qep_pin>;
--
--	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
--	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
--	invert_qa = <1>;   /* Should we invert the channel A input?  */
--	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
--	invert_qi = <0>;   /* Should we invert the index input? */
--	invert_qs = <0>;   /* Should we invert the strobe input? */
--
--	status = "okay";
--};
--
--&eqep1 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&P8_33_qep_pin &P8_35_qep_pin>;
--
--	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
--	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
--	invert_qa = <1>;   /* Should we invert the channel A input?  */
--	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
--	invert_qi = <0>;   /* Should we invert the index input? */
--	invert_qs = <0>;   /* Should we invert the strobe input? */
--
--	status = "okay";
--};
--
--&eqep2 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&P8_12_qep_pin &P8_11_qep_pin>;
--
--	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
--	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
--	invert_qa = <1>;   /* Should we invert the channel A input?  */
--	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
--	invert_qi = <0>;   /* Should we invert the index input? */
--	invert_qs = <0>;   /* Should we invert the strobe input? */
--
--	status = "okay";
--};
-+//&eqep0 {
-+//	pinctrl-names = "default";
-+//	pinctrl-0 = <&P9_92_qep_pin &P9_27_qep_pin>;
-+//
-+//	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
-+//	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
-+//	invert_qa = <1>;   /* Should we invert the channel A input?  */
-+//	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
-+//	invert_qi = <0>;   /* Should we invert the index input? */
-+//	invert_qs = <0>;   /* Should we invert the strobe input? */
-+//
-+//	status = "okay";
-+//};
-+
-+//&eqep1 {
-+//	pinctrl-names = "default";
-+//	pinctrl-0 = <&P8_33_qep_pin &P8_35_qep_pin>;
-+//
-+//	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
-+//	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
-+//	invert_qa = <1>;   /* Should we invert the channel A input?  */
-+//	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
-+//	invert_qi = <0>;   /* Should we invert the index input? */
-+//	invert_qs = <0>;   /* Should we invert the strobe input? */
-+//
-+//	status = "okay";
-+//};
-+
-+//&eqep2 {
-+//	pinctrl-names = "default";
-+//	pinctrl-0 = <&P8_12_qep_pin &P8_11_qep_pin>;
-+//
-+//	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
-+//	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
-+//	invert_qa = <1>;   /* Should we invert the channel A input?  */
-+//	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
-+//	invert_qi = <0>;   /* Should we invert the index input? */
-+//	invert_qs = <0>;   /* Should we invert the strobe input? */
-+//
-+//	status = "okay";
-+//};
- 
- 
- /****************************************
 diff --git a/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi b/arch/arm/boot/dts/am335x-cape-rtc-ds1307.dtsi
 new file mode 100644
 index 0000000..bce6ac5
@@ -1097,5 +1003,5 @@ index 0000000..8b42fb0
 +	status = "okay";
 +};
 -- 
-2.10.1
+2.10.2
 
