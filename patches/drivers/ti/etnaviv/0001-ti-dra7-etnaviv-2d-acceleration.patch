@@ -1,0 +1,103 @@
+From 85a71fb4eb0cb83bcd18573a8caf9c32031cd55d Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 17 Nov 2016 16:05:58 -0600
+Subject: [PATCH] ti: dra7: etnaviv: 2d acceleration
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi | 11 +++++++++++
+ arch/arm/boot/dts/dra7.dtsi                     | 10 ++++++++++
+ drivers/gpu/drm/etnaviv/Kconfig                 |  2 +-
+ drivers/gpu/drm/etnaviv/etnaviv_drv.c           |  5 ++++-
+ 4 files changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+index 6df7829..a28ea24 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+@@ -97,6 +97,12 @@
+ 		#cooling-cells = <2>;
+ 	};
+ 
++	gpu-subsystem {
++		compatible = "ti,dra7-gpu-subsystem";
++		cores = <&bb2d>;
++		status = "okay";
++	};
++
+ 	hdmi0: connector {
+ 		compatible = "hdmi-connector";
+ 		label = "hdmi";
+@@ -190,6 +196,11 @@
+ 		>;
+ 	};
+ };
++
++&bb2d {
++	status = "okay";
++};
++
+ &i2c1 {
+ 	status = "okay";
+ 	clock-frequency = <400000>;
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index 94c6d87..eb1705f 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -980,6 +980,16 @@
+ 			ti,hwmods = "dmm";
+ 		};
+ 
++		bb2d: bb2d@59000000 {
++			compatible = "ti,dra7-bb2d","vivante,gc";
++			reg = <0x59000000 0x0700>;
++			interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
++			ti,hwmods = "bb2d";
++			clocks = <&dpll_core_h24x2_ck>;
++			clock-names = "fclk";
++			status = "okay";
++		};
++
+ 		i2c1: i2c@48070000 {
+ 			compatible = "ti,omap4-i2c";
+ 			reg = <0x48070000 0x100>;
+diff --git a/drivers/gpu/drm/etnaviv/Kconfig b/drivers/gpu/drm/etnaviv/Kconfig
+index 2cde7a5..b776f41 100644
+--- a/drivers/gpu/drm/etnaviv/Kconfig
++++ b/drivers/gpu/drm/etnaviv/Kconfig
+@@ -2,7 +2,7 @@
+ config DRM_ETNAVIV
+ 	tristate "ETNAVIV (DRM support for Vivante GPU IP cores)"
+ 	depends on DRM
+-	depends on ARCH_MXC || ARCH_DOVE
++	depends on ARCH_MXC || ARCH_DOVE || ARCH_OMAP2PLUS
+ 	select SHMEM
+ 	select TMPFS
+ 	select IOMMU_API
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+index aa68766..db69dc6 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+@@ -91,8 +91,10 @@ static void load_gpu(struct drm_device *dev)
+ 			int ret;
+ 
+ 			ret = etnaviv_gpu_init(g);
+-			if (ret)
++			if (ret) {
++				dev_err(g->dev, "hw init failed: %d\n", ret);
+ 				priv->gpu[i] = NULL;
++			}
+ 		}
+ 	}
+ }
+@@ -654,6 +656,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
+ static const struct of_device_id dt_match[] = {
+ 	{ .compatible = "fsl,imx-gpu-subsystem" },
+ 	{ .compatible = "marvell,dove-gpu-subsystem" },
++	{ .compatible = "ti,dra7-gpu-subsystem"},
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, dt_match);
+-- 
+2.10.2
+

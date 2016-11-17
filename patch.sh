@@ -468,6 +468,7 @@ drivers () {
 	fi
 
 	dir 'drivers/ti/cpsw'
+	dir 'drivers/ti/etnaviv'
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/mmc'
