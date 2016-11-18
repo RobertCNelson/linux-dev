@@ -133,7 +133,6 @@ config="CONFIG_EFI" ; config_disable
 #
 # CPU Frequency scaling
 #
-config="CONFIG_CPU_FREQ_STAT" ; config_enable
 config="CONFIG_CPU_FREQ_STAT_DETAILS" ; config_enable
 config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_enable
 
@@ -141,6 +140,7 @@ config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_enable
 # CPU frequency scaling drivers
 #
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
+config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
 
 #
 # CPU Idle
@@ -175,11 +175,6 @@ config="CONFIG_IP_PNP_DHCP" ; config_enable
 config="CONFIG_IP_PNP_BOOTP" ; config_enable
 config="CONFIG_IP_PNP_RARP" ; config_enable
 config="CONFIG_NETLABEL" ; config_enable
-
-#
-# DCCP Kernel Hacking
-#
-config="CONFIG_MAC802154" ; config_module
 
 #
 # Network testing
@@ -265,6 +260,7 @@ config="CONFIG_CMA_SIZE_MBYTES" ; option=48 ; config_value
 # Bus devices
 #
 config="CONFIG_OMAP_OCP2SCP" ; config_enable
+config="CONFIG_SIMPLE_PM_BUS" ; config_enable
 
 #
 # LPDDR & LPDDR2 PCM memory drivers
@@ -323,7 +319,6 @@ config="CONFIG_SATA_AHCI_PLATFORM" ; config_enable
 config="CONFIG_AHCI_IMX" ; config_enable
 config="CONFIG_AHCI_SUNXI" ; config_enable
 config="CONFIG_AHCI_TEGRA" ; config_enable
-config="CONFIG_AHCI_QORIQ" ; config_enable
 
 #
 # PATA SFF controllers with BMDMA
@@ -371,28 +366,18 @@ config="CONFIG_MICREL_PHY" ; config_enable
 config="CONFIG_MICROSEMI_PHY" ; config_enable
 config="CONFIG_SMSC_PHY" ; config_enable
 config="CONFIG_VITESSE_PHY" ; config_enable
+config="CONFIG_ATH9K_HWRNG" ; config_enable
 
 #
 # USB Network Adapters
 #
 config="CONFIG_P54_SPI" ; config_module
 config="CONFIG_LIBERTAS_SPI" ; config_module
-config="CONFIG_RTL8XXXU" ; config_module
 config="CONFIG_RSI_SDIO" ; config_module
 config="CONFIG_CW1200" ; config_module
 config="CONFIG_CW1200_WLAN_SDIO" ; config_module
 config="CONFIG_CW1200_WLAN_SPI" ; config_module
 config="CONFIG_USB_ZD1201" ; config_module
-
-#
-# WiMAX Wireless Broadband devices
-#
-config="CONFIG_IEEE802154_FAKELB" ; config_module
-config="CONFIG_IEEE802154_AT86RF230" ; config_module
-config="CONFIG_IEEE802154_MRF24J40" ; config_module
-config="CONFIG_IEEE802154_CC2520" ; config_module
-config="CONFIG_IEEE802154_ATUSB" ; config_module
-config="CONFIG_IEEE802154_ADF7242" ; config_module
 
 #
 # Input Device Drivers
@@ -411,7 +396,6 @@ config="CONFIG_KEYBOARD_SNVS_PWRKEY" ; config_module
 config="CONFIG_KEYBOARD_NEWTON" ; config_module
 config="CONFIG_KEYBOARD_SAMSUNG" ; config_module
 config="CONFIG_KEYBOARD_SUNKBD" ; config_module
-config="CONFIG_KEYBOARD_SUN4I_LRADC" ; config_module
 config="CONFIG_KEYBOARD_XTKBD" ; config_module
 config="CONFIG_KEYBOARD_CAP11XX" ; config_module
 config="CONFIG_KEYBOARD_BCM" ; config_module
@@ -420,7 +404,6 @@ config="CONFIG_MOUSE_PS2_TOUCHKIT" ; config_enable
 config="CONFIG_MOUSE_SERIAL" ; config_module
 config="CONFIG_MOUSE_BCM5974" ; config_module
 config="CONFIG_MOUSE_CYAPA" ; config_module
-config="CONFIG_MOUSE_ELAN_I2C" ; config_module
 config="CONFIG_MOUSE_VSXXXAA" ; config_module
 config="CONFIG_MOUSE_GPIO" ; config_module
 
@@ -572,7 +555,6 @@ config="CONFIG_I2C_EXYNOS5" ; config_enable
 config="CONFIG_I2C_IMX" ; config_enable
 config="CONFIG_I2C_MV64XXX" ; config_enable
 config="CONFIG_I2C_RK3X" ; config_enable
-config="CONFIG_I2C_S3C2410" ; config_enable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
 config="CONFIG_I2C_XILINX" ; config_enable
 
@@ -596,11 +578,6 @@ config="CONFIG_SPI_ZYNQMP_GQSPI" ; config_module
 # SPI Protocol Masters
 #
 config="CONFIG_SPI_SPIDEV" ; config_module
-
-#
-# PPS support
-#
-config="CONFIG_PPS" ; config_enable
 
 #
 # PPS clients support
@@ -663,7 +640,6 @@ config="CONFIG_GPIO_MCP23S08" ; config_module
 config="CONFIG_W1_MASTER_MXC" ; config_module
 config="CONFIG_W1_MASTER_DS1WM" ; config_module
 config="CONFIG_W1_MASTER_GPIO" ; config_module
-config="CONFIG_HDQ_MASTER_OMAP" ; config_module
 
 #
 # 1-wire Slaves
@@ -678,20 +654,20 @@ config="CONFIG_W1_SLAVE_DS2760" ; config_module
 config="CONFIG_W1_SLAVE_DS2780" ; config_module
 config="CONFIG_W1_SLAVE_DS2781" ; config_module
 config="CONFIG_W1_SLAVE_DS28E04" ; config_module
+config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
+config="CONFIG_POWER_RESET_IMX" ; config_enable
 config="CONFIG_GENERIC_ADC_BATTERY" ; config_module
 config="CONFIG_BATTERY_DA9052" ; config_module
 config="CONFIG_AXP288_FUEL_GAUGE" ; config_module
 config="CONFIG_CHARGER_GPIO" ; config_module
 config="CONFIG_CHARGER_TPS65217" ; config_module
 config="CONFIG_AXP20X_POWER" ; config_enable
-config="CONFIG_POWER_RESET_IMX" ; config_enable
-config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
+config="CONFIG_POWER_SEQUENCE" ; config_enable
 
 #
 # Power Sequence Support
 #
 config="CONFIG_PWRSEQ_GENERIC" ; config_enable
-#CONFIG_PWRSEQ_GENERIC_INSTANCE_NUMBER=2
 
 #exit
 
@@ -895,10 +871,8 @@ config="CONFIG_DRM" ; config_enable
 config="CONFIG_DRM_KMS_HELPER" ; config_enable
 
 #
-# I2C encoder or helper chips
+# Sub-drivers
 #
-config="CONFIG_DRM_I2C_CH7006" ; config_module
-config="CONFIG_DRM_I2C_SIL164" ; config_module
 
 config="CONFIG_DRM_SUN4I" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
@@ -929,6 +903,7 @@ config="CONFIG_DRM_IMX_TVE" ; config_enable
 config="CONFIG_DRM_IMX_LDB" ; config_enable
 config="CONFIG_DRM_IMX_IPUV3" ; config_enable
 config="CONFIG_DRM_IMX_HDMI" ; config_enable
+config="CONFIG_DRM_ETNAVIV" ; config_enable
 
 #exit
 
@@ -953,11 +928,6 @@ config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 #
 config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_module
 config="CONFIG_SND_SOC_SAMSUNG" ; config_module
-
-#
-# CODEC drivers
-#
-config="CONFIG_SND_SOC_TLV320AIC31XX" ; config_module
 
 #
 # HID support
@@ -985,7 +955,6 @@ config="CONFIG_USB_HID" ; config_enable
 #
 # I2C HID support
 #
-config="CONFIG_USB_COMMON" ; config_enable
 config="CONFIG_USB" ; config_enable
 
 #
@@ -1051,6 +1020,7 @@ config="CONFIG_USB_DWC3_OF_SIMPLE" ; config_enable
 # Gadget/Dual-role mode requires USB Gadget support to be enabled
 #
 config="CONFIG_USB_CHIPIDEA" ; config_enable
+config="CONFIG_USB_CHIPIDEA_OF" ; config_enable
 
 #
 # USB Physical Layer drivers
@@ -1063,23 +1033,6 @@ config="CONFIG_USB_GPIO_VBUS" ; config_enable
 config="CONFIG_USB_MXS_PHY" ; config_enable
 config="CONFIG_USB_GADGET" ; config_enable
 config="CONFIG_USB_GADGET_VBUS_DRAW" ; option="500" ; config_value
-
-#
-# USB Peripheral Controller
-#
-config="CONFIG_USB_LIBCOMPOSITE" ; config_enable
-config="CONFIG_USB_F_ACM" ; config_disable
-config="CONFIG_USB_U_SERIAL" ; config_disable
-config="CONFIG_USB_U_ETHER" ; config_enable
-config="CONFIG_USB_F_OBEX" ; config_disable
-config="CONFIG_USB_F_ECM" ; config_enable
-config="CONFIG_USB_F_PHONET" ; config_disable
-config="CONFIG_USB_F_SUBSET" ; config_enable
-config="CONFIG_USB_F_RNDIS" ; config_enable
-config="CONFIG_USB_ETH" ; config_enable
-config="CONFIG_USB_ETH_EEM" ; config_disable
-config="CONFIG_USB_GADGETFS" ; config_disable
-config="CONFIG_USB_G_NOKIA" ; config_disable
 
 #exit
 
@@ -1232,7 +1185,7 @@ config="CONFIG_DW_DMAC_CORE" ; config_enable
 config="CONFIG_DW_DMAC" ; config_enable
 
 #
-# DMA Clients
+# DMABUF options
 #
 config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
 config="CONFIG_UIO_DMEM_GENIRQ" ; config_module
