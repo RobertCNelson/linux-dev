@@ -300,6 +300,10 @@ reverts () {
 	fi
 }
 
+build () {
+	dir 'build/kbuild'
+}
+
 drivers () {
 	dir 'drivers/spi'
 	dir 'drivers/pm_bus'
@@ -588,6 +592,7 @@ beaglebone () {
 ###
 #backports
 reverts
+build
 drivers
 soc
 beaglebone
