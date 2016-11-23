@@ -1,0 +1,123 @@
+From 12e65c1c72d80abf761c7266faedfc89bbdf44d8 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 23 Nov 2016 14:47:07 -0600
+Subject: [PATCH 2/2] ti: omap5: etnaviv: 2d acceleration
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/omap5-board-common.dtsi  |  4 ++++
+ arch/arm/boot/dts/omap5.dtsi               | 16 ++++++++++++++
+ arch/arm/mach-omap2/omap_hwmod_54xx_data.c | 34 ++++++++++++++++++++++++++++++
+ 3 files changed, 54 insertions(+)
+
+diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
+index 4caadb2..574aeb5 100644
+--- a/arch/arm/boot/dts/omap5-board-common.dtsi
++++ b/arch/arm/boot/dts/omap5-board-common.dtsi
+@@ -144,6 +144,10 @@
+ 	};
+ };
+ 
++&bb2d {
++	status = "okay";
++};
++
+ &gpio8 {
+ 	/* TI trees use GPIO instead of msecure, see also muxing */
+ 	p234 {
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 2526211..f4a4eae70 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -830,6 +830,16 @@
+ 			ti,hwmods = "dmm";
+ 		};
+ 
++		bb2d: bb2d@59000000 {
++			compatible = "ti,omap5-bb2d","vivante,gc";
++			reg = <0x59000000 0x0700>;
++			interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
++			ti,hwmods = "bb2d";
++			clocks = <&dpll_core_h24x2_ck>;
++			clock-names = "fclk";
++			status = "disabled";
++		};
++
+ 		emif1: emif@4c000000 {
+ 			compatible	= "ti,emif-4d5";
+ 			ti,hwmods	= "emif1";
+@@ -1119,6 +1129,12 @@
+ 			>;
+ 		};
+ 	};
++
++	gpu-subsystem {
++		compatible = "vivante,gc-gpu-subsystem";
++		cores = <&bb2d>;
++		status = "okay";
++	};
+ };
+ 
+ &cpu_thermal {
+diff --git a/arch/arm/mach-omap2/omap_hwmod_54xx_data.c b/arch/arm/mach-omap2/omap_hwmod_54xx_data.c
+index 8cdfd9b..02911e5 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_54xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_54xx_data.c
+@@ -211,6 +211,30 @@ static struct omap_hwmod omap54xx_mpu_private_hwmod = {
+ };
+ 
+ /*
++ * 'bb2d' class
++ *
++ */
++
++static struct omap_hwmod_class omap54xx_bb2d_hwmod_class = {
++	.name	= "bb2d",
++};
++
++/* bb2d */
++static struct omap_hwmod omap54xx_bb2d_hwmod = {
++	.name		= "bb2d",
++	.class		= &omap54xx_bb2d_hwmod_class,
++	.clkdm_name	= "dss_clkdm",
++	.main_clk	= "dpll_core_h24x2_ck",
++	.prcm = {
++		.omap4 = {
++			.clkctrl_offs = OMAP54XX_CM_DSS_BB2D_CLKCTRL_OFFSET,
++			.context_offs = OMAP54XX_RM_DSS_BB2D_CONTEXT_OFFSET,
++			.modulemode   = MODULEMODE_SWCTRL,
++		},
++	},
++};
++
++/*
+  * 'counter' class
+  * 32-bit ordinary counter, clocked by the falling edge of the 32 khz clock
+  */
+@@ -2245,6 +2269,15 @@ static struct omap_hwmod_ocp_if omap54xx_mpu__mpu_private = {
+ 	.user		= OCP_USER_MPU | OCP_USER_SDMA,
+ };
+ 
++/* l3_main_1 -> bb2d */
++static struct omap_hwmod_ocp_if omap54xx_l3_main_1__bb2d = {
++	.master		= &omap54xx_l3_main_1_hwmod,
++	.slave		= &omap54xx_bb2d_hwmod,
++	.clk		= "l3_iclk_div",
++	.user		= OCP_USER_MPU | OCP_USER_SDMA,
++};
++
++
+ /* l4_wkup -> counter_32k */
+ static struct omap_hwmod_ocp_if omap54xx_l4_wkup__counter_32k = {
+ 	.master		= &omap54xx_l4_wkup_hwmod,
+@@ -2776,6 +2809,7 @@ static struct omap_hwmod_ocp_if *omap54xx_hwmod_ocp_ifs[] __initdata = {
+ 	&omap54xx_l3_main_2__l4_per,
+ 	&omap54xx_l3_main_1__l4_wkup,
+ 	&omap54xx_mpu__mpu_private,
++	&omap54xx_l3_main_1__bb2d,
+ 	&omap54xx_l4_wkup__counter_32k,
+ 	&omap54xx_l4_cfg__dma_system,
+ 	&omap54xx_l4_abe__dmic,
+-- 
+2.10.2
+
