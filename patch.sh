@@ -231,6 +231,7 @@ tinydrm () {
 		cp -v ../tinydrm/Kconfig ./drivers/gpu/drm/tinydrm/
 		cp -v ../tinydrm/Makefile ./drivers/gpu/drm/tinydrm/
 		cp -rv ../tinydrm/core/* ./drivers/gpu/drm/tinydrm/core/
+		cp -rv ../tinydrm/*.c ./drivers/gpu/drm/tinydrm/
 		mkdir -p ./include/drm/tinydrm
 		cp -v ../tinydrm/include/drm/tinydrm/*.h ./include/drm/tinydrm
 
