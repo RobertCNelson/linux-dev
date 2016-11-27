@@ -234,6 +234,7 @@ tinydrm () {
 		cp -rv ../tinydrm/*.c ./drivers/gpu/drm/tinydrm/
 		mkdir -p ./include/drm/tinydrm
 		cp -v ../tinydrm/include/drm/tinydrm/*.h ./include/drm/tinydrm
+		cp -v ../tinydrm/include/uapi/drm/*.h ./include/uapi/drm
 
 		echo "obj-\$(CONFIG_DRM_TINYDRM)+= tinydrm/" >> ./drivers/gpu/drm/Makefile
 		echo "source \"drivers/gpu/drm/tinydrm/Kconfig\"" >> ./drivers/gpu/drm/Kconfig

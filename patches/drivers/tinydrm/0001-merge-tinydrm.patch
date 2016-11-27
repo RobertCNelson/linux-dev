@@ -1,6 +1,6 @@
-From b6fc33c936b8322bb8310e2827b4e8d584a18d35 Mon Sep 17 00:00:00 2001
+From 943b70c997fa973f1a5a0e9d6fecca0e2421606e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 27 Nov 2016 14:45:38 -0600
+Date: Sun, 27 Nov 2016 15:02:15 -0600
 Subject: [PATCH] merge: tinydrm
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -27,7 +27,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  include/drm/tinydrm/tinydrm-helpers.h          |   50 ++
  include/drm/tinydrm/tinydrm-regmap.h           |   99 +++
  include/drm/tinydrm/tinydrm.h                  |  177 ++++
- 22 files changed, 4880 insertions(+)
+ include/uapi/drm/utinydrm.h                    |   73 ++
+ 23 files changed, 4953 insertions(+)
  create mode 100644 drivers/gpu/drm/tinydrm/Kconfig
  create mode 100644 drivers/gpu/drm/tinydrm/Makefile
  create mode 100644 drivers/gpu/drm/tinydrm/adafruit-tft.c
@@ -48,6 +49,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 include/drm/tinydrm/tinydrm-helpers.h
  create mode 100644 include/drm/tinydrm/tinydrm-regmap.h
  create mode 100644 include/drm/tinydrm/tinydrm.h
+ create mode 100644 include/uapi/drm/utinydrm.h
 
 diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
 index 483059a..c882d09 100644
@@ -5065,6 +5067,85 @@ index 0000000..1555742
 +#endif /* CONFIG_DEBUG_FS */
 +
 +#endif /* __LINUX_TINYDRM_H */
+diff --git a/include/uapi/drm/utinydrm.h b/include/uapi/drm/utinydrm.h
+new file mode 100644
+index 0000000..7d57886
+--- /dev/null
++++ b/include/uapi/drm/utinydrm.h
+@@ -0,0 +1,73 @@
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef _UAPI__UTINYDRM_H_
++#define _UAPI__UTINYDRM_H_
++
++#if defined(__KERNEL__)
++#include <uapi/drm/drm_mode.h>
++#include <linux/types.h>
++#else
++#include <linux/types.h>
++#include <drm/drm_mode.h>
++#endif
++
++#if defined(__cplusplus)
++extern "C" {
++#endif
++
++#define UTINYDRM_MAX_NAME_SIZE    80
++
++/* ioctl */
++/* FIXME: what should this be? */
++#define UTINYDRM_IOCTL_BASE       'U'
++
++struct utinydrm_dev_create {
++	char name[UTINYDRM_MAX_NAME_SIZE];
++	struct drm_mode_modeinfo mode;
++	int index;
++};
++
++#define UTINYDRM_DEV_CREATE       _IOWR(UTINYDRM_IOCTL_BASE, 1, struct utinydrm_dev_create)
++
++struct utinydrm_event {
++	__u32 type;
++	__u32 length;
++};
++
++#define UTINYDRM_EVENT_PIPE_ENABLE	1
++#define UTINYDRM_EVENT_PIPE_DISABLE	2
++#define UTINYDRM_EVENT_FB_CREATE	3
++
++struct utinydrm_event_fb_create {
++	struct utinydrm_event base;
++	struct drm_mode_fb_cmd2 fb;
++};
++
++#define UTINYDRM_EVENT_FB_DESTROY	4
++
++struct utinydrm_event_fb_destroy {
++	struct utinydrm_event base;
++	__u32 fb_id;
++};
++
++#define UTINYDRM_EVENT_FB_DIRTY 	5
++
++struct utinydrm_event_fb_dirty {
++	struct utinydrm_event base;
++	struct drm_mode_fb_dirty_cmd fb_dirty_cmd;
++	struct drm_clip_rect clips[];
++};
++
++#define UTINYDRM_PRIME_HANDLE_TO_FD 0x01
++#define DRM_IOCTL_UTINYDRM_PRIME_HANDLE_TO_FD    DRM_IOWR(DRM_COMMAND_BASE + UTINYDRM_PRIME_HANDLE_TO_FD, struct drm_prime_handle)
++
++#if defined(__cplusplus)
++}
++#endif
++
++#endif /* _UAPI__UTINYDRM_H_ */
 -- 
 2.10.2
 
