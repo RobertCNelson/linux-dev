@@ -345,15 +345,13 @@ reverts () {
 	${git} "${DIR}/patches/reverts/0006-Revert-wlcore-sdio-Populate-config-firmware-data.patch"
 	${git} "${DIR}/patches/reverts/0007-Revert-wlcore-Prepare-family-to-fix-nvs-file-handlin.patch"
 
+	${git} "${DIR}/patches/reverts/0008-Revert-Fix-subtle-CONFIG_MODVERSIONS-problems.patch"
+
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="reverts"
-		number=7
+		number=8
 		cleanup
 	fi
-}
-
-build () {
-	dir 'build/kbuild'
 }
 
 drivers () {
@@ -644,7 +642,6 @@ beaglebone () {
 ###
 #backports
 reverts
-build
 drivers
 soc
 beaglebone
