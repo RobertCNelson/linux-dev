@@ -100,6 +100,7 @@ external_git () {
 	git_tag=""
 	echo "pulling: ${git_tag}"
 	${git_bin} pull --no-edit ${git_patchset} ${git_tag}
+	${git_bin} describe
 }
 
 aufs_fail () {
