@@ -103,6 +103,10 @@ external_git () {
 	${git_bin} describe
 }
 
+sync_cherrypicks () {
+	dir 'ti_4.9.x/pm_opp'
+}
+
 aufs_fail () {
 	echo "aufs4 failed"
 	exit 2
@@ -267,6 +271,7 @@ local_patch () {
 }
 
 #external_git
+sync_cherrypicks
 #aufs4
 #rt
 tinydrm
@@ -364,7 +369,6 @@ drivers () {
 	dir 'drivers/tps65217'
 
 	dir 'drivers/ti/iodelay'
-
 
 	#https://github.com/pantoniou/linux-beagle-track-mainline/tree/bbb-overlays
 	echo "dir: drivers/ti/bbb_overlays"
@@ -501,29 +505,6 @@ soc () {
 	dir 'soc/ti/sancloud'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
-
-	echo "dir: soc/ti/opp"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	#https://github.com/dgerlach/linux-pm/commits/upstream/v4.9/ti-cpufreq-driver-v3
-	${git} "${DIR}/patches/soc/ti/opp/0001-PM-OPP-Expose-_of_get_opp_desc_node-as-dev_pm_opp-AP.patch"
-	${git} "${DIR}/patches/soc/ti/opp/0002-Documentation-dt-add-bindings-for-ti-cpufreq.patch"
-	${git} "${DIR}/patches/soc/ti/opp/0003-cpufreq-ti-Add-cpufreq-driver-to-determine-available.patch"
-	${git} "${DIR}/patches/soc/ti/opp/0004-cpufreq-dt-Don-t-use-generic-platdev-driver-for-ti-c.patch"
-	${git} "${DIR}/patches/soc/ti/opp/0005-ARM-dts-am33xx-Add-updated-operating-points-v2-table.patch"
-	${git} "${DIR}/patches/soc/ti/opp/0006-ARM-dts-am335x-boneblack-Enable-1GHz-OPP-for-cpu.patch"
-	${git} "${DIR}/patches/soc/ti/opp/0007-ARM-dts-am4372-Update-operating-points-v2-table-for-.patch"
-	${git} "${DIR}/patches/soc/ti/opp/0008-ARM-dts-dra7-Add-updated-operating-points-v2-table-f.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="soc/ti/opp"
-		number=8
-		cleanup
-	fi
-
 	dir 'soc/ti/beaglebone_capes'
 }
 
