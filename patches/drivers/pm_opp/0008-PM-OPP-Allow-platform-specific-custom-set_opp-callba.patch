@@ -1,7 +1,7 @@
-From a4b7d72bb6f33820a4bd0a0ce0b40d8f7390c996 Mon Sep 17 00:00:00 2001
+From db1d5ed6457eeda415b93d7d2a5f3fe28b832df2 Mon Sep 17 00:00:00 2001
 From: Viresh Kumar <viresh.kumar@linaro.org>
-Date: Wed, 26 Oct 2016 12:03:02 +0530
-Subject: [PATCH 7/9] PM / OPP: Allow platform specific custom set_opp()
+Date: Tue, 29 Nov 2016 12:06:55 +0530
+Subject: [PATCH 08/10] PM / OPP: Allow platform specific custom set_opp()
  callbacks
 
 The generic set_opp() handler isn't sufficient for platforms with
@@ -16,24 +16,24 @@ callback.
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Tested-by: Dave Gerlach <d-gerlach@ti.com>
 ---
- drivers/base/power/opp/core.c | 116 +++++++++++++++++++++++++++++++++++++++++-
- drivers/base/power/opp/opp.h  |   1 +
+ drivers/base/power/opp/core.c | 114 +++++++++++++++++++++++++++++++++++++++++-
+ drivers/base/power/opp/opp.h  |   2 +
  include/linux/pm_opp.h        |  10 ++++
- 3 files changed, 125 insertions(+), 2 deletions(-)
+ 3 files changed, 125 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
-index dedb08a..f4f6b1f 100644
+index 3a0b9d9..ddd4915 100644
 --- a/drivers/base/power/opp/core.c
 +++ b/drivers/base/power/opp/core.c
-@@ -673,6 +673,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+@@ -687,6 +687,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
  {
  	struct opp_table *opp_table;
  	unsigned long freq, old_freq;
-+	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data);
++	int (*set_opp)(struct dev_pm_set_opp_data *data);
  	struct dev_pm_opp *old_opp, *opp;
  	struct regulator **regulators;
  	struct dev_pm_set_opp_data *data;
-@@ -737,6 +738,11 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+@@ -751,6 +752,11 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
  		return _generic_set_opp_clk_only(dev, clk, old_freq, freq);
  	}
  
@@ -45,16 +45,16 @@ index dedb08a..f4f6b1f 100644
  	data = opp_table->set_opp_data;
  	data->regulators = regulators;
  	data->regulator_count = opp_table->regulator_count;
-@@ -754,7 +760,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
+@@ -769,7 +775,7 @@ int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq)
  
  	rcu_read_unlock();
  
--	return _generic_set_opp(dev, data);
-+	return set_opp(dev, data);
+-	return _generic_set_opp(data);
++	return set_opp(data);
  }
  EXPORT_SYMBOL_GPL(dev_pm_opp_set_rate);
  
-@@ -888,6 +894,9 @@ static void _remove_opp_table(struct opp_table *opp_table)
+@@ -903,6 +909,9 @@ static void _remove_opp_table(struct opp_table *opp_table)
  	if (opp_table->regulators)
  		return;
  
@@ -64,20 +64,11 @@ index dedb08a..f4f6b1f 100644
  	/* Release clk */
  	if (!IS_ERR(opp_table->clk))
  		clk_put(opp_table->clk);
-@@ -1486,7 +1495,7 @@ int dev_pm_opp_set_regulators(struct device *dev, const char * const names[],
- 
- 	opp_table->regulator_count = count;
- 
--	/* Allocate block only once to pass to ->set_rate() */
-+	/* Allocate block only once to pass to ->set_opp() */
- 	ret = _allocate_set_opp_data(opp_table);
- 	if (ret)
- 		goto free_regulators;
-@@ -1561,6 +1570,109 @@ void dev_pm_opp_put_regulators(struct device *dev)
+@@ -1578,6 +1587,109 @@ void dev_pm_opp_put_regulators(struct device *dev)
  EXPORT_SYMBOL_GPL(dev_pm_opp_put_regulators);
  
  /**
-+ * dev_pm_opp_register_set_opp_helper() - Register custom OPP set rate helper
++ * dev_pm_opp_register_set_opp_helper() - Register custom set OPP helper
 + * @dev: Device for which the helper is getting registered.
 + * @set_opp: Custom set OPP helper.
 + *
@@ -93,7 +84,7 @@ index dedb08a..f4f6b1f 100644
 + * mutex cannot be locked.
 + */
 +int dev_pm_opp_register_set_opp_helper(struct device *dev,
-+	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data))
++			int (*set_opp)(struct dev_pm_set_opp_data *data))
 +{
 +	struct opp_table *opp_table;
 +	int ret;
@@ -184,36 +175,44 @@ index dedb08a..f4f6b1f 100644
   * @dev:	device for which we do this operation
   * @freq:	Frequency in Hz for this OPP
 diff --git a/drivers/base/power/opp/opp.h b/drivers/base/power/opp/opp.h
-index 26bc6c1..62a6020 100644
+index ef70110..d830d4b 100644
 --- a/drivers/base/power/opp/opp.h
 +++ b/drivers/base/power/opp/opp.h
-@@ -178,6 +178,7 @@ struct opp_table {
+@@ -141,6 +141,7 @@ enum opp_table_access {
+  * @clk: Device's clock handle
+  * @regulators: Supply regulators
+  * @regulator_count: Number of power supply regulators
++ * @set_opp: Platform specific set_opp callback
+  * @set_opp_data: Data to be passed to set_opp callback
+  * @dentry:	debugfs dentry pointer of the real device directory (not links).
+  * @dentry_name: Name of the real dentry.
+@@ -179,6 +180,7 @@ struct opp_table {
  	struct regulator **regulators;
  	unsigned int regulator_count;
  
-+	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data);
++	int (*set_opp)(struct dev_pm_set_opp_data *data);
  	struct dev_pm_set_opp_data *set_opp_data;
  
  #ifdef CONFIG_DEBUG_FS
 diff --git a/include/linux/pm_opp.h b/include/linux/pm_opp.h
-index 2969519..cb5bc47 100644
+index 4723625..d62bd05 100644
 --- a/include/linux/pm_opp.h
 +++ b/include/linux/pm_opp.h
-@@ -113,6 +113,8 @@ int dev_pm_opp_set_prop_name(struct device *dev, const char *name);
+@@ -115,6 +115,8 @@ int dev_pm_opp_set_prop_name(struct device *dev, const char *name);
  void dev_pm_opp_put_prop_name(struct device *dev);
  int dev_pm_opp_set_regulators(struct device *dev, const char * const names[], unsigned int count);
  void dev_pm_opp_put_regulators(struct device *dev);
-+int dev_pm_opp_register_set_opp_helper(struct device *dev, int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data));
++int dev_pm_opp_register_set_opp_helper(struct device *dev, int (*set_opp)(struct dev_pm_set_opp_data *data));
 +void dev_pm_opp_register_put_opp_helper(struct device *dev);
  int dev_pm_opp_set_rate(struct device *dev, unsigned long target_freq);
  int dev_pm_opp_set_sharing_cpus(struct device *cpu_dev, const struct cpumask *cpumask);
  int dev_pm_opp_get_sharing_cpus(struct device *cpu_dev, struct cpumask *cpumask);
-@@ -212,6 +214,14 @@ static inline int dev_pm_opp_set_supported_hw(struct device *dev,
+@@ -214,6 +216,14 @@ static inline int dev_pm_opp_set_supported_hw(struct device *dev,
  
  static inline void dev_pm_opp_put_supported_hw(struct device *dev) {}
  
 +static inline int dev_pm_opp_register_set_opp_helper(struct device *dev,
-+	int (*set_opp)(struct device *dev, struct dev_pm_set_opp_data *data))
++			int (*set_opp)(struct dev_pm_set_opp_data *data))
 +{
 +	return -ENOTSUPP;
 +}
@@ -224,5 +223,5 @@ index 2969519..cb5bc47 100644
  {
  	return -ENOTSUPP;
 -- 
-2.9.3
+2.10.2
 

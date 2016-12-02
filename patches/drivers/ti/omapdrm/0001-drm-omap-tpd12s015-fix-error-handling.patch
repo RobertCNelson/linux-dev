@@ -1,0 +1,56 @@
+From 1e59e7b2d21b0423ceaa6d72f43834d3b04ef8d9 Mon Sep 17 00:00:00 2001
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Date: Tue, 22 Nov 2016 10:11:07 +0200
+Subject: [PATCH] drm/omap: tpd12s015: fix error handling
+
+tpd12s015 driver is missing error value handling for gpio
+initialization, causing 0 to be returned as an error if gpiod_get_*
+fails. This may cause deferred probing to fail.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+---
+ drivers/gpu/drm/omapdrm/displays/encoder-tpd12s015.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/displays/encoder-tpd12s015.c b/drivers/gpu/drm/omapdrm/displays/encoder-tpd12s015.c
+index 46855c8..d189426 100644
+--- a/drivers/gpu/drm/omapdrm/displays/encoder-tpd12s015.c
++++ b/drivers/gpu/drm/omapdrm/displays/encoder-tpd12s015.c
+@@ -234,25 +234,30 @@ static int tpd_probe(struct platform_device *pdev)
+ 	if (r)
+ 		return r;
+ 
+-
+ 	gpio = devm_gpiod_get_index_optional(&pdev->dev, NULL, 0,
+ 		 GPIOD_OUT_LOW);
+-	if (IS_ERR(gpio))
++	if (IS_ERR(gpio)) {
++		r = PTR_ERR(gpio);
+ 		goto err_gpio;
++	}
+ 
+ 	ddata->ct_cp_hpd_gpio = gpio;
+ 
+ 	gpio = devm_gpiod_get_index_optional(&pdev->dev, NULL, 1,
+ 		 GPIOD_OUT_LOW);
+-	if (IS_ERR(gpio))
++	if (IS_ERR(gpio)) {
++		r = PTR_ERR(gpio);
+ 		goto err_gpio;
++	}
+ 
+ 	ddata->ls_oe_gpio = gpio;
+ 
+ 	gpio = devm_gpiod_get_index(&pdev->dev, NULL, 2,
+ 		GPIOD_IN);
+-	if (IS_ERR(gpio))
++	if (IS_ERR(gpio)) {
++		r = PTR_ERR(gpio);
+ 		goto err_gpio;
++	}
+ 
+ 	ddata->hpd_gpio = gpio;
+ 
+-- 
+2.10.2
+

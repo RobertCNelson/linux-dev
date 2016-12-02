@@ -355,62 +355,16 @@ reverts () {
 }
 
 drivers () {
-	dir 'drivers/spi'
 	dir 'drivers/pm_bus'
 
-	echo "dir: drivers/pm_opp"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
+	#[PATCH V5 00/10] PM / OPP: Multiple regulator support
+	dir 'drivers/pm_opp'
 
-	${git} "${DIR}/patches/drivers/pm_opp/0001-PM-OPP-Reword-binding-supporting-multiple-regulators.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0002-PM-OPP-Don-t-use-OPP-structure-outside-of-rcu-protec.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0003-PM-OPP-Manage-supply-s-voltage-current-in-a-separate.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0004-PM-OPP-Pass-struct-dev_pm_opp_supply-to-_set_opp_vol.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0005-PM-OPP-Add-infrastructure-to-manage-multiple-regulat.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0006-PM-OPP-Separate-out-_generic_opp_set_rate.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0007-PM-OPP-Allow-platform-specific-custom-set_opp-callba.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0008-PM-OPP-Don-t-WARN-on-multiple-calls-to-dev_pm_opp_se.patch"
-	${git} "${DIR}/patches/drivers/pm_opp/0009-PM-OPP-Don-t-assume-platform-doesn-t-have-regulators.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/pm_opp"
-		number=9
-		cleanup
-	fi
-
-	echo "dir: drivers/tps65218"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	#Keerthy
-	${git} "${DIR}/patches/drivers/tps65218/0001-mfd-tps65218-Remove-redundant-read-wrapper.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0002-Documentation-regulator-tps65218-Update-examples.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0003-input-tps65218-pwrbutton-Add-platform_device_id-tabl.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0004-mfd-tps65218-Use-mfd_add_devices-instead-of-of_platf.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0005-regulator-tps65218-Remove-all-the-compatibles.patch"
-
-	#Milo Kim
-	${git} "${DIR}/patches/drivers/tps65218/0006-ARM-dts-tps65217-Specify-the-interrupt-controller.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0007-ARM-dts-tps65217-Add-the-charger-device.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0008-ARM-dts-tps65217-Add-the-power-button-device.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0009-ARM-dts-am335x-Support-the-PMIC-interrupt.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0010-dt-bindings-mfd-Provide-human-readable-defines-for-T.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0011-ARM-dts-am335x-Add-the-charger-interrupt.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0012-ARM-dts-am335x-Add-the-power-button-interrupt.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0013-mfd-tps65217-Fix-mismatched-interrupt-number.patch"
-	${git} "${DIR}/patches/drivers/tps65218/0014-HACK-tps65217_pwr_but.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/tps65218"
-		number=14
-		cleanup
-	fi
+	dir 'drivers/spi'
+	dir 'drivers/tps65217'
 
 	dir 'drivers/ti/iodelay'
+
 
 	#https://github.com/pantoniou/linux-beagle-track-mainline/tree/bbb-overlays
 	echo "dir: drivers/ti/bbb_overlays"
@@ -522,6 +476,7 @@ drivers () {
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/mmc'
+	dir 'drivers/ti/omapdrm'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/rtc'
 	dir 'drivers/ti/serial'
