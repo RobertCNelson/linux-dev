@@ -1,6 +1,6 @@
-From 65ed43e4de39dc6c416d3564e8b50ded34146174 Mon Sep 17 00:00:00 2001
+From 5f01e5787ade74056d811fce43c7d35f5f73b81b Mon Sep 17 00:00:00 2001
 From: Richard Watts <rrw@kynesim.co.uk>
-Date: Thu, 1 Dec 2016 12:10:45 +0200
+Date: Fri, 2 Dec 2016 23:14:38 +0200
 Subject: [PATCH 8/8] clk: ti: omap36xx: Work around sprz319 advisory 2.1
 
 The OMAP36xx DPLL5, driving EHCI USB, can be subject to a long-term
@@ -138,7 +138,7 @@ index 9fc8754..4b9a419 100644
  CLK_OF_DECLARE(ti_omap3_dpll_clock, "ti,omap3-dpll-clock",
  	       of_ti_omap3_dpll_setup);
 diff --git a/drivers/clk/ti/dpll3xxx.c b/drivers/clk/ti/dpll3xxx.c
-index 88f2ce8..c1a3935 100644
+index 88f2ce8..4cdd28a 100644
 --- a/drivers/clk/ti/dpll3xxx.c
 +++ b/drivers/clk/ti/dpll3xxx.c
 @@ -838,3 +838,70 @@ int omap3_dpll4_set_rate_and_parent(struct clk_hw *hw, unsigned long rate,
@@ -161,11 +161,11 @@ index 88f2ce8..c1a3935 100644
 +		 * errata lists register values while last_rounded_field is the
 +		 * real divider value.
 +		 */
-+		{ 12000000,  80,  0+1 },
-+		{ 13000000, 443,  5+1 },
-+		{ 19200000,  50,  0+1 },
-+		{ 26000000, 443, 11+1 },
-+		{ 38400000,  25,  0+1 }
++		{ 12000000,  80,  0 + 1 },
++		{ 13000000, 443,  5 + 1 },
++		{ 19200000,  50,  0 + 1 },
++		{ 26000000, 443, 11 + 1 },
++		{ 38400000,  25,  0 + 1 }
 +	};
 +
 +	const struct omap3_dpll5_settings *d;
