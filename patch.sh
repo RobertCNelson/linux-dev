@@ -366,6 +366,7 @@ drivers () {
 	dir 'drivers/pm_opp'
 
 	dir 'drivers/spi'
+	dir 'drivers/tsl2550'
 	dir 'drivers/tps65217'
 
 	dir 'drivers/ti/iodelay'
