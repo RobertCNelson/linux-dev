@@ -340,6 +340,11 @@ debian_regs () {
 			#http://blog.linuxmint.com/?p=2975
 			deb_distro="xenial"
 			;;
+		serena)
+			#18.1
+			#http://packages.linuxmint.com/index.php
+			deb_distro="xenial"
+			;;
 		esac
 
 		#Future Debian Code names:
