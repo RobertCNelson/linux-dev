@@ -481,7 +481,6 @@ drivers () {
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/mmc'
-	dir 'drivers/ti/omapdrm'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/rtc'
 	dir 'drivers/ti/serial'
