@@ -12,7 +12,7 @@ Subject: [PATCH] Making the uio pruss driver work
  5 files changed, 139 insertions(+), 8 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/arm/omap/omap.txt b/Documentation/devicetree/bindings/arm/omap/omap.txt
-index 94b57f2..413aeed 100644
+index f53e2ee..29bc4fe 100644
 --- a/Documentation/devicetree/bindings/arm/omap/omap.txt
 +++ b/Documentation/devicetree/bindings/arm/omap/omap.txt
 @@ -24,6 +24,8 @@ Optional properties:
@@ -25,10 +25,10 @@ index 94b57f2..413aeed 100644
  Example:
  
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 98748c6..386d044 100644
+index 4efb3f5..ee36d6f 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -561,6 +561,17 @@
+@@ -566,6 +566,17 @@
  			ti,timer-pwm;
  		};
  
@@ -47,7 +47,7 @@ index 98748c6..386d044 100644
  			compatible = "ti,am3352-rtc", "ti,da830-rtc";
  			reg = <0x44e3e000 0x1000>;
 diff --git a/arch/arm/mach-omap2/omap_device.c b/arch/arm/mach-omap2/omap_device.c
-index e920dd8..2ea553d 100644
+index 3133fe8..f5eff35 100644
 --- a/arch/arm/mach-omap2/omap_device.c
 +++ b/arch/arm/mach-omap2/omap_device.c
 @@ -138,8 +138,8 @@ static int omap_device_build_from_dt(struct platform_device *pdev)
@@ -89,7 +89,7 @@ index e920dd8..2ea553d 100644
  odbfd_exit1:
  	kfree(hwmods);
 diff --git a/drivers/uio/Kconfig b/drivers/uio/Kconfig
-index 52c98ce..05400bc0 100644
+index 7e8dc78..e0c68ac 100644
 --- a/drivers/uio/Kconfig
 +++ b/drivers/uio/Kconfig
 @@ -129,7 +129,7 @@ config UIO_PRUSS
@@ -102,7 +102,7 @@ index 52c98ce..05400bc0 100644
  	  driver is available from below SVN repo - you may use anonymous login
  
 diff --git a/drivers/uio/uio_pruss.c b/drivers/uio/uio_pruss.c
-index ca9e2fa..6559752 100644
+index 31d5b1d..dbe8ec8 100644
 --- a/drivers/uio/uio_pruss.c
 +++ b/drivers/uio/uio_pruss.c
 @@ -19,6 +19,7 @@
@@ -136,9 +136,9 @@ index ca9e2fa..6559752 100644
  			      sram_pool_sz);
 +#endif
  	kfree(gdev->info);
+ 	clk_disable(gdev->pruss_clk);
  	clk_put(gdev->pruss_clk);
- 	kfree(gdev);
-@@ -120,9 +128,15 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -121,9 +129,15 @@ static int pruss_probe(struct platform_device *pdev)
  	struct uio_info *p;
  	struct uio_pruss_dev *gdev;
  	struct resource *regs_prussio;
@@ -154,7 +154,7 @@ index ca9e2fa..6559752 100644
  
  	gdev = kzalloc(sizeof(struct uio_pruss_dev), GFP_KERNEL);
  	if (!gdev)
-@@ -133,7 +147,7 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -134,7 +148,7 @@ static int pruss_probe(struct platform_device *pdev)
  		kfree(gdev);
  		return -ENOMEM;
  	}
@@ -163,9 +163,9 @@ index ca9e2fa..6559752 100644
  	/* Power on PRU in case its not done as part of boot-loader */
  	gdev->pruss_clk = clk_get(dev, "pruss");
  	if (IS_ERR(gdev->pruss_clk)) {
-@@ -145,8 +159,25 @@ static int pruss_probe(struct platform_device *pdev)
- 	} else {
- 		clk_enable(gdev->pruss_clk);
+@@ -153,8 +167,25 @@ static int pruss_probe(struct platform_device *pdev)
+ 			return ret;
+ 		}
  	}
 +#endif
 +
@@ -190,7 +190,7 @@ index ca9e2fa..6559752 100644
  	if (!regs_prussio) {
  		dev_err(dev, "No PRUSS I/O resource specified\n");
  		goto out_free;
-@@ -157,7 +188,50 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -165,7 +196,50 @@ static int pruss_probe(struct platform_device *pdev)
  		goto out_free;
  	}
  
@@ -242,7 +242,7 @@ index ca9e2fa..6559752 100644
  		gdev->sram_pool = pdata->sram_pool;
  		gdev->sram_vaddr =
  			(unsigned long)gen_pool_dma_alloc(gdev->sram_pool,
-@@ -182,7 +256,17 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -190,7 +264,17 @@ static int pruss_probe(struct platform_device *pdev)
  		goto out_free;
  	}
  
@@ -261,7 +261,7 @@ index ca9e2fa..6559752 100644
  	gdev->hostirq_start = platform_get_irq(pdev, 0);
  
  	for (cnt = 0, p = gdev->info; cnt < MAX_PRUSS_EVT; cnt++, p++) {
-@@ -190,6 +274,7 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -198,6 +282,7 @@ static int pruss_probe(struct platform_device *pdev)
  		p->mem[0].size = resource_size(regs_prussio);
  		p->mem[0].memtype = UIO_MEM_PHYS;
  
@@ -269,7 +269,7 @@ index ca9e2fa..6559752 100644
  		p->mem[1].addr = gdev->sram_paddr;
  		p->mem[1].size = sram_pool_sz;
  		p->mem[1].memtype = UIO_MEM_PHYS;
-@@ -197,7 +282,11 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -205,7 +290,11 @@ static int pruss_probe(struct platform_device *pdev)
  		p->mem[2].addr = gdev->ddr_paddr;
  		p->mem[2].size = extram_pool_sz;
  		p->mem[2].memtype = UIO_MEM_PHYS;
@@ -282,7 +282,7 @@ index ca9e2fa..6559752 100644
  		p->name = kasprintf(GFP_KERNEL, "pruss_evt%d", cnt);
  		p->version = DRV_VERSION;
  
-@@ -227,11 +316,20 @@ static int pruss_remove(struct platform_device *dev)
+@@ -235,11 +324,20 @@ static int pruss_remove(struct platform_device *dev)
  	return 0;
  }
  
@@ -304,5 +304,5 @@ index ca9e2fa..6559752 100644
  };
  
 -- 
-2.9.3
+2.10.2
 

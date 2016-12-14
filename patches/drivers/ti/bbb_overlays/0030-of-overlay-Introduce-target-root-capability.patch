@@ -22,7 +22,7 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  2 files changed, 102 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index c6972ea..722350b 100644
+index 5140f6b..71a705a 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
 @@ -78,6 +78,7 @@ struct of_overlay {
@@ -33,7 +33,7 @@ index c6972ea..722350b 100644
  };
  
  /* master enable switch; once set to 0 can't be re-enabled */
-@@ -231,22 +232,85 @@ static int of_overlay_apply(struct of_overlay *ov)
+@@ -266,22 +267,85 @@ static int of_overlay_apply(struct of_overlay *ov)
  static struct device_node *find_target_node(struct of_overlay *ov,
  		struct device_node *info_node, int index)
  {
@@ -123,7 +123,7 @@ index c6972ea..722350b 100644
  }
  
  /**
-@@ -418,6 +482,7 @@ void of_overlay_release(struct kobject *kobj)
+@@ -453,6 +517,7 @@ void of_overlay_release(struct kobject *kobj)
  {
  	struct of_overlay *ov = kobj_to_overlay(kobj);
  
@@ -131,7 +131,7 @@ index c6972ea..722350b 100644
  	kfree(ov);
  }
  
-@@ -474,7 +539,7 @@ static struct kobj_type of_overlay_ktype = {
+@@ -509,7 +574,7 @@ static struct kobj_type of_overlay_ktype = {
  static struct kset *ov_kset;
  
  static int __of_overlay_create(struct device_node *tree,
@@ -140,7 +140,7 @@ index c6972ea..722350b 100644
  {
  	struct of_overlay *ov;
  	int err, id;
-@@ -490,6 +555,7 @@ static int __of_overlay_create(struct device_node *tree,
+@@ -525,6 +590,7 @@ static int __of_overlay_create(struct device_node *tree,
  	ov->id = -1;
  
  	ov->target_index = target_index;
@@ -148,7 +148,7 @@ index c6972ea..722350b 100644
  
  	INIT_LIST_HEAD(&ov->node);
  
-@@ -558,6 +624,7 @@ err_free_idr:
+@@ -602,6 +668,7 @@ static int __of_overlay_create(struct device_node *tree,
  	idr_remove(&ov_idr, ov->id);
  err_destroy_trans:
  	of_changeset_destroy(&ov->cset);
@@ -156,7 +156,7 @@ index c6972ea..722350b 100644
  	kfree(ov);
  	mutex_unlock(&of_mutex);
  
-@@ -576,7 +643,7 @@ err_destroy_trans:
+@@ -620,7 +687,7 @@ static int __of_overlay_create(struct device_node *tree,
   */
  int of_overlay_create(struct device_node *tree)
  {
@@ -165,7 +165,7 @@ index c6972ea..722350b 100644
  }
  EXPORT_SYMBOL_GPL(of_overlay_create);
  
-@@ -593,10 +660,30 @@ EXPORT_SYMBOL_GPL(of_overlay_create);
+@@ -637,10 +704,30 @@ EXPORT_SYMBOL_GPL(of_overlay_create);
   */
  int of_overlay_create_target_index(struct device_node *tree, int index)
  {
@@ -198,11 +198,11 @@ index c6972ea..722350b 100644
  static int overlay_subtree_check(struct device_node *tree,
  		struct device_node *dn)
 diff --git a/include/linux/of.h b/include/linux/of.h
-index 5cd40eb..672539c 100644
+index d9d9537..09693b9 100644
 --- a/include/linux/of.h
 +++ b/include/linux/of.h
-@@ -1491,6 +1491,8 @@ int of_overlay_destroy(int id);
- int of_overlay_destroy_all(void);
+@@ -1626,6 +1626,8 @@ int of_overlay_notifier_register(struct notifier_block *nb);
+ int of_overlay_notifier_unregister(struct notifier_block *nb);
  
  int of_overlay_create_target_index(struct device_node *tree, int index);
 +int of_overlay_create_target_root(struct device_node *tree,
@@ -210,7 +210,7 @@ index 5cd40eb..672539c 100644
  
  #else
  
-@@ -1515,6 +1517,12 @@ static inline int of_overlay_create_target_index(struct device_node *tree,
+@@ -1660,6 +1662,12 @@ static inline int of_overlay_create_target_index(struct device_node *tree,
  	return -ENOTSUPP;
  }
  
@@ -224,5 +224,5 @@ index 5cd40eb..672539c 100644
  
  #endif /* _LINUX_OF_H */
 -- 
-2.9.3
+2.10.2
 

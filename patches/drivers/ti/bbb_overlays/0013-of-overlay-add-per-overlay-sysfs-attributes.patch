@@ -12,11 +12,11 @@ in a group named after the name of the fragment.
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/overlay.c | 103 +++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 99 insertions(+), 4 deletions(-)
+ drivers/of/overlay.c | 101 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 98 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 053f4b2..73336d9 100644
+index 88248a4..fb2274d 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
 @@ -27,8 +27,23 @@
@@ -65,7 +65,7 @@ index 053f4b2..73336d9 100644
  	struct of_changeset cset;
  	struct kobject kobj;
  };
-@@ -253,6 +274,8 @@ static int of_fill_overlay_info(struct of_overlay *ov,
+@@ -288,6 +309,8 @@ static int of_fill_overlay_info(struct of_overlay *ov,
  	if (ovinfo->target == NULL)
  		goto err_fail;
  
@@ -74,7 +74,7 @@ index 053f4b2..73336d9 100644
  	return 0;
  
  err_fail:
-@@ -263,6 +286,17 @@ err_fail:
+@@ -298,6 +321,17 @@ static int of_fill_overlay_info(struct of_overlay *ov,
  	return -EINVAL;
  }
  
@@ -92,7 +92,7 @@ index 053f4b2..73336d9 100644
  /**
   * of_build_overlay_info() - Build an overlay info array
   * @ov		Overlay to build
-@@ -280,7 +314,7 @@ static int of_build_overlay_info(struct of_overlay *ov,
+@@ -315,7 +349,7 @@ static int of_build_overlay_info(struct of_overlay *ov,
  {
  	struct device_node *node;
  	struct of_overlay_info *ovinfo;
@@ -101,7 +101,7 @@ index 053f4b2..73336d9 100644
  
  	/* worst case; every child is a node */
  	cnt = 0;
-@@ -301,14 +335,45 @@ static int of_build_overlay_info(struct of_overlay *ov,
+@@ -336,14 +370,45 @@ static int of_build_overlay_info(struct of_overlay *ov,
  
  	/* if nothing filled, return error */
  	if (cnt == 0) {
@@ -149,7 +149,7 @@ index 053f4b2..73336d9 100644
  }
  
  /**
-@@ -325,12 +390,16 @@ static int of_free_overlay_info(struct of_overlay *ov)
+@@ -360,12 +425,16 @@ static int of_free_overlay_info(struct of_overlay *ov)
  	struct of_overlay_info *ovinfo;
  	int i;
  
@@ -166,7 +166,7 @@ index 053f4b2..73336d9 100644
  	}
  	kfree(ov->ovinfo_tab);
  
-@@ -381,8 +450,25 @@ static const struct attribute *overlay_global_attrs[] = {
+@@ -416,8 +485,25 @@ static const struct attribute *overlay_global_attrs[] = {
  	NULL
  };
  
@@ -192,9 +192,9 @@ index 053f4b2..73336d9 100644
  };
  
  static struct kset *ov_kset;
-@@ -455,13 +541,21 @@ int of_overlay_create(struct device_node *tree)
- 		goto err_cancel_overlay;
- 	}
+@@ -488,6 +574,12 @@ int of_overlay_create(struct device_node *tree)
+ 	if (err)
+ 		goto err_revert_overlay;
  
 +	err = sysfs_create_groups(&ov->kobj, ov->attr_groups);
 +	if (err != 0) {
@@ -202,27 +202,26 @@ index 053f4b2..73336d9 100644
 +				__func__, tree->full_name);
 +		goto err_remove_kobj;
 +	}
-+
- 	/* add to the tail of the overlay list */
- 	list_add_tail(&ov->node, &ov_list);
  
- 	mutex_unlock(&of_mutex);
+ 	ov->kobj.kset = ov_kset;
+ 	err = kobject_add(&ov->kobj, NULL, "%d", id);
+@@ -506,6 +598,8 @@ int of_overlay_create(struct device_node *tree)
  
  	return id;
--
+ 
 +err_remove_kobj:
 +	kobject_put(&ov->kobj);
  err_cancel_overlay:
  	of_changeset_revert(&ov->cset);
  err_revert_overlay:
-@@ -578,6 +672,7 @@ int of_overlay_destroy(int id)
+@@ -622,6 +716,7 @@ int of_overlay_destroy(int id)
  
- 
+ 	of_overlay_notify(ov, OF_OVERLAY_PRE_REMOVE);
  	list_del(&ov->node);
 +	sysfs_remove_groups(&ov->kobj, ov->attr_groups);
  	__of_changeset_revert(&ov->cset);
+ 	of_overlay_notify(ov, OF_OVERLAY_POST_REMOVE);
  	of_free_overlay_info(ov);
- 	idr_remove(&ov_idr, id);
 -- 
-2.9.3
+2.10.2
 
