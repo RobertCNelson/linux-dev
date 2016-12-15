@@ -5,14 +5,14 @@ Subject: [PATCH] mmc: use of_alias for device numbering
 
 Signed-off-by: Matthijs van Duin <matthijsvanduin@gmail.com>
 ---
- drivers/mmc/card/block.c | 10 +++++++++-
+ drivers/mmc/core/block.c | 10 +++++++++-
  drivers/mmc/core/host.c  | 13 ++++++++++++-
  2 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/card/block.c b/drivers/mmc/card/block.c
-index c5472e3..f87c8dc 100644
---- a/drivers/mmc/card/block.c
-+++ b/drivers/mmc/card/block.c
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index bab3f07..92f183f 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
 @@ -36,6 +36,7 @@
  #include <linux/compat.h>
  #include <linux/pm_runtime.h>
@@ -21,7 +21,7 @@ index c5472e3..f87c8dc 100644
  
  #include <linux/mmc/ioctl.h>
  #include <linux/mmc/card.h>
-@@ -2216,13 +2217,20 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
+@@ -1820,13 +1821,20 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
  {
  	struct mmc_blk_data *md;
  	int devidx, ret;
@@ -44,10 +44,10 @@ index c5472e3..f87c8dc 100644
  
  	if (ret == -EAGAIN)
 diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
-index 1be42fa..b9e2365 100644
+index 98f25ff..9c211c5 100644
 --- a/drivers/mmc/core/host.c
 +++ b/drivers/mmc/core/host.c
-@@ -338,6 +338,8 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+@@ -346,6 +346,8 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
  {
  	int err;
  	struct mmc_host *host;
@@ -56,7 +56,7 @@ index 1be42fa..b9e2365 100644
  
  	host = kzalloc(sizeof(struct mmc_host) + extra, GFP_KERNEL);
  	if (!host)
-@@ -353,7 +355,16 @@ again:
+@@ -361,7 +363,16 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
  	}
  
  	spin_lock(&mmc_host_lock);
@@ -75,5 +75,5 @@ index 1be42fa..b9e2365 100644
  
  	if (err == -EAGAIN) {
 -- 
-2.8.1
+2.10.2
 

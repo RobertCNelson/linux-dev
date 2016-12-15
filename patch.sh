@@ -117,10 +117,11 @@ sync_cherrypicks () {
 	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0005-ARM-dts-am335x-boneblack-Enable-1GHz-OPP-for-cpu.patch"
 	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0006-ARM-dts-am4372-Update-operating-points-v2-table-for-.patch"
 	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0007-ARM-dts-dra7-Add-updated-operating-points-v2-table-f.patch"
+	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0008-PM-OPP-Expose-_of_get_opp_desc_node-as-dev_pm_opp-AP.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="ti_4.9.x/pm_opp"
-		number=7
+		number=8
 		cleanup
 	fi
 }
@@ -185,6 +186,8 @@ aufs4 () {
 		${git_bin} add .
 		${git_bin} commit -a -m 'merge: aufs4' -s
 		${git_bin} format-patch -5 -o ../patches/aufs4/
+
+		rm -rf ../aufs4-standalone/ || true
 
 		exit 2
 	fi
@@ -266,6 +269,8 @@ tinydrm () {
 		${git_bin} commit -a -m 'merge: tinydrm' -s
 		${git_bin} format-patch -1 -o ../patches/drivers/tinydrm/
 
+		rm -rf ../tinydrm/ || true
+
 		exit 2
 	fi
 
@@ -321,8 +326,6 @@ post_backports () {
 		mkdir -p ../patches/backports/${subsystem}/
 	fi
 	${git_bin} format-patch -1 -o ../patches/backports/${subsystem}/
-
-	exit 2
 }
 
 patch_backports (){
@@ -341,8 +344,10 @@ backports () {
 		cp -v ~/linux-src/x/ ./x/
 
 		post_backports
+		exit 2
+	else
+		patch_backports
 	fi
-	patch_backports
 }
 
 reverts () {
