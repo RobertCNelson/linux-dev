@@ -1,33 +1,33 @@
-From 1fa392187efc7d98f8afa8ebe08df0fb063c6e78 Mon Sep 17 00:00:00 2001
+From c7375ef8c4515b74632d676b4ab39203c825ac3b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sat, 8 Oct 2016 11:19:36 -0500
+Date: Fri, 16 Dec 2016 10:13:25 -0600
 Subject: [PATCH 2/2] mcimx6ul-bb and ism43362-b81-evb
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile                         |   1 +
- .../boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts | 516 +++++++++++++++++++++
- 2 files changed, 517 insertions(+)
+ .../boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts | 524 +++++++++++++++++++++
+ 2 files changed, 525 insertions(+)
  create mode 100644 arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index ae7f203..2d2be97 100644
+index 1ad4b16..9aa85b0 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -427,6 +427,7 @@ dtb-$(CONFIG_SOC_IMX6SX) += \
- 	imx6sx-sdb.dtb
+@@ -441,6 +441,7 @@ dtb-$(CONFIG_SOC_IMX6SX) += \
+ 	imx6sx-udoo-neo-full.dtb
  dtb-$(CONFIG_SOC_IMX6UL) += \
  	imx6ul-14x14-evk.dtb \
 +	imx6ul-14x14-evk-ism43362-b81-evb.dtb \
  	imx6ul-geam-kit.dtb \
+ 	imx6ul-liteboard.dtb \
  	imx6ul-pico-hobbit.dtb \
- 	imx6ul-tx6ul-0010.dtb \
 diff --git a/arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts b/arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts
 new file mode 100644
-index 0000000..9ba86b8
+index 0000000..75ddec4
 --- /dev/null
 +++ b/arch/arm/boot/dts/imx6ul-14x14-evk-ism43362-b81-evb.dts
-@@ -0,0 +1,516 @@
+@@ -0,0 +1,524 @@
 +/*
 + * Copyright (C) 2015 Freescale Semiconductor, Inc.
 + *
@@ -265,7 +265,7 @@ index 0000000..9ba86b8
 +};
 +
 +&usbotg1 {
-+	dr_mode = "peripheral";
++	dr_mode = "otg";
 +	status = "okay";
 +};
 +
@@ -273,6 +273,14 @@ index 0000000..9ba86b8
 +	dr_mode = "host";
 +	disable-over-current;
 +	status = "okay";
++};
++
++&usbphy1 {
++	fsl,tx-d-cal = <106>;
++};
++
++&usbphy2 {
++	fsl,tx-d-cal = <106>;
 +};
 +
 +&reg_sd1_vmmc {
@@ -545,5 +553,5 @@ index 0000000..9ba86b8
 +	};
 +};
 -- 
-2.9.3
+2.10.2
 

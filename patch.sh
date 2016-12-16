@@ -493,7 +493,6 @@ drivers () {
 	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/mmc'
 	dir 'drivers/ti/rpmsg'
-	dir 'drivers/ti/rtc'
 	dir 'drivers/ti/serial'
 	dir 'drivers/ti/spi'
 	dir 'drivers/ti/uio'
