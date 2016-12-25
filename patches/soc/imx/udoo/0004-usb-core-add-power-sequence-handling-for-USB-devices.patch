@@ -25,18 +25,18 @@ Reviewed-by: Vaibhav Hiremath <hvaibhav.linux@gmail.com>
  2 files changed, 39 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index cbb1467..acbbf0a 100644
+index 1fa5c0f29c64..08b5d66e5d16 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -26,6 +26,7 @@
+@@ -28,6 +28,7 @@
  #include <linux/mutex.h>
  #include <linux/random.h>
  #include <linux/pm_qos.h>
 +#include <linux/power/pwrseq.h>
  
- #include <asm/uaccess.h>
+ #include <linux/uaccess.h>
  #include <asm/byteorder.h>
-@@ -1695,6 +1696,7 @@ static void hub_disconnect(struct usb_interface *intf)
+@@ -1645,6 +1646,7 @@ static void hub_disconnect(struct usb_interface *intf)
  	hub->error = 0;
  	hub_quiesce(hub, HUB_DISCONNECT);
  
@@ -44,7 +44,7 @@ index cbb1467..acbbf0a 100644
  	mutex_lock(&usb_port_peer_mutex);
  
  	/* Avoid races with recursively_mark_NOTATTACHED() */
-@@ -1722,12 +1724,41 @@ static void hub_disconnect(struct usb_interface *intf)
+@@ -1672,12 +1674,41 @@ static void hub_disconnect(struct usb_interface *intf)
  	kref_put(&hub->kref, hub_release);
  }
  
@@ -86,7 +86,7 @@ index cbb1467..acbbf0a 100644
  
  	desc = intf->cur_altsetting;
  	hdev = interface_to_usbdev(intf);
-@@ -1832,6 +1863,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+@@ -1782,6 +1813,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	INIT_DELAYED_WORK(&hub->leds, led_work);
  	INIT_DELAYED_WORK(&hub->init_work, NULL);
  	INIT_WORK(&hub->events, hub_event);
@@ -94,7 +94,7 @@ index cbb1467..acbbf0a 100644
  	usb_get_intf(intf);
  	usb_get_dev(hdev);
  
-@@ -1845,11 +1877,14 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+@@ -1795,11 +1827,14 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
  		hub->quirk_check_port_auto_suspend = 1;
  
@@ -113,7 +113,7 @@ index cbb1467..acbbf0a 100644
  
  static int
 diff --git a/drivers/usb/core/hub.h b/drivers/usb/core/hub.h
-index 34c1a7e..cd86f91 100644
+index 34c1a7e22aae..cd86f91e0342 100644
 --- a/drivers/usb/core/hub.h
 +++ b/drivers/usb/core/hub.h
 @@ -78,6 +78,7 @@ struct usb_hub {
@@ -125,5 +125,5 @@ index 34c1a7e..cd86f91 100644
  
  /**
 -- 
-2.10.2
+2.11.0
 
