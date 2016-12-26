@@ -297,7 +297,7 @@ local_patch () {
 #sync_cherrypicks
 #aufs4
 #rt
-tinydrm
+#tinydrm
 #local_patch
 
 pre_backports () {
