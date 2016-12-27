@@ -18,6 +18,14 @@ config_disable () {
 	fi
 }
 
+config_module_special () {
+	test_module=$(cat .config | grep ${config} || true)
+	if [ "x${test_module}" = "x# ${config} is not set" ] ; then
+		echo "Setting: ${config}=m"
+		sed -i -e 's:# '$config' is not set:'$config'=m:g' .config
+	fi
+}
+
 config_module () {
 	ret=$(./scripts/config --state ${config})
 	if [ ! "x${ret}" = "xm" ] ; then
@@ -140,7 +148,7 @@ config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_enable
 # CPU frequency scaling drivers
 #
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
-config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
+#config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
 
 #
 # CPU Idle
@@ -704,6 +712,7 @@ config="CONFIG_SENSORS_MAX31722" ; config_module
 config="CONFIG_SENSORS_MAX6697" ; config_module
 config="CONFIG_SENSORS_MAX31790" ; config_module
 config="CONFIG_SENSORS_MCP3021" ; config_module
+config="CONFIG_SENSORS_TC654" ; config_module
 config="CONFIG_SENSORS_LM63" ; config_module
 config="CONFIG_SENSORS_LM75" ; config_module
 config="CONFIG_SENSORS_LM77" ; config_module
@@ -739,7 +748,6 @@ config="CONFIG_SENSORS_ZL6100" ; config_module
 config="CONFIG_SENSORS_PWM_FAN" ; config_module
 config="CONFIG_SENSORS_SHT15" ; config_module
 config="CONFIG_SENSORS_SHTC1" ; config_module
-config="CONFIG_SENSORS_SIS5595" ; config_module
 config="CONFIG_SENSORS_SMSC47M1" ; config_module
 config="CONFIG_SENSORS_SMSC47B397" ; config_module
 config="CONFIG_SENSORS_SCH5636" ; config_module
@@ -749,6 +757,7 @@ config="CONFIG_SENSORS_INA2XX" ; config_module
 config="CONFIG_SENSORS_INA3221" ; config_module
 config="CONFIG_SENSORS_TC74" ; config_module
 config="CONFIG_SENSORS_TMP103" ; config_module
+config="CONFIG_SENSORS_TMP108" ; config_module
 config="CONFIG_SENSORS_TWL4030_MADC" ; config_module
 config="CONFIG_SENSORS_W83781D" ; config_module
 config="CONFIG_SENSORS_W83L785TS" ; config_module
@@ -777,14 +786,14 @@ config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 config="CONFIG_XILINX_WATCHDOG" ; config_module
 config="CONFIG_CADENCE_WATCHDOG" ; config_module
 
-#exit
-
 #
 # Multifunction device drivers
 #
 config="CONFIG_MFD_DA9055" ; config_enable
 config="CONFIG_MFD_DA9063" ; config_enable
 config="CONFIG_MFD_DLN2" ; config_enable
+
+#exit
 
 #
 # STMicroelectronics STMPE Interface Drivers
@@ -945,6 +954,8 @@ config="CONFIG_HID_GT683R" ; config_module
 config="CONFIG_HID_LOGITECH" ; config_enable
 config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_HID_LOGITECH_HIDPP" ; config_enable
+config="CONFIG_HID_MAYFLASH" ; config_module
+config="CONFIG_HID_UDRAW_PS3" ; config_module
 config="CONFIG_HID_SENSOR_CUSTOM_SENSOR" ; config_module
 
 #
@@ -1074,7 +1085,7 @@ config="CONFIG_LEDS_LP8860" ; config_module
 config="CONFIG_LEDS_PCA963X" ; config_module
 config="CONFIG_LEDS_TCA6507" ; config_module
 config="CONFIG_LEDS_TLC591XX" ; config_module
-config="CONFIG_LEDS_LM355x" ; config_module
+config="CONFIG_LEDS_LM355x" ; config_module_special
 config="CONFIG_LEDS_IS31FL319X" ; config_module
 config="CONFIG_LEDS_IS31FL32XX" ; config_module
 
@@ -1145,6 +1156,11 @@ config="CONFIG_RTC_DRV_DS1286" ; config_module
 config="CONFIG_RTC_DRV_DS1511" ; config_module
 config="CONFIG_RTC_DRV_DS1553" ; config_module
 config="CONFIG_RTC_DRV_DS1685_FAMILY" ; config_module
+config="CONFIG_RTC_DRV_DS1685" ; config_enable
+config="CONFIG_RTC_DRV_DS1689" ; config_disable
+config="CONFIG_RTC_DRV_DS17285" ; config_disable
+config="CONFIG_RTC_DRV_DS17485" ; config_disable
+config="CONFIG_RTC_DRV_DS17885" ; config_disable
 config="CONFIG_RTC_DRV_DS1742" ; config_module
 config="CONFIG_RTC_DRV_DA9055" ; config_module
 config="CONFIG_RTC_DRV_DA9063" ; config_module
@@ -1164,6 +1180,7 @@ config="CONFIG_RTC_DRV_ZYNQMP" ; config_module
 #
 config="CONFIG_RTC_DRV_S3C" ; config_enable
 config="CONFIG_RTC_DRV_SUN6I" ; config_enable
+config="CONFIG_RTC_DRV_R7301" ; config_enable
 
 #
 # HID Sensor RTC drivers
@@ -1255,7 +1272,7 @@ config="CONFIG_AD5933" ; config_module
 config="CONFIG_SENSORS_ISL29018" ; config_module
 config="CONFIG_SENSORS_ISL29028" ; config_module
 config="CONFIG_TSL2583" ; config_module
-config="CONFIG_TSL2x7x" ; config_module
+config="CONFIG_TSL2x7x" ; config_module_special
 
 #
 # Magnetometer sensors
@@ -1430,8 +1447,11 @@ config="CONFIG_TI_EMIF" ; config_enable
 config="CONFIG_BMA180" ; config_module
 config="CONFIG_BMA220" ; config_module
 config="CONFIG_BMC150_ACCEL" ; config_module
+config="CONFIG_DA280" ; config_module
+config="CONFIG_DA311" ; config_module
 config="CONFIG_DMARD06" ; config_module
 config="CONFIG_DMARD09" ; config_module
+config="CONFIG_DMARD10" ; config_module
 config="CONFIG_IIO_ST_ACCEL_3AXIS" ; config_module
 config="CONFIG_IIO_ST_ACCEL_I2C_3AXIS" ; config_module
 config="CONFIG_IIO_ST_ACCEL_SPI_3AXIS" ; config_module
@@ -1456,6 +1476,7 @@ config="CONFIG_AD7266" ; config_module
 config="CONFIG_AD7291" ; config_module
 config="CONFIG_AD7298" ; config_module
 config="CONFIG_AD7476" ; config_module
+config="CONFIG_AD7766" ; config_module
 config="CONFIG_AD7791" ; config_module
 config="CONFIG_AD7793" ; config_module
 config="CONFIG_AD7887" ; config_module
@@ -1521,6 +1542,7 @@ config="CONFIG_AD5764" ; config_module
 config="CONFIG_AD5791" ; config_module
 config="CONFIG_AD7303" ; config_module
 config="CONFIG_AD8801" ; config_module
+config="CONFIG_DPOT_DAC" ; config_module
 config="CONFIG_M62332" ; config_module
 config="CONFIG_MAX517" ; config_module
 config="CONFIG_MAX5821" ; config_module
@@ -1569,6 +1591,7 @@ config="CONFIG_MAX30100" ; config_module
 config="CONFIG_AM2315" ; config_module
 config="CONFIG_DHT11" ; config_module
 config="CONFIG_HDC100X" ; config_module
+config="CONFIG_HTS221" ; config_module
 config="CONFIG_HTU21" ; config_module
 config="CONFIG_SI7005" ; config_module
 config="CONFIG_SI7020" ; config_module
@@ -1646,8 +1669,14 @@ config="CONFIG_MCP4531" ; config_module
 config="CONFIG_TPL0102" ; config_module
 
 #
+# Digital potentiostats
+#
+config="CONFIG_LMP91000" ; config_module
+
+#
 # Pressure sensors
 #
+config="CONFIG_ABP060MG" ; config_module
 config="CONFIG_BMP280" ; config_module
 config="CONFIG_HP03" ; config_module
 config="CONFIG_MPL115_I2C" ; config_module
@@ -1717,14 +1746,14 @@ config="CONFIG_ROCKCHIP_EFUSE" ; config_enable
 config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
 config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 
-#exit
-
 #
 # FPGA Configuration Support
 #
 config="CONFIG_FPGA" ; config_module
 config="CONFIG_FPGA_MGR_SOCFPGA" ; config_module
 config="CONFIG_FPGA_MGR_ZYNQ_FPGA" ; config_module
+
+#exit
 
 #
 # File systems
