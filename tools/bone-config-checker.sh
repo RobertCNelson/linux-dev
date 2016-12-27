@@ -18,6 +18,14 @@ config_disable () {
 	fi
 }
 
+config_module_special () {
+	test_module=$(cat .config | grep ${config} || true)
+	if [ "x${test_module}" = "x# ${config} is not set" ] ; then
+		echo "Setting: ${config}=m"
+		sed -i -e 's:# '$config' is not set:'$config'=m:g' .config
+	fi
+}
+
 config_module () {
 	ret=$(./scripts/config --state ${config})
 	if [ ! "x${ret}" = "xm" ] ; then
