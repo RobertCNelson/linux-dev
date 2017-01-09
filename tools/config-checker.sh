@@ -142,7 +142,6 @@ config="CONFIG_EFI" ; config_disable
 # CPU Frequency scaling
 #
 config="CONFIG_CPU_FREQ_STAT_DETAILS" ; config_enable
-config="CONFIG_CPU_FREQ_GOV_SCHEDUTIL" ; config_enable
 
 #
 # CPU frequency scaling drivers
