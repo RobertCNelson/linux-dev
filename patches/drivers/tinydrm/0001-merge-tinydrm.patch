@@ -1,47 +1,42 @@
-From c30ce6e1ecf1c9026940ae0ec8667d0de8efdf47 Mon Sep 17 00:00:00 2001
+From 3d0d57309a4ca9cbb0c02487f9d6b50c6ef1cf2e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 13 Dec 2016 14:10:42 -0600
+Date: Sun, 8 Jan 2017 17:30:59 -0600
 Subject: [PATCH] merge: tinydrm
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  drivers/gpu/drm/Kconfig                        |    1 +
  drivers/gpu/drm/Makefile                       |    1 +
- drivers/gpu/drm/tinydrm/Kconfig                |   38 +
- drivers/gpu/drm/tinydrm/Makefile               |   11 +
+ drivers/gpu/drm/tinydrm/Kconfig                |   30 +
+ drivers/gpu/drm/tinydrm/Makefile               |   10 +
  drivers/gpu/drm/tinydrm/adafruit-tft.c         |  394 +++++++++
- drivers/gpu/drm/tinydrm/core/Makefile          |    7 +
- drivers/gpu/drm/tinydrm/core/tinydrm-core.c    |  411 +++++++++
- drivers/gpu/drm/tinydrm/core/tinydrm-debugfs.c |  439 ++++++++++
- drivers/gpu/drm/tinydrm/core/tinydrm-fb.c      |  182 ++++
- drivers/gpu/drm/tinydrm/core/tinydrm-helpers.c |  222 +++++
- drivers/gpu/drm/tinydrm/core/tinydrm-pipe.c    |  247 ++++++
- drivers/gpu/drm/tinydrm/core/tinydrm-regmap.c  |  326 +++++++
- drivers/gpu/drm/tinydrm/mi0283qt.c             |  310 +++++++
- drivers/gpu/drm/tinydrm/mipi-dbi.c             | 1087 ++++++++++++++++++++++++
- drivers/gpu/drm/tinydrm/utinydrm.c             |  652 ++++++++++++++
+ drivers/gpu/drm/tinydrm/core/Makefile          |    6 +
+ drivers/gpu/drm/tinydrm/core/tinydrm-core.c    |  388 +++++++++
+ drivers/gpu/drm/tinydrm/core/tinydrm-fb.c      |  141 +++
+ drivers/gpu/drm/tinydrm/core/tinydrm-helpers.c |  289 +++++++
+ drivers/gpu/drm/tinydrm/core/tinydrm-pipe.c    |  248 ++++++
+ drivers/gpu/drm/tinydrm/core/tinydrm-regmap.c  |  262 ++++++
+ drivers/gpu/drm/tinydrm/mi0283qt.c             |  307 +++++++
+ drivers/gpu/drm/tinydrm/mipi-dbi.c             | 1090 ++++++++++++++++++++++++
  include/drm/tinydrm/hx8340.h                   |   46 +
  include/drm/tinydrm/ili9341.h                  |   54 ++
- include/drm/tinydrm/mipi-dbi.h                 |   82 ++
+ include/drm/tinydrm/mipi-dbi.h                 |   90 ++
  include/drm/tinydrm/st7735r.h                  |   44 +
- include/drm/tinydrm/tinydrm-helpers.h          |   50 ++
- include/drm/tinydrm/tinydrm-regmap.h           |   99 +++
- include/drm/tinydrm/tinydrm.h                  |  177 ++++
- include/uapi/drm/utinydrm.h                    |   73 ++
- 23 files changed, 4953 insertions(+)
+ include/drm/tinydrm/tinydrm-helpers.h          |   56 ++
+ include/drm/tinydrm/tinydrm-regmap.h           |   98 +++
+ include/drm/tinydrm/tinydrm.h                  |  145 ++++
+ 20 files changed, 3700 insertions(+)
  create mode 100644 drivers/gpu/drm/tinydrm/Kconfig
  create mode 100644 drivers/gpu/drm/tinydrm/Makefile
  create mode 100644 drivers/gpu/drm/tinydrm/adafruit-tft.c
  create mode 100644 drivers/gpu/drm/tinydrm/core/Makefile
  create mode 100644 drivers/gpu/drm/tinydrm/core/tinydrm-core.c
- create mode 100644 drivers/gpu/drm/tinydrm/core/tinydrm-debugfs.c
  create mode 100644 drivers/gpu/drm/tinydrm/core/tinydrm-fb.c
  create mode 100644 drivers/gpu/drm/tinydrm/core/tinydrm-helpers.c
  create mode 100644 drivers/gpu/drm/tinydrm/core/tinydrm-pipe.c
  create mode 100644 drivers/gpu/drm/tinydrm/core/tinydrm-regmap.c
  create mode 100644 drivers/gpu/drm/tinydrm/mi0283qt.c
  create mode 100644 drivers/gpu/drm/tinydrm/mipi-dbi.c
- create mode 100644 drivers/gpu/drm/tinydrm/utinydrm.c
  create mode 100644 include/drm/tinydrm/hx8340.h
  create mode 100644 include/drm/tinydrm/ili9341.h
  create mode 100644 include/drm/tinydrm/mipi-dbi.h
@@ -49,10 +44,9 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 include/drm/tinydrm/tinydrm-helpers.h
  create mode 100644 include/drm/tinydrm/tinydrm-regmap.h
  create mode 100644 include/drm/tinydrm/tinydrm.h
- create mode 100644 include/uapi/drm/utinydrm.h
 
 diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index ebfe840..0b1d655 100644
+index ebfe8404c25f..0b1d65570f45 100644
 --- a/drivers/gpu/drm/Kconfig
 +++ b/drivers/gpu/drm/Kconfig
 @@ -321,3 +321,4 @@ config DRM_SAVAGE
@@ -61,7 +55,7 @@ index ebfe840..0b1d655 100644
  endif # DRM_LEGACY
 +source "drivers/gpu/drm/tinydrm/Kconfig"
 diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
-index b9ae428..da26c96 100644
+index b9ae4280de9d..da26c9613fa4 100644
 --- a/drivers/gpu/drm/Makefile
 +++ b/drivers/gpu/drm/Makefile
 @@ -91,3 +91,4 @@ obj-$(CONFIG_DRM_ARCPGU)+= arc/
@@ -71,10 +65,10 @@ index b9ae428..da26c96 100644
 +obj-$(CONFIG_DRM_TINYDRM)+= tinydrm/
 diff --git a/drivers/gpu/drm/tinydrm/Kconfig b/drivers/gpu/drm/tinydrm/Kconfig
 new file mode 100644
-index 0000000..38a073e
+index 000000000000..efa0633839f7
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/Kconfig
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,30 @@
 +menuconfig DRM_TINYDRM
 +	tristate "Support for small TFT LCD display modules"
 +	depends on DRM
@@ -105,20 +99,12 @@ index 0000000..38a073e
 +	  DRM driver for the following Adafruit displays:
 +	    2.2" Color TFT LCD display - HX8340BN, 9-bit mode (#797)
 +	    1.8" Color TFT LCD display - ST7735R (#358)
-+
-+config TINYDRM_USER
-+	tristate "Userspace tinydrm driver"
-+	depends on DRM_TINYDRM
-+	help
-+	  This option enables support for userspace tinydrm. Say 'y' to enable
-+	  this support in kernel. To compile this driver as a module,
-+	  choose 'm' here: the module will be called utinydrm.
 diff --git a/drivers/gpu/drm/tinydrm/Makefile b/drivers/gpu/drm/tinydrm/Makefile
 new file mode 100644
-index 0000000..7417a5e
+index 000000000000..6f02b79110fb
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/Makefile
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,10 @@
 +ccflags-y += -I$(src)/include
 +
 +obj-$(CONFIG_DRM_TINYDRM)		+= core/
@@ -129,10 +115,9 @@ index 0000000..7417a5e
 +# Displays
 +obj-$(CONFIG_TINYDRM_MI0283QT)		+= mi0283qt.o
 +obj-$(CONFIG_TINYDRM_ADAFRUIT_TFT)	+= adafruit-tft.o
-+obj-$(CONFIG_TINYDRM_USER)		+= utinydrm.o
 diff --git a/drivers/gpu/drm/tinydrm/adafruit-tft.c b/drivers/gpu/drm/tinydrm/adafruit-tft.c
 new file mode 100644
-index 0000000..ef89c1b
+index 000000000000..ef89c1b6b0e6
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/adafruit-tft.c
 @@ -0,0 +1,394 @@
@@ -532,23 +517,22 @@ index 0000000..ef89c1b
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/gpu/drm/tinydrm/core/Makefile b/drivers/gpu/drm/tinydrm/core/Makefile
 new file mode 100644
-index 0000000..c672d89
+index 000000000000..4e317e86ccfa
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/core/Makefile
-@@ -0,0 +1,7 @@
+@@ -0,0 +1,6 @@
 +ccflags-y += -I$(src)/../include
 +
 +tinydrm-y := tinydrm-core.o tinydrm-pipe.o tinydrm-fb.o tinydrm-helpers.o
 +tinydrm-$(CONFIG_REGMAP) += tinydrm-regmap.o
-+tinydrm-$(CONFIG_DEBUG_FS) += tinydrm-debugfs.o
 +
 +obj-$(CONFIG_DRM_TINYDRM) += tinydrm.o
 diff --git a/drivers/gpu/drm/tinydrm/core/tinydrm-core.c b/drivers/gpu/drm/tinydrm/core/tinydrm-core.c
 new file mode 100644
-index 0000000..da55c2c
+index 000000000000..e14d94dda1a2
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/core/tinydrm-core.c
-@@ -0,0 +1,411 @@
+@@ -0,0 +1,388 @@
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
 + *
@@ -593,10 +577,7 @@ index 0000000..da55c2c
 +	struct tinydrm_device *tdev = drm_to_tinydrm(drm);
 +
 +	DRM_DEBUG_KMS("\n");
-+	if (tdev->fbdev_used)
-+		drm_fbdev_cma_restore_mode(tdev->fbdev_cma);
-+	else
-+		drm_crtc_force_disable_all(drm);
++	drm_fbdev_cma_restore_mode(tdev->fbdev_cma);
 +}
 +EXPORT_SYMBOL(tinydrm_lastclose);
 +
@@ -695,9 +676,18 @@ index 0000000..da55c2c
 +	struct tinydrm_device *tdev = container_of(work, struct tinydrm_device,
 +						   dirty_work);
 +	struct drm_framebuffer *fb = tdev->pipe.plane.fb;
++	struct drm_crtc *crtc = &tdev->pipe.crtc;
 +
 +	if (fb && fb->funcs->dirty)
 +		fb->funcs->dirty(fb, NULL, 0, 0, NULL, 0);
++
++	if (tdev->event) {
++		DRM_DEBUG_KMS("crtc event\n");
++		spin_lock_irq(&crtc->dev->event_lock);
++		drm_crtc_send_vblank_event(crtc, tdev->event);
++		spin_unlock_irq(&crtc->dev->event_lock);
++		tdev->event = NULL;
++	}
 +}
 +
 +static int tinydrm_init(struct device *parent, struct tinydrm_device *tdev,
@@ -845,24 +835,6 @@ index 0000000..da55c2c
 +}
 +EXPORT_SYMBOL(devm_tinydrm_register);
 +
-+static int devm_tinydrm_register_match(struct device *dev, void *res, void *data)
-+{
-+	struct tinydrm_device **ptr = res, *tdev = data;
-+
-+        return *ptr == tdev;
-+}
-+
-+void devm_tinydrm_unregister(struct tinydrm_device *tdev)
-+{
-+	struct device *dev = tdev->drm.dev;
-+
-+	if (WARN_ON(!dev))
-+		return;
-+
-+	WARN_ON(devres_release(dev, devm_tinydrm_register_release, devm_tinydrm_register_match, tdev));
-+}
-+EXPORT_SYMBOL(devm_tinydrm_unregister);
-+
 +/**
 + * tinydrm_shutdown - Shutdown tinydrm
 + * @tdev: tinydrm device
@@ -878,16 +850,6 @@ index 0000000..da55c2c
 +	drm_crtc_force_disable_all(drm);
 +}
 +EXPORT_SYMBOL(tinydrm_shutdown);
-+
-+static void tinydrm_fbdev_set_suspend(struct tinydrm_device *tdev, int state)
-+{
-+	if (!tdev->fbdev_helper)
-+		return;
-+
-+	console_lock();
-+	drm_fb_helper_set_suspend(tdev->fbdev_helper, state);
-+	console_unlock();
-+}
 +
 +/**
 + * tinydrm_suspend - Suspend tinydrm
@@ -910,10 +872,10 @@ index 0000000..da55c2c
 +		return -EINVAL;
 +	}
 +
-+	tinydrm_fbdev_set_suspend(tdev, 1);
++	drm_fbdev_cma_set_suspend_unlocked(tdev->fbdev_cma, 1);
 +	state = drm_atomic_helper_suspend(drm);
 +	if (IS_ERR(state)) {
-+		tinydrm_fbdev_set_suspend(tdev, 0);
++		drm_fbdev_cma_set_suspend_unlocked(tdev->fbdev_cma, 0);
 +		return PTR_ERR(state);
 +	}
 +
@@ -949,468 +911,22 @@ index 0000000..da55c2c
 +	ret = drm_atomic_helper_resume(drm, state);
 +	if (ret) {
 +		DRM_ERROR("Error resuming state: %d\n", ret);
-+		drm_atomic_state_free(state);
 +		return ret;
 +	}
 +
-+	tinydrm_fbdev_set_suspend(tdev, 0);
++	drm_fbdev_cma_set_suspend_unlocked(tdev->fbdev_cma, 0);
 +
 +	return 0;
 +}
 +EXPORT_SYMBOL(tinydrm_resume);
 +
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/gpu/drm/tinydrm/core/tinydrm-debugfs.c b/drivers/gpu/drm/tinydrm/core/tinydrm-debugfs.c
-new file mode 100644
-index 0000000..0c70146
---- /dev/null
-+++ b/drivers/gpu/drm/tinydrm/core/tinydrm-debugfs.c
-@@ -0,0 +1,439 @@
-+/*
-+ * Copyright (C) 2016 Noralf Trønnes
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <drm/drmP.h>
-+#include <drm/drm_fb_cma_helper.h>
-+#include <drm/tinydrm/tinydrm.h>
-+#include <linux/debugfs.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/uaccess.h>
-+
-+/**
-+ * DOC: Performance reporting
-+ *
-+ * tinydrm can provide performance reporting when built with CONFIG_DEBUG_FS.
-+ * This is available through the file ``dirty``.
-+ * Writing a positive number <n> to this file (re)starts the process of
-+ * collecting statistics for the last <n> framebuffer flushes.
-+ * Writing a zero stops it.
-+ * Reading this file will provide a list of the last <n> flushes.
-+ * Reading will not clear the list.
-+ *
-+ * Example use::
-+ *     # cd /sys/kernel/debug/dri/0
-+ *     # echo 4 > dirty
-+ *     # cat dirty
-+ *     [ 2140.061740] 2798 KiB/s, 151 KiB in 54 ms,    full(320x240+0+0)
-+ *     [ 2140.161710] 2798 KiB/s, 151 KiB in 54 ms,    full(320x240+0+0),  99 ms since last, 10 fps
-+ *     [ 2140.301724] 2798 KiB/s, 151 KiB in 54 ms,    full(320x240+0+0), 140 ms since last,  7 fps
-+ *     [ 2140.361702] 3552 KiB/s,  10 KiB in  3 ms, partial(320x16+0+224),  59 ms since last
-+ *
-+ * To get this functionality the driver needs to use tinydrm_debugfs_init() and
-+ * tinydrm_debugfs_cleanup() in their &drm_driver. Additionally it has to call
-+ * tinydrm_debugfs_dirty_init() to set it up and then bracket the framebuffer
-+ * flushes with calls to tinydrm_debugfs_dirty_begin() and
-+ * tinydrm_debugfs_dirty_end().
-+ */
-+
-+#define MAX_DIRTY_ENTRIES 128
-+
-+struct tinydrm_dirty_entry {
-+	struct list_head list;
-+	struct drm_clip_rect clip;
-+	bool full;
-+	size_t len;
-+	u64 start;
-+	u64 end;
-+};
-+
-+struct tinydrm_debugfs_dirty {
-+	struct list_head list;
-+	struct mutex list_lock;
-+};
-+
-+/**
-+ * tinydrm_debugfs_dirty_init - Initialize performance reporting
-+ * @tdev: tinydrm device
-+ *
-+ * Returns:
-+ * Zero on success, negative error code on failure.
-+ */
-+int tinydrm_debugfs_dirty_init(struct tinydrm_device *tdev)
-+{
-+	struct tinydrm_debugfs_dirty *dirty;
-+
-+	dirty = devm_kzalloc(tdev->drm.dev, sizeof(*dirty), GFP_KERNEL);
-+	if (!dirty)
-+		return -ENOMEM;
-+
-+	mutex_init(&dirty->list_lock);
-+	INIT_LIST_HEAD(&dirty->list);
-+	tdev->debugfs_dirty = dirty;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(tinydrm_debugfs_dirty_init);
-+
-+static struct tinydrm_dirty_entry *
-+tinydrm_debugfs_dirty_get_entry(struct tinydrm_debugfs_dirty *dirty)
-+{
-+	struct tinydrm_dirty_entry *entry;
-+
-+	entry = list_last_entry(&dirty->list,
-+				struct tinydrm_dirty_entry, list);
-+	if (entry->start) {
-+		if (entry->end)
-+			return NULL; /* buffer is full */
-+		else
-+			return entry; /* in progress */
-+	}
-+	/* The buffer hasn't been filled yet */
-+	list_for_each_entry(entry, &dirty->list, list) {
-+		if (!entry->end)
-+			return entry;
-+	}
-+
-+	WARN_ON(1);
-+	return NULL;
-+}
-+
-+/**
-+ * tinydrm_debugfs_dirty_begin - Display update is starting
-+ * @tdev: tinydrm device
-+ * @fb: framebuffer
-+ * @clip: The part of the display that is to be updated.
-+ */
-+void tinydrm_debugfs_dirty_begin(struct tinydrm_device *tdev,
-+				 struct drm_framebuffer *fb,
-+				 const struct drm_clip_rect *clip)
-+{
-+	struct tinydrm_debugfs_dirty *dirty = tdev->debugfs_dirty;
-+	struct tinydrm_dirty_entry *entry;
-+
-+	if (!dirty)
-+		return;
-+
-+	mutex_lock(&dirty->list_lock);
-+
-+	if (list_empty(&dirty->list))
-+		goto out_unlock;
-+
-+	entry = tinydrm_debugfs_dirty_get_entry(dirty);
-+	if (!entry) {
-+		list_rotate_left(&dirty->list);
-+		entry = list_last_entry(&dirty->list,
-+					struct tinydrm_dirty_entry, list);
-+	}
-+
-+	entry->clip = *clip;
-+	entry->full = clip->x1 == 0 && clip->x2 == fb->width &&
-+		      clip->y1 == 0 && clip->y2 == fb->height;
-+	entry->start = local_clock();
-+	entry->end = 0;
-+
-+out_unlock:
-+	mutex_unlock(&dirty->list_lock);
-+}
-+EXPORT_SYMBOL(tinydrm_debugfs_dirty_begin);
-+
-+/**
-+ * tinydrm_debugfs_dirty_end - Display update has ended
-+ * @tdev: tinydrm device
-+ * @len: Length of transfer buffer
-+ * @bits_per_pixel: Used to calculate transfer length if @len is zero by
-+ *                  multiplying with number of pixels in clip.
-+ */
-+void tinydrm_debugfs_dirty_end(struct tinydrm_device *tdev, size_t len,
-+			       unsigned int bits_per_pixel)
-+{
-+	struct tinydrm_debugfs_dirty *dirty = tdev->debugfs_dirty;
-+	struct tinydrm_dirty_entry *entry;
-+
-+	if (!dirty)
-+		return;
-+
-+	mutex_lock(&dirty->list_lock);
-+
-+	if (list_empty(&dirty->list))
-+		goto out_unlock;
-+
-+	entry = tinydrm_debugfs_dirty_get_entry(dirty);
-+	if (WARN_ON(!entry))
-+		goto out_unlock;
-+
-+	if (!entry->start)
-+		goto out_unlock; /* enabled during an update */
-+
-+	if (!len)
-+		len = (entry->clip.x2 - entry->clip.x1) *
-+		      (entry->clip.y2 - entry->clip.y1) *
-+		      bits_per_pixel / 8;
-+	entry->end = local_clock();
-+	entry->len = len;
-+
-+out_unlock:
-+	mutex_unlock(&dirty->list_lock);
-+}
-+EXPORT_SYMBOL(tinydrm_debugfs_dirty_end);
-+
-+static int tinydrm_debugfs_dirty_seq_show(struct seq_file *s, void *v)
-+{
-+	struct tinydrm_debugfs_dirty *dirty = s->private;
-+	struct tinydrm_dirty_entry *entry;
-+	u64 previous_start = 0;
-+	bool previous_full = false;
-+
-+	if (!dirty) {
-+		seq_puts(s, "Performance reporting is not supported by this driver.\n");
-+		return 0;
-+	}
-+
-+	mutex_lock(&dirty->list_lock);
-+
-+	if (list_empty(&dirty->list)) {
-+		seq_puts(s, "Performance reporting is disabled.\n");
-+		seq_printf(s, "Enable by writing the number of wanted entries to this file (<%i)\n",
-+			   MAX_DIRTY_ENTRIES + 1);
-+		goto out_unlock;
-+	}
-+
-+	list_for_each_entry(entry, &dirty->list, list) {
-+		u32 start_rem_nsec, duration_ms, last_ms = 0;
-+		u64 start_sec, throughput;
-+
-+		/* stop on empty entry (buffer not full nor empty) */
-+		if (!entry->start)
-+			break;
-+
-+		start_sec = div_u64_rem(entry->start, 1000000000,
-+					&start_rem_nsec);
-+		seq_printf(s, "[%5llu.%06u]", start_sec,
-+			   start_rem_nsec / 1000);
-+
-+		if (!entry->end) {
-+			seq_puts(s, " update in progress\n");
-+			break;
-+		}
-+
-+		if (entry->end <= entry->start) {
-+			seq_puts(s, " illegal entry\n");
-+			continue;
-+		}
-+
-+		duration_ms = div_u64(entry->end - entry->start, 1000000);
-+		if (!duration_ms)
-+			duration_ms = 1;
-+
-+		throughput = entry->len * 1000 / duration_ms / SZ_1K;
-+		seq_printf(s, " %5llu KiB/s", throughput);
-+		if (entry->len < SZ_4K)
-+			seq_printf(s, ", %4u bytes", entry->len);
-+		else
-+			seq_printf(s, ", %6u KiB", entry->len / SZ_1K);
-+
-+		seq_printf(s, " in %3u ms", duration_ms);
-+
-+		seq_printf(s, ", %s(%ux%u+%u+%u)",
-+			   entry->full ? "   full" : "partial",
-+			   entry->clip.x2 - entry->clip.x1,
-+			   entry->clip.y2 - entry->clip.y1,
-+			   entry->clip.x1, entry->clip.y1);
-+
-+		if (previous_start) {
-+			last_ms = div_u64(entry->start - previous_start,
-+					  1000000);
-+			seq_printf(s, ", %3u ms since last", last_ms);
-+		}
-+
-+		if (entry->full && previous_full && last_ms)
-+			seq_printf(s, ", %2u fps", 1000 / last_ms);
-+
-+		seq_puts(s, "\n");
-+		previous_start = entry->start;
-+		previous_full = entry->full;
-+	}
-+
-+out_unlock:
-+	mutex_unlock(&dirty->list_lock);
-+
-+	return 0;
-+}
-+
-+static int tinydrm_debugfs_dirty_open(struct inode *inode, struct file *file)
-+{
-+	struct drm_info_node *node = inode->i_private;
-+	struct drm_device *drm = node->minor->dev;
-+	struct tinydrm_device *tdev = drm_to_tinydrm(drm);
-+
-+	return single_open(file, tinydrm_debugfs_dirty_seq_show,
-+			   tdev->debugfs_dirty);
-+}
-+
-+static void
-+tinydrm_debugfs_dirty_list_delete(struct tinydrm_debugfs_dirty *dirty)
-+{
-+	struct tinydrm_dirty_entry *entry, *tmp;
-+
-+	list_for_each_entry_safe(entry, tmp, &dirty->list, list) {
-+		list_del(&entry->list);
-+		kfree(entry);
-+	}
-+}
-+
-+static ssize_t tinydrm_debugfs_dirty_write(struct file *file,
-+					   const char __user *buf,
-+					   size_t len, loff_t *ppos)
-+{
-+	struct tinydrm_debugfs_dirty *dirty;
-+	struct tinydrm_dirty_entry *entry;
-+	unsigned long long val;
-+	char set_buf[24];
-+	ssize_t ret = 0;
-+	size_t size;
-+	int i;
-+
-+	dirty = ((struct seq_file *)file->private_data)->private;
-+	if (!dirty)
-+		return -ENODEV;
-+
-+	size = min(sizeof(set_buf) - 1, len);
-+	if (copy_from_user(set_buf, buf, size))
-+		return -EFAULT;
-+
-+	set_buf[size] = '\0';
-+	ret = kstrtoull(set_buf, 0, &val);
-+	if (ret)
-+		return ret;
-+
-+	if (val > MAX_DIRTY_ENTRIES)
-+		return -ERANGE;
-+
-+	mutex_lock(&dirty->list_lock);
-+
-+	if (!list_empty(&dirty->list))
-+		tinydrm_debugfs_dirty_list_delete(dirty);
-+
-+	for (i = 0; i < val; i++) {
-+		entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-+		if (!entry) {
-+			tinydrm_debugfs_dirty_list_delete(dirty);
-+			ret = -ENOMEM;
-+			break;
-+		}
-+		list_add(&entry->list, &dirty->list);
-+	}
-+
-+	mutex_unlock(&dirty->list_lock);
-+
-+	return ret < 0 ? ret : len;
-+}
-+
-+static const struct file_operations tinydrm_debugfs_dirty_file_ops = {
-+	.owner   = THIS_MODULE,
-+	.open    = tinydrm_debugfs_dirty_open,
-+	.read    = seq_read,
-+	.write   = tinydrm_debugfs_dirty_write,
-+	.llseek  = seq_lseek,
-+	.release = single_release,
-+};
-+
-+/*
-+ * TODO
-+ * Maybe drm_debugfs_cleanup() can use debugfs_remove_recursive() instead of
-+ * debugfs_remove(minor->debugfs_root). Then this hack wouldn't be needed.
-+ * armada, i915, nouveau and sti do similar things.
-+ */
-+static int tinydrm_debugfs_create_file(const char *name, umode_t mode,
-+				       struct dentry *root,
-+				       struct drm_minor *minor,
-+				       const struct file_operations *fops)
-+{
-+	struct drm_info_node *node;
-+	struct dentry *ent;
-+
-+	node = kmalloc(sizeof(*node), GFP_KERNEL);
-+	if (!node)
-+		return -ENOMEM;
-+
-+	ent = debugfs_create_file(name, mode, root, node, fops);
-+	if (!ent) {
-+		DRM_ERROR("Cannot create /sys/kernel/debug/dri/%s/%s\n",
-+			  root->d_name.name, name);
-+		kfree(node);
-+		return -ENOMEM;
-+	}
-+
-+	node->minor = minor;
-+	node->dent = ent;
-+	node->info_ent = (const void *)fops;
-+
-+	mutex_lock(&minor->debugfs_lock);
-+	list_add(&node->list, &minor->debugfs_list);
-+	mutex_unlock(&minor->debugfs_lock);
-+
-+	return 0;
-+}
-+
-+static void tinydrm_debugfs_remove_file(struct drm_minor *minor,
-+					const struct file_operations *fops)
-+{
-+	drm_debugfs_remove_files((struct drm_info_list *)fops, 1, minor);
-+}
-+
-+static const struct drm_info_list tinydrm_debugfs_list[] = {
-+	{ "fb",   drm_fb_cma_debugfs_show, 0 },
-+};
-+
-+/**
-+ * tinydrm_debugfs_init - Create debugfs entries
-+ * @minor: DRM minor
-+ *
-+ * Drivers can use this as their &drm_driver->debugfs_init callback.
-+ *
-+ * Returns:
-+ * Zero on success, negative error code on failure.
-+ */
-+int tinydrm_debugfs_init(struct drm_minor *minor)
-+{
-+	int ret;
-+
-+	ret = drm_debugfs_create_files(tinydrm_debugfs_list,
-+				       ARRAY_SIZE(tinydrm_debugfs_list),
-+				       minor->debugfs_root, minor);
-+	if (ret)
-+		return ret;
-+
-+	ret = tinydrm_debugfs_create_file("dirty", S_IRUGO | S_IWUSR,
-+					  minor->debugfs_root, minor,
-+					  &tinydrm_debugfs_dirty_file_ops);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(tinydrm_debugfs_init);
-+
-+/**
-+ * tinydrm_debugfs_cleanup - Cleanup debugfs entries
-+ * @minor: DRM minor
-+ *
-+ * Drivers can use this as their &drm_driver->debugfs_cleanup callback.
-+ */
-+void tinydrm_debugfs_cleanup(struct drm_minor *minor)
-+{
-+	struct tinydrm_device *tdev = drm_to_tinydrm(minor->dev);
-+
-+	drm_debugfs_remove_files(tinydrm_debugfs_list,
-+				 ARRAY_SIZE(tinydrm_debugfs_list), minor);
-+	tinydrm_debugfs_remove_file(minor, &tinydrm_debugfs_dirty_file_ops);
-+	if (tdev->debugfs_dirty) {
-+		tinydrm_debugfs_dirty_list_delete(tdev->debugfs_dirty);
-+		tdev->debugfs_dirty = NULL;
-+	}
-+}
-+EXPORT_SYMBOL(tinydrm_debugfs_cleanup);
 diff --git a/drivers/gpu/drm/tinydrm/core/tinydrm-fb.c b/drivers/gpu/drm/tinydrm/core/tinydrm-fb.c
 new file mode 100644
-index 0000000..3150754
+index 000000000000..f054875fb0ba
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/core/tinydrm-fb.c
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,141 @@
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
 + *
@@ -1438,10 +954,6 @@ index 0000000..3150754
 + * &drm_mode_config_funcs->fb_create callback which devm_tinydrm_init() does.
 + */
 +
-+static unsigned int fbdefio_delay;
-+module_param(fbdefio_delay, uint, 0);
-+MODULE_PARM_DESC(fbdefio_delay, "fbdev deferred io delay in milliseconds");
-+
 +/**
 + * tinydrm_check_dirty - check before flushing framebuffer
 + * @fb: framebuffer
@@ -1460,6 +972,8 @@ index 0000000..3150754
 +			 struct drm_clip_rect **clips, unsigned int *num_clips)
 +{
 +	struct tinydrm_device *tdev = drm_to_tinydrm(fb->dev);
++
++	WARN_ON_ONCE(!mutex_is_locked(&tdev->dev_lock));
 +
 +	if (!tdev->prepared)
 +		return false;
@@ -1493,15 +1007,9 @@ index 0000000..3150754
 +		  const struct drm_mode_fb_cmd2 *mode_cmd)
 +{
 +	struct tinydrm_device *tdev = drm_to_tinydrm(drm);
-+	struct drm_framebuffer *fb;
 +
-+	fb = drm_fb_cma_create_with_funcs(drm, file_priv, mode_cmd,
-+					  tdev->fb_funcs);
-+	if (!IS_ERR(fb))
-+		DRM_DEBUG_KMS("[FB:%d] pixel_format: %s\n", fb->base.id,
-+			      drm_get_format_name(fb->pixel_format));
-+
-+	return fb;
++	return drm_fb_cma_create_with_funcs(drm, file_priv, mode_cmd,
++					    tdev->fb_funcs);
 +}
 +EXPORT_SYMBOL(tinydrm_fb_create);
 +
@@ -1518,38 +1026,6 @@ index 0000000..3150754
 + * The tinydrm_lastclose() function ensures that fbdev operation is restored
 + * when userspace closes the drm device.
 + */
-+
-+static int tinydrm_fbdev_create(struct drm_fb_helper *helper,
-+				struct drm_fb_helper_surface_size *sizes)
-+{
-+	struct tinydrm_device *tdev = drm_to_tinydrm(helper->dev);
-+	int ret;
-+
-+	ret = drm_fbdev_cma_create_with_funcs(helper, sizes, tdev->fb_funcs);
-+	if (ret)
-+		return ret;
-+
-+	strncpy(helper->fbdev->fix.id, helper->dev->driver->name, 16);
-+	tdev->fbdev_helper = helper;
-+
-+	if (fbdefio_delay) {
-+		unsigned long delay;
-+
-+		delay = msecs_to_jiffies(fbdefio_delay);
-+		helper->fbdev->fbdefio->delay = delay ? delay : 1;
-+	}
-+
-+	DRM_DEBUG_KMS("fbdev: [FB:%d] pixel_format=%s, fbdefio->delay=%ums\n",
-+		      helper->fb->base.id,
-+		      drm_get_format_name(helper->fb->pixel_format),
-+		      jiffies_to_msecs(helper->fbdev->fbdefio->delay));
-+
-+	return 0;
-+}
-+
-+static const struct drm_fb_helper_funcs tinydrm_fb_helper_funcs = {
-+	.fb_probe = tinydrm_fbdev_create,
-+};
 +
 +/**
 + * tinydrm_fbdev_init - initialize tinydrm fbdev emulation
@@ -1570,7 +1046,7 @@ index 0000000..3150754
 +	fbdev = drm_fbdev_cma_init_with_funcs(drm, bpp ? bpp : 32,
 +					      drm->mode_config.num_crtc,
 +					      drm->mode_config.num_connector,
-+					      &tinydrm_fb_helper_funcs);
++					      tdev->fb_funcs);
 +	if (IS_ERR(fbdev))
 +		return PTR_ERR(fbdev);
 +
@@ -1590,15 +1066,14 @@ index 0000000..3150754
 +{
 +	drm_fbdev_cma_fini(tdev->fbdev_cma);
 +	tdev->fbdev_cma = NULL;
-+	tdev->fbdev_helper = NULL;
 +}
 +EXPORT_SYMBOL(tinydrm_fbdev_fini);
 diff --git a/drivers/gpu/drm/tinydrm/core/tinydrm-helpers.c b/drivers/gpu/drm/tinydrm/core/tinydrm-helpers.c
 new file mode 100644
-index 0000000..27683e9
+index 000000000000..4834a1f0db2b
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/core/tinydrm-helpers.c
-@@ -0,0 +1,222 @@
+@@ -0,0 +1,289 @@
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
 + *
@@ -1625,8 +1100,11 @@ index 0000000..27683e9
 + *
 + * This function merges @src clip rectangle(s) into @dst. If @src is NULL,
 + * @max_width and @min_width is used to set a full @dst clip rectangle.
++ *
++ * Returns:
++ * true if it's a full clip, false otherwise
 + */
-+void tinydrm_merge_clips(struct drm_clip_rect *dst,
++bool tinydrm_merge_clips(struct drm_clip_rect *dst,
 +			 struct drm_clip_rect *src, unsigned int num_clips,
 +			 unsigned int flags, u32 max_width, u32 max_height)
 +{
@@ -1637,7 +1115,7 @@ index 0000000..27683e9
 +		dst->x2 = max_width;
 +		dst->y1 = 0;
 +		dst->y2 = max_height;
-+		return;
++		return true;
 +	}
 +
 +	dst->x1 = ~0;
@@ -1663,28 +1141,92 @@ index 0000000..27683e9
 +		dst->x2 = max_width;
 +		dst->y2 = max_height;
 +	}
++
++	return (dst->x2 - dst->x1) == max_width &&
++	       (dst->y2 - dst->y1) == max_height;
 +}
 +EXPORT_SYMBOL(tinydrm_merge_clips);
 +
 +/**
-+ * tinydrm_xrgb8888_to_rgb565 - convert xrgb8888 to rgb565
-+ * @src: xrgb8888 source buffer
++ * tinydrm_memcpy - Copy clip buffer
++ * @dst: Destination buffer
++ * @vaddr: Source buffer
++ * @fb: DRM framebuffer
++ * @clip: Clip rectangle area to copy
++ */
++void tinydrm_memcpy(void *dst, void *vaddr, struct drm_framebuffer *fb,
++		    struct drm_clip_rect *clip)
++{
++	unsigned int cpp = drm_format_plane_cpp(fb->format->format, 0);
++	unsigned int pitch = fb->pitches[0];
++	void *src = vaddr + (clip->y1 * pitch) + (clip->x1 * cpp);
++	size_t len = (clip->x2 - clip->x1) * cpp;
++	unsigned int y;
++
++	for (y = clip->y1; y < clip->y2; y++) {
++		memcpy(dst, src, len);
++		src += pitch;
++		dst += len;
++	}
++}
++EXPORT_SYMBOL(tinydrm_memcpy);
++
++/**
++ * tinydrm_swab16 - Swap bytes into clip buffer
 + * @dst: rgb565 destination buffer
-+ * @num_pixels: number of pixels to copy
++ * @vaddr: rgb565 source buffer
++ * @fb: DRM framebuffer
++ * @clip: Clip rectangle area to copy
++ */
++void tinydrm_swab16(u16 *dst, void *vaddr, struct drm_framebuffer *fb,
++		    struct drm_clip_rect *clip)
++{
++	unsigned int pitch = fb->pitches[0];
++	unsigned int x, y;
++	u16 *src;
++
++	for (y = clip->y1; y < clip->y2; y++) {
++		src = vaddr + (y * pitch);
++		src += clip->x1;
++		for (x = clip->x1; x < clip->x2; x++)
++			*dst++ = swab16(*src++);
++	}
++}
++EXPORT_SYMBOL(tinydrm_swab16);
++
++/**
++ * tinydrm_xrgb8888_to_rgb565 - convert xrgb8888 to rgb565 clip buffer
++ * @dst: rgb565 destination buffer
++ * @vaddr: xrgb8888 source buffer
++ * @fb: DRM framebuffer
++ * @clip: Clip rectangle area to copy
++ * @swap: Swap bytes
 + *
 + * Drivers can use this function for rgb565 devices that don't natively
 + * support xrgb8888.
 + */
-+void tinydrm_xrgb8888_to_rgb565(u32 *src, u16 *dst, unsigned int num_pixels)
++void tinydrm_xrgb8888_to_rgb565(u16 *dst, void *vaddr,
++				struct drm_framebuffer *fb,
++				struct drm_clip_rect *clip, bool swap)
 +{
-+	int i;
++	unsigned int pitch = fb->pitches[0];
++	unsigned int x, y;
++	u16 val16;
++	u32 *src;
 +
-+	for (i = 0; i < num_pixels; i++) {
-+		*dst = ((*src & 0x00F80000) >> 8) |
-+		       ((*src & 0x0000FC00) >> 5) |
-+		       ((*src & 0x000000F8) >> 3);
-+		src++;
-+		dst++;
++	for (y = clip->y1; y < clip->y2; y++) {
++		src = vaddr + (y * pitch);
++		src += clip->x1;
++		for (x = clip->x1; x < clip->x2; x++) {
++			val16 = ((*src & 0x00F80000) >> 8) |
++				((*src & 0x0000FC00) >> 5) |
++				((*src & 0x000000F8) >> 3);
++			src++;
++			if (swap)
++				*dst++ = swab16(val16);
++			else
++				*dst++ = val16;
++		}
 +	}
 +}
 +EXPORT_SYMBOL(tinydrm_xrgb8888_to_rgb565);
@@ -1823,10 +1365,10 @@ index 0000000..27683e9
 +EXPORT_SYMBOL(tinydrm_spi_shutdown);
 diff --git a/drivers/gpu/drm/tinydrm/core/tinydrm-pipe.c b/drivers/gpu/drm/tinydrm/core/tinydrm-pipe.c
 new file mode 100644
-index 0000000..0751208
+index 000000000000..107398587fb4
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/core/tinydrm-pipe.c
-@@ -0,0 +1,247 @@
+@@ -0,0 +1,248 @@
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
 + *
@@ -1917,7 +1459,6 @@ index 0000000..0751208
 + * @drm: DRM device
 + * @mode: Supported display mode
 + * @connector_type: Connector type
-+ * @dirty_prop: Whether or not to create a dirty property on the connector
 + *
 + * This function creates a simple &drm_connector with one fixed
 + * &drm_display_mode.
@@ -1982,6 +1523,11 @@ index 0000000..0751208
 +	if (fb && (fb != old_state->fb)) {
 +		struct tinydrm_device *tdev = pipe_to_tinydrm(pipe);
 +
++		if (crtc->state->event) {
++			tdev->event = crtc->state->event;
++			crtc->state->event = NULL;
++		}
++
 +		pipe->plane.fb = fb;
 +		schedule_work(&tdev->dirty_work);
 +	}
@@ -1993,9 +1539,6 @@ index 0000000..0751208
 +		spin_unlock_irq(&crtc->dev->event_lock);
 +		crtc->state->event = NULL;
 +	}
-+
-+	if (tdev->fbdev_helper && fb == tdev->fbdev_helper->fb)
-+		tdev->fbdev_used = true;
 +}
 +EXPORT_SYMBOL(tinydrm_display_pipe_update);
 +
@@ -2076,10 +1619,10 @@ index 0000000..0751208
 +EXPORT_SYMBOL(tinydrm_display_pipe_init);
 diff --git a/drivers/gpu/drm/tinydrm/core/tinydrm-regmap.c b/drivers/gpu/drm/tinydrm/core/tinydrm-regmap.c
 new file mode 100644
-index 0000000..15a879c
+index 000000000000..e5fa2f6d07c9
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/core/tinydrm-regmap.c
-@@ -0,0 +1,326 @@
+@@ -0,0 +1,262 @@
 +#define DEBUG
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
@@ -2102,69 +1645,6 @@ index 0000000..15a879c
 +module_param(spi_max, uint, 0400);
 +MODULE_PARM_DESC(spi_max, "Set a lower SPI max transfer size");
 +
-+/**
-+ * tinydrm_regmap_flush_rgb565 - flush framebuffer to LCD register
-+ * @reg: LCD register map
-+ * @regnr: register number
-+ * @fb: framebuffer
-+ * @vmem: buffer backing the framebuffer
-+ * @clip: part of buffer to write
-+ *
-+ * Flush framebuffer changes to LCD register supporting RGB565. XRGB8888 is
-+ * converted to RGB565.
-+ */
-+int tinydrm_regmap_flush_rgb565(struct regmap *reg, u32 regnr,
-+				struct drm_framebuffer *fb, void *vmem,
-+				struct drm_clip_rect *clip)
-+{
-+	unsigned int width = clip->x2 - clip->x1;
-+	unsigned int height = clip->y2 - clip->y1;
-+	unsigned int num_pixels = width * height;
-+	u16 *tr, *buf = NULL;
-+	int ret;
-+
-+	/*
-+	 * TODO: Add support for all widths (requires a buffer copy)
-+	 *
-+	 * Crude X windows usage numbers for a 320x240 (76.8k pixel) display,
-+	 * possible improvements:
-+	 * - 80-90% cut for <2k pixel transfers
-+	 * - 40-50% cut for <50k pixel tranfers
-+	 */
-+	if (width != fb->width) {
-+		dev_err(fb->dev->dev,
-+			"Only full width clip are supported: x1=%u, x2=%u\n",
-+			clip->x1, clip->x2);
-+		return -EINVAL;
-+	}
-+
-+	switch (fb->pixel_format) {
-+	case DRM_FORMAT_RGB565:
-+		vmem += clip->y1 * width * 2;
-+		tr = vmem;
-+		break;
-+	case DRM_FORMAT_XRGB8888:
-+		vmem += clip->y1 * width * 4;
-+		buf = kmalloc_array(num_pixels, sizeof(u16), GFP_KERNEL);
-+		if (!buf)
-+			return -ENOMEM;
-+
-+		tinydrm_xrgb8888_to_rgb565(vmem, buf, num_pixels);
-+		tr = buf;
-+		break;
-+	default:
-+		dev_err_once(fb->dev->dev, "Format is not supported: %s\n",
-+			     drm_get_format_name(fb->pixel_format));
-+		return -EINVAL;
-+	}
-+
-+	ret = regmap_raw_write(reg, regnr, tr, num_pixels * 2);
-+	kfree(buf);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(tinydrm_regmap_flush_rgb565);
-+
 +#if IS_ENABLED(CONFIG_SPI)
 +
 +/**
@@ -2184,7 +1664,6 @@ index 0000000..15a879c
 +	size_t ret;
 +
 +	ret = min(spi_max_transfer_size(spi), spi->master->max_dma_len);
-+	DRM_INFO("Max SPI transfer size: %zu\n", ret);
 +	if (max_len)
 +		ret = min(ret, max_len);
 +	if (spi_max)
@@ -2192,8 +1671,6 @@ index 0000000..15a879c
 +	ret &= ~0x3;
 +	if (ret < 4)
 +		ret = 4;
-+
-+	DRM_DEBUG_DRIVER("Max SPI transfer size: %zu\n", ret);
 +
 +	return ret;
 +}
@@ -2218,7 +1695,7 @@ index 0000000..15a879c
 +
 +	if (!bpw_mask) {
 +		dev_warn_once(&spi->dev,
-+			      "bits_per_word_mask not set, assume only 8\n");
++			      "bits_per_word_mask not set, assume 8-bit only\n");
 +		return false;
 +	}
 +
@@ -2332,7 +1809,7 @@ index 0000000..15a879c
 + * @buf: Buffer to transfer
 + * @len: Buffer length
 + * @swap_buf: Swap buffer used on Little Endian when 16 bpw is not supported
-+ * @max_chunk: Break up buffer into chunks of this size
++ * @max_chunk: Break up buffer into chunks of this size (optional)
 + *
 + * This SPI transfer helper breaks up the transfer of @buf into @max_chunk
 + * chunks. If the machine is Little Endian and the SPI master driver doesn't
@@ -2357,6 +1834,8 @@ index 0000000..15a879c
 +
 +	if (WARN_ON_ONCE(bpw != 8 && bpw != 16))
 +		return -EINVAL;
++
++	max_chunk = tinydrm_spi_max_transfer_size(spi, max_chunk);
 +
 +	if (drm_debug & DRM_UT_CORE)
 +		pr_debug("[drm:%s] bpw=%u, max_chunk=%zu, transfers:\n",
@@ -2408,10 +1887,10 @@ index 0000000..15a879c
 +#endif /* CONFIG_SPI */
 diff --git a/drivers/gpu/drm/tinydrm/mi0283qt.c b/drivers/gpu/drm/tinydrm/mi0283qt.c
 new file mode 100644
-index 0000000..aca2a04
+index 000000000000..5bc8db099507
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/mi0283qt.c
-@@ -0,0 +1,310 @@
+@@ -0,0 +1,307 @@
 +#define DEBUG
 +
 +/*
@@ -2681,12 +2160,9 @@ index 0000000..aca2a04
 +	writeonly = device_property_read_bool(dev, "write-only");
 +	device_property_read_u32(dev, "rotation", &rotation);
 +
-+	mipi->reg = mipi_dbi_spi_init(spi, dc, writeonly);
-+	if (IS_ERR(mipi->reg))
-+		return PTR_ERR(mipi->reg);
-+
-+	ret = mipi_dbi_init(dev, mipi, &mi0283qt_pipe_funcs, &mi0283qt_driver,
-+			    &mi0283qt_mode, rotation);
++	ret = mipi_dbi_spi_init(spi, mipi, dc, writeonly,
++				&mi0283qt_pipe_funcs, &mi0283qt_driver,
++				&mi0283qt_mode, rotation);
 +	if (ret)
 +		return ret;
 +
@@ -2724,10 +2200,10 @@ index 0000000..aca2a04
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/gpu/drm/tinydrm/mipi-dbi.c b/drivers/gpu/drm/tinydrm/mipi-dbi.c
 new file mode 100644
-index 0000000..0a074a2
+index 000000000000..4d0e79fe4b30
 --- /dev/null
 +++ b/drivers/gpu/drm/tinydrm/mipi-dbi.c
-@@ -0,0 +1,1087 @@
+@@ -0,0 +1,1090 @@
 +#define DEBUG
 +#define VERBOSE_DEBUG
 +/*
@@ -2747,6 +2223,7 @@ index 0000000..0a074a2
 +#include <drm/tinydrm/tinydrm.h>
 +#include <drm/tinydrm/tinydrm-helpers.h>
 +#include <drm/tinydrm/tinydrm-regmap.h>
++#include <linux/dma-buf.h>
 +#include <linux/gpio/consumer.h>
 +#include <linux/module.h>
 +#include <linux/regmap.h>
@@ -2755,7 +2232,7 @@ index 0000000..0a074a2
 +#include <linux/swab.h>
 +#include <video/mipi_display.h>
 +
-+#define MIPI_DBI_DEFAULT_SPI_READ_SPEED 2000000 /* 2MHz */
++#define MIPI_DBI_MAX_SPI_READ_SPEED 2000000 /* 2MHz */
 +
 +#define DCS_POWER_MODE_DISPLAY			BIT(2)
 +#define DCS_POWER_MODE_DISPLAY_NORMAL_MODE	BIT(3)
@@ -2767,11 +2244,8 @@ index 0000000..0a074a2
 +struct mipi_dbi_spi {
 +	struct spi_device *spi;
 +	struct regmap *map;
-+	unsigned int ram_reg;
 +	struct gpio_desc *dc;
 +	bool write_only;
-+	u16 *tx_buf;
-+	size_t chunk_size;
 +};
 +
 +/**
@@ -2816,11 +2290,15 @@ index 0000000..0a074a2
 +	u8 *buf;
 +	int ret;
 +
-+	buf = kmalloc(num, GFP_KERNEL);
++	if (parameters && num) {
++		buf = kmemdup(parameters, num, GFP_KERNEL);
++	} else {
++		buf = kmalloc(1, GFP_KERNEL);
++		num = 0;
++	}
++
 +	if (!buf)
 +		return -ENOMEM;
-+
-+	memcpy(buf, parameters, num);
 +
 +	ret = regmap_raw_write(reg, cmd, buf, num);
 +	kfree(buf);
@@ -2856,8 +2334,8 @@ index 0000000..0a074a2
 +	(_dst) |= (u64)(_src) << (63 - 8 - ((_pos) * 9)); \
 +}
 +
-+static int mipi_dbi_spi1e_transfer(struct mipi_dbi_spi *mspi, u8 bits_per_word,
-+				   int dc, const void *buf, size_t len,
++static int mipi_dbi_spi1e_transfer(struct mipi_dbi_spi *mspi, int dc,
++				   const void *buf, size_t len,
 +				   size_t max_chunk)
 +{
 +	struct spi_device *spi = mspi->spi;
@@ -2876,14 +2354,14 @@ index 0000000..0a074a2
 +		return -EINVAL;
 +
 +	if (drm_debug & DRM_UT_CORE)
-+		pr_debug("[drm:%s] bpw=%u, dc=%d, max_chunk=%zu, transfers:\n",
-+			 __func__, bits_per_word, dc, max_chunk);
++		pr_debug("[drm:%s] dc=%d, max_chunk=%zu, transfers:\n",
++			 __func__, dc, max_chunk);
 +
 +	spi_message_init_with_transfers(&m, &tr, 1);
 +
 +	if (!dc) {
 +		/* pad at beginning of block */
-+		if (WARN_ON_ONCE(len != 1 || bits_per_word != 8))
++		if (WARN_ON_ONCE(len != 1))
 +			return -EINVAL;
 +
 +		dst = kzalloc(9, GFP_KERNEL);
@@ -2925,15 +2403,8 @@ index 0000000..0a074a2
 +			u64 tmp = 0;
 +			int j;
 +
-+			if (bits_per_word == 8) {
-+				for (j = 0; j < chunk; j++)
-+					SHIFT_U9_INTO_U64(tmp, *src++, j);
-+			} else {
-+				for (j = 0; j < (chunk / 2); j += 2) {
-+					SHIFT_U9_INTO_U64(tmp, *src++, j + 1);
-+					SHIFT_U9_INTO_U64(tmp, *src++, j);
-+				}
-+			}
++			for (j = 0; j < chunk; j++)
++				SHIFT_U9_INTO_U64(tmp, *src++, j);
 +
 +			*(u64 *)dst = cpu_to_be64(tmp);
 +			dst[8] = 0x00;
@@ -2943,38 +2414,19 @@ index 0000000..0a074a2
 +			for (i = 0; i < chunk; i += 8) {
 +				u64 tmp = 0;
 +
-+				if (bits_per_word == 8) {
-+					SHIFT_U9_INTO_U64(tmp, *src++, 0);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 1);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 2);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 3);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 4);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 5);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 6);
++				SHIFT_U9_INTO_U64(tmp, *src++, 0);
++				SHIFT_U9_INTO_U64(tmp, *src++, 1);
++				SHIFT_U9_INTO_U64(tmp, *src++, 2);
++				SHIFT_U9_INTO_U64(tmp, *src++, 3);
++				SHIFT_U9_INTO_U64(tmp, *src++, 4);
++				SHIFT_U9_INTO_U64(tmp, *src++, 5);
++				SHIFT_U9_INTO_U64(tmp, *src++, 6);
 +
-+					tmp |= 0x1;
-+					/* TODO: unaligned access here? */
-+					*(u64 *)dst = cpu_to_be64(tmp);
-+					dst += 8;
-+					*dst++ = *src++;
-+				} else {
-+					u8 src7;
-+
-+					SHIFT_U9_INTO_U64(tmp, *src++, 1);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 0);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 3);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 2);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 5);
-+					SHIFT_U9_INTO_U64(tmp, *src++, 4);
-+					src7 = *src++;
-+					SHIFT_U9_INTO_U64(tmp, *src++, 6);
-+
-+					tmp |= 0x1;
-+					/* TODO: unaligned access here? */
-+					*(u64 *)dst = cpu_to_be64(tmp);
-+					dst += 8;
-+					*dst++ = src7;
-+				}
++				tmp |= 0x1;
++				/* TODO: unaligned access here? */
++				*(u64 *)dst = cpu_to_be64(tmp);
++				dst += 8;
++				*dst++ = *src++;
 +				added++;
 +			}
 +		}
@@ -2993,15 +2445,14 @@ index 0000000..0a074a2
 +	return ret;
 +}
 +
-+static int mipi_dbi_spi1_transfer(struct mipi_dbi_spi *mspi, u8 bits_per_word,
-+				  int dc, const void *buf, size_t len,
++static int mipi_dbi_spi1_transfer(struct mipi_dbi_spi *mspi, int dc,
++				  const void *buf, size_t len,
 +				  size_t max_chunk)
 +{
 +	struct spi_device *spi = mspi->spi;
 +	struct spi_transfer tr = {
 +		.bits_per_word = 9,
 +	};
-+	const u16 *src16 = buf;
 +	const u8 *src8 = buf;
 +	struct spi_message m;
 +	size_t max_src_chunk;
@@ -3009,17 +2460,13 @@ index 0000000..0a074a2
 +	u16 *dst16;
 +
 +	if (!tinydrm_spi_bpw_supported(spi, 9))
-+		return mipi_dbi_spi1e_transfer(mspi, bits_per_word, dc, buf,
-+					       len, max_chunk);
-+
-+	if (WARN_ON_ONCE(bits_per_word == 16 && len % 2))
-+		return -EINVAL;
++		return mipi_dbi_spi1e_transfer(mspi, dc, buf, len, max_chunk);
 +
 +	max_chunk = mipi_dbi_spi_clamp_size(spi, max_chunk);
 +
 +	if (drm_debug & DRM_UT_CORE)
-+		pr_debug("[drm:%s] bpw=%u, dc=%d, max_chunk=%zu, transfers:\n",
-+			 __func__, bits_per_word, dc, max_chunk);
++		pr_debug("[drm:%s] dc=%d, max_chunk=%zu, transfers:\n",
++			 __func__, dc, max_chunk);
 +
 +	max_src_chunk = min(max_chunk / 2, len);
 +
@@ -3034,22 +2481,12 @@ index 0000000..0a074a2
 +		size_t chunk = min(len, max_src_chunk);
 +		unsigned int i;
 +
-+		if (bits_per_word == 8) {
-+			for (i = 0; i < chunk; i++) {
-+				dst16[i] = *src8++;
-+				if (dc)
-+					dst16[i] |= 0x0100;
-+			}
-+		} else {
-+			for (i = 0; i < (chunk * 2); i += 2) {
-+				dst16[i]     = *src16 >> 8;
-+				dst16[i + 1] = *src16++ & 0xFF;
-+				if (dc) {
-+					dst16[i]     |= 0x0100;
-+					dst16[i + 1] |= 0x0100;
-+				}
-+			}
++		for (i = 0; i < chunk; i++) {
++			dst16[i] = *src8++;
++			if (dc)
++				dst16[i] |= 0x0100;
 +		}
++
 +		tr.len = chunk;
 +		len -= chunk;
 +
@@ -3070,22 +2507,19 @@ index 0000000..0a074a2
 +				      size_t val_len)
 +{
 +	struct mipi_dbi_spi *mspi = context;
-+	size_t val_width;
 +	int ret;
 +
 +	if (reg_len != 1)
 +		return -EINVAL;
 +
-+	val_width = (*(u8 *)reg == mspi->ram_reg) ? 16 : 8;
-+	TINYDRM_DEBUG_REG_WRITE(reg, reg_len, val, val_len, val_width);
++	TINYDRM_DEBUG_REG_WRITE(reg, reg_len, val, val_len, 8);
 +
-+	ret = mipi_dbi_spi1_transfer(mspi, 8, 0, reg, reg_len, 4096);
++	ret = mipi_dbi_spi1_transfer(mspi, 0, reg, reg_len, 4096);
 +	if (ret)
 +		return ret;
 +
 +	if (val && val_len)
-+		ret = mipi_dbi_spi1_transfer(mspi, val_width, 1, val,
-+					     val_len, 4096);
++		ret = mipi_dbi_spi1_transfer(mspi, 1, val, val_len, 4096);
 +
 +	return ret;
 +}
@@ -3093,7 +2527,7 @@ index 0000000..0a074a2
 +static int mipi_dbi_spi1_write(void *context, const void *data, size_t count)
 +{
 +	return mipi_dbi_spi1_gather_write(context, data, 1,
-+					 data + 1, count - 1);
++					  data + 1, count - 1);
 +}
 +
 +static int mipi_dbi_spi1_read(void *context, const void *reg, size_t reg_size,
@@ -3118,26 +2552,22 @@ index 0000000..0a074a2
 +{
 +	struct mipi_dbi_spi *mspi = context;
 +	struct spi_device *spi = mspi->spi;
-+	size_t val_width;
 +	int ret;
 +
 +	if (reg_len != 1)
 +		return -EINVAL;
 +
-+	val_width = (*(u8 *)reg == mspi->ram_reg) ? 16 : 8;
-+	TINYDRM_DEBUG_REG_WRITE(reg, reg_len, val, val_len, val_width);
++	TINYDRM_DEBUG_REG_WRITE(reg, reg_len, val, val_len, 8);
 +
 +	gpiod_set_value_cansleep(mspi->dc, 0);
-+	ret = tinydrm_spi_transfer(spi, 0, NULL, 8, reg, 1, mspi->tx_buf,
-+				   mspi->chunk_size);
++	ret = tinydrm_spi_transfer(spi, 0, NULL, 8, reg, 1, NULL, 0);
 +	if (ret)
 +		return ret;
 +
 +	if (val && val_len) {
 +		gpiod_set_value_cansleep(mspi->dc, 1);
-+		ret = tinydrm_spi_transfer(spi, 0, NULL, val_width, val,
-+					   val_len, mspi->tx_buf,
-+					   mspi->chunk_size);
++		ret = tinydrm_spi_transfer(spi, 0, NULL, 8, val,
++					   val_len, NULL, 0);
 +	}
 +
 +	return ret;
@@ -3154,7 +2584,7 @@ index 0000000..0a074a2
 +{
 +	struct mipi_dbi_spi *mspi = context;
 +	struct spi_device *spi = mspi->spi;
-+	u32 speed_hz = min_t(u32, MIPI_DBI_DEFAULT_SPI_READ_SPEED,
++	u32 speed_hz = min_t(u32, MIPI_DBI_MAX_SPI_READ_SPEED,
 +			     spi->max_speed_hz / 2);
 +	struct spi_transfer tr[2] = {
 +		{
@@ -3229,15 +2659,22 @@ index 0000000..0a074a2
 +};
 +
 +/**
-+ * mipi_dbi_spi_init - Initialize MIPI DBI SPI interface
++ * mipi_dbi_spi_init - Initialize MIPI DBI SPI interfaced controller
 + * @spi: SPI device
 + * @dc: D/C gpio (optional)
 + * @write_only: Controller is write-only
++ * @mipi: &mipi_dbi structure to initialize
++ * @pipe_funcs: Display pipe functions
++ * @driver: DRM driver
++ * @mode: Display mode
++ * @rotation: Initial rotation in degrees Counter Clock Wise
 + *
-+ * This function initializes a &regmap that can be used to send commands to
++ * This function initializes a &mipi_dbi structure using mipi_dbi_init()
++ * and intitalizes a &regmap that can be used to send commands to
 + * the controller. mipi_dbi_write() can be used to send commands.
 + * If @dc is set, a Type C Option 3 interface is assumed, if not
 + * Type C Option 1.
++ *
 + * If the SPI master driver doesn't support the necessary bits per word,
 + * the following transformation is used:
 + *
@@ -3245,10 +2682,14 @@ index 0000000..0a074a2
 + * - 16-bit: if big endian send as 8-bit, if little endian swap bytes
 + *
 + * Returns:
-+ * regmap on success, error pointer on failure.
++ * Zero on success, negative error code on failure.
 + */
-+struct regmap *mipi_dbi_spi_init(struct spi_device *spi, struct gpio_desc *dc,
-+				 bool write_only)
++int mipi_dbi_spi_init(struct spi_device *spi, struct mipi_dbi *mipi,
++		      struct gpio_desc *dc, bool write_only,
++		      const struct drm_simple_display_pipe_funcs *pipe_funcs,
++		      struct drm_driver *driver,
++		      const struct drm_display_mode *mode,
++		      unsigned int rotation)
 +{
 +	struct regmap_config config = {
 +		.reg_bits = 8,
@@ -3260,20 +2701,11 @@ index 0000000..0a074a2
 +
 +	mspi = devm_kzalloc(dev, sizeof(*mspi), GFP_KERNEL);
 +	if (!mspi)
-+		return ERR_PTR(-ENOMEM);
++		return -ENOMEM;
 +
-+	mspi->chunk_size = tinydrm_spi_max_transfer_size(spi, 0);
-+	mspi->ram_reg = MIPI_DCS_WRITE_MEMORY_START;
 +	mspi->write_only = write_only;
 +	mspi->spi = spi;
 +	mspi->dc = dc;
-+
-+	if (tinydrm_get_machine_endian() == REGMAP_ENDIAN_LITTLE &&
-+	    dc && !tinydrm_spi_bpw_supported(spi, 16)) {
-+		mspi->tx_buf = devm_kmalloc(dev, mspi->chunk_size, GFP_KERNEL);
-+		if (!mspi->tx_buf)
-+			return ERR_PTR(-ENOMEM);
-+	}
 +
 +	if (dc)
 +		mspi->map = devm_regmap_init(dev, &mipi_dbi_regmap_bus3, mspi,
@@ -3281,10 +2713,54 @@ index 0000000..0a074a2
 +	else
 +		mspi->map = devm_regmap_init(dev, &mipi_dbi_regmap_bus1, mspi,
 +					     &config);
++	mipi->reg = mspi->map;
 +
-+	return mspi->map;
++	if (tinydrm_get_machine_endian() == REGMAP_ENDIAN_LITTLE &&
++	    !tinydrm_spi_bpw_supported(spi, 16))
++		mipi->swap_bytes = true;
++
++	return mipi_dbi_init(dev, mipi, pipe_funcs, driver, mode, rotation);
 +}
 +EXPORT_SYMBOL(mipi_dbi_spi_init);
++
++static int mipi_dbi_buf_copy(void *dst, struct drm_framebuffer *fb,
++				struct drm_clip_rect *clip, bool swap)
++{
++	struct drm_gem_cma_object *cma_obj = drm_fb_cma_get_gem_obj(fb, 0);
++	struct dma_buf_attachment *import_attach = cma_obj->base.import_attach;
++	struct drm_format_name_buf format_name;
++	void *src = cma_obj->vaddr;
++	int ret = 0;
++
++	if (import_attach) {
++		ret = dma_buf_begin_cpu_access(import_attach->dmabuf,
++					       DMA_FROM_DEVICE);
++		if (ret)
++			return ret;
++	}
++
++	switch (fb->format->format) {
++	case DRM_FORMAT_RGB565:
++		if (swap)
++			tinydrm_swab16(dst, src, fb, clip);
++		else
++			tinydrm_memcpy(dst, src, fb, clip);
++		break;
++	case DRM_FORMAT_XRGB8888:
++		tinydrm_xrgb8888_to_rgb565(dst, src, fb, clip, swap);
++		break;
++	default:
++		dev_err_once(fb->dev->dev, "Format is not supported: %s\n",
++			     drm_get_format_name(fb->format->format,
++						 &format_name));
++		return -EINVAL;
++	}
++
++	if (import_attach)
++		ret = dma_buf_end_cpu_access(import_attach->dmabuf,
++					     DMA_FROM_DEVICE);
++	return ret;
++}
 +
 +static int mipi_dbi_fb_dirty(struct drm_framebuffer *fb,
 +			     struct drm_file *file_priv,
@@ -3296,23 +2772,31 @@ index 0000000..0a074a2
 +	struct tinydrm_device *tdev = drm_to_tinydrm(fb->dev);
 +	struct mipi_dbi *mipi = mipi_dbi_from_tinydrm(tdev);
 +	struct regmap *reg = mipi->reg;
++	bool swap = mipi->swap_bytes;
 +	struct drm_clip_rect clip;
 +	int ret = 0;
++	bool full;
++	void *tr;
 +
 +	mutex_lock(&tdev->dev_lock);
 +
 +	if (!tinydrm_check_dirty(fb, &clips, &num_clips))
 +		goto out_unlock;
 +
-+	tinydrm_merge_clips(&clip, clips, num_clips, flags,
-+			    fb->width, fb->height);
-+	clip.x1 = 0;
-+	clip.x2 = fb->width;
++	full = tinydrm_merge_clips(&clip, clips, num_clips, flags,
++				   fb->width, fb->height);
 +
 +	DRM_DEBUG("Flushing [FB:%d] x1=%u, x2=%u, y1=%u, y2=%u\n", fb->base.id,
 +		  clip.x1, clip.x2, clip.y1, clip.y2);
 +
-+	tinydrm_debugfs_dirty_begin(tdev, fb, &clip);
++	if (!full || swap || fb->format->format == DRM_FORMAT_XRGB8888) {
++		tr = mipi->tx_buf;
++		ret = mipi_dbi_buf_copy(mipi->tx_buf, fb, &clip, swap);
++		if (ret)
++			goto out_unlock;
++	} else {
++		tr = cma_obj->vaddr;
++	}
 +
 +	mipi_dbi_write(reg, MIPI_DCS_SET_COLUMN_ADDRESS,
 +		       (clip.x1 >> 8) & 0xFF, clip.x1 & 0xFF,
@@ -3321,16 +2805,10 @@ index 0000000..0a074a2
 +		       (clip.y1 >> 8) & 0xFF, clip.y1 & 0xFF,
 +		       (clip.y2 >> 8) & 0xFF, (clip.y2 - 1) & 0xFF);
 +
-+	ret = tinydrm_regmap_flush_rgb565(reg, MIPI_DCS_WRITE_MEMORY_START,
-+					  fb, cma_obj->vaddr, &clip);
-+
-+	tinydrm_debugfs_dirty_end(tdev, 0, 16);
-+
-+	if (ret) {
-+		dev_err_once(fb->dev->dev, "Failed to update display %d\n",
-+			     ret);
++	ret = regmap_raw_write(reg, MIPI_DCS_WRITE_MEMORY_START, tr,
++			       (clip.x2 - clip.x1) * (clip.y2 - clip.y1) * 2);
++	if (ret)
 +		goto out_unlock;
-+	}
 +
 +	if (!tdev->enabled) {
 +		if (mipi->enable_delay_ms)
@@ -3345,6 +2823,10 @@ index 0000000..0a074a2
 +
 +out_unlock:
 +	mutex_unlock(&tdev->dev_lock);
++
++	if (ret)
++		dev_err_once(fb->dev->dev, "Failed to update display %d\n",
++			     ret);
 +
 +	return ret;
 +}
@@ -3442,7 +2924,7 @@ index 0000000..0a074a2
 + * @pipe_funcs: Display pipe functions
 + * @driver: DRM driver
 + * @mode: Display mode
-+ * @rotation: Initial rotation in degress Counter Clock Wise
++ * @rotation: Initial rotation in degrees Counter Clock Wise
 + *
 + * This function initializes a &mipi_dbi structure and it's underlying
 + * @tinydrm_device and &drm_device. It also sets up the display pipeline.
@@ -3458,9 +2940,14 @@ index 0000000..0a074a2
 +		  struct drm_driver *driver,
 +		  const struct drm_display_mode *mode, unsigned int rotation)
 +{
++	size_t bufsize = mode->vdisplay * mode->hdisplay * sizeof(u16);
 +	struct tinydrm_device *tdev = &mipi->tinydrm;
 +	struct drm_device *drm = &tdev->drm;
 +	int ret;
++
++	mipi->tx_buf = devm_kmalloc(dev, bufsize, GFP_KERNEL);
++	if (!mipi->tx_buf)
++		return -ENOMEM;
 +
 +	ret = devm_tinydrm_init(dev, tdev, &mipi_dbi_fb_funcs, driver);
 +	if (ret)
@@ -3479,8 +2966,6 @@ index 0000000..0a074a2
 +	mipi->rotation = rotation;
 +
 +	drm_mode_config_reset(drm);
-+
-+	tinydrm_debugfs_dirty_init(tdev);
 +
 +	DRM_DEBUG_KMS("preferred_depth=%u, rotation = %u\n",
 +		      drm->mode_config.preferred_depth, rotation);
@@ -3772,6 +3257,7 @@ index 0000000..0a074a2
 +}
 +
 +static const struct drm_info_list mipi_dbi_debugfs_list[] = {
++	{ "fb",   drm_fb_cma_debugfs_show, 0 },
 +	{ "mipi",   mipi_dbi_debugfs_show, 0 },
 +};
 +
@@ -3786,12 +3272,6 @@ index 0000000..0a074a2
 + */
 +int mipi_dbi_debugfs_init(struct drm_minor *minor)
 +{
-+	int ret;
-+
-+	ret = tinydrm_debugfs_init(minor);
-+	if (ret)
-+		return ret;
-+
 +	return drm_debugfs_create_files(mipi_dbi_debugfs_list,
 +					ARRAY_SIZE(mipi_dbi_debugfs_list),
 +					minor->debugfs_root, minor);
@@ -3806,7 +3286,6 @@ index 0000000..0a074a2
 + */
 +void mipi_dbi_debugfs_cleanup(struct drm_minor *minor)
 +{
-+	tinydrm_debugfs_cleanup(minor);
 +	drm_debugfs_remove_files(mipi_dbi_debugfs_list,
 +				 ARRAY_SIZE(mipi_dbi_debugfs_list), minor);
 +}
@@ -3815,667 +3294,9 @@ index 0000000..0a074a2
 +#endif
 +
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/gpu/drm/tinydrm/utinydrm.c b/drivers/gpu/drm/tinydrm/utinydrm.c
-new file mode 100644
-index 0000000..14ac47c
---- /dev/null
-+++ b/drivers/gpu/drm/tinydrm/utinydrm.c
-@@ -0,0 +1,652 @@
-+#define DEBUG
-+/*
-+ * Copyright (C) 2016 Noralf Trønnes
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <drm/drm_atomic_helper.h>
-+#include <drm/drm_gem_cma_helper.h>
-+#include <drm/drm_fb_cma_helper.h>
-+#include <drm/drm_fb_helper.h>
-+#include <drm/tinydrm/tinydrm.h>
-+#include <drm/tinydrm/tinydrm-helpers.h>
-+#include <linux/completion.h>
-+#include <linux/fs.h>
-+#include <linux/idr.h>
-+#include <linux/init.h>
-+#include <linux/leds.h>
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/poll.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+
-+#include <uapi/drm/utinydrm.h>
-+
-+
-+struct utinydrm_device {
-+	struct tinydrm_device	tdev;
-+	struct device dev;
-+	struct idr 		idr;
-+
-+	struct mutex		mutex;
-+	wait_queue_head_t	waitq;
-+	struct completion	completion;
-+
-+	struct utinydrm_event	*ev;
-+	int			event_ret;
-+
-+	bool			initialized;
-+	bool			fbdev_fb_sent;
-+	struct work_struct	release_work;
-+};
-+
-+static inline struct utinydrm_device *
-+udev_from_tdev(struct tinydrm_device *tdev)
-+{
-+	return container_of(tdev, struct utinydrm_device, tdev);
-+}
-+
-+static struct miscdevice utinydrm_misc;
-+
-+static int utinydrm_send_event(struct tinydrm_device *tdev, void *ev_in)
-+{
-+	struct utinydrm_device *udev = udev_from_tdev(tdev);
-+	struct utinydrm_event *ev = ev_in;
-+	unsigned long time_left;
-+	int ret = 0;
-+
-+	ev = kmemdup(ev, ev->length, GFP_KERNEL);
-+	if (!ev)
-+		return -ENOMEM;
-+
-+	dev_dbg(tdev->drm.dev, "%s(ev=%p) IN\n", __func__, ev);
-+	mutex_lock(&udev->tdev.dev_lock);
-+	reinit_completion(&udev->completion);
-+
-+	ret = mutex_lock_interruptible(&udev->mutex);
-+	if (ret) {
-+		kfree(ev);
-+		goto out_unlock;
-+	}
-+	udev->ev = ev;
-+	mutex_unlock(&udev->mutex);
-+
-+	dev_dbg(tdev->drm.dev, "%s: ev->type=%u, ev->length=%u\n", __func__, udev->ev->type, udev->ev->length);
-+
-+	wake_up_interruptible(&udev->waitq);
-+
-+	time_left = wait_for_completion_timeout(&udev->completion, 5 * HZ);
-+	//ret = udev->event_ret;
-+	//time_left = 1;
-+	if (!time_left) {
-+		dev_err(&udev->dev, "%s: timeout waiting for reply\n", __func__);
-+		ret =-ETIMEDOUT;
-+	}
-+
-+out_unlock:
-+	mutex_unlock(&udev->tdev.dev_lock);
-+
-+	dev_dbg(tdev->drm.dev, "%s OUT ret=%d, event_ret=%d\n", __func__, ret, udev->event_ret);
-+	return ret;
-+}
-+
-+static int utinydrm_fb_create_event(struct drm_framebuffer *fb)
-+{
-+	struct tinydrm_device *tdev = drm_to_tinydrm(fb->dev);
-+	struct utinydrm_device *udev = udev_from_tdev(tdev);
-+	struct utinydrm_event_fb_create ev = {
-+		.base = {
-+			.type = UTINYDRM_EVENT_FB_CREATE,
-+			.length = sizeof(ev),
-+		},
-+	};
-+	struct drm_mode_fb_cmd2 *ufb = &ev.fb;
-+	struct drm_gem_cma_object *cma_obj;
-+	int ret, i;
-+
-+	dev_dbg(fb->dev->dev, "%s: [FB:%d]\n", __func__, fb->base.id);
-+
-+	ufb->fb_id = fb->base.id;
-+	ufb->width = fb->width;
-+	ufb->height = fb->height;
-+	ufb->pixel_format = fb->pixel_format;
-+	ufb->flags = fb->flags;
-+
-+	for (i = 0; i < 4; i++) {
-+		cma_obj = drm_fb_cma_get_gem_obj(fb, i);
-+		if (!cma_obj)
-+			break;
-+
-+		ufb->pitches[i] = fb->pitches[i];
-+		ufb->offsets[i] = fb->offsets[i];
-+		ufb->modifier[i] = fb->modifier[i];
-+	}
-+
-+	ret = idr_alloc(&udev->idr, fb, fb->base.id, fb->base.id + 1, GFP_KERNEL);
-+	if (ret < 1) {
-+		dev_err(fb->dev->dev, "%s: [FB:%d]: failed to allocate idr %d\n", __func__, fb->base.id, ret);
-+		return ret;
-+	}
-+
-+	ret = utinydrm_send_event(tdev, &ev);
-+
-+	return ret;
-+}
-+
-+static int utinydrm_fb_dirty(struct drm_framebuffer *fb,
-+			     struct drm_file *file_priv,
-+			     unsigned int flags, unsigned int color,
-+			     struct drm_clip_rect *clips,
-+			     unsigned int num_clips)
-+{
-+	struct tinydrm_device *tdev = drm_to_tinydrm(fb->dev);
-+	struct utinydrm_device *udev = udev_from_tdev(tdev);
-+	struct drm_mode_fb_dirty_cmd *dirty;
-+	struct utinydrm_event_fb_dirty *ev;
-+	struct drm_clip_rect clip;
-+	size_t size_clips, size;
-+	int ret;
-+
-+	pr_debug("\n\n\n");
-+	if (!tinydrm_check_dirty(fb, &clips, &num_clips))
-+		return -EINVAL;
-+
-+	/* FIXME: if (fb == tdev->fbdev_helper->fb) */
-+	if (tdev->fbdev_helper && !udev->fbdev_fb_sent) {
-+		utinydrm_fb_create_event(tdev->fbdev_helper->fb);
-+		udev->fbdev_fb_sent = true;
-+	}
-+
-+	tdev->enabled = true;
-+
-+	tinydrm_merge_clips(&clip, clips, num_clips, flags,
-+			    fb->width, fb->height);
-+	clip.x1 = 0;
-+	clip.x2 = fb->width;
-+	clips = &clip;
-+	num_clips = 1;
-+
-+	size_clips = num_clips * sizeof(struct drm_clip_rect);
-+	size = sizeof(struct utinydrm_event_fb_dirty) + size_clips;
-+	ev = kzalloc(size, GFP_KERNEL);
-+	if (!ev)
-+		return -ENOMEM;
-+
-+	dev_dbg(fb->dev->dev, "%s: [FB:%d]: num_clips=%u, size_clips=%zu, size=%zu\n", __func__, fb->base.id, num_clips, size_clips, size);
-+
-+	ev->base.type = UTINYDRM_EVENT_FB_DIRTY;
-+	ev->base.length = size;
-+	dirty = &ev->fb_dirty_cmd;
-+
-+	dirty->fb_id = fb->base.id;
-+	dirty->flags = flags;
-+	dirty->color = color;
-+	dirty->num_clips = num_clips;
-+	//dirty->clips_ptr
-+
-+	if (num_clips)
-+		memcpy(ev->clips, clips, size_clips);
-+
-+//	tinydrm_merge_clips(&clip, clips, num_clips, flags,
-+//			    fb->width, fb->height);
-+//	clip.x1 = 0;
-+//	clip.x2 = fb->width;
-+
-+	DRM_DEBUG("Flushing [FB:%d] x1=%u, x2=%u, y1=%u, y2=%u\n", fb->base.id,
-+		  clip.x1, clip.x2, clip.y1, clip.y2);
-+
-+	tinydrm_debugfs_dirty_begin(tdev, fb, &clip);
-+
-+	ret = utinydrm_send_event(tdev, ev);
-+
-+	tinydrm_debugfs_dirty_end(tdev, 0, 16);
-+
-+	if (ret) {
-+		dev_err_once(fb->dev->dev, "Failed to update display %d\n",
-+			     ret);
-+	}
-+
-+	return ret;
-+}
-+
-+static void utinydrm_fb_destroy(struct drm_framebuffer *fb)
-+{
-+	struct tinydrm_device *tdev = drm_to_tinydrm(fb->dev);
-+	struct utinydrm_device *udev = udev_from_tdev(tdev);
-+	struct utinydrm_event_fb_destroy ev = {
-+		.base = {
-+			.type = UTINYDRM_EVENT_FB_DESTROY,
-+			.length = sizeof(ev),
-+		},
-+	};
-+	struct drm_framebuffer *iter;
-+	int id;
-+
-+	dev_dbg(fb->dev->dev, "%s: [FB:%d]\n", __func__, fb->base.id);
-+
-+	idr_for_each_entry(&udev->idr, iter, id) {
-+		if (fb == iter)
-+			break;
-+	}
-+
-+	if (!iter) {
-+		dev_err(fb->dev->dev, "%s: failed to find idr\n", __func__);
-+		return;
-+	}
-+
-+	ev.fb_id = id;
-+	idr_remove(&udev->idr, id);
-+
-+	utinydrm_send_event(tdev, &ev);
-+
-+	drm_fb_cma_destroy(fb);
-+}
-+
-+static const struct drm_framebuffer_funcs utinydrm_fb_funcs = {
-+	.destroy	= utinydrm_fb_destroy,
-+	.create_handle	= drm_fb_cma_create_handle,
-+	.dirty		= utinydrm_fb_dirty,
-+};
-+
-+static struct drm_framebuffer *
-+utinydrm_fb_create(struct drm_device *drm, struct drm_file *file_priv,
-+		   const struct drm_mode_fb_cmd2 *mode_cmd)
-+{
-+	struct drm_framebuffer *fb;
-+	int ret;
-+
-+	fb = tinydrm_fb_create(drm, file_priv, mode_cmd);
-+	if (IS_ERR(fb))
-+		return fb;
-+
-+	dev_dbg(drm->dev, "%s\n", __func__);
-+	ret = utinydrm_fb_create_event(fb);
-+
-+	return fb;
-+}
-+
-+static const struct drm_mode_config_funcs utinydrm_mode_config_funcs = {
-+	.fb_create = utinydrm_fb_create,
-+	.atomic_check = drm_atomic_helper_check,
-+	.atomic_commit = drm_atomic_helper_commit,
-+};
-+
-+static void utinydrm_pipe_enable(struct drm_simple_display_pipe *pipe,
-+				 struct drm_crtc_state *crtc_state)
-+{
-+	struct tinydrm_device *tdev = pipe_to_tinydrm(pipe);
-+	struct utinydrm_event ev = {
-+		.type = UTINYDRM_EVENT_PIPE_ENABLE,
-+		.length = sizeof(ev),
-+	};
-+
-+	dev_dbg(tdev->drm.dev, "%s\n", __func__);
-+	tdev->prepared = true;
-+	utinydrm_send_event(tdev, &ev);
-+}
-+
-+static void utinydrm_pipe_disable(struct drm_simple_display_pipe *pipe)
-+{
-+	struct tinydrm_device *tdev = pipe_to_tinydrm(pipe);
-+	struct utinydrm_event ev = {
-+		.type = UTINYDRM_EVENT_PIPE_DISABLE,
-+		.length = sizeof(ev),
-+	};
-+
-+	dev_dbg(tdev->drm.dev, "%s\n", __func__);
-+	tdev->prepared = false;
-+	tdev->enabled = false;
-+	utinydrm_send_event(tdev, &ev);
-+}
-+
-+static const struct drm_simple_display_pipe_funcs utinydrm_pipe_funcs = {
-+	.enable = utinydrm_pipe_enable,
-+	.disable = utinydrm_pipe_disable,
-+	.update = tinydrm_display_pipe_update,
-+};
-+
-+static int utinydrm_prime_handle_to_fd_ioctl(struct drm_device *dev, void *data,
-+					     struct drm_file *file_priv)
-+{
-+	struct drm_prime_handle *args = data;
-+
-+	/* FIXME: only the userspace driver should use this */
-+
-+	/* check flags are valid */
-+	if (args->flags & ~(DRM_CLOEXEC | DRM_RDWR))
-+		return -EINVAL;
-+
-+	return dev->driver->prime_handle_to_fd(dev, file_priv, args->handle,
-+					       args->flags, &args->fd);
-+}
-+
-+static const struct drm_ioctl_desc utinydrm_ioctls[] = {
-+	DRM_IOCTL_DEF_DRV(UTINYDRM_PRIME_HANDLE_TO_FD, utinydrm_prime_handle_to_fd_ioctl, DRM_CONTROL_ALLOW|DRM_UNLOCKED),
-+};
-+
-+static struct drm_driver utinydrm_driver = {
-+	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
-+				  DRIVER_ATOMIC,
-+	TINYDRM_GEM_DRIVER_OPS,
-+	.lastclose		= tinydrm_lastclose,
-+
-+	.ioctls			= utinydrm_ioctls,
-+	.num_ioctls		= ARRAY_SIZE(utinydrm_ioctls),
-+
-+	.name			= "utinydrm",
-+	.desc			= "Userspace driver tinydrm",
-+	.date			= "20161119",
-+	.major			= 1,
-+	.minor			= 0,
-+};
-+
-+static const uint32_t utinydrm_formats[] = {
-+	DRM_FORMAT_RGB565,
-+	DRM_FORMAT_XRGB8888,
-+};
-+
-+static int utinydrm_register(struct utinydrm_device *udev, struct utinydrm_dev_create *dev_create)
-+{
-+	struct tinydrm_device *tdev = &udev->tdev;
-+	struct drm_display_mode display_mode;
-+	struct device *dev = &udev->dev;
-+	struct drm_device *drm;
-+	struct drm_driver *drv;
-+	int ret;
-+
-+	if (!dev->coherent_dma_mask) {
-+		ret = dma_coerce_mask_and_coherent(dev, DMA_BIT_MASK(32));
-+		if (ret)
-+			dev_warn(dev, "Failed to set dma mask %d\n", ret);
-+	}
-+
-+	drv = devm_kmalloc(&udev->dev, sizeof(*drv), GFP_KERNEL);
-+	if (!drv)
-+		return -ENOMEM;
-+
-+	*drv = utinydrm_driver;
-+	drv->name = kstrdup(dev_create->name, GFP_KERNEL);
-+	if (!drv->name)
-+		return -ENOMEM;
-+
-+	ret = devm_tinydrm_init(&udev->dev, tdev, &utinydrm_fb_funcs, drv);
-+	if (ret)
-+		return ret;
-+
-+	drm = &tdev->drm;
-+	drm->mode_config.funcs = &utinydrm_mode_config_funcs;
-+
-+	ret = drm_mode_convert_umode(&display_mode, &dev_create->mode);
-+	if (ret)
-+		return ret;
-+
-+	drm_mode_debug_printmodeline(&display_mode);
-+
-+	ret = tinydrm_display_pipe_init(tdev, &utinydrm_pipe_funcs,
-+					DRM_MODE_CONNECTOR_VIRTUAL,
-+					utinydrm_formats,
-+					ARRAY_SIZE(utinydrm_formats), &display_mode,
-+					0);
-+	if (ret)
-+		return ret;
-+
-+	drm->mode_config.preferred_depth = 16;
-+
-+	drm_mode_config_reset(drm);
-+
-+	tinydrm_debugfs_dirty_init(tdev);
-+
-+	DRM_DEBUG_KMS("preferred_depth=%u\n", drm->mode_config.preferred_depth);
-+
-+	ret = devm_tinydrm_register(tdev);
-+
-+	dev_create->index = drm->primary->index;
-+
-+	return ret;
-+}
-+
-+static void utinydrm_unregister(struct utinydrm_device *udev)
-+{
-+	struct tinydrm_device *tdev = &udev->tdev;
-+
-+	devm_tinydrm_unregister(tdev);
-+}
-+
-+/*********************************************************************************************************************************/
-+
-+static void utinydrm_release_work(struct work_struct *work)
-+{
-+	struct utinydrm_device *udev = container_of(work, struct utinydrm_device,
-+						    release_work);
-+	struct drm_device *drm = &udev->tdev.drm;
-+
-+	//drm_device_set_unplugged(drm);
-+
-+	while (drm->open_count) {
-+		dev_dbg(drm->dev, "%s: open_count=%d\n", __func__, drm->open_count);
-+		msleep(1000);
-+	}
-+
-+	utinydrm_unregister(udev);
-+
-+
-+	dev_dbg(&udev->dev, "%s: dev.refcount=%d\n", __func__, atomic_read(&udev->dev.kobj.kref.refcount));
-+
-+	device_unregister(&udev->dev);
-+}
-+
-+static void utinydrm_device_release(struct device *dev)
-+{
-+	//struct utinydrm_device *udev = container_of(dev, struct utinydrm_device, dev);
-+
-+	dev_dbg(dev, "%s\n", __func__);
-+	/* FIXME: there's use after free */
-+	//kfree(udev);
-+}
-+
-+static int utinydrm_open(struct inode *inode, struct file *file)
-+{
-+	struct utinydrm_device *udev;
-+	int ret;
-+
-+	udev = kzalloc(sizeof(*udev), GFP_KERNEL);
-+	if (!udev)
-+		return -ENOMEM;
-+
-+	/* FIXME: tinydrm currently needs a parent device */
-+	dev_set_name(&udev->dev, "utinydrm%u", 0);
-+	udev->dev.release = utinydrm_device_release;
-+	ret = device_register(&udev->dev);
-+	if (ret) {
-+		put_device(&udev->dev);
-+		kfree(udev);
-+		return ret;
-+	}
-+
-+	mutex_init(&udev->mutex);
-+	init_waitqueue_head(&udev->waitq);
-+	init_completion(&udev->completion);
-+	idr_init(&udev->idr);
-+	INIT_WORK(&udev->release_work, utinydrm_release_work);
-+
-+	file->private_data = udev;
-+	nonseekable_open(inode, file);
-+
-+	return 0;
-+}
-+
-+static ssize_t utinydrm_write(struct file *file, const char __user *buffer,
-+			   size_t count, loff_t *ppos)
-+{
-+	struct utinydrm_device *udev = file->private_data;
-+	int ret, event_ret;
-+
-+	dev_dbg(udev->tdev.drm.dev, "%s\n", __func__);
-+
-+	if (!udev->initialized)
-+		return -EINVAL;
-+
-+	if (!count)
-+		return 0;
-+
-+	if (count != sizeof(int))
-+		return -EINVAL;
-+
-+	if (copy_from_user(&event_ret, buffer, sizeof(int)))
-+		return -EFAULT;
-+
-+	ret = mutex_lock_interruptible(&udev->mutex);
-+	if (ret)
-+		return ret;
-+
-+	udev->event_ret = event_ret;
-+	complete(&udev->completion);
-+
-+	mutex_unlock(&udev->mutex);
-+
-+	return count;
-+}
-+
-+static ssize_t utinydrm_read(struct file *file, char __user *buffer, size_t count,
-+			  loff_t *ppos)
-+{
-+	struct utinydrm_device *udev = file->private_data;
-+	ssize_t ret;
-+
-+	dev_dbg(&udev->dev, "%s(count=%zu)\n", __func__, count);
-+	if (!count)
-+		return 0;
-+
-+	do {
-+		ret = mutex_lock_interruptible(&udev->mutex);
-+		if (ret)
-+			return ret;
-+
-+		if (!udev->ev && (file->f_flags & O_NONBLOCK)) {
-+			ret = -EAGAIN;
-+		} else if (udev->ev) {
-+			dev_dbg(&udev->dev, "%s udev->ev->length=%u\n", __func__, udev->ev->length);
-+			if (count < udev->ev->length)
-+				ret = -EINVAL;
-+			else if (copy_to_user(buffer, udev->ev, udev->ev->length))
-+				ret = -EFAULT;
-+			else
-+				ret = udev->ev->length;
-+			kfree(udev->ev);
-+			udev->ev = NULL;
-+		}
-+
-+		mutex_unlock(&udev->mutex);
-+
-+		dev_dbg(&udev->dev, "%s: ret=%d\n", __func__, ret);
-+		if (ret)
-+			break;
-+
-+		if (!(file->f_flags & O_NONBLOCK))
-+			ret = wait_event_interruptible(udev->waitq, udev->ev);
-+		dev_dbg(&udev->dev, "%s: while: ret=%d\n", __func__, ret);
-+	} while (ret == 0);
-+
-+	return ret;
-+}
-+
-+static unsigned int utinydrm_poll(struct file *file, poll_table *wait)
-+{
-+	struct utinydrm_device *udev = file->private_data;
-+
-+	dev_dbg(udev->tdev.drm.dev, "%s\n", __func__);
-+	poll_wait(file, &udev->waitq, wait);
-+
-+	if (udev->ev)
-+		return POLLIN | POLLRDNORM;
-+
-+	return 0;
-+}
-+
-+static int utinydrm_release(struct inode *inode, struct file *file)
-+{
-+	struct utinydrm_device *udev = file->private_data;
-+	int i;
-+
-+	dev_dbg(&udev->dev, "%s: refcount=%d\n", __func__, atomic_read(&udev->dev.kobj.kref.refcount));
-+
-+	if (udev->initialized) {
-+		schedule_work(&udev->release_work);
-+	} else {
-+		dev_dbg(&udev->dev, "%s: refcount=%d\n", __func__, atomic_read(&udev->dev.kobj.kref.refcount));
-+
-+		device_unregister(&udev->dev);
-+		for (i = atomic_read(&udev->dev.kobj.kref.refcount); i > 0; i--)
-+			put_device(&udev->dev);
-+	}
-+
-+	return 0;
-+}
-+
-+static long utinydrm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct utinydrm_device *udev = file->private_data;
-+	struct utinydrm_dev_create dev_create;
-+	int ret = -EINVAL;
-+
-+	switch (cmd) {
-+	case UTINYDRM_DEV_CREATE:
-+
-+		if (copy_from_user(&dev_create, (void __user *)arg, sizeof(dev_create)))
-+			return -EFAULT;
-+
-+		ret = utinydrm_register(udev, &dev_create);
-+		if (!ret) {
-+			udev->initialized = true;
-+			if (copy_to_user((void __user *)arg, &dev_create, sizeof(dev_create)))
-+				ret = -EFAULT;
-+		}
-+
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+static const struct file_operations utinydrm_fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= utinydrm_open,
-+	.release	= utinydrm_release,
-+	.read		= utinydrm_read,
-+	.write		= utinydrm_write,
-+	.poll		= utinydrm_poll,
-+
-+	.unlocked_ioctl	= utinydrm_ioctl,
-+//#ifdef CONFIG_COMPAT
-+//	.compat_ioctl	= utinydrm_compat_ioctl,
-+//#endif
-+
-+	.llseek		= no_llseek,
-+};
-+
-+static struct miscdevice utinydrm_misc = {
-+	.fops		= &utinydrm_fops,
-+	.minor		= MISC_DYNAMIC_MINOR,
-+	.name		= "utinydrm",
-+};
-+
-+static int __init utinydrm_init(void)
-+{
-+	return misc_register(&utinydrm_misc);
-+}
-+module_init(utinydrm_init);
-+
-+static void __exit utinydrm_exit(void)
-+{
-+	misc_deregister(&utinydrm_misc);
-+}
-+module_exit(utinydrm_exit);
-+
-+MODULE_AUTHOR("Noralf Trønnes");
-+MODULE_DESCRIPTION("Userspace driver for tinydrm");
-+MODULE_LICENSE("GPL");
 diff --git a/include/drm/tinydrm/hx8340.h b/include/drm/tinydrm/hx8340.h
 new file mode 100644
-index 0000000..4fc975f
+index 000000000000..4fc975f698a3
 --- /dev/null
 +++ b/include/drm/tinydrm/hx8340.h
 @@ -0,0 +1,46 @@
@@ -4527,7 +3348,7 @@ index 0000000..4fc975f
 +#endif /* __LINUX_HX8340_H */
 diff --git a/include/drm/tinydrm/ili9341.h b/include/drm/tinydrm/ili9341.h
 new file mode 100644
-index 0000000..807a09f
+index 000000000000..807a09f43cad
 --- /dev/null
 +++ b/include/drm/tinydrm/ili9341.h
 @@ -0,0 +1,54 @@
@@ -4587,10 +3408,10 @@ index 0000000..807a09f
 +#endif /* __LINUX_ILI9341_H */
 diff --git a/include/drm/tinydrm/mipi-dbi.h b/include/drm/tinydrm/mipi-dbi.h
 new file mode 100644
-index 0000000..e3de909
+index 000000000000..bc8a0ca018f8
 --- /dev/null
 +++ b/include/drm/tinydrm/mipi-dbi.h
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,90 @@
 +/*
 + * MIPI Display Bus Interface (DBI) LCD controller support
 + *
@@ -4618,6 +3439,8 @@ index 0000000..e3de909
 + * mipi_dbi - MIPI DBI controller
 + * @tinydrm: tinydrm base
 + * @reg: register map
++ * @tx_buf: Buffer used for transfer (copy clip rect area)
++ * @swap_bytes: Swap bytes in buffer before transfer
 + * @reset: Optional reset gpio
 + * @rotation: initial rotation in degress Counter Clock Wise
 + * @backlight: backlight device (optional)
@@ -4627,6 +3450,8 @@ index 0000000..e3de909
 +struct mipi_dbi {
 +	struct tinydrm_device tinydrm;
 +	struct regmap *reg;
++	u16 *tx_buf;
++	bool swap_bytes;
 +	struct gpio_desc *reset;
 +	unsigned int rotation;
 +	struct backlight_device *backlight;
@@ -4640,8 +3465,12 @@ index 0000000..e3de909
 +	return container_of(tdev, struct mipi_dbi, tinydrm);
 +}
 +
-+struct regmap *mipi_dbi_spi_init(struct spi_device *spi, struct gpio_desc *dc,
-+				 bool write_only);
++int mipi_dbi_spi_init(struct spi_device *spi, struct mipi_dbi *mipi,
++		      struct gpio_desc *dc, bool write_only,
++		      const struct drm_simple_display_pipe_funcs *pipe_funcs,
++		      struct drm_driver *driver,
++		      const struct drm_display_mode *mode,
++		      unsigned int rotation);
 +int mipi_dbi_init(struct device *dev, struct mipi_dbi *mipi,
 +		  const struct drm_simple_display_pipe_funcs *pipe_funcs,
 +		  struct drm_driver *driver,
@@ -4675,7 +3504,7 @@ index 0000000..e3de909
 +#endif /* __LINUX_MIPI_DBI_H */
 diff --git a/include/drm/tinydrm/st7735r.h b/include/drm/tinydrm/st7735r.h
 new file mode 100644
-index 0000000..f2ba535
+index 000000000000..f2ba5352b634
 --- /dev/null
 +++ b/include/drm/tinydrm/st7735r.h
 @@ -0,0 +1,44 @@
@@ -4725,10 +3554,10 @@ index 0000000..f2ba535
 +#endif /* __LINUX_ST7735R_H */
 diff --git a/include/drm/tinydrm/tinydrm-helpers.h b/include/drm/tinydrm/tinydrm-helpers.h
 new file mode 100644
-index 0000000..2cf416a
+index 000000000000..d471415c2033
 --- /dev/null
 +++ b/include/drm/tinydrm/tinydrm-helpers.h
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,56 @@
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
 + *
@@ -4748,10 +3577,16 @@ index 0000000..2cf416a
 +struct spi_device;
 +struct device;
 +
-+void tinydrm_merge_clips(struct drm_clip_rect *dst,
++bool tinydrm_merge_clips(struct drm_clip_rect *dst,
 +			 struct drm_clip_rect *src, unsigned int num_clips,
 +			 unsigned int flags, u32 max_width, u32 max_height);
-+void tinydrm_xrgb8888_to_rgb565(u32 *src, u16 *dst, unsigned int num_pixels);
++void tinydrm_memcpy(void *dst, void *vaddr, struct drm_framebuffer *fb,
++		    struct drm_clip_rect *clip);
++void tinydrm_swab16(u16 *dst, void *vaddr, struct drm_framebuffer *fb,
++		    struct drm_clip_rect *clip);
++void tinydrm_xrgb8888_to_rgb565(u16 *dst, void *vaddr,
++				struct drm_framebuffer *fb,
++				struct drm_clip_rect *clip, bool swap);
 +
 +#ifdef CONFIG_BACKLIGHT_CLASS_DEVICE
 +struct backlight_device *tinydrm_of_find_backlight(struct device *dev);
@@ -4781,10 +3616,10 @@ index 0000000..2cf416a
 +#endif /* __LINUX_TINYDRM_HELPERS_H */
 diff --git a/include/drm/tinydrm/tinydrm-regmap.h b/include/drm/tinydrm/tinydrm-regmap.h
 new file mode 100644
-index 0000000..70a67ed
+index 000000000000..c11440e65c97
 --- /dev/null
 +++ b/include/drm/tinydrm/tinydrm-regmap.h
-@@ -0,0 +1,99 @@
+@@ -0,0 +1,98 @@
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
 + *
@@ -4805,9 +3640,6 @@ index 0000000..70a67ed
 +struct spi_message;
 +struct spi_device;
 +
-+int tinydrm_regmap_flush_rgb565(struct regmap *reg, u32 regnr,
-+				struct drm_framebuffer *fb, void *vmem,
-+				struct drm_clip_rect *clip);
 +size_t tinydrm_spi_max_transfer_size(struct spi_device *spi, size_t max_len);
 +bool tinydrm_spi_bpw_supported(struct spi_device *spi, u8 bpw);
 +int tinydrm_spi_transfer(struct spi_device *spi, u32 speed_hz,
@@ -4827,8 +3659,10 @@ index 0000000..70a67ed
 +{
 +#if defined(__LITTLE_ENDIAN)
 +	return REGMAP_ENDIAN_LITTLE;
-+#else
++#elif defined(__BIG_ENDIAN)
 +	return REGMAP_ENDIAN_BIG;
++#else
++#  error "could not determine byte order"
 +#endif
 +}
 +
@@ -4886,10 +3720,10 @@ index 0000000..70a67ed
 +#endif /* __LINUX_TINYDRM_REGMAP_H */
 diff --git a/include/drm/tinydrm/tinydrm.h b/include/drm/tinydrm/tinydrm.h
 new file mode 100644
-index 0000000..1555742
+index 000000000000..4fd874a5c19c
 --- /dev/null
 +++ b/include/drm/tinydrm/tinydrm.h
-@@ -0,0 +1,177 @@
+@@ -0,0 +1,145 @@
 +/*
 + * Copyright (C) 2016 Noralf Trønnes
 + *
@@ -4926,13 +3760,12 @@ index 0000000..1555742
 +struct tinydrm_device {
 +	struct drm_device drm;
 +	struct drm_simple_display_pipe pipe;
++	struct drm_pending_vblank_event *event;
 +	struct work_struct dirty_work;
 +	struct mutex dev_lock;
 +	bool prepared;
 +	bool enabled;
 +	struct drm_fbdev_cma *fbdev_cma;
-+	struct drm_fb_helper *fbdev_helper;
-+	bool fbdev_used;
 +	struct drm_atomic_state *suspend_state;
 +	struct tinydrm_debugfs_dirty *debugfs_dirty;
 +/* private: */
@@ -5028,7 +3861,6 @@ index 0000000..1555742
 +		      const struct drm_framebuffer_funcs *fb_funcs,
 +		      struct drm_driver *driver);
 +int devm_tinydrm_register(struct tinydrm_device *tdev);
-+void devm_tinydrm_unregister(struct tinydrm_device *tdev);
 +void tinydrm_shutdown(struct tinydrm_device *tdev);
 +int tinydrm_suspend(struct tinydrm_device *tdev);
 +int tinydrm_resume(struct tinydrm_device *tdev);
@@ -5036,116 +3868,7 @@ index 0000000..1555742
 +int tinydrm_fbdev_init(struct tinydrm_device *tdev);
 +void tinydrm_fbdev_fini(struct tinydrm_device *tdev);
 +
-+#ifdef CONFIG_DEBUG_FS
-+int tinydrm_debugfs_init(struct drm_minor *minor);
-+void tinydrm_debugfs_dirty_begin(struct tinydrm_device *tdev,
-+				 struct drm_framebuffer *fb,
-+				 const struct drm_clip_rect *clip);
-+void tinydrm_debugfs_dirty_end(struct tinydrm_device *tdev, size_t len,
-+			       unsigned int bits_per_pixel);
-+void tinydrm_debugfs_cleanup(struct drm_minor *minor);
-+int tinydrm_debugfs_dirty_init(struct tinydrm_device *tdev);
-+#else
-+int tinydrm_debugfs_dirty_init(struct tinydrm_device *tdev)
-+{
-+	return 0;
-+}
-+
-+void tinydrm_debugfs_dirty_begin(struct tinydrm_device *tdev,
-+				 struct drm_framebuffer *fb,
-+				 const struct drm_clip_rect *clip)
-+{
-+}
-+
-+void tinydrm_debugfs_dirty_end(struct tinydrm_device *tdev, size_t len,
-+			       unsigned int bits_per_pixel)
-+{
-+}
-+
-+#define tinydrm_debugfs_init	NULL
-+#define tinydrm_debugfs_cleanup	NULL
-+#endif /* CONFIG_DEBUG_FS */
-+
 +#endif /* __LINUX_TINYDRM_H */
-diff --git a/include/uapi/drm/utinydrm.h b/include/uapi/drm/utinydrm.h
-new file mode 100644
-index 0000000..7d57886
---- /dev/null
-+++ b/include/uapi/drm/utinydrm.h
-@@ -0,0 +1,73 @@
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#ifndef _UAPI__UTINYDRM_H_
-+#define _UAPI__UTINYDRM_H_
-+
-+#if defined(__KERNEL__)
-+#include <uapi/drm/drm_mode.h>
-+#include <linux/types.h>
-+#else
-+#include <linux/types.h>
-+#include <drm/drm_mode.h>
-+#endif
-+
-+#if defined(__cplusplus)
-+extern "C" {
-+#endif
-+
-+#define UTINYDRM_MAX_NAME_SIZE    80
-+
-+/* ioctl */
-+/* FIXME: what should this be? */
-+#define UTINYDRM_IOCTL_BASE       'U'
-+
-+struct utinydrm_dev_create {
-+	char name[UTINYDRM_MAX_NAME_SIZE];
-+	struct drm_mode_modeinfo mode;
-+	int index;
-+};
-+
-+#define UTINYDRM_DEV_CREATE       _IOWR(UTINYDRM_IOCTL_BASE, 1, struct utinydrm_dev_create)
-+
-+struct utinydrm_event {
-+	__u32 type;
-+	__u32 length;
-+};
-+
-+#define UTINYDRM_EVENT_PIPE_ENABLE	1
-+#define UTINYDRM_EVENT_PIPE_DISABLE	2
-+#define UTINYDRM_EVENT_FB_CREATE	3
-+
-+struct utinydrm_event_fb_create {
-+	struct utinydrm_event base;
-+	struct drm_mode_fb_cmd2 fb;
-+};
-+
-+#define UTINYDRM_EVENT_FB_DESTROY	4
-+
-+struct utinydrm_event_fb_destroy {
-+	struct utinydrm_event base;
-+	__u32 fb_id;
-+};
-+
-+#define UTINYDRM_EVENT_FB_DIRTY 	5
-+
-+struct utinydrm_event_fb_dirty {
-+	struct utinydrm_event base;
-+	struct drm_mode_fb_dirty_cmd fb_dirty_cmd;
-+	struct drm_clip_rect clips[];
-+};
-+
-+#define UTINYDRM_PRIME_HANDLE_TO_FD 0x01
-+#define DRM_IOCTL_UTINYDRM_PRIME_HANDLE_TO_FD    DRM_IOWR(DRM_COMMAND_BASE + UTINYDRM_PRIME_HANDLE_TO_FD, struct drm_prime_handle)
-+
-+#if defined(__cplusplus)
-+}
-+#endif
-+
-+#endif /* _UAPI__UTINYDRM_H_ */
 -- 
-2.10.2
+2.11.0
 

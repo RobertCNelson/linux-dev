@@ -1,12 +1,13 @@
-From 5c6af840982b20e636b65116b5d7f3db6a51468a Mon Sep 17 00:00:00 2001
+From ce4940e9de572572baab94c43ea6ed2095bf6b3b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 11 Dec 2016 14:50:31 -0600
+Date: Sun, 8 Jan 2017 17:32:47 -0600
 Subject: [PATCH] scripts/dtc: Update to upstream version overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  scripts/dtc/checks.c                 |  355 +++---
- scripts/dtc/dtc-lexer.lex.c_shipped  |  218 ++--
+ scripts/dtc/dtc-lexer.l              |   16 +-
+ scripts/dtc/dtc-lexer.lex.c_shipped  |  234 ++--
  scripts/dtc/dtc-parser.tab.c_shipped | 2315 ++++++++++++++++------------------
  scripts/dtc/dtc-parser.tab.h_shipped |  101 +-
  scripts/dtc/dtc-parser.y             |   58 +-
@@ -31,10 +32,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  scripts/dtc/util.c                   |   30 +
  scripts/dtc/util.h                   |    1 +
  scripts/dtc/version_gen.h            |    2 +-
- 26 files changed, 1993 insertions(+), 1895 deletions(-)
+ 27 files changed, 2009 insertions(+), 1911 deletions(-)
 
 diff --git a/scripts/dtc/checks.c b/scripts/dtc/checks.c
-index 3d4c3c6..3d18e45 100644
+index 3d4c3c6c8952..3d18e45374c8 100644
 --- a/scripts/dtc/checks.c
 +++ b/scripts/dtc/checks.c
 @@ -40,16 +40,11 @@ enum checkstatus {
@@ -683,8 +684,37 @@ index 3d4c3c6..3d18e45 100644
  	}
  
  	if (error) {
+diff --git a/scripts/dtc/dtc-lexer.l b/scripts/dtc/dtc-lexer.l
+index 40bbc87d0f1d..c600603044f3 100644
+--- a/scripts/dtc/dtc-lexer.l
++++ b/scripts/dtc/dtc-lexer.l
+@@ -189,16 +189,16 @@ static void lexical_error(const char *fmt, ...);
+ 			if (d.len == 1) {
+ 				lexical_error("Empty character literal");
+ 				yylval.integer = 0;
+-				return DT_CHAR_LITERAL;
+-			}
+-
+-			yylval.integer = (unsigned char)d.val[0];
++			} else {
++				yylval.integer = (unsigned char)d.val[0];
+ 
+-			if (d.len > 2)
+-				lexical_error("Character literal has %d"
+-					      " characters instead of 1",
+-					      d.len - 1);
++				if (d.len > 2)
++					lexical_error("Character literal has %d"
++						      " characters instead of 1",
++						      d.len - 1);
++			}
+ 
++			data_free(d);
+ 			return DT_CHAR_LITERAL;
+ 		}
+ 
 diff --git a/scripts/dtc/dtc-lexer.lex.c_shipped b/scripts/dtc/dtc-lexer.lex.c_shipped
-index 39b9f60..0dfb98d 100644
+index 39b9f60e9d5b..eba6a317c24f 100644
 --- a/scripts/dtc/dtc-lexer.lex.c_shipped
 +++ b/scripts/dtc/dtc-lexer.lex.c_shipped
 @@ -8,8 +8,8 @@
@@ -994,6 +1024,31 @@ index 39b9f60..0dfb98d 100644
  			++yy_cp;
  			}
  		while ( yy_current_state != 165 );
+@@ -1105,16 +1102,16 @@ YY_RULE_SETUP
+ 			if (d.len == 1) {
+ 				lexical_error("Empty character literal");
+ 				yylval.integer = 0;
+-				return DT_CHAR_LITERAL;
+-			}
++			} else {
++				yylval.integer = (unsigned char)d.val[0];
+ 
+-			yylval.integer = (unsigned char)d.val[0];
+-
+-			if (d.len > 2)
+-				lexical_error("Character literal has %d"
+-					      " characters instead of 1",
+-					      d.len - 1);
++				if (d.len > 2)
++					lexical_error("Character literal has %d"
++						      " characters instead of 1",
++						      d.len - 1);
++			}
+ 
++			data_free(d);
+ 			return DT_CHAR_LITERAL;
+ 		}
+ 	YY_BREAK
 @@ -1255,7 +1252,7 @@ YY_RULE_SETUP
  #line 271 "dtc-lexer.l"
  ECHO;
@@ -1372,7 +1427,7 @@ index 39b9f60..0dfb98d 100644
  
  #define YYTABLES_NAME "yytables"
 diff --git a/scripts/dtc/dtc-parser.tab.c_shipped b/scripts/dtc/dtc-parser.tab.c_shipped
-index 74e6899..2965227 100644
+index 74e68994a859..2965227a1b4a 100644
 --- a/scripts/dtc/dtc-parser.tab.c_shipped
 +++ b/scripts/dtc/dtc-parser.tab.c_shipped
 @@ -1,10 +1,8 @@
@@ -4575,7 +4630,7 @@ index 74e6899..2965227 100644
  
  void yyerror(char const *s)
 diff --git a/scripts/dtc/dtc-parser.tab.h_shipped b/scripts/dtc/dtc-parser.tab.h_shipped
-index bcaf6f8..6aa512c 100644
+index bcaf6f83743b..6aa512c1b337 100644
 --- a/scripts/dtc/dtc-parser.tab.h_shipped
 +++ b/scripts/dtc/dtc-parser.tab.h_shipped
 @@ -1,10 +1,8 @@
@@ -4721,7 +4776,7 @@ index bcaf6f8..6aa512c 100644
  
 +#endif /* !YY_YY_DTC_PARSER_TAB_H_INCLUDED  */
 diff --git a/scripts/dtc/dtc-parser.y b/scripts/dtc/dtc-parser.y
-index 3f006b4..b2fd4d1 100644
+index 3f006b475ace..b2fd4d155839 100644
 --- a/scripts/dtc/dtc-parser.y
 +++ b/scripts/dtc/dtc-parser.y
 @@ -32,7 +32,7 @@ extern void yyerror(char const *s);
@@ -4830,7 +4885,7 @@ index 3f006b4..b2fd4d1 100644
  
  nodedef:
 diff --git a/scripts/dtc/dtc.c b/scripts/dtc/dtc.c
-index 1330e15..a4edf4c 100644
+index 1330e155306b..a4edf4c7aebf 100644
 --- a/scripts/dtc/dtc.c
 +++ b/scripts/dtc/dtc.c
 @@ -30,9 +30,16 @@ int quiet;		/* Level of quietness */
@@ -5025,7 +5080,7 @@ index 1330e15..a4edf4c 100644
  		/* do nothing */
  	} else {
 diff --git a/scripts/dtc/dtc.h b/scripts/dtc/dtc.h
-index aea6509..c6f125c 100644
+index aea6509bff79..c6f125c68ba8 100644
 --- a/scripts/dtc/dtc.h
 +++ b/scripts/dtc/dtc.h
 @@ -20,6 +20,7 @@
@@ -5153,7 +5208,7 @@ index aea6509..c6f125c 100644
  
  #endif /* _DTC_H */
 diff --git a/scripts/dtc/flattree.c b/scripts/dtc/flattree.c
-index 4fe64d4..ebac548b 100644
+index 4fe64d447a7b..ebac548b3fa8 100644
 --- a/scripts/dtc/flattree.c
 +++ b/scripts/dtc/flattree.c
 @@ -335,7 +335,6 @@ static struct data flatten_reserve_list(struct reserve_info *reservelist,
@@ -5306,7 +5361,7 @@ index 4fe64d4..ebac548b 100644
 +	return build_dt_info(DTSF_V1, reservelist, tree, boot_cpuid_phys);
  }
 diff --git a/scripts/dtc/fstree.c b/scripts/dtc/fstree.c
-index 54f520b..ae7d06c 100644
+index 54f520ba96ac..ae7d06c3c492 100644
 --- a/scripts/dtc/fstree.c
 +++ b/scripts/dtc/fstree.c
 @@ -79,13 +79,12 @@ static struct node *read_fstree(const char *dirname)
@@ -5326,7 +5381,7 @@ index 54f520b..ae7d06c 100644
  }
 -
 diff --git a/scripts/dtc/libfdt/Makefile.libfdt b/scripts/dtc/libfdt/Makefile.libfdt
-index 09c322ed..098b3f3 100644
+index 09c322ed82ba..098b3f36e668 100644
 --- a/scripts/dtc/libfdt/Makefile.libfdt
 +++ b/scripts/dtc/libfdt/Makefile.libfdt
 @@ -7,5 +7,5 @@ LIBFDT_soname = libfdt.$(SHAREDLIB_EXT).1
@@ -5337,7 +5392,7 @@ index 09c322ed..098b3f3 100644
 +	fdt_addresses.c fdt_overlay.c
  LIBFDT_OBJS = $(LIBFDT_SRCS:%.c=%.o)
 diff --git a/scripts/dtc/libfdt/fdt.c b/scripts/dtc/libfdt/fdt.c
-index 28d422c..22286a1 100644
+index 28d422c46205..22286a1aaeaf 100644
 --- a/scripts/dtc/libfdt/fdt.c
 +++ b/scripts/dtc/libfdt/fdt.c
 @@ -57,7 +57,7 @@
@@ -5350,7 +5405,7 @@ index 28d422c..22286a1 100644
  		if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
  			return -FDT_ERR_BADVERSION;
 diff --git a/scripts/dtc/libfdt/fdt.h b/scripts/dtc/libfdt/fdt.h
-index 493cd55..526aedb 100644
+index 493cd55b8aa8..526aedb51556 100644
 --- a/scripts/dtc/libfdt/fdt.h
 +++ b/scripts/dtc/libfdt/fdt.h
 @@ -55,7 +55,7 @@
@@ -5371,7 +5426,7 @@ index 493cd55..526aedb 100644
  
  #define FDT_BEGIN_NODE	0x1		/* Start node: full name */
 diff --git a/scripts/dtc/libfdt/fdt_ro.c b/scripts/dtc/libfdt/fdt_ro.c
-index 50cce86..3d00d2e 100644
+index 50cce864283c..3d00d2eee0e3 100644
 --- a/scripts/dtc/libfdt/fdt_ro.c
 +++ b/scripts/dtc/libfdt/fdt_ro.c
 @@ -88,6 +88,32 @@ static int _fdt_string_eq(const void *fdt, int stroffset,
@@ -5426,7 +5481,7 @@ index 50cce86..3d00d2e 100644
  	len = strlen(string) + 1;
  	end = list + length;
 diff --git a/scripts/dtc/libfdt/fdt_rw.c b/scripts/dtc/libfdt/fdt_rw.c
-index 8be02b1..2eed4f5 100644
+index 8be02b1f68f3..2eed4f58387c 100644
 --- a/scripts/dtc/libfdt/fdt_rw.c
 +++ b/scripts/dtc/libfdt/fdt_rw.c
 @@ -191,17 +191,13 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
@@ -5449,7 +5504,7 @@ index 8be02b1..2eed4f5 100644
  
  static int _fdt_resize_property(void *fdt, int nodeoffset, const char *name,
 diff --git a/scripts/dtc/libfdt/fdt_strerror.c b/scripts/dtc/libfdt/fdt_strerror.c
-index e6c3cee..9677a18 100644
+index e6c3ceee8c58..9677a1887e57 100644
 --- a/scripts/dtc/libfdt/fdt_strerror.c
 +++ b/scripts/dtc/libfdt/fdt_strerror.c
 @@ -69,6 +69,7 @@ static struct fdt_errtabent fdt_errtable[] = {
@@ -5473,7 +5528,7 @@ index e6c3cee..9677a18 100644
  #define FDT_ERRTABSIZE	(sizeof(fdt_errtable) / sizeof(fdt_errtable[0]))
  
 diff --git a/scripts/dtc/libfdt/fdt_wip.c b/scripts/dtc/libfdt/fdt_wip.c
-index c5bbb68..6aaab39 100644
+index c5bbb68d3273..6aaab399929c 100644
 --- a/scripts/dtc/libfdt/fdt_wip.c
 +++ b/scripts/dtc/libfdt/fdt_wip.c
 @@ -55,21 +55,42 @@
@@ -5524,7 +5579,7 @@ index c5bbb68..6aaab39 100644
  
  static void _fdt_nop_region(void *start, int len)
 diff --git a/scripts/dtc/libfdt/libfdt.h b/scripts/dtc/libfdt/libfdt.h
-index f7e3989..b842b15 100644
+index f7e39898aa94..b842b156fa17 100644
 --- a/scripts/dtc/libfdt/libfdt.h
 +++ b/scripts/dtc/libfdt/libfdt.h
 @@ -61,7 +61,7 @@
@@ -5748,7 +5803,7 @@ index f7e3989..b842b15 100644
  /* Debugging / informational functions                                */
  /**********************************************************************/
 diff --git a/scripts/dtc/libfdt/libfdt_env.h b/scripts/dtc/libfdt/libfdt_env.h
-index 9dea97d..99f936d 100644
+index 9dea97dfff81..99f936dacc60 100644
 --- a/scripts/dtc/libfdt/libfdt_env.h
 +++ b/scripts/dtc/libfdt/libfdt_env.h
 @@ -54,6 +54,7 @@
@@ -5760,7 +5815,7 @@ index 9dea97d..99f936d 100644
  
  #ifdef __CHECKER__
 diff --git a/scripts/dtc/libfdt/libfdt_internal.h b/scripts/dtc/libfdt/libfdt_internal.h
-index 773dfa3..02cfa6f 100644
+index 773dfa3d6377..02cfa6fb612d 100644
 --- a/scripts/dtc/libfdt/libfdt_internal.h
 +++ b/scripts/dtc/libfdt/libfdt_internal.h
 @@ -91,6 +91,5 @@ static inline struct fdt_reserve_entry *_fdt_mem_rsv_w(void *fdt, int n)
@@ -5771,7 +5826,7 @@ index 773dfa3..02cfa6f 100644
  
  #endif /* _LIBFDT_INTERNAL_H */
 diff --git a/scripts/dtc/livetree.c b/scripts/dtc/livetree.c
-index e7d0fe5..afa2f67 100644
+index e7d0fe58b91f..afa2f67b142a 100644
 --- a/scripts/dtc/livetree.c
 +++ b/scripts/dtc/livetree.c
 @@ -18,7 +18,6 @@
@@ -6257,7 +6312,7 @@ index e7d0fe5..afa2f67 100644
 +					    dti->dt);
  }
 diff --git a/scripts/dtc/srcpos.c b/scripts/dtc/srcpos.c
-index f534c22..aa3aad0 100644
+index f534c22a888d..aa3aad04cec4 100644
 --- a/scripts/dtc/srcpos.c
 +++ b/scripts/dtc/srcpos.c
 @@ -246,46 +246,27 @@ srcpos_copy(struct srcpos *pos)
@@ -6316,7 +6371,7 @@ index f534c22..aa3aad0 100644
  	return pos_str;
  }
 diff --git a/scripts/dtc/srcpos.h b/scripts/dtc/srcpos.h
-index f81827b..2cdfcd8 100644
+index f81827bd684a..2cdfcd82e95e 100644
 --- a/scripts/dtc/srcpos.h
 +++ b/scripts/dtc/srcpos.h
 @@ -105,7 +105,6 @@ extern struct srcpos srcpos_empty;
@@ -6328,7 +6383,7 @@ index f81827b..2cdfcd8 100644
  extern void srcpos_verror(struct srcpos *pos, const char *prefix,
  			  const char *fmt, va_list va)
 diff --git a/scripts/dtc/treesource.c b/scripts/dtc/treesource.c
-index a55d1d1..c9d8967 100644
+index a55d1d128cce..c9d8967969f9 100644
 --- a/scripts/dtc/treesource.c
 +++ b/scripts/dtc/treesource.c
 @@ -25,12 +25,12 @@ extern FILE *yyin;
@@ -6381,7 +6436,7 @@ index a55d1d1..c9d8967 100644
  }
  
 diff --git a/scripts/dtc/util.c b/scripts/dtc/util.c
-index fb124ee..3550f86 100644
+index fb124eea4919..3550f86bd6df 100644
 --- a/scripts/dtc/util.c
 +++ b/scripts/dtc/util.c
 @@ -46,6 +46,36 @@ char *xstrdup(const char *s)
@@ -6422,7 +6477,7 @@ index fb124ee..3550f86 100644
  {
  	int lenp = strlen(path);
 diff --git a/scripts/dtc/util.h b/scripts/dtc/util.h
-index f800b60..f5c4f1b 100644
+index f800b6011fb1..f5c4f1b50d30 100644
 --- a/scripts/dtc/util.h
 +++ b/scripts/dtc/util.h
 @@ -59,6 +59,7 @@ static inline void *xrealloc(void *p, size_t len)
@@ -6434,12 +6489,12 @@ index f800b60..f5c4f1b 100644
  
  /**
 diff --git a/scripts/dtc/version_gen.h b/scripts/dtc/version_gen.h
-index f934c71..88c8bc9 100644
+index f934c71981a0..16c2e53a85e3 100644
 --- a/scripts/dtc/version_gen.h
 +++ b/scripts/dtc/version_gen.h
 @@ -1 +1 @@
 -#define DTC_VERSION "DTC 1.4.1-g6f4db2fc"
-+#define DTC_VERSION "DTC 1.4.2-g00fbb869"
++#define DTC_VERSION "DTC 1.4.2-g0931cea3"
 -- 
-2.10.2
+2.11.0
 

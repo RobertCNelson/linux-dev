@@ -1,6 +1,6 @@
-From e7f043ecc1ad95cb9091e0289d2c10959cc23e8e Mon Sep 17 00:00:00 2001
+From 3f80d3194e80c066b9d2e02f5a7e759d88b9bc39 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 21 Oct 2016 15:09:50 -0500
+Date: Sun, 8 Jan 2017 18:49:39 -0600
 Subject: [PATCH 4/5] ARM: dts: am335x-bone-common: overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -23,7 +23,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 0000000..56b9ccf
+index 000000000000..a31cb0769a50
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 @@ -0,0 +1,362 @@
@@ -34,8 +34,6 @@ index 0000000..56b9ccf
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
-+
-+#include <dt-bindings/mfd/tps65217.h>
 +
 +/ {
 +	cpus {
@@ -294,13 +292,13 @@ index 0000000..56b9ccf
 +	ti,pmic-shutdown-controller;
 +
 +	charger {
-+		interrupts = <TPS65217_IRQ_AC>, <TPS65217_IRQ_USB>;
-+		interrupts-names = "AC", "USB";
++		interrupts = <0>, <1>;
++		interrupt-names = "USB", "AC";
 +		status = "okay";
 +	};
 +
 +	pwrbutton {
-+		interrupts = <TPS65217_IRQ_PB>;
++		interrupts = <2>;
 +		status = "okay";
 +	};
 +
@@ -387,11 +385,13 @@ index 0000000..56b9ccf
 +};
 +
 +&rtc {
++	clocks = <&clk_32768_ck>, <&clkdiv32k_ick>;
++	clock-names = "ext-clk", "int-clk";
 +	system-power-controller;
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
 new file mode 100644
-index 0000000..49c6ad7
+index 000000000000..49c6ad741ddf
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-emmc-overlay.dts
 @@ -0,0 +1,40 @@
@@ -437,7 +437,7 @@ index 0000000..49c6ad7
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
 new file mode 100644
-index 0000000..0eb974f
+index 000000000000..0eb974ffb487
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-hdmi-overlay.dts
 @@ -0,0 +1,162 @@
@@ -605,7 +605,7 @@ index 0000000..0eb974f
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
 new file mode 100644
-index 0000000..1f21174
+index 000000000000..1f211740ff12
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-nhdmi-overlay.dts
 @@ -0,0 +1,103 @@
@@ -714,7 +714,7 @@ index 0000000..1f21174
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-overlay.dts b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
 new file mode 100644
-index 0000000..f4f0c10
+index 000000000000..f4f0c100e210
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-overlay.dts
 @@ -0,0 +1,42 @@
@@ -762,7 +762,7 @@ index 0000000..f4f0c10
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-overlay.dts b/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
 new file mode 100644
-index 0000000..964c8f7
+index 000000000000..964c8f7ec87d
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bonegreen-overlay.dts
 @@ -0,0 +1,40 @@
@@ -808,7 +808,7 @@ index 0000000..964c8f7
 +};
 diff --git a/include/dt-bindings/board/am335x-bbw-bbb-base.h b/include/dt-bindings/board/am335x-bbw-bbb-base.h
 new file mode 100644
-index 0000000..35f6d57
+index 000000000000..35f6d57ef492
 --- /dev/null
 +++ b/include/dt-bindings/board/am335x-bbw-bbb-base.h
 @@ -0,0 +1,103 @@
@@ -916,5 +916,5 @@ index 0000000..35f6d57
 +
 +#endif
 -- 
-2.9.3
+2.11.0
 
