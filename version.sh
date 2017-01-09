@@ -41,4 +41,3 @@ kernel_rt=".X-rtY"
 DISTRO=cross
 DEBARCH=armhf
 #
-

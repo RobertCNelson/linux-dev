@@ -85,13 +85,13 @@ mmc_write_boot_uname () {
 	mmc_write_boot_pre
 
 	unset older_kernel
-	older_kernel=$(grep uname_r "${location}/uEnv.txt" | grep -v '#' | awk -F"=" '{print $2}' || true)
+	older_kernel=$(sudo grep uname_r "${location}/uEnv.txt" | grep -v '#' | awk -F"=" '{print $2}' || true)
 
 	if [ ! "x${older_kernel}" = "x" ] ; then
 		if [ ! "x${older_kernel}" = "x${KERNEL_UTS}" ] ; then
 			sudo sed -i -e 's:uname_r='${older_kernel}':uname_r='${KERNEL_UTS}':g' "${location}/uEnv.txt"
 		fi
-		echo "info: /boot/uEnv.txt: $(grep uname_r ${location}/uEnv.txt)"
+		echo "info: /boot/uEnv.txt: $(sudo grep uname_r ${location}/uEnv.txt)"
 	fi
 }
 
@@ -99,13 +99,13 @@ mmc_write_boot_extlinux () {
 	mmc_write_boot_pre
 
 	unset older_kernel
-	older_kernel=$(grep /boot/vmlinuz- "${location}/extlinux/extlinux.conf" | awk -F"/boot/vmlinuz-" '{print $2}' || true)
+	older_kernel=$(sudo grep /boot/vmlinuz- "${location}/extlinux/extlinux.conf" | awk -F"/boot/vmlinuz-" '{print $2}' || true)
 
 	if [ ! "x${older_kernel}" = "x" ] ; then
 		if [ ! "x${older_kernel}" = "x${KERNEL_UTS}" ] ; then
 			sudo sed -i -e 's:'${older_kernel}':'${KERNEL_UTS}':g' "${location}/extlinux/extlinux.conf"
 		fi
-		echo "info: /boot/extlinux/extlinux.conf: $(grep /boot/vmlinuz- ${location}/extlinux/extlinux.conf)"
+		echo "info: /boot/extlinux/extlinux.conf: $(sudo grep /boot/vmlinuz- ${location}/extlinux/extlinux.conf)"
 	fi
 }
 
@@ -154,7 +154,7 @@ mmc_partition_discover () {
 		if [ -f "${DIR}/deploy/disk/boot/uEnv.txt" ] ; then
 			echo "found: /boot/uEnv.txt"
 			location="${DIR}/deploy/disk/boot"
-			test_uname=$(grep uname_r "${DIR}/deploy/disk/boot/uEnv.txt" | awk -F"=" '{print $2}' || true)
+			test_uname=$(sudo grep uname_r "${DIR}/deploy/disk/boot/uEnv.txt" | awk -F"=" '{print $2}' || true)
 			if [ ! "x${test_uname}" = "x" ] ; then
 				echo "info: ${test_uname} was installed"
 				mmc_write_boot_uname
@@ -169,7 +169,7 @@ mmc_partition_discover () {
 		if [ -f "${DIR}/deploy/disk/boot/extlinux/extlinux.conf" ] ; then
 			echo "found: /boot/extlinux/extlinux.conf"
 			location="${DIR}/deploy/disk/boot"
-			test_uname=$(grep /boot/vmlinuz- "${DIR}/deploy/disk/boot/extlinux/extlinux.conf" | awk -F"/boot/vmlinuz-" '{print $2}' || true)
+			test_uname=$(sudo grep /boot/vmlinuz- "${DIR}/deploy/disk/boot/extlinux/extlinux.conf" | awk -F"/boot/vmlinuz-" '{print $2}' || true)
 			if [ ! "x${test_uname}" = "x" ] ; then
 				echo "info: ${test_uname} was installed"
 				mmc_write_boot_extlinux
