@@ -1,13 +1,13 @@
-From 9116522d3bc08aca0ac9b482f2c9e3b6eb7d0d11 Mon Sep 17 00:00:00 2001
+From 0aaff034e2e69da7a1165f1ee47ee27d48195f89 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 15 Jan 2017 19:50:13 -0600
+Date: Sun, 29 Jan 2017 17:35:22 -0600
 Subject: [PATCH] scripts/dtc: Update to upstream version overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  scripts/dtc/checks.c                 |  355 +++---
  scripts/dtc/dtc-lexer.l              |   16 +-
- scripts/dtc/dtc-lexer.lex.c_shipped  |  234 ++--
+ scripts/dtc/dtc-lexer.lex.c_shipped  |  232 ++--
  scripts/dtc/dtc-parser.tab.c_shipped | 2315 ++++++++++++++++------------------
  scripts/dtc/dtc-parser.tab.h_shipped |  101 +-
  scripts/dtc/dtc-parser.y             |   58 +-
@@ -32,7 +32,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  scripts/dtc/util.c                   |   30 +
  scripts/dtc/util.h                   |    1 +
  scripts/dtc/version_gen.h            |    2 +-
- 27 files changed, 2009 insertions(+), 1911 deletions(-)
+ 27 files changed, 2008 insertions(+), 1910 deletions(-)
 
 diff --git a/scripts/dtc/checks.c b/scripts/dtc/checks.c
 index 3d4c3c6c8952..3d18e45374c8 100644
@@ -714,7 +714,7 @@ index 40bbc87d0f1d..c600603044f3 100644
  		}
  
 diff --git a/scripts/dtc/dtc-lexer.lex.c_shipped b/scripts/dtc/dtc-lexer.lex.c_shipped
-index 39b9f60e9d5b..eba6a317c24f 100644
+index 39b9f60e9d5b..f834fc017524 100644
 --- a/scripts/dtc/dtc-lexer.lex.c_shipped
 +++ b/scripts/dtc/dtc-lexer.lex.c_shipped
 @@ -8,8 +8,8 @@
@@ -1030,11 +1030,11 @@ index 39b9f60e9d5b..eba6a317c24f 100644
  				yylval.integer = 0;
 -				return DT_CHAR_LITERAL;
 -			}
+-
+-			yylval.integer = (unsigned char)d.val[0];
 +			} else {
 +				yylval.integer = (unsigned char)d.val[0];
  
--			yylval.integer = (unsigned char)d.val[0];
--
 -			if (d.len > 2)
 -				lexical_error("Character literal has %d"
 -					      " characters instead of 1",
@@ -1075,7 +1075,7 @@ index 39b9f60e9d5b..eba6a317c24f 100644
 -	register int number_to_move, i;
 +	char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
 +	char *source = (yytext_ptr);
-+	yy_size_t number_to_move, i;
++	int number_to_move, i;
  	int ret_val;
  
  	if ( (yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1] )
@@ -1084,7 +1084,7 @@ index 39b9f60e9d5b..eba6a317c24f 100644
  
  	/* First move last chars to start of buffer. */
 -	number_to_move = (int) ((yy_c_buf_p) - (yytext_ptr)) - 1;
-+	number_to_move = (yy_size_t) ((yy_c_buf_p) - (yytext_ptr)) - 1;
++	number_to_move = (int) ((yy_c_buf_p) - (yytext_ptr) - 1);
  
  	for ( i = 0; i < number_to_move; ++i )
  		*(dest++) = *(source++);
@@ -1120,7 +1120,7 @@ index 39b9f60e9d5b..eba6a317c24f 100644
  		ret_val = EOB_ACT_CONTINUE_SCAN;
  
 -	if ((yy_size_t) ((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
-+	if ((int) ((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
++	if (((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
  		/* Extend the array by 50%, plus the number we really need. */
 -		yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
 +		int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
@@ -1270,16 +1270,12 @@ index 39b9f60e9d5b..eba6a317c24f 100644
  }
  
  /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
-@@ -1984,10 +1986,10 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
- 	YY_BUFFER_STATE b;
- 	char *buf;
- 	yy_size_t n;
--	int i;
-+	yy_size_t i;
+@@ -1987,7 +1989,7 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
+ 	int i;
      
  	/* Get memory for full buffer, including space for trailing EOB's. */
 -	n = _yybytes_len + 2;
-+	n = (yy_size_t) _yybytes_len + 2;
++	n = (yy_size_t) (_yybytes_len + 2);
  	buf = (char *) yyalloc(n  );
  	if ( ! buf )
  		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_bytes()" );
