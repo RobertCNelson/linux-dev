@@ -910,13 +910,20 @@ config="CONFIG_DRM_OMAP_CONNECTOR_HDMI" ; config_enable
 config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 
 config="CONFIG_DRM_TILCDC" ; config_enable
+config="CONFIG_DRM_TEGRA" ; config_enable
 
 #
 # Display Interface Bridges
 #
+config="CONFIG_DRM_DUMB_VGA_DAC" ; config_enable
 config="CONFIG_DRM_DW_HDMI" ; config_enable
 config="CONFIG_DRM_DW_HDMI_AHB_AUDIO" ; config_module
-config="CONFIG_DRM_I2C_ADV7511" ; config_module
+config="CONFIG_DRM_DW_HDMI_I2S_AUDIO" ; config_module
+
+config="CONFIG_DRM_SII902X" ; config_enable
+config="CONFIG_DRM_TI_TFP410" ; config_enable
+config="CONFIG_DRM_I2C_ADV7511" ; config_enable
+config="CONFIG_DRM_I2C_ADV7511_AUDIO" ; config_enable
 
 config="CONFIG_DRM_IMX" ; config_enable
 config="CONFIG_DRM_IMX_PARALLEL_DISPLAY" ; config_enable
@@ -925,6 +932,8 @@ config="CONFIG_DRM_IMX_LDB" ; config_enable
 config="CONFIG_DRM_IMX_IPUV3" ; config_enable
 config="CONFIG_DRM_IMX_HDMI" ; config_enable
 config="CONFIG_DRM_ETNAVIV" ; config_enable
+config="CONFIG_DRM_MXSFB" ; config_enable
+config="CONFIG_DRM_LEGACY" ; config_disable
 
 #exit
 
@@ -1106,6 +1115,8 @@ config="CONFIG_LEDS_IS31FL32XX" ; config_module
 #
 config="CONFIG_LEDS_TRIGGER_TIMER" ; config_enable
 config="CONFIG_LEDS_TRIGGER_ONESHOT" ; config_enable
+config="CONFIG_LEDS_TRIGGER_DISK" ; config_enable
+config="CONFIG_LEDS_TRIGGER_MTD" ; config_enable
 config="CONFIG_LEDS_TRIGGER_HEARTBEAT" ; config_enable
 config="CONFIG_LEDS_TRIGGER_BACKLIGHT" ; config_enable
 config="CONFIG_LEDS_TRIGGER_GPIO" ; config_enable
@@ -1451,6 +1462,11 @@ config="CONFIG_EXTCON_PALMAS" ; config_enable
 config="CONFIG_EXTCON_USB_GPIO" ; config_enable
 config="CONFIG_TI_EMIF" ; config_enable
 
+config="CONFIG_IIO_BUFFER_CB" ; config_module
+config="CONFIG_IIO_CONFIGFS" ; config_module
+config="CONFIG_IIO_SW_DEVICE" ; config_module
+config="CONFIG_IIO_SW_TRIGGER" ; config_module
+
 #exit
 
 #
@@ -1764,6 +1780,7 @@ config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 config="CONFIG_FPGA" ; config_module
 config="CONFIG_FPGA_MGR_SOCFPGA" ; config_module
 config="CONFIG_FPGA_MGR_ZYNQ_FPGA" ; config_module
+config="CONFIG_FPGA_BRIDGE" ; config_module
 
 #exit
 
@@ -1771,7 +1788,6 @@ config="CONFIG_FPGA_MGR_ZYNQ_FPGA" ; config_module
 # File systems
 #
 config="CONFIG_EXT4_FS" ; config_enable
-config="CONFIG_EXT4_ENCRYPTION" ; config_enable
 config="CONFIG_JBD2" ; config_enable
 config="CONFIG_FS_MBCACHE" ; config_enable
 config="CONFIG_XFS_FS" ; config_enable
@@ -1794,7 +1810,6 @@ config="CONFIG_VFAT_FS" ; config_enable
 #
 config="CONFIG_ORANGEFS_FS" ; config_enable
 config="CONFIG_UBIFS_FS" ; config_enable
-config="CONFIG_LOGFS" ; config_disable
 config="CONFIG_SQUASHFS_LZ4" ; config_enable
 config="CONFIG_NFS_FS" ; config_enable
 config="CONFIG_NFS_V2" ; config_enable
