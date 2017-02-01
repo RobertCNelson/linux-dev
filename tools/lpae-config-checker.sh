@@ -18,6 +18,18 @@ config_disable () {
 	fi
 }
 
+config_enable_special () {
+	test_module=$(cat .config | grep ${config} || true)
+	if [ "x${test_module}" = "x# ${config} is not set" ] ; then
+		echo "Setting: ${config}=y"
+		sed -i -e 's:# '$config' is not set:'$config'=y:g' .config
+	fi
+	if [ "x${test_module}" = "x${config}=m" ] ; then
+		echo "Setting: ${config}=y"
+		sed -i -e 's:'$config'=m:'$config'=y:g' .config
+	fi
+}
+
 config_module_special () {
 	test_module=$(cat .config | grep ${config} || true)
 	if [ "x${test_module}" = "x# ${config} is not set" ] ; then
@@ -269,7 +281,8 @@ config="CONFIG_EEPROM_93XX46" ; config_module
 #
 # Texas Instruments shared transport line discipline
 #
-config="CONFIG_SENSORS_LIS3_SPI" ; config_module
+#better one in iio
+config="CONFIG_SENSORS_LIS3_I2C" ; config_disable
 
 
 #
@@ -857,16 +870,24 @@ config="CONFIG_DRM_OMAP_CONNECTOR_HDMI" ; config_enable
 config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 
 config="CONFIG_DRM_TILCDC" ; config_disable
+config="CONFIG_DRM_TEGRA" ; config_enable
 
 #
 # Display Interface Bridges
 #
+config="CONFIG_DRM_DUMB_VGA_DAC" ; config_enable
 config="CONFIG_DRM_DW_HDMI" ; config_enable
 config="CONFIG_DRM_DW_HDMI_AHB_AUDIO" ; config_module
-config="CONFIG_DRM_I2C_ADV7511" ; config_module
+config="CONFIG_DRM_DW_HDMI_I2S_AUDIO" ; config_module
+
+config="CONFIG_DRM_SII902X" ; config_enable
+config="CONFIG_DRM_TI_TFP410" ; config_enable
+config="CONFIG_DRM_I2C_ADV7511" ; config_enable
+config="CONFIG_DRM_I2C_ADV7511_AUDIO" ; config_enable
 
 config="CONFIG_DRM_IMX" ; config_disable
 config="CONFIG_DRM_ETNAVIV" ; config_enable
+config="CONFIG_DRM_LEGACY" ; config_disable
 
 #exit
 
@@ -1046,6 +1067,8 @@ config="CONFIG_LEDS_IS31FL32XX" ; config_module
 #
 config="CONFIG_LEDS_TRIGGER_TIMER" ; config_enable
 config="CONFIG_LEDS_TRIGGER_ONESHOT" ; config_enable
+config="CONFIG_LEDS_TRIGGER_DISK" ; config_enable
+config="CONFIG_LEDS_TRIGGER_MTD" ; config_enable
 config="CONFIG_LEDS_TRIGGER_HEARTBEAT" ; config_enable
 config="CONFIG_LEDS_TRIGGER_BACKLIGHT" ; config_enable
 config="CONFIG_LEDS_TRIGGER_GPIO" ; config_enable
@@ -1333,6 +1356,7 @@ config="CONFIG_ALTERA_MBOX" ; config_enable
 #
 # Generic IOMMU Pagetable Support
 #
+config="CONFIG_TEGRA_IOMMU_SMMU" ; config_enable
 config="CONFIG_EXYNOS_IOMMU" ; config_enable
 
 #
@@ -1379,6 +1403,11 @@ config="CONFIG_EXTCON_GPIO" ; config_enable
 config="CONFIG_EXTCON_PALMAS" ; config_enable
 config="CONFIG_EXTCON_USB_GPIO" ; config_enable
 config="CONFIG_TI_EMIF" ; config_enable
+
+config="CONFIG_IIO_BUFFER_CB" ; config_module
+config="CONFIG_IIO_CONFIGFS" ; config_module
+config="CONFIG_IIO_SW_DEVICE" ; config_module
+config="CONFIG_IIO_SW_TRIGGER" ; config_module
 
 #exit
 
@@ -1693,7 +1722,6 @@ config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 # File systems
 #
 config="CONFIG_EXT4_FS" ; config_enable
-config="CONFIG_EXT4_ENCRYPTION" ; config_enable
 config="CONFIG_JBD2" ; config_enable
 config="CONFIG_FS_MBCACHE" ; config_enable
 config="CONFIG_XFS_FS" ; config_enable
@@ -1716,7 +1744,6 @@ config="CONFIG_VFAT_FS" ; config_enable
 #
 config="CONFIG_ORANGEFS_FS" ; config_enable
 config="CONFIG_UBIFS_FS" ; config_enable
-config="CONFIG_LOGFS" ; config_disable
 config="CONFIG_SQUASHFS_LZ4" ; config_enable
 config="CONFIG_NFS_FS" ; config_enable
 config="CONFIG_NFS_V2" ; config_enable

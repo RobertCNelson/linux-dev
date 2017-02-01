@@ -154,6 +154,14 @@ config="CONFIG_USB_TI_CPPI41_DMA" ; config_disable
 # MUSB DMA mode
 #
 config="CONFIG_MUSB_PIO_ONLY" ; config_enable
+config="CONFIG_USB_DWC3" ; config_disable
+config="CONFIG_USB_DWC2" ; config_disable
+config="CONFIG_USB_DWC3_DUAL_ROLE" ; config_disable
+
+#
+# Gadget/Dual-role mode requires USB Gadget support to be enabled
+#
+config="CONFIG_USB_CHIPIDEA" ; config_disable
 
 #
 # USB Peripheral Controller
@@ -229,6 +237,13 @@ config="CONFIG_DRM_ETNAVIV" ; config_disable
 #breaks tilcd + tfp410...
 config="CONFIG_OMAP2_DSS" ; config_disable
 
+#
+# Display Interface Bridges
+#
+config="CONFIG_DRM_DUMB_VGA_DAC" ; config_disable
+config="CONFIG_DRM_MXS" ; config_disable
+config="CONFIG_DRM_MXSFB" ; config_disable
+
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
 config="CONFIG_BEAGLEBONE_PINMUX_HELPER" ; config_enable
@@ -236,6 +251,11 @@ config="CONFIG_BEAGLEBONE_PINMUX_HELPER" ; config_enable
 #Reset Controller:
 config="CONFIG_STMMAC_ETH" ; config_disable
 config="CONFIG_RESET_CONTROLLER" ; config_disable
+
+#
+# DMA Devices
+#
+config="CONFIG_FSL_EDMA" ; config_disable
 
 #
 # FPGA Configuration Support
