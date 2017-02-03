@@ -1,0 +1,101 @@
+From f5f7209b572ddeb4831a1f9ae5e27655e0fb3e04 Mon Sep 17 00:00:00 2001
+From: Drew Fustini <drew@pdp7.com>
+Date: Thu, 2 Feb 2017 05:19:11 -0600
+Subject: [PATCH] tieqep: fix unhandled fault on eQEP register access
+
+Call pm_runtime_get_sync() at the beginning of any functions that will
+read or write to the memory mapped eQEP registers.  This is to ensure
+that the eQEP peripheral is running and its clock is enabled.
+
+Before this patch, an attempt to read the position file via sysfs would
+results in a segmentation fault.  The kernel log would be contain this
+error:
+
+[ 2591.653471] Unhandled fault: external abort on non-linefetch (0x1028) at 0xfa304180
+[ 2591.915165] [<bf005310>] (eqep_get_position [tieqep]) from [<c08930d0>] (dev_attr_show+0x2c/0x58)
+
+More details:
+https://gist.github.com/pdp7/fe07082d23f2bfbc362c733a7b0aea72
+
+BeagleBoard mailing list thread:
+https://groups.google.com/d/msg/beagleboard/_TdTH7oPEXE/MNvU-mY6DgAJ
+---
+ drivers/misc/tieqep.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/misc/tieqep.c b/drivers/misc/tieqep.c
+index d2628847..bb69ad4 100644
+--- a/drivers/misc/tieqep.c
++++ b/drivers/misc/tieqep.c
+@@ -241,9 +241,13 @@ static ssize_t eqep_get_enabled(struct device *dev, struct device_attribute *att
+ {
+ 	/* Get the instance structure */
+ 	struct eqep_chip *eqep = dev_get_drvdata(dev);
++	u16 enabled = 0;
++
++	/* Increment the device usage count and run pm_runtime_resume() */
++	pm_runtime_get_sync(dev);
+ 
+ 	/* Read the qep control register and mask all but the enabled bit */
+-	u16 enabled = readw(eqep->mmio_base + QEPCTL) & PHEN;
++	enabled = readw(eqep->mmio_base + QEPCTL) & PHEN;
+ 
+ 	/* Return the target in string format */
+ 	return sprintf(buf, "%u\n", (enabled) ? 1 : 0);
+@@ -262,6 +266,8 @@ static ssize_t eqep_set_enabled(struct device *dev, struct device_attribute *att
+ 	if ((rc = kstrtou8(buf, 0, &enabled)))
+ 		return rc;
+ 
++	/* Increment the device usage count and run pm_runtime_resume() */
++	pm_runtime_get_sync(dev);
+ 	/* Get the existing state of QEPCTL */
+ 	val = readw(eqep->mmio_base + QEPCTL);
+ 
+@@ -286,6 +292,8 @@ static ssize_t eqep_get_position(struct device *dev, struct device_attribute *at
+ 	struct eqep_chip *eqep = dev_get_drvdata(dev);
+ 
+ 	s32 position = 0;
++	/* Increment the device usage count and run pm_runtime_resume() */
++	pm_runtime_get_sync(dev);
+ 
+ 	if (eqep->op_mode == TIEQEP_MODE_ABSOLUTE) {
+ 		position = readl(eqep->mmio_base + QPOSCNT);
+@@ -308,6 +316,8 @@ static ssize_t eqep_set_position(struct device *dev, struct device_attribute *at
+ 	if ((rc = kstrtos32(buf, 0, &position)))
+ 		return rc;
+ 
++	/* Increment the device usage count and run pm_runtime_resume() */
++	pm_runtime_get_sync(dev);
+ 	/*
+ 	 * If we are in absolute mode, set the position of the encoder,
+ 	 * discard relative mode because thats pointless
+@@ -327,6 +337,8 @@ static ssize_t eqep_get_timer_period(struct device *dev, struct device_attribute
+ 	struct eqep_chip *eqep = dev_get_drvdata(dev);
+ 	u64 period;
+ 
++	/* Increment the device usage count and run pm_runtime_resume() */
++	pm_runtime_get_sync(dev);
+ 	/* Convert from counts per interrupt back into period_ns */
+ 	period = readl(eqep->mmio_base + QUPRD);
+ 	period = period * NSEC_PER_SEC;
+@@ -348,6 +360,8 @@ static ssize_t eqep_set_timer_period(struct device *dev, struct device_attribute
+ 	if ((rc = kstrtou64(buf, 0, &period)))
+ 		return rc;
+ 
++	/* Increment the device usage count and run pm_runtime_resume() */
++	pm_runtime_get_sync(dev);
+ 	/* Disable the unit timer before modifying its period register */
+ 	tmp = readw(eqep->mmio_base + QEPCTL);
+ 	tmp &= ~(UTE | QCLM);
+@@ -395,6 +409,8 @@ static ssize_t eqep_set_mode(struct device *dev, struct device_attribute *attr,
+ 
+ 	dev_dbg(dev, "eqep_set_mode:%d\n", tmp_mode);
+ 
++	/* Increment the device usage count and run pm_runtime_resume() */
++	pm_runtime_get_sync(dev);
+ 	val = readw(eqep->mmio_base + QEPCTL);
+ 
+ 	if (tmp_mode == TIEQEP_MODE_ABSOLUTE) {
+-- 
+2.9.3
+
