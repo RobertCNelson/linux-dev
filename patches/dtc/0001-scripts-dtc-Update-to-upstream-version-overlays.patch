@@ -1,6 +1,6 @@
-From 0aaff034e2e69da7a1165f1ee47ee27d48195f89 Mon Sep 17 00:00:00 2001
+From d160eb3be53cf5d1af9a92816037cda49fb19ef6 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 29 Jan 2017 17:35:22 -0600
+Date: Sun, 5 Feb 2017 20:40:04 -0600
 Subject: [PATCH] scripts/dtc: Update to upstream version overlays
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -10,7 +10,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  scripts/dtc/dtc-lexer.lex.c_shipped  |  232 ++--
  scripts/dtc/dtc-parser.tab.c_shipped | 2315 ++++++++++++++++------------------
  scripts/dtc/dtc-parser.tab.h_shipped |  101 +-
- scripts/dtc/dtc-parser.y             |   58 +-
+ scripts/dtc/dtc-parser.y             |   64 +-
  scripts/dtc/dtc.c                    |   78 +-
  scripts/dtc/dtc.h                    |   61 +-
  scripts/dtc/flattree.c               |   48 +-
@@ -32,7 +32,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  scripts/dtc/util.c                   |   30 +
  scripts/dtc/util.h                   |    1 +
  scripts/dtc/version_gen.h            |    2 +-
- 27 files changed, 2008 insertions(+), 1910 deletions(-)
+ 27 files changed, 2011 insertions(+), 1913 deletions(-)
 
 diff --git a/scripts/dtc/checks.c b/scripts/dtc/checks.c
 index 3d4c3c6c8952..3d18e45374c8 100644
@@ -1423,7 +1423,7 @@ index 39b9f60e9d5b..f834fc017524 100644
  
  #define YYTABLES_NAME "yytables"
 diff --git a/scripts/dtc/dtc-parser.tab.c_shipped b/scripts/dtc/dtc-parser.tab.c_shipped
-index 74e68994a859..2965227a1b4a 100644
+index 74e68994a859..0a7a5ed86f04 100644
 --- a/scripts/dtc/dtc-parser.tab.c_shipped
 +++ b/scripts/dtc/dtc-parser.tab.c_shipped
 @@ -1,10 +1,8 @@
@@ -3508,10 +3508,10 @@ index 74e68994a859..2965227a1b4a 100644
 -		;}
 +			struct node *target = get_node_by_ref((yyvsp[-3].node), (yyvsp[-1].labelref));
 +
-+			add_label(&target->labels, (yyvsp[-2].labelref));
-+			if (target)
++			if (target) {
++				add_label(&target->labels, (yyvsp[-2].labelref));
 +				merge_nodes(target, (yyvsp[0].node));
-+			else
++			} else
 +				ERROR(&(yylsp[-1]), "Label or path %s not found", (yyvsp[-1].labelref));
 +			(yyval.node) = (yyvsp[-3].node);
 +		}
@@ -4772,7 +4772,7 @@ index bcaf6f83743b..6aa512c1b337 100644
  
 +#endif /* !YY_YY_DTC_PARSER_TAB_H_INCLUDED  */
 diff --git a/scripts/dtc/dtc-parser.y b/scripts/dtc/dtc-parser.y
-index 3f006b475ace..b2fd4d155839 100644
+index 3f006b475ace..ca3f5003427c 100644
 --- a/scripts/dtc/dtc-parser.y
 +++ b/scripts/dtc/dtc-parser.y
 @@ -32,7 +32,7 @@ extern void yyerror(char const *s);
@@ -4822,12 +4822,12 @@ index 3f006b475ace..b2fd4d155839 100644
 -
 -plugindecl:
 -	DT_PLUGIN
--		{
++	| DT_V1 ';' DT_PLUGIN ';'
+ 		{
 -			$$ = VF_PLUGIN;
 -		}
 -	| /* empty */
-+	| DT_V1 ';' DT_PLUGIN ';'
- 		{
+-		{
 -			$$ = 0;
 +			$$ = DTSF_V1 | DTSF_PLUGIN;
  		}
@@ -4850,6 +4850,20 @@ index 3f006b475ace..b2fd4d155839 100644
  		}
  	;
  
+@@ -180,10 +171,10 @@ devicetree:
+ 		{
+ 			struct node *target = get_node_by_ref($1, $3);
+ 
+-			add_label(&target->labels, $2);
+-			if (target)
++			if (target) {
++				add_label(&target->labels, $2);
+ 				merge_nodes(target, $4);
+-			else
++			} else
+ 				ERROR(&@3, "Label or path %s not found", $3);
+ 			$$ = $1;
+ 		}
 @@ -191,14 +182,10 @@ devicetree:
  		{
  			struct node *target = get_node_by_ref($1, $2);
@@ -6485,12 +6499,12 @@ index f800b6011fb1..f5c4f1b50d30 100644
  
  /**
 diff --git a/scripts/dtc/version_gen.h b/scripts/dtc/version_gen.h
-index f934c71981a0..16c2e53a85e3 100644
+index f934c71981a0..fb31923d472e 100644
 --- a/scripts/dtc/version_gen.h
 +++ b/scripts/dtc/version_gen.h
 @@ -1 +1 @@
 -#define DTC_VERSION "DTC 1.4.1-g6f4db2fc"
-+#define DTC_VERSION "DTC 1.4.2-g0931cea3"
++#define DTC_VERSION "DTC 1.4.2-g3b9c9709"
 -- 
 2.11.0
 
