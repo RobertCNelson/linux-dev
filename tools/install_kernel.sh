@@ -90,6 +90,7 @@ mmc_write_boot_uname () {
 	if [ ! "x${older_kernel}" = "x" ] ; then
 		if [ ! "x${older_kernel}" = "x${KERNEL_UTS}" ] ; then
 			sudo sed -i -e 's:uname_r='${older_kernel}':uname_r='${KERNEL_UTS}':g' "${location}/uEnv.txt"
+			sudo sed -i -e 's:cmdline=init:#cmdline=init:g' "${location}/uEnv.txt"
 		fi
 		echo "info: /boot/uEnv.txt: $(sudo grep uname_r ${location}/uEnv.txt)"
 	fi
