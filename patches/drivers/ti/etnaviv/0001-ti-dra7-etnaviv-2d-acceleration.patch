@@ -12,10 +12,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  4 files changed, 23 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-index 6df7829..a2e4c29 100644
+index 585d792a8fdd..46ca247ad8f5 100644
 --- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
 +++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-@@ -190,6 +190,11 @@
+@@ -194,6 +194,11 @@
  		>;
  	};
  };
@@ -28,10 +28,10 @@ index 6df7829..a2e4c29 100644
  	status = "okay";
  	clock-frequency = <400000>;
 diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index a4c1243..cdfb355 100644
+index 34753f74f2a8..ecc0c97d15ca 100644
 --- a/arch/arm/boot/dts/dra7.dtsi
 +++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -965,6 +965,16 @@
+@@ -967,6 +967,16 @@
  			ti,hwmods = "dmm";
  		};
  
@@ -48,7 +48,7 @@ index a4c1243..cdfb355 100644
  		i2c1: i2c@48070000 {
  			compatible = "ti,omap4-i2c";
  			reg = <0x48070000 0x100>;
-@@ -1975,6 +1985,12 @@
+@@ -1977,6 +1987,12 @@
  		};
  	};
  
@@ -62,23 +62,23 @@ index a4c1243..cdfb355 100644
  		#include "omap4-cpu-thermal.dtsi"
  		#include "omap5-gpu-thermal.dtsi"
 diff --git a/drivers/gpu/drm/etnaviv/Kconfig b/drivers/gpu/drm/etnaviv/Kconfig
-index 2cde7a5..b776f41 100644
+index cc1731c5289c..db6559395eb0 100644
 --- a/drivers/gpu/drm/etnaviv/Kconfig
 +++ b/drivers/gpu/drm/etnaviv/Kconfig
 @@ -2,7 +2,7 @@
  config DRM_ETNAVIV
  	tristate "ETNAVIV (DRM support for Vivante GPU IP cores)"
  	depends on DRM
--	depends on ARCH_MXC || ARCH_DOVE
-+	depends on ARCH_MXC || ARCH_DOVE || ARCH_OMAP2PLUS
+-	depends on ARCH_MXC || ARCH_DOVE || (ARM && COMPILE_TEST)
++	depends on ARCH_MXC || ARCH_DOVE || ARCH_OMAP2PLUS || (ARM && COMPILE_TEST)
+ 	depends on MMU
  	select SHMEM
  	select TMPFS
- 	select IOMMU_API
 diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-index aa68766..20d20ca 100644
+index 587e45043542..67cb05c7335d 100644
 --- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
 +++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-@@ -654,6 +654,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
+@@ -650,6 +650,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
  static const struct of_device_id dt_match[] = {
  	{ .compatible = "fsl,imx-gpu-subsystem" },
  	{ .compatible = "marvell,dove-gpu-subsystem" },
@@ -87,5 +87,5 @@ index aa68766..20d20ca 100644
  };
  MODULE_DEVICE_TABLE(of, dt_match);
 -- 
-2.10.2
+2.11.0
 
