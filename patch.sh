@@ -295,8 +295,6 @@ drivers () {
 	dir 'drivers/tsl2550'
 	dir 'drivers/tps65217'
 
-	dir 'drivers/ti/iodelay'
-
 	#https://github.com/pantoniou/linux-beagle-track-mainline/tree/bbb-overlays
 	echo "dir: drivers/ti/bbb_overlays"
 	#regenerate="enable"
@@ -417,7 +415,7 @@ drivers () {
 
 soc () {
 	dir 'soc/exynos'
-#	dir 'soc/imx/udoo'
+	dir 'soc/imx/udoo'
 	dir 'soc/imx/wandboard'
 	dir 'soc/imx'
 	dir 'soc/sunxi'

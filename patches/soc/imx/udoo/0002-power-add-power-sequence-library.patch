@@ -1,7 +1,7 @@
-From b7b49b40ede4f49d0b6452c7aeb91e3dab3a831f Mon Sep 17 00:00:00 2001
+From f10ec3eb2499a46e69c83986b68c9e0b6e8feadb Mon Sep 17 00:00:00 2001
 From: Peter Chen <peter.chen@nxp.com>
-Date: Tue, 8 Nov 2016 10:51:06 +0800
-Subject: [PATCH 2/8] power: add power sequence library
+Date: Sat, 11 Feb 2017 09:27:13 +0800
+Subject: [PATCH 02/12] power: add power sequence library
 
 We have an well-known problem that the device needs to do some power
 sequence before it can be recognized by related host, the typical
@@ -31,26 +31,88 @@ Tested-by Joshua Clayton <stillcompiling@gmail.com>
 Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
 Tested-by: Matthias Kaehlcke <mka@chromium.org>
 ---
- MAINTAINERS                           |   9 ++
- drivers/power/Kconfig                 |   1 +
- drivers/power/Makefile                |   1 +
- drivers/power/pwrseq/Kconfig          |  19 ++++
- drivers/power/pwrseq/Makefile         |   2 +
- drivers/power/pwrseq/core.c           | 191 ++++++++++++++++++++++++++++++++++
- drivers/power/pwrseq/pwrseq_generic.c | 183 ++++++++++++++++++++++++++++++++
- include/linux/power/pwrseq.h          |  72 +++++++++++++
- 8 files changed, 478 insertions(+)
+ Documentation/power/power-sequence/design.rst |  54 +++++
+ MAINTAINERS                                   |   9 +
+ drivers/power/Kconfig                         |   1 +
+ drivers/power/Makefile                        |   1 +
+ drivers/power/pwrseq/Kconfig                  |  20 ++
+ drivers/power/pwrseq/Makefile                 |   2 +
+ drivers/power/pwrseq/core.c                   | 335 ++++++++++++++++++++++++++
+ drivers/power/pwrseq/pwrseq_generic.c         | 234 ++++++++++++++++++
+ include/linux/power/pwrseq.h                  |  81 +++++++
+ 9 files changed, 737 insertions(+)
+ create mode 100644 Documentation/power/power-sequence/design.rst
  create mode 100644 drivers/power/pwrseq/Kconfig
  create mode 100644 drivers/power/pwrseq/Makefile
  create mode 100644 drivers/power/pwrseq/core.c
  create mode 100644 drivers/power/pwrseq/pwrseq_generic.c
  create mode 100644 include/linux/power/pwrseq.h
 
+diff --git a/Documentation/power/power-sequence/design.rst b/Documentation/power/power-sequence/design.rst
+new file mode 100644
+index 000000000000..554608e5f3b6
+--- /dev/null
++++ b/Documentation/power/power-sequence/design.rst
+@@ -0,0 +1,54 @@
++====================================
++Power Sequence Library
++====================================
++
++:Date: Feb, 2017
++:Author: Peter Chen <peter.chen@nxp.com>
++
++
++Introduction
++============
++
++We have an well-known problem that the device needs to do a power
++sequence before it can be recognized by related host, the typical
++examples are hard-wired mmc devices and usb devices. The host controller
++can't know what kinds of this device is in its bus if the power
++sequence has not done, since the related devices driver's probe calling
++is determined by runtime according to eunumeration results. Besides,
++the devices may have custom power sequence, so the power sequence library
++which is independent with the devices is needed.
++
++Design
++============
++
++The power sequence library includes the core file and customer power
++sequence library. The core file exports interfaces are called by
++host controller driver for power sequence and customer power sequence
++library files to register its power sequence instance to global
++power sequence list. The custom power sequence library creates power
++sequence instance and implement custom power sequence.
++
++Since the power sequence describes hardware design, the description is
++located at board description file, eg, device tree dts file. And
++a specific power sequence belongs to device, so its description
++is under the device node, please refer to:
++Documentation/devicetree/bindings/power/pwrseq/pwrseq-generic.txt
++
++Custom power sequence library allocates one power sequence instance at
++bootup periods using postcore_initcall, this static allocated instance is
++used to compare with device-tree (DT) node to see if this library can be
++used for the node or not. When the result is matched, the core API will
++try to get resourses (->get, implemented at each library) for power
++sequence, if all resources are got, it will try to allocate another
++instance for next possible request from host driver.
++
++Then, the host controller driver can carry out power sequence on for this
++DT node, the library will do corresponding operations, like open clocks,
++toggle gpio, etc. The power sequence off routine will close and free the
++resources, and is called when the parent is removed. And the power
++sequence suspend and resume routine can be called at host driver's
++suspend and resume routine if needed.
++
++The exported interfaces
++.. kernel-doc:: drivers/power/pwrseq/core.c
++   :export:
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 29adf89..b50a2f4 100644
+index b0da601f61b8..12210e6a16b1 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -9637,6 +9637,15 @@ F:	include/linux/pm_*
+@@ -10012,6 +10012,15 @@ F:	include/linux/pm_*
  F:	include/linux/powercap.h
  F:	drivers/powercap/
  
@@ -61,13 +123,13 @@ index 29adf89..b50a2f4 100644
 +S:	Maintained
 +F:	Documentation/devicetree/bindings/power/pwrseq/
 +F:	drivers/power/pwrseq/
-+F:	include/linux/power/pwrseq.h/
++F:	include/linux/power/pwrseq.h
 +
  POWER SUPPLY CLASS/SUBSYSTEM and DRIVERS
  M:	Sebastian Reichel <sre@kernel.org>
  L:	linux-pm@vger.kernel.org
 diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
-index 63454b5..c1bb046 100644
+index 63454b5cac27..c1bb0465f956 100644
 --- a/drivers/power/Kconfig
 +++ b/drivers/power/Kconfig
 @@ -1,3 +1,4 @@
@@ -76,7 +138,7 @@ index 63454b5..c1bb046 100644
  source "drivers/power/supply/Kconfig"
 +source "drivers/power/pwrseq/Kconfig"
 diff --git a/drivers/power/Makefile b/drivers/power/Makefile
-index ff35c71..7db8035 100644
+index ff35c712d824..7db80354b691 100644
 --- a/drivers/power/Makefile
 +++ b/drivers/power/Makefile
 @@ -1,3 +1,4 @@
@@ -86,32 +148,33 @@ index ff35c71..7db8035 100644
 +obj-$(CONFIG_POWER_SEQUENCE)	+= pwrseq/
 diff --git a/drivers/power/pwrseq/Kconfig b/drivers/power/pwrseq/Kconfig
 new file mode 100644
-index 0000000..3859a67
+index 000000000000..c6b356926cca
 --- /dev/null
 +++ b/drivers/power/pwrseq/Kconfig
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,20 @@
 +#
 +# Power Sequence library
 +#
 +
-+config POWER_SEQUENCE
-+	bool
++menuconfig POWER_SEQUENCE
++	bool "Power sequence control"
++	help
++	   It is used for drivers which needs to do power sequence
++	   (eg, turn on clock, toggle reset gpio) before the related
++	   devices can be found by hardware, eg, USB bus.
 +
-+menu "Power Sequence Support"
++if POWER_SEQUENCE
 +
 +config PWRSEQ_GENERIC
 +	bool "Generic power sequence control"
 +	depends on OF
-+	select POWER_SEQUENCE
 +	help
-+	   It is used for drivers which needs to do power sequence
-+	   (eg, turn on clock, toggle reset gpio) before the related
-+	   devices can be found by hardware. This generic one can be
-+	   used for common power sequence control.
-+endmenu
++	   This is the generic power sequence control library, and is
++	   supposed to support common power sequence usage.
++endif
 diff --git a/drivers/power/pwrseq/Makefile b/drivers/power/pwrseq/Makefile
 new file mode 100644
-index 0000000..ad82389
+index 000000000000..ad82389028c2
 --- /dev/null
 +++ b/drivers/power/pwrseq/Makefile
 @@ -0,0 +1,2 @@
@@ -119,10 +182,10 @@ index 0000000..ad82389
 +obj-$(CONFIG_PWRSEQ_GENERIC) += pwrseq_generic.o
 diff --git a/drivers/power/pwrseq/core.c b/drivers/power/pwrseq/core.c
 new file mode 100644
-index 0000000..9cb1223
+index 000000000000..3d19e62a2e76
 --- /dev/null
 +++ b/drivers/power/pwrseq/core.c
-@@ -0,0 +1,191 @@
+@@ -0,0 +1,335 @@
 +/*
 + * core.c	power sequence core file
 + *
@@ -139,7 +202,7 @@ index 0000000..9cb1223
 + * GNU General Public License for more details.
 + *
 + * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ * along with this program.
 + */
 +
 +#include <linux/list.h>
@@ -151,56 +214,39 @@ index 0000000..9cb1223
 +static DEFINE_MUTEX(pwrseq_list_mutex);
 +static LIST_HEAD(pwrseq_list);
 +
-+int pwrseq_get(struct device_node *np, struct pwrseq *p)
++static int pwrseq_get(struct device_node *np, struct pwrseq *p)
 +{
 +	if (p && p->get)
 +		return p->get(np, p);
 +
 +	return -ENOTSUPP;
 +}
-+EXPORT_SYMBOL_GPL(pwrseq_get);
 +
-+int pwrseq_on(struct pwrseq *p)
++static int pwrseq_on(struct pwrseq *p)
 +{
 +	if (p && p->on)
 +		return p->on(p);
 +
 +	return -ENOTSUPP;
 +}
-+EXPORT_SYMBOL_GPL(pwrseq_on);
 +
-+void pwrseq_off(struct pwrseq *p)
++static void pwrseq_off(struct pwrseq *p)
 +{
 +	if (p && p->off)
 +		p->off(p);
 +}
-+EXPORT_SYMBOL_GPL(pwrseq_off);
 +
-+void pwrseq_put(struct pwrseq *p)
++static void pwrseq_put(struct pwrseq *p)
 +{
 +	if (p && p->put)
 +		p->put(p);
 +}
-+EXPORT_SYMBOL_GPL(pwrseq_put);
 +
-+int pwrseq_suspend(struct pwrseq *p)
-+{
-+	if (p && p->suspend)
-+		return p->suspend(p);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(pwrseq_suspend);
-+
-+int pwrseq_resume(struct pwrseq *p)
-+{
-+	if (p && p->resume)
-+		return p->resume(p);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(pwrseq_resume);
-+
++/**
++ * pwrseq_register - Add pwrseq instance to global pwrseq list
++ *
++ * @pwrseq: the pwrseq instance
++ */
 +void pwrseq_register(struct pwrseq *pwrseq)
 +{
 +	mutex_lock(&pwrseq_list_mutex);
@@ -209,6 +255,11 @@ index 0000000..9cb1223
 +}
 +EXPORT_SYMBOL_GPL(pwrseq_register);
 +
++/**
++ * pwrseq_unregister - Remove pwrseq instance from global pwrseq list
++ *
++ * @pwrseq: the pwrseq instance
++ */
 +void pwrseq_unregister(struct pwrseq *pwrseq)
 +{
 +	mutex_lock(&pwrseq_list_mutex);
@@ -221,6 +272,7 @@ index 0000000..9cb1223
 +{
 +	struct pwrseq *pwrseq;
 +
++	mutex_lock(&pwrseq_list_mutex);
 +	list_for_each_entry(pwrseq, &pwrseq_list, node) {
 +		if (pwrseq->used)
 +			continue;
@@ -228,6 +280,7 @@ index 0000000..9cb1223
 +		/* compare compatible string for pwrseq node */
 +		if (of_match_node(pwrseq->pwrseq_of_match_table, np)) {
 +			pwrseq->used = true;
++			mutex_unlock(&pwrseq_list_mutex);
 +			return pwrseq;
 +		}
 +
@@ -237,14 +290,27 @@ index 0000000..9cb1223
 +			pr_debug("using generic pwrseq instance for %s\n",
 +				np->full_name);
 +			pwrseq->used = true;
++			mutex_unlock(&pwrseq_list_mutex);
 +			return pwrseq;
 +		}
 +	}
-+	pr_warn("Can't find any pwrseq instances for %s\n", np->full_name);
++	mutex_unlock(&pwrseq_list_mutex);
++	pr_debug("Can't find any pwrseq instances for %s\n", np->full_name);
 +
 +	return NULL;
 +}
 +
++/**
++ * of_pwrseq_on - Carry out power sequence on for device node
++ *
++ * @np: the device node would like to power on
++ *
++ * Carry out a single device power on.  If multiple devices
++ * need to be handled, use of_pwrseq_on_list() instead.
++ *
++ * Return a pointer to the power sequence instance on success,
++ * or an error code otherwise.
++ */
 +struct pwrseq *of_pwrseq_on(struct device_node *np)
 +{
 +	struct pwrseq *pwrseq;
@@ -252,7 +318,7 @@ index 0000000..9cb1223
 +
 +	pwrseq = pwrseq_find_available_instance(np);
 +	if (!pwrseq)
-+		return ERR_PTR(-ENONET);
++		return ERR_PTR(-ENOENT);
 +
 +	ret = pwrseq_get(np, pwrseq);
 +	if (ret) {
@@ -273,6 +339,14 @@ index 0000000..9cb1223
 +}
 +EXPORT_SYMBOL_GPL(of_pwrseq_on);
 +
++/**
++ * of_pwrseq_off - Carry out power sequence off for this pwrseq instance
++ *
++ * @pwrseq: the pwrseq instance which related device would like to be off
++ *
++ * This API is used to power off single device, it is the opposite
++ * operation for of_pwrseq_on.
++ */
 +void of_pwrseq_off(struct pwrseq *pwrseq)
 +{
 +	pwrseq_off(pwrseq);
@@ -280,20 +354,35 @@ index 0000000..9cb1223
 +}
 +EXPORT_SYMBOL_GPL(of_pwrseq_off);
 +
++/**
++ * of_pwrseq_on_list - Carry out power sequence on for list
++ *
++ * @np: the device node would like to power on
++ * @head: the list head for pwrseq list on this bus
++ *
++ * This API is used to power on multiple devices at single bus.
++ * If there are several devices on bus (eg, USB bus), uses this
++ * this API. Otherwise, use of_pwrseq_on instead. After the device
++ * is powered on successfully, it will be added to pwrseq list for
++ * this bus. The caller needs to use mutex_lock for concurrent.
++ *
++ * Return 0 on success, or an error value otherwise.
++ */
 +int of_pwrseq_on_list(struct device_node *np, struct list_head *head)
 +{
 +	struct pwrseq *pwrseq;
 +	struct pwrseq_list_per_dev *pwrseq_list_node;
 +
-+	pwrseq = of_pwrseq_on(np);
-+	if (IS_ERR(pwrseq))
-+		return PTR_ERR(pwrseq);
-+
 +	pwrseq_list_node = kzalloc(sizeof(*pwrseq_list_node), GFP_KERNEL);
-+	if (!pwrseq_list_node) {
-+		of_pwrseq_off(pwrseq);
++	if (!pwrseq_list_node)
 +		return -ENOMEM;
++
++	pwrseq = of_pwrseq_on(np);
++	if (IS_ERR(pwrseq)) {
++		kfree(pwrseq_list_node);
++		return PTR_ERR(pwrseq);
 +	}
++
 +	pwrseq_list_node->pwrseq = pwrseq;
 +	list_add(&pwrseq_list_node->list, head);
 +
@@ -301,6 +390,15 @@ index 0000000..9cb1223
 +}
 +EXPORT_SYMBOL_GPL(of_pwrseq_on_list);
 +
++/**
++ * of_pwrseq_off_list - Carry out power sequence off for the list
++ *
++ * @head: the list head for pwrseq instance list on this bus
++ *
++ * This API is used to power off all devices on this bus, it is
++ * the opposite operation for of_pwrseq_on_list.
++ * The caller needs to use mutex_lock for concurrent.
++ */
 +void of_pwrseq_off_list(struct list_head *head)
 +{
 +	struct pwrseq *pwrseq;
@@ -314,12 +412,121 @@ index 0000000..9cb1223
 +	}
 +}
 +EXPORT_SYMBOL_GPL(of_pwrseq_off_list);
++
++/**
++ * pwrseq_suspend - Carry out power sequence suspend for this pwrseq instance
++ *
++ * @pwrseq: the pwrseq instance
++ *
++ * This API is used to do suspend operation on pwrseq instance.
++ *
++ * Return 0 on success, or an error value otherwise.
++ */
++int pwrseq_suspend(struct pwrseq *p)
++{
++	int ret = 0;
++
++	if (p && p->suspend)
++		ret = p->suspend(p);
++	else
++		return ret;
++
++	if (!ret)
++		p->suspended = true;
++	else
++		pr_err("%s failed\n", __func__);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(pwrseq_suspend);
++
++/**
++ * pwrseq_resume - Carry out power sequence resume for this pwrseq instance
++ *
++ * @pwrseq: the pwrseq instance
++ *
++ * This API is used to do resume operation on pwrseq instance.
++ *
++ * Return 0 on success, or an error value otherwise.
++ */
++int pwrseq_resume(struct pwrseq *p)
++{
++	int ret = 0;
++
++	if (p && p->resume)
++		ret = p->resume(p);
++	else
++		return ret;
++
++	if (!ret)
++		p->suspended = false;
++	else
++		pr_err("%s failed\n", __func__);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(pwrseq_resume);
++
++/**
++ * pwrseq_suspend_list - Carry out power sequence suspend for list
++ *
++ * @head: the list head for pwrseq instance list on this bus
++ *
++ * This API is used to do suspend on all power sequence instances on this bus.
++ * The caller needs to use mutex_lock for concurrent.
++ */
++int pwrseq_suspend_list(struct list_head *head)
++{
++	struct pwrseq *pwrseq;
++	struct pwrseq_list_per_dev *pwrseq_list_node;
++	int ret = 0;
++
++	list_for_each_entry(pwrseq_list_node, head, list) {
++		ret = pwrseq_suspend(pwrseq_list_node->pwrseq);
++		if (ret)
++			break;
++	}
++
++	if (ret) {
++		list_for_each_entry(pwrseq_list_node, head, list) {
++			pwrseq = pwrseq_list_node->pwrseq;
++			if (pwrseq->suspended)
++				pwrseq_resume(pwrseq);
++		}
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(pwrseq_suspend_list);
++
++/**
++ * pwrseq_resume_list - Carry out power sequence resume for the list
++ *
++ * @head: the list head for pwrseq instance list on this bus
++ *
++ * This API is used to do resume on all power sequence instances on this bus.
++ * The caller needs to use mutex_lock for concurrent.
++ */
++int pwrseq_resume_list(struct list_head *head)
++{
++	struct pwrseq_list_per_dev *pwrseq_list_node;
++	int ret = 0;
++
++	list_for_each_entry(pwrseq_list_node, head, list) {
++		ret = pwrseq_resume(pwrseq_list_node->pwrseq);
++		if (ret)
++			break;
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(pwrseq_resume_list);
 diff --git a/drivers/power/pwrseq/pwrseq_generic.c b/drivers/power/pwrseq/pwrseq_generic.c
 new file mode 100644
-index 0000000..d7a77f2
+index 000000000000..4e7c09086cfb
 --- /dev/null
 +++ b/drivers/power/pwrseq/pwrseq_generic.c
-@@ -0,0 +1,183 @@
+@@ -0,0 +1,234 @@
 +/*
 + * pwrseq_generic.c	Generic power sequence handling
 + *
@@ -336,7 +543,7 @@ index 0000000..d7a77f2
 + * GNU General Public License for more details.
 + *
 + * You should have received a copy of the GNU General Public License
-+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ * along with this program.
 + */
 +
 +#include <linux/clk.h>
@@ -354,6 +561,7 @@ index 0000000..d7a77f2
 +	struct gpio_desc *gpiod_reset;
 +	struct clk *clks[PWRSEQ_MAX_CLKS];
 +	u32 duration_us;
++	bool suspended;
 +};
 +
 +#define to_generic_pwrseq(p) container_of(p, struct pwrseq_generic, pwrseq)
@@ -363,6 +571,41 @@ index 0000000..d7a77f2
 +	{ .compatible = "generic",},
 +	{ /* sentinel */ }
 +};
++
++static int pwrseq_generic_suspend(struct pwrseq *pwrseq)
++{
++	struct pwrseq_generic *pwrseq_gen = to_generic_pwrseq(pwrseq);
++	int clk;
++
++	for (clk = PWRSEQ_MAX_CLKS - 1; clk >= 0; clk--)
++		clk_disable_unprepare(pwrseq_gen->clks[clk]);
++
++	pwrseq_gen->suspended = true;
++	return 0;
++}
++
++static int pwrseq_generic_resume(struct pwrseq *pwrseq)
++{
++	struct pwrseq_generic *pwrseq_gen = to_generic_pwrseq(pwrseq);
++	int clk, ret = 0;
++
++	for (clk = 0; clk < PWRSEQ_MAX_CLKS && pwrseq_gen->clks[clk]; clk++) {
++		ret = clk_prepare_enable(pwrseq_gen->clks[clk]);
++		if (ret) {
++			pr_err("Can't enable clock, ret=%d\n", ret);
++			goto err_disable_clks;
++		}
++	}
++
++	pwrseq_gen->suspended = false;
++	return ret;
++
++err_disable_clks:
++	while (--clk >= 0)
++		clk_disable_unprepare(pwrseq_gen->clks[clk]);
++
++	return ret;
++}
 +
 +static void pwrseq_generic_put(struct pwrseq *pwrseq)
 +{
@@ -383,6 +626,9 @@ index 0000000..d7a77f2
 +{
 +	struct pwrseq_generic *pwrseq_gen = to_generic_pwrseq(pwrseq);
 +	int clk;
++
++	if (pwrseq_gen->suspended)
++		return;
 +
 +	for (clk = PWRSEQ_MAX_CLKS - 1; clk >= 0; clk--)
 +		clk_disable_unprepare(pwrseq_gen->clks[clk]);
@@ -480,6 +726,15 @@ index 0000000..d7a77f2
 +	return ret;
 +}
 +
++/**
++ * pwrseq_generic_alloc_instance - power sequence instance allocation
++ *
++ * This function is used to allocate one generic power sequence instance,
++ * it is called when the system boots up and after one power sequence
++ * instance is got successfully.
++ *
++ * Return zero on success or an error code otherwise.
++ */
 +static int pwrseq_generic_alloc_instance(void)
 +{
 +	struct pwrseq_generic *pwrseq_gen;
@@ -493,11 +748,14 @@ index 0000000..d7a77f2
 +	pwrseq_gen->pwrseq.on = pwrseq_generic_on;
 +	pwrseq_gen->pwrseq.off = pwrseq_generic_off;
 +	pwrseq_gen->pwrseq.put = pwrseq_generic_put;
++	pwrseq_gen->pwrseq.suspend = pwrseq_generic_suspend;
++	pwrseq_gen->pwrseq.resume = pwrseq_generic_resume;
 +
 +	pwrseq_register(&pwrseq_gen->pwrseq);
 +	return 0;
 +}
 +
++/* Allocate one pwrseq instance during boots up */
 +static int __init pwrseq_generic_register(void)
 +{
 +	return pwrseq_generic_alloc_instance();
@@ -505,10 +763,10 @@ index 0000000..d7a77f2
 +postcore_initcall(pwrseq_generic_register)
 diff --git a/include/linux/power/pwrseq.h b/include/linux/power/pwrseq.h
 new file mode 100644
-index 0000000..4f37275
+index 000000000000..cbc344cdf9d2
 --- /dev/null
 +++ b/include/linux/power/pwrseq.h
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,81 @@
 +#ifndef __LINUX_PWRSEQ_H
 +#define __LINUX_PWRSEQ_H
 +
@@ -516,6 +774,18 @@ index 0000000..4f37275
 +
 +#define PWRSEQ_MAX_CLKS		3
 +
++/**
++ * struct pwrseq - the power sequence structure
++ * @pwrseq_of_match_table: the OF device id table this pwrseq library supports
++ * @node: the list pointer to be added to pwrseq list
++ * @get: the API is used to get pwrseq instance from the device node
++ * @on: do power on for this pwrseq instance
++ * @off: do power off for this pwrseq instance
++ * @put: release the resources on this pwrseq instance
++ * @suspend: do suspend operation on this pwrseq instance
++ * @resume: do resume operation on this pwrseq instance
++ * @used: this pwrseq instance is used by device
++ */
 +struct pwrseq {
 +	const struct of_device_id *pwrseq_of_match_table;
 +	struct list_head node;
@@ -526,6 +796,7 @@ index 0000000..4f37275
 +	int (*suspend)(struct pwrseq *p);
 +	int (*resume)(struct pwrseq *p);
 +	bool used;
++	bool suspended;
 +};
 +
 +/* used for power sequence instance list in one driver */
@@ -535,52 +806,48 @@ index 0000000..4f37275
 +};
 +
 +#if IS_ENABLED(CONFIG_POWER_SEQUENCE)
-+int pwrseq_get(struct device_node *np, struct pwrseq *p);
-+int pwrseq_on(struct pwrseq *p);
-+void pwrseq_off(struct pwrseq *p);
-+void pwrseq_put(struct pwrseq *p);
-+int pwrseq_suspend(struct pwrseq *p);
-+int pwrseq_resume(struct pwrseq *p);
 +void pwrseq_register(struct pwrseq *pwrseq);
 +void pwrseq_unregister(struct pwrseq *pwrseq);
 +struct pwrseq *of_pwrseq_on(struct device_node *np);
 +void of_pwrseq_off(struct pwrseq *pwrseq);
 +int of_pwrseq_on_list(struct device_node *np, struct list_head *head);
 +void of_pwrseq_off_list(struct list_head *head);
++int pwrseq_suspend(struct pwrseq *p);
++int pwrseq_resume(struct pwrseq *p);
++int pwrseq_suspend_list(struct list_head *head);
++int pwrseq_resume_list(struct list_head *head);
 +#else
-+static inline int pwrseq_get(struct device_node *np, struct pwrseq *p)
-+{
-+	return 0;
-+}
-+static inline int pwrseq_on(struct pwrseq *p)
-+{
-+	return 0;
-+}
-+static inline void pwrseq_off(struct pwrseq *p) {}
-+static inline void pwrseq_put(struct pwrseq *p) {}
-+static inline int pwrseq_suspend(struct pwrseq *p)
-+{
-+	return 0;
-+}
-+static inline int pwrseq_resume(struct pwrseq *p)
-+{
-+	return 0;
-+}
 +static inline void pwrseq_register(struct pwrseq *pwrseq) {}
 +static inline void pwrseq_unregister(struct pwrseq *pwrseq) {}
 +static inline struct pwrseq *of_pwrseq_on(struct device_node *np)
 +{
 +	return NULL;
 +}
-+void of_pwrseq_off(struct pwrseq *pwrseq) {}
-+int of_pwrseq_on_list(struct device_node *np, struct list_head *head)
++static void of_pwrseq_off(struct pwrseq *pwrseq) {}
++static int of_pwrseq_on_list(struct device_node *np, struct list_head *head)
 +{
 +	return 0;
 +}
-+void of_pwrseq_off_list(struct list_head *head) {}
++static void of_pwrseq_off_list(struct list_head *head) {}
++static int pwrseq_suspend(struct pwrseq *p)
++{
++	return 0;
++}
++static int pwrseq_resume(struct pwrseq *p)
++{
++	return 0;
++}
++static int pwrseq_suspend_list(struct list_head *head)
++{
++	return 0;
++}
++static int pwrseq_resume_list(struct list_head *head)
++{
++	return 0;
++}
 +#endif /* CONFIG_POWER_SEQUENCE */
 +
 +#endif  /* __LINUX_PWRSEQ_H */
 -- 
-2.10.2
+2.11.0
 

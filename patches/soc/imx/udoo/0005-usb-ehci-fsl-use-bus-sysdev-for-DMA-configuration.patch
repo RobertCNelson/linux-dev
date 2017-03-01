@@ -1,0 +1,33 @@
+From 6434770dbd29e28eca5dacfd978a672c61f3c5d3 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Sat, 11 Feb 2017 09:27:16 +0800
+Subject: [PATCH 05/12] usb: ehci: fsl: use bus->sysdev for DMA configuration
+
+For the dual role ehci fsl driver, sysdev will handle the dma
+config.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sriram Dash <sriram.dash@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/ehci-fsl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/host/ehci-fsl.c b/drivers/usb/host/ehci-fsl.c
+index 3733aab46efe..4a08b70c81aa 100644
+--- a/drivers/usb/host/ehci-fsl.c
++++ b/drivers/usb/host/ehci-fsl.c
+@@ -96,8 +96,8 @@ static int fsl_ehci_drv_probe(struct platform_device *pdev)
+ 	}
+ 	irq = res->start;
+ 
+-	hcd = usb_create_hcd(&fsl_ehci_hc_driver, &pdev->dev,
+-				dev_name(&pdev->dev));
++	hcd = __usb_create_hcd(&fsl_ehci_hc_driver, pdev->dev.parent,
++			       &pdev->dev, dev_name(&pdev->dev), NULL);
+ 	if (!hcd) {
+ 		retval = -ENOMEM;
+ 		goto err1;
+-- 
+2.11.0
+
