@@ -228,59 +228,6 @@ rt () {
 	${git} "${DIR}/patches/rt/0001-merge-CONFIG_PREEMPT_RT-Patch-Set.patch"
 }
 
-tinydrm () {
-	echo "dir: tinydrm"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cd ../
-		if [ ! -d ./tinydrm ] ; then
-			${git_bin} clone https://github.com/notro/tinydrm
-			cd ./tinydrm
-			${git_bin} checkout origin/master -b tmp
-			cd ../
-		else
-			rm -rf ./tinydrm || true
-			${git_bin} clone https://github.com/notro/tinydrm
-			cd ./tinydrm
-			${git_bin} checkout origin/master -b tmp
-			cd ../
-		fi
-		cd ./KERNEL/
-
-		mkdir -p ./drivers/gpu/drm/tinydrm/core/
-		cp -v ../tinydrm/Kconfig ./drivers/gpu/drm/tinydrm/
-		cp -v ../tinydrm/Makefile ./drivers/gpu/drm/tinydrm/
-		cp -rv ../tinydrm/core/* ./drivers/gpu/drm/tinydrm/core/
-		cp -rv ../tinydrm/*.c ./drivers/gpu/drm/tinydrm/
-		mkdir -p ./include/drm/tinydrm
-		cp -v ../tinydrm/include/drm/tinydrm/*.h ./include/drm/tinydrm
-
-		echo "obj-\$(CONFIG_DRM_TINYDRM)+= tinydrm/" >> ./drivers/gpu/drm/Makefile
-		echo "source \"drivers/gpu/drm/tinydrm/Kconfig\"" >> ./drivers/gpu/drm/Kconfig
-
-		${git_bin} add .
-		${git_bin} commit -a -m 'merge: tinydrm' -s
-		${git_bin} format-patch -1 -o ../patches/drivers/tinydrm/
-
-		rm -rf ../tinydrm/ || true
-
-		exit 2
-	fi
-
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/drivers/tinydrm/0001-merge-tinydrm.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/tinydrm"
-		number=1
-		cleanup
-	fi
-}
-
 local_patch () {
 	echo "dir: dir"
 	${git} "${DIR}/patches/dir/0001-patch.patch"
@@ -290,7 +237,6 @@ local_patch () {
 #sync_cherrypicks
 #aufs4
 #rt
-#tinydrm
 #local_patch
 
 pre_backports () {
@@ -382,59 +328,58 @@ drivers () {
 		start_cleanup
 	fi
 
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0001-scripts-dtc-Update-to-upstream-version-1.4.1-Overlay.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0002-gitignore-Ignore-DTB-files.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0001-gitignore-Ignore-DTB-files.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0003-add-PM-firmware.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0004-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0002-add-PM-firmware.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0003-ARM-CUSTOM-Build-a-uImage-with-dtb-already-appended.patch"
 	fi
 
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0005-omap-Fix-crash-when-omap-device-is-disabled.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0006-serial-omap-Fix-port-line-number-without-aliases.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0007-tty-omap-serial-Fix-up-platform-data-alloc.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0008-of-Custom-printk-format-specifier-for-device-node.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0009-of-overlay-kobjectify-overlay-objects.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0010-of-overlay-global-sysfs-enable-attribute.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0011-Documentation-ABI-overlays-global-attributes.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0012-Documentation-document-of_overlay_disable-parameter.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0013-of-overlay-add-per-overlay-sysfs-attributes.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0014-Documentation-ABI-overlays-per-overlay-docs.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0015-of-dynamic-Add-__of_node_dupv.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0016-of-changesets-Introduce-changeset-helper-methods.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0017-of-changeset-Add-of_changeset_node_move-method.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0018-of-unittest-changeset-helpers.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0019-OF-DT-Overlay-configfs-interface-v7.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0020-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0021-misc-Beaglebone-capemanager.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0022-doc-misc-Beaglebone-capemanager-documentation.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0023-doc-dt-beaglebone-cape-manager-bindings.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0024-doc-ABI-bone_capemgr-sysfs-API.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0025-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0026-arm-dts-Enable-beaglebone-cape-manager.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0027-of-overlay-Implement-target-index-support.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0028-of-unittest-Add-indirect-overlay-target-test.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0029-doc-dt-Document-the-indirect-overlay-method.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0030-of-overlay-Introduce-target-root-capability.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0031-of-unittest-Unit-tests-for-target-root-overlays.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0032-doc-dt-Document-the-target-root-overlay-method.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0033-RFC-Device-overlay-manager-PCI-USB-DT.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0034-of-rename-_node_sysfs-to-_node_post.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0035-of-Support-hashtable-lookups-for-phandles.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0036-of-unittest-hashed-phandles-unitest.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0037-of-overlay-Pick-up-label-symbols-from-overlays.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0004-omap-Fix-crash-when-omap-device-is-disabled.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0005-serial-omap-Fix-port-line-number-without-aliases.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0006-tty-omap-serial-Fix-up-platform-data-alloc.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0007-of-Custom-printk-format-specifier-for-device-node.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0008-of-overlay-kobjectify-overlay-objects.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0009-of-overlay-global-sysfs-enable-attribute.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0010-Documentation-ABI-overlays-global-attributes.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0011-Documentation-document-of_overlay_disable-parameter.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0012-of-overlay-add-per-overlay-sysfs-attributes.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0013-Documentation-ABI-overlays-per-overlay-docs.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0014-of-dynamic-Add-__of_node_dupv.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0015-of-changesets-Introduce-changeset-helper-methods.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0016-of-changeset-Add-of_changeset_node_move-method.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0017-of-unittest-changeset-helpers.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0018-OF-DT-Overlay-configfs-interface-v7.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0019-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0020-misc-Beaglebone-capemanager.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0021-doc-misc-Beaglebone-capemanager-documentation.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0022-doc-dt-beaglebone-cape-manager-bindings.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0023-doc-ABI-bone_capemgr-sysfs-API.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0024-MAINTAINERS-Beaglebone-capemanager-maintainer.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0025-arm-dts-Enable-beaglebone-cape-manager.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0026-of-overlay-Implement-target-index-support.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0027-of-unittest-Add-indirect-overlay-target-test.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0028-doc-dt-Document-the-indirect-overlay-method.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0029-of-overlay-Introduce-target-root-capability.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0030-of-unittest-Unit-tests-for-target-root-overlays.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0031-doc-dt-Document-the-target-root-overlay-method.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0032-RFC-Device-overlay-manager-PCI-USB-DT.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0033-of-rename-_node_sysfs-to-_node_post.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0034-of-Support-hashtable-lookups-for-phandles.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0035-of-unittest-hashed-phandles-unitest.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0036-of-overlay-Pick-up-label-symbols-from-overlays.patch"
 
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0038-of-Portable-Device-Tree-connector.patch"
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0039-boneblack-defconfig.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0037-of-Portable-Device-Tree-connector.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0038-boneblack-defconfig.patch"
 	fi
 
-	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0040-bone_capemgr-uboot_capemgr_enabled-flag.patch"
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0039-bone_capemgr-uboot_capemgr_enabled-flag.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="drivers/ti/bbb_overlays"
-		number=40
+		number=39
 		cleanup
 	fi
 
