@@ -103,29 +103,6 @@ external_git () {
 	${git_bin} describe
 }
 
-sync_cherrypicks () {
-	echo "dir: ti_4.9.x/pm_opp"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0001-Documentation-dt-add-bindings-for-ti-cpufreq.patch"
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0002-cpufreq-ti-Add-cpufreq-driver-to-determine-available.patch"
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0003-cpufreq-dt-Don-t-use-generic-platdev-driver-for-ti-c.patch"
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0004-ARM-dts-am33xx-Add-updated-operating-points-v2-table.patch"
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0005-ARM-dts-am335x-boneblack-Enable-1GHz-OPP-for-cpu.patch"
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0006-ARM-dts-am4372-Update-operating-points-v2-table-for-.patch"
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0007-ARM-dts-dra7-Add-updated-operating-points-v2-table-f.patch"
-	${git} "${DIR}/patches/ti_4.9.x/pm_opp/0008-PM-OPP-Expose-_of_get_opp_desc_node-as-dev_pm_opp-AP.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="ti_4.9.x/pm_opp"
-		number=8
-		cleanup
-	fi
-}
-
 aufs_fail () {
 	echo "aufs4 failed"
 	exit 2
@@ -234,7 +211,6 @@ local_patch () {
 }
 
 #external_git
-#sync_cherrypicks
 #aufs4
 #rt
 #local_patch
@@ -447,9 +423,7 @@ soc () {
 	dir 'soc/sunxi'
 	dir 'soc/ti'
 	dir 'soc/ti/bone_common'
-	dir 'soc/ti/bbg'
-	dir 'soc/ti/bbgw'
-	dir 'soc/ti/bbbw'
+	dir 'soc/ti/uboot'
 	dir 'soc/ti/blue'
 	dir 'soc/ti/sancloud'
 	dir 'soc/ti/abbbi'
@@ -488,11 +462,14 @@ beaglebone () {
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 
-		device="am335x-boneblack-emmc-overlay.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-hdmi-overlay.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-nhdmi-overlay.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-overlay.dtb" ; dtb_makefile_append
-		device="am335x-bonegreen-overlay.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-uboot.dtb" ; dtb_makefile_append
+
+		device="am335x-boneblue.dtb" ; dtb_makefile_append
+		device="am335x-boneblue-ArduPilot.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-roboticscape.dtb" ; dtb_makefile_append
+		device="am335x-boneblack-wireless-roboticscape.dtb" ; dtb_makefile_append
+
+		device="am335x-sancloud-bbe.dtb" ; dtb_makefile_append
 
 		device="am335x-abbbi.dtb" ; dtb_makefile_append
 
@@ -500,21 +477,15 @@ beaglebone () {
 
 		device="am335x-bone-cape-bone-argus.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-cape-bone-argus.dtb" ; dtb_makefile_append
+
 		device="am335x-boneblack-wl1835mod.dtb" ; dtb_makefile_append
+
 		device="am335x-boneblack-bbbmini.dtb" ; dtb_makefile_append
+
 		device="am335x-boneblack-bbb-exp-c.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-bbb-exp-r.dtb" ; dtb_makefile_append
+
 		device="am335x-boneblack-audio.dtb" ; dtb_makefile_append
-
-		device="am335x-bonegreen-wireless.dtb" ; dtb_makefile_append
-
-		device="am335x-boneblack-wireless.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-wireless-emmc-overlay.dtb" ; dtb_makefile_append
-		device="am335x-boneblue.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-roboticscape.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-wireless-roboticscape.dtb" ; dtb_makefile_append
-
-		device="am335x-sancloud-bbe.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/

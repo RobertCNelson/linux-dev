@@ -1,23 +1,25 @@
-From f38738e232a8310a35c74f8d9a770fbccb60c0c4 Mon Sep 17 00:00:00 2001
+From 046198fcd5a40a42a425a17d16b14797e0ef631a Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 12 Oct 2016 08:41:04 -0500
+Date: Wed, 1 Mar 2017 12:25:04 -0600
 Subject: [PATCH 3/5] ARM: dts: am335x-bone-common: disable running JTAG
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi |  9 ---------
- arch/arm/boot/dts/am335x-bone-jtag.dtsi   | 20 ++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone.dts         |  1 +
- arch/arm/boot/dts/am335x-boneblack.dts    |  1 +
- arch/arm/boot/dts/am335x-bonegreen.dts    |  1 +
- 5 files changed, 23 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/am335x-bone-common.dtsi       |  9 ---------
+ arch/arm/boot/dts/am335x-bone-jtag.dtsi         | 20 ++++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone.dts               |  1 +
+ arch/arm/boot/dts/am335x-boneblack-wireless.dts |  1 +
+ arch/arm/boot/dts/am335x-boneblack.dts          |  1 +
+ arch/arm/boot/dts/am335x-bonegreen-wireless.dts |  1 +
+ arch/arm/boot/dts/am335x-bonegreen.dts          |  1 +
+ 7 files changed, 25 insertions(+), 9 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-jtag.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 5151a8e..54a3b8de 100644
+index d2814f1cd14b..7ed282957a55 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -68,9 +68,6 @@
+@@ -66,9 +66,6 @@
  };
  
  &am33xx_pinmux {
@@ -27,7 +29,7 @@ index 5151a8e..54a3b8de 100644
  	user_leds_s0: user_leds_s0 {
  		pinctrl-single,pins = <
  			AM33XX_IOPAD(0x854, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
-@@ -101,12 +98,6 @@
+@@ -99,12 +96,6 @@
  		>;
  	};
  
@@ -42,7 +44,7 @@ index 5151a8e..54a3b8de 100644
  			/* Slave 1 */
 diff --git a/arch/arm/boot/dts/am335x-bone-jtag.dtsi b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
 new file mode 100644
-index 0000000..603ef0a
+index 000000000000..603ef0a4d7b2
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
 @@ -0,0 +1,20 @@
@@ -67,7 +69,7 @@ index 0000000..603ef0a
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 6b849372..3688fff 100644
+index 6b8493720424..3688fff0a5f0 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
 @@ -9,6 +9,7 @@
@@ -78,30 +80,54 @@ index 6b849372..3688fff 100644
  
  / {
  	model = "TI AM335x BeagleBone";
+diff --git a/arch/arm/boot/dts/am335x-boneblack-wireless.dts b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
+index 105bd10655f7..8accff3ba5c6 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-wireless.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
+@@ -11,6 +11,7 @@
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-boneblack-common.dtsi"
+ #include <dt-bindings/interrupt-controller/irq.h>
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Black Wireless";
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index 6bbb1fe..ff771c6 100644
+index 77273df1a028..5f40788e5258 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
 @@ -10,6 +10,7 @@
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
- #include <dt-bindings/display/tda998x.h>
+ #include "am335x-boneblack-common.dtsi"
 +/* #include "am335x-bone-jtag.dtsi" */
  
  / {
  	model = "TI AM335x BeagleBone Black";
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+index 9d1a0fd555f3..cadfe85174d3 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+@@ -11,6 +11,7 @@
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-bonegreen-common.dtsi"
+ #include <dt-bindings/interrupt-controller/irq.h>
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Green Wireless";
 diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
-index dce3c86..9144810 100644
+index a8b4d969ce2a..575a5a93a89e 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen.dts
-@@ -9,6 +9,7 @@
- 
+@@ -10,6 +10,7 @@
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
+ #include "am335x-bonegreen-common.dtsi"
 +/* #include "am335x-bone-jtag.dtsi" */
  
  / {
  	model = "TI AM335x BeagleBone Green";
 -- 
-2.9.3
+2.11.0
 

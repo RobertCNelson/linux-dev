@@ -11,8 +11,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi    |  48 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi    |  48 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  40 ++++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  40 ++++
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  36 ++++
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  36 ++++
  arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 224 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-cape-bbb-exp-r.dtsi       | 217 ++++++++++++++++++++
  arch/arm/boot/dts/am335x-peripheral-can0.dtsi      |  13 ++
@@ -20,7 +20,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 ++
- 14 files changed, 962 insertions(+)
+ 14 files changed, 954 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-panel-1024x600-24bit.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi
@@ -38,7 +38,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
 new file mode 100644
-index 0000000..0961216
+index 000000000000..09612160b10d
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
 @@ -0,0 +1,45 @@
@@ -89,7 +89,7 @@ index 0000000..0961216
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-panel-1024x600-24bit.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-panel-1024x600-24bit.dtsi
 new file mode 100644
-index 0000000..65e5fbb
+index 000000000000..65e5fbb0cfcc
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-pinmux-panel-1024x600-24bit.dtsi
 @@ -0,0 +1,151 @@
@@ -246,7 +246,7 @@ index 0000000..65e5fbb
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi
 new file mode 100644
-index 0000000..ae5b813
+index 000000000000..ae5b813f007a
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi
 @@ -0,0 +1,48 @@
@@ -300,7 +300,7 @@ index 0000000..ae5b813
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi
 new file mode 100644
-index 0000000..5fa593a
+index 000000000000..5fa593ac31a5
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi
 @@ -0,0 +1,48 @@
@@ -354,7 +354,7 @@ index 0000000..5fa593a
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi
 new file mode 100644
-index 0000000..1d22a95
+index 000000000000..1d22a95a23a2
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi
 @@ -0,0 +1,48 @@
@@ -408,10 +408,10 @@ index 0000000..1d22a95
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 new file mode 100644
-index 0000000..857c21e
+index 000000000000..30667ee070d1
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,36 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -445,19 +445,15 @@ index 0000000..857c21e
 +	pinctrl-0 = <&emmc_pins>;
 +	bus-width = <8>;
 +	status = "okay";
-+};
-+
-+&rtc {
-+	system-power-controller;
 +};
 +
 +#include "am335x-cape-bbb-exp-c.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
 new file mode 100644
-index 0000000..b834fa2
+index 000000000000..8bfba37668c4
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,36 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -493,14 +489,10 @@ index 0000000..b834fa2
 +	status = "okay";
 +};
 +
-+&rtc {
-+	system-power-controller;
-+};
-+
 +#include "am335x-cape-bbb-exp-r.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
 new file mode 100644
-index 0000000..01f9cde
+index 000000000000..01f9cde642aa
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
 @@ -0,0 +1,224 @@
@@ -730,7 +722,7 @@ index 0000000..01f9cde
 +#include "am335x-bone-pinmux-panel-1024x600-24bit.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-cape-bbb-exp-r.dtsi b/arch/arm/boot/dts/am335x-cape-bbb-exp-r.dtsi
 new file mode 100644
-index 0000000..539409c
+index 000000000000..539409c9fcd8
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-cape-bbb-exp-r.dtsi
 @@ -0,0 +1,217 @@
@@ -953,7 +945,7 @@ index 0000000..539409c
 +#include "am335x-bone-pinmux-panel-1024x600-24bit.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-peripheral-can0.dtsi b/arch/arm/boot/dts/am335x-peripheral-can0.dtsi
 new file mode 100644
-index 0000000..4335e39
+index 000000000000..4335e39bf199
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-peripheral-can0.dtsi
 @@ -0,0 +1,13 @@
@@ -972,7 +964,7 @@ index 0000000..4335e39
 +};
 diff --git a/arch/arm/boot/dts/am335x-peripheral-panel-1024x600-24bit.dtsi b/arch/arm/boot/dts/am335x-peripheral-panel-1024x600-24bit.dtsi
 new file mode 100644
-index 0000000..74ddc12
+index 000000000000..74ddc12c08d8
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-peripheral-panel-1024x600-24bit.dtsi
 @@ -0,0 +1,49 @@
@@ -1027,7 +1019,7 @@ index 0000000..74ddc12
 +};
 diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi
 new file mode 100644
-index 0000000..f59fa4c
+index 000000000000..f59fa4c5025f
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi
 @@ -0,0 +1,13 @@
@@ -1046,7 +1038,7 @@ index 0000000..f59fa4c
 +};
 diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi
 new file mode 100644
-index 0000000..a25d6cf
+index 000000000000..a25d6cfcb1d6
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi
 @@ -0,0 +1,13 @@
@@ -1065,7 +1057,7 @@ index 0000000..a25d6cf
 +};
 diff --git a/arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi b/arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi
 new file mode 100644
-index 0000000..adc89f0
+index 000000000000..adc89f046fbb
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi
 @@ -0,0 +1,13 @@
@@ -1083,5 +1075,5 @@ index 0000000..adc89f0
 +	status = "okay";
 +};
 -- 
-2.7.0
+2.11.0
 
