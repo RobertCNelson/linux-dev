@@ -1,21 +1,23 @@
-From 1fb7ff4634696097ad278b8cde27c514a73fdbf2 Mon Sep 17 00:00:00 2001
+From d8f6bfceca17c61d19f746aff3b207781103a1b5 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 1 Mar 2017 12:58:28 -0600
+Date: Mon, 6 Mar 2017 14:22:47 -0600
 Subject: [PATCH] add: am335x-boneblue.dtb
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  .../dts/am335x-bone-common-universal-pins.dtsi     | 941 +++++++++++++++++++++
- .../arm/boot/dts/am335x-boneblack-roboticscape.dts |  56 ++
- .../dts/am335x-boneblack-wireless-roboticscape.dts |  57 ++
- arch/arm/boot/dts/am335x-boneblue-ArduPilot.dts    | 646 ++++++++++++++
+ .../arm/boot/dts/am335x-boneblack-roboticscape.dts |  45 +
+ .../dts/am335x-boneblack-wireless-roboticscape.dts |  46 +
+ arch/arm/boot/dts/am335x-boneblack-wl1835.dtsi     | 143 ++++
+ arch/arm/boot/dts/am335x-boneblue-ArduPilot.dts    | 639 ++++++++++++++
  arch/arm/boot/dts/am335x-boneblue-wl1835.dtsi      | 143 ++++
- arch/arm/boot/dts/am335x-boneblue.dts              | 646 ++++++++++++++
+ arch/arm/boot/dts/am335x-boneblue.dts              | 639 ++++++++++++++
  arch/arm/boot/dts/am335x-roboticscape.dtsi         | 395 +++++++++
- 7 files changed, 2884 insertions(+)
+ 8 files changed, 2991 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-universal-pins.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-roboticscape.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-wireless-roboticscape.dts
+ create mode 100644 arch/arm/boot/dts/am335x-boneblack-wl1835.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblue-ArduPilot.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblue-wl1835.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblue.dts
@@ -970,10 +972,10 @@ index 000000000000..e4d4971a393b
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-roboticscape.dts b/arch/arm/boot/dts/am335x-boneblack-roboticscape.dts
 new file mode 100644
-index 000000000000..0d713eec441a
+index 000000000000..58a839e9d025
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-roboticscape.dts
-@@ -0,0 +1,56 @@
+@@ -0,0 +1,45 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1019,23 +1021,12 @@ index 000000000000..0d713eec441a
 +	bus-width = <8>;
 +	status = "okay";
 +};
-+
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
-+	};
-+};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-wireless-roboticscape.dts b/arch/arm/boot/dts/am335x-boneblack-wireless-roboticscape.dts
 new file mode 100644
-index 000000000000..de4bd006ff30
+index 000000000000..5a7391ce0d2b
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-wireless-roboticscape.dts
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,46 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1082,23 +1073,161 @@ index 000000000000..de4bd006ff30
 +	bus-width = <8>;
 +	status = "okay";
 +};
+diff --git a/arch/arm/boot/dts/am335x-boneblack-wl1835.dtsi b/arch/arm/boot/dts/am335x-boneblack-wl1835.dtsi
+new file mode 100644
+index 000000000000..ec6c0e49af9f
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-boneblack-wl1835.dtsi
+@@ -0,0 +1,143 @@
 +
-+&cpu0_opp_table {
-+	/*
-+	 * All PG 2.0 silicon may not support 1GHz but some of the early
-+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	 */
-+	oppnitro@1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
++#include <dt-bindings/interrupt-controller/irq.h>
++
++/ {
++	wlan_en_reg: fixedregulator@2 {
++		compatible = "regulator-fixed";
++		regulator-name = "wlan-en-regulator";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		startup-delay-us= <70000>;
++
++		/* WL_EN */
++		gpio = <&gpio3 9 0>;
++		enable-active-high;
++	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&wl18xx_pins>;
++		compatible = "gpio-leds";
++
++		wl18xx_bt_en {
++			label = "wl18xx_bt_en";
++			gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	btwilink {
++		compatible = "btwilink";
++	};
++};
++
++&am33xx_pinmux {
++	wl18xx_pins: pinmux_wl18xx_pins {
++		pinctrl-single,pins = <
++			0x128 (PIN_OUTPUT_PULLUP | MUX_MODE7)	/* (K17) gmii1_txd0.gpio0[28] - BT_EN */
++		>;
++	};
++
++	wlbtbuf_pin: pinmux_wlbtbuf_pin {
++		pinctrl-single,pins = <
++			0x130 ( PIN_OUTPUT_PULLUP | MUX_MODE7 ) /* (L18) gmii1_rxclk.gpio3[10] - LS_BUF_EN */
++		>;
++	};
++
++	mmc3_pins: pinmux_mmc3_pins {
++		pinctrl-single,pins = <
++			0x13c ( PIN_INPUT_PULLUP | MUX_MODE6 ) /* (L15) gmii1_rxd1.mmc2_clk */
++			0x114 ( PIN_INPUT_PULLUP | MUX_MODE6 ) /* (J16) gmii1_txen.mmc2_cmd */
++			0x118 ( PIN_INPUT_PULLUP | MUX_MODE5 ) /* (J17) gmii1_rxdv.mmc2_dat0 */
++			0x11c ( PIN_INPUT_PULLUP | MUX_MODE5 ) /* (J18) gmii1_txd3.mmc2_dat1 */
++			0x120 ( PIN_INPUT_PULLUP | MUX_MODE5 ) /* (K15) gmii1_txd2.mmc2_dat2 */
++			0x108 ( PIN_INPUT_PULLUP | MUX_MODE5 ) /* (H16) gmii1_col.mmc2_dat3 */
++		>;
++	};
++
++	mmc3_pins_sleep: pinmux_mmc3_pins_sleep {
++		pinctrl-single,pins = <
++			0x13c ( PIN_INPUT_PULLDOWN | MUX_MODE6 ) /* (L15) gmii1_rxd1.mmc2_clk */
++			0x114 ( PIN_INPUT_PULLDOWN | MUX_MODE6 ) /* (J16) gmii1_txen.mmc2_cmd */
++			0x118 ( PIN_INPUT_PULLDOWN | MUX_MODE5 ) /* (J17) gmii1_rxdv.mmc2_dat0 */
++			0x11c ( PIN_INPUT_PULLDOWN | MUX_MODE5 ) /* (J18) gmii1_txd3.mmc2_dat1 */
++			0x120 ( PIN_INPUT_PULLDOWN | MUX_MODE5 ) /* (K15) gmii1_txd2.mmc2_dat2 */
++			0x108 ( PIN_INPUT_PULLDOWN | MUX_MODE5 ) /* (H16) gmii1_col.mmc2_dat3 */
++		>;
++	};
++
++	/* wl18xx card enable/irq GPIOs. */
++	wlan_pins: pinmux_wlan_pins {
++		pinctrl-single,pins = <
++			0x12c (PIN_OUTPUT_PULLDOWN | MUX_MODE7 ) /* (K18) gmii1_txclk.gpio3[9] - WL_EN */
++			0x144 (PIN_INPUT_PULLDOWN | MUX_MODE7 )  /* (H18) rmii1_refclk.gpio0[29] - WL_IRQ */
++		>;
++	};
++
++	/* wl18xx card enable/irq GPIOs. */
++	wlan_pins_sleep: pinmux_wlan_pins_sleep {
++		pinctrl-single,pins = <
++			0x12c (PIN_OUTPUT_PULLDOWN | MUX_MODE7 ) /* (K18) gmii1_txclk.gpio3[9] - WL_EN */
++			0x144 (PIN_INPUT_PULLDOWN | MUX_MODE7 )  /* (H18) rmii1_refclk.gpio0[29] - WL_IRQ */
++		>;
++	};
++
++	uart3_pins_default: pinmux_uart3_pins_default {
++		pinctrl-single,pins = <
++			0x134 ( PIN_INPUT_PULLUP | MUX_MODE1 ) 		/* (L17) gmii1_rxd3.uart3_rxd */
++			0x138 ( PIN_OUTPUT_PULLDOWN | MUX_MODE1 )	/* (L16) gmii1_rxd2.uart3_txd */
++			0x148 ( PIN_INPUT | MUX_MODE3 ) 		/* (M17) mdio_data.uart3_ctsn */
++			0x14c ( PIN_OUTPUT_PULLDOWN | MUX_MODE3 ) 	/* (M18) mdio_clk.uart3_rtsn */
++		>;
++	};
++
++	uart3_pins_sleep: pinmux_uart3_pins_sleep {
++		pinctrl-single,pins = <
++			0x134 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (L17) gmii1_rxd3.uart3_rxd */
++			0x138 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (L16) gmii1_rxd2.uart3_txd */
++			0x148 (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (M17) mdio_data.uart3_ctsn */
++			0x14c (PIN_INPUT_PULLDOWN | MUX_MODE7)	/* (M18) mdio_clk.uart3_rtsn */
++		>;
++	};
++};
++
++&mmc3 {
++	dmas = <&edma_xbar 12 0 1
++		&edma_xbar 13 0 2>;
++	dma-names = "tx", "rx";
++	status = "okay";
++	vmmc-supply = <&wlan_en_reg>;
++	bus-width = <4>;
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&mmc3_pins &wlan_pins &wlbtbuf_pin>;
++	pinctrl-1 = <&mmc3_pins_sleep &wlan_pins_sleep &wlbtbuf_pin>;
++	ti,non-removable;
++	ti,needs-special-hs-handling;
++	cap-power-off-card;
++	keep-power-in-suspend;
++
++	#address-cells = <1>;
++	#size-cells = <0>;
++	wlcore: wlcore@0 {
++		compatible = "ti,wl1835";
++		reg = <2>;
++		interrupt-parent = <&gpio0>;
++		interrupts = <29 IRQ_TYPE_EDGE_RISING>;
++	};
++};
++
++&uart3 {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&uart3_pins_default>;
++	pinctrl-1 = <&uart3_pins_sleep>;
++	status = "okay";
++};
++
++&gpio3 {
++	ls_buf_en {
++		gpio-hog;
++		gpios = <10 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "LS_BUF_EN";
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblue-ArduPilot.dts b/arch/arm/boot/dts/am335x-boneblue-ArduPilot.dts
 new file mode 100644
-index 000000000000..ba3892bdf395
+index 000000000000..e07aa38dbb73
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblue-ArduPilot.dts
-@@ -0,0 +1,646 @@
+@@ -0,0 +1,639 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1143,13 +1272,6 @@ index 000000000000..ba3892bdf395
 +
 +&mac {
 +	status = "disabled";
-+};
-+
-+&cpu0_opp_table {
-+	//osd335x
-+	opp50@300000000 {
-+		status = "disabled";
-+	};
 +};
 +
 +/*******************************************************************************
@@ -1896,10 +2018,10 @@ index 000000000000..2b1a31db6ac4
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
 new file mode 100644
-index 000000000000..92ed7bf57ac2
+index 000000000000..2fd9afecd286
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblue.dts
-@@ -0,0 +1,646 @@
+@@ -0,0 +1,639 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1944,13 +2066,6 @@ index 000000000000..92ed7bf57ac2
 +
 +&mac {
 +	status = "disabled";
-+};
-+
-+&cpu0_opp_table {
-+	//osd335x
-+	opp50@300000000 {
-+		status = "disabled";
-+	};
 +};
 +
 +/*******************************************************************************
