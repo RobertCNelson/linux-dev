@@ -282,9 +282,12 @@ reverts () {
 
 	${git} "${DIR}/patches/reverts/0001-Revert-eeprom-at24-check-if-the-chip-is-functional-i.patch"
 
+	${git} "${DIR}/patches/reverts/0002-Revert-locking-refcounts-Add-missing-kernel.h-header.patch"
+	${git} "${DIR}/patches/reverts/0003-Revert-locking-refcounts-Out-of-line-everything.patch"
+
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="reverts"
-		number=1
+		number=3
 		cleanup
 	fi
 }
