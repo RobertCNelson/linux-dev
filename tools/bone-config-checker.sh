@@ -106,6 +106,31 @@ config="CONFIG_QORIQ_CPUFREQ" ; config_disable
 config="CONFIG_CLK_QORIQ" ; config_disable
 
 #
+# Distributed Switch Architecture drivers
+#
+config="CONFIG_NET_DSA_MV88E6XXX" ; config_disable
+config="CONFIG_NET_VENDOR_ALACRITECH" ; config_disable
+config="CONFIG_NET_VENDOR_AMAZON" ; config_disable
+config="CONFIG_NET_VENDOR_AQUANTIA" ; config_disable
+config="CONFIG_NET_CADENCE" ; config_disable
+config="CONFIG_NET_VENDOR_BROADCOM" ; config_disable
+config="CONFIG_NET_VENDOR_CIRRUS" ; config_disable
+config="CONFIG_NET_VENDOR_EZCHIP" ; config_disable
+config="CONFIG_NET_VENDOR_FARADAY" ; config_disable
+config="CONFIG_NET_VENDOR_HISILICON" ; config_disable
+config="CONFIG_NET_VENDOR_INTEL" ; config_disable
+config="CONFIG_NET_VENDOR_I825XX" ; config_disable
+config="CONFIG_NET_VENDOR_MARVELL" ; config_disable
+config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
+config="CONFIG_NET_VENDOR_NETRONOME" ; config_disable
+config="CONFIG_NET_VENDOR_8390" ; config_disable
+config="CONFIG_NET_VENDOR_RENESAS" ; config_disable
+config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
+config="CONFIG_NET_VENDOR_SAMSUNG" ; config_disable
+config="CONFIG_STMMAC_ETH" ; config_disable
+config="CONFIG_NET_VENDOR_VIA" ; config_disable
+
+#
 # Serial drivers
 #
 config="CONFIG_SERIAL_8250_DMA" ; config_disable
@@ -164,64 +189,6 @@ config="CONFIG_USB_DWC3_DUAL_ROLE" ; config_disable
 config="CONFIG_USB_CHIPIDEA" ; config_disable
 
 #
-# USB Peripheral Controller
-#
-config="CONFIG_USB_LIBCOMPOSITE" ; config_module
-config="CONFIG_USB_F_ACM" ; config_module
-config="CONFIG_USB_F_SS_LB" ; config_module
-config="CONFIG_USB_U_SERIAL" ; config_module
-config="CONFIG_USB_U_ETHER" ; config_module
-config="CONFIG_USB_F_SERIAL" ; config_module
-config="CONFIG_USB_F_OBEX" ; config_module
-config="CONFIG_USB_F_NCM" ; config_module
-config="CONFIG_USB_F_ECM" ; config_module
-config="CONFIG_USB_F_PHONET" ; config_module
-config="CONFIG_USB_F_SUBSET" ; config_module
-config="CONFIG_USB_F_RNDIS" ; config_module
-config="CONFIG_USB_F_MASS_STORAGE" ; config_module
-config="CONFIG_USB_F_FS" ; config_module
-config="CONFIG_USB_CONFIGFS" ; config_module
-config="CONFIG_USB_CONFIGFS_SERIAL" ; config_enable
-config="CONFIG_USB_CONFIGFS_ACM" ; config_enable
-config="CONFIG_USB_CONFIGFS_OBEX" ; config_enable
-config="CONFIG_USB_CONFIGFS_NCM" ; config_enable
-config="CONFIG_USB_CONFIGFS_ECM" ; config_enable
-config="CONFIG_USB_CONFIGFS_ECM_SUBSET" ; config_enable
-config="CONFIG_USB_CONFIGFS_RNDIS" ; config_enable
-config="CONFIG_USB_CONFIGFS_PHONET" ; config_disable
-config="CONFIG_USB_CONFIGFS_MASS_STORAGE" ; config_disable
-config="CONFIG_USB_CONFIGFS_F_LB_SS" ; config_disable
-config="CONFIG_USB_CONFIGFS_F_FS" ; config_disable
-config="CONFIG_USB_ZERO" ; config_module
-config="CONFIG_USB_AUDIO" ; config_module
-config="CONFIG_GADGET_UAC1" ; config_disable
-config="CONFIG_USB_ETH" ; config_module
-config="CONFIG_USB_ETH_RNDIS" ; config_enable
-config="CONFIG_USB_ETH_EEM" ; config_disable
-config="CONFIG_USB_G_NCM" ; config_module
-config="CONFIG_USB_GADGETFS" ; config_module
-config="CONFIG_USB_FUNCTIONFS" ; config_module
-config="CONFIG_USB_FUNCTIONFS_ETH" ; config_enable
-config="CONFIG_USB_FUNCTIONFS_RNDIS" ; config_enable
-config="CONFIG_USB_FUNCTIONFS_GENERIC" ; config_enable
-config="CONFIG_USB_MASS_STORAGE" ; config_module
-config="CONFIG_USB_GADGET_TARGET" ; config_disable
-config="CONFIG_USB_G_SERIAL" ; config_module
-config="CONFIG_USB_MIDI_GADGET" ; config_module
-config="CONFIG_USB_G_PRINTER" ; config_module
-config="CONFIG_USB_CDC_COMPOSITE" ; config_module
-config="CONFIG_USB_G_NOKIA" ; config_module
-config="CONFIG_USB_G_ACM_MS" ; config_module
-config="CONFIG_USB_G_MULTI" ; config_module
-config="CONFIG_USB_G_MULTI_RNDIS" ; config_enable
-config="CONFIG_USB_G_MULTI_CDC" ; config_disable
-config="CONFIG_USB_G_HID" ; config_module
-config="CONFIG_USB_G_DBGP" ; config_module
-config="CONFIG_USB_G_DBGP_PRINTK" ; config_disable
-config="CONFIG_USB_G_DBGP_SERIAL" ; config_enable
-config="CONFIG_USB_G_WEBCAM" ; config_disable
-
-#
 # on-CPU RTC drivers
 #
 config="CONFIG_RTC_DRV_OMAP" ; config_enable
@@ -243,6 +210,29 @@ config="CONFIG_OMAP2_DSS" ; config_disable
 config="CONFIG_DRM_DUMB_VGA_DAC" ; config_disable
 config="CONFIG_DRM_MXS" ; config_disable
 config="CONFIG_DRM_MXSFB" ; config_disable
+
+#
+# USB Peripheral Controller
+#
+config="CONFIG_USB_ZERO" ; config_module
+config="CONFIG_USB_AUDIO" ; config_module
+config="CONFIG_GADGET_UAC1" ; config_disable
+config="CONFIG_USB_ETH" ; config_module
+config="CONFIG_USB_ETH_RNDIS" ; config_enable
+config="CONFIG_USB_ETH_EEM" ; config_disable
+config="CONFIG_USB_G_NCM" ; config_module
+config="CONFIG_USB_MASS_STORAGE" ; config_module
+config="CONFIG_USB_MIDI_GADGET" ; config_module
+config="CONFIG_USB_G_PRINTER" ; config_module
+config="CONFIG_USB_CDC_COMPOSITE" ; config_module
+config="CONFIG_USB_G_ACM_MS" ; config_module
+config="CONFIG_USB_G_MULTI" ; config_module
+config="CONFIG_USB_G_MULTI_RNDIS" ; config_enable
+config="CONFIG_USB_G_MULTI_CDC" ; config_disable
+config="CONFIG_USB_G_HID" ; config_module
+config="CONFIG_USB_G_DBGP" ; config_module
+config="CONFIG_USB_G_DBGP_PRINTK" ; config_disable
+config="CONFIG_USB_G_DBGP_SERIAL" ; config_enable
 
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
