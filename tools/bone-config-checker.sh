@@ -268,4 +268,10 @@ config="CONFIG_LEDS_GPIO" ; config_module
 #
 config="CONFIG_GPIO_OF_HELPER" ; config_enable
 
+#these errata are not needed on am335x
+config="CONFIG_ARM_ERRATA_430973" ; config_disable
+config="CONFIG_ARM_ERRATA_720789" ; config_disable
+config="CONFIG_ARM_ERRATA_754322" ; config_disable
+config="CONFIG_ARM_ERRATA_775420" ; config_disable
+
 #
