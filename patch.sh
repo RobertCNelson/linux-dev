@@ -256,7 +256,8 @@ backports () {
 	if [ "x${regenerate}" = "xenable" ] ; then
 		pre_backports
 
-		cp -v ~/linux-src/x/ ./x/
+		mkdir -p ./x/
+		cp -v ~/linux-src/x/* ./x/
 
 		post_backports
 		exit 2
@@ -500,17 +501,23 @@ soc
 beaglebone
 dir 'build/gcc'
 
+git_clone_dtc () {
+	${git_bin} clone -b master https://git.kernel.org/pub/scm/utils/dtc/dtc.git --depth=10
+	#dtc: Bump version to v1.4.4
+	cd ./dtc
+	${git_bin} checkout 558cd81bdd432769b59bff01240c44f82cfb1a9d -b tmp
+	cd ../
+}
+
 sync_mainline_dtc () {
 	echo "dir: dtc"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
-		if [ ! -d ./dtc ] ; then
-			${git_bin} clone -b master https://git.kernel.org/pub/scm/utils/dtc/dtc.git --depth=1
-		else
+		if [ -d ./dtc ] ; then
 			rm -rf ./dtc || true
-			${git_bin} clone -b master https://git.kernel.org/pub/scm/utils/dtc/dtc.git --depth=1
 		fi
+		git_clone_dtc
 		cd ./KERNEL/
 
 		sed -i -e 's:git commit:#git commit:g' ./scripts/dtc/update-dtc-source.sh
