@@ -501,14 +501,6 @@ soc
 beaglebone
 dir 'build/gcc'
 
-git_clone_dtc () {
-	${git_bin} clone -b master https://git.kernel.org/pub/scm/utils/dtc/dtc.git --depth=10
-	#dtc: Bump version to v1.4.4
-	cd ./dtc
-	${git_bin} checkout 558cd81bdd432769b59bff01240c44f82cfb1a9d -b tmp
-	cd ../
-}
-
 sync_mainline_dtc () {
 	echo "dir: dtc"
 	#regenerate="enable"
@@ -517,7 +509,9 @@ sync_mainline_dtc () {
 		if [ -d ./dtc ] ; then
 			rm -rf ./dtc || true
 		fi
-		git_clone_dtc
+
+		${git_bin} clone -b dtc-v1.4.4 https://github.com/RobertCNelson/dtc --depth=1
+
 		cd ./KERNEL/
 
 		sed -i -e 's:git commit:#git commit:g' ./scripts/dtc/update-dtc-source.sh
