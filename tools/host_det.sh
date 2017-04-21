@@ -373,9 +373,10 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		yakkety|zesty)
+		yakkety|zesty|artful)
 			#16.10 yakkety: (EOL: July 2017)
 			#17.04 zesty: (EOL: January 2018)
+			#17.10 artful: (EOL: July 2019)
 			unset warn_eol_distro
 			;;
 		xenial)
