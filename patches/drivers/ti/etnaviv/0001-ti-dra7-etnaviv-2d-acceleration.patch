@@ -1,6 +1,6 @@
-From 23b3c0d96110bf3fff2d257e207b9b058a0f3045 Mon Sep 17 00:00:00 2001
+From 2916bb5a7d9ba8f752ce3a13d8120e78e9971c13 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 18 Nov 2016 09:47:26 -0600
+Date: Wed, 3 May 2017 16:12:13 -0500
 Subject: [PATCH] ti: dra7: etnaviv: 2d acceleration
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -28,10 +28,10 @@ index 585d792a8fdd..46ca247ad8f5 100644
  	status = "okay";
  	clock-frequency = <400000>;
 diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index 34753f74f2a8..ecc0c97d15ca 100644
+index bbfb9d5a70a9..e9d2ca1a27d0 100644
 --- a/arch/arm/boot/dts/dra7.dtsi
 +++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -967,6 +967,16 @@
+@@ -962,6 +962,16 @@
  			ti,hwmods = "dmm";
  		};
  
@@ -48,7 +48,7 @@ index 34753f74f2a8..ecc0c97d15ca 100644
  		i2c1: i2c@48070000 {
  			compatible = "ti,omap4-i2c";
  			reg = <0x48070000 0x100>;
-@@ -1977,6 +1987,12 @@
+@@ -1972,6 +1982,12 @@
  		};
  	};
  
@@ -62,7 +62,7 @@ index 34753f74f2a8..ecc0c97d15ca 100644
  		#include "omap4-cpu-thermal.dtsi"
  		#include "omap5-gpu-thermal.dtsi"
 diff --git a/drivers/gpu/drm/etnaviv/Kconfig b/drivers/gpu/drm/etnaviv/Kconfig
-index cc1731c5289c..db6559395eb0 100644
+index 71cee4e9fefb..49d5299defc9 100644
 --- a/drivers/gpu/drm/etnaviv/Kconfig
 +++ b/drivers/gpu/drm/etnaviv/Kconfig
 @@ -2,7 +2,7 @@
@@ -73,9 +73,9 @@ index cc1731c5289c..db6559395eb0 100644
 +	depends on ARCH_MXC || ARCH_DOVE || ARCH_OMAP2PLUS || (ARM && COMPILE_TEST)
  	depends on MMU
  	select SHMEM
- 	select TMPFS
+ 	select SYNC_FILE
 diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-index 587e45043542..67cb05c7335d 100644
+index 5255278dde56..714bbb915cb8 100644
 --- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
 +++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
 @@ -650,6 +650,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
