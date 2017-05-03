@@ -18,6 +18,18 @@ config_disable () {
 	fi
 }
 
+config_enable_special () {
+	test_module=$(cat .config | grep ${config} || true)
+	if [ "x${test_module}" = "x# ${config} is not set" ] ; then
+		echo "Setting: ${config}=y"
+		sed -i -e 's:# '$config' is not set:'$config'=y:g' .config
+	fi
+	if [ "x${test_module}" = "x${config}=m" ] ; then
+		echo "Setting: ${config}=y"
+		sed -i -e 's:'$config'=m:'$config'=y:g' .config
+	fi
+}
+
 config_module_special () {
 	test_module=$(cat .config | grep ${config} || true)
 	if [ "x${test_module}" = "x# ${config} is not set" ] ; then
@@ -199,6 +211,7 @@ config="CONFIG_RTC_DRV_OMAP" ; config_enable
 config="CONFIG_DRM_EXYNOS" ; config_disable
 config="CONFIG_DRM_OMAP" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
+config="CONFIG_IMX_IPUV3_CORE" ; config_disable
 config="CONFIG_DRM_ETNAVIV" ; config_disable
 
 #breaks tilcd + tfp410...
@@ -253,14 +266,14 @@ config="CONFIG_FSL_EDMA" ; config_disable
 config="CONFIG_FPGA" ; config_disable
 config="CONFIG_FPGA_MGR_SOCFPGA" ; config_disable
 
-#overlay bugs...
-
-#These have to be modules, to work...
-config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_module
-config="CONFIG_DRM_TILCDC" ; config_module
+#U-boot Overlays
+config="CONFIG_DRM_I2C_ADIHDMI" ; config_enable
+config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_enable
+config="CONFIG_DRM_TILCDC" ; config_enable
 config="CONFIG_DRM_UDL" ; config_module
-config="CONFIG_BACKLIGHT_PWM" ; config_module
-config="CONFIG_BACKLIGHT_GPIO" ; config_module
+config="CONFIG_BACKLIGHT_PWM" ; config_enable
+config="CONFIG_BACKLIGHT_PANDORA" ; config_disable
+config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 config="CONFIG_LEDS_GPIO" ; config_module
 
 #
@@ -273,5 +286,20 @@ config="CONFIG_ARM_ERRATA_430973" ; config_disable
 config="CONFIG_ARM_ERRATA_720789" ; config_disable
 config="CONFIG_ARM_ERRATA_754322" ; config_disable
 config="CONFIG_ARM_ERRATA_775420" ; config_disable
+
+#u-boot overlays
+config="CONFIG_MFD_TI_AM335X_TSCADC" ; config_enable
+config="CONFIG_TOUCHSCREEN_TI_AM335X_TSC" ; config_enable
+config="CONFIG_PWM_TIECAP" ; config_enable
+config="CONFIG_PWM_TIEHRPWM" ; config_enable
+
+#dont have...
+config="CONFIG_AXP20X_ADC" ; config_disable
+config="CONFIG_AXP288_ADC" ; config_disable
+config="CONFIG_TWL4030_MADC" ; config_disable
+config="CONFIG_TWL6030_GPADC" ; config_disable
+config="CONFIG_VF610_ADC" ; config_disable
+config="CONFIG_VIPERBOARD_ADC" ; config_disable
+config="CONFIG_AXP20X_POWER" ; config_disable
 
 #
