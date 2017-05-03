@@ -76,11 +76,11 @@ config="CONFIG_SYSCTL_SYSCALL" ; config_enable
 config="CONFIG_KALLSYMS_ALL" ; config_enable
 config="CONFIG_EMBEDDED" ; config_enable
 
-#
-# GCOV-based kernel profiling
-#
-config="CONFIG_MODULE_SIG" ; config_disable
-config="CONFIG_SYSTEM_TRUSTED_KEYRING" ; config_disable
+##
+## GCOV-based kernel profiling
+##
+#config="CONFIG_MODULE_SIG" ; config_disable
+#config="CONFIG_SYSTEM_TRUSTED_KEYRING" ; config_disable
 
 #
 # CPU Core family selection
@@ -119,7 +119,10 @@ config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_OMAP5_ERRATA_801819" ; config_enable
 config="CONFIG_ARCH_EXYNOS3" ; config_enable
 config="CONFIG_ARCH_EXYNOS4" ; config_disable
-config="CONFIG_ARCH_EXYNOS5" ; config_enable
+
+#
+# Power management
+#
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
 config="CONFIG_ARCH_ZYNQ" ; config_enable
@@ -162,8 +165,8 @@ config="CONFIG_CPU_IDLE" ; config_enable
 #
 config="CONFIG_ARM_CPUIDLE" ; config_enable
 config="CONFIG_ARM_BIG_LITTLE_CPUIDLE" ; config_enable
-config="CONFIG_ARM_EXYNOS_CPUIDLE" ; config_enable
 config="CONFIG_ARM_ZYNQ_CPUIDLE" ; config_enable
+config="CONFIG_ARM_EXYNOS_CPUIDLE" ; config_enable
 
 #
 # At least one emulation must be selected
@@ -218,22 +221,27 @@ config="CONFIG_CAN_C_CAN_PLATFORM" ; config_module
 #
 # CAN SPI interfaces
 #
+config="CONFIG_CAN_HI311X" ; config_module
 config="CONFIG_CAN_MCP251X" ; config_module
 
 #
 # Bluetooth device drivers
 #
 config="CONFIG_BT_HCIUART" ; config_module
+config="CONFIG_BT_HCIBCM203X" ; config_module
+config="CONFIG_BT_HCIBFUSB" ; config_module
+
 config="CONFIG_BT_HCIUART_H4" ; config_enable
 config="CONFIG_BT_HCIUART_BCSP" ; config_enable
 config="CONFIG_BT_HCIUART_ATH3K" ; config_enable
 config="CONFIG_BT_HCIUART_LL" ; config_enable
 config="CONFIG_BT_HCIUART_3WIRE" ; config_enable
+
 config="CONFIG_BT_HCIUART_BCM" ; config_enable
 config="CONFIG_BT_HCIUART_QCA" ; config_enable
-config="CONFIG_BT_HCIBCM203X" ; config_module
+
 config="CONFIG_BT_HCIBPA10X" ; config_module
-config="CONFIG_BT_HCIBFUSB" ; config_module
+
 config="CONFIG_NFC_NCI" ; config_module
 config="CONFIG_NFC_NCI_SPI" ; config_module
 config="CONFIG_NFC_HCI" ; config_module
@@ -242,10 +250,8 @@ config="CONFIG_NFC_SHDLC" ; config_enable
 #
 # Near Field Communication (NFC) devices
 #
-config="CONFIG_NFC_WILINK" ; config_module
 config="CONFIG_NFC_PN544" ; config_module
 config="CONFIG_NFC_PN544_I2C" ; config_module
-config="CONFIG_NFC_PN533_USB" ; config_module
 config="CONFIG_NFC_PN533_I2C" ; config_module
 config="CONFIG_NFC_MICROREAD" ; config_module
 config="CONFIG_NFC_MICROREAD_I2C" ; config_module
@@ -282,6 +288,7 @@ config="CONFIG_PARPORT" ; config_disable
 #
 # Misc devices
 #
+config="CONFIG_SENSORS_LIS3LV02D" ; config_disable
 config="CONFIG_BONE_CAPEMGR" ; config_enable
 config="CONFIG_TIEQEP" ; config_module
 
@@ -541,8 +548,7 @@ config="CONFIG_SERIAL_XILINX_PS_UART_CONSOLE" ; config_enable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
-config="CONFIG_TCG_TPM" ; config_module
-config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_module
+config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_enable
 
 #
 # I2C support
@@ -651,6 +657,7 @@ config="CONFIG_W1_MASTER_GPIO" ; config_module
 #
 # 1-wire Slaves
 #
+config="CONFIG_W1_SLAVE_DS2405" ; config_module
 config="CONFIG_W1_SLAVE_DS2408" ; config_module
 config="CONFIG_W1_SLAVE_DS2408_READBACK" ; config_enable
 config="CONFIG_W1_SLAVE_DS2413" ; config_module
@@ -676,7 +683,7 @@ config="CONFIG_POWER_SEQUENCE" ; config_enable
 #
 config="CONFIG_PWRSEQ_GENERIC" ; config_enable
 
-#exit
+#exit 2
 
 #
 # Native drivers
@@ -757,7 +764,6 @@ config="CONFIG_SENSORS_INA3221" ; config_module
 config="CONFIG_SENSORS_TC74" ; config_module
 config="CONFIG_SENSORS_TMP103" ; config_module
 config="CONFIG_SENSORS_TMP108" ; config_module
-config="CONFIG_SENSORS_TWL4030_MADC" ; config_module
 config="CONFIG_SENSORS_W83781D" ; config_module
 config="CONFIG_SENSORS_W83L785TS" ; config_module
 config="CONFIG_SENSORS_W83627HF" ; config_module
@@ -875,7 +881,6 @@ config="CONFIG_SOC_CAMERA_TW9910" ; config_module
 # Graphics support
 #
 config="CONFIG_TEGRA_HOST1X" ; config_enable
-config="CONFIG_IMX_IPUV3_CORE" ; config_enable
 config="CONFIG_DRM" ; config_enable
 config="CONFIG_DRM_KMS_HELPER" ; config_enable
 
@@ -904,22 +909,23 @@ config="CONFIG_DRM_TEGRA" ; config_enable
 # Display Interface Bridges
 #
 config="CONFIG_DRM_DUMB_VGA_DAC" ; config_enable
-config="CONFIG_DRM_DW_HDMI" ; config_enable
-config="CONFIG_DRM_DW_HDMI_AHB_AUDIO" ; config_module
-config="CONFIG_DRM_DW_HDMI_I2S_AUDIO" ; config_module
 
 config="CONFIG_DRM_SII902X" ; config_enable
 config="CONFIG_DRM_TI_TFP410" ; config_enable
 config="CONFIG_DRM_I2C_ADV7511" ; config_enable
 config="CONFIG_DRM_I2C_ADV7511_AUDIO" ; config_enable
 
+config="CONFIG_DRM_DW_HDMI" ; config_enable
+config="CONFIG_DRM_DW_HDMI_AHB_AUDIO" ; config_module
+config="CONFIG_DRM_DW_HDMI_I2S_AUDIO" ; config_module
+
 config="CONFIG_DRM_IMX" ; config_enable
 config="CONFIG_DRM_IMX_PARALLEL_DISPLAY" ; config_enable
 config="CONFIG_DRM_IMX_TVE" ; config_enable
 config="CONFIG_DRM_IMX_LDB" ; config_enable
-config="CONFIG_DRM_IMX_IPUV3" ; config_enable
 config="CONFIG_DRM_IMX_HDMI" ; config_enable
 config="CONFIG_DRM_ETNAVIV" ; config_enable
+
 config="CONFIG_DRM_MXSFB" ; config_enable
 config="CONFIG_DRM_TINYDRM" ; config_module
 config="CONFIG_TINYDRM_MIPI_DBI" ; config_module
@@ -968,7 +974,6 @@ config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_HID_LOGITECH_HIDPP" ; config_enable
 config="CONFIG_HID_MAYFLASH" ; config_module
 config="CONFIG_HID_UDRAW_PS3" ; config_module
-config="CONFIG_HID_SENSOR_CUSTOM_SENSOR" ; config_module
 
 #
 # USB HID support
@@ -1074,6 +1079,7 @@ config="CONFIG_MMC_SDHCI_S3C" ; config_enable
 config="CONFIG_MMC_SDHCI_S3C_DMA" ; config_enable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
 config="CONFIG_MMC_DW" ; config_enable
+config="CONFIG_MMC_DW_PLTFM" ; config_enable
 config="CONFIG_MMC_DW_ROCKCHIP" ; config_enable
 config="CONFIG_MMC_SUNXI" ; config_enable
 
@@ -1498,6 +1504,7 @@ config="CONFIG_AD7793" ; config_module
 config="CONFIG_AD7887" ; config_module
 config="CONFIG_AD7923" ; config_module
 config="CONFIG_AD799X" ; config_module
+config="CONFIG_AXP20X_ADC" ; config_module
 config="CONFIG_AXP288_ADC" ; config_module
 config="CONFIG_CC10001_ADC" ; config_module
 config="CONFIG_ENVELOPE_DETECTOR" ; config_module
@@ -1839,19 +1846,14 @@ config="CONFIG_SECURITY_DMESG_RESTRICT" ; config_disable
 config="CONFIG_HARDENED_USERCOPY" ; config_disable
 
 #
-# Digest
-#
-config="CONFIG_CRYPTO_SHA3" ; config_module
-
-#
 # Crypto core or helper
 #
 config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS" ; config_enable
 
 #
-# Compression
+# Digest
 #
-config="CONFIG_CRYPTO_DEFLATE" ; config_enable
+config="CONFIG_CRYPTO_SHA3" ; config_module
 
 #
 # Random Number Generation
@@ -1866,7 +1868,6 @@ config="CONFIG_CRYPTO_DEV_ROCKCHIP" ; config_module
 #
 # Certificates for signature checking
 #
-config="CONFIG_SYSTEM_TRUSTED_KEYRING" ; config_disable
 config="CONFIG_ARM_CRYPTO" ; config_enable
 config="CONFIG_CRYPTO_SHA1_ARM" ; config_module
 config="CONFIG_CRYPTO_SHA1_ARM_NEON" ; config_module
