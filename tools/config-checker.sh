@@ -683,7 +683,7 @@ config="CONFIG_POWER_SEQUENCE" ; config_enable
 #
 config="CONFIG_PWRSEQ_GENERIC" ; config_enable
 
-#exit 2
+#exit
 
 #
 # Native drivers
