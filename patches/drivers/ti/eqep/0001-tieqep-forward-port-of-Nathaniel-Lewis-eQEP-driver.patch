@@ -13,10 +13,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 drivers/misc/tieqep.c
 
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 771fc0a..20ccf52 100644
+index 9e96d60976b7..a14aafccb82b 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -701,6 +701,16 @@
+@@ -696,6 +696,16 @@
  				status = "disabled";
  			};
  
@@ -33,7 +33,7 @@ index 771fc0a..20ccf52 100644
  			ehrpwm0: pwm@48300200 {
  				compatible = "ti,am3352-ehrpwm",
  					     "ti,am33xx-ehrpwm";
-@@ -735,6 +745,17 @@
+@@ -730,6 +740,17 @@
  				status = "disabled";
  			};
  
@@ -51,7 +51,7 @@ index 771fc0a..20ccf52 100644
  			ehrpwm1: pwm@48302200 {
  				compatible = "ti,am3352-ehrpwm",
  					     "ti,am33xx-ehrpwm";
-@@ -769,6 +790,16 @@
+@@ -764,6 +785,16 @@
  				status = "disabled";
  			};
  
@@ -69,10 +69,10 @@ index 771fc0a..20ccf52 100644
  				compatible = "ti,am3352-ehrpwm",
  					     "ti,am33xx-ehrpwm";
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index e3c6a92..b444d1db 100644
+index 775f74f54c73..1d2343423c00 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -785,6 +785,17 @@ config DEV_OVERLAYMGR
+@@ -509,6 +509,17 @@ config DEV_OVERLAYMGR
  	  Say Y here to include support for the automagical dev
  	  overlay manager.
  
@@ -91,20 +91,20 @@ index e3c6a92..b444d1db 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 9df0a01..a84dde4 100644
+index d253721a94ff..52bb0d01f71f 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -53,6 +53,7 @@ obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
- obj-$(CONFIG_CXL_BASE)		+= cxl/
- obj-$(CONFIG_PANEL)             += panel.o
+@@ -42,6 +42,7 @@ obj-y				+= ti-st/
+ obj-y				+= lis3lv02d/
+ obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
+ obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
 +obj-$(CONFIG_TIEQEP)		+= tieqep.o
  obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
  obj-$(CONFIG_DEV_OVERLAYMGR)	+= devovmgr.o
- 
+ obj-$(CONFIG_INTEL_MEI)		+= mei/
 diff --git a/drivers/misc/tieqep.c b/drivers/misc/tieqep.c
 new file mode 100644
-index 0000000..d2628847
+index 000000000000..d2628847bb8e
 --- /dev/null
 +++ b/drivers/misc/tieqep.c
 @@ -0,0 +1,738 @@
@@ -847,5 +847,5 @@ index 0000000..d2628847
 +MODULE_AUTHOR("Nathaniel R. Lewis");
 +MODULE_LICENSE("GPL");
 -- 
-2.10.1
+2.11.0
 

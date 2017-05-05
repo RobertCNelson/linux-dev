@@ -29,12 +29,12 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  create mode 100644 drivers/misc/bone_capemgr.c
 
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index c290990d73ed..44e3408ddee4 100644
+index 39d1acb27452..de0bee58e4bb 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -771,6 +771,16 @@ config PANEL_BOOT_MESSAGE
- 
- endif # PANEL
+@@ -490,6 +490,16 @@ config ASPEED_LPC_CTRL
+ 	  ioctl()s, the driver also provides a read/write interface to a BMC ram
+ 	  region where the host LPC read/write region can be buffered.
  
 +config BONE_CAPEMGR
 +	tristate "Beaglebone cape manager"
@@ -50,20 +50,20 @@ index c290990d73ed..44e3408ddee4 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 7a3ea89339b4..952bc2519c19 100644
+index 4fb10af2ea1c..205732b40033 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -54,6 +54,7 @@ obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
- obj-$(CONFIG_CXL_BASE)		+= cxl/
- obj-$(CONFIG_PANEL)             += panel.o
+@@ -42,6 +42,7 @@ obj-y				+= ti-st/
+ obj-y				+= lis3lv02d/
+ obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
+ obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
 +obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
- 
- lkdtm-$(CONFIG_LKDTM)		+= lkdtm_core.o
- lkdtm-$(CONFIG_LKDTM)		+= lkdtm_bugs.o
+ obj-$(CONFIG_INTEL_MEI)		+= mei/
+ obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
+ obj-$(CONFIG_LATTICE_ECP3_CONFIG)	+= lattice-ecp3-config.o
 diff --git a/drivers/misc/bone_capemgr.c b/drivers/misc/bone_capemgr.c
 new file mode 100644
-index 000000000000..f82623db62ff
+index 000000000000..7ce6cbfc5326
 --- /dev/null
 +++ b/drivers/misc/bone_capemgr.c
 @@ -0,0 +1,1885 @@
