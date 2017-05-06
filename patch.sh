@@ -503,44 +503,6 @@ soc
 beaglebone
 dir 'build/gcc'
 
-sync_mainline_dtc () {
-	echo "dir: dtc"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cd ../
-		if [ -d ./dtc ] ; then
-			rm -rf ./dtc || true
-		fi
-
-		${git_bin} clone -b dtc-v1.4.4 https://github.com/RobertCNelson/dtc --depth=1
-
-		cd ./KERNEL/
-
-		sed -i -e 's:git commit:#git commit:g' ./scripts/dtc/update-dtc-source.sh
-		./scripts/dtc/update-dtc-source.sh
-		sed -i -e 's:#git commit:git commit:g' ./scripts/dtc/update-dtc-source.sh
-		git commit -a -m "scripts/dtc: Update to upstream version overlays" -s
-		git format-patch -1 -o ../patches/dtc/
-
-		rm -rf ../dtc/ || true
-
-		exit 2
-	else
-		#regenerate="enable"
-		if [ "x${regenerate}" = "xenable" ] ; then
-			start_cleanup
-		fi
-
-		${git} "${DIR}/patches/dtc/0001-scripts-dtc-Update-to-upstream-version-overlays.patch"
-
-		if [ "x${regenerate}" = "xenable" ] ; then
-			wdir="dtc"
-			number=1
-			cleanup
-		fi
-	fi
-}
-
 packaging () {
 	echo "dir: packaging"
 	#regenerate="enable"
@@ -554,6 +516,5 @@ packaging () {
 	fi
 }
 
-sync_mainline_dtc
 packaging
 echo "patch.sh ran successfully"
