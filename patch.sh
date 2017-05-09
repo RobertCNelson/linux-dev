@@ -419,7 +419,7 @@ soc () {
 	dir 'soc/imx/udoo'
 	dir 'soc/imx/wandboard'
 	dir 'soc/imx'
-	dir 'soc/sunxi'
+	#dir 'soc/sunxi'
 	dir 'soc/ti'
 	dir 'soc/ti/bone_common'
 	dir 'soc/ti/uboot'
@@ -449,10 +449,9 @@ beaglebone () {
 	fi
 
 	${git} "${DIR}/patches/beaglebone/dtbs/0001-sync-am335x-peripheral-pinmux.patch"
-	${git} "${DIR}/patches/beaglebone/dtbs/0002-dtc-fix-overlays.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
-		number=2
+		number=1
 		cleanup
 	fi
 
