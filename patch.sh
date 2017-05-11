@@ -474,9 +474,6 @@ beaglebone () {
 
 		device="am335x-olimex-som.dtb" ; dtb_makefile_append
 
-		device="am335x-bone-cape-bone-argus.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-cape-bone-argus.dtb" ; dtb_makefile_append
-
 		device="am335x-boneblack-wl1835mod.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-bbbmini.dtb" ; dtb_makefile_append
