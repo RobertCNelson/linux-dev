@@ -12,8 +12,8 @@ holding the user/boot button down at power on and reset.
 Signed-off-by: Eyal Reizer <eyalr@ti.com>
 ---
  .../boot/dts/am335x-boneblack-wl1835mod-cape.dtsi  | 128 +++++++++++++++++++++
- arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |  38 ++++++
- 2 files changed, 166 insertions(+)
+ arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts   |  49 ++++++++
+ 2 files changed, 177 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-wl1835mod-cape.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
 
@@ -153,10 +153,10 @@ index 000000000000..94caa2290301
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
 new file mode 100644
-index 000000000000..cf1e3a90b320
+index 000000000000..be7cab35a94d
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-wl1835mod.dts
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,49 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -172,6 +172,17 @@ index 000000000000..cf1e3a90b320
 +/ {
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++};
++
++&cpu0_opp_table {
++	/*
++	 * All PG 2.0 silicon may not support 1GHz but some of the early
++	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++	 */
++	oppnitro@1000000000 {
++		opp-supported-hw = <0x06 0x0100>;
++	};
 +};
 +
 +&ldo3_reg {

@@ -1,26 +1,26 @@
-From e8e27c3120dd7f8a3cb2a108469f8d2c8b048d79 Mon Sep 17 00:00:00 2001
+From 1fce8d1bdc60a0f9bd08354363a6f5b81fc586be Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 12 Feb 2016 15:03:52 -0600
+Date: Thu, 11 May 2017 10:35:39 -0500
 Subject: [PATCH 4/4] add: lcd: am335x-boneblack-bbb-exp-c.dtb
  am335x-boneblack-bbb-exp-r.dtb
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi     |  45 +++++
+ arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi     |  45 ++++
  .../am335x-bone-pinmux-panel-1024x600-24bit.dtsi   | 151 ++++++++++++++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi    |  48 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS2.dtsi    |  48 +++++
  arch/arm/boot/dts/am335x-bone-pinmux-ttyS4.dtsi    |  48 +++++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  36 ++++
- arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  36 ++++
- arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 224 +++++++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts   |  47 +++++
+ arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts   |  47 +++++
+ arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi       | 227 +++++++++++++++++++++
  arch/arm/boot/dts/am335x-cape-bbb-exp-r.dtsi       | 217 ++++++++++++++++++++
  arch/arm/boot/dts/am335x-peripheral-can0.dtsi      |  13 ++
- .../am335x-peripheral-panel-1024x600-24bit.dtsi    |  49 +++++
+ .../am335x-peripheral-panel-1024x600-24bit.dtsi    |  50 +++++
  arch/arm/boot/dts/am335x-peripheral-ttyS1.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyS2.dtsi     |  13 ++
  arch/arm/boot/dts/am335x-peripheral-ttyS4.dtsi     |  13 ++
- 14 files changed, 954 insertions(+)
+ 14 files changed, 980 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-can0.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-panel-1024x600-24bit.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-pinmux-ttyS1.dtsi
@@ -408,10 +408,10 @@ index 000000000000..1d22a95a23a2
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
 new file mode 100644
-index 000000000000..30667ee070d1
+index 000000000000..8d795c06572d
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-c.dts
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,47 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -445,15 +445,26 @@ index 000000000000..30667ee070d1
 +	pinctrl-0 = <&emmc_pins>;
 +	bus-width = <8>;
 +	status = "okay";
++};
++
++&cpu0_opp_table {
++	/*
++	 * All PG 2.0 silicon may not support 1GHz but some of the early
++	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++	 */
++	oppnitro@1000000000 {
++		opp-supported-hw = <0x06 0x0100>;
++	};
 +};
 +
 +#include "am335x-cape-bbb-exp-c.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
 new file mode 100644
-index 000000000000..8bfba37668c4
+index 000000000000..5df881eaac4c
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-bbb-exp-r.dts
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,47 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -489,13 +500,24 @@ index 000000000000..8bfba37668c4
 +	status = "okay";
 +};
 +
++&cpu0_opp_table {
++	/*
++	 * All PG 2.0 silicon may not support 1GHz but some of the early
++	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++	 */
++	oppnitro@1000000000 {
++		opp-supported-hw = <0x06 0x0100>;
++	};
++};
++
 +#include "am335x-cape-bbb-exp-r.dtsi"
 diff --git a/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
 new file mode 100644
-index 000000000000..01f9cde642aa
+index 000000000000..d2704c692108
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-cape-bbb-exp-c.dtsi
-@@ -0,0 +1,224 @@
+@@ -0,0 +1,227 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -595,8 +617,11 @@ index 000000000000..01f9cde642aa
 +		interrupt-parent = <&gpio1>;
 +		interrupts = <17 0>;
 +
-+		touchscreen-size-x = <1024>;
-+		touchscreen-size-y = <600>;
++		touchscreen-size-x = <600>;
++		touchscreen-size-y = <1024>;
++		touchscreen-inverted-x;
++		touchscreen-inverted-y;
++		touchscreen-swapped-x-y;
 +	};
 +
 +	tlv320aic3x: tlv320aic3x@1b {
@@ -964,10 +989,10 @@ index 000000000000..4335e39bf199
 +};
 diff --git a/arch/arm/boot/dts/am335x-peripheral-panel-1024x600-24bit.dtsi b/arch/arm/boot/dts/am335x-peripheral-panel-1024x600-24bit.dtsi
 new file mode 100644
-index 000000000000..74ddc12c08d8
+index 000000000000..f7c8f8af499f
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-peripheral-panel-1024x600-24bit.dtsi
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,50 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -978,6 +1003,7 @@ index 000000000000..74ddc12c08d8
 +
 +&lcdc {
 +	status = "okay";
++	blue-and-red-wiring = "crossed";
 +};
 +
 +/ {
