@@ -1,7 +1,7 @@
-From 49fa4f96c7f396c3cd04b245ba8e1c6ceb9af83c Mon Sep 17 00:00:00 2001
+From 4cd5f10e91fcb8e5cfb502cf488e1fbe8d46b6be Mon Sep 17 00:00:00 2001
 From: Peter Chen <peter.chen@nxp.com>
-Date: Sat, 11 Feb 2017 09:27:20 +0800
-Subject: [PATCH 09/12] usb: core: add power sequence handling for USB devices
+Date: Thu, 18 May 2017 08:49:00 +0800
+Subject: [PATCH 4/7] usb: core: add power sequence handling for USB devices
 
 Some hard-wired USB devices need to do power sequence to let the
 device work normally, the typical power sequence like: enable USB
@@ -26,10 +26,10 @@ Reviewed-by: Vaibhav Hiremath <hvaibhav.linux@gmail.com>
  3 files changed, 47 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/usb/Kconfig b/drivers/usb/Kconfig
-index fbe493d44e81..706f261c3a74 100644
+index 939a63bca82f..b6f626e6fc2b 100644
 --- a/drivers/usb/Kconfig
 +++ b/drivers/usb/Kconfig
-@@ -40,6 +40,7 @@ config USB
+@@ -39,6 +39,7 @@ config USB
  	tristate "Support for Host-side USB"
  	depends on USB_ARCH_HAS_HCD
  	select USB_COMMON
@@ -38,7 +38,7 @@ index fbe493d44e81..706f261c3a74 100644
  	---help---
  	  Universal Serial Bus (USB) is a specification for a serial bus
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index a56c75e09786..5b40c4879afb 100644
+index 9dca59ef18b3..7a672962b598 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
 @@ -28,6 +28,7 @@
@@ -49,7 +49,7 @@ index a56c75e09786..5b40c4879afb 100644
  
  #include <linux/uaccess.h>
  #include <asm/byteorder.h>
-@@ -1616,6 +1617,7 @@ static void hub_disconnect(struct usb_interface *intf)
+@@ -1619,6 +1620,7 @@ static void hub_disconnect(struct usb_interface *intf)
  	hub->error = 0;
  	hub_quiesce(hub, HUB_DISCONNECT);
  
@@ -57,7 +57,7 @@ index a56c75e09786..5b40c4879afb 100644
  	mutex_lock(&usb_port_peer_mutex);
  
  	/* Avoid races with recursively_mark_NOTATTACHED() */
-@@ -1643,12 +1645,42 @@ static void hub_disconnect(struct usb_interface *intf)
+@@ -1646,12 +1648,42 @@ static void hub_disconnect(struct usb_interface *intf)
  	kref_put(&hub->kref, hub_release);
  }
  
@@ -100,7 +100,7 @@ index a56c75e09786..5b40c4879afb 100644
  
  	desc = intf->cur_altsetting;
  	hdev = interface_to_usbdev(intf);
-@@ -1753,6 +1785,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+@@ -1756,6 +1788,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	INIT_DELAYED_WORK(&hub->leds, led_work);
  	INIT_DELAYED_WORK(&hub->init_work, NULL);
  	INIT_WORK(&hub->events, hub_event);
@@ -108,7 +108,7 @@ index a56c75e09786..5b40c4879afb 100644
  	usb_get_intf(intf);
  	usb_get_dev(hdev);
  
-@@ -1766,11 +1799,14 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+@@ -1769,11 +1802,14 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
  		hub->quirk_check_port_auto_suspend = 1;
  
@@ -126,7 +126,7 @@ index a56c75e09786..5b40c4879afb 100644
  }
  
  static int
-@@ -3584,14 +3620,19 @@ static int hub_suspend(struct usb_interface *intf, pm_message_t msg)
+@@ -3593,14 +3629,19 @@ static int hub_suspend(struct usb_interface *intf, pm_message_t msg)
  
  	/* stop hub_wq and related activity */
  	hub_quiesce(hub, HUB_SUSPEND);
