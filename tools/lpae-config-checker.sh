@@ -89,7 +89,12 @@ config="CONFIG_ARCH_VIRT" ; config_disable
 config="CONFIG_ARCH_MVEBU" ; config_disable
 config="CONFIG_ARCH_BCM" ; config_disable
 config="CONFIG_ARCH_HIGHBANK" ; config_disable
-config="CONFIG_ARCH_MXC" ; config_disable
+config="CONFIG_SOC_IMX51" ; config_disable
+config="CONFIG_SOC_IMX53" ; config_disable
+config="CONFIG_SOC_IMX6Q" ; config_disable
+config="CONFIG_SOC_IMX7D" ; config_enable
+config="CONFIG_SOC_LS1021A" ; config_enable
+config="CONFIG_WAND_RFKILL" ; config_disable
 
 #
 # TI OMAP/AM/DM/DRA Family
@@ -1026,6 +1031,7 @@ config="CONFIG_MMC_BLOCK_MINORS" ; option="8" ; config_value
 config="CONFIG_MMC_SDHCI" ; config_enable
 config="CONFIG_MMC_SDHCI_PLTFM" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_enable
+config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_TEGRA" ; config_enable
 config="CONFIG_MMC_SDHCI_S3C" ; config_enable
 config="CONFIG_MMC_SDHCI_S3C_DMA" ; config_enable
