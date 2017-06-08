@@ -346,7 +346,7 @@ gcc_toolchain () {
 		#
 		#https://releases.linaro.org/components/toolchain/binaries/7.1-2017.05/aarch64-linux-gnu/gcc-linaro-7.1.1-2017.05-x86_64_aarch64-linux-gnu.tar.xz
 		#
-		site="https://snapshots.linaro.org"
+		#site="https://snapshots.linaro.org"
 
 		gcc_version="7.1"
 		gcc_minor=".1"
