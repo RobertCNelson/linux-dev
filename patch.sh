@@ -493,7 +493,6 @@ beaglebone () {
 
 ###
 #backports
-dir 'fixes'
 reverts
 drivers
 soc
