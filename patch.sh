@@ -463,8 +463,6 @@ beaglebone () {
 
 		device="am335x-boneblack-uboot.dtb" ; dtb_makefile_append
 
-		device="am335x-boneblue.dtb" ; dtb_makefile_append
-		device="am335x-boneblue-ArduPilot.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-roboticscape.dtb" ; dtb_makefile_append
 		device="am335x-boneblack-wireless-roboticscape.dtb" ; dtb_makefile_append
 
