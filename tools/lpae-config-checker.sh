@@ -118,6 +118,7 @@ config="CONFIG_MACH_SUN5I" ; config_disable
 #
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
+config="CONFIG_ARCH_ZYNQ" ; config_disable
 
 #
 # Processor Features
@@ -262,6 +263,7 @@ config="CONFIG_CMA_SIZE_MBYTES" ; option=64 ; config_value
 #
 config="CONFIG_OMAP_OCP2SCP" ; config_enable
 config="CONFIG_SIMPLE_PM_BUS" ; config_enable
+config="CONFIG_VEXPRESS_CONFIG" ; config_disable
 
 #
 # LPDDR & LPDDR2 PCM memory drivers
