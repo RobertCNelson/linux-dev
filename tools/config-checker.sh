@@ -117,7 +117,7 @@ config="CONFIG_SOC_AM43XX" ; config_enable
 config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_OMAP5_ERRATA_801819" ; config_enable
-config="CONFIG_ARCH_SOCFPGA" ; config_enable
+config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_EXYNOS3" ; config_enable
 config="CONFIG_ARCH_EXYNOS4" ; config_disable
 
