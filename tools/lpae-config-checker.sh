@@ -1274,9 +1274,6 @@ config="CONFIG_AD2S1210" ; config_module
 #
 # Android
 #
-config="CONFIG_ASHMEM" ; config_enable
-config="CONFIG_ION" ; config_enable
-
 config="CONFIG_FB_TFT" ; config_module
 config="CONFIG_FB_TFT_AGM1264K_FL" ; config_module
 config="CONFIG_FB_TFT_BD663474" ; config_module
@@ -1706,9 +1703,6 @@ config="CONFIG_PHY_TEGRA_XUSB" ; config_enable
 #
 # Android
 #
-config="CONFIG_ANDROID" ; config_enable
-config="CONFIG_ANDROID_BINDER_IPC" ; config_enable
-config="CONFIG_ANDROID_BINDER_IPC_32BIT" ; config_enable
 config="CONFIG_NVMEM" ; config_enable
 config="CONFIG_NVMEM_IMX_IIM" ; config_enable
 config="CONFIG_NVMEM_IMX_OCOTP" ; config_enable
