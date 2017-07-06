@@ -278,6 +278,7 @@ config="CONFIG_CMA_SIZE_MBYTES" ; option=48 ; config_value
 #
 config="CONFIG_OMAP_OCP2SCP" ; config_enable
 config="CONFIG_SIMPLE_PM_BUS" ; config_enable
+config="CONFIG_VEXPRESS_CONFIG" ; config_disable
 
 #
 # LPDDR & LPDDR2 PCM memory drivers
