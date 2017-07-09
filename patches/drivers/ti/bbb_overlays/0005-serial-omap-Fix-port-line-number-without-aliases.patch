@@ -1,7 +1,7 @@
-From 476e2e484ff14b3b8d048a564b939580c1195603 Mon Sep 17 00:00:00 2001
+From 361438b6543d4c99da57918c097cb69d078f3540 Mon Sep 17 00:00:00 2001
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Date: Thu, 6 Nov 2014 14:12:14 +0200
-Subject: [PATCH 05/39] serial: omap: Fix port line number without aliases
+Subject: [PATCH 05/38] serial: omap: Fix port line number without aliases
 
 Having an omap serial device without a serial aliases doesn't
 work. For now fallback to using the hwmod instance.
@@ -12,10 +12,10 @@ Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
  1 file changed, 26 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/tty/serial/omap-serial.c b/drivers/tty/serial/omap-serial.c
-index 6c6f82ad8d5c..9b7e9468d9f8 100644
+index 1ea05ac57aa7..6b4bb9572cda 100644
 --- a/drivers/tty/serial/omap-serial.c
 +++ b/drivers/tty/serial/omap-serial.c
-@@ -1650,6 +1650,31 @@ static int serial_omap_probe_rs485(struct uart_omap_port *up,
+@@ -1653,6 +1653,31 @@ static int serial_omap_probe_rs485(struct uart_omap_port *up,
  	return 0;
  }
  
@@ -47,7 +47,7 @@ index 6c6f82ad8d5c..9b7e9468d9f8 100644
  static int serial_omap_probe(struct platform_device *pdev)
  {
  	struct omap_uart_port_info *omap_up_info = dev_get_platdata(&pdev->dev);
-@@ -1693,7 +1718,7 @@ static int serial_omap_probe(struct platform_device *pdev)
+@@ -1696,7 +1721,7 @@ static int serial_omap_probe(struct platform_device *pdev)
  	up->port.ops = &serial_omap_pops;
  
  	if (pdev->dev.of_node)
@@ -57,5 +57,5 @@ index 6c6f82ad8d5c..9b7e9468d9f8 100644
  		ret = pdev->id;
  
 -- 
-2.11.0
+2.13.2
 
