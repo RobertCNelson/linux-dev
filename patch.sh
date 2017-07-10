@@ -291,7 +291,6 @@ reverts () {
 }
 
 drivers () {
-	dir 'drivers/pm_bus'
 	dir 'drivers/pwm'
 	dir 'drivers/spi'
 	dir 'drivers/tsl2550'
