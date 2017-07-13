@@ -271,6 +271,7 @@ config="CONFIG_VEXPRESS_CONFIG" ; config_disable
 config="CONFIG_MTD_UBI" ; config_enable
 config="CONFIG_OF_CONFIGFS" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
+config="CONFIG_NVME_TARGET" ; config_disable
 
 #
 # Misc devices
@@ -278,6 +279,7 @@ config="CONFIG_PARPORT" ; config_disable
 config="CONFIG_SENSORS_LIS3LV02D" ; config_disable
 config="CONFIG_BONE_CAPEMGR" ; config_enable
 config="CONFIG_TIEQEP" ; config_module
+config="CONFIG_C2PORT" ; config_disable
 
 #
 # EEPROM support
@@ -291,6 +293,11 @@ config="CONFIG_EEPROM_93XX46" ; config_module
 #
 #better one in iio
 config="CONFIG_SENSORS_LIS3_I2C" ; config_disable
+
+#
+# Altera FPGA firmware download module
+#
+config="CONFIG_ALTERA_STAPL" ; config_disable
 
 #
 # SCSI device support
@@ -344,8 +351,8 @@ config="CONFIG_STMMAC_ETH" ; config_enable
 config="CONFIG_STMMAC_PLATFORM" ; config_enable
 config="CONFIG_DWMAC_GENERIC" ; config_enable
 config="CONFIG_DWMAC_ROCKCHIP" ; config_enable
-config="CONFIG_DWMAC_SOCFPGA" ; config_disable
 config="CONFIG_DWMAC_SUNXI" ; config_enable
+config="CONFIG_DWMAC_SUN8I" ; config_enable
 config="CONFIG_TI_DAVINCI_EMAC" ; config_enable
 config="CONFIG_TI_DAVINCI_MDIO" ; config_enable
 config="CONFIG_TI_DAVINCI_CPDMA" ; config_enable
@@ -543,6 +550,7 @@ config="CONFIG_I2C_MUX_PINCTRL" ; config_enable
 #
 config="CONFIG_I2C_EXYNOS5" ; config_enable
 config="CONFIG_I2C_MV64XXX" ; config_enable
+config="CONFIG_I2C_OCORES" ; config_disable
 config="CONFIG_I2C_RK3X" ; config_enable
 config="CONFIG_I2C_SIMTEC" ; config_disable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
@@ -565,7 +573,6 @@ config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 # SPI Protocol Masters
 #
 config="CONFIG_SPI_SPIDEV" ; config_module
-config="CONFIG_SPI_SLAVE" ; config_module
 
 #
 # PPS clients support
@@ -616,11 +623,6 @@ config="CONFIG_GPIO_MC33880" ; config_module
 config="CONFIG_GPIO_PISOSR" ; config_module
 
 #
-# SPI or I2C GPIO expanders
-#
-config="CONFIG_GPIO_MCP23S08" ; config_module
-
-#
 # 1-wire Bus Masters
 #
 config="CONFIG_W1_MASTER_DS1WM" ; config_module
@@ -643,7 +645,6 @@ config="CONFIG_W1_SLAVE_DS2781" ; config_module
 config="CONFIG_W1_SLAVE_DS28E04" ; config_module
 config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
 config="CONFIG_POWER_RESET_IMX" ; config_enable
-config="CONFIG_POWER_RESET_VEXPRESS" ; config_disable
 config="CONFIG_GENERIC_ADC_BATTERY" ; config_module
 config="CONFIG_BATTERY_DA9052" ; config_module
 config="CONFIG_AXP288_FUEL_GAUGE" ; config_module
@@ -765,7 +766,9 @@ config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 #
 config="CONFIG_MFD_DA9055" ; config_enable
 config="CONFIG_MFD_DA9063" ; config_enable
+config="CONFIG_MFD_CROS_EC" ; config_disable
 config="CONFIG_MFD_DLN2" ; config_enable
+config="CONFIG_MFD_VIPERBOARD" ; config_disable
 
 #
 # STMicroelectronics STMPE Interface Drivers
@@ -833,7 +836,6 @@ config="CONFIG_SOC_CAMERA_MT9M111" ; config_module
 config="CONFIG_SOC_CAMERA_MT9T031" ; config_module
 config="CONFIG_SOC_CAMERA_MT9T112" ; config_module
 config="CONFIG_SOC_CAMERA_MT9V022" ; config_module
-config="CONFIG_SOC_CAMERA_OV2640" ; config_module
 config="CONFIG_SOC_CAMERA_OV5642" ; config_module
 config="CONFIG_SOC_CAMERA_OV6650" ; config_module
 config="CONFIG_SOC_CAMERA_OV772X" ; config_module
@@ -872,6 +874,7 @@ config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 
 config="CONFIG_DRM_TILCDC" ; config_disable
 config="CONFIG_DRM_TEGRA" ; config_enable
+config="CONFIG_DRM_STM" ; config_disable
 
 #
 # Display Interface Bridges
@@ -1312,11 +1315,20 @@ config="CONFIG_FB_TFT_WATTEROTT" ; config_module
 config="CONFIG_FB_FLEX" ; config_module
 config="CONFIG_FB_TFT_FBTFT_DEVICE" ; config_module
 
+config="CONFIG_WILC1000_SDIO" ; config_module
+config="CONFIG_WILC1000_SPI" ; config_module
+
+#
+# USB Power Delivery and Type-C drivers
+#
+config="CONFIG_CHROME_PLATFORMS" ; config_disable
+
 #
 # Common Clock Framework
 #
 config="CONFIG_CLK_TWL6040" ; config_enable
 config="CONFIG_COMMON_CLK_PALMAS" ; config_enable
+config="CONFIG_SUN8I_DE2_CCU" ; config_enable
 config="CONFIG_HWSPINLOCK" ; config_enable
 
 #
