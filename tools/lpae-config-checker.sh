@@ -826,6 +826,7 @@ config="CONFIG_VIDEO_CODA" ; config_enable
 config="CONFIG_VIDEO_MEM2MEM_DEINTERLACE" ; config_module
 config="CONFIG_DVB_PLATFORM_DRIVERS" ; config_enable
 config="CONFIG_DVB_C8SECTPFE" ; config_module
+config="CONFIG_V4L_TEST_DRIVERS" ; config_disable
 
 #
 # soc_camera sensor drivers
