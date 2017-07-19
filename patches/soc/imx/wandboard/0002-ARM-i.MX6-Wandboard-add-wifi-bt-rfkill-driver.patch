@@ -1,7 +1,7 @@
-From efb1a12f26f470009ecffab423bec53d2530738d Mon Sep 17 00:00:00 2001
+From e6fcd88ae89717086a01c199c21d75603e496ab5 Mon Sep 17 00:00:00 2001
 From: Vladimir Ermakov <vooon341@gmail.com>
 Date: Wed, 10 Jul 2013 03:06:54 +0400
-Subject: [PATCH 1/2] ARM i.MX6 Wandboard add wifi+bt rfkill driver
+Subject: [PATCH 2/3] ARM i.MX6 Wandboard add wifi+bt rfkill driver
 
 BRCM WiFi module requires initialization for control gpio;
 Additional provides rfkill funcs.
@@ -18,7 +18,7 @@ Signed-off-by: Vladimir Ermakov <vooon341@gmail.com>
  create mode 100644 arch/arm/mach-imx/devices/wand-rfkill.c
 
 diff --git a/arch/arm/mach-imx/devices/Kconfig b/arch/arm/mach-imx/devices/Kconfig
-index 6ffe572..bb7bd88 100644
+index 6ffe57267233..bb7bd885f5e2 100644
 --- a/arch/arm/mach-imx/devices/Kconfig
 +++ b/arch/arm/mach-imx/devices/Kconfig
 @@ -68,3 +68,9 @@ config IMX_HAVE_PLATFORM_SDHCI_ESDHC_IMX
@@ -32,17 +32,17 @@ index 6ffe572..bb7bd88 100644
 +	default m
 +	select RFKILL
 diff --git a/arch/arm/mach-imx/devices/Makefile b/arch/arm/mach-imx/devices/Makefile
-index e5cf587..eee36d9 100644
+index aa6cee870795..800ce9bfa812 100644
 --- a/arch/arm/mach-imx/devices/Makefile
 +++ b/arch/arm/mach-imx/devices/Makefile
-@@ -26,3 +26,4 @@ obj-$(CONFIG_IMX_HAVE_PLATFORM_MXC_W1) += platform-mxc_w1.o
+@@ -25,3 +25,4 @@ obj-$(CONFIG_IMX_HAVE_PLATFORM_MXC_W1) += platform-mxc_w1.o
  obj-$(CONFIG_IMX_HAVE_PLATFORM_SDHCI_ESDHC_IMX) += platform-sdhci-esdhc-imx.o
  obj-$(CONFIG_IMX_HAVE_PLATFORM_SPI_IMX) +=  platform-spi_imx.o
  obj-$(CONFIG_IMX_HAVE_PLATFORM_MX2_EMMA) += platform-mx2-emma.o
 +obj-$(CONFIG_WAND_RFKILL) += wand-rfkill.o
 diff --git a/arch/arm/mach-imx/devices/wand-rfkill.c b/arch/arm/mach-imx/devices/wand-rfkill.c
 new file mode 100644
-index 0000000..da7ef9f
+index 000000000000..da7ef9f4268a
 --- /dev/null
 +++ b/arch/arm/mach-imx/devices/wand-rfkill.c
 @@ -0,0 +1,290 @@
@@ -337,5 +337,5 @@ index 0000000..da7ef9f
 +MODULE_DESCRIPTION("Wandboard rfkill driver");
 +MODULE_LICENSE("GPL v2");
 -- 
-2.9.3
+2.13.2
 
