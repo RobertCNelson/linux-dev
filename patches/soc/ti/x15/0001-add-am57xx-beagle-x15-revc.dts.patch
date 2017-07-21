@@ -1,0 +1,57 @@
+From 7b114a5cfc115e40e55324c878f52e30c69ff8b4 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 21 Jul 2017 08:56:39 -0500
+Subject: [PATCH] add: am57xx-beagle-x15-revc.dts
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/Makefile                   |  1 +
+ arch/arm/boot/dts/am57xx-beagle-x15-revc.dts | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
+ create mode 100644 arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 39dc292e437c..4aca02b643b6 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -663,6 +663,7 @@ dtb-$(CONFIG_SOC_OMAP5) += \
+ dtb-$(CONFIG_SOC_DRA7XX) += \
+ 	am57xx-beagle-x15.dtb \
+ 	am57xx-beagle-x15-revb1.dtb \
++	am57xx-beagle-x15-revc.dtb \
+ 	am57xx-cl-som-am57x.dtb \
+ 	am57xx-sbc-am57x.dtb \
+ 	am572x-idk.dtb \
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+new file mode 100644
+index 000000000000..c11259587130
+--- /dev/null
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+@@ -0,0 +1,24 @@
++/*
++ * Copyright (C) 2014-2016 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "am57xx-beagle-x15-common.dtsi"
++
++/ {
++	model = "TI AM5728 BeagleBoard-X15 rev C";
++};
++
++&tpd12s015 {
++	gpios = <&gpio7 10 GPIO_ACTIVE_HIGH>,	/* gpio7_10, CT CP HPD */
++		<&gpio2 30 GPIO_ACTIVE_HIGH>,	/* gpio2_30, LS OE */
++		<&gpio7 12 GPIO_ACTIVE_HIGH>;	/* gpio7_12/sp1_cs2, HPD */
++};
++
++&mmc1 {
++	vmmc-supply = <&vdd_3v3>;
++	vmmc-aux-supply = <&ldo1_reg>;
++};
+-- 
+2.13.2
+

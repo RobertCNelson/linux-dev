@@ -427,6 +427,7 @@ soc () {
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
 	dir 'soc/ti/beaglebone_capes'
+	dir 'soc/ti/x15'
 }
 
 dtb_makefile_append () {
