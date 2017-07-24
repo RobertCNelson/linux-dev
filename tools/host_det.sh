@@ -375,11 +375,15 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		yakkety|zesty|artful)
-			#16.10 yakkety: (EOL: July 2017)
+		zesty|artful)
 			#17.04 zesty: (EOL: January 2018)
 			#17.10 artful: (EOL: July 2019)
 			unset warn_eol_distro
+			;;
+		yakkety)
+			#16.10 yakkety: (EOL: July 20, 2017)
+			warn_eol_distro=1
+			stop_pkg_search=1
 			;;
 		xenial)
 			#16.04 xenial: (EOL: April 2021) lts: xenial -> xyz
@@ -396,23 +400,16 @@ debian_regs () {
 			#14.04 trusty: (EOL: April 2019) lts: trusty -> xenial
 			unset warn_eol_distro
 			;;
-		quantal|raring|saucy)
-			#12.10 quantal: (EOL: May 16, 2014)
-			#13.04 raring: (EOL: January 27, 2014)
-			#13.10 saucy: (EOL: July 17, 2014)
-			warn_eol_distro=1
-			stop_pkg_search=1
-			;;
-		precise)
-			#12.04 precise: (EOL: April 2017) lts: precise -> trusty
-			unset warn_eol_distro
-			;;
-		hardy|lucid|maverick|natty|oneiric)
+		hardy|lucid|maverick|natty|oneiric|precise|quantal|raring|saucy)
 			#8.04 hardy: (EOL: May 2013) lts: hardy -> lucid
 			#10.04 lucid: (EOL: April 2015) lts: lucid -> precise
 			#10.10 maverick: (EOL: April 10, 2012)
 			#11.04 natty: (EOL: October 28, 2012)
 			#11.10 oneiric: (EOL: May 9, 2013)
+			#12.04 precise: (EOL: April 28 2017) lts: precise -> trusty
+			#12.10 quantal: (EOL: May 16, 2014)
+			#13.04 raring: (EOL: January 27, 2014)
+			#13.10 saucy: (EOL: July 17, 2014)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
