@@ -529,6 +529,11 @@ config="CONFIG_INPUT_DRV2667_HAPTICS" ; config_module
 #exit
 
 #
+# Hardware I/O ports
+#
+config="CONFIG_SERIO_ALTERA_PS2" ; config_disable
+
+#
 # Character devices
 #
 config="CONFIG_DEVKMEM" ; config_enable
@@ -545,6 +550,8 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 #
 # Non-8250 serial port support
 #
+config="CONFIG_SERIAL_AMBA_PL010" ; config_disable
+config="CONFIG_SERIAL_AMBA_PL011" ; config_disable
 config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
@@ -876,6 +883,8 @@ config="CONFIG_TEGRA_HOST1X" ; config_enable
 config="CONFIG_IMX_IPUV3_CORE" ; config_enable
 config="CONFIG_DRM" ; config_enable
 config="CONFIG_DRM_KMS_HELPER" ; config_enable
+
+#exit
 
 #
 # Sub-drivers
