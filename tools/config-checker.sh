@@ -126,7 +126,6 @@ config="CONFIG_ARCH_EXYNOS4" ; config_disable
 #
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
-config="CONFIG_ARCH_ZYNQ" ; config_disable
 
 #
 # Processor Features
@@ -154,6 +153,7 @@ config="CONFIG_XEN" ; config_disable
 #
 # CPU frequency scaling drivers
 #
+config="CONFIG_ARM_IMX6Q_CPUFREQ" ; config_enable
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
 config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
 
@@ -217,14 +217,14 @@ config="CONFIG_YAM" ; config_module
 #
 config="CONFIG_CAN_C_CAN" ; config_module
 config="CONFIG_CAN_C_CAN_PLATFORM" ; config_module
+config="CONFIG_CAN_SJA1000" ; config_disable
+config="CONFIG_CAN_SOFTING" ; config_disable
 
 #
 # CAN SPI interfaces
 #
 config="CONFIG_CAN_HI311X" ; config_module
 config="CONFIG_CAN_MCP251X" ; config_module
-config="CONFIG_CAN_SJA1000" ; config_disable
-config="CONFIG_CAN_SOFTING" ; config_disable
 
 #
 # Bluetooth device drivers
@@ -319,7 +319,6 @@ config="CONFIG_ALTERA_STAPL" ; config_disable
 #
 config="CONFIG_SCSI_MOD" ; config_enable
 config="CONFIG_SCSI" ; config_enable
-config="CONFIG_SCSI_PROC_FS" ; config_enable
 
 #
 # SCSI support type (disk, tape, CD-ROM)
@@ -359,7 +358,6 @@ config="CONFIG_MII" ; config_enable
 # Distributed Switch Architecture drivers
 #
 config="CONFIG_SUN4I_EMAC" ; config_enable
-config="CONFIG_SUN8I_EMAC" ; config_enable
 config="CONFIG_MVMDIO" ; config_disable
 config="CONFIG_KS8851" ; config_module
 config="CONFIG_ENCX24J600" ; config_module
@@ -531,6 +529,7 @@ config="CONFIG_INPUT_DRV2667_HAPTICS" ; config_module
 #
 # Hardware I/O ports
 #
+config="CONFIG_SERIO_AMBAKMI" ; config_disable
 config="CONFIG_SERIO_ALTERA_PS2" ; config_disable
 
 #
@@ -946,6 +945,11 @@ config="CONFIG_BACKLIGHT_PWM" ; config_enable
 config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 
 #
+# Console display driver support
+#
+config="CONFIG_LOGO" ; config_enable
+
+#
 # HD-Audio
 #
 config="CONFIG_SND_EDMA_SOC" ; config_module
@@ -970,7 +974,6 @@ config="CONFIG_HID_GENERIC" ; config_enable
 # Special HID drivers
 #
 config="CONFIG_HID_APPLEIR" ; config_module
-config="CONFIG_HID_ASUS" ; config_module
 config="CONFIG_HID_GFRM" ; config_module
 config="CONFIG_HID_GT683R" ; config_module
 config="CONFIG_HID_LOGITECH" ; config_enable
@@ -978,6 +981,7 @@ config="CONFIG_HID_LOGITECH_DJ" ; config_enable
 config="CONFIG_HID_LOGITECH_HIDPP" ; config_enable
 config="CONFIG_HID_MAYFLASH" ; config_module
 config="CONFIG_HID_NTI" ; config_module
+config="CONFIG_HID_RETRODE" ; config_module
 config="CONFIG_HID_UDRAW_PS3" ; config_module
 
 #
@@ -1208,8 +1212,6 @@ config="CONFIG_RTC_DRV_R7301" ; config_enable
 #
 config="CONFIG_RTC_DRV_HID_SENSOR_TIME" ; config_module
 
-#exit
-
 #
 # DMA Devices
 #
@@ -1218,6 +1220,8 @@ config="CONFIG_FSL_EDMA" ; config_enable
 config="CONFIG_TI_CPPI41" ; config_enable
 config="CONFIG_DW_DMAC_CORE" ; config_enable
 config="CONFIG_DW_DMAC" ; config_enable
+
+#exit
 
 #
 # DMABUF options
@@ -1366,6 +1370,8 @@ config="CONFIG_WILC1000_SPI" ; config_module
 # USB Power Delivery and Type-C drivers
 #
 config="CONFIG_CHROME_PLATFORMS" ; config_disable
+
+#exit
 
 #
 # Common Clock Framework
