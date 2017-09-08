@@ -15,7 +15,7 @@ Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  1 file changed, 49 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
-index 7d924392d905..0f8b54270569 100644
+index d94d1da07b43..e57a1c304779 100644
 --- a/drivers/of/overlay.c
 +++ b/drivers/of/overlay.c
 @@ -22,6 +22,7 @@
@@ -26,7 +26,7 @@ index 7d924392d905..0f8b54270569 100644
  
  #include "of_private.h"
  
-@@ -56,8 +57,19 @@ struct of_overlay {
+@@ -57,9 +58,20 @@ struct of_overlay {
  	struct kobject kobj;
  };
  
@@ -41,12 +41,13 @@ index 7d924392d905..0f8b54270569 100644
 +__setup("of_overlay_disable", of_overlay_disable_setup);
 +
  static int of_overlay_apply_one(struct of_overlay *ov,
- 		struct device_node *target, const struct device_node *overlay);
+ 		struct device_node *target, const struct device_node *overlay,
+ 		bool is_symbols_node);
 +static int overlay_removal_is_ok(struct of_overlay *ov);
  
  static BLOCKING_NOTIFIER_HEAD(of_overlay_chain);
  
-@@ -377,6 +389,35 @@ void of_overlay_release(struct kobject *kobj)
+@@ -478,6 +490,35 @@ void of_overlay_release(struct kobject *kobj)
  	kfree(ov);
  }
  
@@ -82,7 +83,7 @@ index 7d924392d905..0f8b54270569 100644
  static struct kobj_type of_overlay_ktype = {
  	.release = of_overlay_release,
  };
-@@ -398,6 +439,10 @@ int of_overlay_create(struct device_node *tree)
+@@ -499,6 +540,10 @@ int of_overlay_create(struct device_node *tree)
  	struct of_overlay *ov;
  	int err, id;
  
@@ -93,7 +94,7 @@ index 7d924392d905..0f8b54270569 100644
  	/* allocate the overlay structure */
  	ov = kzalloc(sizeof(*ov), GFP_KERNEL);
  	if (ov == NULL)
-@@ -633,5 +678,8 @@ int of_overlay_init(void)
+@@ -733,5 +778,8 @@ int of_overlay_init(void)
  	if (!ov_kset)
  		return -ENOMEM;
  
@@ -104,5 +105,5 @@ index 7d924392d905..0f8b54270569 100644
 +	return rc;
  }
 -- 
-2.13.2
+2.14.1
 
