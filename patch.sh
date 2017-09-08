@@ -495,6 +495,7 @@ drivers
 soc
 beaglebone
 dir 'build/gcc'
+dir 'fixes'
 
 packaging () {
 	echo "dir: packaging"
