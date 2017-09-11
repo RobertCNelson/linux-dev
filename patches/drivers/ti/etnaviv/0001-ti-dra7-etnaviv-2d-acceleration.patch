@@ -1,25 +1,24 @@
-From 2916bb5a7d9ba8f752ce3a13d8120e78e9971c13 Mon Sep 17 00:00:00 2001
+From 5667e55b2ab2228c5d06d7fb9b1c5b729e6a1bbe Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 3 May 2017 16:12:13 -0500
+Date: Mon, 11 Sep 2017 10:22:31 -0500
 Subject: [PATCH] ti: dra7: etnaviv: 2d acceleration
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi |  5 +++++
+ arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi |  4 ++++
  arch/arm/boot/dts/dra7.dtsi                     | 16 ++++++++++++++++
  drivers/gpu/drm/etnaviv/Kconfig                 |  2 +-
  drivers/gpu/drm/etnaviv/etnaviv_drv.c           |  1 +
- 4 files changed, 23 insertions(+), 1 deletion(-)
+ 4 files changed, 22 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-index 585d792a8fdd..46ca247ad8f5 100644
+index 49aeecd312b4..cb21a1b50ab6 100644
 --- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
 +++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-@@ -194,6 +194,11 @@
- 		>;
+@@ -167,6 +167,10 @@
  	};
  };
-+
+ 
 +&bb2d {
 +	status = "okay";
 +};
@@ -28,10 +27,10 @@ index 585d792a8fdd..46ca247ad8f5 100644
  	status = "okay";
  	clock-frequency = <400000>;
 diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index bbfb9d5a70a9..e9d2ca1a27d0 100644
+index 02a136a4661a..b549d5d6a15b 100644
 --- a/arch/arm/boot/dts/dra7.dtsi
 +++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -962,6 +962,16 @@
+@@ -1005,6 +1005,16 @@
  			ti,hwmods = "dmm";
  		};
  
@@ -48,7 +47,7 @@ index bbfb9d5a70a9..e9d2ca1a27d0 100644
  		i2c1: i2c@48070000 {
  			compatible = "ti,omap4-i2c";
  			reg = <0x48070000 0x100>;
-@@ -1972,6 +1982,12 @@
+@@ -2020,6 +2030,12 @@
  		};
  	};
  
@@ -62,7 +61,7 @@ index bbfb9d5a70a9..e9d2ca1a27d0 100644
  		#include "omap4-cpu-thermal.dtsi"
  		#include "omap5-gpu-thermal.dtsi"
 diff --git a/drivers/gpu/drm/etnaviv/Kconfig b/drivers/gpu/drm/etnaviv/Kconfig
-index 71cee4e9fefb..49d5299defc9 100644
+index 38b477b5fbf9..16ec65e79107 100644
 --- a/drivers/gpu/drm/etnaviv/Kconfig
 +++ b/drivers/gpu/drm/etnaviv/Kconfig
 @@ -2,7 +2,7 @@
@@ -75,10 +74,10 @@ index 71cee4e9fefb..49d5299defc9 100644
  	select SHMEM
  	select SYNC_FILE
 diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-index 5255278dde56..714bbb915cb8 100644
+index 2cb4773823c2..7634f5baa9e3 100644
 --- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
 +++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-@@ -650,6 +650,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
+@@ -651,6 +651,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
  static const struct of_device_id dt_match[] = {
  	{ .compatible = "fsl,imx-gpu-subsystem" },
  	{ .compatible = "marvell,dove-gpu-subsystem" },
@@ -87,5 +86,5 @@ index 5255278dde56..714bbb915cb8 100644
  };
  MODULE_DEVICE_TABLE(of, dt_match);
 -- 
-2.11.0
+2.14.1
 
