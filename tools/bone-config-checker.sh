@@ -71,18 +71,12 @@ config="CONFIG_KERNEL_XZ" ; config_disable
 config="CONFIG_KERNEL_LZO" ; config_enable
 
 #
-# Bus support
-#
-config="CONFIG_PCI" ; config_disable
-config="CONFIG_PCI_SYSCALL" ; config_disable
-
-#
 # CPU Core family selection
 #
 config="CONFIG_ARCH_MXC" ; config_disable
 
 #
-# OMAP Feature Selections
+# TI OMAP/AM/DM/DRA Family
 #
 config="CONFIG_ARCH_OMAP3" ; config_disable
 config="CONFIG_ARCH_OMAP4" ; config_disable
@@ -93,17 +87,22 @@ config="CONFIG_SOC_DRA7XX" ; config_disable
 #
 # OMAP Legacy Platform Data Board Type
 #
-config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_ROCKCHIP" ; config_disable
+config="CONFIG_ARCH_EXYNOS" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_SUNXI" ; config_disable
 config="CONFIG_ARCH_TEGRA" ; config_disable
-config="CONFIG_ARCH_ZYNQ" ; config_disable
 
 #
 # Processor Features
 #
 config="CONFIG_PL310_ERRATA_769419" ; config_disable
+
+#these errata are not needed on am335x
+config="CONFIG_ARM_ERRATA_430973" ; config_disable
+config="CONFIG_ARM_ERRATA_720789" ; config_disable
+config="CONFIG_ARM_ERRATA_754322" ; config_disable
+config="CONFIG_ARM_ERRATA_775420" ; config_disable
 
 #
 # Kernel Features
@@ -112,14 +111,16 @@ config="CONFIG_SMP" ; config_disable
 config="CONFIG_THUMB2_KERNEL" ; config_enable
 
 #
-# CPU frequency scaling drivers
+# VOP Driver
 #
-config="CONFIG_QORIQ_CPUFREQ" ; config_disable
-config="CONFIG_CLK_QORIQ" ; config_disable
+config="CONFIG_BEAGLEBONE_PINMUX_HELPER" ; config_enable
 
 #
 # Distributed Switch Architecture drivers
 #
+config="CONFIG_B53" ; config_disable
+config="CONFIG_NET_DSA_BCM_SF2" ; config_disable
+config="CONFIG_NET_DSA_MV88E6060" ; config_disable
 config="CONFIG_NET_DSA_MV88E6XXX" ; config_disable
 config="CONFIG_NET_VENDOR_ALACRITECH" ; config_disable
 config="CONFIG_NET_VENDOR_AMAZON" ; config_disable
@@ -130,21 +131,58 @@ config="CONFIG_NET_VENDOR_CIRRUS" ; config_disable
 config="CONFIG_NET_VENDOR_EZCHIP" ; config_disable
 config="CONFIG_NET_VENDOR_FARADAY" ; config_disable
 config="CONFIG_NET_VENDOR_HISILICON" ; config_disable
+config="CONFIG_NET_VENDOR_HUAWEI" ; config_disable
 config="CONFIG_NET_VENDOR_INTEL" ; config_disable
-config="CONFIG_NET_VENDOR_I825XX" ; config_disable
 config="CONFIG_NET_VENDOR_MARVELL" ; config_disable
-config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
+config="CONFIG_NET_VENDOR_MELLANOX" ; config_disable
 config="CONFIG_NET_VENDOR_NETRONOME" ; config_disable
 config="CONFIG_NET_VENDOR_8390" ; config_disable
+config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
 config="CONFIG_NET_VENDOR_RENESAS" ; config_disable
 config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
 config="CONFIG_NET_VENDOR_SAMSUNG" ; config_disable
-config="CONFIG_STMMAC_ETH" ; config_disable
+config="CONFIG_NET_VENDOR_SEEQ" ; config_disable
+config="CONFIG_NET_VENDOR_SOLARFLARE" ; config_disable
+config="CONFIG_NET_VENDOR_STMICRO" ; config_disable
 config="CONFIG_NET_VENDOR_VIA" ; config_disable
+config="CONFIG_NET_VENDOR_WIZNET" ; config_disable
+config="CONFIG_NET_VENDOR_SYNOPSYS" ; config_disable
+config="CONFIG_MDIO_BCM_UNIMAC" ; config_disable
+
+#
+# MII PHY device drivers
+#
+
+config="CONFIG_AMD_PHY" ; config_disable
+config="CONFIG_AQUANTIA_PHY" ; config_disable
+config="CONFIG_AT803X_PHY" ; config_disable
+config="CONFIG_BCM7XXX_PHY" ; config_disable
+config="CONFIG_BCM87XX_PHY" ; config_disable
+config="CONFIG_BROADCOM_PHY" ; config_disable
+config="CONFIG_CICADA_PHY" ; config_disable
+config="CONFIG_DAVICOM_PHY" ; config_disable
+config="CONFIG_ICPLUS_PHY" ; config_disable
+config="CONFIG_LSI_ET1011C_PHY" ; config_disable
+config="CONFIG_LXT_PHY" ; config_disable
+config="CONFIG_MARVELL_PHY" ; config_disable
+config="CONFIG_NATIONAL_PHY" ; config_disable
+config="CONFIG_QSEMI_PHY" ; config_disable
+config="CONFIG_REALTEK_PHY" ; config_disable
+config="CONFIG_STE10XP" ; config_disable
+config="CONFIG_TERANETICS_PHY" ; config_disable
+
+#
+# Input Device Drivers
+#
+config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_enable
+config="CONFIG_TOUCHSCREEN_TI_AM335X_TSC" ; config_enable
 
 #
 # Serial drivers
 #
+config="CONFIG_SERIAL_8250_DEPRECATED_OPTIONS" ; config_disable
+config="CONFIG_SERIAL_8250_FSL" ; config_disable
+config="CONFIG_SERIAL_8250_DW" ; config_disable
 config="CONFIG_SERIAL_8250_DMA" ; config_disable
 config="CONFIG_SERIAL_8250_OMAP" ; config_enable
 config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
@@ -152,58 +190,100 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 #
 # Non-8250 serial port support
 #
-config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_disable
-config="CONFIG_SERIAL_XILINX_PS_UART" ; config_disable
+config="CONFIG_SERIAL_DEV_BUS" ; config_enable
+config="CONFIG_SERIAL_DEV_CTRL_TTYPORT" ; config_enable
 
 #
-# Input Device Drivers
+# I2C system bus drivers (mostly embedded / system-on-chip)
 #
-config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_enable
+config="CONFIG_I2C_RK3X" ; config_disable
 
 #
-# Native drivers
+# SPI Master Controller Drivers
 #
-config="CONFIG_IMX_THERMAL" ; config_disable
+config="CONFIG_SPI_DLN2" ; config_disable
+config="CONFIG_SPI_TI_QSPI" ; config_disable
+config="CONFIG_SPI_ROCKCHIP" ; config_disable
+
+#
+# Pin controllers
+#
+config="CONFIG_PINCTRL_AS3722" ; config_disable
+config="CONFIG_PINCTRL_SX150X" ; config_disable
+config="CONFIG_PINCTRL_PALMAS" ; config_disable
+config="CONFIG_GPIO_OF_HELPER" ; config_enable
+
+#
+# Memory mapped GPIO drivers
+#
+config="CONFIG_GPIO_AXP209" ; config_disable
+
+#
+# I2C GPIO expanders
+#
+config="CONFIG_GPIO_SX150X" ; config_disable
+
+#
+# 1-wire Slaves
+#
+config="CONFIG_POWER_RESET_AS3722" ; config_disable
+config="CONFIG_BATTERY_SBS" ; config_disable
+config="CONFIG_BATTERY_BQ27XXX" ; config_disable
+config="CONFIG_BATTERY_DA9052" ; config_disable
+config="CONFIG_AXP20X_POWER" ; config_disable
+config="CONFIG_AXP288_FUEL_GAUGE" ; config_disable
+config="CONFIG_BATTERY_TWL4030_MADC" ; config_disable
+config="CONFIG_BATTERY_RX51" ; config_disable
+config="CONFIG_CHARGER_ISP1704" ; config_disable
+config="CONFIG_CHARGER_TWL4030" ; config_disable
+config="CONFIG_CHARGER_BQ2415X" ; config_disable
 
 #
 # Watchdog Device Drivers
 #
 config="CONFIG_DA9052_WATCHDOG" ; config_disable
+config="CONFIG_DW_WATCHDOG" ; config_disable
+config="CONFIG_TWL4030_WATCHDOG" ; config_disable
 
 #
-# Miscellaneous USB options
+# Multifunction device drivers
 #
-#http://bugs.elinux.org/issues/127
-config="CONFIG_USB_OTG" ; config_disable
+config="CONFIG_MFD_AS3722" ; config_disable
+config="CONFIG_MFD_AXP20X_I2C" ; config_disable
+config="CONFIG_MFD_DA9052_SPI" ; config_disable
+config="CONFIG_MFD_DA9052_I2C" ; config_disable
+config="CONFIG_MFD_DA9055" ; config_disable
+config="CONFIG_MFD_DA9063" ; config_disable
+config="CONFIG_MFD_DLN2" ; config_disable
+config="CONFIG_MFD_MC13XXX_SPI" ; config_disable
+config="CONFIG_MFD_MC13XXX_I2C" ; config_disable
+config="CONFIG_MFD_MAX77686" ; config_disable
+config="CONFIG_MFD_RK808" ; config_disable
+config="CONFIG_MFD_SEC_CORE" ; config_disable
+config="CONFIG_MFD_STMPE" ; config_disable
+config="CONFIG_MFD_TI_AM335X_TSCADC" ; config_enable
+config="CONFIG_MFD_PALMAS" ; config_disable
+config="CONFIG_MFD_TPS65218" ; config_disable
+config="CONFIG_MFD_TPS65910" ; config_disable
+config="CONFIG_TWL4030_CORE" ; config_disable
+config="CONFIG_TWL6040_CORE" ; config_disable
 
-#
-# USB Imaging devices
-#
-config="CONFIG_USB_MUSB_TUSB6010" ; config_disable
-config="CONFIG_USB_MUSB_OMAP2PLUS" ; config_disable
-config="CONFIG_USB_MUSB_AM35X" ; config_disable
-config="CONFIG_USB_MUSB_DSPS" ; config_enable
-config="CONFIG_USB_MUSB_UX500" ; config_disable
-config="CONFIG_USB_TI_CPPI41_DMA" ; config_disable
-
-#
-# MUSB DMA mode
-#
-config="CONFIG_MUSB_PIO_ONLY" ; config_enable
-config="CONFIG_USB_DWC3" ; config_disable
-config="CONFIG_USB_DWC2" ; config_disable
-config="CONFIG_USB_DWC3_DUAL_ROLE" ; config_disable
-
-#
-# Gadget/Dual-role mode requires USB Gadget support to be enabled
-#
-config="CONFIG_USB_CHIPIDEA" ; config_disable
-
-#
-# on-CPU RTC drivers
-#
-config="CONFIG_RTC_DRV_OMAP" ; config_enable
+#REGULATOR
+config="CONFIG_REGULATOR_ACT8865" ; config_disable
+config="CONFIG_REGULATOR_AD5398" ; config_disable
+config="CONFIG_REGULATOR_ANATOP" ; config_disable
+config="CONFIG_REGULATOR_DA9210" ; config_disable
+config="CONFIG_REGULATOR_DA9211" ; config_disable
+config="CONFIG_REGULATOR_FAN53555" ; config_disable
+config="CONFIG_REGULATOR_MT6311" ; config_disable
+config="CONFIG_REGULATOR_PFUZE100" ; config_disable
+config="CONFIG_REGULATOR_TPS51632" ; config_disable
+config="CONFIG_REGULATOR_TPS62360" ; config_disable
+config="CONFIG_REGULATOR_TPS65023" ; config_disable
+config="CONFIG_REGULATOR_TPS6507X" ; config_disable
+config="CONFIG_REGULATOR_TPS65218" ; config_disable
+config="CONFIG_REGULATOR_TPS6524X" ; config_disable
 
 #
 # Graphics support
@@ -212,17 +292,55 @@ config="CONFIG_DRM_EXYNOS" ; config_disable
 config="CONFIG_DRM_OMAP" ; config_disable
 config="CONFIG_DRM_IMX" ; config_disable
 config="CONFIG_IMX_IPUV3_CORE" ; config_disable
+config="CONFIG_DRM_DUMB_VGA_DAC" ; config_disable
 config="CONFIG_DRM_ETNAVIV" ; config_disable
+config="CONFIG_DRM_MXS" ; config_disable
+config="CONFIG_DRM_MXSFB" ; config_disable
 
 #breaks tilcd + tfp410...
 config="CONFIG_OMAP2_DSS" ; config_disable
 
 #
-# Display Interface Bridges
+# I2C encoder or helper chips
 #
-config="CONFIG_DRM_DUMB_VGA_DAC" ; config_disable
-config="CONFIG_DRM_MXS" ; config_disable
-config="CONFIG_DRM_MXSFB" ; config_disable
+config="CONFIG_DRM_I2C_ADIHDMI" ; config_enable
+config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_enable
+
+#
+# Miscellaneous USB options
+#
+#http://bugs.elinux.org/issues/127
+config="CONFIG_USB_OTG" ; config_disable
+
+#
+# USB Host Controller Drivers
+#
+config="CONFIG_USB_XHCI_HCD" ; config_disable
+config="CONFIG_USB_U132_HCD" ; config_disable
+
+#
+# Platform Glue Layer
+#
+config="CONFIG_USB_MUSB_TUSB6010" ; config_disable
+config="CONFIG_USB_MUSB_OMAP2PLUS" ; config_disable
+config="CONFIG_USB_MUSB_AM35X" ; config_disable
+config="CONFIG_USB_MUSB_DSPS" ; config_enable
+config="CONFIG_USB_MUSB_UX500" ; config_disable
+
+#
+# MUSB DMA mode
+#
+config="CONFIG_MUSB_PIO_ONLY" ; config_disable
+config="CONFIG_USB_TI_CPPI41_DMA" ; config_enable
+config="CONFIG_USB_DWC3" ; config_disable
+config="CONFIG_USB_DWC3_OMAP" ; config_disable
+config="CONFIG_USB_DWC3_OF_SIMPLE" ; config_disable
+config="CONFIG_USB_DWC2" ; config_disable
+
+#
+# Gadget/Dual-role mode requires USB Gadget support to be enabled
+#
+config="CONFIG_USB_CHIPIDEA" ; config_disable
 
 #
 # USB Peripheral Controller
@@ -230,9 +348,6 @@ config="CONFIG_DRM_MXSFB" ; config_disable
 config="CONFIG_USB_ZERO" ; config_module
 config="CONFIG_USB_AUDIO" ; config_module
 config="CONFIG_GADGET_UAC1" ; config_disable
-config="CONFIG_USB_ETH" ; config_module
-config="CONFIG_USB_ETH_RNDIS" ; config_enable
-config="CONFIG_USB_ETH_EEM" ; config_disable
 config="CONFIG_USB_G_NCM" ; config_module
 config="CONFIG_USB_MASS_STORAGE" ; config_module
 config="CONFIG_USB_MIDI_GADGET" ; config_module
@@ -246,6 +361,71 @@ config="CONFIG_USB_G_HID" ; config_module
 config="CONFIG_USB_G_DBGP" ; config_module
 config="CONFIG_USB_G_DBGP_PRINTK" ; config_disable
 config="CONFIG_USB_G_DBGP_SERIAL" ; config_enable
+
+#
+# MMC/SD/SDIO Host Controller Drivers
+#
+config="CONFIG_MMC_SDHCI" ; config_disable
+config="CONFIG_MMC_SDHCI_PLTFM" ; config_disable
+config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_disable
+config="CONFIG_MMC_DW" ; config_disable
+
+#
+# MemoryStick drivers
+#
+config="CONFIG_MSPRO_BLOCK" ; config_disable
+
+#
+# LED drivers
+#
+config="CONFIG_LEDS_GPIO" ; config_enable
+
+#
+# on-CPU RTC drivers
+#
+config="CONFIG_RTC_DRV_SNVS" ; config_disable
+config="CONFIG_RTC_DRV_R7301" ; config_disable
+
+#
+# DMA Devices
+#
+config="CONFIG_FSL_EDMA" ; config_disable
+config="CONFIG_DW_DMAC_CORE" ; config_disable
+config="CONFIG_DW_DMAC" ; config_disable
+
+#
+# Qualcomm SoC drivers
+#
+config="CONFIG_SUNXI_SRAM" ; config_disable
+
+#
+# Analog to digital converters
+#
+config="CONFIG_VF610_ADC" ; config_disable
+
+#
+# Temperature sensors
+#
+config="CONFIG_PWM_TIECAP" ; config_enable
+config="CONFIG_PWM_TIEHRPWM" ; config_enable
+config="CONFIG_RESET_IMX7" ; config_disable
+config="CONFIG_RESET_SUNXI" ; config_disable
+
+exit
+
+CONFIG_MSPRO_BLOCK:
+CONFIG_LEDS_BCM6328:
+
+exit
+exit
+
+
+#
+# Native drivers
+#
+config="CONFIG_IMX_THERMAL" ; config_disable
+
+
 
 #capes:
 config="CONFIG_CAPE_BONE_ARGUS" ; config_enable
@@ -267,25 +447,17 @@ config="CONFIG_FPGA" ; config_disable
 config="CONFIG_FPGA_MGR_SOCFPGA" ; config_disable
 
 #U-boot Overlays
-config="CONFIG_DRM_I2C_ADIHDMI" ; config_enable
-config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_enable
-config="CONFIG_DRM_TILCDC" ; config_enable
-config="CONFIG_DRM_UDL" ; config_module
 config="CONFIG_BACKLIGHT_PWM" ; config_enable
 config="CONFIG_BACKLIGHT_PANDORA" ; config_disable
 config="CONFIG_BACKLIGHT_GPIO" ; config_enable
-config="CONFIG_LEDS_GPIO" ; config_module
+
 
 #
 # Pin controllers
 #
 config="CONFIG_GPIO_OF_HELPER" ; config_enable
 
-#these errata are not needed on am335x
-config="CONFIG_ARM_ERRATA_430973" ; config_disable
-config="CONFIG_ARM_ERRATA_720789" ; config_disable
-config="CONFIG_ARM_ERRATA_754322" ; config_disable
-config="CONFIG_ARM_ERRATA_775420" ; config_disable
+
 
 #u-boot overlays
 config="CONFIG_MFD_TI_AM335X_TSCADC" ; config_enable
@@ -298,7 +470,7 @@ config="CONFIG_AXP20X_ADC" ; config_disable
 config="CONFIG_AXP288_ADC" ; config_disable
 config="CONFIG_TWL4030_MADC" ; config_disable
 config="CONFIG_TWL6030_GPADC" ; config_disable
-config="CONFIG_VF610_ADC" ; config_disable
+
 config="CONFIG_VIPERBOARD_ADC" ; config_disable
 config="CONFIG_AXP20X_POWER" ; config_disable
 
