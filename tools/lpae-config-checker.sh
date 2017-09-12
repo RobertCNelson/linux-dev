@@ -644,6 +644,7 @@ config="CONFIG_W1_SLAVE_DS2408_READBACK" ; config_enable
 config="CONFIG_W1_SLAVE_DS2413" ; config_module
 config="CONFIG_W1_SLAVE_DS2406" ; config_module
 config="CONFIG_W1_SLAVE_DS2423" ; config_module
+config="CONFIG_W1_SLAVE_DS2805" ; config_module
 config="CONFIG_W1_SLAVE_DS2433_CRC" ; config_enable
 config="CONFIG_W1_SLAVE_DS2438" ; config_module
 config="CONFIG_W1_SLAVE_DS2760" ; config_module
@@ -656,8 +657,8 @@ config="CONFIG_GENERIC_ADC_BATTERY" ; config_module
 config="CONFIG_BATTERY_DA9052" ; config_module
 config="CONFIG_AXP288_FUEL_GAUGE" ; config_module
 config="CONFIG_CHARGER_GPIO" ; config_module
-config="CONFIG_CHARGER_TPS65217" ; config_module
 config="CONFIG_AXP20X_POWER" ; config_enable
+config="CONFIG_CHARGER_TPS65217" ; config_enable
 config="CONFIG_POWER_SEQUENCE" ; config_enable
 
 #
@@ -730,6 +731,7 @@ config="CONFIG_SENSORS_MAX20751" ; config_module
 config="CONFIG_SENSORS_MAX34440" ; config_module
 config="CONFIG_SENSORS_MAX8688" ; config_module
 config="CONFIG_SENSORS_TPS40422" ; config_module
+config="CONFIG_SENSORS_TPS53679" ; config_module
 config="CONFIG_SENSORS_UCD9000" ; config_module
 config="CONFIG_SENSORS_UCD9200" ; config_module
 config="CONFIG_SENSORS_ZL6100" ; config_module
@@ -901,6 +903,9 @@ config="CONFIG_DRM_ETNAVIV" ; config_enable
 config="CONFIG_DRM_TINYDRM" ; config_module
 config="CONFIG_TINYDRM_MIPI_DBI" ; config_module
 config="CONFIG_TINYDRM_MI0283QT" ; config_module
+config="CONFIG_TINYDRM_REPAPER" ; config_module
+config="CONFIG_TINYDRM_ST7586" ; config_module
+
 config="CONFIG_DRM_LEGACY" ; config_disable
 
 #exit
@@ -1095,33 +1100,33 @@ config="CONFIG_LEDS_TRIGGER_DEFAULT_ON" ; config_enable
 #
 # I2C RTC drivers
 #
-config="CONFIG_RTC_DRV_ABB5ZES3" ; config_module
-config="CONFIG_RTC_DRV_ABX80X" ; config_module
-config="CONFIG_RTC_DRV_DS1374" ; config_module
+config="CONFIG_RTC_DRV_ABB5ZES3" ; config_enable
+config="CONFIG_RTC_DRV_ABX80X" ; config_enable
+config="CONFIG_RTC_DRV_DS1374" ; config_enable
 config="CONFIG_RTC_DRV_DS1374_WDT" ; config_enable
-config="CONFIG_RTC_DRV_DS1672" ; config_module
-config="CONFIG_RTC_DRV_DS3232" ; config_module
-config="CONFIG_RTC_DRV_HYM8563" ; config_module
-config="CONFIG_RTC_DRV_MAX6900" ; config_module
-config="CONFIG_RTC_DRV_RS5C372" ; config_module
-config="CONFIG_RTC_DRV_ISL1208" ; config_module
-config="CONFIG_RTC_DRV_ISL12022" ; config_module
-config="CONFIG_RTC_DRV_X1205" ; config_module
-config="CONFIG_RTC_DRV_PCF2127" ; config_module
-config="CONFIG_RTC_DRV_PCF85063" ; config_module
-config="CONFIG_RTC_DRV_PCF8583" ; config_module
-config="CONFIG_RTC_DRV_M41T80" ; config_module
+config="CONFIG_RTC_DRV_DS1672" ; config_enable
+config="CONFIG_RTC_DRV_DS3232" ; config_enable
+config="CONFIG_RTC_DRV_HYM8563" ; config_enable
+config="CONFIG_RTC_DRV_MAX6900" ; config_enable
+config="CONFIG_RTC_DRV_RS5C372" ; config_enable
+config="CONFIG_RTC_DRV_ISL1208" ; config_enable
+config="CONFIG_RTC_DRV_ISL12022" ; config_enable
+config="CONFIG_RTC_DRV_X1205" ; config_enable
+config="CONFIG_RTC_DRV_PCF2127" ; config_enable
+config="CONFIG_RTC_DRV_PCF85063" ; config_enable
+config="CONFIG_RTC_DRV_PCF8583" ; config_enable
+config="CONFIG_RTC_DRV_M41T80" ; config_enable
 config="CONFIG_RTC_DRV_M41T80_WDT" ; config_enable
-config="CONFIG_RTC_DRV_BQ32K" ; config_module
-config="CONFIG_RTC_DRV_TPS65910" ; config_module
-config="CONFIG_RTC_DRV_S35390A" ; config_module
+config="CONFIG_RTC_DRV_BQ32K" ; config_enable
+config="CONFIG_RTC_DRV_TPS65910" ; config_enable
+config="CONFIG_RTC_DRV_S35390A" ; config_enable
 config="CONFIG_RTC_DRV_FM3130" ; config_module
-config="CONFIG_RTC_DRV_RX8010" ; config_module
-config="CONFIG_RTC_DRV_RX8581" ; config_module
-config="CONFIG_RTC_DRV_RX8025" ; config_module
-config="CONFIG_RTC_DRV_EM3027" ; config_module
+config="CONFIG_RTC_DRV_RX8010" ; config_enable
+config="CONFIG_RTC_DRV_RX8581" ; config_enable
+config="CONFIG_RTC_DRV_RX8025" ; config_enable
+config="CONFIG_RTC_DRV_EM3027" ; config_enable
 config="CONFIG_RTC_DRV_RV3029C2" ; config_module
-config="CONFIG_RTC_DRV_RV8803" ; config_module
+config="CONFIG_RTC_DRV_RV8803" ; config_enable
 
 #
 # SPI RTC drivers
@@ -1462,11 +1467,13 @@ config="CONFIG_AD799X" ; config_module
 config="CONFIG_AXP20X_ADC" ; config_module
 config="CONFIG_AXP288_ADC" ; config_module
 config="CONFIG_CC10001_ADC" ; config_module
+config="CONFIG_DLN2_ADC" ; config_module
 config="CONFIG_ENVELOPE_DETECTOR" ; config_module
 config="CONFIG_HI8435" ; config_module
 config="CONFIG_HX711" ; config_module
 config="CONFIG_INA2XX_ADC" ; config_module
 config="CONFIG_IMX7D_ADC" ; config_module
+config="CONFIG_LTC2471" ; config_module
 config="CONFIG_LTC2485" ; config_module
 config="CONFIG_LTC2497" ; config_module
 config="CONFIG_MAX1027" ; config_module
@@ -1502,6 +1509,7 @@ config="CONFIG_AD8366" ; config_module
 # Chemical Sensors
 #
 config="CONFIG_ATLAS_PH_SENSOR" ; config_module
+config="CONFIG_CCS811" ; config_module
 config="CONFIG_IAQCORE" ; config_module
 config="CONFIG_VZ89X" ; config_module
 
