@@ -117,6 +117,7 @@ config="CONFIG_SOC_AM43XX" ; config_enable
 config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_OMAP5_ERRATA_801819" ; config_enable
+config="CONFIG_ARCH_ROCKCHIP" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_EXYNOS3" ; config_enable
 config="CONFIG_ARCH_EXYNOS4" ; config_disable
@@ -391,7 +392,6 @@ config="CONFIG_ENCX24J600" ; config_module
 config="CONFIG_STMMAC_ETH" ; config_enable
 config="CONFIG_STMMAC_PLATFORM" ; config_enable
 config="CONFIG_DWMAC_GENERIC" ; config_enable
-config="CONFIG_DWMAC_ROCKCHIP" ; config_enable
 config="CONFIG_DWMAC_SUNXI" ; config_enable
 config="CONFIG_DWMAC_SUN8I" ; config_enable
 config="CONFIG_TI_DAVINCI_EMAC" ; config_enable
@@ -711,7 +711,6 @@ config="CONFIG_W1_SLAVE_DS2760" ; config_module
 config="CONFIG_W1_SLAVE_DS2780" ; config_module
 config="CONFIG_W1_SLAVE_DS2781" ; config_module
 config="CONFIG_W1_SLAVE_DS28E04" ; config_module
-config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
 config="CONFIG_POWER_RESET_IMX" ; config_enable
 config="CONFIG_GENERIC_ADC_BATTERY" ; config_module
 config="CONFIG_BATTERY_DA9052" ; config_module
@@ -815,7 +814,6 @@ config="CONFIG_THERMAL_GOV_BANG_BANG" ; config_enable
 config="CONFIG_CLOCK_THERMAL" ; config_enable
 config="CONFIG_DEVFREQ_THERMAL" ; config_enable
 config="CONFIG_IMX_THERMAL" ; config_enable
-config="CONFIG_ROCKCHIP_THERMAL" ; config_enable
 
 #
 # Texas Instruments thermal drivers
@@ -922,7 +920,6 @@ config="CONFIG_SOC_CAMERA_TW9910" ; config_module
 #
 # Graphics support
 #
-config="CONFIG_TEGRA_HOST1X" ; config_disable
 config="CONFIG_IMX_IPUV3_CORE" ; config_enable
 config="CONFIG_DRM" ; config_enable
 config="CONFIG_DRM_KMS_HELPER" ; config_enable
@@ -948,7 +945,6 @@ config="CONFIG_DRM_OMAP_CONNECTOR_HDMI" ; config_enable
 config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 
 config="CONFIG_DRM_TILCDC" ; config_enable
-config="CONFIG_DRM_TEGRA" ; config_disable
 config="CONFIG_DRM_STM" ; config_disable
 
 #
@@ -1052,10 +1048,8 @@ config="CONFIG_USB_OTG" ; config_enable
 #
 config="CONFIG_USB_XHCI_HCD" ; config_enable
 config="CONFIG_USB_XHCI_PLATFORM" ; config_enable
-config="CONFIG_USB_XHCI_TEGRA" ; config_disable
 config="CONFIG_USB_EHCI_HCD" ; config_enable
 config="CONFIG_USB_EHCI_HCD_OMAP" ; config_enable
-config="CONFIG_USB_EHCI_TEGRA" ; config_disable
 config="CONFIG_USB_EHCI_EXYNOS" ; config_enable
 config="CONFIG_USB_EHCI_HCD_PLATFORM" ; config_enable
 config="CONFIG_USB_OHCI_HCD" ; config_disable
@@ -1131,13 +1125,11 @@ config="CONFIG_MMC_SDHCI_PLTFM" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
-config="CONFIG_MMC_SDHCI_TEGRA" ; config_disable
 config="CONFIG_MMC_SDHCI_S3C" ; config_enable
 config="CONFIG_MMC_SDHCI_S3C_DMA" ; config_enable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
 config="CONFIG_MMC_DW" ; config_enable
 config="CONFIG_MMC_DW_PLTFM" ; config_enable
-config="CONFIG_MMC_DW_ROCKCHIP" ; config_enable
 config="CONFIG_MMC_SUNXI" ; config_enable
 
 #
@@ -1435,14 +1427,8 @@ config="CONFIG_HWSPINLOCK" ; config_enable
 config="CONFIG_HWSPINLOCK_OMAP" ; config_enable
 
 #
-# Clock Source drivers
-#
-config="CONFIG_ROCKCHIP_MBOX" ; config_enable
-
-#
 # Generic IOMMU Pagetable Support
 #
-config="CONFIG_TEGRA_IOMMU_SMMU" ; config_disable
 config="CONFIG_EXYNOS_IOMMU" ; config_enable
 config="CONFIG_ARM_SMMU" ; config_enable
 
@@ -1477,10 +1463,8 @@ config="CONFIG_DEVFREQ_GOV_PASSIVE" ; config_enable
 # DEVFREQ Drivers
 #
 config="CONFIG_ARM_EXYNOS_BUS_DEVFREQ" ; config_enable
-config="CONFIG_ARM_TEGRA_DEVFREQ" ; config_disable
 config="CONFIG_ARM_RK3399_DMC_DEVFREQ" ; config_enable
 config="CONFIG_DEVFREQ_EVENT_EXYNOS_NOCP" ; config_enable
-config="CONFIG_DEVFREQ_EVENT_ROCKCHIP_DFI" ; config_enable
 
 #
 # Extcon Device Drivers
@@ -1811,13 +1795,6 @@ config="CONFIG_TI_PIPE3" ; config_module
 config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_PHY_SUN9I_USB" ; config_enable
-config="CONFIG_PHY_ROCKCHIP_USB" ; config_enable
-config="CONFIG_PHY_ROCKCHIP_INNO_USB2" ; config_enable
-config="CONFIG_PHY_ROCKCHIP_EMMC" ; config_enable
-config="CONFIG_PHY_ROCKCHIP_DP" ; config_enable
-config="CONFIG_PHY_ROCKCHIP_PCIE" ; config_enable
-config="CONFIG_PHY_ROCKCHIP_TYPEC" ; config_enable
-config="CONFIG_PHY_TEGRA_XUSB" ; config_disable
 
 #
 # Android
@@ -1825,7 +1802,6 @@ config="CONFIG_PHY_TEGRA_XUSB" ; config_disable
 config="CONFIG_NVMEM" ; config_enable
 config="CONFIG_NVMEM_IMX_IIM" ; config_enable
 config="CONFIG_NVMEM_IMX_OCOTP" ; config_enable
-config="CONFIG_ROCKCHIP_EFUSE" ; config_enable
 config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
 config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
 
@@ -1907,7 +1883,6 @@ config="CONFIG_CRYPTO_DEV_OMAP_DES" ; config_module
 config="CONFIG_CRYPTO_DEV_SAHARA" ; config_module
 config="CONFIG_CRYPTO_DEV_S5P" ; config_module
 config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_module
-config="CONFIG_CRYPTO_DEV_ROCKCHIP" ; config_module
 
 #
 # Certificates for signature checking
