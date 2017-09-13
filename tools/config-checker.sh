@@ -119,8 +119,7 @@ config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_OMAP5_ERRATA_801819" ; config_enable
 config="CONFIG_ARCH_ROCKCHIP" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
-config="CONFIG_ARCH_EXYNOS3" ; config_enable
-config="CONFIG_ARCH_EXYNOS4" ; config_disable
+config="CONFIG_ARCH_EXYNOS" ; config_disable
 
 #
 # Power management
@@ -168,8 +167,6 @@ config="CONFIG_CPU_IDLE" ; config_enable
 # ARM CPU Idle Drivers
 #
 config="CONFIG_ARM_CPUIDLE" ; config_enable
-config="CONFIG_ARM_BIG_LITTLE_CPUIDLE" ; config_enable
-config="CONFIG_ARM_EXYNOS_CPUIDLE" ; config_enable
 
 #
 # At least one emulation must be selected
@@ -454,7 +451,6 @@ config="CONFIG_KEYBOARD_MCS" ; config_module
 config="CONFIG_KEYBOARD_MPR121" ; config_module
 config="CONFIG_KEYBOARD_SNVS_PWRKEY" ; config_module
 config="CONFIG_KEYBOARD_NEWTON" ; config_module
-config="CONFIG_KEYBOARD_SAMSUNG" ; config_module
 config="CONFIG_KEYBOARD_SUNKBD" ; config_module
 config="CONFIG_KEYBOARD_XTKBD" ; config_module
 config="CONFIG_KEYBOARD_CAP11XX" ; config_module
@@ -572,7 +568,6 @@ config="CONFIG_INPUT_DRV2667_HAPTICS" ; config_module
 #
 # Hardware I/O ports
 #
-config="CONFIG_SERIO_AMBAKMI" ; config_disable
 config="CONFIG_SERIO_ALTERA_PS2" ; config_disable
 
 #
@@ -592,8 +587,6 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 #
 # Non-8250 serial port support
 #
-config="CONFIG_SERIAL_AMBA_PL010" ; config_disable
-config="CONFIG_SERIAL_AMBA_PL011" ; config_disable
 config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
@@ -614,11 +607,10 @@ config="CONFIG_I2C_MUX_PINCTRL" ; config_enable
 #
 # I2C system bus drivers (mostly embedded / system-on-chip)
 #
-config="CONFIG_I2C_EXYNOS5" ; config_enable
 config="CONFIG_I2C_IMX" ; config_enable
 config="CONFIG_I2C_MV64XXX" ; config_enable
 config="CONFIG_I2C_OCORES" ; config_disable
-config="CONFIG_I2C_RK3X" ; config_enable
+config="CONFIG_I2C_RK3X" ; config_disable
 config="CONFIG_I2C_SIMTEC" ; config_disable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
 
@@ -633,7 +625,7 @@ config="CONFIG_I2C_DLN2" ; config_module
 config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
-config="CONFIG_SPI_S3C64XX" ; config_module
+config="CONFIG_SPI_ROCKCHIP" ; config_disable
 
 #
 # SPI Protocol Masters
@@ -651,12 +643,12 @@ config="CONFIG_PPS_CLIENT_GPIO" ; config_module
 #
 config="CONFIG_PINCTRL_TI_IODELAY" ; config_enable
 config="CONFIG_GPIO_MAX730X" ; config_module
+config="CONFIG_PINCTRL_SX150X" ; config_disable
 
 #
 # Memory mapped GPIO drivers
 #
 config="CONFIG_GPIO_AXP209" ; config_enable
-config="CONFIG_GPIO_PL061" ; config_disable
 config="CONFIG_GPIO_SYSCON" ; config_enable
 
 #
@@ -669,7 +661,7 @@ config="CONFIG_GPIO_MAX732X" ; config_module
 config="CONFIG_GPIO_PCA953X" ; config_enable
 config="CONFIG_GPIO_PCA953X_IRQ" ; config_enable
 config="CONFIG_GPIO_PCF857X" ; config_module
-config="CONFIG_GPIO_SX150X" ; config_enable
+config="CONFIG_GPIO_SX150X" ; config_disable
 config="CONFIG_GPIO_TPIC2810" ; config_module
 
 #
@@ -1005,7 +997,6 @@ config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 # SoC Audio support for Freescale i.MX boards:
 #
 config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_module
-config="CONFIG_SND_SOC_SAMSUNG" ; config_module
 
 #
 # HID support
@@ -1050,7 +1041,6 @@ config="CONFIG_USB_XHCI_HCD" ; config_enable
 config="CONFIG_USB_XHCI_PLATFORM" ; config_enable
 config="CONFIG_USB_EHCI_HCD" ; config_enable
 config="CONFIG_USB_EHCI_HCD_OMAP" ; config_enable
-config="CONFIG_USB_EHCI_EXYNOS" ; config_enable
 config="CONFIG_USB_EHCI_HCD_PLATFORM" ; config_enable
 config="CONFIG_USB_OHCI_HCD" ; config_disable
 
@@ -1089,7 +1079,6 @@ config="CONFIG_USB_DWC3" ; config_enable
 # Platform Glue Driver Support
 #
 config="CONFIG_USB_DWC3_OMAP" ; config_enable
-config="CONFIG_USB_DWC3_EXYNOS" ; config_enable
 config="CONFIG_USB_DWC3_OF_SIMPLE" ; config_enable
 
 #
@@ -1125,8 +1114,6 @@ config="CONFIG_MMC_SDHCI_PLTFM" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
-config="CONFIG_MMC_SDHCI_S3C" ; config_enable
-config="CONFIG_MMC_SDHCI_S3C_DMA" ; config_enable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
 config="CONFIG_MMC_DW" ; config_enable
 config="CONFIG_MMC_DW_PLTFM" ; config_enable
@@ -1243,7 +1230,6 @@ config="CONFIG_RTC_DRV_DS2404" ; config_module
 #
 # on-CPU RTC drivers
 #
-config="CONFIG_RTC_DRV_S3C" ; config_enable
 config="CONFIG_RTC_DRV_SUN6I" ; config_enable
 config="CONFIG_RTC_DRV_R7301" ; config_enable
 
@@ -1429,7 +1415,6 @@ config="CONFIG_HWSPINLOCK_OMAP" ; config_enable
 #
 # Generic IOMMU Pagetable Support
 #
-config="CONFIG_EXYNOS_IOMMU" ; config_enable
 config="CONFIG_ARM_SMMU" ; config_enable
 
 #
@@ -1458,13 +1443,6 @@ config="CONFIG_DEVFREQ_GOV_PERFORMANCE" ; config_enable
 config="CONFIG_DEVFREQ_GOV_POWERSAVE" ; config_enable
 config="CONFIG_DEVFREQ_GOV_USERSPACE" ; config_enable
 config="CONFIG_DEVFREQ_GOV_PASSIVE" ; config_enable
-
-#
-# DEVFREQ Drivers
-#
-config="CONFIG_ARM_EXYNOS_BUS_DEVFREQ" ; config_enable
-config="CONFIG_ARM_RK3399_DMC_DEVFREQ" ; config_enable
-config="CONFIG_DEVFREQ_EVENT_EXYNOS_NOCP" ; config_enable
 
 #
 # Extcon Device Drivers
@@ -1881,7 +1859,6 @@ config="CONFIG_CRYPTO_DEV_OMAP_SHAM" ; config_module
 config="CONFIG_CRYPTO_DEV_OMAP_AES" ; config_module
 config="CONFIG_CRYPTO_DEV_OMAP_DES" ; config_module
 config="CONFIG_CRYPTO_DEV_SAHARA" ; config_module
-config="CONFIG_CRYPTO_DEV_S5P" ; config_module
 config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_module
 
 #
