@@ -124,6 +124,7 @@ config="CONFIG_ARCH_EXYNOS4" ; config_disable
 #
 # Power management
 #
+config="CONFIG_ARCH_TEGRA" ; config_disable
 config="CONFIG_ARCH_VEXPRESS" ; config_disable
 config="CONFIG_ARCH_WM8850" ; config_disable
 
@@ -336,7 +337,6 @@ config="CONFIG_ATA" ; config_enable
 config="CONFIG_SATA_AHCI_PLATFORM" ; config_enable
 config="CONFIG_AHCI_IMX" ; config_enable
 config="CONFIG_AHCI_SUNXI" ; config_enable
-config="CONFIG_AHCI_TEGRA" ; config_enable
 
 #
 # PATA SFF controllers with BMDMA
@@ -379,11 +379,15 @@ config="CONFIG_NET_VENDOR_8390" ; config_disable
 config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
 config="CONFIG_NET_VENDOR_RENESAS" ; config_disable
 config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
+config="CONFIG_NET_VENDOR_SEEQ" ; config_disable
+config="CONFIG_NET_VENDOR_SOLARFLARE" ; config_disable
+config="CONFIG_NET_VENDOR_VIA" ; config_disable
+config="CONFIG_NET_VENDOR_WIZNET" ; config_disable
+config="CONFIG_NET_VENDOR_SYNOPSYS" ; config_disable
 config="CONFIG_SUN4I_EMAC" ; config_enable
 config="CONFIG_MVMDIO" ; config_disable
 config="CONFIG_KS8851" ; config_module
 config="CONFIG_ENCX24J600" ; config_module
-config="CONFIG_NET_VENDOR_SEEQ" ; config_enable
 config="CONFIG_STMMAC_ETH" ; config_enable
 config="CONFIG_STMMAC_PLATFORM" ; config_enable
 config="CONFIG_DWMAC_GENERIC" ; config_enable
@@ -405,6 +409,18 @@ config="CONFIG_AQUANTIA_PHY" ; config_disable
 config="CONFIG_AT803X_PHY" ; config_disable
 config="CONFIG_BCM7XXX_PHY" ; config_disable
 config="CONFIG_BCM87XX_PHY" ; config_disable
+config="CONFIG_BROADCOM_PHY" ; config_disable
+config="CONFIG_CICADA_PHY" ; config_disable
+config="CONFIG_DAVICOM_PHY" ; config_disable
+config="CONFIG_ICPLUS_PHY" ; config_disable
+config="CONFIG_LSI_ET1011C_PHY" ; config_disable
+config="CONFIG_LXT_PHY" ; config_disable
+config="CONFIG_MARVELL_PHY" ; config_disable
+config="CONFIG_NATIONAL_PHY" ; config_disable
+config="CONFIG_QSEMI_PHY" ; config_disable
+config="CONFIG_REALTEK_PHY" ; config_disable
+config="CONFIG_STE10XP" ; config_disable
+config="CONFIG_TERANETICS_PHY" ; config_disable
 config="CONFIG_DP83848_PHY" ; config_enable
 config="CONFIG_MICREL_PHY" ; config_enable
 config="CONFIG_MICROSEMI_PHY" ; config_enable
@@ -618,7 +634,6 @@ config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
 config="CONFIG_SPI_S3C64XX" ; config_module
-config="CONFIG_SPI_TEGRA20_SLINK" ; config_module
 
 #
 # SPI Protocol Masters
@@ -907,7 +922,7 @@ config="CONFIG_SOC_CAMERA_TW9910" ; config_module
 #
 # Graphics support
 #
-config="CONFIG_TEGRA_HOST1X" ; config_enable
+config="CONFIG_TEGRA_HOST1X" ; config_disable
 config="CONFIG_IMX_IPUV3_CORE" ; config_enable
 config="CONFIG_DRM" ; config_enable
 config="CONFIG_DRM_KMS_HELPER" ; config_enable
@@ -933,7 +948,7 @@ config="CONFIG_DRM_OMAP_CONNECTOR_HDMI" ; config_enable
 config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 
 config="CONFIG_DRM_TILCDC" ; config_enable
-config="CONFIG_DRM_TEGRA" ; config_enable
+config="CONFIG_DRM_TEGRA" ; config_disable
 config="CONFIG_DRM_STM" ; config_disable
 
 #
@@ -1037,10 +1052,10 @@ config="CONFIG_USB_OTG" ; config_enable
 #
 config="CONFIG_USB_XHCI_HCD" ; config_enable
 config="CONFIG_USB_XHCI_PLATFORM" ; config_enable
-config="CONFIG_USB_XHCI_TEGRA" ; config_enable
+config="CONFIG_USB_XHCI_TEGRA" ; config_disable
 config="CONFIG_USB_EHCI_HCD" ; config_enable
 config="CONFIG_USB_EHCI_HCD_OMAP" ; config_enable
-config="CONFIG_USB_EHCI_TEGRA" ; config_enable
+config="CONFIG_USB_EHCI_TEGRA" ; config_disable
 config="CONFIG_USB_EHCI_EXYNOS" ; config_enable
 config="CONFIG_USB_EHCI_HCD_PLATFORM" ; config_enable
 config="CONFIG_USB_OHCI_HCD" ; config_disable
@@ -1116,7 +1131,7 @@ config="CONFIG_MMC_SDHCI_PLTFM" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
-config="CONFIG_MMC_SDHCI_TEGRA" ; config_enable
+config="CONFIG_MMC_SDHCI_TEGRA" ; config_disable
 config="CONFIG_MMC_SDHCI_S3C" ; config_enable
 config="CONFIG_MMC_SDHCI_S3C_DMA" ; config_enable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
@@ -1427,7 +1442,7 @@ config="CONFIG_ROCKCHIP_MBOX" ; config_enable
 #
 # Generic IOMMU Pagetable Support
 #
-config="CONFIG_TEGRA_IOMMU_SMMU" ; config_enable
+config="CONFIG_TEGRA_IOMMU_SMMU" ; config_disable
 config="CONFIG_EXYNOS_IOMMU" ; config_enable
 config="CONFIG_ARM_SMMU" ; config_enable
 
@@ -1462,7 +1477,7 @@ config="CONFIG_DEVFREQ_GOV_PASSIVE" ; config_enable
 # DEVFREQ Drivers
 #
 config="CONFIG_ARM_EXYNOS_BUS_DEVFREQ" ; config_enable
-config="CONFIG_ARM_TEGRA_DEVFREQ" ; config_enable
+config="CONFIG_ARM_TEGRA_DEVFREQ" ; config_disable
 config="CONFIG_ARM_RK3399_DMC_DEVFREQ" ; config_enable
 config="CONFIG_DEVFREQ_EVENT_EXYNOS_NOCP" ; config_enable
 config="CONFIG_DEVFREQ_EVENT_ROCKCHIP_DFI" ; config_enable
@@ -1802,7 +1817,7 @@ config="CONFIG_PHY_ROCKCHIP_EMMC" ; config_enable
 config="CONFIG_PHY_ROCKCHIP_DP" ; config_enable
 config="CONFIG_PHY_ROCKCHIP_PCIE" ; config_enable
 config="CONFIG_PHY_ROCKCHIP_TYPEC" ; config_enable
-config="CONFIG_PHY_TEGRA_XUSB" ; config_enable
+config="CONFIG_PHY_TEGRA_XUSB" ; config_disable
 
 #
 # Android

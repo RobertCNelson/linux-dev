@@ -152,7 +152,6 @@ config="CONFIG_MDIO_BCM_UNIMAC" ; config_disable
 #
 # MII PHY device drivers
 #
-
 config="CONFIG_AMD_PHY" ; config_disable
 config="CONFIG_AQUANTIA_PHY" ; config_disable
 config="CONFIG_AT803X_PHY" ; config_disable
