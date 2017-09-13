@@ -357,6 +357,28 @@ config="CONFIG_MII" ; config_enable
 #
 # Distributed Switch Architecture drivers
 #
+config="CONFIG_B53" ; config_disable
+config="CONFIG_NET_DSA_BCM_SF2" ; config_disable
+config="CONFIG_NET_DSA_MV88E6060" ; config_disable
+config="CONFIG_NET_DSA_MV88E6XXX" ; config_disable
+config="CONFIG_NET_VENDOR_ALACRITECH" ; config_disable
+config="CONFIG_NET_VENDOR_AMAZON" ; config_disable
+config="CONFIG_NET_VENDOR_AQUANTIA" ; config_disable
+config="CONFIG_NET_CADENCE" ; config_disable
+config="CONFIG_NET_VENDOR_BROADCOM" ; config_disable
+config="CONFIG_NET_VENDOR_CIRRUS" ; config_disable
+config="CONFIG_NET_VENDOR_EZCHIP" ; config_disable
+config="CONFIG_NET_VENDOR_FARADAY" ; config_disable
+config="CONFIG_NET_VENDOR_HISILICON" ; config_disable
+config="CONFIG_NET_VENDOR_HUAWEI" ; config_disable
+config="CONFIG_NET_VENDOR_INTEL" ; config_disable
+config="CONFIG_NET_VENDOR_MARVELL" ; config_disable
+config="CONFIG_NET_VENDOR_MELLANOX" ; config_disable
+config="CONFIG_NET_VENDOR_NETRONOME" ; config_disable
+config="CONFIG_NET_VENDOR_8390" ; config_disable
+config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
+config="CONFIG_NET_VENDOR_RENESAS" ; config_disable
+config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
 config="CONFIG_SUN4I_EMAC" ; config_enable
 config="CONFIG_MVMDIO" ; config_disable
 config="CONFIG_KS8851" ; config_module
@@ -378,6 +400,11 @@ config="CONFIG_TI_CPTS" ; config_enable
 #
 # MII PHY device drivers
 #
+config="CONFIG_AMD_PHY" ; config_disable
+config="CONFIG_AQUANTIA_PHY" ; config_disable
+config="CONFIG_AT803X_PHY" ; config_disable
+config="CONFIG_BCM7XXX_PHY" ; config_disable
+config="CONFIG_BCM87XX_PHY" ; config_disable
 config="CONFIG_DP83848_PHY" ; config_enable
 config="CONFIG_MICREL_PHY" ; config_enable
 config="CONFIG_MICROSEMI_PHY" ; config_enable
