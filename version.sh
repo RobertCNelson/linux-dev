@@ -33,11 +33,11 @@ KERNEL_REL=4.13
 KERNEL_TAG=${KERNEL_REL}
 kernel_rt=".X-rtY"
 #Kernel Build
-BUILD=${build_prefix}21
+BUILD=${build_prefix}23
 
 #v4.X-rcX + upto SHA
-prev_KERNEL_SHA="46c1e79fee417f151547aa46fae04ab06cb666f4"
-KERNEL_SHA="a2bc8dea9e96872e16248884367ad0013e040089"
+prev_KERNEL_SHA="711aab1dbb324d321e3d84368a435a78908c7bce"
+KERNEL_SHA="b38923a068c10fc36ca8f596d650d095ce390b85"
 
 #git branch
 #BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"

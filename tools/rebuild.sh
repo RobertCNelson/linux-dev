@@ -232,7 +232,10 @@ if [  -f "${DIR}/.yakbuild" ] ; then
 fi
 make_kernel
 make_modules_pkg
-make_firmware_pkg
+if [ -f "${DIR}/KERNEL/scripts/Makefile.fwinst" ] ; then
+	#Finally nuked in v4.14.0-rc0 merge...
+	make_firmware_pkg
+fi
 if grep -q dtbs "${DIR}/KERNEL/arch/${KERNEL_ARCH}/Makefile"; then
 	make_dtbs_pkg
 fi
