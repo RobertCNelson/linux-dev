@@ -154,6 +154,7 @@ config="CONFIG_XEN" ; config_disable
 #
 # CPU frequency scaling drivers
 #
+config="CONFIG_CPUFREQ_DT" ; config_enable
 config="CONFIG_ARM_IMX6Q_CPUFREQ" ; config_enable
 config="CONFIG_ARM_OMAP2PLUS_CPUFREQ" ; config_disable
 config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
@@ -424,6 +425,11 @@ config="CONFIG_MICROSEMI_PHY" ; config_enable
 config="CONFIG_SMSC_PHY" ; config_enable
 config="CONFIG_VITESSE_PHY" ; config_enable
 config="CONFIG_ATH9K_HWRNG" ; config_enable
+config="CONFIG_B43" ; config_disable
+config="CONFIG_B43_BUSES_BCMA_AND_SSB" ; config_disable
+config="CONFIG_B43LEGACY" ; config_disable
+config="CONFIG_B43LEGACY_DMA_AND_PIO_MODE" ; config_disable
+config="CONFIG_BRCMSMAC" ; config_disable
 
 #
 # USB Network Adapters
@@ -437,9 +443,15 @@ config="CONFIG_CW1200_WLAN_SPI" ; config_module
 config="CONFIG_USB_ZD1201" ; config_module
 
 #
+# Userland interfaces
+#
+config="CONFIG_INPUT_MOUSEDEV" ; config_disable
+
+#
 # Input Device Drivers
 #
 config="CONFIG_KEYBOARD_ADP5589" ; config_module
+config="CONFIG_KEYBOARD_ATKBD" ; config_disable
 config="CONFIG_KEYBOARD_QT1070" ; config_module
 config="CONFIG_KEYBOARD_LKKBD" ; config_module
 config="CONFIG_KEYBOARD_GPIO_POLLED" ; config_module
@@ -451,12 +463,15 @@ config="CONFIG_KEYBOARD_MCS" ; config_module
 config="CONFIG_KEYBOARD_MPR121" ; config_module
 config="CONFIG_KEYBOARD_SNVS_PWRKEY" ; config_module
 config="CONFIG_KEYBOARD_NEWTON" ; config_module
+config="CONFIG_KEYBOARD_SAMSUNG" ; config_disable
 config="CONFIG_KEYBOARD_SUNKBD" ; config_module
+config="CONFIG_KEYBOARD_OMAP4" ; config_disable
+config="CONFIG_KEYBOARD_TWL4030" ; config_disable
 config="CONFIG_KEYBOARD_XTKBD" ; config_module
 config="CONFIG_KEYBOARD_CAP11XX" ; config_module
 config="CONFIG_KEYBOARD_BCM" ; config_module
 
-config="CONFIG_MOUSE_PS2_TOUCHKIT" ; config_enable
+config="CONFIG_MOUSE_PS2" ; config_disable
 config="CONFIG_MOUSE_SERIAL" ; config_module
 config="CONFIG_MOUSE_BCM5974" ; config_module
 config="CONFIG_MOUSE_CYAPA" ; config_module
@@ -610,6 +625,7 @@ config="CONFIG_I2C_MUX_PINCTRL" ; config_enable
 config="CONFIG_I2C_IMX" ; config_enable
 config="CONFIG_I2C_MV64XXX" ; config_enable
 config="CONFIG_I2C_OCORES" ; config_disable
+config="CONFIG_I2C_PCA_PLATFORM" ; config_disable
 config="CONFIG_I2C_RK3X" ; config_disable
 config="CONFIG_I2C_SIMTEC" ; config_disable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
@@ -641,6 +657,7 @@ config="CONFIG_PPS_CLIENT_GPIO" ; config_module
 #
 # Pin controllers
 #
+config="CONFIG_PINCTRL_MCP23S08" ; config_disable
 config="CONFIG_PINCTRL_TI_IODELAY" ; config_enable
 config="CONFIG_GPIO_MAX730X" ; config_module
 config="CONFIG_PINCTRL_SX150X" ; config_disable
@@ -818,6 +835,12 @@ config="CONFIG_OMAP3_THERMAL" ; config_enable
 #
 config="CONFIG_GENERIC_ADC_THERMAL" ; config_module
 config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
+
+#
+# Sonics Silicon Backplane
+#
+config="CONFIG_SSB" ; config_disable
+config="CONFIG_BCMA" ; config_disable
 
 #exit
 
