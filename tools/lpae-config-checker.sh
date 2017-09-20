@@ -141,6 +141,14 @@ config="CONFIG_XEN" ; config_disable
 #exit
 
 #
+# CPU Frequency scaling
+#
+config="CONFIG_CPU_FREQ_GOV_POWERSAVE" ; config_enable
+config="CONFIG_CPU_FREQ_GOV_USERSPACE" ; config_enable
+config="CONFIG_CPU_FREQ_GOV_ONDEMAND" ; config_enable
+config="CONFIG_CPU_FREQ_GOV_CONSERVATIVE" ; config_enable
+
+#
 # CPU frequency scaling drivers
 #
 config="CONFIG_CPUFREQ_DT" ; config_enable
