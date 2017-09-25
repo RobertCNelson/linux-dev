@@ -404,7 +404,7 @@ drivers () {
 	fi
 
 	dir 'drivers/ti/cpsw'
-	dir 'drivers/ti/cpufreq'
+#	dir 'drivers/ti/cpufreq'
 	dir 'drivers/ti/etnaviv'
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/mcasp'
