@@ -411,7 +411,6 @@ drivers () {
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/serial'
 	dir 'drivers/ti/uio'
-
 	dir 'drivers/ti/gpio'
 }
 
