@@ -428,6 +428,7 @@ soc () {
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
 	dir 'soc/ti/beaglebone_capes'
+	dir 'soc/ti/pocketbeagle'
 }
 
 dtb_makefile_append () {
@@ -480,6 +481,8 @@ beaglebone () {
 		device="am335x-boneblack-bbb-exp-r.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-audio.dtb" ; dtb_makefile_append
+
+		device="am335x-pocketbeagle.dtb" ; dtb_makefile_append
 
 		git commit -a -m 'auto generated: capes: add dtbs to makefile' -s
 		git format-patch -1 -o ../patches/beaglebone/generated/
