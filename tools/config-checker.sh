@@ -81,6 +81,9 @@ config="CONFIG_EMBEDDED" ; config_enable
 ##
 #config="CONFIG_MODULE_SIG" ; config_disable
 #config="CONFIG_SYSTEM_TRUSTED_KEYRING" ; config_disable
+config="CONFIG_MODULE_COMPRESS" ; config_enable
+config="CONFIG_MODULE_COMPRESS_GZIP" ; config_enable
+config="CONFIG_MODULE_COMPRESS_XZ" ; config_disable
 
 #
 # CPU Core family selection
@@ -246,7 +249,6 @@ config="CONFIG_BT_HCIUART_BCSP" ; config_enable
 config="CONFIG_BT_HCIUART_ATH3K" ; config_enable
 config="CONFIG_BT_HCIUART_3WIRE" ; config_enable
 
-config="CONFIG_BT_HCIUART_BCM" ; config_enable
 config="CONFIG_BT_HCIUART_QCA" ; config_enable
 
 config="CONFIG_BT_HCIBPA10X" ; config_module
@@ -389,12 +391,14 @@ config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
 config="CONFIG_NET_VENDOR_SEEQ" ; config_disable
 config="CONFIG_NET_VENDOR_SOLARFLARE" ; config_disable
 config="CONFIG_NET_VENDOR_VIA" ; config_disable
-config="CONFIG_NET_VENDOR_WIZNET" ; config_disable
+config="CONFIG_NET_VENDOR_WIZNET" ; config_enable
+config="CONFIG_WIZNET_W5100" ; config_enable
+config="CONFIG_WIZNET_W5100_SPI" ; config_enable
 config="CONFIG_NET_VENDOR_SYNOPSYS" ; config_disable
 config="CONFIG_SUN4I_EMAC" ; config_enable
-config="CONFIG_MVMDIO" ; config_disable
 config="CONFIG_KS8851" ; config_module
-config="CONFIG_ENCX24J600" ; config_module
+config="CONFIG_ENC28J60" ; config_enable
+config="CONFIG_ENCX24J600" ; config_enable
 config="CONFIG_STMMAC_ETH" ; config_enable
 config="CONFIG_STMMAC_PLATFORM" ; config_enable
 config="CONFIG_DWMAC_GENERIC" ; config_enable
@@ -434,9 +438,7 @@ config="CONFIG_SMSC_PHY" ; config_enable
 config="CONFIG_VITESSE_PHY" ; config_enable
 config="CONFIG_ATH9K_HWRNG" ; config_enable
 config="CONFIG_B43" ; config_disable
-config="CONFIG_B43_BUSES_BCMA_AND_SSB" ; config_disable
 config="CONFIG_B43LEGACY" ; config_disable
-config="CONFIG_B43LEGACY_DMA_AND_PIO_MODE" ; config_disable
 config="CONFIG_BRCMSMAC" ; config_disable
 
 #
@@ -614,6 +616,11 @@ config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
+config="CONFIG_HW_RANDOM_OMAP" ; config_enable
+config="CONFIG_HW_RANDOM_OMAP3_ROM" ; config_enable
+config="CONFIG_HW_RANDOM_VIRTIO" ; config_enable
+config="CONFIG_HW_RANDOM_IMX_RNGC" ; config_enable
+config="CONFIG_HW_RANDOM_TPM" ; config_enable
 config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_enable
 
 #
@@ -649,6 +656,8 @@ config="CONFIG_I2C_DLN2" ; config_module
 config="CONFIG_SPI_BITBANG" ; config_module
 config="CONFIG_SPI_DLN2" ; config_module
 config="CONFIG_SPI_GPIO" ; config_module
+config="CONFIG_SPI_OMAP24XX" ; config_enable
+config="CONFIG_SPI_TI_QSPI" ; config_enable
 config="CONFIG_SPI_ROCKCHIP" ; config_disable
 
 #
@@ -931,7 +940,6 @@ config="CONFIG_SOC_CAMERA_MT9T031" ; config_module
 config="CONFIG_SOC_CAMERA_MT9T112" ; config_module
 config="CONFIG_SOC_CAMERA_MT9V022" ; config_module
 config="CONFIG_SOC_CAMERA_OV5642" ; config_module
-config="CONFIG_SOC_CAMERA_OV6650" ; config_module
 config="CONFIG_SOC_CAMERA_OV772X" ; config_module
 config="CONFIG_SOC_CAMERA_OV9640" ; config_module
 config="CONFIG_SOC_CAMERA_OV9740" ; config_module
@@ -968,6 +976,7 @@ config="CONFIG_DRM_OMAP_CONNECTOR_HDMI" ; config_enable
 config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 
 config="CONFIG_DRM_TILCDC" ; config_enable
+config="CONFIG_DRM_TILCDC_SLAVE_COMPAT" ; config_disable
 config="CONFIG_DRM_STM" ; config_disable
 
 #
@@ -1145,7 +1154,9 @@ config="CONFIG_MMC_SDHCI_PLTFM" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_enable
 config="CONFIG_MMC_SDHCI_OF_ESDHC" ; config_enable
 config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
+config="CONFIG_MMC_OMAP" ; config_disable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
+config="CONFIG_MMC_SPI" ; config_enable
 config="CONFIG_MMC_DW" ; config_enable
 config="CONFIG_MMC_DW_PLTFM" ; config_enable
 config="CONFIG_MMC_SUNXI" ; config_enable
@@ -1217,21 +1228,21 @@ config="CONFIG_RTC_DRV_RV8803" ; config_enable
 #
 # SPI RTC drivers
 #
-config="CONFIG_RTC_DRV_M41T93" ; config_module
-config="CONFIG_RTC_DRV_M41T94" ; config_module
-config="CONFIG_RTC_DRV_DS1302" ; config_module
-config="CONFIG_RTC_DRV_DS1305" ; config_module
-config="CONFIG_RTC_DRV_DS1343" ; config_module
-config="CONFIG_RTC_DRV_DS1347" ; config_module
-config="CONFIG_RTC_DRV_DS1390" ; config_module
-config="CONFIG_RTC_DRV_MAX6916" ; config_module
-config="CONFIG_RTC_DRV_MAX6902" ; config_module
-config="CONFIG_RTC_DRV_R9701" ; config_module
-config="CONFIG_RTC_DRV_RX6110" ; config_module
-config="CONFIG_RTC_DRV_RS5C348" ; config_module
-config="CONFIG_RTC_DRV_PCF2123" ; config_module
-config="CONFIG_RTC_DRV_RX4581" ; config_module
-config="CONFIG_RTC_DRV_MCP795" ; config_module
+config="CONFIG_RTC_DRV_M41T93" ; config_enable
+config="CONFIG_RTC_DRV_M41T94" ; config_enable
+config="CONFIG_RTC_DRV_DS1302" ; config_enable
+config="CONFIG_RTC_DRV_DS1305" ; config_enable
+config="CONFIG_RTC_DRV_DS1343" ; config_enable
+config="CONFIG_RTC_DRV_DS1347" ; config_enable
+config="CONFIG_RTC_DRV_DS1390" ; config_enable
+config="CONFIG_RTC_DRV_MAX6916" ; config_enable
+config="CONFIG_RTC_DRV_MAX6902" ; config_enable
+config="CONFIG_RTC_DRV_R9701" ; config_enable
+config="CONFIG_RTC_DRV_RX6110" ; config_enable
+config="CONFIG_RTC_DRV_RS5C348" ; config_enable
+config="CONFIG_RTC_DRV_PCF2123" ; config_enable
+config="CONFIG_RTC_DRV_RX4581" ; config_enable
+config="CONFIG_RTC_DRV_MCP795" ; config_enable
 
 #
 # Platform RTC drivers
@@ -1478,9 +1489,7 @@ config="CONFIG_DEVFREQ_GOV_PASSIVE" ; config_enable
 #
 # Extcon Device Drivers
 #
-#config="CONFIG_EXTCON_DT_CON" ; config_enable
-#config="CONFIG_EXTCON_DT_CON_PROXY" ; config_enable
-#config="CONFIG_EXTCON_DT_CON_GPIO" ; config_enable
+config="CONFIG_EXTCON_AXP288" ; config_enable
 config="CONFIG_EXTCON_GPIO" ; config_enable
 config="CONFIG_EXTCON_PALMAS" ; config_enable
 config="CONFIG_EXTCON_USB_GPIO" ; config_enable
@@ -1855,6 +1864,11 @@ config="CONFIG_ROOT_NFS" ; config_enable
 config="CONFIG_DEBUG_INFO" ; config_disable
 
 #
+# Debug Lockups and Hangs
+#
+config="CONFIG_SOFTLOCKUP_DETECTOR" ; config_disable
+
+#
 # Runtime Testing
 #
 config="CONFIG_KGDB" ; config_enable
@@ -1884,13 +1898,13 @@ config="CONFIG_CRYPTO_SHA3" ; config_module
 #
 # Random Number Generation
 #
-config="CONFIG_CRYPTO_DEV_FSL_CAAM" ; config_module
-config="CONFIG_CRYPTO_DEV_OMAP" ; config_module
-config="CONFIG_CRYPTO_DEV_OMAP_SHAM" ; config_module
-config="CONFIG_CRYPTO_DEV_OMAP_AES" ; config_module
-config="CONFIG_CRYPTO_DEV_OMAP_DES" ; config_module
-config="CONFIG_CRYPTO_DEV_SAHARA" ; config_module
-config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_module
+config="CONFIG_CRYPTO_DEV_FSL_CAAM" ; config_enable
+config="CONFIG_CRYPTO_DEV_OMAP" ; config_enable
+config="CONFIG_CRYPTO_DEV_OMAP_SHAM" ; config_enable
+config="CONFIG_CRYPTO_DEV_OMAP_AES" ; config_enable
+config="CONFIG_CRYPTO_DEV_OMAP_DES" ; config_enable
+config="CONFIG_CRYPTO_DEV_SAHARA" ; config_enable
+config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_enable
 
 #
 # Certificates for signature checking
