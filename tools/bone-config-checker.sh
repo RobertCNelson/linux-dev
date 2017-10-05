@@ -145,7 +145,6 @@ config="CONFIG_NET_VENDOR_SEEQ" ; config_disable
 config="CONFIG_NET_VENDOR_SOLARFLARE" ; config_disable
 config="CONFIG_NET_VENDOR_STMICRO" ; config_disable
 config="CONFIG_NET_VENDOR_VIA" ; config_disable
-config="CONFIG_NET_VENDOR_WIZNET" ; config_disable
 config="CONFIG_NET_VENDOR_SYNOPSYS" ; config_disable
 config="CONFIG_MDIO_BCM_UNIMAC" ; config_disable
 
