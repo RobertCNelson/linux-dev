@@ -405,7 +405,6 @@ drivers () {
 	fi
 
 	dir 'drivers/ti/cpsw'
-#	dir 'drivers/ti/cpufreq'
 	dir 'drivers/ti/etnaviv'
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/mcasp'
@@ -420,7 +419,6 @@ soc () {
 #	dir 'soc/imx/udoo'
 	dir 'soc/imx/wandboard'
 	dir 'soc/imx'
-	#dir 'soc/sunxi'
 	dir 'soc/ti'
 	dir 'soc/ti/bone_common'
 	dir 'soc/ti/uboot'
