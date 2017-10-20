@@ -136,6 +136,7 @@ config="CONFIG_NET_VENDOR_INTEL" ; config_disable
 config="CONFIG_NET_VENDOR_MARVELL" ; config_disable
 config="CONFIG_NET_VENDOR_MELLANOX" ; config_disable
 config="CONFIG_NET_VENDOR_NETRONOME" ; config_disable
+config="CONFIG_NET_VENDOR_NATSEMI" ; config_disable
 config="CONFIG_NET_VENDOR_8390" ; config_disable
 config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
 config="CONFIG_NET_VENDOR_RENESAS" ; config_disable
@@ -176,6 +177,11 @@ config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_enable
 config="CONFIG_TOUCHSCREEN_TI_AM335X_TSC" ; config_enable
 
 #
+# Hardware I/O ports
+#
+config="CONFIG_SERIO_LIBPS2" ; config_disable
+
+#
 # Serial drivers
 #
 config="CONFIG_SERIAL_8250_DEPRECATED_OPTIONS" ; config_disable
@@ -196,6 +202,18 @@ config="CONFIG_SERIAL_DEV_CTRL_TTYPORT" ; config_enable
 # I2C system bus drivers (mostly embedded / system-on-chip)
 #
 config="CONFIG_I2C_RK3X" ; config_disable
+
+#
+# AX.25 network device drivers
+#
+config="CONFIG_CAN" ; config_enable
+
+#
+# CAN Device Drivers
+#
+config="CONFIG_CAN_DEV" ; config_enable
+config="CONFIG_CAN_C_CAN" ; config_enable
+config="CONFIG_CAN_C_CAN_PLATFORM" ; config_enable
 
 #
 # SPI Master Controller Drivers
@@ -240,6 +258,8 @@ config="CONFIG_CHARGER_BQ2415X" ; config_disable
 #
 # Watchdog Device Drivers
 #
+config="CONFIG_SOFT_WATCHDOG" ; config_enable
+config="CONFIG_OMAP_WATCHDOG" ; config_enable
 config="CONFIG_DA9052_WATCHDOG" ; config_disable
 config="CONFIG_DW_WATCHDOG" ; config_disable
 config="CONFIG_TWL4030_WATCHDOG" ; config_disable
@@ -284,6 +304,18 @@ config="CONFIG_REGULATOR_TPS65218" ; config_disable
 config="CONFIG_REGULATOR_TPS6524X" ; config_disable
 
 #
+# Misc devices
+#
+config="CONFIG_ENCLOSURE_SERVICES" ; config_disable
+config="CONFIG_TIEQEP" ; config_enable
+
+#
+# Generic fallback / legacy drivers
+#
+config="CONFIG_MD_RAID456" ; config_disable
+config="CONFIG_DM_RAID" ; config_disable
+
+#
 # Graphics support
 #
 config="CONFIG_DRM_EXYNOS" ; config_disable
@@ -294,9 +326,11 @@ config="CONFIG_DRM_DUMB_VGA_DAC" ; config_disable
 config="CONFIG_DRM_ETNAVIV" ; config_disable
 config="CONFIG_DRM_MXS" ; config_disable
 config="CONFIG_DRM_MXSFB" ; config_disable
+config="CONFIG_DRM_VIRTIO_GPU" ; config_disable
 
 #breaks tilcd + tfp410...
 config="CONFIG_OMAP2_DSS" ; config_disable
+config="CONFIG_DRM_PANEL_SIMPLE" ; config_enable
 
 #
 # I2C encoder or helper chips
@@ -308,7 +342,8 @@ config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_enable
 # Miscellaneous USB options
 #
 #http://bugs.elinux.org/issues/127
-config="CONFIG_USB_OTG" ; config_disable
+#2017.10.20 re-enable...
+config="CONFIG_USB_OTG" ; config_enable
 
 #
 # USB Host Controller Drivers
@@ -399,6 +434,7 @@ config="CONFIG_SUNXI_SRAM" ; config_disable
 #
 # Analog to digital converters
 #
+config="CONFIG_TI_AM335X_ADC" ; config_enable
 config="CONFIG_VF610_ADC" ; config_disable
 
 #
@@ -408,6 +444,9 @@ config="CONFIG_PWM_TIECAP" ; config_enable
 config="CONFIG_PWM_TIEHRPWM" ; config_enable
 config="CONFIG_RESET_IMX7" ; config_disable
 config="CONFIG_RESET_SUNXI" ; config_disable
+
+config="CONFIG_BTRFS_FS" ; config_disable
+config="CONFIG_EXOFS_FS" ; config_disable
 
 exit
 
@@ -449,13 +488,10 @@ config="CONFIG_BACKLIGHT_PWM" ; config_enable
 config="CONFIG_BACKLIGHT_PANDORA" ; config_disable
 config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 
-
 #
 # Pin controllers
 #
 config="CONFIG_GPIO_OF_HELPER" ; config_enable
-
-
 
 #u-boot overlays
 config="CONFIG_MFD_TI_AM335X_TSCADC" ; config_enable
