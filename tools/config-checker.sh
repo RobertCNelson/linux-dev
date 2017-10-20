@@ -82,8 +82,8 @@ config="CONFIG_EMBEDDED" ; config_enable
 #config="CONFIG_MODULE_SIG" ; config_disable
 #config="CONFIG_SYSTEM_TRUSTED_KEYRING" ; config_disable
 config="CONFIG_MODULE_COMPRESS" ; config_enable
-config="CONFIG_MODULE_COMPRESS_GZIP" ; config_enable
-config="CONFIG_MODULE_COMPRESS_XZ" ; config_disable
+config="CONFIG_MODULE_COMPRESS_GZIP" ; config_disable
+config="CONFIG_MODULE_COMPRESS_XZ" ; config_enable
 
 #
 # CPU Core family selection
