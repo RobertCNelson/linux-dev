@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2016 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2017 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,10 +41,10 @@ build_git () {
 			echo "scripts/git: building: [${debian_stable_git}]"
 
 			echo "scripts/git: [make -j${CORES} prefix=/usr/local all]"
-			make -j${CORES} prefix=/usr/local all >/dev/null 2>&1
+			make -j${CORES} prefix=/usr/local all
 
 			echo "scripts/git: [sudo make prefix=/usr/local install]"
-			sudo make prefix=/usr/local install >/dev/null 2>&1
+			sudo make prefix=/usr/local install
 
 			cd "${DIR}/ignore/" || true
 			rm -rf git-${debian_stable_git}/ || true
@@ -257,7 +257,7 @@ git_shallow () {
 		fi
 		mkdir "${DIR}/KERNEL/" || true
 		echo "git: [git clone -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee]"
-		${git_bin} clone --depth=100 -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee "${DIR}/KERNEL/" || git_shallow_fail
+		${git_bin} clone --depth=10 -b ${kernel_tag} https://github.com/RobertCNelson/linux-stable-rcn-ee "${DIR}/KERNEL/" || git_shallow_fail
 		touch "${DIR}/KERNEL/.ignore-${kernel_tag}"
 	fi
 }
