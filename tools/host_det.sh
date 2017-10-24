@@ -375,9 +375,10 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		zesty|artful)
+		zesty|artful|bionic)
 			#17.04 zesty: (EOL: January 2018)
-			#17.10 artful: (EOL: July 2019)
+			#17.10 artful: (EOL: July 2018)
+			#18.04 bionic: (EOL:) lts: bionic -> xyz
 			unset warn_eol_distro
 			;;
 		yakkety)
@@ -386,7 +387,7 @@ debian_regs () {
 			stop_pkg_search=1
 			;;
 		xenial)
-			#16.04 xenial: (EOL: April 2021) lts: xenial -> xyz
+			#16.04 xenial: (EOL: April 2021) lts: xenial -> bionic
 			unset warn_eol_distro
 			;;
 		utopic|vivid|wily)
