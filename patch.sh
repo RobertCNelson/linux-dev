@@ -298,6 +298,11 @@ drivers () {
 	dir 'drivers/opp'
 	dir 'drivers/wiznet'
 
+#use v4.14.x-lts...
+bbb_overlays="disabled"
+
+if [ "x${bbb_overlays}" = "xenable" ] ; then
+
 	#https://github.com/pantoniou/linux-beagle-track-mainline/tree/bbb-overlays
 	echo "dir: drivers/ti/bbb_overlays"
 	#regenerate="enable"
@@ -359,6 +364,9 @@ drivers () {
 		number=39
 		cleanup
 	fi
+else
+	${git} "${DIR}/patches/drivers/ti/bbb_overlays/0018-ARM-DT-Enable-symbols-when-CONFIG_OF_OVERLAY-is-used.patch"
+fi
 
 	echo "dir: drivers/ti/firmware"
 	#regenerate="enable"

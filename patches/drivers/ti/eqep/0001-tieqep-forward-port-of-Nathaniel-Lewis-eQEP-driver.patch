@@ -1,22 +1,22 @@
-From 4242860c4fc7ce2f17b7a90411c1f2712ccef03c Mon Sep 17 00:00:00 2001
+From 30d0e1bd5a1e173d6396d55c38e5e80c0b4249ef Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 2 Nov 2016 11:11:27 -0500
+Date: Sun, 19 Nov 2017 22:11:24 -0600
 Subject: [PATCH] tieqep: forward port of Nathaniel Lewis eQEP driver
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am33xx.dtsi |  31 ++
+ arch/arm/boot/dts/am33xx.dtsi |  30 ++
  drivers/misc/Kconfig          |  11 +
  drivers/misc/Makefile         |   1 +
  drivers/misc/tieqep.c         | 738 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 781 insertions(+)
+ 4 files changed, 780 insertions(+)
  create mode 100644 drivers/misc/tieqep.c
 
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 9e96d60976b7..a14aafccb82b 100644
+index e58fab8aec5d..8e53564432c5 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -696,6 +696,16 @@
+@@ -756,6 +756,16 @@
  				status = "disabled";
  			};
  
@@ -33,11 +33,10 @@ index 9e96d60976b7..a14aafccb82b 100644
  			ehrpwm0: pwm@48300200 {
  				compatible = "ti,am3352-ehrpwm",
  					     "ti,am33xx-ehrpwm";
-@@ -730,6 +740,17 @@
+@@ -790,6 +800,16 @@
  				status = "disabled";
  			};
  
-+
 +			eqep1: eqep@0x48302180 {
 +				compatible = "ti,am33xx-eqep";
 +				reg = <0x48302180 0x80>;
@@ -51,7 +50,7 @@ index 9e96d60976b7..a14aafccb82b 100644
  			ehrpwm1: pwm@48302200 {
  				compatible = "ti,am3352-ehrpwm",
  					     "ti,am33xx-ehrpwm";
-@@ -764,6 +785,16 @@
+@@ -824,6 +844,16 @@
  				status = "disabled";
  			};
  
@@ -69,12 +68,12 @@ index 9e96d60976b7..a14aafccb82b 100644
  				compatible = "ti,am3352-ehrpwm",
  					     "ti,am33xx-ehrpwm";
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 775f74f54c73..1d2343423c00 100644
+index f1a5c2357b14..5eb68d90cfc6 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -509,6 +509,17 @@ config DEV_OVERLAYMGR
- 	  Say Y here to include support for the automagical dev
- 	  overlay manager.
+@@ -496,6 +496,17 @@ config PCI_ENDPOINT_TEST
+            Enable this configuration option to enable the host side test driver
+            for PCI Endpoint.
  
 +config TIEQEP
 +	tristate "EQEP Hardware quadrature encoder controller"
@@ -91,7 +90,7 @@ index 775f74f54c73..1d2343423c00 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index d253721a94ff..52bb0d01f71f 100644
+index 5ca5f64df478..a4165e3609f6 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
 @@ -42,6 +42,7 @@ obj-y				+= ti-st/
@@ -99,9 +98,9 @@ index d253721a94ff..52bb0d01f71f 100644
  obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
  obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
 +obj-$(CONFIG_TIEQEP)		+= tieqep.o
- obj-$(CONFIG_BONE_CAPEMGR)	+= bone_capemgr.o
- obj-$(CONFIG_DEV_OVERLAYMGR)	+= devovmgr.o
  obj-$(CONFIG_INTEL_MEI)		+= mei/
+ obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
+ obj-$(CONFIG_LATTICE_ECP3_CONFIG)	+= lattice-ecp3-config.o
 diff --git a/drivers/misc/tieqep.c b/drivers/misc/tieqep.c
 new file mode 100644
 index 000000000000..d2628847bb8e
@@ -847,5 +846,5 @@ index 000000000000..d2628847bb8e
 +MODULE_AUTHOR("Nathaniel R. Lewis");
 +MODULE_LICENSE("GPL");
 -- 
-2.11.0
+2.15.0
 
