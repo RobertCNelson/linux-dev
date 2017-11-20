@@ -294,15 +294,16 @@ config="CONFIG_VEXPRESS_CONFIG" ; config_disable
 # LPDDR & LPDDR2 PCM memory drivers
 #
 config="CONFIG_MTD_UBI" ; config_enable
-config="CONFIG_OF_CONFIGFS" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
+config="CONFIG_NVME_CORE" ; config_disable
+config="CONFIG_NVME_FABRICS" ; config_disable
+config="CONFIG_NVME_RDMA" ; config_disable
 config="CONFIG_NVME_TARGET" ; config_disable
 
 #
 # Misc devices
 #
 config="CONFIG_SENSORS_LIS3LV02D" ; config_disable
-config="CONFIG_BONE_CAPEMGR" ; config_enable
 config="CONFIG_TIEQEP" ; config_module
 config="CONFIG_C2PORT" ; config_disable
 
@@ -616,9 +617,9 @@ config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
+config="CONFIG_HW_RANDOM" ; config_enable
 config="CONFIG_HW_RANDOM_OMAP" ; config_enable
 config="CONFIG_HW_RANDOM_OMAP3_ROM" ; config_enable
-config="CONFIG_HW_RANDOM_VIRTIO" ; config_enable
 config="CONFIG_HW_RANDOM_IMX_RNGC" ; config_enable
 config="CONFIG_HW_RANDOM_TPM" ; config_enable
 config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_enable
@@ -744,12 +745,6 @@ config="CONFIG_AXP288_FUEL_GAUGE" ; config_module
 config="CONFIG_CHARGER_GPIO" ; config_module
 config="CONFIG_AXP20X_POWER" ; config_enable
 config="CONFIG_CHARGER_TPS65217" ; config_enable
-config="CONFIG_POWER_SEQUENCE" ; config_enable
-
-#
-# Power Sequence Support
-#
-config="CONFIG_PWRSEQ_GENERIC" ; config_enable
 
 #exit
 
@@ -783,6 +778,7 @@ config="CONFIG_SENSORS_LTC4260" ; config_module
 config="CONFIG_SENSORS_MAX1619" ; config_module
 config="CONFIG_SENSORS_MAX197" ; config_module
 config="CONFIG_SENSORS_MAX31722" ; config_module
+config="CONFIG_SENSORS_MAX6621" ; config_module
 config="CONFIG_SENSORS_MAX6697" ; config_module
 config="CONFIG_SENSORS_MAX31790" ; config_module
 config="CONFIG_SENSORS_MCP3021" ; config_module
@@ -813,6 +809,7 @@ config="CONFIG_SENSORS_LTC2978_REGULATOR" ; config_enable
 config="CONFIG_SENSORS_LTC3815" ; config_module
 config="CONFIG_SENSORS_MAX16064" ; config_module
 config="CONFIG_SENSORS_MAX20751" ; config_module
+config="CONFIG_SENSORS_MAX31785" ; config_module
 config="CONFIG_SENSORS_MAX34440" ; config_module
 config="CONFIG_SENSORS_MAX8688" ; config_module
 config="CONFIG_SENSORS_TPS40422" ; config_module
@@ -946,8 +943,6 @@ config="CONFIG_SOC_CAMERA_OV9740" ; config_module
 config="CONFIG_SOC_CAMERA_RJ54N1" ; config_module
 config="CONFIG_SOC_CAMERA_TW9910" ; config_module
 
-#exit
-
 #
 # Graphics support
 #
@@ -962,6 +957,10 @@ config="CONFIG_DRM_KMS_HELPER" ; config_enable
 #
 
 config="CONFIG_DRM_SUN4I" ; config_enable
+config="CONFIG_DRM_SUN4I_HDMI" ; config_enable
+config="CONFIG_DRM_SUN4I_HDMI_CEC" ; config_enable
+config="CONFIG_DRM_SUN4I_BACKEND" ; config_enable
+config="CONFIG_DRM_SUN8I_MIXER" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_OMAP2_DSS" ; config_enable
 
@@ -1160,6 +1159,7 @@ config="CONFIG_MMC_SPI" ; config_enable
 config="CONFIG_MMC_DW" ; config_enable
 config="CONFIG_MMC_DW_PLTFM" ; config_enable
 config="CONFIG_MMC_SUNXI" ; config_enable
+config="CONFIG_MMC_SDHCI_OMAP" ; config_enable
 
 #
 # LED drivers
@@ -1193,6 +1193,11 @@ config="CONFIG_LEDS_TRIGGER_HEARTBEAT" ; config_enable
 config="CONFIG_LEDS_TRIGGER_BACKLIGHT" ; config_enable
 config="CONFIG_LEDS_TRIGGER_GPIO" ; config_enable
 config="CONFIG_LEDS_TRIGGER_DEFAULT_ON" ; config_enable
+
+#
+# iptables trigger is under Netfilter config (LED target)
+#
+config="CONFIG_INFINIBAND" ; config_disable
 
 #
 # I2C RTC drivers
@@ -1463,6 +1468,7 @@ config="CONFIG_ARM_SMMU" ; config_enable
 # Remoteproc drivers
 #
 config="CONFIG_REMOTEPROC" ; config_enable
+config="CONFIG_IMX_REMOTEPROC" ; config_module
 config="CONFIG_OMAP_REMOTEPROC" ; config_module
 config="CONFIG_WKUP_M3_RPROC" ; config_enable
 
@@ -1621,11 +1627,13 @@ config="CONFIG_AD5791" ; config_module
 config="CONFIG_AD7303" ; config_module
 config="CONFIG_AD8801" ; config_module
 config="CONFIG_DPOT_DAC" ; config_module
+config="CONFIG_DS4424" ; config_module
 config="CONFIG_M62332" ; config_module
 config="CONFIG_MAX517" ; config_module
 config="CONFIG_MAX5821" ; config_module
 config="CONFIG_MCP4725" ; config_module
 config="CONFIG_MCP4922" ; config_module
+config="CONFIG_TI_DAC082S085" ; config_module
 config="CONFIG_VF610_DAC" ; config_module
 
 #
@@ -1787,6 +1795,7 @@ config="CONFIG_AS3935" ; config_module
 # Proximity sensors
 #
 config="CONFIG_LIDAR_LITE_V2" ; config_module
+config="CONFIG_RFD77402" ; config_module
 config="CONFIG_SRF04" ; config_module
 config="CONFIG_SX9500" ; config_module
 config="CONFIG_SRF08" ; config_module
@@ -1849,6 +1858,7 @@ config="CONFIG_VFAT_FS" ; config_enable
 #
 # Pseudo filesystems
 #
+config="CONFIG_CONFIGFS_FS" ; config_enable
 config="CONFIG_ORANGEFS_FS" ; config_enable
 config="CONFIG_UBIFS_FS" ; config_enable
 config="CONFIG_SQUASHFS_LZ4" ; config_enable
@@ -1889,11 +1899,6 @@ config="CONFIG_HARDENED_USERCOPY" ; config_disable
 # Crypto core or helper
 #
 config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS" ; config_enable
-
-#
-# Digest
-#
-config="CONFIG_CRYPTO_SHA3" ; config_module
 
 #
 # Random Number Generation
