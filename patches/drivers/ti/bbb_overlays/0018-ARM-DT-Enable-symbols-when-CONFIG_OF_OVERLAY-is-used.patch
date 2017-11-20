@@ -9,7 +9,7 @@ Subject: [PATCH 18/38] ARM: DT: Enable symbols when CONFIG_OF_OVERLAY is used
  2 files changed, 10 insertions(+)
 
 diff --git a/arch/arm/boot/Makefile b/arch/arm/boot/Makefile
-index 50f8d1be7fcb..2c30c4491679 100644
+index a3af4dc08c3e..5e9c1d6bd88e 100644
 --- a/arch/arm/boot/Makefile
 +++ b/arch/arm/boot/Makefile
 @@ -29,6 +29,10 @@ export ZRELADDR INITRD_PHYS PARAMS_PHYS
@@ -22,9 +22,9 @@ index 50f8d1be7fcb..2c30c4491679 100644
 +
  ifeq ($(CONFIG_XIP_KERNEL),y)
  
- $(obj)/xipImage: vmlinux FORCE
+ cmd_deflate_xip_data = $(CONFIG_SHELL) -c \
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index eff87a344566..daadb3cbd5ef 100644
+index 25dcf4e534e6..d7002fab3785 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
 @@ -1,12 +1,18 @@
@@ -47,5 +47,5 @@ index eff87a344566..daadb3cbd5ef 100644
  dtb-$(CONFIG_SOC_AT91RM9200) += \
  	at91rm9200ek.dtb \
 -- 
-2.14.2
+2.15.0
 
