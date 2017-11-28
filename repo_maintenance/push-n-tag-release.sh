@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2016 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2017 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,10 +33,10 @@ if [ -e ${DIR}/version.sh ]; then
 	. ${DIR}/version.sh
 
 	${git_bin} commit -a -m "${KERNEL_TAG}${BUILD} release" -s
-	${git_bin} tag -a "${KERNEL_TAG}${BUILD}" -m "${KERNEL_TAG}${BUILD}"
+	${git_bin} tag -a "${KERNEL_TAG}${BUILD}" -m "${KERNEL_TAG}${BUILD}" -f
 
-	${git_bin} push origin ${BRANCH}
-	${git_bin} push origin ${BRANCH} --tags
+	${git_bin} push -f origin ${BRANCH}
+	${git_bin} push -f origin ${BRANCH} --tags
 
 	cd ${DIR}/KERNEL/
 	make ARCH=${KERNEL_ARCH} distclean
@@ -47,7 +47,7 @@ if [ -e ${DIR}/version.sh ]; then
 	${git_bin} add arch/${KERNEL_ARCH}/configs/${example}_defconfig
 
 	${git_bin} commit -a -m "${KERNEL_TAG}${BUILD} ${example}_defconfig" -s
-	${git_bin} tag -a "${KERNEL_TAG}${BUILD}" -m "${KERNEL_TAG}${BUILD}"
+	${git_bin} tag -a "${KERNEL_TAG}${BUILD}" -m "${KERNEL_TAG}${BUILD}" -f
 
 	#push tag
 	echo "log: git push -f ${repo} \"${KERNEL_TAG}${BUILD}\""
