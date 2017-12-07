@@ -1,0 +1,37 @@
+From 71ae0243edf14811883fc04e2448fd7792b4c582 Mon Sep 17 00:00:00 2001
+From: David Lechner <david@lechnology.com>
+Date: Mon, 27 Feb 2017 11:21:48 -0600
+Subject: [PATCH] Change USB class for RNDIS
+
+This is a hack to change the USB class/subclass/protocol for the RNDIS
+USB gadget function. According to [1], this is "RNDIS over Ethernet".
+This configuration is recognized by rndiscmp.inf in Windows so that the
+correct driver loads without the need for a custom signed .inf.
+Furthermore, it is ignored on macOS and Linux (so we can use CDC/ECM
+instead).
+
+[1]: http://www.usb.org/developers/defined_class/#BaseClassEFh
+---
+ drivers/usb/gadget/function/f_rndis.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
+index e587767e374c..001aed7b8969 100644
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -178,9 +178,9 @@ rndis_iad_descriptor = {
+ 
+ 	.bFirstInterface =	0, /* XXX, hardcoded */
+ 	.bInterfaceCount = 	2,	// control + data
+-	.bFunctionClass =	USB_CLASS_COMM,
+-	.bFunctionSubClass =	USB_CDC_SUBCLASS_ETHERNET,
+-	.bFunctionProtocol =	USB_CDC_PROTO_NONE,
++	.bFunctionClass =	USB_CLASS_MISC,
++	.bFunctionSubClass =	0x04,
++	.bFunctionProtocol =	0x01,
+ 	/* .iFunction = DYNAMIC */
+ };
+ 
+-- 
+2.11.0
+
