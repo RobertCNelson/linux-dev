@@ -121,7 +121,7 @@ Missing patch command,
 }
 
 check_dpkg () {
-	LC_ALL=C dpkg --list | awk '{print $2}' | grep "^${pkg}$" >/dev/null || deb_pkgs="${deb_pkgs}${pkg} "
+	LC_ALL=C dpkg-query -s ${pkg} &> /dev/null || deb_pkgs="${deb_pkgs}${pkg} "
 }
 
 debian_regs () {
@@ -132,10 +132,6 @@ debian_regs () {
 	check_dpkg
 	pkg="build-essential"
 	check_dpkg
-	if ! type dtc >/dev/null; then
-		pkg="device-tree-compiler"
-		check_dpkg
-	fi
 	pkg="fakeroot"
 	check_dpkg
 	pkg="lsb-release"
@@ -350,6 +346,11 @@ debian_regs () {
 			#http://packages.linuxmint.com/index.php
 			deb_distro="xenial"
 			;;
+		sylvia)
+			#18.3
+			#http://packages.linuxmint.com/index.php
+			deb_distro="xenial"
+			;;
 		esac
 
 		#Future Debian Code names:
@@ -375,14 +376,14 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		zesty|artful|bionic)
-			#17.04 zesty: (EOL: January 2018)
+		artful|bionic)
 			#17.10 artful: (EOL: July 2018)
 			#18.04 bionic: (EOL:) lts: bionic -> xyz
 			unset warn_eol_distro
 			;;
-		yakkety)
+		yakkety|zesty)
 			#16.10 yakkety: (EOL: July 20, 2017)
+			#17.04 zesty: (EOL: January 2018)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
@@ -427,12 +428,14 @@ debian_regs () {
 		
 		#Libs; starting with jessie/sid, lib<pkg_name>-dev:<arch>
 		case "${deb_distro}" in
-		wheezy|precise)
+		wheezy)
 			pkg="libncurses5-dev"
 			check_dpkg
 			if [ "x${build_git}" = "xtrue" ] ; then
 				#git
 				pkg="libcurl4-gnutls-dev"
+				check_dpkg
+				pkg="libelf-dev"
 				check_dpkg
 				pkg="libexpat1-dev"
 				check_dpkg
@@ -447,6 +450,8 @@ debian_regs () {
 				#git
 				pkg="libcurl4-gnutls-dev:${deb_arch}"
 				check_dpkg
+				pkg="libelf-dev:${deb_arch}"
+				check_dpkg
 				pkg="libexpat1-dev:${deb_arch}"
 				check_dpkg
 				pkg="libssl-dev:${deb_arch}"
@@ -458,27 +463,17 @@ debian_regs () {
 		#pkg: ia32-libs
 		if [ "x${deb_arch}" = "xamd64" ] ; then
 			unset dpkg_multiarch
-			case "${deb_distro}" in
-			precise)
-				if [ "x${ignore_32bit}" = "xfalse" ] ; then
-					pkg="ia32-libs"
-					check_dpkg
-				fi
-				;;
-			*)
-				if [ "x${ignore_32bit}" = "xfalse" ] ; then
-					pkg="libc6:i386"
-					check_dpkg
-					pkg="libncurses5:i386"
-					check_dpkg
-					pkg="libstdc++6:i386"
-					check_dpkg
-					pkg="zlib1g:i386"
-					check_dpkg
-					dpkg_multiarch=1
-				fi
-				;;
-			esac
+			if [ "x${ignore_32bit}" = "xfalse" ] ; then
+				pkg="libc6:i386"
+				check_dpkg
+				pkg="libncurses5:i386"
+				check_dpkg
+				pkg="libstdc++6:i386"
+				check_dpkg
+				pkg="zlib1g:i386"
+				check_dpkg
+				dpkg_multiarch=1
+			fi
 
 			if [ "${dpkg_multiarch}" ] ; then
 				unset check_foreign

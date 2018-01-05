@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2015 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2017 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -220,7 +220,7 @@ mmc_detect_n_mount () {
 				mkdir -p "${DIR}/deploy/disk/"
 			fi
 
-			echo "Partition: [${partition}] trying: [vfat], [ext4]"
+			echo "Partition: [${partition}] trying: [vfat], [ext4], [btrfs]"
 			if sudo mount -t vfat "${partition}" "${DIR}/deploy/disk/" 2>/dev/null ; then
 				echo "Partition: [vfat]"
 				UNTAR="xfo"
@@ -228,6 +228,11 @@ mmc_detect_n_mount () {
 				mmc_unmount
 			elif sudo mount -t ext4 "${partition}" "${DIR}/deploy/disk/" 2>/dev/null ; then
 				echo "Partition: [extX]"
+				UNTAR="xf"
+				mmc_partition_discover
+				mmc_unmount
+			elif sudo mount -t btrfs "${partition}" "${DIR}/deploy/disk/" 2>/dev/null ; then
+				echo "Partition: [btrfs]"
 				UNTAR="xf"
 				mmc_partition_discover
 				mmc_unmount
