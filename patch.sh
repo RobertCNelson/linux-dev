@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Copyright (c) 2009-2017 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2018 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -160,12 +160,19 @@ aufs4 () {
 
 		rm -rf ../aufs4-standalone/ || true
 
-		exit 2
-	fi
+		git reset --hard HEAD~5
 
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
+
+		${git} "${DIR}/patches/aufs4/0001-merge-aufs4-kbuild.patch"
+		${git} "${DIR}/patches/aufs4/0002-merge-aufs4-base.patch"
+		${git} "${DIR}/patches/aufs4/0003-merge-aufs4-mmap.patch"
+		${git} "${DIR}/patches/aufs4/0004-merge-aufs4-standalone.patch"
+		${git} "${DIR}/patches/aufs4/0005-merge-aufs4.patch"
+
+		wdir="aufs4"
+		number=5
+		cleanup
 	fi
 
 	${git} "${DIR}/patches/aufs4/0001-merge-aufs4-kbuild.patch"
@@ -173,12 +180,6 @@ aufs4 () {
 	${git} "${DIR}/patches/aufs4/0003-merge-aufs4-mmap.patch"
 	${git} "${DIR}/patches/aufs4/0004-merge-aufs4-standalone.patch"
 	${git} "${DIR}/patches/aufs4/0005-merge-aufs4.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="aufs4"
-		number=5
-		cleanup
-	fi
 }
 
 rt_cleanup () {
@@ -189,6 +190,50 @@ rt_cleanup () {
 rt () {
 	echo "dir: rt"
 	rt_patch="${KERNEL_REL}${kernel_rt}"
+
+	#un-matched kernel
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+
+		cd ../
+		if [ ! -d ./linux-rt-devel ] ; then
+			${git_bin} clone -b linux-4.14.y-rt-patches https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-rt-devel.git --depth=1
+		else
+			rm -rf ./linux-rt-devel || true
+			${git_bin} clone -b linux-4.14.y-rt-patches https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-rt-devel.git --depth=1
+		fi
+
+		cd ./KERNEL/
+
+		exit 2
+
+		#https://raphaelhertzog.com/2012/08/08/how-to-use-quilt-to-manage-patches-in-debian-packages/
+
+		#export QUILT_PATCHES=`pwd`/linux-rt-devel/patches
+		#export QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
+
+		#quilt push -a
+
+		quilt delete -r localversion.patch
+
+		#fix...
+		#quilt push -f
+		#quilt refresh
+
+		#final...
+		#quilt pop -a
+		#quilt push -a
+		#git add .
+		#git commit -a -m 'merge: CONFIG_PREEMPT_RT Patch Set' -s
+
+		exit 2
+	fi
+
+	if [ -d ../linux-rt-devel ] ; then
+		rm -rf ../linux-rt-devel || true
+	fi
+
+	#matched kernel
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wget -c https://www.kernel.org/pub/linux/kernel/projects/rt/${KERNEL_REL}/patch-${rt_patch}.patch.xz
@@ -205,6 +250,46 @@ rt () {
 	${git} "${DIR}/patches/rt/0001-merge-CONFIG_PREEMPT_RT-Patch-Set.patch"
 }
 
+wireguard_fail () {
+	echo "WireGuard failed"
+	exit 2
+}
+
+wireguard () {
+	echo "dir: WireGuard"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		cd ../
+		if [ ! -d ./WireGuard ] ; then
+			${git_bin} clone https://git.zx2c4.com/WireGuard --depth=1
+		else
+			rm -rf ./WireGuard || true
+			${git_bin} clone https://git.zx2c4.com/WireGuard --depth=1
+		fi
+		cd ./KERNEL/
+
+		../WireGuard/contrib/kernel-tree/create-patch.sh | patch -p1 || wireguard_fail
+
+		${git_bin} add .
+		${git_bin} commit -a -m 'merge: WireGuard' -s
+		${git_bin} format-patch -1 -o ../patches/WireGuard/
+
+		rm -rf ../WireGuard/ || true
+
+		git reset --hard HEAD^
+
+		start_cleanup
+
+		${git} "${DIR}/patches/WireGuard/0001-merge-WireGuard.patch"
+
+		wdir="WireGuard"
+		number=1
+		cleanup
+	fi
+
+	${git} "${DIR}/patches/WireGuard/0001-merge-WireGuard.patch"
+}
+
 local_patch () {
 	echo "dir: dir"
 	${git} "${DIR}/patches/dir/0001-patch.patch"
@@ -213,6 +298,7 @@ local_patch () {
 #external_git
 #aufs4
 #rt
+#wireguard
 #local_patch
 
 pre_backports () {
