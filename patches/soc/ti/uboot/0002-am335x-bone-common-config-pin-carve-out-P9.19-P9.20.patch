@@ -1,15 +1,15 @@
-From 9e98e1017bddf65cfa90740c7ab7c8c575cd4be0 Mon Sep 17 00:00:00 2001
+From 0196e7080aaa00394103689d7b0d8fa2b92170ad Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 19 Nov 2017 22:13:20 -0600
+Date: Sun, 21 Jan 2018 20:51:17 -0600
 Subject: [PATCH 2/2] am335x-bone-common: config-pin: carve out P9.19/P9.20
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common.dtsi | 112 ++++++++++++++++++++++++++++--
- 1 file changed, 105 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 118 ++++++++++++++++++++++++++++--
+ 1 file changed, 111 insertions(+), 7 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index daa2d27242bf..7ee7e7cafcef 100644
+index daa2d27242bf..8a061bedd1b6 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -82,12 +82,12 @@
@@ -31,54 +31,58 @@ index daa2d27242bf..7ee7e7cafcef 100644
  
  	uart0_pins: pinmux_uart0_pins {
  		pinctrl-single,pins = <
-@@ -174,6 +174,46 @@
+@@ -174,6 +174,50 @@
  			AM33XX_IOPAD(0x81c, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad7.mmc1_dat7 */
  		>;
  	};
 +
-+	/* P9_19 (ZCZ ball D17) i2c */
++	/* P9_19 (ZCZ ball D17) i2c2_scl */
 +	P9_19_default_pin: pinmux_P9_19_default_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE3) >; };	/* uart1_rtsn.i2c2_scl */
 +	P9_19_gpio_pin: pinmux_P9_19_gpio_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x097c, PIN_OUTPUT | INPUT_EN | MUX_MODE7) >; };	/* uart1_rtsn.gpio0_13 */
++		AM33XX_IOPAD(0x097c, PIN_OUTPUT | INPUT_EN | MUX_MODE7) >; };		/* uart1_rtsn.gpio0_13 */
 +	P9_19_gpio_pu_pin: pinmux_P9_19_gpio_pu_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE7) >; };	/* uart1_rtsn.gpio0_13 */
 +	P9_19_gpio_pd_pin: pinmux_P9_19_gpio_pd_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLDOWN | INPUT_EN | MUX_MODE7) >; };	/* uart1_rtsn.gpio0_13 */
-+	P9_19_spi_cs_pin: pinmux_P9_19_spi_cs_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE4) >; };	/* uart1_rtsn.spi1_cs1 */
-+	P9_19_i2c_pin: pinmux_P9_19_i2c_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE3) >; };	/* uart1_rtsn.i2c2_scl */
-+	P9_19_can_pin: pinmux_P9_19_can_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x097c, PIN_INPUT_PULLUP | MUX_MODE2) >; };		/* uart1_rtsn.dcan0_rx */
-+	P9_19_pru_uart_pin: pinmux_P9_19_pru_uart_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE5) >; };	/* uart1_rtsn.pr1_uart0_rts_n */
++	P9_19_gpio_input_pin: pinmux_P9_19_gpio_input_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x097c, PIN_INPUT | MUX_MODE7) >; };			/* uart1_rtsn.gpio0_13 */
 +	P9_19_timer_pin: pinmux_P9_19_timer_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE1) >; };	/* uart1_rtsn.timer5 */
++	P9_19_can_pin: pinmux_P9_19_can_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x097c, PIN_INPUT_PULLUP | MUX_MODE2) >; };		/* uart1_rtsn.dcan0_rx */
++	P9_19_i2c_pin: pinmux_P9_19_i2c_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE3) >; };	/* uart1_rtsn.i2c2_scl */
++	P9_19_spi_cs_pin: pinmux_P9_19_spi_cs_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE4) >; };	/* uart1_rtsn.spi1_cs1 */
++	P9_19_pru_uart_pin: pinmux_P9_19_pru_uart_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x097c, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE5) >; };	/* uart1_rtsn.pr1_uart0_rts_n */
 +
-+	/* P9_20 (ZCZ ball D18) i2c */
++	/* P9_20 (ZCZ ball D18) i2c2_sda */
 +	P9_20_default_pin: pinmux_P9_20_default_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE3) >; };	/* uart1_ctsn.i2c2_sda */
 +	P9_20_gpio_pin: pinmux_P9_20_gpio_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x0978, PIN_OUTPUT | INPUT_EN | MUX_MODE7) >; };	/* uart1_ctsn.gpio0_12 */
++		AM33XX_IOPAD(0x0978, PIN_OUTPUT | INPUT_EN | MUX_MODE7) >; };		/* uart1_ctsn.gpio0_12 */
 +	P9_20_gpio_pu_pin: pinmux_P9_20_gpio_pu_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE7) >; };	/* uart1_ctsn.gpio0_12 */
 +	P9_20_gpio_pd_pin: pinmux_P9_20_gpio_pd_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLDOWN | INPUT_EN | MUX_MODE7) >; };	/* uart1_ctsn.gpio0_12 */
-+	P9_20_spi_cs_pin: pinmux_P9_20_spi_cs_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE4) >; };	/* uart1_ctsn.spi1_cs0 */
-+	P9_20_i2c_pin: pinmux_P9_20_i2c_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE3) >; };	/* uart1_ctsn.i2c2_sda */
-+	P9_20_can_pin: pinmux_P9_20_can_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x0978, PIN_INPUT_PULLUP | MUX_MODE2) >; };		/* uart1_ctsn.dcan0_tx */
-+	P9_20_pru_uart_pin: pinmux_P9_20_pru_uart_pin { pinctrl-single,pins = <
-+		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE5) >; };	/* uart1_ctsn.pr1_uart0_cts_n */
++	P9_20_gpio_input_pin: pinmux_P9_20_gpio_input_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x0978, PIN_INPUT | MUX_MODE7) >; };			/* uart1_ctsn.gpio0_12 */
 +	P9_20_timer_pin: pinmux_P9_20_timer_pin { pinctrl-single,pins = <
 +		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE1) >; };	/* uart1_ctsn.timer6 */
++	P9_20_can_pin: pinmux_P9_20_can_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | MUX_MODE2) >; };		/* uart1_ctsn.dcan0_tx */
++	P9_20_i2c_pin: pinmux_P9_20_i2c_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE3) >; };	/* uart1_ctsn.i2c2_sda */
++	P9_20_spi_cs_pin: pinmux_P9_20_spi_cs_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE4) >; };	/* uart1_ctsn.spi1_cs0 */
++	P9_20_pru_uart_pin: pinmux_P9_20_pru_uart_pin { pinctrl-single,pins = <
++		AM33XX_IOPAD(0x0978, PIN_OUTPUT_PULLUP | INPUT_EN | MUX_MODE5) >; };	/* uart1_ctsn.pr1_uart0_cts_n */
  };
  
  &uart0 {
-@@ -240,7 +280,8 @@
+@@ -240,7 +284,8 @@
  
  &i2c2 {
  	pinctrl-names = "default";
@@ -88,7 +92,7 @@ index daa2d27242bf..7ee7e7cafcef 100644
  
  	status = "okay";
  	clock-frequency = <100000>;
-@@ -408,3 +449,60 @@
+@@ -408,3 +453,62 @@
  	clock-names = "ext-clk", "int-clk";
  	system-power-controller;
  };
@@ -98,32 +102,34 @@ index daa2d27242bf..7ee7e7cafcef 100644
 +	P9_19_pinmux {
 +		compatible = "bone-pinmux-helper";
 +		status = "okay";
-+		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd", "spi_cs", "can", "i2c", "pru_uart", "timer";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd", "gpio_input", "spi_cs", "can", "i2c", "pru_uart", "timer";
 +		pinctrl-0 = <&P9_19_default_pin>;
 +		pinctrl-1 = <&P9_19_gpio_pin>;
 +		pinctrl-2 = <&P9_19_gpio_pu_pin>;
 +		pinctrl-3 = <&P9_19_gpio_pd_pin>;
-+		pinctrl-4 = <&P9_19_spi_cs_pin>;
-+		pinctrl-5 = <&P9_19_can_pin>;
-+		pinctrl-6 = <&P9_19_i2c_pin>;
-+		pinctrl-7 = <&P9_19_pru_uart_pin>;
-+		pinctrl-8 = <&P9_19_timer_pin>;
++		pinctrl-4 = <&P9_19_gpio_input_pin>;
++		pinctrl-5 = <&P9_19_spi_cs_pin>;
++		pinctrl-6 = <&P9_19_can_pin>;
++		pinctrl-7 = <&P9_19_i2c_pin>;
++		pinctrl-8 = <&P9_19_pru_uart_pin>;
++		pinctrl-9 = <&P9_19_timer_pin>;
 +	};
 +
 +	/* P9_20 (ZCZ ball D18) i2c */
 +	P9_20_pinmux {
 +		compatible = "bone-pinmux-helper";
 +		status = "okay";
-+		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd", "spi_cs", "can", "i2c", "pru_uart", "timer";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd", "gpio_input", "spi_cs", "can", "i2c", "pru_uart", "timer";
 +		pinctrl-0 = <&P9_20_default_pin>;
 +		pinctrl-1 = <&P9_20_gpio_pin>;
 +		pinctrl-2 = <&P9_20_gpio_pu_pin>;
 +		pinctrl-3 = <&P9_20_gpio_pd_pin>;
-+		pinctrl-4 = <&P9_20_spi_cs_pin>;
-+		pinctrl-5 = <&P9_20_can_pin>;
-+		pinctrl-6 = <&P9_20_i2c_pin>;
-+		pinctrl-7 = <&P9_20_pru_uart_pin>;
-+		pinctrl-8 = <&P9_20_timer_pin>;
++		pinctrl-4 = <&P9_20_gpio_input_pin>;
++		pinctrl-5 = <&P9_20_spi_cs_pin>;
++		pinctrl-6 = <&P9_20_can_pin>;
++		pinctrl-7 = <&P9_20_i2c_pin>;
++		pinctrl-8 = <&P9_20_pru_uart_pin>;
++		pinctrl-9 = <&P9_20_timer_pin>;
 +	};
 +
 +
@@ -150,5 +156,5 @@ index daa2d27242bf..7ee7e7cafcef 100644
 +	};
 +};
 -- 
-2.15.0
+2.15.1
 
