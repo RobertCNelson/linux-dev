@@ -1,6 +1,6 @@
-From 441c5f31265bf7a3e03fdfdaeec7264ba6c8897d Mon Sep 17 00:00:00 2001
+From baff097e6c14f236aac7ba79afbe4a571c5bee3f Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 28 Sep 2017 08:46:45 -0500
+Date: Mon, 29 Jan 2018 13:43:56 -0600
 Subject: [PATCH] BeagleBone pinmux helper
 
 Authors:
@@ -2097,10 +2097,10 @@ index 000000000000..781e33fe3d26
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index b48a4b2de7b2..c071747bc13f 100644
+index 94598361da28..198a2531d0c0 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -152,7 +152,7 @@
+@@ -156,7 +156,7 @@
  	 * for the moment, just use a fake OCP bus entry to represent
  	 * the whole bus hierarchy.
  	 */
@@ -2110,7 +2110,7 @@ index b48a4b2de7b2..c071747bc13f 100644
  		#address-cells = <1>;
  		#size-cells = <1>;
 diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 3388d54ba114..d148a0870f78 100644
+index d6a8e851ad13..43a776b0aef8 100644
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
 @@ -61,6 +61,20 @@ config GPIO_SYSFS
@@ -2135,10 +2135,10 @@ index 3388d54ba114..d148a0870f78 100644
  	depends on HAS_IOMEM # Only for IOMEM drivers
  	tristate
 diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index aeb70e9de6f2..1c457c7947c5 100644
+index 4bc24febb889..fa99f0ce5917 100644
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_GPIOLIB)		+= gpiolib-devprop.o
+@@ -10,6 +10,7 @@ obj-$(CONFIG_GPIOLIB)		+= gpiolib-devprop.o
  obj-$(CONFIG_OF_GPIO)		+= gpiolib-of.o
  obj-$(CONFIG_GPIO_SYSFS)	+= gpiolib-sysfs.o
  obj-$(CONFIG_GPIO_ACPI)		+= gpiolib-acpi.o
@@ -2684,22 +2684,22 @@ index 3f454eaf2101..e5fa99e57548 100644
   * /sys/class/gpio/gpiochipN/
   *   /base ... matching gpio_chip.base (N)
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 5e52fcac5128..f1c4c891cda3 100644
+index f549dd38b89e..6b31830c74f4 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -546,6 +546,7 @@ source "drivers/misc/mei/Kconfig"
+@@ -521,6 +521,7 @@ source "drivers/misc/mei/Kconfig"
  source "drivers/misc/vmw_vmci/Kconfig"
  source "drivers/misc/mic/Kconfig"
  source "drivers/misc/genwqe/Kconfig"
 +source "drivers/misc/cape/Kconfig"
  source "drivers/misc/echo/Kconfig"
  source "drivers/misc/cxl/Kconfig"
- endmenu
+ source "drivers/misc/cardreader/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index a87cbd9238c5..51f53bcb3f9e 100644
+index fb1c6f06da9d..d824f172141d 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -52,6 +52,7 @@ obj-$(CONFIG_SRAM)		+= sram.o
+@@ -50,6 +50,7 @@ obj-$(CONFIG_SRAM)		+= sram.o
  obj-$(CONFIG_SRAM_EXEC)		+= sram-exec.o
  obj-y				+= mic/
  obj-$(CONFIG_GENWQE)		+= genwqe/
@@ -3005,5 +3005,5 @@ index 000000000000..d81363a77b10
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:bone-pinmux-helper");
 -- 
-2.14.2
+2.15.1
 

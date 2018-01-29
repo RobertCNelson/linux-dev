@@ -4,28 +4,27 @@ Date: Mon, 19 Sep 2016 11:36:36 +0200
 Subject: [PATCH] ASoC: davinci-mcasp: DIT and other fixes (work in progress)
 
 ---
- sound/soc/codecs/spdif_transmitter.c |   4 +-
+ sound/soc/codecs/spdif_transmitter.c |   3 +-
  sound/soc/davinci/davinci-mcasp.c    | 137 +++++++++++++++++------------------
  sound/soc/davinci/davinci-mcasp.h    |  36 ++++-----
- 3 files changed, 89 insertions(+), 88 deletions(-)
+ 3 files changed, 88 insertions(+), 88 deletions(-)
 
 diff --git a/sound/soc/codecs/spdif_transmitter.c b/sound/soc/codecs/spdif_transmitter.c
-index ef634a9ad673..adb46b7df509 100644
+index 037aa1d45559..b682f123391b 100644
 --- a/sound/soc/codecs/spdif_transmitter.c
 +++ b/sound/soc/codecs/spdif_transmitter.c
-@@ -27,7 +27,9 @@
+@@ -27,7 +27,8 @@
  #define STUB_RATES	SNDRV_PCM_RATE_8000_192000
  #define STUB_FORMATS	(SNDRV_PCM_FMTBIT_S16_LE | \
  			SNDRV_PCM_FMTBIT_S20_3LE | \
--			SNDRV_PCM_FMTBIT_S24_LE)
+-			SNDRV_PCM_FMTBIT_S24_LE  | \
 +			SNDRV_PCM_FMTBIT_S24_3LE | \
 +			SNDRV_PCM_FMTBIT_S24_LE | \
-+			SNDRV_PCM_FMTBIT_S32_LE)
+ 			SNDRV_PCM_FMTBIT_S32_LE)
  
  static const struct snd_soc_dapm_widget dit_widgets[] = {
- 	SND_SOC_DAPM_OUTPUT("spdif-out"),
 diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
-index 0362c1a74014..e0f8f3cfd230 100644
+index 0b33a0ed5411..469956c7b359 100644
 --- a/sound/soc/davinci/davinci-mcasp.c
 +++ b/sound/soc/davinci/davinci-mcasp.c
 @@ -151,6 +151,8 @@ static void mcasp_set_ctl_reg(struct davinci_mcasp *mcasp, u32 ctl_reg, u32 val)
@@ -258,7 +257,7 @@ index 0362c1a74014..e0f8f3cfd230 100644
  
  			ppm = davinci_mcasp_calc_clk_div(rd->mcasp,
  							 sbits * slots * rate,
-@@ -1836,7 +1833,9 @@ static int davinci_mcasp_probe(struct platform_device *pdev)
+@@ -1854,7 +1851,9 @@ static int davinci_mcasp_probe(struct platform_device *pdev)
  
  	mcasp->op_mode = pdata->op_mode;
  	/* sanity check for tdm slots parameter */
@@ -378,5 +377,5 @@ index afddc8010c54..ecc33cb675af 100644
  /*
   * DAVINCI_MCASP_GBLCTL_REG -  Global Control Register Bits
 -- 
-2.9.3
+2.15.1
 
