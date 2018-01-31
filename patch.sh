@@ -437,6 +437,7 @@ drivers () {
 	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/serial'
+	dir 'drivers/ti/tsc'
 	dir 'drivers/ti/uio'
 	dir 'drivers/ti/gpio'
 }
