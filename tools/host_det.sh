@@ -145,6 +145,11 @@ debian_regs () {
 	#git
 	pkg="gettext"
 	check_dpkg
+	#v4.16-rc0
+	pkg="bison"
+	check_dpkg
+	pkg="flex"
+	check_dpkg
 
 	unset warn_dpkg_ia32
 	unset stop_pkg_search
