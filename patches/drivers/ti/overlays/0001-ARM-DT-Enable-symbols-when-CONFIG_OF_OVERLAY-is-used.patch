@@ -5,8 +5,8 @@ Subject: [PATCH] ARM: DT: Enable symbols when CONFIG_OF_OVERLAY is used
 
 ---
  arch/arm/boot/Makefile     | 4 ++++
- arch/arm/boot/dts/Makefile | 6 ++++++
- 2 files changed, 10 insertions(+)
+ arch/arm/boot/dts/Makefile | 5 +++++
+ 2 files changed, 9 insertions(+)
 
 diff --git a/arch/arm/boot/Makefile b/arch/arm/boot/Makefile
 index a3af4dc08c3e..5e9c1d6bd88e 100644
@@ -24,13 +24,12 @@ index a3af4dc08c3e..5e9c1d6bd88e 100644
  
  cmd_deflate_xip_data = $(CONFIG_SHELL) -c \
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index d0381e9caf21..42a9ad711fab 100644
+index ade7a38543dc..dd2d291bf141 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -1,12 +1,18 @@
+@@ -1,4 +1,9 @@
  # SPDX-License-Identifier: GPL-2.0
- ifeq ($(CONFIG_OF),y)
- 
++
 +ifeq ($(CONFIG_OF_OVERLAY),y)
 +DTC_FLAGS += -@
 +endif
@@ -38,14 +37,6 @@ index d0381e9caf21..42a9ad711fab 100644
  dtb-$(CONFIG_ARCH_ALPINE) += \
  	alpine-db.dtb
  dtb-$(CONFIG_MACH_ARTPEC6) += \
- 	artpec6-devboard.dtb
-+
- dtb-$(CONFIG_MACH_ASM9260) += \
- 	alphascale-asm9260-devkit.dtb
-+
- # Keep at91 dtb files sorted alphabetically for each SoC
- dtb-$(CONFIG_SOC_AT91RM9200) += \
- 	at91rm9200ek.dtb \
 -- 
-2.15.0
+2.15.1
 

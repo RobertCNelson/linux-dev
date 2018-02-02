@@ -450,7 +450,7 @@ soc () {
 	dir 'soc/ti'
 	dir 'soc/ti/bone_common'
 	dir 'soc/ti/uboot'
-	dir 'soc/ti/blue'
+#	dir 'soc/ti/blue'
 	dir 'soc/ti/sancloud'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
