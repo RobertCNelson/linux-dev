@@ -2097,10 +2097,10 @@ index 000000000000..781e33fe3d26
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 94598361da28..198a2531d0c0 100644
+index a6e8b192a8bf..d107115115ab 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -156,7 +156,7 @@
+@@ -157,7 +157,7 @@
  	 * for the moment, just use a fake OCP bus entry to represent
  	 * the whole bus hierarchy.
  	 */
@@ -2110,7 +2110,7 @@ index 94598361da28..198a2531d0c0 100644
  		#address-cells = <1>;
  		#size-cells = <1>;
 diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index d6a8e851ad13..43a776b0aef8 100644
+index 8dbb2280538d..e0781ba629e3 100644
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
 @@ -61,6 +61,20 @@ config GPIO_SYSFS
@@ -2135,7 +2135,7 @@ index d6a8e851ad13..43a776b0aef8 100644
  	depends on HAS_IOMEM # Only for IOMEM drivers
  	tristate
 diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 4bc24febb889..fa99f0ce5917 100644
+index cccb0d40846c..a50ea0310003 100644
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
 @@ -10,6 +10,7 @@ obj-$(CONFIG_GPIOLIB)		+= gpiolib-devprop.o
@@ -2588,10 +2588,10 @@ index 000000000000..83f362f7da5f
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:gpio-of-helper");
 diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
-index 3f454eaf2101..e5fa99e57548 100644
+index 3dbaf489a8a5..7015730d84f9 100644
 --- a/drivers/gpio/gpiolib-sysfs.c
 +++ b/drivers/gpio/gpiolib-sysfs.c
-@@ -36,10 +36,10 @@ static DEFINE_MUTEX(sysfs_lock);
+@@ -37,10 +37,10 @@ static DEFINE_MUTEX(sysfs_lock);
  /*
   * /sys/class/gpio/gpioN... only for GPIOs that are exported
   *   /direction
@@ -2603,7 +2603,7 @@ index 3f454eaf2101..e5fa99e57548 100644
   *   /value
   *      * always readable, subject to hardware behavior
   *      * may be writable, as zero/nonzero
-@@ -52,6 +52,8 @@ static DEFINE_MUTEX(sysfs_lock);
+@@ -53,6 +53,8 @@ static DEFINE_MUTEX(sysfs_lock);
   *      * is read/write as zero/nonzero
   *      * also affects existing and subsequent "falling" and "rising"
   *        /edge configuration
@@ -2612,7 +2612,7 @@ index 3f454eaf2101..e5fa99e57548 100644
   */
  
  static ssize_t direction_show(struct device *dev,
-@@ -82,7 +84,9 @@ static ssize_t direction_store(struct device *dev,
+@@ -83,7 +85,9 @@ static ssize_t direction_store(struct device *dev,
  
  	mutex_lock(&data->mutex);
  
@@ -2623,7 +2623,7 @@ index 3f454eaf2101..e5fa99e57548 100644
  		status = gpiod_direction_output_raw(desc, 1);
  	else if (sysfs_streq(buf, "out") || sysfs_streq(buf, "low"))
  		status = gpiod_direction_output_raw(desc, 0);
-@@ -351,6 +355,23 @@ static ssize_t active_low_store(struct device *dev,
+@@ -362,6 +366,23 @@ static ssize_t active_low_store(struct device *dev,
  }
  static DEVICE_ATTR_RW(active_low);
  
@@ -2647,7 +2647,7 @@ index 3f454eaf2101..e5fa99e57548 100644
  static umode_t gpio_is_visible(struct kobject *kobj, struct attribute *attr,
  			       int n)
  {
-@@ -362,12 +383,15 @@ static umode_t gpio_is_visible(struct kobject *kobj, struct attribute *attr,
+@@ -373,12 +394,15 @@ static umode_t gpio_is_visible(struct kobject *kobj, struct attribute *attr,
  
  	if (attr == &dev_attr_direction.attr) {
  		if (!show_direction)
@@ -2664,7 +2664,7 @@ index 3f454eaf2101..e5fa99e57548 100644
  	}
  
  	return mode;
-@@ -378,6 +402,7 @@ static struct attribute *gpio_attrs[] = {
+@@ -389,6 +413,7 @@ static struct attribute *gpio_attrs[] = {
  	&dev_attr_edge.attr,
  	&dev_attr_value.attr,
  	&dev_attr_active_low.attr,
@@ -2672,7 +2672,7 @@ index 3f454eaf2101..e5fa99e57548 100644
  	NULL,
  };
  
-@@ -391,6 +416,10 @@ static const struct attribute_group *gpio_groups[] = {
+@@ -402,6 +427,10 @@ static const struct attribute_group *gpio_groups[] = {
  	NULL
  };
  
@@ -2684,7 +2684,7 @@ index 3f454eaf2101..e5fa99e57548 100644
   * /sys/class/gpio/gpiochipN/
   *   /base ... matching gpio_chip.base (N)
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index f549dd38b89e..6b31830c74f4 100644
+index 886f466e3485..4f50f5b28868 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
 @@ -521,6 +521,7 @@ source "drivers/misc/mei/Kconfig"
@@ -2694,9 +2694,9 @@ index f549dd38b89e..6b31830c74f4 100644
 +source "drivers/misc/cape/Kconfig"
  source "drivers/misc/echo/Kconfig"
  source "drivers/misc/cxl/Kconfig"
- source "drivers/misc/cardreader/Kconfig"
+ source "drivers/misc/ocxl/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index fb1c6f06da9d..d824f172141d 100644
+index 34e54dc28ac9..9d47283bacc4 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
 @@ -50,6 +50,7 @@ obj-$(CONFIG_SRAM)		+= sram.o
