@@ -378,7 +378,7 @@ reverts () {
 
 drivers () {
 	dir 'drivers/ar1021_i2c'
-	dir 'drivers/pwm'
+#	dir 'drivers/pwm'
 	dir 'drivers/spi'
 	dir 'drivers/ssd1306'
 	dir 'drivers/tsl2550'
