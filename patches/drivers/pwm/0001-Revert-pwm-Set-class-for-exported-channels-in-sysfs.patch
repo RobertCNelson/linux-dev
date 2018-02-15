@@ -1,0 +1,25 @@
+From 35f6a2efb2e63e0ad57653b59b2cb32fad7731b0 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 14 Feb 2018 10:19:48 -0600
+Subject: [PATCH 1/2] Revert "pwm: Set class for exported channels in sysfs"
+
+This reverts commit 7e5d1fd75c3dde9fc10c4472b9368089d1b81d00.
+---
+ drivers/pwm/sysfs.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/pwm/sysfs.c b/drivers/pwm/sysfs.c
+index 83f2b0b15712..a813239300c3 100644
+--- a/drivers/pwm/sysfs.c
++++ b/drivers/pwm/sysfs.c
+@@ -263,7 +263,6 @@ static int pwm_export_child(struct device *parent, struct pwm_device *pwm)
+ 	export->pwm = pwm;
+ 	mutex_init(&export->lock);
+ 
+-	export->child.class = parent->class;
+ 	export->child.release = pwm_export_release;
+ 	export->child.parent = parent;
+ 	export->child.devt = MKDEV(0, 0);
+-- 
+2.15.1
+
