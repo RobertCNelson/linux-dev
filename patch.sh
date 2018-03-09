@@ -160,7 +160,7 @@ aufs4 () {
 
 		rm -rf ../aufs4-standalone/ || true
 
-		git reset --hard HEAD~5
+		${git_bin} reset --hard HEAD~5
 
 		start_cleanup
 
@@ -276,7 +276,7 @@ wireguard () {
 
 		rm -rf ../WireGuard/ || true
 
-		git reset --hard HEAD^
+		${git_bin} reset --hard HEAD^
 
 		start_cleanup
 
@@ -290,6 +290,42 @@ wireguard () {
 	${git} "${DIR}/patches/WireGuard/0001-merge-WireGuard.patch"
 }
 
+ti_pm_firmware () {
+	echo "dir: drivers/ti/firmware"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+
+		cd ../
+		if [ ! -d ./ti-amx3-cm3-pm-firmware ] ; then
+			${git_bin} clone -b ti-v4.1.y-next git://git.ti.com/processor-firmware/ti-amx3-cm3-pm-firmware.git --depth=1
+		else
+			rm -rf ./ti-amx3-cm3-pm-firmware || true
+			${git_bin} clone -b ti-v4.1.y-next git://git.ti.com/processor-firmware/ti-amx3-cm3-pm-firmware.git --depth=1
+		fi
+		cd ./KERNEL/
+
+		cp -v ../ti-amx3-cm3-pm-firmware/bin/am* ./firmware/
+
+		${git_bin} add -f ./firmware/am*
+		${git_bin} commit -a -m 'add am33x firmware' -s
+		${git_bin} format-patch -1 -o ../patches/drivers/ti/firmware/
+
+		rm -rf ../ti-amx3-cm3-pm-firmware/ || true
+
+		${git_bin} reset --hard HEAD^
+
+		start_cleanup
+
+		${git} "${DIR}/patches/drivers/ti/firmware/0001-add-am33x-firmware.patch"
+
+		wdir="drivers/ti/firmware"
+		number=1
+		cleanup
+	fi
+
+	${git} "${DIR}/patches/drivers/ti/firmware/0001-add-am33x-firmware.patch"
+}
+
 local_patch () {
 	echo "dir: dir"
 	${git} "${DIR}/patches/dir/0001-patch.patch"
@@ -299,6 +335,7 @@ local_patch () {
 #aufs4
 #rt
 #wireguard
+ti_pm_firmware
 #local_patch
 
 pre_backports () {
@@ -387,51 +424,6 @@ drivers () {
 	dir 'drivers/opp'
 	dir 'drivers/wiznet'
 	dir 'drivers/ti/overlays'
-
-	echo "dir: drivers/ti/firmware"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	#http://git.ti.com/gitweb/?p=processor-firmware/ti-amx3-cm3-pm-firmware.git;a=summary
-	#git clone git://git.ti.com/processor-firmware/ti-amx3-cm3-pm-firmware.git
-
-	#cd ti-amx3-cm3-pm-firmware/
-	#git checkout origin/ti-v4.1.y-next -b tmp
-
-	#commit ee4acf427055d7e87d9d1d82296cbd05e388642e
-	#Author: Dave Gerlach <d-gerlach@ti.com>
-	#Date:   Tue Sep 6 14:33:11 2016 -0500
-	#
-	#    CM3: Firmware release 0x192
-	#    
-	#    This version, 0x192, includes the following changes:
-	#         - Fix DDR IO CTRL handling during suspend so both am335x and am437x
-	#           use optimal low power state and restore the exact previous
-	#           configuration.
-	#        - Explicitly configure PER state in standby, even though it is
-	#           configured to ON state to ensure proper state.
-	#         - Add new 'halt' flag in IPC_REG4 bit 11 to allow HLOS to configure
-	#           the suspend path to wait immediately before suspending the system
-	#           entirely to allow JTAG visiblity for debug.
-	#         - Fix board voltage scaling binaries i2c speed configuration in
-	#           order to properly configure 100khz operation.
-	#    
-	#    Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
-
-	#cp -v bin/am* /opt/github/bb.org/ti-4.4/normal/KERNEL/firmware/
-
-	#git add -f ./firmware/am*
-
-	${git} "${DIR}/patches/drivers/ti/firmware/0001-add-am33x-firmware.patch"
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/ti/firmware"
-		number=1
-		cleanup
-	fi
-
 	dir 'drivers/ti/cpsw'
 	dir 'drivers/ti/etnaviv'
 	dir 'drivers/ti/eqep'
