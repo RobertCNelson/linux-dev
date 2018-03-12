@@ -1,0 +1,31 @@
+From e7c1a87641eb96943d0dd100103fea83dc348085 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 15 Feb 2018 17:04:02 -0600
+Subject: [PATCH 3/3] hack: gpiolib: yes we have drivers stomping on each
+ other...
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/gpio/gpiolib.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index d66de67ef307..9918ad60e571 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -2154,9 +2154,9 @@ static int gpiod_request_commit(struct gpio_desc *desc, const char *label)
+ 	if (test_and_set_bit(FLAG_REQUESTED, &desc->flags) == 0) {
+ 		desc_set_label(desc, label ? : "?");
+ 		status = 0;
+-	} else {
+-		status = -EBUSY;
+-		goto done;
++//	} else {
++//		status = -EBUSY;
++//		goto done;
+ 	}
+ 
+ 	if (chip->request) {
+-- 
+2.15.1
+
