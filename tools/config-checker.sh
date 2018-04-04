@@ -76,6 +76,15 @@ config="CONFIG_SYSCTL_SYSCALL" ; config_enable
 config="CONFIG_KALLSYMS_ALL" ; config_enable
 config="CONFIG_EMBEDDED" ; config_enable
 
+#
+# Kernel Performance Events And Counters
+#
+config="CONFIG_CC_STACKPROTECTOR_STRONG" ; config_disable
+config="CONFIG_CC_STACKPROTECTOR_AUTO" ; config_enable
+
+#https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=861964
+#CONFIG_SLUB=y
+
 ##
 ## GCOV-based kernel profiling
 ##
@@ -92,6 +101,7 @@ config="CONFIG_ARCH_VIRT" ; config_disable
 config="CONFIG_ARCH_MVEBU" ; config_disable
 config="CONFIG_ARCH_BCM" ; config_disable
 config="CONFIG_ARCH_HIGHBANK" ; config_disable
+config="CONFIG_ARCH_MESON" ; config_disable
 
 #
 # Device tree only
@@ -241,18 +251,22 @@ config="CONFIG_CAN_MCP251X" ; config_module
 # Bluetooth device drivers
 #
 config="CONFIG_BT_HCIUART" ; config_module
-config="CONFIG_BT_HCIBCM203X" ; config_module
-config="CONFIG_BT_HCIBFUSB" ; config_module
-
+config="CONFIG_BT_HCIUART_SERDEV" ; config_enable
 config="CONFIG_BT_HCIUART_H4" ; config_enable
 config="CONFIG_BT_HCIUART_BCSP" ; config_enable
 config="CONFIG_BT_HCIUART_ATH3K" ; config_enable
+config="CONFIG_BT_HCIUART_LL" ; config_enable
 config="CONFIG_BT_HCIUART_3WIRE" ; config_enable
-
 config="CONFIG_BT_HCIUART_QCA" ; config_enable
-
+config="CONFIG_BT_HCIBCM203X" ; config_module
 config="CONFIG_BT_HCIBPA10X" ; config_module
+config="CONFIG_BT_HCIBFUSB" ; config_module
 
+config="CONFIG_MAC80211_RC_MINSTREL_VHT" ; config_enable
+
+#
+# Near Field Communication (NFC) devices
+#
 config="CONFIG_NFC_NCI" ; config_module
 config="CONFIG_NFC_NCI_SPI" ; config_module
 config="CONFIG_NFC_HCI" ; config_module
@@ -294,16 +308,25 @@ config="CONFIG_VEXPRESS_CONFIG" ; config_disable
 # LPDDR & LPDDR2 PCM memory drivers
 #
 config="CONFIG_MTD_UBI" ; config_enable
+config="CONFIG_OF_OVERLAY" ; config_enable
 config="CONFIG_PARPORT" ; config_disable
+
+#
+# NVME Support
+#
 config="CONFIG_NVME_CORE" ; config_disable
+config="CONFIG_NVME_MULTIPATH" ; config_disable
 config="CONFIG_NVME_FABRICS" ; config_disable
 config="CONFIG_NVME_RDMA" ; config_disable
+config="CONFIG_NVME_FC" ; config_disable
 config="CONFIG_NVME_TARGET" ; config_disable
 
 #
 # Misc devices
 #
 config="CONFIG_SENSORS_LIS3LV02D" ; config_disable
+config="CONFIG_MISC_RTSX" ; config_disable
+config="CONFIG_MISC_RTSX_USB" ; config_disable
 config="CONFIG_TIEQEP" ; config_module
 config="CONFIG_C2PORT" ; config_disable
 
@@ -377,6 +400,7 @@ config="CONFIG_NET_VENDOR_AQUANTIA" ; config_disable
 config="CONFIG_NET_CADENCE" ; config_disable
 config="CONFIG_NET_VENDOR_BROADCOM" ; config_disable
 config="CONFIG_NET_VENDOR_CIRRUS" ; config_disable
+config="CONFIG_NET_VENDOR_CORTINA" ; config_disable
 config="CONFIG_NET_VENDOR_EZCHIP" ; config_disable
 config="CONFIG_NET_VENDOR_FARADAY" ; config_disable
 config="CONFIG_NET_VENDOR_HISILICON" ; config_disable
@@ -391,6 +415,7 @@ config="CONFIG_NET_VENDOR_RENESAS" ; config_disable
 config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
 config="CONFIG_NET_VENDOR_SEEQ" ; config_disable
 config="CONFIG_NET_VENDOR_SOLARFLARE" ; config_disable
+config="CONFIG_NET_VENDOR_SOCIONEXT" ; config_disable
 config="CONFIG_NET_VENDOR_VIA" ; config_disable
 config="CONFIG_NET_VENDOR_WIZNET" ; config_enable
 config="CONFIG_WIZNET_W5100" ; config_enable
@@ -617,6 +642,8 @@ config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
+config="CONFIG_SERIAL_DEV_BUS" ; config_enable
+
 config="CONFIG_HW_RANDOM" ; config_enable
 config="CONFIG_HW_RANDOM_OMAP" ; config_enable
 config="CONFIG_HW_RANDOM_OMAP3_ROM" ; config_enable
@@ -675,15 +702,13 @@ config="CONFIG_PPS_CLIENT_GPIO" ; config_module
 #
 # Pin controllers
 #
+config="CONFIG_PINCTRL_AXP209" ; config_enable
 config="CONFIG_PINCTRL_MCP23S08" ; config_disable
-config="CONFIG_PINCTRL_TI_IODELAY" ; config_enable
 config="CONFIG_GPIO_MAX730X" ; config_module
-config="CONFIG_PINCTRL_SX150X" ; config_disable
 
 #
 # Memory mapped GPIO drivers
 #
-config="CONFIG_GPIO_AXP209" ; config_enable
 config="CONFIG_GPIO_SYSCON" ; config_enable
 
 #
@@ -695,8 +720,6 @@ config="CONFIG_GPIO_MAX7300" ; config_module
 config="CONFIG_GPIO_MAX732X" ; config_module
 config="CONFIG_GPIO_PCA953X" ; config_enable
 config="CONFIG_GPIO_PCA953X_IRQ" ; config_enable
-config="CONFIG_GPIO_PCF857X" ; config_module
-config="CONFIG_GPIO_SX150X" ; config_disable
 config="CONFIG_GPIO_TPIC2810" ; config_module
 
 #
@@ -712,9 +735,11 @@ config="CONFIG_GPIO_TPS65910" ; config_enable
 # SPI GPIO expanders:
 #
 config="CONFIG_GPIO_74X164" ; config_module
+config="CONFIG_GPIO_MAX3191X" ; config_module
 config="CONFIG_GPIO_MAX7301" ; config_module
 config="CONFIG_GPIO_MC33880" ; config_module
 config="CONFIG_GPIO_PISOSR" ; config_module
+config="CONFIG_GPIO_XRA1403" ; config_module
 
 #
 # 1-wire Bus Masters
@@ -830,6 +855,7 @@ config="CONFIG_SENSORS_INA3221" ; config_module
 config="CONFIG_SENSORS_TC74" ; config_module
 config="CONFIG_SENSORS_TMP103" ; config_module
 config="CONFIG_SENSORS_TMP108" ; config_module
+config="CONFIG_SENSORS_W83773G" ; config_module
 config="CONFIG_SENSORS_W83781D" ; config_module
 config="CONFIG_SENSORS_W83L785TS" ; config_module
 config="CONFIG_SENSORS_W83627HF" ; config_module
@@ -843,10 +869,6 @@ config="CONFIG_IMX_THERMAL" ; config_enable
 #
 config="CONFIG_TI_SOC_THERMAL" ; config_enable
 config="CONFIG_OMAP3_THERMAL" ; config_enable
-
-#
-# NVIDIA Tegra thermal drivers
-#
 config="CONFIG_GENERIC_ADC_THERMAL" ; config_module
 config="CONFIG_WATCHDOG_NOWAYOUT" ; config_enable
 
@@ -905,15 +927,10 @@ config="CONFIG_REGULATOR_TPS65218" ; config_enable
 config="CONFIG_REGULATOR_TPS6524X" ; config_enable
 config="CONFIG_REGULATOR_TPS65910" ; config_enable
 
-#exit
+config="CONFIG_CEC_CORE" ; config_enable
+config="CONFIG_CEC_NOTIFIER" ; config_enable
 
-#
-# Multimedia core support
-#
-config="CONFIG_V4L2_MEM2MEM_DEV" ; config_enable
-config="CONFIG_VIDEOBUF2_CORE" ; config_enable
-config="CONFIG_VIDEOBUF2_MEMOPS" ; config_enable
-config="CONFIG_VIDEOBUF2_DMA_CONTIG" ; config_enable
+#exit
 
 #
 # Software defined radio USB devices
@@ -958,7 +975,6 @@ config="CONFIG_DRM_KMS_HELPER" ; config_enable
 
 config="CONFIG_DRM_SUN4I" ; config_enable
 config="CONFIG_DRM_SUN4I_HDMI" ; config_enable
-config="CONFIG_DRM_SUN4I_HDMI_CEC" ; config_enable
 config="CONFIG_DRM_SUN4I_BACKEND" ; config_enable
 config="CONFIG_DRM_SUN8I_MIXER" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
@@ -975,8 +991,6 @@ config="CONFIG_DRM_OMAP_CONNECTOR_HDMI" ; config_enable
 config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 
 config="CONFIG_DRM_TILCDC" ; config_enable
-config="CONFIG_DRM_TILCDC_SLAVE_COMPAT" ; config_disable
-config="CONFIG_DRM_STM" ; config_disable
 
 #
 # Display Interface Bridges
@@ -1003,9 +1017,11 @@ config="CONFIG_DRM_ETNAVIV" ; config_enable
 config="CONFIG_DRM_MXSFB" ; config_enable
 config="CONFIG_DRM_TINYDRM" ; config_module
 config="CONFIG_TINYDRM_MIPI_DBI" ; config_module
+config="CONFIG_TINYDRM_ILI9225" ; config_module
 config="CONFIG_TINYDRM_MI0283QT" ; config_module
 config="CONFIG_TINYDRM_REPAPER" ; config_module
 config="CONFIG_TINYDRM_ST7586" ; config_module
+config="CONFIG_TINYDRM_ST7735R" ; config_module
 
 config="CONFIG_DRM_LEGACY" ; config_disable
 
@@ -1091,11 +1107,6 @@ config="CONFIG_USB_STORAGE" ; config_enable
 #
 # USB Imaging devices
 #
-config="CONFIG_USBIP_CORE" ; config_module
-config="CONFIG_USBIP_VHCI_HCD" ; config_module
-config="CONFIG_USBIP_HOST" ; config_module
-config="CONFIG_USBIP_VUDC" ; config_module
-config="CONFIG_USBIP_DEBUG" ; config_disable
 config="CONFIG_USB_MUSB_HDRC" ; config_enable
 
 #
@@ -1137,6 +1148,24 @@ config="CONFIG_USB_GPIO_VBUS" ; config_enable
 config="CONFIG_USB_MXS_PHY" ; config_enable
 config="CONFIG_USB_GADGET" ; config_enable
 config="CONFIG_USB_GADGET_VBUS_DRAW" ; option="500" ; config_value
+
+#
+# USB Peripheral Controller
+#
+config="CONFIG_USB_ZERO" ; config_module
+config="CONFIG_USB_AUDIO" ; config_module
+config="CONFIG_USB_G_NCM" ; config_module
+config="CONFIG_USB_MASS_STORAGE" ; config_module
+config="CONFIG_USB_MIDI_GADGET" ; config_module
+config="CONFIG_USB_G_PRINTER" ; config_module
+config="CONFIG_USB_CDC_COMPOSITE" ; config_module
+config="CONFIG_USB_G_ACM_MS" ; config_module
+config="CONFIG_USB_G_MULTI" ; config_module
+config="CONFIG_USB_G_MULTI_RNDIS" ; config_enable
+config="CONFIG_USB_G_HID" ; config_module
+config="CONFIG_USB_G_DBGP" ; config_module
+config="CONFIG_TYPEC" ; config_module
+config="CONFIG_TYPEC_UCSI" ; config_module
 
 #exit
 
@@ -1197,6 +1226,7 @@ config="CONFIG_LEDS_TRIGGER_DEFAULT_ON" ; config_enable
 #
 # iptables trigger is under Netfilter config (LED target)
 #
+config="CONFIG_LEDS_TRIGGER_NETDEV" ; config_module
 config="CONFIG_INFINIBAND" ; config_disable
 
 #
@@ -1252,6 +1282,7 @@ config="CONFIG_RTC_DRV_MCP795" ; config_enable
 #
 # Platform RTC drivers
 #
+config="CONFIG_RTC_DRV_CMOS" ; config_disable
 config="CONFIG_RTC_DRV_DS1286" ; config_module
 config="CONFIG_RTC_DRV_DS1511" ; config_module
 config="CONFIG_RTC_DRV_DS1553" ; config_module
@@ -1279,6 +1310,7 @@ config="CONFIG_RTC_DRV_DS2404" ; config_module
 #
 config="CONFIG_RTC_DRV_SUN6I" ; config_enable
 config="CONFIG_RTC_DRV_R7301" ; config_enable
+config="CONFIG_RTC_DRV_MXC_V2" ; config_enable
 
 #
 # HID Sensor RTC drivers
@@ -1473,11 +1505,6 @@ config="CONFIG_OMAP_REMOTEPROC" ; config_module
 config="CONFIG_WKUP_M3_RPROC" ; config_enable
 
 #
-# Rpmsg drivers
-#
-config="CONFIG_RPMSG" ; config_module
-
-#
 # SOC (System On Chip) specific Drivers
 #
 config="CONFIG_SOC_TI" ; config_enable
@@ -1500,6 +1527,7 @@ config="CONFIG_EXTCON_GPIO" ; config_enable
 config="CONFIG_EXTCON_PALMAS" ; config_enable
 config="CONFIG_EXTCON_USB_GPIO" ; config_enable
 config="CONFIG_TI_EMIF" ; config_enable
+config="CONFIG_TI_EMIF_SRAM" ; config_enable
 
 config="CONFIG_IIO" ; config_enable
 
@@ -1721,6 +1749,9 @@ config="CONFIG_OPT3001" ; config_module
 config="CONFIG_PA12203001" ; config_module
 config="CONFIG_SI1145" ; config_module
 config="CONFIG_STK3310" ; config_module
+config="CONFIG_ST_UVIS25" ; config_module
+config="CONFIG_ST_UVIS25_I2C" ; config_module
+config="CONFIG_ST_UVIS25_SPI" ; config_module
 config="CONFIG_TCS3414" ; config_module
 config="CONFIG_TCS3472" ; config_module
 config="CONFIG_TSL4531" ; config_module
@@ -1728,6 +1759,7 @@ config="CONFIG_US5182D" ; config_module
 config="CONFIG_VCNL4000" ; config_module
 config="CONFIG_VEML6070" ; config_module
 config="CONFIG_VL6180" ; config_module
+config="CONFIG_ZOPT2201" ; config_module
 
 #
 # Magnetometer sensors
@@ -1823,16 +1855,16 @@ config="CONFIG_TWL4030_USB" ; config_enable
 config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_PHY_SUN9I_USB" ; config_enable
 
+#exit
+
 #
 # Android
 #
-config="CONFIG_NVMEM" ; config_enable
 config="CONFIG_NVMEM_IMX_IIM" ; config_enable
 config="CONFIG_NVMEM_IMX_OCOTP" ; config_enable
 config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
 config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
-
-#exit
+config="CONFIG_NVMEM_SNVS_LPGPR" ; config_enable
 
 #
 # File systems
@@ -1881,6 +1913,7 @@ config="CONFIG_SOFTLOCKUP_DETECTOR" ; config_disable
 #
 # Runtime Testing
 #
+config="CONFIG_RUNTIME_TESTING_MENU" ; config_disable
 config="CONFIG_KGDB" ; config_enable
 config="CONFIG_KGDB_SERIAL_CONSOLE" ; config_enable
 config="CONFIG_KGDB_TESTS" ; config_disable
@@ -1914,6 +1947,7 @@ config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_enable
 #
 # Certificates for signature checking
 #
+config="CONFIG_SYSTEM_TRUSTED_KEYS" ; option="" ; config_value
 config="CONFIG_ARM_CRYPTO" ; config_enable
 config="CONFIG_CRYPTO_SHA1_ARM" ; config_module
 config="CONFIG_CRYPTO_SHA1_ARM_NEON" ; config_module
