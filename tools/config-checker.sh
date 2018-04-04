@@ -1185,6 +1185,7 @@ config="CONFIG_MMC_SDHCI_ESDHC_IMX" ; config_enable
 config="CONFIG_MMC_OMAP" ; config_disable
 config="CONFIG_MMC_OMAP_HS" ; config_enable
 config="CONFIG_MMC_SPI" ; config_enable
+config="CONFIG_MMC_CQHCI" ; config_disable
 config="CONFIG_MMC_DW" ; config_enable
 config="CONFIG_MMC_DW_PLTFM" ; config_enable
 config="CONFIG_MMC_SUNXI" ; config_enable

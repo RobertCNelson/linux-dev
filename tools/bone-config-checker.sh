@@ -108,7 +108,9 @@ config="CONFIG_ARM_ERRATA_775420" ; config_disable
 # Kernel Features
 #
 config="CONFIG_SMP" ; config_disable
-config="CONFIG_THUMB2_KERNEL" ; config_enable
+
+#broken in gcc/as...sid/stretch...
+#config="CONFIG_THUMB2_KERNEL" ; config_enable
 
 #
 # VOP Driver
@@ -175,6 +177,7 @@ config="CONFIG_TERANETICS_PHY" ; config_disable
 #
 config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_enable
 config="CONFIG_TOUCHSCREEN_TI_AM335X_TSC" ; config_enable
+config="CONFIG_TOUCHSCREEN_AR1021_I2C" ; config_enable
 
 #
 # Hardware I/O ports
@@ -195,8 +198,6 @@ config="CONFIG_SERIAL_8250_OMAP_TTYO_FIXUP" ; config_enable
 # Non-8250 serial port support
 #
 config="CONFIG_SERIAL_FSL_LPUART" ; config_disable
-config="CONFIG_SERIAL_DEV_BUS" ; config_enable
-config="CONFIG_SERIAL_DEV_CTRL_TTYPORT" ; config_enable
 
 #
 # I2C system bus drivers (mostly embedded / system-on-chip)
@@ -254,6 +255,9 @@ config="CONFIG_BATTERY_RX51" ; config_disable
 config="CONFIG_CHARGER_ISP1704" ; config_disable
 config="CONFIG_CHARGER_TWL4030" ; config_disable
 config="CONFIG_CHARGER_BQ2415X" ; config_disable
+
+#broken...
+config="CONFIG_CHARGER_TPS65217" ; config_disable
 
 #
 # Watchdog Device Drivers
@@ -337,6 +341,42 @@ config="CONFIG_DRM_PANEL_SIMPLE" ; config_enable
 #
 config="CONFIG_DRM_I2C_ADIHDMI" ; config_enable
 config="CONFIG_DRM_I2C_NXP_TDA998X" ; config_enable
+
+#
+# Console display driver support
+#
+config="CONFIG_SOUND" ; config_enable
+config="CONFIG_SND" ; config_enable
+config="CONFIG_SND_TIMER" ; config_enable
+config="CONFIG_SND_PCM" ; config_enable
+config="CONFIG_SND_DMAENGINE_PCM" ; config_enable
+
+#
+# HD-Audio
+#
+config="CONFIG_SND_SOC" ; config_enable
+config="CONFIG_SND_EDMA_SOC" ; config_enable
+config="CONFIG_SND_DAVINCI_SOC_I2S" ; config_enable
+config="CONFIG_SND_DAVINCI_SOC_MCASP" ; config_enable
+config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM" ; config_enable
+config="CONFIG_SND_AM33XX_SOC_EVM" ; config_enable
+
+#
+# Common SoC Audio options for Freescale CPUs:
+#
+config="CONFIG_SND_SOC_FSL_SSI" ; config_disable
+config="CONFIG_SND_SOC_FSL_SPDIF" ; config_disable
+config="CONFIG_SND_SOC_IMX_AUDMUX" ; config_disable
+
+config="CONFIG_SND_OMAP_SOC" ; config_enable
+config="CONFIG_SND_OMAP_SOC_HDMI_AUDIO" ; config_disable
+config="CONFIG_SND_OMAP_SOC_RX51" ; config_disable
+
+#
+# CODEC drivers
+#
+config="CONFIG_SND_SIMPLE_CARD_UTILS" ; config_enable
+config="CONFIG_SND_SIMPLE_CARD" ; config_enable
 
 #
 # Miscellaneous USB options
@@ -440,12 +480,12 @@ config="CONFIG_VF610_ADC" ; config_disable
 #
 # Temperature sensors
 #
+config="CONFIG_PWM_OMAP_DMTIMER" ; config_enable
 config="CONFIG_PWM_TIECAP" ; config_enable
 config="CONFIG_PWM_TIEHRPWM" ; config_enable
 config="CONFIG_RESET_IMX7" ; config_disable
 config="CONFIG_RESET_SUNXI" ; config_disable
 
-config="CONFIG_BTRFS_FS" ; config_disable
 config="CONFIG_EXOFS_FS" ; config_disable
 
 exit
