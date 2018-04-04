@@ -396,15 +396,18 @@ reverts () {
 		start_cleanup
 	fi
 
-	#https://github.com/torvalds/linux/commit/00f0ea70d2b82b7d7afeb1bdedc9169eb8ea6675
-	#
-	#Causes bone_capemgr to get stuck on slot 1 and just eventually exit "without" checking slot2/3/4...
-	#
-	#[    5.406775] bone_capemgr bone_capemgr: Baseboard: 'A335BNLT,00C0,2516BBBK2626'
-	#[    5.414178] bone_capemgr bone_capemgr: compatible-baseboard=ti,beaglebone-black - #slots=4
-	#[    5.422573] bone_capemgr bone_capemgr: Failed to add slot #1
+		#Breaks boot on am335x-boneblack
+		#debug: [bootz 0x82000000 - 88000000] ...
+		### Flattened Device Tree blob at 88000000
+		#   Booting using the fdt blob at 0x88000000
+		#   reserving fdt memory region: addr=88000000 size=88000
+		#   Loading Device Tree to 8ff75000, end 8fffffff ... OK
+		#
+		#Starting kernel ...
 
-	#${git} "${DIR}/patches/reverts/0001-Revert-eeprom-at24-check-if-the-chip-is-functional-i.patch"
+		#git revert --no-edit c083dc5f3738d394223baa0f90705397b0844acd
+
+		${git} "${DIR}/patches/reverts/0001-Revert-clk-ti-am33xx-add-set-rate-parent-support-for.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="reverts"
