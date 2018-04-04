@@ -1,15 +1,14 @@
-From 17ecf0579e8c2d09155098c930298e027ce69e94 Mon Sep 17 00:00:00 2001
+From fe853562706159410d66ed4875c57c2374f10cf1 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Fri, 2 Feb 2018 10:31:18 -0600
+Date: Wed, 4 Apr 2018 14:35:00 -0500
 Subject: [PATCH] ti: dra7: etnaviv: 2d acceleration
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi |  4 ++++
- arch/arm/boot/dts/dra7.dtsi                     | 16 ++++++++++++++++
+ arch/arm/boot/dts/dra7.dtsi                     | 10 ++++++++++
  drivers/gpu/drm/etnaviv/Kconfig                 |  2 +-
- drivers/gpu/drm/etnaviv/etnaviv_drv.c           |  1 +
- 4 files changed, 22 insertions(+), 1 deletion(-)
+ 3 files changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
 index ab60035bc50c..4a389ad71e0a 100644
@@ -27,7 +26,7 @@ index ab60035bc50c..4a389ad71e0a 100644
  	status = "okay";
  	clock-frequency = <400000>;
 diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index daa37a85dbf0..8ba6232916b6 100644
+index e4a420f16800..1e4fd00233c6 100644
 --- a/arch/arm/boot/dts/dra7.dtsi
 +++ b/arch/arm/boot/dts/dra7.dtsi
 @@ -1030,6 +1030,16 @@
@@ -47,21 +46,8 @@ index daa37a85dbf0..8ba6232916b6 100644
  		i2c1: i2c@48070000 {
  			compatible = "ti,omap4-i2c";
  			reg = <0x48070000 0x100>;
-@@ -2115,6 +2125,12 @@
- 
- 	};
- 
-+	gpu-subsystem {
-+		compatible = "vivante,gc-gpu-subsystem";
-+		cores = <&bb2d>;
-+		status = "okay";
-+	};
-+
- 	thermal_zones: thermal-zones {
- 		#include "omap4-cpu-thermal.dtsi"
- 		#include "omap5-gpu-thermal.dtsi"
 diff --git a/drivers/gpu/drm/etnaviv/Kconfig b/drivers/gpu/drm/etnaviv/Kconfig
-index a29b8f59eb15..be5b44c6ac39 100644
+index e5bfeca361bd..2e6f1db607dc 100644
 --- a/drivers/gpu/drm/etnaviv/Kconfig
 +++ b/drivers/gpu/drm/etnaviv/Kconfig
 @@ -2,7 +2,7 @@
@@ -73,18 +59,6 @@ index a29b8f59eb15..be5b44c6ac39 100644
  	depends on MMU
  	select SHMEM
  	select SYNC_FILE
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-index 491eddf9b150..0af4216878b0 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-@@ -694,6 +694,7 @@ static int etnaviv_pdev_remove(struct platform_device *pdev)
- static const struct of_device_id dt_match[] = {
- 	{ .compatible = "fsl,imx-gpu-subsystem" },
- 	{ .compatible = "marvell,dove-gpu-subsystem" },
-+	{ .compatible = "vivante,gc-gpu-subsystem"},
- 	{}
- };
- MODULE_DEVICE_TABLE(of, dt_match);
 -- 
-2.15.1
+2.16.3
 

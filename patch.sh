@@ -430,7 +430,6 @@ drivers () {
 	dir 'drivers/ti/cpsw'
 	dir 'drivers/ti/etnaviv'
 	dir 'drivers/ti/eqep'
-	dir 'drivers/ti/mcasp'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/serial'
 	dir 'drivers/ti/tsc'
@@ -526,7 +525,6 @@ reverts
 drivers
 soc
 beaglebone
-dir 'build/gcc'
 
 packaging () {
 	echo "dir: packaging"
