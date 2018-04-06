@@ -12,7 +12,7 @@ Subject: [PATCH] Making the uio pruss driver work
  5 files changed, 139 insertions(+), 8 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/arm/omap/omap.txt b/Documentation/devicetree/bindings/arm/omap/omap.txt
-index f53e2ee..29bc4fe 100644
+index 2ecc712bf707..e026391599fb 100644
 --- a/Documentation/devicetree/bindings/arm/omap/omap.txt
 +++ b/Documentation/devicetree/bindings/arm/omap/omap.txt
 @@ -24,6 +24,8 @@ Optional properties:
@@ -25,10 +25,10 @@ index f53e2ee..29bc4fe 100644
  Example:
  
 diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 4efb3f5..ee36d6f 100644
+index 2d0aa2b4136d..0a74e4c05dfb 100644
 --- a/arch/arm/boot/dts/am33xx.dtsi
 +++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -566,6 +566,17 @@
+@@ -575,6 +575,17 @@
  			ti,timer-pwm;
  		};
  
@@ -47,13 +47,13 @@ index 4efb3f5..ee36d6f 100644
  			compatible = "ti,am3352-rtc", "ti,da830-rtc";
  			reg = <0x44e3e000 0x1000>;
 diff --git a/arch/arm/mach-omap2/omap_device.c b/arch/arm/mach-omap2/omap_device.c
-index 3133fe8..f5eff35 100644
+index 3b829a50d1db..9379a29ff28a 100644
 --- a/arch/arm/mach-omap2/omap_device.c
 +++ b/arch/arm/mach-omap2/omap_device.c
-@@ -138,8 +138,8 @@ static int omap_device_build_from_dt(struct platform_device *pdev)
- 	struct omap_device *od;
+@@ -141,8 +141,8 @@ static int omap_device_build_from_dt(struct platform_device *pdev)
  	struct omap_hwmod *oh;
  	struct device_node *node = pdev->dev.of_node;
+ 	struct resource res;
 -	const char *oh_name;
 -	int oh_cnt, i, ret = 0;
 +	const char *oh_name, *rst_name;
@@ -61,7 +61,7 @@ index 3133fe8..f5eff35 100644
  	bool device_active = false;
  
  	oh_cnt = of_property_count_strings(node, "ti,hwmods");
-@@ -190,6 +190,26 @@ static int omap_device_build_from_dt(struct platform_device *pdev)
+@@ -197,6 +197,26 @@ static int omap_device_build_from_dt(struct platform_device *pdev)
  		omap_device_enable(pdev);
  		pm_runtime_set_active(&pdev->dev);
  	}
@@ -89,7 +89,7 @@ index 3133fe8..f5eff35 100644
  odbfd_exit1:
  	kfree(hwmods);
 diff --git a/drivers/uio/Kconfig b/drivers/uio/Kconfig
-index 7e8dc78..e0c68ac 100644
+index 7e8dc78a9796..e0c68acc1d94 100644
 --- a/drivers/uio/Kconfig
 +++ b/drivers/uio/Kconfig
 @@ -129,7 +129,7 @@ config UIO_PRUSS
@@ -102,7 +102,7 @@ index 7e8dc78..e0c68ac 100644
  	  driver is available from below SVN repo - you may use anonymous login
  
 diff --git a/drivers/uio/uio_pruss.c b/drivers/uio/uio_pruss.c
-index 31d5b1d..dbe8ec8 100644
+index 31d5b1d3b5af..dbe8ec8d2faf 100644
 --- a/drivers/uio/uio_pruss.c
 +++ b/drivers/uio/uio_pruss.c
 @@ -19,6 +19,7 @@
@@ -304,5 +304,5 @@ index 31d5b1d..dbe8ec8 100644
  };
  
 -- 
-2.10.2
+2.16.3
 
