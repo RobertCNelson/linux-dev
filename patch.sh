@@ -366,7 +366,7 @@ reverts () {
 
 		#git revert --no-edit c083dc5f3738d394223baa0f90705397b0844acd
 
-		${git} "${DIR}/patches/reverts/0001-Revert-clk-ti-am33xx-add-set-rate-parent-support-for.patch"
+		#${git} "${DIR}/patches/reverts/0001-Revert-clk-ti-am33xx-add-set-rate-parent-support-for.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="reverts"
@@ -386,6 +386,7 @@ drivers () {
 	dir 'drivers/opp'
 	dir 'drivers/wiznet'
 	dir 'drivers/ti/overlays'
+	dir 'drivers/ti/clock'
 	dir 'drivers/ti/cpsw'
 	dir 'drivers/ti/etnaviv'
 	dir 'drivers/ti/eqep'
@@ -480,7 +481,7 @@ beaglebone () {
 
 ###
 #backports
-reverts
+#reverts
 drivers
 soc
 beaglebone
