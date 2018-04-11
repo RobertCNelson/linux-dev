@@ -442,6 +442,8 @@ config="CONFIG_MMC_SDHCI" ; config_disable
 config="CONFIG_MMC_SDHCI_PLTFM" ; config_disable
 config="CONFIG_MMC_SDHCI_OF_ARASAN" ; config_disable
 config="CONFIG_MMC_DW" ; config_disable
+config="CONFIG_MMC_CQHCI" ; config_disable
+config="CONFIG_MEMSTICK" ; config_disable
 
 #
 # MemoryStick drivers
@@ -487,6 +489,11 @@ config="CONFIG_RESET_IMX7" ; config_disable
 config="CONFIG_RESET_SUNXI" ; config_disable
 
 config="CONFIG_EXOFS_FS" ; config_disable
+
+#
+# Common Clock Framework
+#
+config="CONFIG_COMMON_CLK_SI5351" ; config_disable
 
 exit
 
