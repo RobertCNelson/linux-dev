@@ -99,6 +99,7 @@ config="CONFIG_MODULE_COMPRESS_XZ" ; config_enable
 #
 config="CONFIG_ARCH_VIRT" ; config_disable
 config="CONFIG_ARCH_MVEBU" ; config_disable
+config="CONFIG_MACH_DOVE" ; config_disable
 config="CONFIG_ARCH_BCM" ; config_disable
 config="CONFIG_ARCH_HIGHBANK" ; config_disable
 config="CONFIG_ARCH_MESON" ; config_disable
@@ -485,6 +486,7 @@ config="CONFIG_JOYSTICK_JOYDUMP" ; config_module
 config="CONFIG_JOYSTICK_XPAD" ; config_module
 config="CONFIG_JOYSTICK_XPAD_FF" ; config_enable
 config="CONFIG_JOYSTICK_XPAD_LEDS" ; config_enable
+config="CONFIG_JOYSTICK_PXRC" ; config_module
 
 #exit
 
@@ -596,6 +598,7 @@ config="CONFIG_HW_RANDOM_OMAP" ; config_enable
 config="CONFIG_HW_RANDOM_OMAP3_ROM" ; config_enable
 config="CONFIG_HW_RANDOM_IMX_RNGC" ; config_enable
 config="CONFIG_HW_RANDOM_TPM" ; config_enable
+config="CONFIG_TCG_TPM" ; config_enable
 config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_enable
 
 #
@@ -928,6 +931,7 @@ config="CONFIG_DRM_SUN4I" ; config_enable
 config="CONFIG_DRM_SUN4I_HDMI" ; config_enable
 config="CONFIG_DRM_SUN4I_HDMI_CEC" ; config_enable
 config="CONFIG_DRM_SUN4I_BACKEND" ; config_enable
+config="CONFIG_DRM_SUN8I_DW_HDMI" ; config_enable
 config="CONFIG_DRM_SUN8I_MIXER" ; config_enable
 config="CONFIG_DRM_OMAP" ; config_enable
 config="CONFIG_OMAP2_DSS" ; config_enable
@@ -1052,11 +1056,6 @@ config="CONFIG_USB_STORAGE" ; config_enable
 #
 # USB Imaging devices
 #
-config="CONFIG_USBIP_CORE" ; config_module
-config="CONFIG_USBIP_VHCI_HCD" ; config_module
-config="CONFIG_USBIP_HOST" ; config_module
-config="CONFIG_USBIP_VUDC" ; config_module
-config="CONFIG_USBIP_DEBUG" ; config_disable
 config="CONFIG_USB_MUSB_HDRC" ; config_enable
 
 #
@@ -1199,6 +1198,7 @@ config="CONFIG_RTC_DRV_MAX6900" ; config_enable
 config="CONFIG_RTC_DRV_RS5C372" ; config_enable
 config="CONFIG_RTC_DRV_ISL1208" ; config_enable
 config="CONFIG_RTC_DRV_ISL12022" ; config_enable
+config="CONFIG_RTC_DRV_ISL12026" ; config_enable
 config="CONFIG_RTC_DRV_X1205" ; config_enable
 config="CONFIG_RTC_DRV_PCF2127" ; config_enable
 config="CONFIG_RTC_DRV_PCF85063" ; config_enable
@@ -1452,6 +1452,7 @@ config="CONFIG_HWSPINLOCK_OMAP" ; config_enable
 # Clock Source drivers
 #
 config="CONFIG_ROCKCHIP_MBOX" ; config_enable
+config="CONFIG_TEGRA_HSP_MBOX" ; config_enable
 
 #
 # Generic IOMMU Pagetable Support
@@ -1719,6 +1720,7 @@ config="CONFIG_ISL29125" ; config_module
 config="CONFIG_JSA1212" ; config_module
 config="CONFIG_RPR0521" ; config_module
 config="CONFIG_LTR501" ; config_module
+config="CONFIG_LV0104CS" ; config_module
 config="CONFIG_MAX44000" ; config_module
 config="CONFIG_OPT3001" ; config_module
 config="CONFIG_PA12203001" ; config_module
@@ -1760,9 +1762,11 @@ config="CONFIG_IIO_SYSFS_TRIGGER" ; config_module
 #
 # Digital potentiometers
 #
+config="CONFIG_AD5272" ; config_module
 config="CONFIG_DS1803" ; config_module
 config="CONFIG_MAX5481" ; config_module
 config="CONFIG_MAX5487" ; config_module
+config="CONFIG_MCP4018" ; config_module
 config="CONFIG_MCP4131" ; config_module
 config="CONFIG_MCP4531" ; config_module
 config="CONFIG_TPL0102" ; config_module
@@ -1812,6 +1816,7 @@ config="CONFIG_SRF08" ; config_module
 #
 config="CONFIG_MAXIM_THERMOCOUPLE" ; config_module
 config="CONFIG_MLX90614" ; config_module
+config="CONFIG_MLX90632" ; config_module
 config="CONFIG_TMP006" ; config_module
 config="CONFIG_TMP007" ; config_module
 config="CONFIG_TSYS01" ; config_module
@@ -1844,9 +1849,7 @@ config="CONFIG_NVMEM_IMX_IIM" ; config_enable
 config="CONFIG_NVMEM_IMX_OCOTP" ; config_enable
 config="CONFIG_ROCKCHIP_EFUSE" ; config_enable
 config="CONFIG_NVMEM_SUNXI_SID" ; config_enable
-config="CONFIG_NVMEM_VF610_OCOTP" ; config_enable
-
-#exit
+config="CONFIG_NVMEM_SNVS_LPGPR" ; config_enable
 
 #
 # File systems
@@ -1909,6 +1912,7 @@ config="CONFIG_STRICT_DEVMEM" ; config_disable
 #
 config="CONFIG_SECURITY_DMESG_RESTRICT" ; config_disable
 config="CONFIG_HARDENED_USERCOPY" ; config_disable
+config="CONFIG_FORTIFY_SOURCE" ; config_enable
 
 #
 # Crypto core or helper
