@@ -1,86 +1,86 @@
-From a179fb863a46a36c931f94424f88b902b3267570 Mon Sep 17 00:00:00 2001
+From 1b56569e3f3fd1e612206f05012fa282af9ab5a8 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 8 Apr 2018 10:26:33 -0500
+Date: Sun, 15 Apr 2018 21:25:16 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- net/Kconfig                                        |    1 +
- net/Makefile                                       |    1 +
- net/wireguard/Kconfig                              |   31 +
- net/wireguard/Makefile                             |   19 +
- net/wireguard/allowedips.c                         |  328 +++
- net/wireguard/allowedips.h                         |   44 +
- net/wireguard/compat/Makefile.include              |   71 +
- .../compat/checksum/checksum_partial_compat.h      |  208 ++
- net/wireguard/compat/compat-asm.h                  |   18 +
- net/wireguard/compat/compat.h                      |  638 +++++
- net/wireguard/compat/dst_cache/dst_cache.c         |  175 ++
- .../compat/dst_cache/include/net/dst_cache.h       |   97 +
- net/wireguard/compat/fpu/include/asm/fpu/api.h     |    1 +
- .../compat/intel-family/include/asm/intel-family.h |   73 +
- net/wireguard/compat/memneq/include.h              |    5 +
- net/wireguard/compat/memneq/memneq.c               |  170 ++
- .../compat/ptr_ring/include/linux/ptr_ring.h       |  640 +++++
- net/wireguard/compat/simd/include/asm/simd.h       |    1 +
- .../compat/siphash/include/linux/siphash.h         |  140 +
- net/wireguard/compat/siphash/siphash.c             |  539 ++++
- .../compat/udp_tunnel/include/net/udp_tunnel.h     |   94 +
- net/wireguard/compat/udp_tunnel/udp_tunnel.c       |  385 +++
- .../compat/udp_tunnel/udp_tunnel_partial_compat.h  |  226 ++
- net/wireguard/cookie.c                             |  195 ++
- net/wireguard/cookie.h                             |   52 +
- net/wireguard/crypto/blake2s-x86_64.S              |  685 +++++
- net/wireguard/crypto/blake2s.c                     |  294 ++
- net/wireguard/crypto/blake2s.h                     |   94 +
- net/wireguard/crypto/chacha20-arm.S                | 1471 ++++++++++
- net/wireguard/crypto/chacha20-arm64.S              | 1940 ++++++++++++++
- net/wireguard/crypto/chacha20-x86_64.S             | 2630 ++++++++++++++++++
- net/wireguard/crypto/chacha20poly1305.c            |  854 ++++++
- net/wireguard/crypto/chacha20poly1305.h            |   93 +
- net/wireguard/crypto/curve25519-arm.S              | 2110 +++++++++++++++
- net/wireguard/crypto/curve25519-arm.h              |   14 +
- net/wireguard/crypto/curve25519-fiat32.h           |  838 ++++++
- net/wireguard/crypto/curve25519-hacl64.h           |  751 ++++++
- net/wireguard/crypto/curve25519-x86_64.h           | 2077 +++++++++++++++
- net/wireguard/crypto/curve25519.c                  |   83 +
- net/wireguard/crypto/curve25519.h                  |   25 +
- net/wireguard/crypto/poly1305-arm.S                | 1115 ++++++++
- net/wireguard/crypto/poly1305-arm64.S              |  820 ++++++
- net/wireguard/crypto/poly1305-mips64.S             |  357 +++
- net/wireguard/crypto/poly1305-x86_64.S             | 2803 ++++++++++++++++++++
- net/wireguard/device.c                             |  421 +++
- net/wireguard/device.h                             |   64 +
- net/wireguard/hashtables.c                         |  168 ++
- net/wireguard/hashtables.h                         |   52 +
- net/wireguard/main.c                               |   69 +
- net/wireguard/messages.h                           |  128 +
- net/wireguard/netlink.c                            |  517 ++++
- net/wireguard/netlink.h                            |   12 +
- net/wireguard/noise.c                              |  635 +++++
- net/wireguard/noise.h                              |  117 +
- net/wireguard/peer.c                               |  136 +
- net/wireguard/peer.h                               |   73 +
- net/wireguard/queueing.c                           |   46 +
- net/wireguard/queueing.h                           |  142 +
- net/wireguard/ratelimiter.c                        |  199 ++
- net/wireguard/ratelimiter.h                        |   19 +
- net/wireguard/receive.c                            |  490 ++++
- net/wireguard/selftest/allowedips.h                |  514 ++++
- net/wireguard/selftest/blake2s.h                   |  559 ++++
- net/wireguard/selftest/chacha20poly1305.h          | 1356 ++++++++++
- net/wireguard/selftest/counter.h                   |   92 +
- net/wireguard/selftest/curve25519.h                |  607 +++++
- net/wireguard/selftest/poly1305.h                  | 1566 +++++++++++
- net/wireguard/selftest/ratelimiter.h               |  157 ++
- net/wireguard/send.c                               |  348 +++
- net/wireguard/socket.c                             |  393 +++
- net/wireguard/socket.h                             |   35 +
- net/wireguard/timers.c                             |  199 ++
- net/wireguard/timers.h                             |   21 +
- net/wireguard/uapi/wireguard.h                     |  182 ++
- net/wireguard/version.h                            |    1 +
- 75 files changed, 32524 insertions(+)
+ net/Kconfig                                   |    1 +
+ net/Makefile                                  |    1 +
+ net/wireguard/Kconfig                         |   31 +
+ net/wireguard/Makefile                        |   19 +
+ net/wireguard/allowedips.c                    |  328 ++
+ net/wireguard/allowedips.h                    |   44 +
+ net/wireguard/compat/Makefile.include         |   71 +
+ .../compat/checksum/checksum_partial_compat.h |  208 ++
+ net/wireguard/compat/compat-asm.h             |   18 +
+ net/wireguard/compat/compat.h                 |  638 ++++
+ net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
+ .../compat/dst_cache/include/net/dst_cache.h  |   97 +
+ .../compat/fpu/include/asm/fpu/api.h          |    1 +
+ .../intel-family/include/asm/intel-family.h   |   73 +
+ net/wireguard/compat/memneq/include.h         |    5 +
+ net/wireguard/compat/memneq/memneq.c          |  170 +
+ .../compat/ptr_ring/include/linux/ptr_ring.h  |  640 ++++
+ net/wireguard/compat/simd/include/asm/simd.h  |    1 +
+ .../compat/siphash/include/linux/siphash.h    |  140 +
+ net/wireguard/compat/siphash/siphash.c        |  539 ++++
+ .../udp_tunnel/include/net/udp_tunnel.h       |   94 +
+ net/wireguard/compat/udp_tunnel/udp_tunnel.c  |  385 +++
+ .../udp_tunnel/udp_tunnel_partial_compat.h    |  226 ++
+ net/wireguard/cookie.c                        |  195 ++
+ net/wireguard/cookie.h                        |   52 +
+ net/wireguard/crypto/blake2s-x86_64.S         |  685 ++++
+ net/wireguard/crypto/blake2s.c                |  294 ++
+ net/wireguard/crypto/blake2s.h                |   94 +
+ net/wireguard/crypto/chacha20-arm.S           | 1471 +++++++++
+ net/wireguard/crypto/chacha20-arm64.S         | 1940 ++++++++++++
+ net/wireguard/crypto/chacha20-x86_64.S        | 2630 ++++++++++++++++
+ net/wireguard/crypto/chacha20poly1305.c       |  854 +++++
+ net/wireguard/crypto/chacha20poly1305.h       |   93 +
+ net/wireguard/crypto/curve25519-arm.S         | 2110 +++++++++++++
+ net/wireguard/crypto/curve25519-arm.h         |   14 +
+ net/wireguard/crypto/curve25519-fiat32.h      |  838 +++++
+ net/wireguard/crypto/curve25519-hacl64.h      |  751 +++++
+ net/wireguard/crypto/curve25519-x86_64.h      | 2077 ++++++++++++
+ net/wireguard/crypto/curve25519.c             |   83 +
+ net/wireguard/crypto/curve25519.h             |   25 +
+ net/wireguard/crypto/poly1305-arm.S           | 1115 +++++++
+ net/wireguard/crypto/poly1305-arm64.S         |  820 +++++
+ net/wireguard/crypto/poly1305-mips64.S        |  357 +++
+ net/wireguard/crypto/poly1305-x86_64.S        | 2803 +++++++++++++++++
+ net/wireguard/device.c                        |  426 +++
+ net/wireguard/device.h                        |   64 +
+ net/wireguard/hashtables.c                    |  168 +
+ net/wireguard/hashtables.h                    |   52 +
+ net/wireguard/main.c                          |   69 +
+ net/wireguard/messages.h                      |  128 +
+ net/wireguard/netlink.c                       |  517 +++
+ net/wireguard/netlink.h                       |   12 +
+ net/wireguard/noise.c                         |  635 ++++
+ net/wireguard/noise.h                         |  117 +
+ net/wireguard/peer.c                          |  136 +
+ net/wireguard/peer.h                          |   73 +
+ net/wireguard/queueing.c                      |   46 +
+ net/wireguard/queueing.h                      |  143 +
+ net/wireguard/ratelimiter.c                   |  199 ++
+ net/wireguard/ratelimiter.h                   |   19 +
+ net/wireguard/receive.c                       |  490 +++
+ net/wireguard/selftest/allowedips.h           |  514 +++
+ net/wireguard/selftest/blake2s.h              |  559 ++++
+ net/wireguard/selftest/chacha20poly1305.h     | 1356 ++++++++
+ net/wireguard/selftest/counter.h              |   92 +
+ net/wireguard/selftest/curve25519.h           |  607 ++++
+ net/wireguard/selftest/poly1305.h             | 1566 +++++++++
+ net/wireguard/selftest/ratelimiter.h          |  157 +
+ net/wireguard/send.c                          |  348 ++
+ net/wireguard/socket.c                        |  393 +++
+ net/wireguard/socket.h                        |   35 +
+ net/wireguard/timers.c                        |  199 ++
+ net/wireguard/timers.h                        |   21 +
+ net/wireguard/uapi/wireguard.h                |  182 ++
+ net/wireguard/version.h                       |    1 +
+ 75 files changed, 32530 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -23637,10 +23637,10 @@ index 000000000000..9275b49e91ed
 +#endif /* CONFIG_AS_AVX512 */
 diff --git a/net/wireguard/device.c b/net/wireguard/device.c
 new file mode 100644
-index 000000000000..1614d615fefe
+index 000000000000..d64653d85353
 --- /dev/null
 +++ b/net/wireguard/device.c
-@@ -0,0 +1,421 @@
+@@ -0,0 +1,426 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -23763,6 +23763,7 @@ index 000000000000..1614d615fefe
 +	struct sk_buff *next;
 +	struct sk_buff_head packets;
 +	sa_family_t family;
++	u32 mtu;
 +	int ret;
 +
 +	if (unlikely(skb_examine_untrusted_ip_hdr(skb) != skb->protocol)) {
@@ -23784,6 +23785,8 @@ index 000000000000..1614d615fefe
 +		net_dbg_ratelimited("%s: No valid endpoint has been configured or discovered for peer %llu\n", dev->name, peer->internal_id);
 +		goto err_peer;
 +	}
++
++	mtu = dst_mtu(skb_dst(skb));
 +
 +	__skb_queue_head_init(&packets);
 +	if (!skb_is_gso(skb))
@@ -23810,6 +23813,8 @@ index 000000000000..1614d615fefe
 +		 * so at this point we're in a position to drop it.
 +		 */
 +		skb_dst_drop(skb);
++
++		PACKET_CB(skb)->mtu = mtu;
 +
 +		__skb_queue_tail(&packets, skb);
 +	} while ((skb = next) != NULL);
@@ -26153,10 +26158,10 @@ index 000000000000..85dea6be3fef
 +}
 diff --git a/net/wireguard/queueing.h b/net/wireguard/queueing.h
 new file mode 100644
-index 000000000000..d5948f329f53
+index 000000000000..c507536614bb
 --- /dev/null
 +++ b/net/wireguard/queueing.h
-@@ -0,0 +1,142 @@
+@@ -0,0 +1,143 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -26205,6 +26210,7 @@ index 000000000000..d5948f329f53
 +	u64 nonce;
 +	struct noise_keypair *keypair;
 +	atomic_t state;
++	u32 mtu;
 +	u8 ds;
 +};
 +#define PACKET_PEER(skb) (((struct packet_cb *)skb->cb)->keypair->entry.peer)
@@ -31920,7 +31926,7 @@ index 000000000000..7e017ce5ab60
 +#endif
 diff --git a/net/wireguard/send.c b/net/wireguard/send.c
 new file mode 100644
-index 000000000000..dddcc0b80df9
+index 000000000000..9b1aec0e3d9c
 --- /dev/null
 +++ b/net/wireguard/send.c
 @@ -0,0 +1,348 @@
@@ -32038,15 +32044,14 @@ index 000000000000..dddcc0b80df9
 +static inline unsigned int skb_padding(struct sk_buff *skb)
 +{
 +	/* We do this modulo business with the MTU, just in case the networking layer
-+	 * gives us a packet that's bigger than the MTU. Since we support GSO, this
-+	 * isn't strictly neccessary, but it's better to be cautious here, especially
-+	 * if that code ever changes.
++	 * gives us a packet that's bigger than the MTU. In that case, we wouldn't want
++	 * the final subtraction to overflow in the case of the padded_size being clamped.
 +	 */
-+	unsigned int last_unit = skb->len % skb->dev->mtu;
-+	unsigned int padded_size = (last_unit + MESSAGE_PADDING_MULTIPLE - 1) & ~(MESSAGE_PADDING_MULTIPLE - 1);
++	unsigned int last_unit = skb->len % PACKET_CB(skb)->mtu;
++	unsigned int padded_size = ALIGN(last_unit, MESSAGE_PADDING_MULTIPLE);
 +
-+	if (padded_size > skb->dev->mtu)
-+		padded_size = skb->dev->mtu;
++	if (padded_size > PACKET_CB(skb)->mtu)
++		padded_size = PACKET_CB(skb)->mtu;
 +	return padded_size - last_unit;
 +}
 +
@@ -32104,6 +32109,7 @@ index 000000000000..dddcc0b80df9
 +			return;
 +		skb_reserve(skb, DATA_PACKET_HEAD_ROOM);
 +		skb->dev = peer->device->dev;
++		PACKET_CB(skb)->mtu = skb->dev->mtu;
 +		skb_queue_tail(&peer->staged_packet_queue, skb);
 +		net_dbg_ratelimited("%s: Sending keepalive packet to peer %llu (%pISpfsc)\n", peer->device->dev->name, peer->internal_id, &peer->endpoint.addr);
 +	}
@@ -33134,11 +33140,11 @@ index 000000000000..8b8a1f254bb6
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..2915e9a0eddc
+index 000000000000..4d3e8d3f331b
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20180304"
++#define WIREGUARD_VERSION "0.0.20180413"
 -- 
-2.16.3
+2.17.0
 
