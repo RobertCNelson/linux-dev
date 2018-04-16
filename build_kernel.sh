@@ -291,6 +291,9 @@ if [ "${FULL_REBUILD}" ] ; then
 
 	cp -v "${DIR}/KERNEL/scripts/package/Makefile" "${DIR}/3rdparty/packaging/"
 	cp -v "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
+
+exit 2
+
 	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-make-dtbs_install.diff"
 	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-depends-initramfs-tools.diff"
 	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-mk-linux-firmware-pkg.diff"
