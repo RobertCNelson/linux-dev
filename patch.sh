@@ -489,6 +489,7 @@ packaging () {
 	echo "dir: packaging"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
+		cp -v "${DIR}/3rdparty/packaging/Makefile" "${DIR}/KERNEL/scripts/package"
 		cp -v "${DIR}/3rdparty/packaging/builddeb" "${DIR}/KERNEL/scripts/package"
 		#Needed for v4.11.x and less
 		#patch -p1 < "${DIR}/patches/packaging/0002-Revert-deb-pkg-Remove-the-KBUILD_IMAGE-workaround.patch"
