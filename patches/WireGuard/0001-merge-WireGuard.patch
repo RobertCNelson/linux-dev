@@ -1,6 +1,6 @@
-From 1b56569e3f3fd1e612206f05012fa282af9ab5a8 Mon Sep 17 00:00:00 2001
+From 738935ca0115124dcf4404eb7a2cf5c7343903f8 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 15 Apr 2018 21:25:16 -0500
+Date: Sat, 21 Apr 2018 10:16:26 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,8 +14,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   71 +
  .../compat/checksum/checksum_partial_compat.h |  208 ++
  net/wireguard/compat/compat-asm.h             |   18 +
- net/wireguard/compat/compat.h                 |  638 ++++
- net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
+ net/wireguard/compat/compat.h                 |  631 ++++
+ net/wireguard/compat/dst_cache/dst_cache.c    |  175 ++
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu/include/asm/fpu/api.h          |    1 +
  .../intel-family/include/asm/intel-family.h   |   73 +
@@ -31,7 +31,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/cookie.c                        |  195 ++
  net/wireguard/cookie.h                        |   52 +
  net/wireguard/crypto/blake2s-x86_64.S         |  685 ++++
- net/wireguard/crypto/blake2s.c                |  294 ++
+ net/wireguard/crypto/blake2s.c                |  289 ++
  net/wireguard/crypto/blake2s.h                |   94 +
  net/wireguard/crypto/chacha20-arm.S           | 1471 +++++++++
  net/wireguard/crypto/chacha20-arm64.S         | 1940 ++++++++++++
@@ -48,7 +48,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/crypto/poly1305-arm.S           | 1115 +++++++
  net/wireguard/crypto/poly1305-arm64.S         |  820 +++++
  net/wireguard/crypto/poly1305-mips64.S        |  357 +++
- net/wireguard/crypto/poly1305-x86_64.S        | 2803 +++++++++++++++++
+ net/wireguard/crypto/poly1305-x86_64.S        | 2790 +++++++++++++++++
  net/wireguard/device.c                        |  426 +++
  net/wireguard/device.h                        |   64 +
  net/wireguard/hashtables.c                    |  168 +
@@ -80,7 +80,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   21 +
  net/wireguard/uapi/wireguard.h                |  182 ++
  net/wireguard/version.h                       |    1 +
- 75 files changed, 32530 insertions(+)
+ 75 files changed, 32505 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -942,10 +942,10 @@ index 000000000000..73bbfbccacf1
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..d5c75274288e
+index 000000000000..d65a538cdea4
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,638 @@
+@@ -0,0 +1,631 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1011,13 +1011,6 @@ index 000000000000..d5c75274288e
 +#ifndef RCU_LOCKDEP_WARN
 +#define RCU_LOCKDEP_WARN(cond, message) rcu_lockdep_assert(!(cond), message)
 +#endif
-+#endif
-+
-+#if ((LINUX_VERSION_CODE > KERNEL_VERSION(3, 19, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 6)) || \
-+    (LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 12) && LINUX_VERSION_CODE > KERNEL_VERSION(3, 17, 0)) || \
-+    (LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 8) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)) || \
-+    LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 40)) && !defined(ISRHEL7) && !defined(ISUBUNTU1404)
-+#define dev_recursion_level() 0
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 3, 0) && !defined(ISRHEL7)
@@ -5160,10 +5153,10 @@ index 000000000000..ee683e45a6c4
 +#endif /* CONFIG_AS_AVX512 */
 diff --git a/net/wireguard/crypto/blake2s.c b/net/wireguard/crypto/blake2s.c
 new file mode 100644
-index 000000000000..d5d65c10b7ba
+index 000000000000..e945992cdd31
 --- /dev/null
 +++ b/net/wireguard/crypto/blake2s.c
-@@ -0,0 +1,294 @@
+@@ -0,0 +1,289 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -5213,11 +5206,6 @@ index 000000000000..d5d65c10b7ba
 +	{6, 15, 14, 9, 11, 3, 0, 8, 12, 2, 13, 7, 1, 4, 10, 5},
 +	{10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0},
 +};
-+
-+static inline u32 le32_to_cpuvp(const void *p)
-+{
-+	return le32_to_cpup(p);
-+}
 +
 +static inline void blake2s_set_lastblock(struct blake2s_state *state)
 +{
@@ -20828,10 +20816,10 @@ index 000000000000..1a45fbee3c7f
 +.end	poly1305_emit_mips
 diff --git a/net/wireguard/crypto/poly1305-x86_64.S b/net/wireguard/crypto/poly1305-x86_64.S
 new file mode 100644
-index 000000000000..9275b49e91ed
+index 000000000000..3ab21eacb045
 --- /dev/null
 +++ b/net/wireguard/crypto/poly1305-x86_64.S
-@@ -0,0 +1,2803 @@
+@@ -0,0 +1,2790 @@
 +/* SPDX-License-Identifier: OpenSSL OR (BSD-3-Clause OR GPL-2.0)
 + *
 + * Copyright (C) 2017 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
@@ -20841,26 +20829,13 @@ index 000000000000..9275b49e91ed
 +
 +#include <linux/linkage.h>
 +
-+.section .rodata.cst32.Lmask24, "aM", @progbits, 32
++.section .rodata.cst192.Lconst, "aM", @progbits, 32
 +.align	64
 +.Lconst:
-+.Lmask24:
 +.long	0x0ffffff,0,0x0ffffff,0,0x0ffffff,0,0x0ffffff,0
-+.section .rodata.cst32.L129, "aM", @progbits, 32
-+.align	32
-+.L129:
 +.long	16777216,0,16777216,0,16777216,0,16777216,0
-+.section .rodata.cst32.Lmask26, "aM", @progbits, 32
-+.align	32
-+.Lmask26:
 +.long	0x3ffffff,0,0x3ffffff,0,0x3ffffff,0,0x3ffffff,0
-+.section .rodata.cst32.Lpermd_avx2, "aM", @progbits, 32
-+.align	32
-+.Lpermd_avx2:
 +.long	2,2,2,3,2,0,2,1
-+.section .rodata.cst64.Lpermd_avx512, "aM", @progbits, 64
-+.align	64
-+.Lpermd_avx512:
 +.long	0,0,0,1, 0,2,0,3, 0,4,0,5, 0,6,0,7
 +
 +.text
@@ -33140,11 +33115,11 @@ index 000000000000..8b8a1f254bb6
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..4d3e8d3f331b
+index 000000000000..7a3b987dcd7d
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20180413"
++#define WIREGUARD_VERSION "0.0.20180420"
 -- 
 2.17.0
 

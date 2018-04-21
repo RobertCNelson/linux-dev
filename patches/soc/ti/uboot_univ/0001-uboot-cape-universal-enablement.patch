@@ -1,16 +1,16 @@
-From db729a155ea9c234e05a1dad5f19ffd18e044b46 Mon Sep 17 00:00:00 2001
+From 54ade79779ea5b24dfe99e3035240bcb48273086 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 22 Feb 2018 10:10:14 -0600
+Date: Sat, 21 Apr 2018 10:30:09 -0500
 Subject: [PATCH] uboot: cape-universal enablement
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/am335x-bone-common-univ.dtsi     | 2762 ++++++++++++++++++++
- arch/arm/boot/dts/am335x-bone-uboot-univ.dts       |   27 +
- arch/arm/boot/dts/am335x-boneblack-uboot-univ.dts  |   38 +
- .../dts/am335x-bonegreen-wireless-common-univ.dtsi | 2636 +++++++++++++++++++
- .../dts/am335x-bonegreen-wireless-uboot-univ.dts   |   53 +
- 5 files changed, 5516 insertions(+)
+ .../arm/boot/dts/am335x-bone-common-univ.dtsi | 2809 +++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-uboot-univ.dts  |   27 +
+ .../boot/dts/am335x-boneblack-uboot-univ.dts  |   38 +
+ ...am335x-bonegreen-wireless-common-univ.dtsi | 2683 ++++++++++++++++
+ .../am335x-bonegreen-wireless-uboot-univ.dts  |   53 +
+ 5 files changed, 5610 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-univ.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-uboot-univ.dts
  create mode 100644 arch/arm/boot/dts/am335x-boneblack-uboot-univ.dts
@@ -19,10 +19,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-univ.dtsi b/arch/arm/boot/dts/am335x-bone-common-univ.dtsi
 new file mode 100644
-index 000000000000..d5c38d6688a5
+index 000000000000..f5e33de7b365
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-univ.dtsi
-@@ -0,0 +1,2762 @@
+@@ -0,0 +1,2809 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -1210,6 +1210,14 @@ index 000000000000..d5c38d6688a5
 +	/* P9_46                GND */
 +};
 +
++&i2c1 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	clock-frequency = <100000>;
++};
++
 +&uart1 {
 +	status = "okay";
 +	pinctrl-names = "default";
@@ -1250,6 +1258,45 @@ index 000000000000..d5c38d6688a5
 +	status = "okay";
 +	pinctrl-names = "default";
 +	pinctrl-0 = <>;
++};
++
++&eqep0 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	count_mode = <0>; /* 0 - Quadrature mode, normal 90 phase offset cha & chb. 1 - Direction mode. cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>; /* Should we invert the channel A input? */
++	invert_qb = <1>; /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>; /* Should we invert the index input? */
++	invert_qs = <0>; /* Should we invert the strobe input? */
++};
++
++&eqep1 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	count_mode = <0>; /* 0 - Quadrature mode, normal 90 phase offset cha & chb. 1 - Direction mode. cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>; /* Should we invert the channel A input? */
++	invert_qb = <1>; /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>; /* Should we invert the index input? */
++	invert_qs = <0>; /* Should we invert the strobe input? */
++};
++
++&eqep2 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	count_mode = <0>; /* 0 - Quadrature mode, normal 90 phase offset cha & chb. 1 - Direction mode. cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>; /* Should we invert the channel A input? */
++	invert_qb = <1>; /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>; /* Should we invert the index input? */
++	invert_qs = <0>; /* Should we invert the strobe input? */
 +};
 +
 +/**********************************************************************/
@@ -2864,10 +2911,10 @@ index 000000000000..7b4bf9641b26
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi b/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi
 new file mode 100644
-index 000000000000..980651919bd8
+index 000000000000..deb5e9c81bbe
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi
-@@ -0,0 +1,2636 @@
+@@ -0,0 +1,2683 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -4003,6 +4050,14 @@ index 000000000000..980651919bd8
 +	/* P9_46                GND */
 +};
 +
++&i2c1 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	clock-frequency = <100000>;
++};
++
 +&uart1 {
 +	status = "okay";
 +	pinctrl-names = "default";
@@ -4043,6 +4098,45 @@ index 000000000000..980651919bd8
 +	status = "okay";
 +	pinctrl-names = "default";
 +	pinctrl-0 = <>;
++};
++
++&eqep0 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	count_mode = <0>; /* 0 - Quadrature mode, normal 90 phase offset cha & chb. 1 - Direction mode. cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>; /* Should we invert the channel A input? */
++	invert_qb = <1>; /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>; /* Should we invert the index input? */
++	invert_qs = <0>; /* Should we invert the strobe input? */
++};
++
++&eqep1 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	count_mode = <0>; /* 0 - Quadrature mode, normal 90 phase offset cha & chb. 1 - Direction mode. cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>; /* Should we invert the channel A input? */
++	invert_qb = <1>; /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>; /* Should we invert the index input? */
++	invert_qs = <0>; /* Should we invert the strobe input? */
++};
++
++&eqep2 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <>;
++
++	count_mode = <0>; /* 0 - Quadrature mode, normal 90 phase offset cha & chb. 1 - Direction mode. cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>; /* Should we invert the channel A input? */
++	invert_qb = <1>; /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>; /* Should we invert the index input? */
++	invert_qs = <0>; /* Should we invert the strobe input? */
 +};
 +
 +/**********************************************************************/
@@ -5564,5 +5658,5 @@ index 000000000000..5d87c70b45b3
 +	};
 +};
 -- 
-2.16.1
+2.17.0
 

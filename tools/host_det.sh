@@ -364,6 +364,10 @@ debian_regs () {
 			#Debian 11
 			deb_distro="sid"
 			;;
+		bookworm)
+			#Debian 12
+			deb_distro="sid"
+			;;
 		esac
 
 		#https://wiki.ubuntu.com/Releases
