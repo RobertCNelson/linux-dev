@@ -9,7 +9,7 @@ Subject: [PATCH] ti_am335x_tsc: correct formula code to calculate pressure;
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 7953381d939a..35e27329662e 100644
+index 22a76efce2b3..8379e8639a07 100644
 --- a/drivers/input/touchscreen/ti_am335x_tsc.c
 +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
 @@ -33,6 +33,7 @@
@@ -18,9 +18,9 @@ index 7953381d939a..35e27329662e 100644
  #define MAX_12BIT		((1 << 12) - 1)
 +#define PRESSURE_MAX		1000
  
- static const int config_pins[] = {
- 	STEPCONFIG_XPP,
-@@ -230,6 +231,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+ #define TSC_IRQENB_MASK		(IRQENB_FIFO0THRES | IRQENB_EOS | IRQENB_HW_PEN)
+ 
+@@ -232,6 +233,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
  	for (i = 0; i < creads; i++) {
  		xvals[i] = titsc_readl(ts_dev, REG_FIFO0);
  		xvals[i] &= 0xfff;
@@ -28,7 +28,7 @@ index 7953381d939a..35e27329662e 100644
  	}
  
  	/*
-@@ -306,13 +308,13 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+@@ -310,13 +312,13 @@ static irqreturn_t titsc_irq(int irq, void *dev)
  			 * Resistance(touch) = x plate resistance *
  			 * x postion/4096 * ((z2 / z1) - 1)
  			 */
@@ -47,5 +47,5 @@ index 7953381d939a..35e27329662e 100644
  				input_report_abs(input_dev, ABS_Y, y);
  				input_report_abs(input_dev, ABS_PRESSURE, z);
 -- 
-2.11.0
+2.17.1
 
