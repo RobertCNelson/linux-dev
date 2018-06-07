@@ -13,14 +13,14 @@ Signed-off-by: Matt Porter <mporter@konsulko.com>
 ---
  drivers/gpu/drm/i2c/Kconfig       |    6 +
  drivers/gpu/drm/i2c/Makefile      |    3 +
- drivers/gpu/drm/i2c/adihdmi.h     |  289 ++++++++++
- drivers/gpu/drm/i2c/adihdmi_drv.c | 1088 +++++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/i2c/adihdmi.h     |  289 ++++++++
+ drivers/gpu/drm/i2c/adihdmi_drv.c | 1088 +++++++++++++++++++++++++++++
  4 files changed, 1386 insertions(+)
  create mode 100644 drivers/gpu/drm/i2c/adihdmi.h
  create mode 100644 drivers/gpu/drm/i2c/adihdmi_drv.c
 
 diff --git a/drivers/gpu/drm/i2c/Kconfig b/drivers/gpu/drm/i2c/Kconfig
-index a6c92be..66ff8e3f 100644
+index 65d3acb61c03..3eda0a70303d 100644
 --- a/drivers/gpu/drm/i2c/Kconfig
 +++ b/drivers/gpu/drm/i2c/Kconfig
 @@ -1,6 +1,12 @@
@@ -37,19 +37,19 @@ index a6c92be..66ff8e3f 100644
  	tristate "Chrontel ch7006 TV encoder"
  	default m if DRM_NOUVEAU
 diff --git a/drivers/gpu/drm/i2c/Makefile b/drivers/gpu/drm/i2c/Makefile
-index 43aa33b..62a4eea 100644
+index a962f6f08568..cadceaf19798 100644
 --- a/drivers/gpu/drm/i2c/Makefile
 +++ b/drivers/gpu/drm/i2c/Makefile
 @@ -8,3 +8,6 @@ obj-$(CONFIG_DRM_I2C_SIL164) += sil164.o
- 
  tda998x-y := tda998x_drv.o
  obj-$(CONFIG_DRM_I2C_NXP_TDA998X) += tda998x.o
+ obj-$(CONFIG_DRM_I2C_NXP_TDA9950) += tda9950.o
 +
 +adihdmi-y := adihdmi_drv.o
 +obj-$(CONFIG_DRM_I2C_ADIHDMI) += adihdmi.o
 diff --git a/drivers/gpu/drm/i2c/adihdmi.h b/drivers/gpu/drm/i2c/adihdmi.h
 new file mode 100644
-index 0000000..58d9a2b
+index 000000000000..58d9a2b274ea
 --- /dev/null
 +++ b/drivers/gpu/drm/i2c/adihdmi.h
 @@ -0,0 +1,289 @@
@@ -344,7 +344,7 @@ index 0000000..58d9a2b
 +#endif /* __DRM_I2C_ADIHDMI_H__ */
 diff --git a/drivers/gpu/drm/i2c/adihdmi_drv.c b/drivers/gpu/drm/i2c/adihdmi_drv.c
 new file mode 100644
-index 0000000..8ffef6c
+index 000000000000..8ffef6c32f11
 --- /dev/null
 +++ b/drivers/gpu/drm/i2c/adihdmi_drv.c
 @@ -0,0 +1,1088 @@
@@ -1437,5 +1437,5 @@ index 0000000..8ffef6c
 +MODULE_DESCRIPTION("ADIHDMI HDMI transmitter driver");
 +MODULE_LICENSE("GPL");
 -- 
-2.10.1
+2.17.1
 
