@@ -4,11 +4,11 @@ Date: Thu, 9 Apr 2015 19:25:53 +0200
 Subject: [PATCH] Making the uio pruss driver work
 
 ---
- .../devicetree/bindings/arm/omap/omap.txt          |   2 +
- arch/arm/boot/dts/am33xx.dtsi                      |  11 +++
- arch/arm/mach-omap2/omap_device.c                  |  24 ++++-
- drivers/uio/Kconfig                                |   2 +-
- drivers/uio/uio_pruss.c                            | 108 ++++++++++++++++++++-
+ .../devicetree/bindings/arm/omap/omap.txt     |   2 +
+ arch/arm/boot/dts/am33xx.dtsi                 |  11 ++
+ arch/arm/mach-omap2/omap_device.c             |  24 +++-
+ drivers/uio/Kconfig                           |   2 +-
+ drivers/uio/uio_pruss.c                       | 108 +++++++++++++++++-
  5 files changed, 139 insertions(+), 8 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/arm/omap/omap.txt b/Documentation/devicetree/bindings/arm/omap/omap.txt
@@ -47,7 +47,7 @@ index 2d0aa2b4136d..0a74e4c05dfb 100644
  			compatible = "ti,am3352-rtc", "ti,da830-rtc";
  			reg = <0x44e3e000 0x1000>;
 diff --git a/arch/arm/mach-omap2/omap_device.c b/arch/arm/mach-omap2/omap_device.c
-index 3b829a50d1db..9379a29ff28a 100644
+index ac219b9e6a4c..e8f3c35d1986 100644
 --- a/arch/arm/mach-omap2/omap_device.c
 +++ b/arch/arm/mach-omap2/omap_device.c
 @@ -141,8 +141,8 @@ static int omap_device_build_from_dt(struct platform_device *pdev)
@@ -58,12 +58,12 @@ index 3b829a50d1db..9379a29ff28a 100644
 -	int oh_cnt, i, ret = 0;
 +	const char *oh_name, *rst_name;
 +	int oh_cnt, dstr_cnt, i, ret = 0;
- 	bool device_active = false;
+ 	bool device_active = false, skip_pm_domain = false;
  
  	oh_cnt = of_property_count_strings(node, "ti,hwmods");
 @@ -197,6 +197,26 @@ static int omap_device_build_from_dt(struct platform_device *pdev)
- 		omap_device_enable(pdev);
- 		pm_runtime_set_active(&pdev->dev);
+ 		if (r->name == NULL)
+ 			r->name = dev_name(&pdev->dev);
  	}
 +	dstr_cnt =
 +		of_property_count_strings(node, "ti,deassert-hard-reset");
@@ -86,8 +86,8 @@ index 3b829a50d1db..9379a29ff28a 100644
 +		}
 +	}
  
- odbfd_exit1:
- 	kfree(hwmods);
+ 	if (!skip_pm_domain) {
+ 		dev_pm_domain_set(&pdev->dev, &omap_device_pm_domain);
 diff --git a/drivers/uio/Kconfig b/drivers/uio/Kconfig
 index 7e8dc78a9796..e0c68acc1d94 100644
 --- a/drivers/uio/Kconfig
@@ -304,5 +304,5 @@ index 31d5b1d3b5af..dbe8ec8d2faf 100644
  };
  
 -- 
-2.16.3
+2.17.1
 
