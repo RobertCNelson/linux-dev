@@ -354,19 +354,18 @@ reverts () {
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
 	fi
+		## 4.9
+		## debian@beaglebone:~$ ls /dev/spidev*
+		## /dev/spidev1.0  /dev/spidev2.0  /dev/spidev2.1
+		##
+		## to 4.14
+		##
+		## debian@beaglebone:~$ ls /dev/spidev*
+		## /dev/spidev0.0  /dev/spidev1.0  /dev/spidev1.1
 
-		#Breaks boot on am335x-boneblack
-		#debug: [bootz 0x82000000 - 88000000] ...
-		### Flattened Device Tree blob at 88000000
-		#   Booting using the fdt blob at 0x88000000
-		#   reserving fdt memory region: addr=88000000 size=88000
-		#   Loading Device Tree to 8ff75000, end 8fffffff ... OK
-		#
-		#Starting kernel ...
+		##git revert --no-edit cddfae253c875076750a03bd05ba5b1569e6876e -s
 
-		#git revert --no-edit c083dc5f3738d394223baa0f90705397b0844acd
-
-		#${git} "${DIR}/patches/reverts/0001-Revert-clk-ti-am33xx-add-set-rate-parent-support-for.patch"
+		${git} "${DIR}/patches/reverts/0001-Revert-ARM-dts-am33xx-Add-spi-alias-to-match-SOC-sch.patch"
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="reverts"
@@ -478,7 +477,7 @@ beaglebone () {
 
 ###
 #backports
-#reverts
+reverts
 drivers
 soc
 beaglebone
