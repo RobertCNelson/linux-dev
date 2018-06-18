@@ -5,16 +5,16 @@ Subject: [PATCH 4/5] ARM: dts: am335x-bone-common: add no-capemgr.dtsi
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- .../boot/dts/am335x-bone-common-no-capemgr.dtsi    | 364 +++++++++++++++++++++
- 1 file changed, 364 insertions(+)
+ .../dts/am335x-bone-common-no-capemgr.dtsi    | 367 ++++++++++++++++++
+ 1 file changed, 367 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 000000000000..d0886508eff1
+index 000000000000..73d5f5424e01
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,364 @@
+@@ -0,0 +1,367 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -173,7 +173,13 @@ index 000000000000..d0886508eff1
 +
 +	mmc1_pins: pinmux_mmc1_pins {
 +		pinctrl-single,pins = <
-+			AM33XX_IOPAD(0x960, PIN_INPUT | MUX_MODE7) /* GPIO0_6 */
++			AM33XX_IOPAD(0x960, PIN_INPUT | MUX_MODE7)		/* spio0_cs1.gpio0_6 */
++			AM33XX_IOPAD(0x8fc, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat0.mmc0_dat0 */
++			AM33XX_IOPAD(0x8f8, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat1.mmc0_dat1 */
++			AM33XX_IOPAD(0x8f4, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat2.mmc0_dat2 */
++			AM33XX_IOPAD(0x8f0, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat3.mmc0_dat3 */
++			AM33XX_IOPAD(0x904, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_cmd.mmc0_cmd */
++			AM33XX_IOPAD(0x900, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_clk.mmc0_clk */
 +		>;
 +	};
 +
@@ -244,7 +250,7 @@ index 000000000000..d0886508eff1
 +	};
 +
 +	baseboard_eeprom: baseboard_eeprom@50 {
-+		compatible = "at,24c256";
++		compatible = "atmel,24c256";
 +		reg = <0x50>;
 +
 +		#address-cells = <1>;
@@ -282,13 +288,10 @@ index 000000000000..d0886508eff1
 +	ti,pmic-shutdown-controller;
 +
 +	charger {
-+		interrupts = <0>, <1>;
-+		interrupt-names = "USB", "AC";
 +		status = "okay";
 +	};
 +
 +	pwrbutton {
-+		interrupts = <2>;
 +		status = "okay";
 +	};
 +
@@ -380,5 +383,5 @@ index 000000000000..d0886508eff1
 +	system-power-controller;
 +};
 -- 
-2.11.0
+2.17.1
 
