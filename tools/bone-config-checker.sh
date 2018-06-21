@@ -156,7 +156,6 @@ config="CONFIG_MDIO_BCM_UNIMAC" ; config_disable
 #
 config="CONFIG_AMD_PHY" ; config_disable
 config="CONFIG_AQUANTIA_PHY" ; config_disable
-config="CONFIG_AT803X_PHY" ; config_disable
 config="CONFIG_BCM7XXX_PHY" ; config_disable
 config="CONFIG_BCM87XX_PHY" ; config_disable
 config="CONFIG_BROADCOM_PHY" ; config_disable
@@ -178,6 +177,7 @@ config="CONFIG_TERANETICS_PHY" ; config_disable
 config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_enable
 config="CONFIG_TOUCHSCREEN_TI_AM335X_TSC" ; config_enable
 config="CONFIG_TOUCHSCREEN_AR1021_I2C" ; config_enable
+config="CONFIG_TOUCHSCREEN_STMFTS" ; config_disable
 
 #
 # Hardware I/O ports
