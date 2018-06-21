@@ -651,7 +651,6 @@ config="CONFIG_I2C_RK3X" ; config_disable
 config="CONFIG_I2C_SIMTEC" ; config_disable
 config="CONFIG_I2C_SUN6I_P2WI" ; config_enable
 
-
 #
 # SPI Master Controller Drivers
 #
