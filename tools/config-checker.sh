@@ -351,6 +351,8 @@ config="CONFIG_PATA_OF_PLATFORM" ; config_enable
 #
 # Generic fallback / legacy drivers
 #
+config="CONFIG_MD_RAID456" ; config_enable
+config="CONFIG_DM_RAID" ; config_enable
 config="CONFIG_MII" ; config_enable
 
 #
@@ -1898,6 +1900,7 @@ config="CONFIG_UBIFS_FS" ; config_enable
 config="CONFIG_MINIX_FS" ; config_disable
 config="CONFIG_QNX4FS_FS" ; config_disable
 config="CONFIG_QNX6FS_FS" ; config_disable
+config="CONFIG_EXOFS_FS" ; config_disable
 
 config="CONFIG_NFS_FS" ; config_enable
 config="CONFIG_NFS_V2" ; config_enable
