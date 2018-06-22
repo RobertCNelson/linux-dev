@@ -377,6 +377,9 @@ config="CONFIG_DWMAC_GENERIC" ; config_enable
 config="CONFIG_DWMAC_ROCKCHIP" ; config_enable
 config="CONFIG_DWMAC_SUNXI" ; config_enable
 config="CONFIG_DWMAC_SUN8I" ; config_enable
+
+config="CONFIG_NET_VENDOR_SYNOPSYS" ; config_disable
+
 config="CONFIG_TI_DAVINCI_EMAC" ; config_enable
 config="CONFIG_TI_DAVINCI_MDIO" ; config_enable
 config="CONFIG_TI_DAVINCI_CPDMA" ; config_enable
@@ -942,6 +945,7 @@ config="CONFIG_DRM_DUMB_VGA_DAC" ; config_enable
 
 config="CONFIG_DRM_SII902X" ; config_enable
 config="CONFIG_DRM_TI_TFP410" ; config_enable
+
 config="CONFIG_DRM_I2C_ADV7511" ; config_enable
 config="CONFIG_DRM_I2C_ADV7511_AUDIO" ; config_enable
 
@@ -1907,7 +1911,6 @@ config="CONFIG_STRICT_DEVMEM" ; config_disable
 # Security options
 #
 config="CONFIG_SECURITY_DMESG_RESTRICT" ; config_disable
-config="CONFIG_FORTIFY_SOURCE" ; config_enable
 
 #
 # Crypto core or helper
