@@ -932,6 +932,7 @@ config="CONFIG_REGULATOR_AD5398" ; config_enable
 config="CONFIG_REGULATOR_ANATOP" ; config_enable
 config="CONFIG_REGULATOR_AXP20X" ; config_enable
 config="CONFIG_REGULATOR_DA9052" ; config_enable
+config="CONFIG_REGULATOR_FAN53555" ; config_enable
 config="CONFIG_REGULATOR_GPIO" ; config_enable
 config="CONFIG_REGULATOR_PBIAS" ; config_enable
 config="CONFIG_REGULATOR_PFUZE100" ; config_enable
@@ -1932,7 +1933,6 @@ config="CONFIG_STRICT_DEVMEM" ; config_disable
 # Security options
 #
 config="CONFIG_SECURITY_DMESG_RESTRICT" ; config_disable
-config="CONFIG_FORTIFY_SOURCE" ; config_enable
 
 #
 # Crypto core or helper
