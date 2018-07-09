@@ -396,7 +396,6 @@ soc () {
 	dir 'soc/imx/wandboard'
 	dir 'soc/imx'
 	dir 'soc/ti'
-	dir 'soc/ti/fixes'
 	dir 'soc/ti/bone_common'
 	dir 'soc/ti/uboot'
 	dir 'soc/ti/blue'
