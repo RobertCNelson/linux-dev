@@ -448,6 +448,9 @@ debian_regs () {
 
 		pkg="libncurses5-dev:${deb_arch}"
 		check_dpkg
+		pkg="libssl-dev:${deb_arch}"
+		check_dpkg
+
 		if [ "x${build_git}" = "xtrue" ] ; then
 			#git
 			pkg="libcurl4-gnutls-dev:${deb_arch}"
@@ -455,8 +458,6 @@ debian_regs () {
 			pkg="libelf-dev:${deb_arch}"
 			check_dpkg
 			pkg="libexpat1-dev:${deb_arch}"
-			check_dpkg
-			pkg="libssl-dev:${deb_arch}"
 			check_dpkg
 		fi
 
