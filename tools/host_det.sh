@@ -153,6 +153,9 @@ debian_regs () {
 	#v4.18-rc0
 	pkg="pkg-config"
 	check_dpkg
+	#GCC_PLUGINS
+	pkg="libmpc-dev"
+	check_dpkg
 
 	unset warn_dpkg_ia32
 	unset stop_pkg_search
