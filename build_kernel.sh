@@ -69,6 +69,8 @@ config_comparsion () {
 	echo "Updating: defconfig-lpae"
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig-lpae" .config
+	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
+	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig-lpae"
 
@@ -76,6 +78,8 @@ config_comparsion () {
 	echo "Updating: defconfig-bone"
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig-bone" .config
+	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
+	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig-bone"
 
@@ -83,6 +87,8 @@ config_comparsion () {
 	echo "Updating: defconfig"
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig" .config
+	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
+	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig"
 	cd "${DIR}/" || exit
