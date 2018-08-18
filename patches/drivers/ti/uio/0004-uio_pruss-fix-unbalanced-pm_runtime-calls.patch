@@ -5,11 +5,11 @@ Subject: [PATCH 5/5] uio_pruss: fix unbalanced pm_runtime calls
 
 Signed-off-by: Matthijs van Duin <matthijsvanduin@gmail.com>
 ---
- drivers/uio/uio_pruss.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ drivers/uio/uio_pruss.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/uio/uio_pruss.c b/drivers/uio/uio_pruss.c
-index f71204079c35..2e2277405d80 100644
+index 64d93f4f4dff..64d93f7fb69c 100644
 --- a/drivers/uio/uio_pruss.c
 +++ b/drivers/uio/uio_pruss.c
 @@ -129,6 +129,8 @@ static void pruss_cleanup(struct device *dev, struct uio_pruss_dev *gdev)
@@ -21,9 +21,9 @@ index f71204079c35..2e2277405d80 100644
  }
  
  static int pruss_probe(struct platform_device *pdev)
-@@ -155,15 +157,25 @@ static int pruss_probe(struct platform_device *pdev)
- 		kfree(gdev);
- 		return -ENOMEM;
+@@ -155,6 +157,17 @@ static int pruss_probe(struct platform_device *pdev)
+ 		ret = -ENOMEM;
+ 		goto err_free_gdev;
  	}
 +
 +	pm_runtime_enable(dev);
@@ -39,18 +39,7 @@ index f71204079c35..2e2277405d80 100644
  #ifdef CONFIG_ARCH_DAVINCI_DA850
  	/* Power on PRU in case its not done as part of boot-loader */
  	gdev->pruss_clk = clk_get(dev, "pruss");
- 	if (IS_ERR(gdev->pruss_clk)) {
- 		dev_err(dev, "Failed to get clock\n");
- 		ret = PTR_ERR(gdev->pruss_clk);
--		kfree(gdev->info);
--		kfree(gdev);
--		return ret;
-+		gdev->pruss_clk = NULL;
-+		goto out_free;
- 	} else {
- 		ret = clk_enable(gdev->pruss_clk);
- 		if (ret) {
-@@ -177,17 +189,10 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -172,17 +185,10 @@ static int pruss_probe(struct platform_device *pdev)
  #endif
  
  	if (dev->of_node) {
@@ -70,5 +59,5 @@ index f71204079c35..2e2277405d80 100644
  		regs_prussio = &res;
  	} else {
 -- 
-2.13.2
+2.18.0
 

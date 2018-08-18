@@ -8,7 +8,7 @@ Subject: [PATCH] fix some uio_pruss braindamage
  1 file changed, 29 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/uio/uio_pruss.c b/drivers/uio/uio_pruss.c
-index 65597527260f..54a2f809095c 100644
+index 442bbb58d65c..6ac11f639a74 100644
 --- a/drivers/uio/uio_pruss.c
 +++ b/drivers/uio/uio_pruss.c
 @@ -37,9 +37,14 @@
@@ -45,7 +45,7 @@ index 65597527260f..54a2f809095c 100644
  };
  
  static irqreturn_t pruss_handler(int irq, struct uio_info *info)
-@@ -189,6 +196,18 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -194,6 +201,18 @@ static int pruss_probe(struct platform_device *pdev)
  	}
  
  
@@ -64,7 +64,7 @@ index 65597527260f..54a2f809095c 100644
  	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
  	if (IS_ERR(pinctrl))
  		dev_warn(&pdev->dev,
-@@ -231,6 +250,8 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -236,6 +255,8 @@ static int pruss_probe(struct platform_device *pdev)
  			}
  		}
  	}
@@ -73,24 +73,24 @@ index 65597527260f..54a2f809095c 100644
  	if (pdata && pdata->sram_pool) {
  		gdev->sram_pool = pdata->sram_pool;
  		gdev->sram_vaddr =
-@@ -241,6 +262,7 @@ static int pruss_probe(struct platform_device *pdev)
- 			goto out_free;
+@@ -247,6 +268,7 @@ static int pruss_probe(struct platform_device *pdev)
+ 			goto err_clk_disable;
  		}
  	}
 +#endif
  
  	gdev->ddr_vaddr = dma_alloc_coherent(dev, extram_pool_sz,
  				&(gdev->ddr_paddr), GFP_KERNEL | GFP_DMA);
-@@ -252,7 +274,7 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -259,7 +281,7 @@ static int pruss_probe(struct platform_device *pdev)
  	len = resource_size(regs_prussio);
  	gdev->prussio_vaddr = ioremap(regs_prussio->start, len);
  	if (!gdev->prussio_vaddr) {
 -		dev_err(dev, "Can't remap PRUSS I/O  address range\n");
 +		dev_err(dev, "Can't remap PRUSS I/O address range\n");
- 		goto out_free;
+ 		ret = -ENOMEM;
+ 		goto err_free_ddr_vaddr;
  	}
- 
-@@ -274,6 +296,10 @@ static int pruss_probe(struct platform_device *pdev)
+@@ -282,6 +304,10 @@ static int pruss_probe(struct platform_device *pdev)
  		p->mem[0].size = resource_size(regs_prussio);
  		p->mem[0].memtype = UIO_MEM_PHYS;
  
@@ -102,5 +102,5 @@ index 65597527260f..54a2f809095c 100644
  		p->mem[1].addr = gdev->sram_paddr;
  		p->mem[1].size = sram_pool_sz;
 -- 
-2.11.0
+2.18.0
 
