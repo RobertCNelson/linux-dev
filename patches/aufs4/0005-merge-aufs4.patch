@@ -1,11 +1,11 @@
-From ee8da2facc9b37a27354f30628fbee92a3b243e6 Mon Sep 17 00:00:00 2001
+From 08cbb0b4dd3af9883a59cd8d0221d797d77b165d Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 1 Jul 2018 09:07:28 -0500
+Date: Mon, 20 Aug 2018 12:43:35 -0500
 Subject: [PATCH 5/5] merge: aufs4
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- Documentation/ABI/testing/debugfs-aufs        |   50 +
+ Documentation/ABI/testing/debugfs-aufs        |   55 +
  Documentation/ABI/testing/sysfs-aufs          |   31 +
  Documentation/filesystems/aufs/README         |  393 ++++
  .../filesystems/aufs/design/01intro.txt       |  171 ++
@@ -24,79 +24,79 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../filesystems/aufs/design/10dynop.txt       |   47 +
  fs/aufs/Kconfig                               |  199 ++
  fs/aufs/Makefile                              |   46 +
- fs/aufs/aufs.h                                |   60 +
- fs/aufs/branch.c                              | 1432 +++++++++++++
- fs/aufs/branch.h                              |  333 +++
+ fs/aufs/aufs.h                                |   61 +
+ fs/aufs/branch.c                              | 1422 +++++++++++++
+ fs/aufs/branch.h                              |  374 ++++
  fs/aufs/conf.mk                               |   40 +
  fs/aufs/cpup.c                                | 1441 +++++++++++++
- fs/aufs/cpup.h                                |   99 +
- fs/aufs/dbgaufs.c                             |  437 ++++
- fs/aufs/dbgaufs.h                             |   48 +
+ fs/aufs/cpup.h                                |  100 +
+ fs/aufs/dbgaufs.c                             |  478 +++++
+ fs/aufs/dbgaufs.h                             |   53 +
  fs/aufs/dcsub.c                               |  225 ++
- fs/aufs/dcsub.h                               |  136 ++
- fs/aufs/debug.c                               |  440 ++++
- fs/aufs/debug.h                               |  225 ++
- fs/aufs/dentry.c                              | 1152 ++++++++++
- fs/aufs/dentry.h                              |  266 +++
- fs/aufs/dinfo.c                               |  553 +++++
- fs/aufs/dir.c                                 |  759 +++++++
- fs/aufs/dir.h                                 |  131 ++
- fs/aufs/dirren.c                              | 1315 ++++++++++++
- fs/aufs/dirren.h                              |  139 ++
- fs/aufs/dynop.c                               |  369 ++++
- fs/aufs/dynop.h                               |   74 +
- fs/aufs/export.c                              |  836 ++++++++
- fs/aufs/f_op.c                                |  817 +++++++
- fs/aufs/fhsm.c                                |  426 ++++
- fs/aufs/file.c                                |  856 ++++++++
- fs/aufs/file.h                                |  340 +++
- fs/aufs/finfo.c                               |  148 ++
- fs/aufs/fstype.h                              |  400 ++++
- fs/aufs/hbl.h                                 |   64 +
- fs/aufs/hfsnotify.c                           |  289 +++
- fs/aufs/hfsplus.c                             |   56 +
- fs/aufs/hnotify.c                             |  719 +++++++
- fs/aufs/i_op.c                                | 1459 +++++++++++++
- fs/aufs/i_op_add.c                            |  920 ++++++++
- fs/aufs/i_op_del.c                            |  511 +++++
- fs/aufs/i_op_ren.c                            | 1246 +++++++++++
- fs/aufs/iinfo.c                               |  285 +++
- fs/aufs/inode.c                               |  527 +++++
- fs/aufs/inode.h                               |  695 ++++++
- fs/aufs/ioctl.c                               |  219 ++
- fs/aufs/loop.c                                |  147 ++
- fs/aufs/loop.h                                |   52 +
+ fs/aufs/dcsub.h                               |  137 ++
+ fs/aufs/debug.c                               |  441 ++++
+ fs/aufs/debug.h                               |  226 ++
+ fs/aufs/dentry.c                              | 1153 ++++++++++
+ fs/aufs/dentry.h                              |  267 +++
+ fs/aufs/dinfo.c                               |  554 +++++
+ fs/aufs/dir.c                                 |  760 +++++++
+ fs/aufs/dir.h                                 |  132 ++
+ fs/aufs/dirren.c                              | 1316 ++++++++++++
+ fs/aufs/dirren.h                              |  140 ++
+ fs/aufs/dynop.c                               |  370 ++++
+ fs/aufs/dynop.h                               |   75 +
+ fs/aufs/export.c                              |  838 ++++++++
+ fs/aufs/f_op.c                                |  818 +++++++
+ fs/aufs/fhsm.c                                |  427 ++++
+ fs/aufs/file.c                                |  857 ++++++++
+ fs/aufs/file.h                                |  341 +++
+ fs/aufs/finfo.c                               |  149 ++
+ fs/aufs/fstype.h                              |  401 ++++
+ fs/aufs/hbl.h                                 |   65 +
+ fs/aufs/hfsnotify.c                           |  290 +++
+ fs/aufs/hfsplus.c                             |   57 +
+ fs/aufs/hnotify.c                             |  720 +++++++
+ fs/aufs/i_op.c                                | 1460 +++++++++++++
+ fs/aufs/i_op_add.c                            |  921 ++++++++
+ fs/aufs/i_op_del.c                            |  512 +++++
+ fs/aufs/i_op_ren.c                            | 1247 +++++++++++
+ fs/aufs/iinfo.c                               |  286 +++
+ fs/aufs/inode.c                               |  528 +++++
+ fs/aufs/inode.h                               |  696 ++++++
+ fs/aufs/ioctl.c                               |  220 ++
+ fs/aufs/loop.c                                |  148 ++
+ fs/aufs/loop.h                                |   53 +
  fs/aufs/magic.mk                              |   31 +
- fs/aufs/module.c                              |  266 +++
- fs/aufs/module.h                              |  101 +
- fs/aufs/mvdown.c                              |  704 ++++++
+ fs/aufs/module.c                              |  273 +++
+ fs/aufs/module.h                              |  102 +
+ fs/aufs/mvdown.c                              |  705 ++++++
  fs/aufs/opts.c                                | 1891 +++++++++++++++++
- fs/aufs/opts.h                                |  224 ++
- fs/aufs/plink.c                               |  515 +++++
- fs/aufs/poll.c                                |   53 +
- fs/aufs/posix_acl.c                           |  102 +
- fs/aufs/procfs.c                              |  170 ++
- fs/aufs/rdu.c                                 |  381 ++++
- fs/aufs/rwsem.h                               |   72 +
- fs/aufs/sbinfo.c                              |  304 +++
- fs/aufs/super.c                               | 1051 +++++++++
- fs/aufs/super.h                               |  626 ++++++
- fs/aufs/sysaufs.c                             |  104 +
- fs/aufs/sysaufs.h                             |  101 +
- fs/aufs/sysfs.c                               |  376 ++++
- fs/aufs/sysrq.c                               |  159 ++
- fs/aufs/vdir.c                                |  893 ++++++++
- fs/aufs/vfsub.c                               |  894 ++++++++
- fs/aufs/vfsub.h                               |  354 +++
+ fs/aufs/opts.h                                |  225 ++
+ fs/aufs/plink.c                               |  516 +++++
+ fs/aufs/poll.c                                |   51 +
+ fs/aufs/posix_acl.c                           |  103 +
+ fs/aufs/procfs.c                              |  171 ++
+ fs/aufs/rdu.c                                 |  382 ++++
+ fs/aufs/rwsem.h                               |   73 +
+ fs/aufs/sbinfo.c                              |  312 +++
+ fs/aufs/super.c                               | 1043 +++++++++
+ fs/aufs/super.h                               |  627 ++++++
+ fs/aufs/sysaufs.c                             |   93 +
+ fs/aufs/sysaufs.h                             |  102 +
+ fs/aufs/sysfs.c                               |  373 ++++
+ fs/aufs/sysrq.c                               |  160 ++
+ fs/aufs/vdir.c                                |  894 ++++++++
+ fs/aufs/vfsub.c                               |  895 ++++++++
+ fs/aufs/vfsub.h                               |  355 ++++
  fs/aufs/wbr_policy.c                          |  830 ++++++++
- fs/aufs/whout.c                               | 1061 +++++++++
- fs/aufs/whout.h                               |   85 +
- fs/aufs/wkq.c                                 |  390 ++++
- fs/aufs/wkq.h                                 |   93 +
- fs/aufs/xattr.c                               |  355 ++++
- fs/aufs/xino.c                                | 1469 +++++++++++++
- include/uapi/linux/aufs_type.h                |  447 ++++
- 91 files changed, 36850 insertions(+)
+ fs/aufs/whout.c                               | 1062 +++++++++
+ fs/aufs/whout.h                               |   86 +
+ fs/aufs/wkq.c                                 |  391 ++++
+ fs/aufs/wkq.h                                 |   94 +
+ fs/aufs/xattr.c                               |  356 ++++
+ fs/aufs/xino.c                                | 1593 ++++++++++++++
+ include/uapi/linux/aufs_type.h                |  448 ++++
+ 91 files changed, 37103 insertions(+)
  create mode 100644 Documentation/ABI/testing/debugfs-aufs
  create mode 100644 Documentation/ABI/testing/sysfs-aufs
  create mode 100644 Documentation/filesystems/aufs/README
@@ -191,10 +191,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 
 diff --git a/Documentation/ABI/testing/debugfs-aufs b/Documentation/ABI/testing/debugfs-aufs
 new file mode 100644
-index 000000000000..99642d1055a2
+index 000000000000..4a6694194ba6
 --- /dev/null
 +++ b/Documentation/ABI/testing/debugfs-aufs
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,55 @@
 +What:		/debug/aufs/si_<id>/
 +Date:		March 2009
 +Contact:	J. R. Okajima <hooanon05g@gmail.com>
@@ -225,15 +225,20 @@ index 000000000000..99642d1055a2
 +		When the aufs mount option 'noxino' is specified, it
 +		will be empty. About XINO files, see the aufs manual.
 +
-+What:		/debug/aufs/si_<id>/xino0, xino1 ... xinoN
++What:		/debug/aufs/si_<id>/xi0, xi1 ... xiN and xiN-N
 +Date:		March 2009
 +Contact:	J. R. Okajima <hooanon05g@gmail.com>
 +Description:
 +		It shows the consumed blocks by xino (External Inode Number
 +		Translation Table), its link count, block size and file
 +		size.
-+		When the aufs mount option 'noxino' is specified, it
-+		will be empty. About XINO files, see the aufs manual.
++		Due to the file size limit, there may exist multiple
++		xino files per branch.  In this case, "-N" is added to
++		the filename and it corresponds to the index of the
++		internal xino array.  "-0" is omitted.
++		When the aufs mount option 'noxino' is specified, Those
++		entries won't exist.  About XINO files, see the aufs
++		manual.
 +
 +What:		/debug/aufs/si_<id>/xigen
 +Date:		March 2009
@@ -2367,10 +2372,11 @@ index 000000000000..2c819a64935e
 +aufs-$(CONFIG_AUFS_MAGIC_SYSRQ) += sysrq.o
 diff --git a/fs/aufs/aufs.h b/fs/aufs/aufs.h
 new file mode 100644
-index 000000000000..bcf0a2e405e7
+index 000000000000..0e19d870c3fe
 --- /dev/null
 +++ b/fs/aufs/aufs.h
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,61 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -2433,10 +2439,11 @@ index 000000000000..bcf0a2e405e7
 +#endif /* __AUFS_H__ */
 diff --git a/fs/aufs/branch.c b/fs/aufs/branch.c
 new file mode 100644
-index 000000000000..eeca66c000ed
+index 000000000000..61913f2b80fa
 --- /dev/null
 +++ b/fs/aufs/branch.c
-@@ -0,0 +1,1432 @@
+@@ -0,0 +1,1422 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -2474,12 +2481,7 @@ index 000000000000..eeca66c000ed
 +	au_hnotify_fin_br(br);
 +	/* always, regardless the mount option */
 +	au_dr_hino_free(&br->br_dirren);
-+
-+	if (br->br_xino.xi_file)
-+		fput(br->br_xino.xi_file);
-+	for (i = br->br_xino.xi_nondir.total - 1; i >= 0; i--)
-+		AuDebugOn(br->br_xino.xi_nondir.array[i]);
-+	kfree(br->br_xino.xi_nondir.array);
++	au_xino_put(br);
 +
 +	AuDebugOn(au_br_count(br));
 +	au_br_count_fin(br);
@@ -2576,16 +2578,12 @@ index 000000000000..eeca66c000ed
 +	add_branch = kzalloc(sizeof(*add_branch), GFP_NOFS);
 +	if (unlikely(!add_branch))
 +		goto out;
-+	add_branch->br_xino.xi_nondir.total = 8; /* initial size */
-+	add_branch->br_xino.xi_nondir.array
-+		= kcalloc(add_branch->br_xino.xi_nondir.total, sizeof(ino_t),
-+			  GFP_NOFS);
-+	if (unlikely(!add_branch->br_xino.xi_nondir.array))
++	add_branch->br_xino = au_xino_alloc();
++	if (unlikely(!add_branch->br_xino))
 +		goto out_br;
-+
 +	err = au_hnotify_init_br(add_branch, perm);
 +	if (unlikely(err))
-+		goto out_xinondir;
++		goto out_xino;
 +
 +	if (au_br_writable(perm)) {
 +		/* may be freed separately at changing the branch permission */
@@ -2617,8 +2615,8 @@ index 000000000000..eeca66c000ed
 +	kfree(add_branch->br_wbr);
 +out_hnotify:
 +	au_hnotify_fin_br(add_branch);
-+out_xinondir:
-+	kfree(add_branch->br_xino.xi_nondir.array);
++out_xino:
++	au_xino_put(add_branch);
 +out_br:
 +	kfree(add_branch);
 +out:
@@ -2829,16 +2827,15 @@ index 000000000000..eeca66c000ed
 +		      struct au_opt_add *add)
 +{
 +	int err;
++	struct au_branch *brbase;
++	struct file *xf;
 +	struct inode *h_inode;
 +
 +	err = 0;
-+	spin_lock_init(&br->br_xino.xi_nondir.spin);
-+	init_waitqueue_head(&br->br_xino.xi_nondir.wqh);
 +	br->br_perm = add->perm;
 +	br->br_path = add->path; /* set first, path_get() later */
 +	spin_lock_init(&br->br_dykey_lock);
 +	au_br_count_init(br);
-+	atomic_set(&br->br_xino_running, 0);
 +	br->br_id = au_new_br_id(sb);
 +	AuDebugOn(br->br_id < 0);
 +
@@ -2854,11 +2851,13 @@ index 000000000000..eeca66c000ed
 +	}
 +
 +	if (au_opt_test(au_mntflags(sb), XINO)) {
++		brbase = au_sbr(sb, 0);
++		xf = au_xino_file(brbase);
++		AuDebugOn(!xf);
 +		h_inode = d_inode(add->path.dentry);
-+		err = au_xino_br(sb, br, h_inode->i_ino,
-+				 au_sbr(sb, 0)->br_xino.xi_file, /*do_test*/1);
++		err = au_xino_init_br(sb, br, h_inode->i_ino, &xf->f_path);
 +		if (unlikely(err)) {
-+			AuDebugOn(br->br_xino.xi_file);
++			AuDebugOn(au_xino_file(br));
 +			goto out_err;
 +		}
 +	}
@@ -2948,6 +2947,7 @@ index 000000000000..eeca66c000ed
 +	struct dentry *root, *h_dentry;
 +	struct inode *root_inode;
 +	struct au_branch *add_branch;
++	struct file *xf;
 +
 +	root = sb->s_root;
 +	root_inode = d_inode(root);
@@ -2974,13 +2974,10 @@ index 000000000000..eeca66c000ed
 +	}
 +
 +	add_bindex = add->bindex;
-+	if (!remount)
-+		au_br_do_add(sb, add_branch, add_bindex);
-+	else {
-+		sysaufs_brs_del(sb, add_bindex);
-+		au_br_do_add(sb, add_branch, add_bindex);
-+		sysaufs_brs_add(sb, add_bindex);
-+	}
++	sysaufs_brs_del(sb, add_bindex);	/* remove successors */
++	au_br_do_add(sb, add_branch, add_bindex);
++	sysaufs_brs_add(sb, add_bindex);	/* append successors */
++	dbgaufs_brs_add(sb, add_bindex, /*topdown*/0);	/* rename successors */
 +
 +	h_dentry = add->path.dentry;
 +	if (!add_bindex) {
@@ -2990,16 +2987,17 @@ index 000000000000..eeca66c000ed
 +		au_add_nlink(root_inode, d_inode(h_dentry));
 +
 +	/*
-+	 * this test/set prevents aufs from handling unnecesary notify events
++	 * this test/set prevents aufs from handling unnecessary notify events
 +	 * of xino files, in case of re-adding a writable branch which was
 +	 * once detached from aufs.
 +	 */
 +	if (au_xino_brid(sb) < 0
 +	    && au_br_writable(add_branch->br_perm)
-+	    && !au_test_fs_bad_xino(h_dentry->d_sb)
-+	    && add_branch->br_xino.xi_file
-+	    && add_branch->br_xino.xi_file->f_path.dentry->d_parent == h_dentry)
-+		au_xino_brid_set(sb, add_branch->br_id);
++	    && !au_test_fs_bad_xino(h_dentry->d_sb)) {
++		xf = au_xino_file(add_branch);
++		if (xf && xf->f_path.dentry->d_parent == h_dentry)
++			au_xino_brid_set(sb, add_branch->br_id);
++	}
 +
 +out:
 +	return err;
@@ -3302,7 +3300,7 @@ index 000000000000..eeca66c000ed
 +}
 +
 +static void br_del_file(struct file **to_free, unsigned long long opened,
-+			  aufs_bindex_t br_id)
++			aufs_bindex_t br_id)
 +{
 +	unsigned long long ull;
 +	aufs_bindex_t bindex, btop, bbot, bfound;
@@ -3529,13 +3527,11 @@ index 000000000000..eeca66c000ed
 +		di_write_lock_child(root);
 +	}
 +
-+	if (!remount)
-+		au_br_do_del(sb, bindex, br);
-+	else {
-+		sysaufs_brs_del(sb, bindex);
-+		au_br_do_del(sb, bindex, br);
-+		sysaufs_brs_add(sb, bindex);
-+	}
++	sysaufs_brs_del(sb, bindex);	/* remove successors */
++	dbgaufs_xino_del(br);		/* remove one */
++	au_br_do_del(sb, bindex, br);
++	sysaufs_brs_add(sb, bindex);	/* append successors */
++	dbgaufs_brs_add(sb, bindex, /*topdown*/1);	/* rename successors */
 +
 +	if (!bindex) {
 +		au_cpup_attr_all(d_inode(root), /*force*/1);
@@ -3871,10 +3867,11 @@ index 000000000000..eeca66c000ed
 +}
 diff --git a/fs/aufs/branch.h b/fs/aufs/branch.h
 new file mode 100644
-index 000000000000..65fdd2aa6939
+index 000000000000..4717a1691eb4
 --- /dev/null
 +++ b/fs/aufs/branch.h
-@@ -0,0 +1,333 @@
+@@ -0,0 +1,374 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -3910,7 +3907,7 @@ index 000000000000..65fdd2aa6939
 +/* ---------------------------------------------------------------------- */
 +
 +/* a xino file */
-+struct au_xino_file {
++struct au_xino {
 +	struct file		*xi_file;
 +	struct {
 +		spinlock_t		spin;
@@ -3921,11 +3918,11 @@ index 000000000000..65fdd2aa6939
 +		wait_queue_head_t	wqh;
 +	} xi_nondir;
 +
-+	/* todo: make xino files an array to support huge inode number */
++	atomic_t		xi_truncating;
 +
-+#ifdef CONFIG_DEBUG_FS
-+	struct dentry		 *xi_dbgaufs;
-+#endif
++	struct kref		xi_kref;
++
++	/* todo: make xino files an array to support huge inode number */
 +};
 +
 +/* File-based Hierarchical Storage Management */
@@ -3976,7 +3973,7 @@ index 000000000000..65fdd2aa6939
 +
 +/* protected by superblock rwsem */
 +struct au_branch {
-+	struct au_xino_file	br_xino;
++	struct au_xino		*br_xino;
 +
 +	aufs_bindex_t		br_id;
 +
@@ -3989,9 +3986,6 @@ index 000000000000..65fdd2aa6939
 +	struct au_wbr		*br_wbr;
 +	struct au_br_fhsm	*br_fhsm;
 +
-+	/* xino truncation */
-+	atomic_t		br_xino_running;
-+
 +#ifdef CONFIG_AUFS_HFSNOTIFY
 +	struct au_br_hfsnotify	*br_hfsn;
 +#endif
@@ -3999,6 +3993,10 @@ index 000000000000..65fdd2aa6939
 +#ifdef CONFIG_SYSFS
 +	/* entries under sysfs per mount-point */
 +	struct au_brsysfs	br_sysfs[AuBrSysfs_Last];
++#endif
++
++#ifdef CONFIG_DEBUG_FS
++	struct dentry		 *br_dbgaufs; /* xino */
 +#endif
 +
 +	struct au_dr_br		br_dirren;
@@ -4074,6 +4072,36 @@ index 000000000000..65fdd2aa6939
 +	return err;
 +}
 +
++static inline void au_xino_get(struct au_branch *br)
++{
++	struct au_xino *xi;
++
++	xi = br->br_xino;
++	if (xi)
++		kref_get(&xi->xi_kref);
++}
++
++static inline int au_xino_count(struct au_branch *br)
++{
++	int v;
++	struct au_xino *xi;
++
++	v = 0;
++	xi = br->br_xino;
++	if (xi)
++		v = kref_read(&xi->xi_kref);
++
++	return v;
++}
++
++static inline struct file *au_xino_file(struct au_branch *br)
++{
++	struct au_xino *xi;
++
++	xi = br->br_xino;
++	return xi ? xi->xi_file : NULL;
++}
++
 +/* ---------------------------------------------------------------------- */
 +
 +/* branch.c */
@@ -4097,33 +4125,42 @@ index 000000000000..65fdd2aa6939
 +/* xino.c */
 +static const loff_t au_loff_max = LLONG_MAX;
 +
-+int au_xib_trunc(struct super_block *sb);
++struct file *au_xino_create(struct super_block *sb, char *fpath, int silent);
++struct file *au_xino_create2(struct super_block *sb, struct path *base,
++			     struct file *copy_src);
++
++int au_xino_read(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
++		 ino_t *ino);
++int au_xino_write(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
++		  ino_t ino);
 +ssize_t xino_fread(vfs_readf_t func, struct file *file, void *buf, size_t size,
 +		   loff_t *pos);
 +ssize_t xino_fwrite(vfs_writef_t func, struct file *file, void *buf,
 +		    size_t size, loff_t *pos);
-+struct file *au_xino_create2(struct file *base_file, struct file *copy_src);
-+struct file *au_xino_create(struct super_block *sb, char *fname, int silent);
-+ino_t au_xino_new_ino(struct super_block *sb);
-+void au_xino_delete_inode(struct inode *inode, const int unlinked);
-+int au_xino_write(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
-+		  ino_t ino);
-+int au_xino_read(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
-+		 ino_t *ino);
-+int au_xino_br(struct super_block *sb, struct au_branch *br, ino_t hino,
-+	       struct file *base_file, int do_test);
++
++int au_xib_trunc(struct super_block *sb);
 +int au_xino_trunc(struct super_block *sb, aufs_bindex_t bindex);
 +
++struct au_xino *au_xino_alloc(void);
++int au_xino_put(struct au_branch *br);
++void au_xino_file_set(struct au_branch *br, struct file *file);
++
 +struct au_opt_xino;
-+int au_xino_set(struct super_block *sb, struct au_opt_xino *xino, int remount);
 +void au_xino_clr(struct super_block *sb);
++int au_xino_set(struct super_block *sb, struct au_opt_xino *xiopt, int remount);
 +struct file *au_xino_def(struct super_block *sb);
-+int au_xino_path(struct seq_file *seq, struct file *file);
++int au_xino_init_br(struct super_block *sb, struct au_branch *br, ino_t hino,
++		    struct path *base);
++
++ino_t au_xino_new_ino(struct super_block *sb);
++void au_xino_delete_inode(struct inode *inode, const int unlinked);
 +
 +void au_xinondir_leave(struct super_block *sb, aufs_bindex_t bindex,
 +		       ino_t h_ino, int idx);
 +int au_xinondir_enter(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
 +		      int *idx);
++
++int au_xino_path(struct seq_file *seq, struct file *file);
 +
 +/* ---------------------------------------------------------------------- */
 +
@@ -4256,10 +4293,11 @@ index 000000000000..12782f8e0f38
 +-include ${srctree}/${src}/conf_priv.mk
 diff --git a/fs/aufs/cpup.c b/fs/aufs/cpup.c
 new file mode 100644
-index 000000000000..30c5fefe8f4d
+index 000000000000..93d6496aaf68
 --- /dev/null
 +++ b/fs/aufs/cpup.c
 @@ -0,0 +1,1441 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -4735,7 +4773,7 @@ index 000000000000..30c5fefe8f4d
 +	if (tsk->flags & PF_KTHREAD)
 +		__fput_sync(file[DST].file);
 +	else {
-+		/* it happend actually */
++		/* it happened actually */
 +		fput(file[DST].file);
 +		/*
 +		 * too bad.
@@ -4937,8 +4975,7 @@ index 000000000000..30c5fefe8f4d
 +	switch (mode & S_IFMT) {
 +	case S_IFREG:
 +		isreg = 1;
-+		err = vfsub_create(h_dir, &h_path, S_IRUSR | S_IWUSR,
-+				   /*want_excl*/true);
++		err = vfsub_create(h_dir, &h_path, 0600, /*want_excl*/true);
 +		if (!err)
 +			err = au_do_cpup_regular(cpg, h_src_attr);
 +		break;
@@ -5703,10 +5740,11 @@ index 000000000000..30c5fefe8f4d
 +}
 diff --git a/fs/aufs/cpup.h b/fs/aufs/cpup.h
 new file mode 100644
-index 000000000000..99295266c4a0
+index 000000000000..0faad688bcfb
 --- /dev/null
 +++ b/fs/aufs/cpup.h
-@@ -0,0 +1,99 @@
+@@ -0,0 +1,100 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -5798,7 +5836,7 @@ index 000000000000..99295266c4a0
 +struct au_dtime {
 +	struct dentry *dt_dentry;
 +	struct path dt_h_path;
-+	struct timespec dt_atime, dt_mtime;
++	struct timespec64 dt_atime, dt_mtime;
 +};
 +void au_dtime_store(struct au_dtime *dt, struct dentry *dentry,
 +		    struct path *h_path);
@@ -5808,10 +5846,11 @@ index 000000000000..99295266c4a0
 +#endif /* __AUFS_CPUP_H__ */
 diff --git a/fs/aufs/dbgaufs.c b/fs/aufs/dbgaufs.c
 new file mode 100644
-index 000000000000..b85f0694b7fd
+index 000000000000..f269ff5ea1eb
 --- /dev/null
 +++ b/fs/aufs/dbgaufs.c
-@@ -0,0 +1,437 @@
+@@ -0,0 +1,478 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -5841,7 +5880,7 @@ index 000000000000..b85f0694b7fd
 +#endif
 +
 +static struct dentry *dbgaufs;
-+static const mode_t dbgaufs_mode = S_IRUSR | S_IRGRP | S_IROTH;
++static const mode_t dbgaufs_mode = 0444;
 +
 +/* 20 is max digits length of ulong 64 */
 +struct dbgaufs_arg {
@@ -5859,7 +5898,8 @@ index 000000000000..b85f0694b7fd
 +	return 0;
 +}
 +
-+static int dbgaufs_xi_open(struct file *xf, struct file *file, int do_fcnt)
++static int dbgaufs_xi_open(struct file *xf, struct file *file, int do_fcnt,
++			   int cnt)
 +{
 +	int err;
 +	struct kstat st;
@@ -5880,8 +5920,8 @@ index 000000000000..b85f0694b7fd
 +	if (!err) {
 +		if (do_fcnt)
 +			p->n = snprintf
-+				(p->a, sizeof(p->a), "%ld, %llux%u %lld\n",
-+				 (long)file_count(xf), st.blocks, st.blksize,
++				(p->a, sizeof(p->a), "%d, %llux%u %lld\n",
++				 cnt, st.blocks, st.blksize,
 +				 (long long)st.size);
 +		else
 +			p->n = snprintf(p->a, sizeof(p->a), "%llux%u %lld\n",
@@ -6012,7 +6052,7 @@ index 000000000000..b85f0694b7fd
 +	sbinfo = inode->i_private;
 +	sb = sbinfo->si_sb;
 +	si_noflush_read_lock(sb);
-+	err = dbgaufs_xi_open(sbinfo->si_xib, file, /*do_fcnt*/0);
++	err = dbgaufs_xi_open(sbinfo->si_xib, file, /*do_fcnt*/0, /*cnt*/0);
 +	si_read_unlock(sb);
 +	return err;
 +}
@@ -6036,6 +6076,7 @@ index 000000000000..b85f0694b7fd
 +	struct super_block *sb;
 +	struct file *xf;
 +	struct qstr *name;
++	struct au_branch *br;
 +
 +	err = -ENOENT;
 +	xf = NULL;
@@ -6052,8 +6093,10 @@ index 000000000000..b85f0694b7fd
 +	sb = sbinfo->si_sb;
 +	si_noflush_read_lock(sb);
 +	if (l <= au_sbbot(sb)) {
-+		xf = au_sbr(sb, (aufs_bindex_t)l)->br_xino.xi_file;
-+		err = dbgaufs_xi_open(xf, file, /*do_fcnt*/1);
++		br = au_sbr(sb, (aufs_bindex_t)l);
++		xf = au_xino_file(br);
++		err = dbgaufs_xi_open(xf, file, /*do_fcnt*/1,
++				      au_xino_count(br));
 +	} else
 +		err = -ENOENT;
 +	si_read_unlock(sb);
@@ -6069,11 +6112,25 @@ index 000000000000..b85f0694b7fd
 +	.read		= dbgaufs_xi_read
 +};
 +
++void dbgaufs_xino_del(struct au_branch *br)
++{
++	struct dentry *dbgaufs;
++
++	dbgaufs = br->br_dbgaufs;
++	if (!dbgaufs)
++		return;
++
++	br->br_dbgaufs = NULL;
++	/* debugfs acquires the parent i_mutex */
++	lockdep_off();
++	debugfs_remove(dbgaufs);
++	lockdep_on();
++}
++
 +void dbgaufs_brs_del(struct super_block *sb, aufs_bindex_t bindex)
 +{
 +	aufs_bindex_t bbot;
 +	struct au_branch *br;
-+	struct au_xino_file *xi;
 +
 +	if (!au_sbi(sb)->si_dbgaufs)
 +		return;
@@ -6081,23 +6138,51 @@ index 000000000000..b85f0694b7fd
 +	bbot = au_sbbot(sb);
 +	for (; bindex <= bbot; bindex++) {
 +		br = au_sbr(sb, bindex);
-+		xi = &br->br_xino;
-+		/* debugfs acquires the parent i_mutex */
-+		lockdep_off();
-+		debugfs_remove(xi->xi_dbgaufs);
-+		lockdep_on();
-+		xi->xi_dbgaufs = NULL;
++		dbgaufs_xino_del(br);
 +	}
 +}
 +
-+void dbgaufs_brs_add(struct super_block *sb, aufs_bindex_t bindex)
++static void dbgaufs_br_add(struct super_block *sb, aufs_bindex_t bindex,
++			   struct dentry *parent, struct au_sbinfo *sbinfo)
++{
++	struct au_branch *br;
++	struct dentry *d;
++	char name[sizeof(DbgaufsXi_PREFIX) + 5]; /* "xi" bindex NULL */
++
++	snprintf(name, sizeof(name), DbgaufsXi_PREFIX "%d", bindex);
++	br = au_sbr(sb, bindex);
++	if (br->br_dbgaufs) {
++		struct qstr qstr = QSTR_INIT(name, strlen(name));
++
++		if (!au_qstreq(&br->br_dbgaufs->d_name, &qstr)) {
++			/* debugfs acquires the parent i_mutex */
++			lockdep_off();
++			d = debugfs_rename(parent, br->br_dbgaufs, parent,
++					   name);
++			lockdep_on();
++			if (unlikely(!d))
++				pr_warn("failed renaming %pd/%s, ignored.\n",
++					parent, name);
++		}
++	} else {
++		lockdep_off();
++		br->br_dbgaufs = debugfs_create_file(name, dbgaufs_mode, parent,
++						     sbinfo, &dbgaufs_xino_fop);
++		lockdep_on();
++		if (unlikely(!br->br_dbgaufs))
++			pr_warn("failed creaiting %pd/%s, ignored.\n",
++				parent, name);
++	}
++}
++
++void dbgaufs_brs_add(struct super_block *sb, aufs_bindex_t bindex, int topdown)
 +{
 +	struct au_sbinfo *sbinfo;
 +	struct dentry *parent;
-+	struct au_branch *br;
-+	struct au_xino_file *xi;
 +	aufs_bindex_t bbot;
-+	char name[sizeof(DbgaufsXi_PREFIX) + 5]; /* "xi" bindex NULL */
++
++	if (!au_opt_test(au_mntflags(sb), XINO))
++		return;
 +
 +	sbinfo = au_sbi(sb);
 +	parent = sbinfo->si_dbgaufs;
@@ -6105,20 +6190,12 @@ index 000000000000..b85f0694b7fd
 +		return;
 +
 +	bbot = au_sbbot(sb);
-+	for (; bindex <= bbot; bindex++) {
-+		snprintf(name, sizeof(name), DbgaufsXi_PREFIX "%d", bindex);
-+		br = au_sbr(sb, bindex);
-+		xi = &br->br_xino;
-+		AuDebugOn(xi->xi_dbgaufs);
-+		/* debugfs acquires the parent i_mutex */
-+		lockdep_off();
-+		xi->xi_dbgaufs = debugfs_create_file(name, dbgaufs_mode, parent,
-+						     sbinfo, &dbgaufs_xino_fop);
-+		lockdep_on();
-+		/* ignore an error */
-+		if (unlikely(!xi->xi_dbgaufs))
-+			AuWarn1("failed %s under debugfs\n", name);
-+	}
++	if (topdown)
++		for (; bindex <= bbot; bindex++)
++			dbgaufs_br_add(sb, bindex, parent, sbinfo);
++	else
++		for (; bbot >= bindex; bbot--)
++			dbgaufs_br_add(sb, bbot, parent, sbinfo);
 +}
 +
 +/* ---------------------------------------------------------------------- */
@@ -6133,7 +6210,7 @@ index 000000000000..b85f0694b7fd
 +	sbinfo = inode->i_private;
 +	sb = sbinfo->si_sb;
 +	si_noflush_read_lock(sb);
-+	err = dbgaufs_xi_open(sbinfo->si_xigen, file, /*do_fcnt*/0);
++	err = dbgaufs_xi_open(sbinfo->si_xigen, file, /*do_fcnt*/0, /*cnt*/0);
 +	si_read_unlock(sb);
 +	return err;
 +}
@@ -6183,7 +6260,6 @@ index 000000000000..b85f0694b7fd
 +
 +	debugfs_remove_recursive(sbinfo->si_dbgaufs);
 +	sbinfo->si_dbgaufs = NULL;
-+	kobject_put(&sbinfo->si_kobj);
 +}
 +
 +int dbgaufs_si_init(struct au_sbinfo *sbinfo)
@@ -6208,18 +6284,19 @@ index 000000000000..b85f0694b7fd
 +	sbinfo->si_dbgaufs = debugfs_create_dir(name, dbgaufs);
 +	if (unlikely(!sbinfo->si_dbgaufs))
 +		goto out;
-+	kobject_get(&sbinfo->si_kobj);
 +
-+	sbinfo->si_dbgaufs_xib = debugfs_create_file
-+		("xib", dbgaufs_mode, sbinfo->si_dbgaufs, sbinfo,
-+		 &dbgaufs_xib_fop);
-+	if (unlikely(!sbinfo->si_dbgaufs_xib))
-+		goto out_dir;
-+
++	/* regardless plink/noplink option */
 +	sbinfo->si_dbgaufs_plink = debugfs_create_file
 +		("plink", dbgaufs_mode, sbinfo->si_dbgaufs, sbinfo,
 +		 &dbgaufs_plink_fop);
 +	if (unlikely(!sbinfo->si_dbgaufs_plink))
++		goto out_dir;
++
++	/* regardless xino/noxino option */
++	sbinfo->si_dbgaufs_xib = debugfs_create_file
++		("xib", dbgaufs_mode, sbinfo->si_dbgaufs, sbinfo,
++		 &dbgaufs_xib_fop);
++	if (unlikely(!sbinfo->si_dbgaufs_xib))
 +		goto out_dir;
 +
 +	err = dbgaufs_xigen_init(sbinfo);
@@ -6229,6 +6306,8 @@ index 000000000000..b85f0694b7fd
 +out_dir:
 +	dbgaufs_si_fin(sbinfo);
 +out:
++	if (unlikely(err))
++		pr_err("debugfs/aufs failed\n");
 +	return err;
 +}
 +
@@ -6251,10 +6330,11 @@ index 000000000000..b85f0694b7fd
 +}
 diff --git a/fs/aufs/dbgaufs.h b/fs/aufs/dbgaufs.h
 new file mode 100644
-index 000000000000..f8d7b74e8d61
+index 000000000000..59d7b9d08481
 --- /dev/null
 +++ b/fs/aufs/dbgaufs.h
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,53 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -6283,18 +6363,22 @@ index 000000000000..f8d7b74e8d61
 +
 +struct super_block;
 +struct au_sbinfo;
++struct au_branch;
 +
 +#ifdef CONFIG_DEBUG_FS
 +/* dbgaufs.c */
++void dbgaufs_xino_del(struct au_branch *br);
 +void dbgaufs_brs_del(struct super_block *sb, aufs_bindex_t bindex);
-+void dbgaufs_brs_add(struct super_block *sb, aufs_bindex_t bindex);
++void dbgaufs_brs_add(struct super_block *sb, aufs_bindex_t bindex, int topdown);
 +void dbgaufs_si_fin(struct au_sbinfo *sbinfo);
 +int dbgaufs_si_init(struct au_sbinfo *sbinfo);
 +void dbgaufs_fin(void);
 +int __init dbgaufs_init(void);
 +#else
++AuStubVoid(dbgaufs_xino_del, struct au_branch *br)
 +AuStubVoid(dbgaufs_brs_del, struct super_block *sb, aufs_bindex_t bindex)
-+AuStubVoid(dbgaufs_brs_add, struct super_block *sb, aufs_bindex_t bindex)
++AuStubVoid(dbgaufs_brs_add, struct super_block *sb, aufs_bindex_t bindex,
++	   int topdown)
 +AuStubVoid(dbgaufs_si_fin, struct au_sbinfo *sbinfo)
 +AuStubInt0(dbgaufs_si_init, struct au_sbinfo *sbinfo)
 +AuStubVoid(dbgaufs_fin, void)
@@ -6305,10 +6389,11 @@ index 000000000000..f8d7b74e8d61
 +#endif /* __DBGAUFS_H__ */
 diff --git a/fs/aufs/dcsub.c b/fs/aufs/dcsub.c
 new file mode 100644
-index 000000000000..61c1a255378b
+index 000000000000..b30828810541
 --- /dev/null
 +++ b/fs/aufs/dcsub.c
 @@ -0,0 +1,225 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -6427,8 +6512,7 @@ index 000000000000..61c1a255378b
 +};
 +
 +extern void d_walk(struct dentry *parent, void *data,
-+		   enum d_walk_ret (*enter)(void *, struct dentry *),
-+		   void (*finish)(void *));
++		   enum d_walk_ret (*enter)(void *, struct dentry *));
 +
 +struct ac_dpages_arg {
 +	int err;
@@ -6468,7 +6552,7 @@ index 000000000000..61c1a255378b
 +		.arg	= arg
 +	};
 +
-+	d_walk(root, &args, au_call_dpages_append, NULL);
++	d_walk(root, &args, au_call_dpages_append);
 +
 +	return args.err;
 +}
@@ -6536,10 +6620,11 @@ index 000000000000..61c1a255378b
 +}
 diff --git a/fs/aufs/dcsub.h b/fs/aufs/dcsub.h
 new file mode 100644
-index 000000000000..50e81bf68a5f
+index 000000000000..c610133deea8
 --- /dev/null
 +++ b/fs/aufs/dcsub.h
-@@ -0,0 +1,136 @@
+@@ -0,0 +1,137 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -6678,10 +6763,11 @@ index 000000000000..50e81bf68a5f
 +#endif /* __AUFS_DCSUB_H__ */
 diff --git a/fs/aufs/debug.c b/fs/aufs/debug.c
 new file mode 100644
-index 000000000000..9fe5cb0c40ea
+index 000000000000..5cbd936dce46
 --- /dev/null
 +++ b/fs/aufs/debug.c
-@@ -0,0 +1,440 @@
+@@ -0,0 +1,441 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -6737,7 +6823,7 @@ index 000000000000..9fe5cb0c40ea
 +
 +atomic_t aufs_debug = ATOMIC_INIT(0);
 +MODULE_PARM_DESC(debug, "debug print");
-+module_param_named(debug, aufs_debug, atomic_t, S_IRUGO | S_IWUSR | S_IWGRP);
++module_param_named(debug, aufs_debug, atomic_t, 0664);
 +
 +DEFINE_MUTEX(au_dbg_mtx);	/* just to serialize the dbg msgs */
 +char *au_plevel = KERN_DEBUG;
@@ -6814,7 +6900,7 @@ index 000000000000..9fe5cb0c40ea
 +	     inode->i_ino, inode->i_sb ? au_sbtype(inode->i_sb) : "??",
 +	     atomic_read(&inode->i_count), inode->i_nlink, inode->i_mode,
 +	     i_size_read(inode), (unsigned long long)inode->i_blocks,
-+	     hn, (long long)timespec_to_ns(&inode->i_ctime) & 0x0ffff,
++	     hn, (long long)timespec64_to_ns(&inode->i_ctime) & 0x0ffff,
 +	     inode->i_mapping ? inode->i_mapping->nrpages : 0,
 +	     inode->i_state, inode->i_flags, inode_peek_iversion(inode),
 +	     inode->i_generation,
@@ -6989,7 +7075,7 @@ index 000000000000..9fe5cb0c40ea
 +	     bindex, br->br_perm, br->br_id, au_br_count(br),
 +	     br->br_wbr, au_sbtype(sb), MAJOR(sb->s_dev), MINOR(sb->s_dev),
 +	     sb->s_flags, sb->s_count,
-+	     atomic_read(&sb->s_active), !!br->br_xino.xi_file);
++	     atomic_read(&sb->s_active), !!au_xino_file(br));
 +	return 0;
 +
 +out:
@@ -7124,10 +7210,11 @@ index 000000000000..9fe5cb0c40ea
 +}
 diff --git a/fs/aufs/debug.h b/fs/aufs/debug.h
 new file mode 100644
-index 000000000000..c1325b139d18
+index 000000000000..b80bb5a9ab4d
 --- /dev/null
 +++ b/fs/aufs/debug.h
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,226 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -7355,10 +7442,11 @@ index 000000000000..c1325b139d18
 +#endif /* __AUFS_DEBUG_H__ */
 diff --git a/fs/aufs/dentry.c b/fs/aufs/dentry.c
 new file mode 100644
-index 000000000000..548f4bab37ea
+index 000000000000..a245117fa116
 --- /dev/null
 +++ b/fs/aufs/dentry.c
-@@ -0,0 +1,1152 @@
+@@ -0,0 +1,1153 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -8513,10 +8601,11 @@ index 000000000000..548f4bab37ea
 +};
 diff --git a/fs/aufs/dentry.h b/fs/aufs/dentry.h
 new file mode 100644
-index 000000000000..8f20b51d56ed
+index 000000000000..adc2ac997958
 --- /dev/null
 +++ b/fs/aufs/dentry.h
-@@ -0,0 +1,266 @@
+@@ -0,0 +1,267 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -8785,10 +8874,11 @@ index 000000000000..8f20b51d56ed
 +#endif /* __AUFS_DENTRY_H__ */
 diff --git a/fs/aufs/dinfo.c b/fs/aufs/dinfo.c
 new file mode 100644
-index 000000000000..75b7ea4a5ba6
+index 000000000000..7e56fe742f1b
 --- /dev/null
 +++ b/fs/aufs/dinfo.c
-@@ -0,0 +1,553 @@
+@@ -0,0 +1,554 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -9344,10 +9434,11 @@ index 000000000000..75b7ea4a5ba6
 +}
 diff --git a/fs/aufs/dir.c b/fs/aufs/dir.c
 new file mode 100644
-index 000000000000..4b4a6de786b3
+index 000000000000..7f386bf41d06
 --- /dev/null
 +++ b/fs/aufs/dir.c
-@@ -0,0 +1,759 @@
+@@ -0,0 +1,760 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -9493,7 +9584,7 @@ index 000000000000..4b4a6de786b3
 +	au_hn_inode_lock_nested(hdir, AuLsc_I_PARENT);
 +	h_dir = au_h_iptr(dir, btop);
 +	if (h_dir->i_nlink
-+	    && timespec_compare(&h_dir->i_mtime, &dt.dt_mtime) < 0) {
++	    && timespec64_compare(&h_dir->i_mtime, &dt.dt_mtime) < 0) {
 +		dt.dt_h_path = h_path;
 +		au_dtime_revert(&dt);
 +	}
@@ -9826,7 +9917,7 @@ index 000000000000..4b4a6de786b3
 +	struct inode *inode, *h_inode;
 +	struct super_block *sb;
 +
-+	AuDbg("%pD, ctx{%pf, %llu}\n", file, ctx->actor, ctx->pos);
++	AuDbg("%pD, ctx{%ps, %llu}\n", file, ctx->actor, ctx->pos);
 +
 +	dentry = file->f_path.dentry;
 +	inode = d_inode(dentry);
@@ -10109,10 +10200,11 @@ index 000000000000..4b4a6de786b3
 +};
 diff --git a/fs/aufs/dir.h b/fs/aufs/dir.h
 new file mode 100644
-index 000000000000..b3eb2f73c31f
+index 000000000000..e7acabe09b52
 --- /dev/null
 +++ b/fs/aufs/dir.h
-@@ -0,0 +1,131 @@
+@@ -0,0 +1,132 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -10246,10 +10338,11 @@ index 000000000000..b3eb2f73c31f
 +#endif /* __AUFS_DIR_H__ */
 diff --git a/fs/aufs/dirren.c b/fs/aufs/dirren.c
 new file mode 100644
-index 000000000000..dd9dfaea362a
+index 000000000000..63a4024ba428
 --- /dev/null
 +++ b/fs/aufs/dirren.c
-@@ -0,0 +1,1315 @@
+@@ -0,0 +1,1316 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2017-2018 Junjiro R. Okajima
 + *
@@ -11567,10 +11660,11 @@ index 000000000000..dd9dfaea362a
 +}
 diff --git a/fs/aufs/dirren.h b/fs/aufs/dirren.h
 new file mode 100644
-index 000000000000..847480eeb251
+index 000000000000..f5139a30c827
 --- /dev/null
 +++ b/fs/aufs/dirren.h
-@@ -0,0 +1,139 @@
+@@ -0,0 +1,140 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2017-2018 Junjiro R. Okajima
 + *
@@ -11712,10 +11806,11 @@ index 000000000000..847480eeb251
 +#endif /* __AUFS_DIRREN_H__ */
 diff --git a/fs/aufs/dynop.c b/fs/aufs/dynop.c
 new file mode 100644
-index 000000000000..d38dd77a7809
+index 000000000000..6cc9040372d7
 --- /dev/null
 +++ b/fs/aufs/dynop.c
-@@ -0,0 +1,369 @@
+@@ -0,0 +1,370 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2010-2018 Junjiro R. Okajima
 + *
@@ -12087,10 +12182,11 @@ index 000000000000..d38dd77a7809
 +}
 diff --git a/fs/aufs/dynop.h b/fs/aufs/dynop.h
 new file mode 100644
-index 000000000000..81a770505115
+index 000000000000..d4015351e709
 --- /dev/null
 +++ b/fs/aufs/dynop.h
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,75 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2010-2018 Junjiro R. Okajima
 + *
@@ -12167,10 +12263,11 @@ index 000000000000..81a770505115
 +#endif /* __AUFS_DYNOP_H__ */
 diff --git a/fs/aufs/export.c b/fs/aufs/export.c
 new file mode 100644
-index 000000000000..155e07a8ebaa
+index 000000000000..f64dd0a9d7bd
 --- /dev/null
 +++ b/fs/aufs/export.c
-@@ -0,0 +1,836 @@
+@@ -0,0 +1,838 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -12354,7 +12451,7 @@ index 000000000000..155e07a8ebaa
 +	return err;
 +}
 +
-+int au_xigen_set(struct super_block *sb, struct file *base)
++int au_xigen_set(struct super_block *sb, struct path *path)
 +{
 +	int err;
 +	struct au_sbinfo *sbinfo;
@@ -12363,7 +12460,7 @@ index 000000000000..155e07a8ebaa
 +	SiMustWriteLock(sb);
 +
 +	sbinfo = au_sbi(sb);
-+	file = au_xino_create2(base, sbinfo->si_xigen);
++	file = au_xino_create2(sb, path, sbinfo->si_xigen);
 +	err = PTR_ERR(file);
 +	if (IS_ERR(file))
 +		goto out;
@@ -12373,6 +12470,7 @@ index 000000000000..155e07a8ebaa
 +	sbinfo->si_xigen = file;
 +
 +out:
++	AuTraceErr(err);
 +	return err;
 +}
 +
@@ -13009,10 +13107,11 @@ index 000000000000..155e07a8ebaa
 +}
 diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
 new file mode 100644
-index 000000000000..00df9096a720
+index 000000000000..abddd5f904df
 --- /dev/null
 +++ b/fs/aufs/f_op.c
-@@ -0,0 +1,817 @@
+@@ -0,0 +1,818 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -13832,10 +13931,11 @@ index 000000000000..00df9096a720
 +};
 diff --git a/fs/aufs/fhsm.c b/fs/aufs/fhsm.c
 new file mode 100644
-index 000000000000..d35d726acaf6
+index 000000000000..9162fb324a05
 --- /dev/null
 +++ b/fs/aufs/fhsm.c
-@@ -0,0 +1,426 @@
+@@ -0,0 +1,427 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2011-2018 Junjiro R. Okajima
 + *
@@ -14264,10 +14364,11 @@ index 000000000000..d35d726acaf6
 +}
 diff --git a/fs/aufs/file.c b/fs/aufs/file.c
 new file mode 100644
-index 000000000000..4646b4b02b56
+index 000000000000..2de9a8d0cbef
 --- /dev/null
 +++ b/fs/aufs/file.c
-@@ -0,0 +1,856 @@
+@@ -0,0 +1,857 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -15126,10 +15227,11 @@ index 000000000000..4646b4b02b56
 +};
 diff --git a/fs/aufs/file.h b/fs/aufs/file.h
 new file mode 100644
-index 000000000000..d36674eb478b
+index 000000000000..11bc65480fb7
 --- /dev/null
 +++ b/fs/aufs/file.h
-@@ -0,0 +1,340 @@
+@@ -0,0 +1,341 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -15224,7 +15326,7 @@ index 000000000000..d36674eb478b
 +
 +/* poll.c */
 +#ifdef CONFIG_AUFS_POLL
-+__poll_t aufs_poll(struct file *file, poll_table *wait);
++__poll_t aufs_poll(struct file *file, struct poll_table_struct *pt);
 +#endif
 +
 +#ifdef CONFIG_AUFS_BR_HFSPLUS
@@ -15472,10 +15574,11 @@ index 000000000000..d36674eb478b
 +#endif /* __AUFS_FILE_H__ */
 diff --git a/fs/aufs/finfo.c b/fs/aufs/finfo.c
 new file mode 100644
-index 000000000000..3144f462aa24
+index 000000000000..513d48222ba6
 --- /dev/null
 +++ b/fs/aufs/finfo.c
-@@ -0,0 +1,148 @@
+@@ -0,0 +1,149 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -15626,10 +15729,11 @@ index 000000000000..3144f462aa24
 +}
 diff --git a/fs/aufs/fstype.h b/fs/aufs/fstype.h
 new file mode 100644
-index 000000000000..7562506dc0ea
+index 000000000000..4e295869be1c
 --- /dev/null
 +++ b/fs/aufs/fstype.h
-@@ -0,0 +1,400 @@
+@@ -0,0 +1,401 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -16032,10 +16136,11 @@ index 000000000000..7562506dc0ea
 +#endif /* __AUFS_FSTYPE_H__ */
 diff --git a/fs/aufs/hbl.h b/fs/aufs/hbl.h
 new file mode 100644
-index 000000000000..328586e37fd4
+index 000000000000..265d7ab616e9
 --- /dev/null
 +++ b/fs/aufs/hbl.h
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,65 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2017-2018 Junjiro R. Okajima
 + *
@@ -16102,10 +16207,11 @@ index 000000000000..328586e37fd4
 +#endif /* __AUFS_HBL_H__ */
 diff --git a/fs/aufs/hfsnotify.c b/fs/aufs/hfsnotify.c
 new file mode 100644
-index 000000000000..edd7f638529d
+index 000000000000..920afbf070b0
 --- /dev/null
 +++ b/fs/aufs/hfsnotify.c
-@@ -0,0 +1,289 @@
+@@ -0,0 +1,290 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -16269,8 +16375,6 @@ index 000000000000..edd7f638529d
 +
 +static int au_hfsn_handle_event(struct fsnotify_group *group,
 +				struct inode *inode,
-+				struct fsnotify_mark *inode_mark,
-+				struct fsnotify_mark *vfsmount_mark,
 +				u32 mask, const void *data, int data_type,
 +				const unsigned char *file_name, u32 cookie,
 +				struct fsnotify_iter_info *iter_info)
@@ -16279,6 +16383,7 @@ index 000000000000..edd7f638529d
 +	struct au_hnotify *hnotify;
 +	struct inode *h_dir, *h_inode;
 +	struct qstr h_child_qstr = QSTR_INIT(file_name, strlen(file_name));
++	struct fsnotify_mark *inode_mark;
 +
 +	AuDebugOn(data_type != FSNOTIFY_EVENT_INODE);
 +
@@ -16302,6 +16407,7 @@ index 000000000000..edd7f638529d
 +	au_debug_off();
 +#endif
 +
++	inode_mark = fsnotify_iter_inode_mark(iter_info);
 +	AuDebugOn(!inode_mark);
 +	hnotify = container_of(inode_mark, struct au_hnotify, hn_mark);
 +	err = au_hnotify(h_dir, hnotify, mask, &h_child_qstr, h_inode);
@@ -16397,10 +16503,11 @@ index 000000000000..edd7f638529d
 +};
 diff --git a/fs/aufs/hfsplus.c b/fs/aufs/hfsplus.c
 new file mode 100644
-index 000000000000..f4ed51678567
+index 000000000000..7435a46dda84
 --- /dev/null
 +++ b/fs/aufs/hfsplus.c
-@@ -0,0 +1,56 @@
+@@ -0,0 +1,57 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2010-2018 Junjiro R. Okajima
 + *
@@ -16459,10 +16566,11 @@ index 000000000000..f4ed51678567
 +}
 diff --git a/fs/aufs/hnotify.c b/fs/aufs/hnotify.c
 new file mode 100644
-index 000000000000..2ea836223b90
+index 000000000000..bd4bce90d7ba
 --- /dev/null
 +++ b/fs/aufs/hnotify.c
-@@ -0,0 +1,719 @@
+@@ -0,0 +1,720 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -17184,10 +17292,11 @@ index 000000000000..2ea836223b90
 +}
 diff --git a/fs/aufs/i_op.c b/fs/aufs/i_op.c
 new file mode 100644
-index 000000000000..e3a2829ec763
+index 000000000000..394587800166
 --- /dev/null
 +++ b/fs/aufs/i_op.c
-@@ -0,0 +1,1459 @@
+@@ -0,0 +1,1460 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -17229,7 +17338,7 @@ index 000000000000..e3a2829ec763
 +	if (((mask & MAY_EXEC)
 +	     && S_ISREG(h_inode->i_mode)
 +	     && (path_noexec(h_path)
-+		 || !(h_inode->i_mode & S_IXUGO))))
++		 || !(h_inode->i_mode & 0111))))
 +		goto out;
 +
 +	/*
@@ -17244,7 +17353,7 @@ index 000000000000..e3a2829ec763
 +		&& write_mask && !(mask & MAY_READ))
 +	    || !h_inode->i_op->permission) {
 +		/* AuLabel(generic_permission); */
-+		/* AuDbg("get_acl %pf\n", h_inode->i_op->get_acl); */
++		/* AuDbg("get_acl %ps\n", h_inode->i_op->get_acl); */
 +		err = generic_permission(h_inode, mask);
 +		if (err == -EOPNOTSUPP && au_test_nfs_noacl(h_inode))
 +			err = h_inode->i_op->permission(h_inode, mask);
@@ -18501,7 +18610,7 @@ index 000000000000..e3a2829ec763
 +		goto out_unlock;
 +
 +	err = 0;
-+	AuDbg("%pf\n", h_inode->i_op->get_link);
++	AuDbg("%ps\n", h_inode->i_op->get_link);
 +	AuDbgDentry(h_dentry);
 +	ret = vfs_get_link(h_dentry, done);
 +	dput(h_dentry);
@@ -18524,7 +18633,7 @@ index 000000000000..e3a2829ec763
 +	return (inode->i_mode & (S_IFBLK | S_IFCHR | S_IFIFO | S_IFSOCK));
 +}
 +
-+static int aufs_update_time(struct inode *inode, struct timespec *ts, int flags)
++static int aufs_update_time(struct inode *inode, struct timespec64 *ts, int flags)
 +{
 +	int err;
 +	aufs_bindex_t bindex;
@@ -18649,10 +18758,11 @@ index 000000000000..e3a2829ec763
 +};
 diff --git a/fs/aufs/i_op_add.c b/fs/aufs/i_op_add.c
 new file mode 100644
-index 000000000000..a9e405292267
+index 000000000000..42abd1ad21ab
 --- /dev/null
 +++ b/fs/aufs/i_op_add.c
-@@ -0,0 +1,920 @@
+@@ -0,0 +1,921 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -19575,10 +19685,11 @@ index 000000000000..a9e405292267
 +}
 diff --git a/fs/aufs/i_op_del.c b/fs/aufs/i_op_del.c
 new file mode 100644
-index 000000000000..120ceaad2c8b
+index 000000000000..9c49efa16d5e
 --- /dev/null
 +++ b/fs/aufs/i_op_del.c
-@@ -0,0 +1,511 @@
+@@ -0,0 +1,512 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -20092,10 +20203,11 @@ index 000000000000..120ceaad2c8b
 +}
 diff --git a/fs/aufs/i_op_ren.c b/fs/aufs/i_op_ren.c
 new file mode 100644
-index 000000000000..eb57654a87d4
+index 000000000000..beb59d1d0a29
 --- /dev/null
 +++ b/fs/aufs/i_op_ren.c
-@@ -0,0 +1,1246 @@
+@@ -0,0 +1,1247 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -21344,10 +21456,11 @@ index 000000000000..eb57654a87d4
 +}
 diff --git a/fs/aufs/iinfo.c b/fs/aufs/iinfo.c
 new file mode 100644
-index 000000000000..d5cba3b98eb5
+index 000000000000..b197398e9fdb
 --- /dev/null
 +++ b/fs/aufs/iinfo.c
-@@ -0,0 +1,285 @@
+@@ -0,0 +1,286 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -21635,10 +21748,11 @@ index 000000000000..d5cba3b98eb5
 +}
 diff --git a/fs/aufs/inode.c b/fs/aufs/inode.c
 new file mode 100644
-index 000000000000..6dee92dd842a
+index 000000000000..50ec91179d17
 --- /dev/null
 +++ b/fs/aufs/inode.c
-@@ -0,0 +1,527 @@
+@@ -0,0 +1,528 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -22168,10 +22282,11 @@ index 000000000000..6dee92dd842a
 +}
 diff --git a/fs/aufs/inode.h b/fs/aufs/inode.h
 new file mode 100644
-index 000000000000..8af51ff5fd1e
+index 000000000000..28e61b270e58
 --- /dev/null
 +++ b/fs/aufs/inode.h
-@@ -0,0 +1,695 @@
+@@ -0,0 +1,696 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -22869,10 +22984,11 @@ index 000000000000..8af51ff5fd1e
 +#endif /* __AUFS_INODE_H__ */
 diff --git a/fs/aufs/ioctl.c b/fs/aufs/ioctl.c
 new file mode 100644
-index 000000000000..de188adb359e
+index 000000000000..b244842eb039
 --- /dev/null
 +++ b/fs/aufs/ioctl.c
-@@ -0,0 +1,219 @@
+@@ -0,0 +1,220 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -23094,10 +23210,11 @@ index 000000000000..de188adb359e
 +#endif
 diff --git a/fs/aufs/loop.c b/fs/aufs/loop.c
 new file mode 100644
-index 000000000000..983ef98762f7
+index 000000000000..0c6af623a45e
 --- /dev/null
 +++ b/fs/aufs/loop.c
-@@ -0,0 +1,147 @@
+@@ -0,0 +1,148 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -23247,10 +23364,11 @@ index 000000000000..983ef98762f7
 +}
 diff --git a/fs/aufs/loop.h b/fs/aufs/loop.h
 new file mode 100644
-index 000000000000..e6b76609a4b2
+index 000000000000..048a6504f679
 --- /dev/null
 +++ b/fs/aufs/loop.h
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,53 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -23342,10 +23460,11 @@ index 000000000000..7bc9eef3ffec
 +endif
 diff --git a/fs/aufs/module.c b/fs/aufs/module.c
 new file mode 100644
-index 000000000000..9eeec710ae5f
+index 000000000000..5f5f67e6493c
 --- /dev/null
 +++ b/fs/aufs/module.c
-@@ -0,0 +1,266 @@
+@@ -0,0 +1,273 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -23497,12 +23616,12 @@ index 000000000000..9eeec710ae5f
 +/* this module parameter has no meaning when SYSFS is disabled */
 +int sysaufs_brs = 1;
 +MODULE_PARM_DESC(brs, "use <sysfs>/fs/aufs/si_*/brN");
-+module_param_named(brs, sysaufs_brs, int, S_IRUGO);
++module_param_named(brs, sysaufs_brs, int, 0444);
 +
 +/* this module parameter has no meaning when USER_NS is disabled */
 +bool au_userns;
 +MODULE_PARM_DESC(allow_userns, "allow unprivileged to mount under userns");
-+module_param_named(allow_userns, au_userns, bool, S_IRUGO);
++module_param_named(allow_userns, au_userns, bool, 0444);
 +
 +/* ---------------------------------------------------------------------- */
 +
@@ -23550,9 +23669,12 @@ index 000000000000..9eeec710ae5f
 +	err = sysaufs_init();
 +	if (unlikely(err))
 +		goto out;
-+	err = au_procfs_init();
++	err = dbgaufs_init();
 +	if (unlikely(err))
 +		goto out_sysaufs;
++	err = au_procfs_init();
++	if (unlikely(err))
++		goto out_dbgaufs;
 +	err = au_wkq_init();
 +	if (unlikely(err))
 +		goto out_procfs;
@@ -23590,6 +23712,8 @@ index 000000000000..9eeec710ae5f
 +	au_wkq_fin();
 +out_procfs:
 +	au_procfs_fin();
++out_dbgaufs:
++	dbgaufs_fin();
 +out_sysaufs:
 +	sysaufs_fin();
 +	au_dy_fin();
@@ -23606,6 +23730,7 @@ index 000000000000..9eeec710ae5f
 +	au_loopback_fin();
 +	au_wkq_fin();
 +	au_procfs_fin();
++	dbgaufs_fin();
 +	sysaufs_fin();
 +	au_dy_fin();
 +}
@@ -23614,10 +23739,11 @@ index 000000000000..9eeec710ae5f
 +module_exit(aufs_exit);
 diff --git a/fs/aufs/module.h b/fs/aufs/module.h
 new file mode 100644
-index 000000000000..6d222d1c654b
+index 000000000000..000761049351
 --- /dev/null
 +++ b/fs/aufs/module.h
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,102 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -23721,10 +23847,11 @@ index 000000000000..6d222d1c654b
 +#endif /* __AUFS_MODULE_H__ */
 diff --git a/fs/aufs/mvdown.c b/fs/aufs/mvdown.c
 new file mode 100644
-index 000000000000..b51219658aa8
+index 000000000000..9603ef7395e4
 --- /dev/null
 +++ b/fs/aufs/mvdown.c
-@@ -0,0 +1,704 @@
+@@ -0,0 +1,705 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2011-2018 Junjiro R. Okajima
 + *
@@ -24431,10 +24558,11 @@ index 000000000000..b51219658aa8
 +}
 diff --git a/fs/aufs/opts.c b/fs/aufs/opts.c
 new file mode 100644
-index 000000000000..eb3fe3fb4e75
+index 000000000000..e1f152a50daf
 --- /dev/null
 +++ b/fs/aufs/opts.c
 @@ -0,0 +1,1891 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -25995,14 +26123,7 @@ index 000000000000..eb3fe3fb4e75
 +	err = 0;
 +	switch (opt->type) {
 +	case Opt_xino:
-+		err = au_xino_set(sb, &opt->xino,
-+				  !!au_ftest_opts(opts->flags, REMOUNT));
-+		if (unlikely(err))
-+			break;
-+
-+		*opt_xino = &opt->xino;
 +		au_xino_brid_set(sb, -1);
-+
 +		/* safe d_parent access */
 +		parent = opt->xino.file->f_path.dentry->d_parent;
 +		root = sb->s_root;
@@ -26014,11 +26135,17 @@ index 000000000000..eb3fe3fb4e75
 +				break;
 +			}
 +		}
++
++		err = au_xino_set(sb, &opt->xino,
++				  !!au_ftest_opts(opts->flags, REMOUNT));
++		if (unlikely(err))
++			break;
++
++		*opt_xino = &opt->xino;
 +		break;
 +
 +	case Opt_noxino:
 +		au_xino_clr(sb);
-+		au_xino_brid_set(sb, -1);
 +		*opt_xino = (void *)-1;
 +		break;
 +	}
@@ -26328,10 +26455,11 @@ index 000000000000..eb3fe3fb4e75
 +}
 diff --git a/fs/aufs/opts.h b/fs/aufs/opts.h
 new file mode 100644
-index 000000000000..30bda60f7f92
+index 000000000000..fd167bd0fead
 --- /dev/null
 +++ b/fs/aufs/opts.h
-@@ -0,0 +1,224 @@
+@@ -0,0 +1,225 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -26558,10 +26686,11 @@ index 000000000000..30bda60f7f92
 +#endif /* __AUFS_OPTS_H__ */
 diff --git a/fs/aufs/plink.c b/fs/aufs/plink.c
 new file mode 100644
-index 000000000000..f1a569f2337e
+index 000000000000..aa634cbbcfd7
 --- /dev/null
 +++ b/fs/aufs/plink.c
-@@ -0,0 +1,515 @@
+@@ -0,0 +1,516 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -27079,10 +27208,11 @@ index 000000000000..f1a569f2337e
 +}
 diff --git a/fs/aufs/poll.c b/fs/aufs/poll.c
 new file mode 100644
-index 000000000000..374b46db7b2b
+index 000000000000..a653b6c7485d
 --- /dev/null
 +++ b/fs/aufs/poll.c
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,51 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -27107,10 +27237,9 @@ index 000000000000..374b46db7b2b
 +
 +#include "aufs.h"
 +
-+__poll_t aufs_poll(struct file *file, poll_table *wait)
++__poll_t aufs_poll(struct file *file, struct poll_table_struct *pt)
 +{
 +	__poll_t mask;
-+	int err;
 +	struct file *h_file;
 +	struct super_block *sb;
 +
@@ -27120,28 +27249,27 @@ index 000000000000..374b46db7b2b
 +	si_read_lock(sb, AuLock_FLUSH | AuLock_NOPLMW);
 +
 +	h_file = au_read_pre(file, /*keep_fi*/0, /*lsc*/0);
-+	err = PTR_ERR(h_file);
-+	if (IS_ERR(h_file))
++	if (IS_ERR(h_file)) {
++		AuDbg("h_file %ld\n", PTR_ERR(h_file));
 +		goto out;
++	}
 +
-+	/* it is not an error if h_file has no operation */
-+	mask = DEFAULT_POLLMASK;
-+	if (h_file->f_op->poll)
-+		mask = h_file->f_op->poll(h_file, wait);
++	mask = vfs_poll(h_file, pt);
 +	fput(h_file); /* instead of au_read_post() */
 +
 +out:
 +	si_read_unlock(sb);
-+	if (mask & POLLERR)
++	if (mask & EPOLLERR)
 +		AuDbg("mask 0x%x\n", mask);
 +	return mask;
 +}
 diff --git a/fs/aufs/posix_acl.c b/fs/aufs/posix_acl.c
 new file mode 100644
-index 000000000000..bbd7aa2ec605
+index 000000000000..9ce21ec98453
 --- /dev/null
 +++ b/fs/aufs/posix_acl.c
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,103 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2014-2018 Junjiro R. Okajima
 + *
@@ -27246,10 +27374,11 @@ index 000000000000..bbd7aa2ec605
 +}
 diff --git a/fs/aufs/procfs.c b/fs/aufs/procfs.c
 new file mode 100644
-index 000000000000..6201739c6e61
+index 000000000000..100dbcfebaa7
 --- /dev/null
 +++ b/fs/aufs/procfs.c
-@@ -0,0 +1,170 @@
+@@ -0,0 +1,171 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2010-2018 Junjiro R. Okajima
 + *
@@ -27406,7 +27535,7 @@ index 000000000000..6201739c6e61
 +	if (unlikely(!au_procfs_dir))
 +		goto out;
 +
-+	entry = proc_create(AUFS_PLINK_MAINT_NAME, S_IFREG | S_IWUSR,
++	entry = proc_create(AUFS_PLINK_MAINT_NAME, S_IFREG | 0200,
 +			    au_procfs_dir, &au_procfs_plm_fop);
 +	if (unlikely(!entry))
 +		goto out_dir;
@@ -27422,10 +27551,11 @@ index 000000000000..6201739c6e61
 +}
 diff --git a/fs/aufs/rdu.c b/fs/aufs/rdu.c
 new file mode 100644
-index 000000000000..f6a10f553734
+index 000000000000..60f4957b7d2b
 --- /dev/null
 +++ b/fs/aufs/rdu.c
-@@ -0,0 +1,381 @@
+@@ -0,0 +1,382 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -27809,10 +27939,11 @@ index 000000000000..f6a10f553734
 +#endif
 diff --git a/fs/aufs/rwsem.h b/fs/aufs/rwsem.h
 new file mode 100644
-index 000000000000..e4711f6f7ab5
+index 000000000000..22ff55e6c644
 --- /dev/null
 +++ b/fs/aufs/rwsem.h
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,73 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -27887,10 +28018,11 @@ index 000000000000..e4711f6f7ab5
 +#endif /* __AUFS_RWSEM_H__ */
 diff --git a/fs/aufs/sbinfo.c b/fs/aufs/sbinfo.c
 new file mode 100644
-index 000000000000..bf8877f33cf1
+index 000000000000..21dd45889cad
 --- /dev/null
 +++ b/fs/aufs/sbinfo.c
-@@ -0,0 +1,304 @@
+@@ -0,0 +1,312 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -27933,6 +28065,7 @@ index 000000000000..bf8877f33cf1
 +	AuDebugOn(percpu_counter_sum(&sbinfo->si_nfiles));
 +	percpu_counter_destroy(&sbinfo->si_nfiles);
 +
++	dbgaufs_si_fin(sbinfo);
 +	au_rw_write_lock(&sbinfo->si_rwsem);
 +	au_br_free(sbinfo);
 +	au_rw_write_unlock(&sbinfo->si_rwsem);
@@ -27960,6 +28093,12 @@ index 000000000000..bf8877f33cf1
 +		goto out_sbinfo;
 +
 +	err = sysaufs_si_init(sbinfo);
++	if (!err) {
++		dbgaufs_si_null(sbinfo);
++		err = dbgaufs_si_init(sbinfo);
++		if (unlikely(err))
++			kobject_put(&sbinfo->si_kobj);
++	}
 +	if (unlikely(err))
 +		goto out_br;
 +
@@ -28197,10 +28336,11 @@ index 000000000000..bf8877f33cf1
 +}
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
 new file mode 100644
-index 000000000000..56313e7599e6
+index 000000000000..f5a7533490a8
 --- /dev/null
 +++ b/fs/aufs/super.c
-@@ -0,0 +1,1051 @@
+@@ -0,0 +1,1043 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -28673,11 +28813,8 @@ index 000000000000..56313e7599e6
 +	struct au_sbinfo *sbinfo;
 +
 +	sbinfo = au_sbi(sb);
-+	if (!sbinfo)
-+		return;
-+
-+	dbgaufs_si_fin(sbinfo);
-+	kobject_put(&sbinfo->si_kobj);
++	if (sbinfo)
++		kobject_put(&sbinfo->si_kobj);
 +}
 +
 +/* ---------------------------------------------------------------------- */
@@ -28946,7 +29083,7 @@ index 000000000000..56313e7599e6
 +			AuDebugOn(sbi->si_iop_array == aufs_iop);
 +			sbi->si_iop_array = aufs_iop;
 +		}
-+		pr_info("reset to %pf and %pf\n",
++		pr_info("reset to %ps and %ps\n",
 +			sb->s_d_op, sbi->si_iop_array);
 +	}
 +
@@ -29166,7 +29303,7 @@ index 000000000000..56313e7599e6
 +	au_opts_free(&opts);
 +	if (!err && au_ftest_si(sbinfo, NO_DREVAL)) {
 +		sb->s_d_op = &aufs_dop_noreval;
-+		pr_info("%pf\n", sb->s_d_op);
++		pr_info("%ps\n", sb->s_d_op);
 +		au_refresh_dop(root, /*force_reval*/0);
 +		sbinfo->si_iop_array = aufs_iop_nogetattr;
 +		au_refresh_iop(inode, /*force_getattr*/0);
@@ -29180,7 +29317,6 @@ index 000000000000..56313e7599e6
 +	dput(root);
 +	sb->s_root = NULL;
 +out_info:
-+	dbgaufs_si_fin(sbinfo);
 +	kobject_put(&sbinfo->si_kobj);
 +	sb->s_fs_info = NULL;
 +out_opts:
@@ -29199,7 +29335,6 @@ index 000000000000..56313e7599e6
 +				 void *raw_data)
 +{
 +	struct dentry *root;
-+	struct super_block *sb;
 +
 +	/* all timestamps always follow the ones on the branch */
 +	/* mnt->mnt_flags |= MNT_NOATIME | MNT_NODIRATIME; */
@@ -29207,11 +29342,7 @@ index 000000000000..56313e7599e6
 +	if (IS_ERR(root))
 +		goto out;
 +
-+	sb = root->d_sb;
-+	si_write_lock(sb, !AuLock_FLUSH);
-+	sysaufs_brs_add(sb, 0);
-+	si_write_unlock(sb);
-+	au_sbilist_add(sb);
++	au_sbilist_add(root->d_sb);
 +
 +out:
 +	return root;
@@ -29254,10 +29385,11 @@ index 000000000000..56313e7599e6
 +};
 diff --git a/fs/aufs/super.h b/fs/aufs/super.h
 new file mode 100644
-index 000000000000..e6da60317264
+index 000000000000..d4a21be9cc98
 --- /dev/null
 +++ b/fs/aufs/super.h
-@@ -0,0 +1,626 @@
+@@ -0,0 +1,627 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -29464,7 +29596,7 @@ index 000000000000..e6da60317264
 +/*
 + * set true when refresh_dirs() failed at remount time.
 + * then try refreshing dirs at access time again.
-+ * if it is false, refreshing dirs at access time is unnecesary
++ * if it is false, refreshing dirs at access time is unnecessary
 + */
 +#define AuSi_FAILED_REFRESH_DIR	1
 +#define AuSi_FHSM		(1 << 1)	/* fhsm is active now */
@@ -29605,7 +29737,7 @@ index 000000000000..e6da60317264
 +void au_export_init(struct super_block *sb);
 +void au_xigen_inc(struct inode *inode);
 +int au_xigen_new(struct inode *inode);
-+int au_xigen_set(struct super_block *sb, struct file *base);
++int au_xigen_set(struct super_block *sb, struct path *path);
 +void au_xigen_clr(struct super_block *sb);
 +
 +static inline int au_busy_or_stale(void)
@@ -29619,7 +29751,7 @@ index 000000000000..e6da60317264
 +AuStubVoid(au_export_init, struct super_block *sb)
 +AuStubVoid(au_xigen_inc, struct inode *inode)
 +AuStubInt0(au_xigen_new, struct inode *inode)
-+AuStubInt0(au_xigen_set, struct super_block *sb, struct file *base)
++AuStubInt0(au_xigen_set, struct super_block *sb, struct path *path)
 +AuStubVoid(au_xigen_clr, struct super_block *sb)
 +AuStub(int, au_busy_or_stale, return -EBUSY, void)
 +#endif /* CONFIG_AUFS_EXPORT */
@@ -29886,10 +30018,11 @@ index 000000000000..e6da60317264
 +#endif /* __AUFS_SUPER_H__ */
 diff --git a/fs/aufs/sysaufs.c b/fs/aufs/sysaufs.c
 new file mode 100644
-index 000000000000..d87a20d4de55
+index 000000000000..cb34a53f38f6
 --- /dev/null
 +++ b/fs/aufs/sysaufs.c
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,93 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -29951,18 +30084,11 @@ index 000000000000..d87a20d4de55
 +		(&sbinfo->si_kobj, &au_sbi_ktype, /*&sysaufs_kset->kobj*/NULL,
 +		 SysaufsSiNamePrefix "%lx", sysaufs_si_id(sbinfo));
 +
-+	dbgaufs_si_null(sbinfo);
-+	if (!err) {
-+		err = dbgaufs_si_init(sbinfo);
-+		if (unlikely(err))
-+			kobject_put(&sbinfo->si_kobj);
-+	}
 +	return err;
 +}
 +
 +void sysaufs_fin(void)
 +{
-+	dbgaufs_fin();
 +	sysfs_remove_group(&sysaufs_kset->kobj, sysaufs_attr_group);
 +	kset_unregister(sysaufs_kset);
 +}
@@ -29983,23 +30109,19 @@ index 000000000000..d87a20d4de55
 +	if (IS_ERR(sysaufs_kset))
 +		goto out;
 +	err = sysfs_create_group(&sysaufs_kset->kobj, sysaufs_attr_group);
-+	if (unlikely(err)) {
-+		kset_unregister(sysaufs_kset);
-+		goto out;
-+	}
-+
-+	err = dbgaufs_init();
 +	if (unlikely(err))
-+		sysaufs_fin();
++		kset_unregister(sysaufs_kset);
++
 +out:
 +	return err;
 +}
 diff --git a/fs/aufs/sysaufs.h b/fs/aufs/sysaufs.h
 new file mode 100644
-index 000000000000..50aca1dc8318
+index 000000000000..9a64191c51b8
 --- /dev/null
 +++ b/fs/aufs/sysaufs.h
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,102 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -30103,10 +30225,11 @@ index 000000000000..50aca1dc8318
 +#endif /* __SYSAUFS_H__ */
 diff --git a/fs/aufs/sysfs.c b/fs/aufs/sysfs.c
 new file mode 100644
-index 000000000000..58e1486021da
+index 000000000000..89a4cbf66ce9
 --- /dev/null
 +++ b/fs/aufs/sysfs.c
-@@ -0,0 +1,376 @@
+@@ -0,0 +1,373 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -30422,7 +30545,7 @@ index 000000000000..58e1486021da
 +		attr = &br_sysfs->attr;
 +		sysfs_attr_init(attr);
 +		attr->name = br_sysfs->name;
-+		attr->mode = S_IRUGO;
++		attr->mode = 0444;
 +		br_sysfs++;
 +	}
 +}
@@ -30434,8 +30557,6 @@ index 000000000000..58e1486021da
 +	struct au_brsysfs *br_sysfs;
 +	int i;
 +	aufs_bindex_t bbot;
-+
-+	dbgaufs_brs_del(sb, bindex);
 +
 +	if (!sysaufs_brs)
 +		return;
@@ -30460,8 +30581,6 @@ index 000000000000..58e1486021da
 +	struct au_branch *br;
 +	struct au_brsysfs *br_sysfs;
 +
-+	dbgaufs_brs_add(sb, bindex);
-+
 +	if (!sysaufs_brs)
 +		return;
 +
@@ -30485,10 +30604,11 @@ index 000000000000..58e1486021da
 +}
 diff --git a/fs/aufs/sysrq.c b/fs/aufs/sysrq.c
 new file mode 100644
-index 000000000000..401c1e8eca5d
+index 000000000000..b9daece7a6bc
 --- /dev/null
 +++ b/fs/aufs/sysrq.c
-@@ -0,0 +1,159 @@
+@@ -0,0 +1,160 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -30601,7 +30721,7 @@ index 000000000000..401c1e8eca5d
 +
 +/* module parameter */
 +static char *aufs_sysrq_key = "a";
-+module_param_named(sysrq, aufs_sysrq_key, charp, S_IRUGO);
++module_param_named(sysrq, aufs_sysrq_key, charp, 0444);
 +MODULE_PARM_DESC(sysrq, "MagicSysRq key for " AUFS_NAME);
 +
 +static void au_sysrq(int key __maybe_unused)
@@ -30650,10 +30770,11 @@ index 000000000000..401c1e8eca5d
 +}
 diff --git a/fs/aufs/vdir.c b/fs/aufs/vdir.c
 new file mode 100644
-index 000000000000..8d0a23c51580
+index 000000000000..5b78b5db7f5a
 --- /dev/null
 +++ b/fs/aufs/vdir.c
-@@ -0,0 +1,893 @@
+@@ -0,0 +1,894 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -31549,10 +31670,11 @@ index 000000000000..8d0a23c51580
 +}
 diff --git a/fs/aufs/vfsub.c b/fs/aufs/vfsub.c
 new file mode 100644
-index 000000000000..732d81cb45cc
+index 000000000000..00f7a3cc0179
 --- /dev/null
 +++ b/fs/aufs/vfsub.c
-@@ -0,0 +1,894 @@
+@@ -0,0 +1,895 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -32140,7 +32262,7 @@ index 000000000000..732d81cb45cc
 +{
 +	int err;
 +
-+	AuDbg("%pD, ctx{%pf, %llu}\n", file, ctx->actor, ctx->pos);
++	AuDbg("%pD, ctx{%ps, %llu}\n", file, ctx->actor, ctx->pos);
 +
 +	lockdep_off();
 +	err = iterate_dir(file, ctx);
@@ -32449,10 +32571,11 @@ index 000000000000..732d81cb45cc
 +}
 diff --git a/fs/aufs/vfsub.h b/fs/aufs/vfsub.h
 new file mode 100644
-index 000000000000..0a4012d11379
+index 000000000000..18e4d8538101
 --- /dev/null
 +++ b/fs/aufs/vfsub.h
-@@ -0,0 +1,354 @@
+@@ -0,0 +1,355 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -32681,8 +32804,8 @@ index 000000000000..0a4012d11379
 +}
 +#endif
 +
-+static inline int vfsub_update_time(struct inode *h_inode, struct timespec *ts,
-+				    int flags)
++static inline int vfsub_update_time(struct inode *h_inode,
++				    struct timespec64 *ts, int flags)
 +{
 +	return update_time(h_inode, ts, flags);
 +	/* no vfsub_update_h_iattr() since we don't have struct path */
@@ -32809,10 +32932,11 @@ index 000000000000..0a4012d11379
 +#endif /* __AUFS_VFSUB_H__ */
 diff --git a/fs/aufs/wbr_policy.c b/fs/aufs/wbr_policy.c
 new file mode 100644
-index 000000000000..1d365a2e7ff3
+index 000000000000..6e97c806a1e7
 --- /dev/null
 +++ b/fs/aufs/wbr_policy.c
 @@ -0,0 +1,830 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -32941,8 +33065,7 @@ index 000000000000..1d365a2e7ff3
 +		goto out;
 +	h_path.dentry = au_h_dptr(dentry, bdst);
 +	h_path.mnt = au_sbr_mnt(dentry->d_sb, bdst);
-+	err = vfsub_sio_mkdir(au_h_iptr(dir, bdst), &h_path,
-+			      S_IRWXU | S_IRUGO | S_IXUGO);
++	err = vfsub_sio_mkdir(au_h_iptr(dir, bdst), &h_path, 0755);
 +	if (unlikely(err))
 +		goto out_put;
 +	au_fset_cpdown(*flags, MADE_DIR);
@@ -33645,10 +33768,11 @@ index 000000000000..1d365a2e7ff3
 +};
 diff --git a/fs/aufs/whout.c b/fs/aufs/whout.c
 new file mode 100644
-index 000000000000..c5cf34e2b561
+index 000000000000..5244085acf08
 --- /dev/null
 +++ b/fs/aufs/whout.c
-@@ -0,0 +1,1061 @@
+@@ -0,0 +1,1062 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -33672,7 +33796,7 @@ index 000000000000..c5cf34e2b561
 +
 +#include "aufs.h"
 +
-+#define WH_MASK			S_IRUGO
++#define WH_MASK			0444
 +
 +/*
 + * If a directory contains this file, then it is opaque.  We start with the
@@ -33965,10 +34089,10 @@ index 000000000000..c5cf34e2b561
 +
 +	err = -EEXIST;
 +	if (d_is_negative(path->dentry)) {
-+		int mode = S_IRWXU;
++		int mode = 0700;
 +
 +		if (au_test_nfs(path->dentry->d_sb))
-+			mode |= S_IXUGO;
++			mode |= 0111;
 +		err = vfsub_mkdir(h_dir, path, mode);
 +	} else if (d_is_dir(path->dentry))
 +		err = 0;
@@ -34712,10 +34836,11 @@ index 000000000000..c5cf34e2b561
 +}
 diff --git a/fs/aufs/whout.h b/fs/aufs/whout.h
 new file mode 100644
-index 000000000000..766a1d9301ac
+index 000000000000..2bbc38ba372c
 --- /dev/null
 +++ b/fs/aufs/whout.h
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,86 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -34803,10 +34928,11 @@ index 000000000000..766a1d9301ac
 +#endif /* __AUFS_WHOUT_H__ */
 diff --git a/fs/aufs/wkq.c b/fs/aufs/wkq.c
 new file mode 100644
-index 000000000000..a3316e7e5101
+index 000000000000..4788ae25fbcd
 --- /dev/null
 +++ b/fs/aufs/wkq.c
-@@ -0,0 +1,390 @@
+@@ -0,0 +1,391 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -35199,10 +35325,11 @@ index 000000000000..a3316e7e5101
 +}
 diff --git a/fs/aufs/wkq.h b/fs/aufs/wkq.h
 new file mode 100644
-index 000000000000..9fc86c11aeed
+index 000000000000..acfccd5092b7
 --- /dev/null
 +++ b/fs/aufs/wkq.h
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,94 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -35298,10 +35425,11 @@ index 000000000000..9fc86c11aeed
 +#endif /* __AUFS_WKQ_H__ */
 diff --git a/fs/aufs/xattr.c b/fs/aufs/xattr.c
 new file mode 100644
-index 000000000000..792317c7f364
+index 000000000000..70b891716e49
 --- /dev/null
 +++ b/fs/aufs/xattr.c
-@@ -0,0 +1,355 @@
+@@ -0,0 +1,356 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2014-2018 Junjiro R. Okajima
 + *
@@ -35659,10 +35787,11 @@ index 000000000000..792317c7f364
 +}
 diff --git a/fs/aufs/xino.c b/fs/aufs/xino.c
 new file mode 100644
-index 000000000000..29f53f9e5968
+index 000000000000..67b1a6aab0b9
 --- /dev/null
 +++ b/fs/aufs/xino.c
-@@ -0,0 +1,1469 @@
+@@ -0,0 +1,1593 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -35682,11 +35811,530 @@ index 000000000000..29f53f9e5968
 +
 +/*
 + * external inode number translation table and bitmap
++ *
++ * things to consider
++ * - the lifetime
++ *   + au_xino object
++ *   + XINO files (xino, xib, xigen)
++ *   + dynamic debugfs entries (xiN)
++ *   + static debugfs entries (xib, xigen)
++ *   + static sysfs entry (xi_path)
++ * - several entry points to handle them.
++ *   + mount(2) without xino option (default)
++ *   + mount(2) with xino option
++ *   + mount(2) with noxino option
++ *   + umount(2)
++ *   + remount with add/del branches
++ *   + remount with xino/noxino options
 + */
 +
 +#include <linux/seq_file.h>
 +#include <linux/statfs.h>
 +#include "aufs.h"
++
++static aufs_bindex_t sbr_find_shared(struct super_block *sb, aufs_bindex_t btop,
++				     aufs_bindex_t bbot,
++				     struct super_block *h_sb)
++{
++	/* todo: try binary-search if the branches are many */
++	for (; btop <= bbot; btop++)
++		if (h_sb == au_sbr_sb(sb, btop))
++			return btop;
++	return -1;
++}
++
++/*
++ * find another branch who is on the same filesystem of the specified
++ * branch{@btgt}. search until @bbot.
++ */
++static aufs_bindex_t is_sb_shared(struct super_block *sb, aufs_bindex_t btgt,
++				  aufs_bindex_t bbot)
++{
++	aufs_bindex_t bindex;
++	struct super_block *tgt_sb;
++
++	tgt_sb = au_sbr_sb(sb, btgt);
++	bindex = sbr_find_shared(sb, /*btop*/0, btgt - 1, tgt_sb);
++	if (bindex < 0)
++		bindex = sbr_find_shared(sb, btgt + 1, bbot, tgt_sb);
++
++	return bindex;
++}
++
++/* ---------------------------------------------------------------------- */
++
++/*
++ * stop unnecessary notify events at creating xino files
++ */
++struct au_xino_lock_dir {
++	struct au_hinode *hdir;
++	struct dentry *parent;
++	struct inode *dir;
++};
++
++static struct dentry *au_dget_parent_lock(struct dentry *dentry,
++					  unsigned int lsc)
++{
++	struct dentry *parent;
++	struct inode *dir;
++
++	parent = dget_parent(dentry);
++	dir = d_inode(parent);
++	inode_lock_nested(dir, lsc);
++#if 0 /* it should not happen */
++	spin_lock(&dentry->d_lock);
++	if (unlikely(dentry->d_parent != parent)) {
++		spin_unlock(&dentry->d_lock);
++		inode_unlock(dir);
++		dput(parent);
++		parent = NULL;
++		goto out;
++	}
++	spin_unlock(&dentry->d_lock);
++
++out:
++#endif
++	return parent;
++}
++
++static void au_xino_lock_dir(struct super_block *sb, struct path *xipath,
++			     struct au_xino_lock_dir *ldir)
++{
++	aufs_bindex_t brid, bindex;
++
++	ldir->hdir = NULL;
++	bindex = -1;
++	brid = au_xino_brid(sb);
++	if (brid >= 0)
++		bindex = au_br_index(sb, brid);
++	if (bindex >= 0) {
++		/* rw branch root */
++		ldir->hdir = au_hi(d_inode(sb->s_root), bindex);
++		au_hn_inode_lock_nested(ldir->hdir, AuLsc_I_PARENT);
++	} else {
++		/* other */
++		ldir->parent = au_dget_parent_lock(xipath->dentry,
++						   AuLsc_I_PARENT);
++		ldir->dir = d_inode(ldir->parent);
++	}
++}
++
++static void au_xino_unlock_dir(struct au_xino_lock_dir *ldir)
++{
++	if (ldir->hdir)
++		au_hn_inode_unlock(ldir->hdir);
++	else {
++		inode_unlock(ldir->dir);
++		dput(ldir->parent);
++	}
++}
++
++/* ---------------------------------------------------------------------- */
++
++/*
++ * create and set a new xino file
++ */
++struct file *au_xino_create(struct super_block *sb, char *fpath, int silent)
++{
++	struct file *file;
++	struct dentry *h_parent, *d;
++	struct inode *h_dir, *inode;
++	int err;
++
++	/*
++	 * at mount-time, and the xino file is the default path,
++	 * hnotify is disabled so we have no notify events to ignore.
++	 * when a user specified the xino, we cannot get au_hdir to be ignored.
++	 */
++	file = vfsub_filp_open(fpath, O_RDWR | O_CREAT | O_EXCL | O_LARGEFILE
++			       /* | __FMODE_NONOTIFY */,
++			       0666);
++	if (IS_ERR(file)) {
++		if (!silent)
++			pr_err("open %s(%ld)\n", fpath, PTR_ERR(file));
++		return file;
++	}
++
++	/* keep file count */
++	err = 0;
++	d = file->f_path.dentry;
++	h_parent = au_dget_parent_lock(d, AuLsc_I_PARENT);
++	/* mnt_want_write() is unnecessary here */
++	h_dir = d_inode(h_parent);
++	inode = file_inode(file);
++	/* no delegation since it is just created */
++	if (inode->i_nlink)
++		err = vfsub_unlink(h_dir, &file->f_path, /*delegated*/NULL,
++				   /*force*/0);
++	inode_unlock(h_dir);
++	dput(h_parent);
++	if (unlikely(err)) {
++		if (!silent)
++			pr_err("unlink %s(%d)\n", fpath, err);
++		goto out;
++	}
++
++	err = -EINVAL;
++	if (unlikely(sb == d->d_sb)) {
++		if (!silent)
++			pr_err("%s must be outside\n", fpath);
++		goto out;
++	}
++	if (unlikely(au_test_fs_bad_xino(d->d_sb))) {
++		if (!silent)
++			pr_err("xino doesn't support %s(%s)\n",
++			       fpath, au_sbtype(d->d_sb));
++		goto out;
++	}
++	return file; /* success */
++
++out:
++	fput(file);
++	file = ERR_PTR(err);
++	return file;
++}
++
++/*
++ * create a new xinofile at the same place/path as @base.
++ */
++struct file *au_xino_create2(struct super_block *sb, struct path *base,
++			     struct file *copy_src)
++{
++	struct file *file;
++	struct dentry *dentry, *parent;
++	struct inode *dir, *delegated;
++	struct qstr *name;
++	struct path path;
++	int err, do_unlock;
++	struct au_xino_lock_dir ldir;
++
++	do_unlock = 1;
++	au_xino_lock_dir(sb, base, &ldir);
++	dentry = base->dentry;
++	parent = dentry->d_parent; /* dir inode is locked */
++	dir = d_inode(parent);
++	IMustLock(dir);
++
++	name = &dentry->d_name;
++	path.dentry = vfsub_lookup_one_len(name->name, parent, name->len);
++	if (IS_ERR(path.dentry)) {
++		file = (void *)path.dentry;
++		pr_err("%pd lookup err %ld\n", dentry, PTR_ERR(path.dentry));
++		goto out;
++	}
++
++	/* no need to mnt_want_write() since we call dentry_open() later */
++	err = vfs_create(dir, path.dentry, 0666, NULL);
++	if (unlikely(err)) {
++		file = ERR_PTR(err);
++		pr_err("%pd create err %d\n", dentry, err);
++		goto out_dput;
++	}
++
++	path.mnt = base->mnt;
++	file = vfsub_dentry_open(&path,
++				 O_RDWR | O_CREAT | O_EXCL | O_LARGEFILE
++				 /* | __FMODE_NONOTIFY */);
++	if (IS_ERR(file)) {
++		pr_err("%pd open err %ld\n", dentry, PTR_ERR(file));
++		goto out_dput;
++	}
++
++	delegated = NULL;
++	err = vfsub_unlink(dir, &file->f_path, &delegated, /*force*/0);
++	au_xino_unlock_dir(&ldir);
++	do_unlock = 0;
++	if (unlikely(err == -EWOULDBLOCK)) {
++		pr_warn("cannot retry for NFSv4 delegation"
++			" for an internal unlink\n");
++		iput(delegated);
++	}
++	if (unlikely(err)) {
++		pr_err("%pd unlink err %d\n", dentry, err);
++		goto out_fput;
++	}
++
++	if (copy_src) {
++		/* no one can touch copy_src xino */
++		err = au_copy_file(file, copy_src, vfsub_f_size_read(copy_src));
++		if (unlikely(err)) {
++			pr_err("%pd copy err %d\n", dentry, err);
++			goto out_fput;
++		}
++	}
++	goto out_dput; /* success */
++
++out_fput:
++	fput(file);
++	file = ERR_PTR(err);
++out_dput:
++	dput(path.dentry);
++out:
++	if (do_unlock)
++		au_xino_unlock_dir(&ldir);
++	return file;
++}
++
++/* ---------------------------------------------------------------------- */
++
++/*
++ * truncate xino files
++ */
++int au_xino_trunc(struct super_block *sb, aufs_bindex_t bindex)
++{
++	int err;
++	unsigned long jiffy;
++	blkcnt_t blocks;
++	aufs_bindex_t bbot;
++	struct kstatfs *st;
++	struct au_branch *br;
++	struct file *new_xino, *file;
++	struct path *path;
++
++	err = -ENOMEM;
++	st = kmalloc(sizeof(*st), GFP_NOFS);
++	if (unlikely(!st))
++		goto out;
++
++	err = -EINVAL;
++	bbot = au_sbbot(sb);
++	if (unlikely(bindex < 0 || bbot < bindex))
++		goto out_st;
++	br = au_sbr(sb, bindex);
++	file = au_xino_file(br);
++	if (!file)
++		goto out_st;
++
++	path = &file->f_path;
++	err = vfs_statfs(path, st);
++	if (unlikely(err))
++		AuErr1("statfs err %d, ignored\n", err);
++	jiffy = jiffies;
++	blocks = file_inode(file)->i_blocks;
++	pr_info("begin truncating xino(b%d), ib%llu, %llu/%llu free blks\n",
++		bindex, (u64)blocks, st->f_bfree, st->f_blocks);
++
++	new_xino = au_xino_create2(sb, path, file);
++	err = PTR_ERR(new_xino);
++	if (IS_ERR(new_xino)) {
++		pr_err("err %d, ignored\n", err);
++		goto out_st;
++	}
++	err = 0;
++	au_xino_file_set(br, new_xino);
++
++	err = vfs_statfs(&new_xino->f_path, st);
++	if (!err) {
++		pr_info("end truncating xino(b%d), ib%llu, %llu/%llu free blks\n",
++			bindex, (u64)file_inode(new_xino)->i_blocks,
++			st->f_bfree, st->f_blocks);
++		if (file_inode(new_xino)->i_blocks < blocks)
++			au_sbi(sb)->si_xino_jiffy = jiffy;
++	} else
++		AuErr1("statfs err %d, ignored\n", err);
++	fput(new_xino);
++
++out_st:
++	kfree(st);
++out:
++	return err;
++}
++
++struct xino_do_trunc_args {
++	struct super_block *sb;
++	struct au_branch *br;
++};
++
++static void xino_do_trunc(void *_args)
++{
++	struct xino_do_trunc_args *args = _args;
++	struct super_block *sb;
++	struct au_branch *br;
++	struct inode *dir;
++	int err;
++	aufs_bindex_t bindex;
++
++	err = 0;
++	sb = args->sb;
++	dir = d_inode(sb->s_root);
++	br = args->br;
++
++	si_noflush_write_lock(sb);
++	ii_read_lock_parent(dir);
++	bindex = au_br_index(sb, br->br_id);
++	err = au_xino_trunc(sb, bindex);
++	ii_read_unlock(dir);
++	if (unlikely(err))
++		pr_warn("err b%d, (%d)\n", bindex, err);
++	atomic_dec(&br->br_xino->xi_truncating);
++	au_br_put(br);
++	si_write_unlock(sb);
++	au_nwt_done(&au_sbi(sb)->si_nowait);
++	kfree(args);
++}
++
++static int xino_trunc_test(struct super_block *sb, struct au_branch *br)
++{
++	int err;
++	struct kstatfs st;
++	struct au_sbinfo *sbinfo;
++	struct file *file;
++
++	/* todo: si_xino_expire and the ratio should be customizable */
++	sbinfo = au_sbi(sb);
++	if (time_before(jiffies,
++			sbinfo->si_xino_jiffy + sbinfo->si_xino_expire))
++		return 0;
++
++	/* truncation border */
++	file = au_xino_file(br);
++	AuDebugOn(!file);
++	err = vfs_statfs(&file->f_path, &st);
++	if (unlikely(err)) {
++		AuErr1("statfs err %d, ignored\n", err);
++		return 0;
++	}
++	if (div64_u64(st.f_bfree * 100, st.f_blocks) >= AUFS_XINO_DEF_TRUNC)
++		return 0;
++
++	return 1;
++}
++
++static void xino_try_trunc(struct super_block *sb, struct au_branch *br)
++{
++	struct xino_do_trunc_args *args;
++	int wkq_err;
++
++	if (!xino_trunc_test(sb, br))
++		return;
++
++	if (atomic_inc_return(&br->br_xino->xi_truncating) > 1)
++		goto out;
++
++	/* lock and kfree() will be called in trunc_xino() */
++	args = kmalloc(sizeof(*args), GFP_NOFS);
++	if (unlikely(!args)) {
++		AuErr1("no memory\n");
++		goto out;
++	}
++
++	au_br_get(br);
++	args->sb = sb;
++	args->br = br;
++	wkq_err = au_wkq_nowait(xino_do_trunc, args, sb, /*flags*/0);
++	if (!wkq_err)
++		return; /* success */
++
++	pr_err("wkq %d\n", wkq_err);
++	au_br_put(br);
++	kfree(args);
++
++out:
++	atomic_dec(&br->br_xino->xi_truncating);
++}
++
++/* ---------------------------------------------------------------------- */
++
++/*
++ * read @ino from xinofile for the specified branch{@sb, @bindex}
++ * at the position of @h_ino.
++ */
++int au_xino_read(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
++		 ino_t *ino)
++{
++	int err;
++	ssize_t sz;
++	loff_t pos;
++	struct au_branch *br;
++	struct file *file;
++	struct au_sbinfo *sbinfo;
++
++	*ino = 0;
++	if (!au_opt_test(au_mntflags(sb), XINO))
++		return 0; /* no xino */
++
++	err = 0;
++	sbinfo = au_sbi(sb);
++	pos = h_ino;
++	if (unlikely(au_loff_max / sizeof(*ino) - 1 < pos)) {
++		AuIOErr1("too large hi%lu\n", (unsigned long)h_ino);
++		return -EFBIG;
++	}
++	pos *= sizeof(*ino);
++
++	br = au_sbr(sb, bindex);
++	file = au_xino_file(br);
++	if (vfsub_f_size_read(file) < pos + sizeof(*ino))
++		return 0; /* no ino */
++
++	sz = xino_fread(sbinfo->si_xread, file, ino, sizeof(*ino), &pos);
++	if (sz == sizeof(*ino))
++		return 0; /* success */
++
++	err = sz;
++	if (unlikely(sz >= 0)) {
++		err = -EIO;
++		AuIOErr("xino read error (%zd)\n", sz);
++	}
++
++	return err;
++}
++
++static int au_xino_do_write(vfs_writef_t write, struct file *file,
++			    ino_t h_ino, ino_t ino)
++{
++	loff_t pos;
++	ssize_t sz;
++
++	pos = h_ino;
++	if (unlikely(au_loff_max / sizeof(ino) - 1 < pos)) {
++		AuIOErr1("too large hi%lu\n", (unsigned long)h_ino);
++		return -EFBIG;
++	}
++	pos *= sizeof(ino);
++	sz = xino_fwrite(write, file, &ino, sizeof(ino), &pos);
++	if (sz == sizeof(ino))
++		return 0; /* success */
++
++	AuIOErr("write failed (%zd)\n", sz);
++	return -EIO;
++}
++
++/*
++ * write @ino to the xinofile for the specified branch{@sb, @bindex}
++ * at the position of @h_ino.
++ * even if @ino is zero, it is written to the xinofile and means no entry.
++ * if the size of the xino file on a specific filesystem exceeds the watermark,
++ * try truncating it.
++ */
++int au_xino_write(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
++		  ino_t ino)
++{
++	int err;
++	unsigned int mnt_flags;
++	struct au_branch *br;
++
++	BUILD_BUG_ON(sizeof(long long) != sizeof(au_loff_max)
++		     || ((loff_t)-1) > 0);
++	SiMustAnyLock(sb);
++
++	mnt_flags = au_mntflags(sb);
++	if (!au_opt_test(mnt_flags, XINO))
++		return 0;
++
++	br = au_sbr(sb, bindex);
++	err = au_xino_do_write(au_sbi(sb)->si_xwrite, au_xino_file(br), h_ino,
++			       ino);
++	if (!err) {
++		if (au_opt_test(mnt_flags, TRUNC_XINO)
++		    && au_test_fs_trunc_xino(au_br_sb(br)))
++			xino_try_trunc(sb, br);
++		return 0; /* success */
++	}
++
++	AuIOErr("write failed (%d)\n", err);
++	return -EIO;
++}
 +
 +static ssize_t xino_fread_wkq(vfs_readf_t func, struct file *file, void *buf,
 +			      size_t size, loff_t *pos);
@@ -35747,7 +36395,7 @@ index 000000000000..29f53f9e5968
 +}
 +
 +static ssize_t xino_fread_wkq(vfs_readf_t func, struct file *file, void *buf,
-+			       size_t size, loff_t *pos)
++			      size_t size, loff_t *pos)
 +{
 +	ssize_t err;
 +	int wkq_err;
@@ -35766,8 +36414,6 @@ index 000000000000..29f53f9e5968
 +
 +	return err;
 +}
-+
-+/* ---------------------------------------------------------------------- */
 +
 +static ssize_t xino_fwrite_wkq(vfs_writef_t func, struct file *file, void *buf,
 +			       size_t size, loff_t *pos);
@@ -35872,348 +36518,8 @@ index 000000000000..29f53f9e5968
 +/* ---------------------------------------------------------------------- */
 +
 +/*
-+ * create a new xinofile at the same place/path as @base_file.
++ * inode number bitmap
 + */
-+struct file *au_xino_create2(struct file *base_file, struct file *copy_src)
-+{
-+	struct file *file;
-+	struct dentry *base, *parent;
-+	struct inode *dir, *delegated;
-+	struct qstr *name;
-+	struct path path;
-+	int err;
-+
-+	base = base_file->f_path.dentry;
-+	parent = base->d_parent; /* dir inode is locked */
-+	dir = d_inode(parent);
-+	IMustLock(dir);
-+
-+	file = ERR_PTR(-EINVAL);
-+	name = &base->d_name;
-+	path.dentry = vfsub_lookup_one_len(name->name, parent, name->len);
-+	if (IS_ERR(path.dentry)) {
-+		file = (void *)path.dentry;
-+		pr_err("%pd lookup err %ld\n",
-+		       base, PTR_ERR(path.dentry));
-+		goto out;
-+	}
-+
-+	/* no need to mnt_want_write() since we call dentry_open() later */
-+	err = vfs_create(dir, path.dentry, S_IRUGO | S_IWUGO, NULL);
-+	if (unlikely(err)) {
-+		file = ERR_PTR(err);
-+		pr_err("%pd create err %d\n", base, err);
-+		goto out_dput;
-+	}
-+
-+	path.mnt = base_file->f_path.mnt;
-+	file = vfsub_dentry_open(&path,
-+				 O_RDWR | O_CREAT | O_EXCL | O_LARGEFILE
-+				 /* | __FMODE_NONOTIFY */);
-+	if (IS_ERR(file)) {
-+		pr_err("%pd open err %ld\n", base, PTR_ERR(file));
-+		goto out_dput;
-+	}
-+
-+	delegated = NULL;
-+	err = vfsub_unlink(dir, &file->f_path, &delegated, /*force*/0);
-+	if (unlikely(err == -EWOULDBLOCK)) {
-+		pr_warn("cannot retry for NFSv4 delegation"
-+			" for an internal unlink\n");
-+		iput(delegated);
-+	}
-+	if (unlikely(err)) {
-+		pr_err("%pd unlink err %d\n", base, err);
-+		goto out_fput;
-+	}
-+
-+	if (copy_src) {
-+		/* no one can touch copy_src xino */
-+		err = au_copy_file(file, copy_src, vfsub_f_size_read(copy_src));
-+		if (unlikely(err)) {
-+			pr_err("%pd copy err %d\n", base, err);
-+			goto out_fput;
-+		}
-+	}
-+	goto out_dput; /* success */
-+
-+out_fput:
-+	fput(file);
-+	file = ERR_PTR(err);
-+out_dput:
-+	dput(path.dentry);
-+out:
-+	return file;
-+}
-+
-+struct au_xino_lock_dir {
-+	struct au_hinode *hdir;
-+	struct dentry *parent;
-+	struct inode *dir;
-+};
-+
-+static void au_xino_lock_dir(struct super_block *sb, struct file *xino,
-+			     struct au_xino_lock_dir *ldir)
-+{
-+	aufs_bindex_t brid, bindex;
-+
-+	ldir->hdir = NULL;
-+	bindex = -1;
-+	brid = au_xino_brid(sb);
-+	if (brid >= 0)
-+		bindex = au_br_index(sb, brid);
-+	if (bindex >= 0) {
-+		ldir->hdir = au_hi(d_inode(sb->s_root), bindex);
-+		au_hn_inode_lock_nested(ldir->hdir, AuLsc_I_PARENT);
-+	} else {
-+		ldir->parent = dget_parent(xino->f_path.dentry);
-+		ldir->dir = d_inode(ldir->parent);
-+		inode_lock_nested(ldir->dir, AuLsc_I_PARENT);
-+	}
-+}
-+
-+static void au_xino_unlock_dir(struct au_xino_lock_dir *ldir)
-+{
-+	if (ldir->hdir)
-+		au_hn_inode_unlock(ldir->hdir);
-+	else {
-+		inode_unlock(ldir->dir);
-+		dput(ldir->parent);
-+	}
-+}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+/* trucate xino files asynchronously */
-+
-+int au_xino_trunc(struct super_block *sb, aufs_bindex_t bindex)
-+{
-+	int err;
-+	unsigned long jiffy;
-+	blkcnt_t blocks;
-+	aufs_bindex_t bi, bbot;
-+	struct kstatfs *st;
-+	struct au_branch *br;
-+	struct file *new_xino, *file;
-+	struct super_block *h_sb;
-+	struct au_xino_lock_dir ldir;
-+
-+	err = -ENOMEM;
-+	st = kmalloc(sizeof(*st), GFP_NOFS);
-+	if (unlikely(!st))
-+		goto out;
-+
-+	err = -EINVAL;
-+	bbot = au_sbbot(sb);
-+	if (unlikely(bindex < 0 || bbot < bindex))
-+		goto out_st;
-+	br = au_sbr(sb, bindex);
-+	file = br->br_xino.xi_file;
-+	if (!file)
-+		goto out_st;
-+
-+	err = vfs_statfs(&file->f_path, st);
-+	if (unlikely(err))
-+		AuErr1("statfs err %d, ignored\n", err);
-+	jiffy = jiffies;
-+	blocks = file_inode(file)->i_blocks;
-+	pr_info("begin truncating xino(b%d), ib%llu, %llu/%llu free blks\n",
-+		bindex, (u64)blocks, st->f_bfree, st->f_blocks);
-+
-+	au_xino_lock_dir(sb, file, &ldir);
-+	/* mnt_want_write() is unnecessary here */
-+	new_xino = au_xino_create2(file, file);
-+	au_xino_unlock_dir(&ldir);
-+	err = PTR_ERR(new_xino);
-+	if (IS_ERR(new_xino)) {
-+		pr_err("err %d, ignored\n", err);
-+		goto out_st;
-+	}
-+	err = 0;
-+	fput(file);
-+	br->br_xino.xi_file = new_xino;
-+
-+	h_sb = au_br_sb(br);
-+	for (bi = 0; bi <= bbot; bi++) {
-+		if (unlikely(bi == bindex))
-+			continue;
-+		br = au_sbr(sb, bi);
-+		if (au_br_sb(br) != h_sb)
-+			continue;
-+
-+		fput(br->br_xino.xi_file);
-+		br->br_xino.xi_file = new_xino;
-+		get_file(new_xino);
-+	}
-+
-+	err = vfs_statfs(&new_xino->f_path, st);
-+	if (!err) {
-+		pr_info("end truncating xino(b%d), ib%llu, %llu/%llu free blks\n",
-+			bindex, (u64)file_inode(new_xino)->i_blocks,
-+			st->f_bfree, st->f_blocks);
-+		if (file_inode(new_xino)->i_blocks < blocks)
-+			au_sbi(sb)->si_xino_jiffy = jiffy;
-+	} else
-+		AuErr1("statfs err %d, ignored\n", err);
-+
-+out_st:
-+	kfree(st);
-+out:
-+	return err;
-+}
-+
-+struct xino_do_trunc_args {
-+	struct super_block *sb;
-+	struct au_branch *br;
-+};
-+
-+static void xino_do_trunc(void *_args)
-+{
-+	struct xino_do_trunc_args *args = _args;
-+	struct super_block *sb;
-+	struct au_branch *br;
-+	struct inode *dir;
-+	int err;
-+	aufs_bindex_t bindex;
-+
-+	err = 0;
-+	sb = args->sb;
-+	dir = d_inode(sb->s_root);
-+	br = args->br;
-+
-+	si_noflush_write_lock(sb);
-+	ii_read_lock_parent(dir);
-+	bindex = au_br_index(sb, br->br_id);
-+	err = au_xino_trunc(sb, bindex);
-+	ii_read_unlock(dir);
-+	if (unlikely(err))
-+		pr_warn("err b%d, (%d)\n", bindex, err);
-+	atomic_dec(&br->br_xino_running);
-+	au_br_put(br);
-+	si_write_unlock(sb);
-+	au_nwt_done(&au_sbi(sb)->si_nowait);
-+	kfree(args);
-+}
-+
-+static int xino_trunc_test(struct super_block *sb, struct au_branch *br)
-+{
-+	int err;
-+	struct kstatfs st;
-+	struct au_sbinfo *sbinfo;
-+
-+	/* todo: si_xino_expire and the ratio should be customizable */
-+	sbinfo = au_sbi(sb);
-+	if (time_before(jiffies,
-+			sbinfo->si_xino_jiffy + sbinfo->si_xino_expire))
-+		return 0;
-+
-+	/* truncation border */
-+	err = vfs_statfs(&br->br_xino.xi_file->f_path, &st);
-+	if (unlikely(err)) {
-+		AuErr1("statfs err %d, ignored\n", err);
-+		return 0;
-+	}
-+	if (div64_u64(st.f_bfree * 100, st.f_blocks) >= AUFS_XINO_DEF_TRUNC)
-+		return 0;
-+
-+	return 1;
-+}
-+
-+static void xino_try_trunc(struct super_block *sb, struct au_branch *br)
-+{
-+	struct xino_do_trunc_args *args;
-+	int wkq_err;
-+
-+	if (!xino_trunc_test(sb, br))
-+		return;
-+
-+	if (atomic_inc_return(&br->br_xino_running) > 1)
-+		goto out;
-+
-+	/* lock and kfree() will be called in trunc_xino() */
-+	args = kmalloc(sizeof(*args), GFP_NOFS);
-+	if (unlikely(!args)) {
-+		AuErr1("no memory\n");
-+		goto out;
-+	}
-+
-+	au_br_get(br);
-+	args->sb = sb;
-+	args->br = br;
-+	wkq_err = au_wkq_nowait(xino_do_trunc, args, sb, /*flags*/0);
-+	if (!wkq_err)
-+		return; /* success */
-+
-+	pr_err("wkq %d\n", wkq_err);
-+	au_br_put(br);
-+	kfree(args);
-+
-+out:
-+	atomic_dec(&br->br_xino_running);
-+}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+static int au_xino_do_write(vfs_writef_t write, struct file *file,
-+			    ino_t h_ino, ino_t ino)
-+{
-+	loff_t pos;
-+	ssize_t sz;
-+
-+	pos = h_ino;
-+	if (unlikely(au_loff_max / sizeof(ino) - 1 < pos)) {
-+		AuIOErr1("too large hi%lu\n", (unsigned long)h_ino);
-+		return -EFBIG;
-+	}
-+	pos *= sizeof(ino);
-+	sz = xino_fwrite(write, file, &ino, sizeof(ino), &pos);
-+	if (sz == sizeof(ino))
-+		return 0; /* success */
-+
-+	AuIOErr("write failed (%zd)\n", sz);
-+	return -EIO;
-+}
-+
-+/*
-+ * write @ino to the xinofile for the specified branch{@sb, @bindex}
-+ * at the position of @h_ino.
-+ * even if @ino is zero, it is written to the xinofile and means no entry.
-+ * if the size of the xino file on a specific filesystem exceeds the watermark,
-+ * try truncating it.
-+ */
-+int au_xino_write(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
-+		  ino_t ino)
-+{
-+	int err;
-+	unsigned int mnt_flags;
-+	struct au_branch *br;
-+
-+	BUILD_BUG_ON(sizeof(long long) != sizeof(au_loff_max)
-+		     || ((loff_t)-1) > 0);
-+	SiMustAnyLock(sb);
-+
-+	mnt_flags = au_mntflags(sb);
-+	if (!au_opt_test(mnt_flags, XINO))
-+		return 0;
-+
-+	br = au_sbr(sb, bindex);
-+	err = au_xino_do_write(au_sbi(sb)->si_xwrite, br->br_xino.xi_file,
-+			       h_ino, ino);
-+	if (!err) {
-+		if (au_opt_test(mnt_flags, TRUNC_XINO)
-+		    && au_test_fs_trunc_xino(au_br_sb(br)))
-+			xino_try_trunc(sb, br);
-+		return 0; /* success */
-+	}
-+
-+	AuIOErr("write failed (%d)\n", err);
-+	return -EIO;
-+}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+/* aufs inode number bitmap */
-+
 +static const int page_bits = (int)PAGE_SIZE * BITS_PER_BYTE;
 +static ino_t xib_calc_ino(unsigned long pindex, int bit)
 +{
@@ -36278,8 +36584,6 @@ index 000000000000..29f53f9e5968
 +	return err;
 +}
 +
-+/* ---------------------------------------------------------------------- */
-+
 +static void au_xib_clear_bit(struct inode *inode)
 +{
 +	int err, bit;
@@ -36302,310 +36606,11 @@ index 000000000000..29f53f9e5968
 +	mutex_unlock(&sbinfo->si_xib_mtx);
 +}
 +
-+/* for s_op->delete_inode() */
-+void au_xino_delete_inode(struct inode *inode, const int unlinked)
-+{
-+	int err;
-+	unsigned int mnt_flags;
-+	aufs_bindex_t bindex, bbot, bi;
-+	unsigned char try_trunc;
-+	struct au_iinfo *iinfo;
-+	struct super_block *sb;
-+	struct au_hinode *hi;
-+	struct inode *h_inode;
-+	struct au_branch *br;
-+	vfs_writef_t xwrite;
-+
-+	AuDebugOn(au_is_bad_inode(inode));
-+
-+	sb = inode->i_sb;
-+	mnt_flags = au_mntflags(sb);
-+	if (!au_opt_test(mnt_flags, XINO)
-+	    || inode->i_ino == AUFS_ROOT_INO)
-+		return;
-+
-+	if (unlinked) {
-+		au_xigen_inc(inode);
-+		au_xib_clear_bit(inode);
-+	}
-+
-+	iinfo = au_ii(inode);
-+	bindex = iinfo->ii_btop;
-+	if (bindex < 0)
-+		return;
-+
-+	xwrite = au_sbi(sb)->si_xwrite;
-+	try_trunc = !!au_opt_test(mnt_flags, TRUNC_XINO);
-+	hi = au_hinode(iinfo, bindex);
-+	bbot = iinfo->ii_bbot;
-+	for (; bindex <= bbot; bindex++, hi++) {
-+		h_inode = hi->hi_inode;
-+		if (!h_inode
-+		    || (!unlinked && h_inode->i_nlink))
-+			continue;
-+
-+		/* inode may not be revalidated */
-+		bi = au_br_index(sb, hi->hi_id);
-+		if (bi < 0)
-+			continue;
-+
-+		br = au_sbr(sb, bi);
-+		err = au_xino_do_write(xwrite, br->br_xino.xi_file,
-+				       h_inode->i_ino, /*ino*/0);
-+		if (!err && try_trunc
-+		    && au_test_fs_trunc_xino(au_br_sb(br)))
-+			xino_try_trunc(sb, br);
-+	}
-+}
-+
-+/* get an unused inode number from bitmap */
-+ino_t au_xino_new_ino(struct super_block *sb)
-+{
-+	ino_t ino;
-+	unsigned long *p, pindex, ul, pend;
-+	struct au_sbinfo *sbinfo;
-+	struct file *file;
-+	int free_bit, err;
-+
-+	if (!au_opt_test(au_mntflags(sb), XINO))
-+		return iunique(sb, AUFS_FIRST_INO);
-+
-+	sbinfo = au_sbi(sb);
-+	mutex_lock(&sbinfo->si_xib_mtx);
-+	p = sbinfo->si_xib_buf;
-+	free_bit = sbinfo->si_xib_next_bit;
-+	if (free_bit < page_bits && !test_bit(free_bit, p))
-+		goto out; /* success */
-+	free_bit = find_first_zero_bit(p, page_bits);
-+	if (free_bit < page_bits)
-+		goto out; /* success */
-+
-+	pindex = sbinfo->si_xib_last_pindex;
-+	for (ul = pindex - 1; ul < ULONG_MAX; ul--) {
-+		err = xib_pindex(sb, ul);
-+		if (unlikely(err))
-+			goto out_err;
-+		free_bit = find_first_zero_bit(p, page_bits);
-+		if (free_bit < page_bits)
-+			goto out; /* success */
-+	}
-+
-+	file = sbinfo->si_xib;
-+	pend = vfsub_f_size_read(file) / PAGE_SIZE;
-+	for (ul = pindex + 1; ul <= pend; ul++) {
-+		err = xib_pindex(sb, ul);
-+		if (unlikely(err))
-+			goto out_err;
-+		free_bit = find_first_zero_bit(p, page_bits);
-+		if (free_bit < page_bits)
-+			goto out; /* success */
-+	}
-+	BUG();
-+
-+out:
-+	set_bit(free_bit, p);
-+	sbinfo->si_xib_next_bit = free_bit + 1;
-+	pindex = sbinfo->si_xib_last_pindex;
-+	mutex_unlock(&sbinfo->si_xib_mtx);
-+	ino = xib_calc_ino(pindex, free_bit);
-+	AuDbg("i%lu\n", (unsigned long)ino);
-+	return ino;
-+out_err:
-+	mutex_unlock(&sbinfo->si_xib_mtx);
-+	AuDbg("i0\n");
-+	return 0;
-+}
-+
-+/*
-+ * read @ino from xinofile for the specified branch{@sb, @bindex}
-+ * at the position of @h_ino.
-+ * if @ino does not exist and @do_new is true, get new one.
-+ */
-+int au_xino_read(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
-+		 ino_t *ino)
-+{
-+	int err;
-+	ssize_t sz;
-+	loff_t pos;
-+	struct file *file;
-+	struct au_sbinfo *sbinfo;
-+
-+	*ino = 0;
-+	if (!au_opt_test(au_mntflags(sb), XINO))
-+		return 0; /* no xino */
-+
-+	err = 0;
-+	sbinfo = au_sbi(sb);
-+	pos = h_ino;
-+	if (unlikely(au_loff_max / sizeof(*ino) - 1 < pos)) {
-+		AuIOErr1("too large hi%lu\n", (unsigned long)h_ino);
-+		return -EFBIG;
-+	}
-+	pos *= sizeof(*ino);
-+
-+	file = au_sbr(sb, bindex)->br_xino.xi_file;
-+	if (vfsub_f_size_read(file) < pos + sizeof(*ino))
-+		return 0; /* no ino */
-+
-+	sz = xino_fread(sbinfo->si_xread, file, ino, sizeof(*ino), &pos);
-+	if (sz == sizeof(*ino))
-+		return 0; /* success */
-+
-+	err = sz;
-+	if (unlikely(sz >= 0)) {
-+		err = -EIO;
-+		AuIOErr("xino read error (%zd)\n", sz);
-+	}
-+
-+	return err;
-+}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+/* create and set a new xino file */
-+
-+struct file *au_xino_create(struct super_block *sb, char *fname, int silent)
-+{
-+	struct file *file;
-+	struct dentry *h_parent, *d;
-+	struct inode *h_dir, *inode;
-+	int err;
-+
-+	/*
-+	 * at mount-time, and the xino file is the default path,
-+	 * hnotify is disabled so we have no notify events to ignore.
-+	 * when a user specified the xino, we cannot get au_hdir to be ignored.
-+	 */
-+	file = vfsub_filp_open(fname, O_RDWR | O_CREAT | O_EXCL | O_LARGEFILE
-+			       /* | __FMODE_NONOTIFY */,
-+			       S_IRUGO | S_IWUGO);
-+	if (IS_ERR(file)) {
-+		if (!silent)
-+			pr_err("open %s(%ld)\n", fname, PTR_ERR(file));
-+		return file;
-+	}
-+
-+	/* keep file count */
-+	err = 0;
-+	inode = file_inode(file);
-+	h_parent = dget_parent(file->f_path.dentry);
-+	h_dir = d_inode(h_parent);
-+	inode_lock_nested(h_dir, AuLsc_I_PARENT);
-+	/* mnt_want_write() is unnecessary here */
-+	/* no delegation since it is just created */
-+	if (inode->i_nlink)
-+		err = vfsub_unlink(h_dir, &file->f_path, /*delegated*/NULL,
-+				   /*force*/0);
-+	inode_unlock(h_dir);
-+	dput(h_parent);
-+	if (unlikely(err)) {
-+		if (!silent)
-+			pr_err("unlink %s(%d)\n", fname, err);
-+		goto out;
-+	}
-+
-+	err = -EINVAL;
-+	d = file->f_path.dentry;
-+	if (unlikely(sb == d->d_sb)) {
-+		if (!silent)
-+			pr_err("%s must be outside\n", fname);
-+		goto out;
-+	}
-+	if (unlikely(au_test_fs_bad_xino(d->d_sb))) {
-+		if (!silent)
-+			pr_err("xino doesn't support %s(%s)\n",
-+			       fname, au_sbtype(d->d_sb));
-+		goto out;
-+	}
-+	return file; /* success */
-+
-+out:
-+	fput(file);
-+	file = ERR_PTR(err);
-+	return file;
-+}
-+
-+/*
-+ * find another branch who is on the same filesystem of the specified
-+ * branch{@btgt}. search until @bbot.
-+ */
-+static int is_sb_shared(struct super_block *sb, aufs_bindex_t btgt,
-+			aufs_bindex_t bbot)
-+{
-+	aufs_bindex_t bindex;
-+	struct super_block *tgt_sb = au_sbr_sb(sb, btgt);
-+
-+	for (bindex = 0; bindex < btgt; bindex++)
-+		if (unlikely(tgt_sb == au_sbr_sb(sb, bindex)))
-+			return bindex;
-+	for (bindex++; bindex <= bbot; bindex++)
-+		if (unlikely(tgt_sb == au_sbr_sb(sb, bindex)))
-+			return bindex;
-+	return -1;
-+}
-+
 +/* ---------------------------------------------------------------------- */
 +
 +/*
-+ * initialize the xinofile for the specified branch @br
-+ * at the place/path where @base_file indicates.
-+ * test whether another branch is on the same filesystem or not,
-+ * if @do_test is true.
++ * truncate a xino bitmap file
 + */
-+int au_xino_br(struct super_block *sb, struct au_branch *br, ino_t h_ino,
-+	       struct file *base_file, int do_test)
-+{
-+	int err;
-+	ino_t ino;
-+	aufs_bindex_t bbot, bindex;
-+	struct au_branch *shared_br, *b;
-+	struct file *file;
-+	struct super_block *tgt_sb;
-+
-+	shared_br = NULL;
-+	bbot = au_sbbot(sb);
-+	if (do_test) {
-+		tgt_sb = au_br_sb(br);
-+		for (bindex = 0; bindex <= bbot; bindex++) {
-+			b = au_sbr(sb, bindex);
-+			if (tgt_sb == au_br_sb(b)) {
-+				shared_br = b;
-+				break;
-+			}
-+		}
-+	}
-+
-+	if (!shared_br || !shared_br->br_xino.xi_file) {
-+		struct au_xino_lock_dir ldir;
-+
-+		au_xino_lock_dir(sb, base_file, &ldir);
-+		/* mnt_want_write() is unnecessary here */
-+		file = au_xino_create2(base_file, NULL);
-+		au_xino_unlock_dir(&ldir);
-+		err = PTR_ERR(file);
-+		if (IS_ERR(file))
-+			goto out;
-+		br->br_xino.xi_file = file;
-+	} else {
-+		br->br_xino.xi_file = shared_br->br_xino.xi_file;
-+		get_file(br->br_xino.xi_file);
-+	}
-+
-+	ino = AUFS_ROOT_INO;
-+	err = au_xino_do_write(au_sbi(sb)->si_xwrite, br->br_xino.xi_file,
-+			       h_ino, ino);
-+	if (unlikely(err)) {
-+		fput(br->br_xino.xi_file);
-+		br->br_xino.xi_file = NULL;
-+	}
-+
-+out:
-+	return err;
-+}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+/* trucate a xino bitmap file */
 +
 +/* todo: slow */
 +static int do_xib_restore(struct super_block *sb, struct file *file, void *page)
@@ -36656,6 +36661,7 @@ index 000000000000..29f53f9e5968
 +	int err;
 +	aufs_bindex_t bindex, bbot;
 +	void *page;
++	struct au_branch *br;
 +
 +	err = -ENOMEM;
 +	page = (void *)__get_free_page(GFP_NOFS);
@@ -36665,11 +36671,11 @@ index 000000000000..29f53f9e5968
 +	err = 0;
 +	bbot = au_sbbot(sb);
 +	for (bindex = 0; !err && bindex <= bbot; bindex++)
-+		if (!bindex || is_sb_shared(sb, bindex, bindex - 1) < 0)
-+			err = do_xib_restore
-+				(sb, au_sbr(sb, bindex)->br_xino.xi_file, page);
-+		else
-+			AuDbg("b%d\n", bindex);
++		if (!bindex || is_sb_shared(sb, bindex, bindex - 1) < 0) {
++			br = au_sbr(sb, bindex);
++			err = do_xib_restore(sb, au_xino_file(br), page);
++		} else
++			AuDbg("skip shared b%d\n", bindex);
 +	free_page((unsigned long)page);
 +
 +out:
@@ -36681,7 +36687,6 @@ index 000000000000..29f53f9e5968
 +	int err;
 +	ssize_t sz;
 +	loff_t pos;
-+	struct au_xino_lock_dir ldir;
 +	struct au_sbinfo *sbinfo;
 +	unsigned long *p;
 +	struct file *file;
@@ -36697,10 +36702,7 @@ index 000000000000..29f53f9e5968
 +	if (vfsub_f_size_read(file) <= PAGE_SIZE)
 +		goto out;
 +
-+	au_xino_lock_dir(sb, file, &ldir);
-+	/* mnt_want_write() is unnecessary here */
-+	file = au_xino_create2(sbinfo->si_xib, NULL);
-+	au_xino_unlock_dir(&ldir);
++	file = au_xino_create2(sb, &sbinfo->si_xib->f_path, NULL);
 +	err = PTR_ERR(file);
 +	if (IS_ERR(file))
 +		goto out;
@@ -36730,6 +36732,100 @@ index 000000000000..29f53f9e5968
 +
 +/* ---------------------------------------------------------------------- */
 +
++struct au_xino *au_xino_alloc(void)
++{
++	struct au_xino *xi;
++
++	xi = kzalloc(sizeof(*xi), GFP_NOFS);
++	if (unlikely(!xi))
++		goto out;
++
++	xi->xi_nondir.total = 8; /* initial size */
++	xi->xi_nondir.array = kcalloc(xi->xi_nondir.total, sizeof(ino_t),
++				      GFP_NOFS);
++	if (unlikely(!xi->xi_nondir.array))
++		goto out_free;
++
++	spin_lock_init(&xi->xi_nondir.spin);
++	init_waitqueue_head(&xi->xi_nondir.wqh);
++	atomic_set(&xi->xi_truncating, 0);
++	kref_init(&xi->xi_kref);
++	goto out; /* success */
++
++out_free:
++	kfree(xi);
++	xi = NULL;
++out:
++	return xi;
++}
++
++static int au_xino_init(struct au_branch *br, struct file *file)
++{
++	int err;
++	struct au_xino *xi;
++
++	err = 0;
++	xi = au_xino_alloc();
++	if (unlikely(!xi)) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	get_file(file);
++	xi->xi_file = file;
++	AuDebugOn(br->br_xino);
++	br->br_xino = xi;
++
++out:
++	return err;
++}
++
++static void au_xino_release(struct kref *kref)
++{
++	struct au_xino *xi;
++	int i;
++
++	xi = container_of(kref, struct au_xino, xi_kref);
++	if (xi->xi_file)
++		fput(xi->xi_file);
++	for (i = xi->xi_nondir.total - 1; i >= 0; i--)
++		AuDebugOn(xi->xi_nondir.array[i]);
++	kfree(xi->xi_nondir.array);
++	kfree(xi);
++}
++
++int au_xino_put(struct au_branch *br)
++{
++	int ret;
++	struct au_xino *xi;
++
++	ret = 0;
++	xi = br->br_xino;
++	if (xi) {
++		br->br_xino = NULL;
++		ret = kref_put(&xi->xi_kref, au_xino_release);
++	}
++
++	return ret;
++}
++
++void au_xino_file_set(struct au_branch *br, struct file *file)
++{
++	struct au_xino *xi;
++	struct file *f;
++
++	if (file)
++		get_file(file);
++	xi = br->br_xino;
++	AuDebugOn(!xi);
++	f = xi->xi_file;
++	if (f)
++		fput(f);
++	xi->xi_file = file;
++}
++
++/* ---------------------------------------------------------------------- */
++
 +/*
 + * xino mount option handlers
 + */
@@ -36742,8 +36838,7 @@ index 000000000000..29f53f9e5968
 +	SiMustWriteLock(sb);
 +
 +	sbinfo = au_sbi(sb);
-+	sbinfo->si_xread = NULL;
-+	sbinfo->si_xwrite = NULL;
++	/* unnecessary to clear sbinfo->si_xread and ->si_xwrite */
 +	if (sbinfo->si_xib)
 +		fput(sbinfo->si_xib);
 +	sbinfo->si_xib = NULL;
@@ -36752,7 +36847,7 @@ index 000000000000..29f53f9e5968
 +	sbinfo->si_xib_buf = NULL;
 +}
 +
-+static int au_xino_set_xib(struct super_block *sb, struct file *base)
++static int au_xino_set_xib(struct super_block *sb, struct path *path)
 +{
 +	int err;
 +	loff_t pos;
@@ -36762,7 +36857,7 @@ index 000000000000..29f53f9e5968
 +	SiMustWriteLock(sb);
 +
 +	sbinfo = au_sbi(sb);
-+	file = au_xino_create2(base, sbinfo->si_xib);
++	file = au_xino_create2(sb, path, sbinfo->si_xib);
 +	err = PTR_ERR(file);
 +	if (IS_ERR(file))
 +		goto out;
@@ -36799,9 +36894,8 @@ index 000000000000..29f53f9e5968
 +out_unset:
 +	fput(sbinfo->si_xib);
 +	sbinfo->si_xib = NULL;
-+	sbinfo->si_xread = NULL;
-+	sbinfo->si_xwrite = NULL;
 +out:
++	AuTraceErr(err);
 +	return err;
 +}
 +
@@ -36814,79 +36908,90 @@ index 000000000000..29f53f9e5968
 +	bbot = au_sbbot(sb);
 +	for (bindex = 0; bindex <= bbot; bindex++) {
 +		br = au_sbr(sb, bindex);
-+		if (!br || !br->br_xino.xi_file)
-+			continue;
-+
-+		fput(br->br_xino.xi_file);
-+		br->br_xino.xi_file = NULL;
++		AuDebugOn(!br);
++		au_xino_put(br);
 +	}
 +}
 +
-+static int au_xino_set_br(struct super_block *sb, struct file *base)
++static void au_xino_set_br_shared(struct super_block *sb, struct au_branch *br,
++				  aufs_bindex_t bshared)
++{
++	struct au_branch *brshared;
++
++	brshared = au_sbr(sb, bshared);
++	AuDebugOn(!brshared->br_xino);
++	AuDebugOn(!brshared->br_xino->xi_file);
++	if (br->br_xino != brshared->br_xino) {
++		au_xino_get(brshared);
++		au_xino_put(br);
++		br->br_xino = brshared->br_xino;
++	}
++}
++
++struct au_xino_do_set_br {
++	vfs_writef_t writef;
++	struct au_branch *br;
++	ino_t h_ino;
++	aufs_bindex_t bshared;
++};
++
++static int au_xino_do_set_br(struct super_block *sb, struct path *path,
++			     struct au_xino_do_set_br *args)
 +{
 +	int err;
-+	ino_t ino;
-+	aufs_bindex_t bindex, bbot, bshared;
-+	struct {
-+		struct file *old, *new;
-+	} *fpair, *p;
-+	struct au_branch *br;
++	struct file *file;
++
++	if (args->bshared >= 0) {
++		/* shared xino */
++		au_xino_set_br_shared(sb, args->br, args->bshared);
++		file = au_xino_file(args->br);
++		goto out_ino; /* success */
++	}
++
++	/* new xino */
++	file = au_xino_create2(sb, path, au_xino_file(args->br));
++	err = PTR_ERR(file);
++	if (IS_ERR(file))
++		goto out;
++	if (!args->br->br_xino) {
++		err = au_xino_init(args->br, file);
++		fput(file);
++		if (unlikely(err))
++			goto out;
++	} else {
++		au_xino_file_set(args->br, file);
++		fput(file);
++	}
++
++out_ino:
++	err = au_xino_do_write(args->writef, file, args->h_ino, AUFS_ROOT_INO);
++out:
++	AuTraceErr(err);
++	return err;
++}
++
++static int au_xino_set_br(struct super_block *sb, struct path *path)
++{
++	int err;
++	aufs_bindex_t bindex, bbot;
++	struct au_xino_do_set_br args;
 +	struct inode *inode;
-+	vfs_writef_t writef;
 +
 +	SiMustWriteLock(sb);
 +
-+	err = -ENOMEM;
 +	bbot = au_sbbot(sb);
-+	fpair = kcalloc(bbot + 1, sizeof(*fpair), GFP_NOFS);
-+	if (unlikely(!fpair))
-+		goto out;
-+
 +	inode = d_inode(sb->s_root);
-+	ino = AUFS_ROOT_INO;
-+	writef = au_sbi(sb)->si_xwrite;
-+	for (bindex = 0, p = fpair; bindex <= bbot; bindex++, p++) {
-+		bshared = is_sb_shared(sb, bindex, bindex - 1);
-+		if (bshared >= 0) {
-+			/* shared xino */
-+			*p = fpair[bshared];
-+			get_file(p->new);
-+		}
-+
-+		if (!p->new) {
-+			/* new xino */
-+			br = au_sbr(sb, bindex);
-+			p->old = br->br_xino.xi_file;
-+			p->new = au_xino_create2(base, br->br_xino.xi_file);
-+			err = PTR_ERR(p->new);
-+			if (IS_ERR(p->new)) {
-+				p->new = NULL;
-+				goto out_pair;
-+			}
-+		}
-+
-+		err = au_xino_do_write(writef, p->new,
-+				       au_h_iptr(inode, bindex)->i_ino, ino);
++	args.writef = au_sbi(sb)->si_xwrite;
++	for (bindex = 0; bindex <= bbot; bindex++) {
++		args.h_ino = au_h_iptr(inode, bindex)->i_ino;
++		args.br = au_sbr(sb, bindex);
++		args.bshared = is_sb_shared(sb, bindex, bindex - 1);
++		err = au_xino_do_set_br(sb, path, &args);
 +		if (unlikely(err))
-+			goto out_pair;
-+	}
-+
-+	for (bindex = 0, p = fpair; bindex <= bbot; bindex++, p++) {
-+		br = au_sbr(sb, bindex);
-+		if (br->br_xino.xi_file)
-+			fput(br->br_xino.xi_file);
-+		get_file(p->new);
-+		br->br_xino.xi_file = p->new;
-+	}
-+
-+out_pair:
-+	for (bindex = 0, p = fpair; bindex <= bbot; bindex++, p++)
-+		if (p->new)
-+			fput(p->new);
-+		else
 +			break;
-+	kfree(fpair);
-+out:
++	}
++
++	AuTraceErr(err);
 +	return err;
 +}
 +
@@ -36897,32 +37002,38 @@ index 000000000000..29f53f9e5968
 +	au_xigen_clr(sb);
 +	xino_clear_xib(sb);
 +	xino_clear_br(sb);
++	dbgaufs_brs_del(sb, 0);
++	au_xino_brid_set(sb, -1);
 +	sbinfo = au_sbi(sb);
 +	/* lvalue, do not call au_mntflags() */
 +	au_opt_clr(sbinfo->si_mntflags, XINO);
 +}
 +
-+int au_xino_set(struct super_block *sb, struct au_opt_xino *xino, int remount)
++int au_xino_set(struct super_block *sb, struct au_opt_xino *xiopt, int remount)
 +{
 +	int err, skip;
-+	struct dentry *parent, *cur_parent;
++	struct dentry *dentry, *parent, *cur_dentry, *cur_parent;
 +	struct qstr *dname, *cur_name;
 +	struct file *cur_xino;
-+	struct inode *dir;
 +	struct au_sbinfo *sbinfo;
++	struct path *path, *cur_path;
 +
 +	SiMustWriteLock(sb);
 +
 +	err = 0;
 +	sbinfo = au_sbi(sb);
-+	parent = dget_parent(xino->file->f_path.dentry);
++	path = &xiopt->file->f_path;
++	dentry = path->dentry;
++	parent = dget_parent(dentry);
 +	if (remount) {
 +		skip = 0;
-+		dname = &xino->file->f_path.dentry->d_name;
 +		cur_xino = sbinfo->si_xib;
 +		if (cur_xino) {
-+			cur_parent = dget_parent(cur_xino->f_path.dentry);
-+			cur_name = &cur_xino->f_path.dentry->d_name;
++			cur_path = &cur_xino->f_path;
++			cur_dentry = cur_path->dentry;
++			cur_parent = dget_parent(cur_dentry);
++			cur_name = &cur_dentry->d_name;
++			dname = &dentry->d_name;
 +			skip = (cur_parent == parent
 +				&& au_qstreq(dname, cur_name));
 +			dput(cur_parent);
@@ -36932,29 +37043,25 @@ index 000000000000..29f53f9e5968
 +	}
 +
 +	au_opt_set(sbinfo->si_mntflags, XINO);
-+	dir = d_inode(parent);
-+	inode_lock_nested(dir, AuLsc_I_PARENT);
-+	/* mnt_want_write() is unnecessary here */
-+	err = au_xino_set_xib(sb, xino->file);
++	err = au_xino_set_xib(sb, path);
++	/* si_x{read,write} are set */
 +	if (!err)
-+		err = au_xigen_set(sb, xino->file);
++		err = au_xigen_set(sb, path);
 +	if (!err)
-+		err = au_xino_set_br(sb, xino->file);
-+	inode_unlock(dir);
-+	if (!err)
++		err = au_xino_set_br(sb, path);
++	if (!err) {
++		dbgaufs_brs_add(sb, 0, /*topdown*/1);
 +		goto out; /* success */
++	}
 +
 +	/* reset all */
-+	AuIOErr("failed creating xino(%d).\n", err);
-+	au_xigen_clr(sb);
-+	xino_clear_xib(sb);
++	AuIOErr("failed setting xino(%d).\n", err);
++	au_xino_clr(sb);
 +
 +out:
 +	dput(parent);
 +	return err;
 +}
-+
-+/* ---------------------------------------------------------------------- */
 +
 +/*
 + * create a xinofile at the default place/path.
@@ -37018,6 +37125,248 @@ index 000000000000..29f53f9e5968
 +
 +/* ---------------------------------------------------------------------- */
 +
++/*
++ * initialize the xinofile for the specified branch @br
++ * at the place/path where @base_file indicates.
++ * test whether another branch is on the same filesystem or not,
++ * if found then share the xinofile with another branch.
++ */
++int au_xino_init_br(struct super_block *sb, struct au_branch *br, ino_t h_ino,
++		    struct path *base)
++{
++	int err;
++	struct au_xino_do_set_br args = {
++		.h_ino	= h_ino,
++		.br	= br
++	};
++
++	args.writef = au_sbi(sb)->si_xwrite;
++	args.bshared = sbr_find_shared(sb, /*btop*/0, au_sbbot(sb),
++				       au_br_sb(br));
++	err = au_xino_do_set_br(sb, base, &args);
++	if (unlikely(err))
++		au_xino_put(br);
++
++	return err;
++}
++
++/* ---------------------------------------------------------------------- */
++
++/*
++ * get an unused inode number from bitmap
++ */
++ino_t au_xino_new_ino(struct super_block *sb)
++{
++	ino_t ino;
++	unsigned long *p, pindex, ul, pend;
++	struct au_sbinfo *sbinfo;
++	struct file *file;
++	int free_bit, err;
++
++	if (!au_opt_test(au_mntflags(sb), XINO))
++		return iunique(sb, AUFS_FIRST_INO);
++
++	sbinfo = au_sbi(sb);
++	mutex_lock(&sbinfo->si_xib_mtx);
++	p = sbinfo->si_xib_buf;
++	free_bit = sbinfo->si_xib_next_bit;
++	if (free_bit < page_bits && !test_bit(free_bit, p))
++		goto out; /* success */
++	free_bit = find_first_zero_bit(p, page_bits);
++	if (free_bit < page_bits)
++		goto out; /* success */
++
++	pindex = sbinfo->si_xib_last_pindex;
++	for (ul = pindex - 1; ul < ULONG_MAX; ul--) {
++		err = xib_pindex(sb, ul);
++		if (unlikely(err))
++			goto out_err;
++		free_bit = find_first_zero_bit(p, page_bits);
++		if (free_bit < page_bits)
++			goto out; /* success */
++	}
++
++	file = sbinfo->si_xib;
++	pend = vfsub_f_size_read(file) / PAGE_SIZE;
++	for (ul = pindex + 1; ul <= pend; ul++) {
++		err = xib_pindex(sb, ul);
++		if (unlikely(err))
++			goto out_err;
++		free_bit = find_first_zero_bit(p, page_bits);
++		if (free_bit < page_bits)
++			goto out; /* success */
++	}
++	BUG();
++
++out:
++	set_bit(free_bit, p);
++	sbinfo->si_xib_next_bit = free_bit + 1;
++	pindex = sbinfo->si_xib_last_pindex;
++	mutex_unlock(&sbinfo->si_xib_mtx);
++	ino = xib_calc_ino(pindex, free_bit);
++	AuDbg("i%lu\n", (unsigned long)ino);
++	return ino;
++out_err:
++	mutex_unlock(&sbinfo->si_xib_mtx);
++	AuDbg("i0\n");
++	return 0;
++}
++
++/* for s_op->delete_inode() */
++void au_xino_delete_inode(struct inode *inode, const int unlinked)
++{
++	int err;
++	unsigned int mnt_flags;
++	aufs_bindex_t bindex, bbot, bi;
++	unsigned char try_trunc;
++	struct au_iinfo *iinfo;
++	struct super_block *sb;
++	struct au_hinode *hi;
++	struct inode *h_inode;
++	struct au_branch *br;
++	vfs_writef_t xwrite;
++
++	AuDebugOn(au_is_bad_inode(inode));
++
++	sb = inode->i_sb;
++	mnt_flags = au_mntflags(sb);
++	if (!au_opt_test(mnt_flags, XINO)
++	    || inode->i_ino == AUFS_ROOT_INO)
++		return;
++
++	if (unlinked) {
++		au_xigen_inc(inode);
++		au_xib_clear_bit(inode);
++	}
++
++	iinfo = au_ii(inode);
++	bindex = iinfo->ii_btop;
++	if (bindex < 0)
++		return;
++
++	xwrite = au_sbi(sb)->si_xwrite;
++	try_trunc = !!au_opt_test(mnt_flags, TRUNC_XINO);
++	hi = au_hinode(iinfo, bindex);
++	bbot = iinfo->ii_bbot;
++	for (; bindex <= bbot; bindex++, hi++) {
++		h_inode = hi->hi_inode;
++		if (!h_inode
++		    || (!unlinked && h_inode->i_nlink))
++			continue;
++
++		/* inode may not be revalidated */
++		bi = au_br_index(sb, hi->hi_id);
++		if (bi < 0)
++			continue;
++
++		br = au_sbr(sb, bi);
++		err = au_xino_do_write(xwrite, au_xino_file(br),
++				       h_inode->i_ino, /*ino*/0);
++		if (!err && try_trunc
++		    && au_test_fs_trunc_xino(au_br_sb(br)))
++			xino_try_trunc(sb, br);
++	}
++}
++
++/* ---------------------------------------------------------------------- */
++
++static int au_xinondir_find(struct au_xino *xi, ino_t h_ino)
++{
++	int found, total, i;
++
++	found = -1;
++	total = xi->xi_nondir.total;
++	for (i = 0; i < total; i++) {
++		if (xi->xi_nondir.array[i] != h_ino)
++			continue;
++		found = i;
++		break;
++	}
++
++	return found;
++}
++
++static int au_xinondir_expand(struct au_xino *xi)
++{
++	int err, sz;
++	ino_t *p;
++
++	BUILD_BUG_ON(KMALLOC_MAX_SIZE > INT_MAX);
++
++	err = -ENOMEM;
++	sz = xi->xi_nondir.total * sizeof(ino_t);
++	if (unlikely(sz > KMALLOC_MAX_SIZE / 2))
++		goto out;
++	p = au_kzrealloc(xi->xi_nondir.array, sz, sz << 1, GFP_ATOMIC,
++			 /*may_shrink*/0);
++	if (p) {
++		xi->xi_nondir.array = p;
++		xi->xi_nondir.total <<= 1;
++		AuDbg("xi_nondir.total %d\n", xi->xi_nondir.total);
++		err = 0;
++	}
++
++out:
++	return err;
++}
++
++void au_xinondir_leave(struct super_block *sb, aufs_bindex_t bindex,
++		       ino_t h_ino, int idx)
++{
++	struct au_xino *xi;
++
++	AuDebugOn(!au_opt_test(au_mntflags(sb), XINO));
++	xi = au_sbr(sb, bindex)->br_xino;
++	AuDebugOn(idx < 0 || xi->xi_nondir.total <= idx);
++
++	spin_lock(&xi->xi_nondir.spin);
++	AuDebugOn(xi->xi_nondir.array[idx] != h_ino);
++	xi->xi_nondir.array[idx] = 0;
++	spin_unlock(&xi->xi_nondir.spin);
++	wake_up_all(&xi->xi_nondir.wqh);
++}
++
++int au_xinondir_enter(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
++		      int *idx)
++{
++	int err, found, empty;
++	struct au_xino *xi;
++
++	err = 0;
++	*idx = -1;
++	if (!au_opt_test(au_mntflags(sb), XINO))
++		goto out; /* no xino */
++
++	xi = au_sbr(sb, bindex)->br_xino;
++
++again:
++	spin_lock(&xi->xi_nondir.spin);
++	found = au_xinondir_find(xi, h_ino);
++	if (found == -1) {
++		empty = au_xinondir_find(xi, /*h_ino*/0);
++		if (empty == -1) {
++			empty = xi->xi_nondir.total;
++			err = au_xinondir_expand(xi);
++			if (unlikely(err))
++				goto out_unlock;
++		}
++		xi->xi_nondir.array[empty] = h_ino;
++		*idx = empty;
++	} else {
++		spin_unlock(&xi->xi_nondir.spin);
++		wait_event(xi->xi_nondir.wqh,
++			   xi->xi_nondir.array[found] != h_ino);
++		goto again;
++	}
++
++out_unlock:
++	spin_unlock(&xi->xi_nondir.spin);
++out:
++	return err;
++}
++
++/* ---------------------------------------------------------------------- */
++
 +int au_xino_path(struct seq_file *seq, struct file *file)
 +{
 +	int err;
@@ -37035,109 +37384,13 @@ index 000000000000..29f53f9e5968
 +out:
 +	return err;
 +}
-+
-+/* ---------------------------------------------------------------------- */
-+
-+void au_xinondir_leave(struct super_block *sb, aufs_bindex_t bindex,
-+		       ino_t h_ino, int idx)
-+{
-+	struct au_xino_file *xino;
-+
-+	AuDebugOn(!au_opt_test(au_mntflags(sb), XINO));
-+	xino = &au_sbr(sb, bindex)->br_xino;
-+	AuDebugOn(idx < 0 || xino->xi_nondir.total <= idx);
-+
-+	spin_lock(&xino->xi_nondir.spin);
-+	AuDebugOn(xino->xi_nondir.array[idx] != h_ino);
-+	xino->xi_nondir.array[idx] = 0;
-+	spin_unlock(&xino->xi_nondir.spin);
-+	wake_up_all(&xino->xi_nondir.wqh);
-+}
-+
-+static int au_xinondir_find(struct au_xino_file *xino, ino_t h_ino)
-+{
-+	int found, total, i;
-+
-+	found = -1;
-+	total = xino->xi_nondir.total;
-+	for (i = 0; i < total; i++) {
-+		if (xino->xi_nondir.array[i] != h_ino)
-+			continue;
-+		found = i;
-+		break;
-+	}
-+
-+	return found;
-+}
-+
-+static int au_xinondir_expand(struct au_xino_file *xino)
-+{
-+	int err, sz;
-+	ino_t *p;
-+
-+	BUILD_BUG_ON(KMALLOC_MAX_SIZE > INT_MAX);
-+
-+	err = -ENOMEM;
-+	sz = xino->xi_nondir.total * sizeof(ino_t);
-+	if (unlikely(sz > KMALLOC_MAX_SIZE / 2))
-+		goto out;
-+	p = au_kzrealloc(xino->xi_nondir.array, sz, sz << 1, GFP_ATOMIC,
-+			 /*may_shrink*/0);
-+	if (p) {
-+		xino->xi_nondir.array = p;
-+		xino->xi_nondir.total <<= 1;
-+		AuDbg("xi_nondir.total %d\n", xino->xi_nondir.total);
-+		err = 0;
-+	}
-+
-+out:
-+	return err;
-+}
-+
-+int au_xinondir_enter(struct super_block *sb, aufs_bindex_t bindex, ino_t h_ino,
-+		      int *idx)
-+{
-+	int err, found, empty;
-+	struct au_xino_file *xino;
-+
-+	err = 0;
-+	*idx = -1;
-+	if (!au_opt_test(au_mntflags(sb), XINO))
-+		goto out; /* no xino */
-+
-+	xino = &au_sbr(sb, bindex)->br_xino;
-+
-+again:
-+	spin_lock(&xino->xi_nondir.spin);
-+	found = au_xinondir_find(xino, h_ino);
-+	if (found == -1) {
-+		empty = au_xinondir_find(xino, /*h_ino*/0);
-+		if (empty == -1) {
-+			empty = xino->xi_nondir.total;
-+			err = au_xinondir_expand(xino);
-+			if (unlikely(err))
-+				goto out_unlock;
-+		}
-+		xino->xi_nondir.array[empty] = h_ino;
-+		*idx = empty;
-+	} else {
-+		spin_unlock(&xino->xi_nondir.spin);
-+		wait_event(xino->xi_nondir.wqh,
-+			   xino->xi_nondir.array[found] != h_ino);
-+		goto again;
-+	}
-+
-+out_unlock:
-+	spin_unlock(&xino->xi_nondir.spin);
-+out:
-+	return err;
-+}
 diff --git a/include/uapi/linux/aufs_type.h b/include/uapi/linux/aufs_type.h
 new file mode 100644
-index 000000000000..fbb47dec12d6
+index 000000000000..15c3eafa7253
 --- /dev/null
 +++ b/include/uapi/linux/aufs_type.h
-@@ -0,0 +1,447 @@
+@@ -0,0 +1,448 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
 + *
@@ -37179,7 +37432,7 @@ index 000000000000..fbb47dec12d6
 +
 +#include <linux/limits.h>
 +
-+#define AUFS_VERSION	"4.17-20180611"
++#define AUFS_VERSION	"4.18-20180820"
 +
 +/* todo? move this to linux-2.6.19/include/magic.h */
 +#define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')
