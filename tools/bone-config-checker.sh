@@ -70,6 +70,8 @@ cd ${DIR}/KERNEL/
 config="CONFIG_KERNEL_XZ" ; config_disable
 config="CONFIG_KERNEL_LZO" ; config_enable
 
+config="CONFIG_THUMB2_KERNEL" ; config_enable
+
 #
 # CPU Core family selection
 #
@@ -371,17 +373,7 @@ config="CONFIG_PATA_PLATFORM" ; config_disable
 config="CONFIG_ATA_BMDMA" ; config_disable
 config="CONFIG_ATA_SFF" ; config_disable
 config="CONFIG_SATA_AHCI_PLATFORM" ; config_disable
+
 #
-
-
-
-
-
-
-
-
-
-
-
 
 
