@@ -398,7 +398,6 @@ soc () {
 	dir 'soc/ti/bone_common'
 	dir 'soc/ti/uboot'
 	dir 'soc/ti/blue'
-	dir 'soc/ti/sancloud'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
 	dir 'soc/ti/beaglebone_capes'
@@ -441,8 +440,6 @@ beaglebone () {
 
 #		device="am335x-boneblack-roboticscape.dtb" ; dtb_makefile_append
 #		device="am335x-boneblack-wireless-roboticscape.dtb" ; dtb_makefile_append
-
-		device="am335x-sancloud-bbe.dtb" ; dtb_makefile_append
 
 		device="am335x-abbbi.dtb" ; dtb_makefile_append
 

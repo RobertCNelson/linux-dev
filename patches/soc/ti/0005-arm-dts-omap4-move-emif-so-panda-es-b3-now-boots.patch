@@ -1,26 +1,26 @@
-From 026b0a6ea315830f11037e24fd0ed11224b04532 Mon Sep 17 00:00:00 2001
+From 167fc1879816331b4fa7e7b402fb9380cea25a93 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 22 Apr 2015 12:06:40 -0500
+Date: Thu, 23 Aug 2018 17:22:01 -0500
 Subject: [PATCH 5/8] arm: dts: omap4: move emif so panda-es-b3 now boots
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile                |  1 +
- arch/arm/boot/dts/omap4-panda-a4.dts      | 12 +++++
- arch/arm/boot/dts/omap4-panda-common.dtsi | 10 -----
- arch/arm/boot/dts/omap4-panda-es-b3.dts   | 73 +++++++++++++++++++++++++++++++
- arch/arm/boot/dts/omap4-panda-es.dts      | 12 +++++
- arch/arm/boot/dts/omap4-panda.dts         | 12 +++++
+ arch/arm/boot/dts/omap4-panda-a4.dts      | 12 ++++
+ arch/arm/boot/dts/omap4-panda-common.dtsi | 10 ----
+ arch/arm/boot/dts/omap4-panda-es-b3.dts   | 73 +++++++++++++++++++++++
+ arch/arm/boot/dts/omap4-panda-es.dts      | 12 ++++
+ arch/arm/boot/dts/omap4-panda.dts         | 12 ++++
  arch/arm/boot/dts/omap4-sdp.dts           |  2 +
  arch/arm/boot/dts/omap4.dtsi              |  2 +
  8 files changed, 114 insertions(+), 10 deletions(-)
  create mode 100644 arch/arm/boot/dts/omap4-panda-es-b3.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index efed27b..6c8fbcf 100644
+index d3c65a7c74ef..88102c93763e 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -575,6 +575,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
+@@ -733,6 +733,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
  	omap4-panda.dtb \
  	omap4-panda-a4.dtb \
  	omap4-panda-es.dtb \
@@ -29,7 +29,7 @@ index efed27b..6c8fbcf 100644
  	omap4-sdp-es23plus.dtb \
  	omap4-var-dvk-om44.dtb \
 diff --git a/arch/arm/boot/dts/omap4-panda-a4.dts b/arch/arm/boot/dts/omap4-panda-a4.dts
-index 78d3631..67ee5b4 100644
+index f1a6476af371..63b895b85eda 100644
 --- a/arch/arm/boot/dts/omap4-panda-a4.dts
 +++ b/arch/arm/boot/dts/omap4-panda-a4.dts
 @@ -10,6 +10,18 @@
@@ -52,10 +52,10 @@ index 78d3631..67ee5b4 100644
  &dss_hdmi_pins {
  	pinctrl-single,pins = <
 diff --git a/arch/arm/boot/dts/omap4-panda-common.dtsi b/arch/arm/boot/dts/omap4-panda-common.dtsi
-index 1673689..c6b90f0 100644
+index 27895c1604b9..bcdfe29a4b84 100644
 --- a/arch/arm/boot/dts/omap4-panda-common.dtsi
 +++ b/arch/arm/boot/dts/omap4-panda-common.dtsi
-@@ -463,16 +463,6 @@
+@@ -491,16 +491,6 @@
  	};
  };
  
@@ -74,7 +74,7 @@ index 1673689..c6b90f0 100644
  	pinctrl-0 = <&mcbsp1_pins>;
 diff --git a/arch/arm/boot/dts/omap4-panda-es-b3.dts b/arch/arm/boot/dts/omap4-panda-es-b3.dts
 new file mode 100644
-index 0000000..2f1dabc
+index 000000000000..2f1dabcc6adf
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap4-panda-es-b3.dts
 @@ -0,0 +1,73 @@
@@ -152,7 +152,7 @@ index 0000000..2f1dabc
 +	 ti,no-reset-on-init;
 +};
 diff --git a/arch/arm/boot/dts/omap4-panda-es.dts b/arch/arm/boot/dts/omap4-panda-es.dts
-index 119f8e6..5c54ccf 100644
+index 19d02df8d8a5..027b587eeecf 100644
 --- a/arch/arm/boot/dts/omap4-panda-es.dts
 +++ b/arch/arm/boot/dts/omap4-panda-es.dts
 @@ -15,6 +15,18 @@
@@ -175,7 +175,7 @@ index 119f8e6..5c54ccf 100644
  &sound {
  	ti,model = "PandaBoardES";
 diff --git a/arch/arm/boot/dts/omap4-panda.dts b/arch/arm/boot/dts/omap4-panda.dts
-index a0e28b2..3ee41ef 100644
+index a0e28b2e254e..3ee41ef824c0 100644
 --- a/arch/arm/boot/dts/omap4-panda.dts
 +++ b/arch/arm/boot/dts/omap4-panda.dts
 @@ -14,3 +14,15 @@
@@ -195,7 +195,7 @@ index a0e28b2..3ee41ef 100644
 +	status = "ok";
 +};
 diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
-index d728ec9..fb2cda4 100644
+index 490726b52216..e24a7f216f3c 100644
 --- a/arch/arm/boot/dts/omap4-sdp.dts
 +++ b/arch/arm/boot/dts/omap4-sdp.dts
 @@ -502,11 +502,13 @@
@@ -213,10 +213,10 @@ index d728ec9..fb2cda4 100644
  
  &keypad {
 diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index 0ced079..008eacb 100644
+index 1a96d4317c97..142ba6bf38a3 100644
 --- a/arch/arm/boot/dts/omap4.dtsi
 +++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -695,6 +695,7 @@
+@@ -403,6 +403,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
@@ -224,14 +224,14 @@ index 0ced079..008eacb 100644
  		};
  
  		emif2: emif@4d000000 {
-@@ -707,6 +708,7 @@
+@@ -415,6 +416,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
 +			status = "disabled";
  		};
  
- 		ocp2scp@4a0ad000 {
+ 		timer5: timer@40138000 {
 -- 
-2.10.2
+2.18.0
 
