@@ -295,6 +295,7 @@ config="CONFIG_PARPORT" ; config_disable
 #
 # NVME Support
 #
+config="CONFIG_ENCLOSURE_SERVICES" ; config_disable
 config="CONFIG_NVME_FC" ; config_disable
 config="CONFIG_NVME_TARGET" ; config_disable
 
@@ -309,7 +310,6 @@ config="CONFIG_C2PORT" ; config_disable
 #
 config="CONFIG_EEPROM_AT24" ; config_enable
 config="CONFIG_EEPROM_AT25" ; config_enable
-config="CONFIG_EEPROM_93XX46" ; config_module
 
 #
 # Texas Instruments shared transport line discipline
@@ -446,6 +446,7 @@ config="CONFIG_JOYSTICK_PSXPAD_SPI" ; config_enable
 config="CONFIG_JOYSTICK_PSXPAD_SPI_FF" ; config_enable
 config="CONFIG_JOYSTICK_PXRC" ; config_module
 
+config="CONFIG_TOUCHSCREEN_AR1021_I2C" ; config_module
 config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_module
 config="CONFIG_TOUCHSCREEN_TOUCHIT213" ; config_disable
 config="CONFIG_TOUCHSCREEN_SILEAD" ; config_module
@@ -692,7 +693,6 @@ config="CONFIG_SENSORS_W83781D" ; config_module
 config="CONFIG_SENSORS_W83L785TS" ; config_module
 config="CONFIG_SENSORS_W83627HF" ; config_module
 
-
 config="CONFIG_THERMAL_GOV_BANG_BANG" ; config_enable
 config="CONFIG_CLOCK_THERMAL" ; config_enable
 config="CONFIG_DEVFREQ_THERMAL" ; config_enable
@@ -769,6 +769,11 @@ config="CONFIG_DRM" ; config_enable
 config="CONFIG_DRM_KMS_HELPER" ; config_enable
 
 #
+# I2C encoder or helper chips
+#
+config="CONFIG_DRM_I2C_ADIHDMI" ; config_disable
+
+#
 # AMD Library routines
 #
 config="CONFIG_DRM_EXYNOS" ; config_disable
@@ -811,6 +816,7 @@ config="CONFIG_DRM_ETNAVIV" ; config_enable
 config="CONFIG_DRM_TINYDRM" ; config_module
 config="CONFIG_TINYDRM_MIPI_DBI" ; config_module
 config="CONFIG_TINYDRM_ILI9225" ; config_module
+config="CONFIG_TINYDRM_ILI9341" ; config_module
 config="CONFIG_TINYDRM_MI0283QT" ; config_module
 config="CONFIG_TINYDRM_REPAPER" ; config_module
 config="CONFIG_TINYDRM_ST7586" ; config_module
@@ -947,6 +953,7 @@ config="CONFIG_USB_G_MULTI" ; config_module
 config="CONFIG_USB_G_MULTI_RNDIS" ; config_enable
 config="CONFIG_USB_G_HID" ; config_module
 config="CONFIG_USB_G_DBGP" ; config_module
+config="CONFIG_UWB" ; config_disable
 
 #
 # MMC/SD/SDIO Card Drivers
@@ -972,6 +979,7 @@ config="CONFIG_MMC_DW_PLTFM" ; config_enable
 config="CONFIG_MMC_DW_ROCKCHIP" ; config_enable
 config="CONFIG_MMC_CQHCI" ; config_disable
 config="CONFIG_MMC_SDHCI_OMAP" ; config_enable
+config="CONFIG_MEMSTICK" ; config_disable
 
 #
 # LED drivers
@@ -1112,7 +1120,8 @@ config="CONFIG_TI_CPPI41" ; config_enable
 #
 config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
 config="CONFIG_UIO_DMEM_GENIRQ" ; config_module
-config="CONFIG_UIO_PRUSS" ; config_module
+#Broken in v4.19.x
+config="CONFIG_UIO_PRUSS" ; config_disable
 
 #STAGING
 #
