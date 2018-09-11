@@ -168,11 +168,6 @@ config="CONFIG_PM_WAKELOCKS" ; config_enable
 config="CONFIG_PM_WAKELOCKS_GC" ; config_enable
 
 #
-# EFI (Extensible Firmware Interface) Support
-#
-config="CONFIG_EFI_ARMSTUB_DTB_LOADER" ; config_enable
-
-#
 # Tegra firmware driver
 #
 config="CONFIG_ARM_CRYPTO" ; config_enable
@@ -295,13 +290,13 @@ config="CONFIG_PARPORT" ; config_disable
 #
 # NVME Support
 #
-config="CONFIG_ENCLOSURE_SERVICES" ; config_disable
 config="CONFIG_NVME_FC" ; config_disable
 config="CONFIG_NVME_TARGET" ; config_disable
 
 #
 # Misc devices
 #
+config="CONFIG_ENCLOSURE_SERVICES" ; config_disable
 config="CONFIG_TIEQEP" ; config_module
 config="CONFIG_C2PORT" ; config_disable
 
@@ -430,6 +425,7 @@ config="CONFIG_WIZNET_W5100_SPI" ; config_enable
 #
 # MII PHY device drivers
 #
+config="CONFIG_SFP" ; config_disable
 config="CONFIG_AMD_PHY" ; config_disable
 config="CONFIG_AQUANTIA_PHY" ; config_disable
 
@@ -729,21 +725,32 @@ config="CONFIG_SENSORS_UCD9200" ; config_module
 config="CONFIG_SENSORS_ZL6100" ; config_module
 
 config="CONFIG_SENSORS_SHT15" ; config_module
+
+config="CONFIG_SENSORS_SHT3x" ; config_module
 config="CONFIG_SENSORS_SHTC1" ; config_module
+
 config="CONFIG_SENSORS_SMSC47M1" ; config_module
+
 config="CONFIG_SENSORS_SMSC47B397" ; config_module
+
 config="CONFIG_SENSORS_SCH5636" ; config_module
 config="CONFIG_SENSORS_STTS751" ; config_module
+
 config="CONFIG_SENSORS_ADC128D818" ; config_module
+
 config="CONFIG_SENSORS_INA209" ; config_module
 config="CONFIG_SENSORS_INA2XX" ; config_module
 config="CONFIG_SENSORS_INA3221" ; config_module
 config="CONFIG_SENSORS_TC74" ; config_module
+
 config="CONFIG_SENSORS_TMP103" ; config_module
 config="CONFIG_SENSORS_TMP108" ; config_module
+
 config="CONFIG_SENSORS_W83773G" ; config_module
 config="CONFIG_SENSORS_W83781D" ; config_module
+
 config="CONFIG_SENSORS_W83L785TS" ; config_module
+
 config="CONFIG_SENSORS_W83627HF" ; config_module
 
 config="CONFIG_THERMAL_GOV_BANG_BANG" ; config_enable
@@ -784,11 +791,14 @@ config="CONFIG_MFD_TPS65910" ; config_enable
 config="CONFIG_MFD_WL1273_CORE" ; config_module
 
 config="CONFIG_REGULATOR_USERSPACE_CONSUMER" ; config_enable
+
 config="CONFIG_REGULATOR_ACT8865" ; config_enable
 config="CONFIG_REGULATOR_AD5398" ; config_enable
 config="CONFIG_REGULATOR_ANATOP" ; config_enable
+
 config="CONFIG_REGULATOR_AXP20X" ; config_enable
 config="CONFIG_REGULATOR_DA9052" ; config_enable
+
 config="CONFIG_REGULATOR_FAN53555" ; config_enable
 config="CONFIG_REGULATOR_GPIO" ; config_enable
 
@@ -796,9 +806,12 @@ config="CONFIG_REGULATOR_PBIAS" ; config_enable
 config="CONFIG_REGULATOR_PFUZE100" ; config_enable
 
 config="CONFIG_REGULATOR_PWM" ; config_enable
+
 config="CONFIG_REGULATOR_TI_ABB" ; config_enable
+
 config="CONFIG_REGULATOR_TPS65217" ; config_enable
 config="CONFIG_REGULATOR_TPS65218" ; config_enable
+
 config="CONFIG_REGULATOR_TPS65910" ; config_enable
 
 config="CONFIG_CEC_CORE" ; config_enable
@@ -1070,6 +1083,7 @@ config="CONFIG_RTC_DRV_ISL12026" ; config_enable
 config="CONFIG_RTC_DRV_X1205" ; config_enable
 
 config="CONFIG_RTC_DRV_PCF85063" ; config_enable
+config="CONFIG_RTC_DRV_PCF85363" ; config_enable
 
 config="CONFIG_RTC_DRV_PCF8583" ; config_enable
 config="CONFIG_RTC_DRV_M41T80" ; config_enable
