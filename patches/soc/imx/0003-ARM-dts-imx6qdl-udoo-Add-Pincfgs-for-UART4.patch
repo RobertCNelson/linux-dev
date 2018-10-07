@@ -1,0 +1,46 @@
+From 426ca89e4dd50af531c3d21a88d59a6b061c8a16 Mon Sep 17 00:00:00 2001
+From: Markus Kueffner <kueffner.markus@gmail.com>
+Date: Thu, 4 Oct 2018 16:33:59 +0200
+Subject: [PATCH 3/3] ARM: dts: imx6qdl-udoo: Add Pincfgs for UART4
+
+Add Pincfgs for UART4 to enable Communication with the onboard SAM3X
+
+Signed-off-by: Markus Kueffner <kueffner.markus@gmail.com>
+---
+ arch/arm/boot/dts/imx6qdl-udoo.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
+index 4f27861bbb32..c260bbfec364 100644
+--- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
+@@ -195,6 +195,13 @@
+ 			>;
+ 		};
+ 
++		pinctrl_uart4: uart4grp {
++			fsl,pins = <
++				MX6QDL_PAD_KEY_COL0__UART4_TX_DATA	0x1b0b1
++				MX6QDL_PAD_KEY_ROW0__UART4_RX_DATA	0x1b0b1
++			>;
++		};
++
+ 		pinctrl_usbh: usbhgrp {
+ 			fsl,pins = <
+ 				MX6QDL_PAD_GPIO_17__GPIO7_IO12 0x80000000
+@@ -265,6 +272,12 @@
+ 	status = "okay";
+ };
+ 
++&uart4 { // iMX6-Arduino internal serial port - ttymxc3
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_uart4>;
++	status = "okay";
++};
++
+ &usbh1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_usbh>;
+-- 
+2.19.0
+
