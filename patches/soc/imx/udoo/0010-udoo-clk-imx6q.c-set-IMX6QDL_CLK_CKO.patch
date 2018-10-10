@@ -1,0 +1,28 @@
+From 280af39162d8282f1fd9e68f4976f468c92dcf81 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 9 Oct 2018 16:13:37 -0500
+Subject: [PATCH 10/10] udoo: clk-imx6q.c: set IMX6QDL_CLK_CKO
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/clk/imx/clk-imx6q.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/clk/imx/clk-imx6q.c b/drivers/clk/imx/clk-imx6q.c
+index 8d518ad5dc13..00b2a7311072 100644
+--- a/drivers/clk/imx/clk-imx6q.c
++++ b/drivers/clk/imx/clk-imx6q.c
+@@ -920,5 +920,10 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 	}
+ 
+ 	imx_register_uart_clocks(uart_clks);
++
++	if (of_machine_is_compatible("udoo,imx6dl-udoo") ||
++	  of_machine_is_compatible("udoo,imx6q-udoo"))
++		clk_prepare_enable(clk[IMX6QDL_CLK_CKO]);
++
+ }
+ CLK_OF_DECLARE(imx6q, "fsl,imx6q-ccm", imx6q_clocks_init);
+-- 
+2.19.0
+

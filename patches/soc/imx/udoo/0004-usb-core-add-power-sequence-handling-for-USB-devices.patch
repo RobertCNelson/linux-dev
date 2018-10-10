@@ -21,15 +21,15 @@ Tested-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
 Reviewed-by: Vaibhav Hiremath <hvaibhav.linux@gmail.com>
 ---
  drivers/usb/Kconfig    |  1 +
- drivers/usb/core/hub.c | 49 +++++++++++++++++++++++++++++++++++++++++++++----
+ drivers/usb/core/hub.c | 47 +++++++++++++++++++++++++++++++++++++++---
  drivers/usb/core/hub.h |  1 +
- 3 files changed, 47 insertions(+), 4 deletions(-)
+ 3 files changed, 46 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/Kconfig b/drivers/usb/Kconfig
-index 939a63bca82f..b6f626e6fc2b 100644
+index 987fc5ba6321..bd09fc8ff763 100644
 --- a/drivers/usb/Kconfig
 +++ b/drivers/usb/Kconfig
-@@ -39,6 +39,7 @@ config USB
+@@ -45,6 +45,7 @@ config USB
  	tristate "Support for Host-side USB"
  	depends on USB_ARCH_HAS_HCD
  	select USB_COMMON
@@ -38,7 +38,7 @@ index 939a63bca82f..b6f626e6fc2b 100644
  	---help---
  	  Universal Serial Bus (USB) is a specification for a serial bus
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 9dca59ef18b3..7a672962b598 100644
+index 462ce49f683a..a90521924174 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
 @@ -28,6 +28,7 @@
@@ -49,7 +49,7 @@ index 9dca59ef18b3..7a672962b598 100644
  
  #include <linux/uaccess.h>
  #include <asm/byteorder.h>
-@@ -1619,6 +1620,7 @@ static void hub_disconnect(struct usb_interface *intf)
+@@ -1658,6 +1659,7 @@ static void hub_disconnect(struct usb_interface *intf)
  	hub->error = 0;
  	hub_quiesce(hub, HUB_DISCONNECT);
  
@@ -57,8 +57,8 @@ index 9dca59ef18b3..7a672962b598 100644
  	mutex_lock(&usb_port_peer_mutex);
  
  	/* Avoid races with recursively_mark_NOTATTACHED() */
-@@ -1646,12 +1648,42 @@ static void hub_disconnect(struct usb_interface *intf)
- 	kref_put(&hub->kref, hub_release);
+@@ -1704,11 +1706,41 @@ static bool hub_descriptor_is_sane(struct usb_host_interface *desc)
+         return true;
  }
  
 +#ifdef CONFIG_OF
@@ -93,14 +93,13 @@ index 9dca59ef18b3..7a672962b598 100644
  static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  {
  	struct usb_host_interface *desc;
- 	struct usb_endpoint_descriptor *endpoint;
  	struct usb_device *hdev;
  	struct usb_hub *hub;
 +	int ret = -ENODEV;
  
  	desc = intf->cur_altsetting;
  	hdev = interface_to_usbdev(intf);
-@@ -1756,6 +1788,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
+@@ -1799,6 +1831,7 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	INIT_DELAYED_WORK(&hub->leds, led_work);
  	INIT_DELAYED_WORK(&hub->init_work, NULL);
  	INIT_WORK(&hub->events, hub_event);
@@ -108,17 +107,15 @@ index 9dca59ef18b3..7a672962b598 100644
  	usb_get_intf(intf);
  	usb_get_dev(hdev);
  
-@@ -1769,11 +1802,14 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 	if (id->driver_info & HUB_QUIRK_CHECK_PORT_AUTOSUSPEND)
+@@ -1813,10 +1846,13 @@ static int hub_probe(struct usb_interface *intf, const struct usb_device_id *id)
  		hub->quirk_check_port_auto_suspend = 1;
  
--	if (hub_configure(hub, endpoint) >= 0)
+ 	if (hub_configure(hub, &desc->endpoint[0].desc) >= 0)
 -		return 0;
-+	if (hub_configure(hub, endpoint) >= 0) {
 +		ret = hub_of_pwrseq_on(hub);
-+		if (!ret)
++		if (!ret){
 +			return 0;
-+	}
++		}
  
  	hub_disconnect(intf);
 -	return -ENODEV;
@@ -126,7 +123,7 @@ index 9dca59ef18b3..7a672962b598 100644
  }
  
  static int
-@@ -3593,14 +3629,19 @@ static int hub_suspend(struct usb_interface *intf, pm_message_t msg)
+@@ -3657,7 +3693,7 @@ static int hub_suspend(struct usb_interface *intf, pm_message_t msg)
  
  	/* stop hub_wq and related activity */
  	hub_quiesce(hub, HUB_SUSPEND);
@@ -134,6 +131,8 @@ index 9dca59ef18b3..7a672962b598 100644
 +	return pwrseq_suspend_list(&hub->pwrseq_on_list);
  }
  
+ /* Report wakeup requests from the ports of a resuming root hub */
+@@ -3697,8 +3733,13 @@ static void report_wakeup_requests(struct usb_hub *hub)
  static int hub_resume(struct usb_interface *intf)
  {
  	struct usb_hub *hub = usb_get_intfdata(intf);
@@ -145,13 +144,13 @@ index 9dca59ef18b3..7a672962b598 100644
 +		return ret;
 +
  	hub_activate(hub, HUB_RESUME);
- 	return 0;
- }
+ 
+ 	/*
 diff --git a/drivers/usb/core/hub.h b/drivers/usb/core/hub.h
-index 34c1a7e22aae..cd86f91e0342 100644
+index 4accfb63f7dc..6349cc6da9f6 100644
 --- a/drivers/usb/core/hub.h
 +++ b/drivers/usb/core/hub.h
-@@ -78,6 +78,7 @@ struct usb_hub {
+@@ -70,6 +70,7 @@ struct usb_hub {
  	struct delayed_work	init_work;
  	struct work_struct      events;
  	struct usb_port		**ports;
@@ -160,5 +159,5 @@ index 34c1a7e22aae..cd86f91e0342 100644
  
  /**
 -- 
-2.11.0
+2.19.0
 
