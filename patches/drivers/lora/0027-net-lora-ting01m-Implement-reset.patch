@@ -1,0 +1,64 @@
+From 7bbcb02d5fef39f8e332954198d1a48368878d2e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Fri, 13 Jul 2018 04:53:01 +0200
+Subject: [PATCH 27/64] net: lora: ting01m: Implement reset
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/ting01m.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/drivers/net/lora/ting01m.c b/drivers/net/lora/ting01m.c
+index 6e01a6c3670a..c00a3f9ae93d 100644
+--- a/drivers/net/lora/ting01m.c
++++ b/drivers/net/lora/ting01m.c
+@@ -65,6 +65,29 @@ static int widora_simple_cmd(struct widora_device *widev, const char *cmd, unsig
+ 	return -EINVAL;
+ }
+ 
++static int widora_do_reset(struct widora_device *widev, unsigned long timeout)
++{
++	char *resp;
++	int ret;
++
++	ret = widora_simple_cmd(widev, "AT+RST", timeout);
++	if (ret)
++		return ret;
++
++	timeout = wait_for_completion_timeout(&widev->line_recv_comp, timeout);
++	if (!timeout)
++		return -ETIMEDOUT;
++
++	resp = widev->rx_buf;
++
++	dev_info(&widev->serdev->dev, "reset: '%s'\n", resp);
++
++	widev->rx_len = 0;
++	reinit_completion(&widev->line_recv_comp);
++
++	return 0;
++}
++
+ static int widora_get_version(struct widora_device *widev, char **version, unsigned long timeout)
+ {
+ 	char *resp;
+@@ -153,6 +176,13 @@ static int widora_probe(struct serdev_device *sdev)
+ 	serdev_device_set_flow_control(sdev, false);
+ 	serdev_device_set_client_ops(sdev, &widora_serdev_client_ops);
+ 
++	ret = widora_do_reset(widev, HZ);
++	if (ret) {
++		dev_err(&sdev->dev, "Failed to reset (%d)\n", ret);
++		serdev_device_close(sdev);
++		return ret;
++	}
++
+ 	ret = widora_get_version(widev, &sz, HZ);
+ 	if (ret) {
+ 		dev_err(&sdev->dev, "Failed to get version (%d)\n", ret);
+-- 
+2.19.1
+

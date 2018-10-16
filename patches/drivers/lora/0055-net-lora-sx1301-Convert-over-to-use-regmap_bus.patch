@@ -1,0 +1,241 @@
+From 024f994e8a6fd5029ac6eb3f20c5e1b141c93594 Mon Sep 17 00:00:00 2001
+From: Ben Whitten <ben.whitten@gmail.com>
+Date: Thu, 9 Aug 2018 22:42:42 +0100
+Subject: [PATCH 55/64] net: lora: sx1301: Convert over to use regmap_bus
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Now the concentrator version of the sx125x is ready, we do the final step
+of converting over so that it can be used.
+We remove all of the unneeded functions and elements in the structs.
+
+Signed-off-by: Ben Whitten <ben.whitten@gmail.com>
+[AF: Updated to new radio bus framework]
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1301.c | 161 ++------------------------------------
+ drivers/net/lora/sx1301.h |   1 -
+ 2 files changed, 8 insertions(+), 154 deletions(-)
+
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index e62deec030d5..971d2347a477 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -74,11 +74,6 @@ static struct regmap_config sx1301_regmap_config = {
+ 	.max_register = SX1301_MAX_REGISTER,
+ };
+ 
+-struct spi_sx1301 {
+-	struct spi_device *parent;
+-	unsigned int regs;
+-};
+-
+ static int sx1301_read_burst(struct sx1301_priv *priv, u8 reg, u8 *val, size_t len)
+ {
+ 	u8 addr = reg & 0x7f;
+@@ -101,105 +96,6 @@ static int sx1301_soft_reset(struct sx1301_priv *priv)
+ 	return regmap_write(priv->regmap, SX1301_PAGE, REG_PAGE_RESET_SOFT_RESET);
+ }
+ 
+-#define REG_RADIO_X_DATA		0
+-#define REG_RADIO_X_DATA_READBACK	1
+-#define REG_RADIO_X_ADDR		2
+-#define REG_RADIO_X_CS			4
+-
+-static int sx1301_radio_set_cs(struct spi_controller *ctrl, bool enable)
+-{
+-	struct spi_sx1301 *ssx = spi_controller_get_devdata(ctrl);
+-	struct net_device *netdev = spi_get_drvdata(ssx->parent);
+-	struct sx1301_priv *priv = netdev_priv(netdev);
+-	unsigned int cs;
+-	int ret;
+-
+-	dev_dbg(&ctrl->dev, "setting CS to %s\n", enable ? "1" : "0");
+-
+-	ret = regmap_read(priv->regmap, ssx->regs + REG_RADIO_X_CS, &cs);
+-	if (ret) {
+-		dev_warn(&ctrl->dev, "failed to read CS (%d)\n", ret);
+-		cs = 0;
+-	}
+-
+-	if (enable)
+-		cs |= BIT(0);
+-	else
+-		cs &= ~BIT(0);
+-
+-	ret = regmap_write(priv->regmap, ssx->regs + REG_RADIO_X_CS, cs);
+-	if (ret) {
+-		dev_err(&ctrl->dev, "failed to write CS (%d)\n", ret);
+-		return ret;
+-	}
+-
+-	return 0;
+-}
+-
+-static void sx1301_radio_spi_set_cs(struct spi_device *spi, bool enable)
+-{
+-	dev_dbg(&spi->dev, "setting SPI CS to %s\n", enable ? "1" : "0");
+-
+-	if (enable)
+-		return;
+-
+-	sx1301_radio_set_cs(spi->controller, enable);
+-}
+-
+-static int sx1301_radio_spi_transfer_one(struct spi_controller *ctrl,
+-	struct spi_device *spi, struct spi_transfer *xfr)
+-{
+-	struct spi_sx1301 *ssx = spi_controller_get_devdata(ctrl);
+-	struct net_device *netdev = spi_get_drvdata(ssx->parent);
+-	struct sx1301_priv *priv = netdev_priv(netdev);
+-	const u8 *tx_buf = xfr->tx_buf;
+-	u8 *rx_buf = xfr->rx_buf;
+-	unsigned int val;
+-	int ret;
+-
+-	if (xfr->len == 0 || xfr->len > 3)
+-		return -EINVAL;
+-
+-	dev_dbg(&spi->dev, "transferring one (%u)\n", xfr->len);
+-
+-	if (tx_buf) {
+-		ret = regmap_write(priv->regmap, ssx->regs + REG_RADIO_X_ADDR, tx_buf ? tx_buf[0] : 0);
+-		if (ret) {
+-			dev_err(&spi->dev, "SPI radio address write failed\n");
+-			return ret;
+-		}
+-
+-		ret = regmap_write(priv->regmap, ssx->regs + REG_RADIO_X_DATA, (tx_buf && xfr->len >= 2) ? tx_buf[1] : 0);
+-		if (ret) {
+-			dev_err(&spi->dev, "SPI radio data write failed\n");
+-			return ret;
+-		}
+-
+-		ret = sx1301_radio_set_cs(ctrl, true);
+-		if (ret) {
+-			dev_err(&spi->dev, "SPI radio CS set failed\n");
+-			return ret;
+-		}
+-
+-		ret = sx1301_radio_set_cs(ctrl, false);
+-		if (ret) {
+-			dev_err(&spi->dev, "SPI radio CS unset failed\n");
+-			return ret;
+-		}
+-	}
+-
+-	if (rx_buf) {
+-		ret = regmap_read(priv->regmap, ssx->regs + REG_RADIO_X_DATA_READBACK, &val);
+-		if (ret) {
+-			dev_err(&spi->dev, "SPI radio data read failed\n");
+-			return ret;
+-		}
+-		rx_buf[xfr->len - 1] = val & 0xff;
+-	}
+-
+-	return 0;
+-}
+-
+ static int sx1301_agc_ram_read(struct sx1301_priv *priv, u8 addr, unsigned int *val)
+ {
+ 	int ret;
+@@ -564,6 +460,11 @@ static int sx130x_loradev_open(struct net_device *netdev)
+ 
+ 	netdev_dbg(netdev, "%s", __func__);
+ 
++	if (!sx130x_radio_devices_okay(priv->dev)) {
++		netdev_err(netdev, "radio devices not yet bound to a driver\n");
++		return -ENXIO;
++	}
++
+ 	ret = regmap_read(priv->regmap, SX1301_GEN, &val);
+ 	if (ret) {
+ 		netdev_err(netdev, "16 read (1) failed\n");
+@@ -629,20 +530,10 @@ static const struct net_device_ops sx130x_net_device_ops = {
+ 	.ndo_start_xmit = sx130x_loradev_start_xmit,
+ };
+ 
+-static void sx1301_radio_setup(struct spi_controller *ctrl)
+-{
+-	ctrl->mode_bits = SPI_CS_HIGH | SPI_NO_CS;
+-	ctrl->bits_per_word_mask = SPI_BPW_MASK(8);
+-	ctrl->num_chipselect = 1;
+-	ctrl->set_cs = sx1301_radio_spi_set_cs;
+-	ctrl->transfer_one = sx1301_radio_spi_transfer_one;
+-}
+-
+ static int sx1301_probe(struct spi_device *spi)
+ {
+ 	struct net_device *netdev;
+ 	struct sx1301_priv *priv;
+-	struct spi_sx1301 *radio;
+ 	struct gpio_desc *rst;
+ 	int ret;
+ 	unsigned int ver;
+@@ -778,47 +669,11 @@ static int sx1301_probe(struct spi_device *spi)
+ 		return ret;
+ 	}
+ 
+-	/* radio A */
++	/* radio */
+ 
+-	priv->radio_a_ctrl = spi_alloc_master(&spi->dev, sizeof(*radio));
+-	if (!priv->radio_a_ctrl) {
+-		return -ENOMEM;
+-	}
+-
+-	sx1301_radio_setup(priv->radio_a_ctrl);
+-	priv->radio_a_ctrl->dev.of_node = of_get_child_by_name(spi->dev.of_node, "radio-a");
+-
+-	radio = spi_controller_get_devdata(priv->radio_a_ctrl);
+-	radio->regs = SX1301_RADIO_A_SPI_DATA;
+-	radio->parent = spi;
+-
+-	ret = devm_spi_register_controller(&spi->dev, priv->radio_a_ctrl);
+-	if (ret) {
+-		dev_err(&spi->dev, "radio A SPI register failed\n");
+-		spi_controller_put(priv->radio_a_ctrl);
+-		return ret;
+-	}
+-
+-	/* radio B */
+-
+-	priv->radio_b_ctrl = spi_alloc_master(&spi->dev, sizeof(*radio));
+-	if (!priv->radio_b_ctrl) {
+-		return -ENOMEM;
+-	}
+-
+-	sx1301_radio_setup(priv->radio_b_ctrl);
+-	priv->radio_b_ctrl->dev.of_node = of_get_child_by_name(spi->dev.of_node, "radio-b");
+-
+-	radio = spi_controller_get_devdata(priv->radio_b_ctrl);
+-	radio->regs = SX1301_RADIO_B_SPI_DATA;
+-	radio->parent = spi;
+-
+-	ret = devm_spi_register_controller(&spi->dev, priv->radio_b_ctrl);
+-	if (ret) {
+-		dev_err(&spi->dev, "radio B SPI register failed\n");
+-		spi_controller_put(priv->radio_b_ctrl);
++	ret = devm_sx130x_register_radio_devices(&spi->dev);
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	/* GPIO */
+ 
+diff --git a/drivers/net/lora/sx1301.h b/drivers/net/lora/sx1301.h
+index 672dc84422d9..e939c0290e05 100644
+--- a/drivers/net/lora/sx1301.h
++++ b/drivers/net/lora/sx1301.h
+@@ -66,7 +66,6 @@ struct sx1301_priv {
+ 	struct device		*dev;
+ 	struct spi_device	*spi;
+ 	struct gpio_desc *rst_gpio;
+-	struct spi_controller *radio_a_ctrl, *radio_b_ctrl;
+ 	struct regmap		*regmap;
+ };
+ 
+-- 
+2.19.1
+

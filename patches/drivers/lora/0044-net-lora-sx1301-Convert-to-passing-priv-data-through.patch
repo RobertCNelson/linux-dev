@@ -1,0 +1,842 @@
+From be5bd206dc7797ac9ad75565f0518a6c2ff0a1a5 Mon Sep 17 00:00:00 2001
+From: Ben Whitten <ben.whitten@gmail.com>
+Date: Thu, 9 Aug 2018 13:33:33 +0100
+Subject: [PATCH 44/64] net: lora: sx1301: Convert to passing priv data
+ throughout
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Instead of passing around the spi device we instead pass around our
+driver data directly.
+
+Signed-off-by: Ben Whitten <ben.whitten@lairdtech.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1301.c | 305 +++++++++++++++++++-------------------
+ 1 file changed, 156 insertions(+), 149 deletions(-)
+
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index 8027f497cf60..b57396a68d29 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -74,23 +74,25 @@ struct spi_sx1301 {
+ 
+ struct sx1301_priv {
+ 	struct lora_dev_priv lora;
++	struct device		*dev;
++	struct spi_device	*spi;
+ 	struct gpio_desc *rst_gpio;
+ 	u8 cur_page;
+ 	struct spi_controller *radio_a_ctrl, *radio_b_ctrl;
+ };
+ 
+-static int sx1301_read_burst(struct spi_device *spi, u8 reg, u8 *val, size_t len)
++static int sx1301_read_burst(struct sx1301_priv *priv, u8 reg, u8 *val, size_t len)
+ {
+ 	u8 addr = reg & 0x7f;
+-	return spi_write_then_read(spi, &addr, 1, val, len);
++	return spi_write_then_read(priv->spi, &addr, 1, val, len);
+ }
+ 
+-static int sx1301_read(struct spi_device *spi, u8 reg, u8 *val)
++static int sx1301_read(struct sx1301_priv *priv, u8 reg, u8 *val)
+ {
+-	return sx1301_read_burst(spi, reg, val, 1);
++	return sx1301_read_burst(priv, reg, val, 1);
+ }
+ 
+-static int sx1301_write_burst(struct spi_device *spi, u8 reg, const u8 *val, size_t len)
++static int sx1301_write_burst(struct sx1301_priv *priv, u8 reg, const u8 *val, size_t len)
+ {
+ 	u8 addr = reg | BIT(7);
+ 	struct spi_transfer xfr[2] = {
+@@ -98,26 +100,25 @@ static int sx1301_write_burst(struct spi_device *spi, u8 reg, const u8 *val, siz
+ 		{ .tx_buf = val, .len = len },
+ 	};
+ 
+-	return spi_sync_transfer(spi, xfr, 2);
++	return spi_sync_transfer(priv->spi, xfr, 2);
+ }
+ 
+-static int sx1301_write(struct spi_device *spi, u8 reg, u8 val)
++static int sx1301_write(struct sx1301_priv *priv, u8 reg, u8 val)
+ {
+-	return sx1301_write_burst(spi, reg, &val, 1);
++	return sx1301_write_burst(priv, reg, &val, 1);
+ }
+ 
+-static int sx1301_page_switch(struct spi_device *spi, u8 page)
++static int sx1301_page_switch(struct sx1301_priv *priv, u8 page)
+ {
+-	struct sx1301_priv *priv = spi_get_drvdata(spi);
+ 	int ret;
+ 
+ 	if (priv->cur_page == page)
+ 		return 0;
+ 
+-	dev_dbg(&spi->dev, "switching to page %u\n", (unsigned)page);
+-	ret = sx1301_write(spi, REG_PAGE_RESET, page & 0x3);
++	dev_dbg(priv->dev, "switching to page %u\n", (unsigned)page);
++	ret = sx1301_write(priv, REG_PAGE_RESET, page & 0x3);
+ 	if (ret) {
+-		dev_err(&spi->dev, "switching to page %u failed\n", (unsigned)page);
++		dev_err(priv->dev, "switching to page %u failed\n", (unsigned)page);
+ 		return ret;
+ 	}
+ 
+@@ -126,31 +127,31 @@ static int sx1301_page_switch(struct spi_device *spi, u8 page)
+ 	return 0;
+ }
+ 
+-static int sx1301_page_read(struct spi_device *spi, u8 page, u8 reg, u8 *val)
++static int sx1301_page_read(struct sx1301_priv *priv, u8 page, u8 reg, u8 *val)
+ {
+ 	int ret;
+ 
+-	ret = sx1301_page_switch(spi, page);
++	ret = sx1301_page_switch(priv, page);
+ 	if (ret)
+ 		return ret;
+ 
+-	return sx1301_read(spi, reg, val);
++	return sx1301_read(priv, reg, val);
+ }
+ 
+-static int sx1301_page_write(struct spi_device *spi, u8 page, u8 reg, u8 val)
++static int sx1301_page_write(struct sx1301_priv *priv, u8 page, u8 reg, u8 val)
+ {
+ 	int ret;
+ 
+-	ret = sx1301_page_switch(spi, page);
++	ret = sx1301_page_switch(priv, page);
+ 	if (ret)
+ 		return ret;
+ 
+-	return sx1301_write(spi, reg, val);
++	return sx1301_write(priv, reg, val);
+ }
+ 
+-static int sx1301_soft_reset(struct spi_device *spi)
++static int sx1301_soft_reset(struct sx1301_priv *priv)
+ {
+-	return sx1301_write(spi, REG_PAGE_RESET, REG_PAGE_RESET_SOFT_RESET);
++	return sx1301_write(priv, REG_PAGE_RESET, REG_PAGE_RESET_SOFT_RESET);
+ }
+ 
+ #define REG_RADIO_X_DATA		0
+@@ -161,12 +162,14 @@ static int sx1301_soft_reset(struct spi_device *spi)
+ static int sx1301_radio_set_cs(struct spi_controller *ctrl, bool enable)
+ {
+ 	struct spi_sx1301 *ssx = spi_controller_get_devdata(ctrl);
++	struct net_device *netdev = spi_get_drvdata(ssx->parent);
++	struct sx1301_priv *priv = netdev_priv(netdev);
+ 	u8 cs;
+ 	int ret;
+ 
+ 	dev_dbg(&ctrl->dev, "setting CS to %s\n", enable ? "1" : "0");
+ 
+-	ret = sx1301_page_read(ssx->parent, ssx->page, ssx->regs + REG_RADIO_X_CS, &cs);
++	ret = sx1301_page_read(priv, ssx->page, ssx->regs + REG_RADIO_X_CS, &cs);
+ 	if (ret) {
+ 		dev_warn(&ctrl->dev, "failed to read CS (%d)\n", ret);
+ 		cs = 0;
+@@ -177,7 +180,7 @@ static int sx1301_radio_set_cs(struct spi_controller *ctrl, bool enable)
+ 	else
+ 		cs &= ~BIT(0);
+ 
+-	ret = sx1301_page_write(ssx->parent, ssx->page, ssx->regs + REG_RADIO_X_CS, cs);
++	ret = sx1301_page_write(priv, ssx->page, ssx->regs + REG_RADIO_X_CS, cs);
+ 	if (ret) {
+ 		dev_err(&ctrl->dev, "failed to write CS (%d)\n", ret);
+ 		return ret;
+@@ -200,6 +203,8 @@ static int sx1301_radio_spi_transfer_one(struct spi_controller *ctrl,
+ 	struct spi_device *spi, struct spi_transfer *xfr)
+ {
+ 	struct spi_sx1301 *ssx = spi_controller_get_devdata(ctrl);
++	struct net_device *netdev = spi_get_drvdata(ssx->parent);
++	struct sx1301_priv *priv = netdev_priv(netdev);
+ 	const u8 *tx_buf = xfr->tx_buf;
+ 	u8 *rx_buf = xfr->rx_buf;
+ 	int ret;
+@@ -210,13 +215,13 @@ static int sx1301_radio_spi_transfer_one(struct spi_controller *ctrl,
+ 	dev_dbg(&spi->dev, "transferring one (%u)\n", xfr->len);
+ 
+ 	if (tx_buf) {
+-		ret = sx1301_page_write(ssx->parent, ssx->page, ssx->regs + REG_RADIO_X_ADDR, tx_buf ? tx_buf[0] : 0);
++		ret = sx1301_page_write(priv, ssx->page, ssx->regs + REG_RADIO_X_ADDR, tx_buf ? tx_buf[0] : 0);
+ 		if (ret) {
+ 			dev_err(&spi->dev, "SPI radio address write failed\n");
+ 			return ret;
+ 		}
+ 
+-		ret = sx1301_page_write(ssx->parent, ssx->page, ssx->regs + REG_RADIO_X_DATA, (tx_buf && xfr->len >= 2) ? tx_buf[1] : 0);
++		ret = sx1301_page_write(priv, ssx->page, ssx->regs + REG_RADIO_X_DATA, (tx_buf && xfr->len >= 2) ? tx_buf[1] : 0);
+ 		if (ret) {
+ 			dev_err(&spi->dev, "SPI radio data write failed\n");
+ 			return ret;
+@@ -236,7 +241,7 @@ static int sx1301_radio_spi_transfer_one(struct spi_controller *ctrl,
+ 	}
+ 
+ 	if (rx_buf) {
+-		ret = sx1301_page_read(ssx->parent, ssx->page, ssx->regs + REG_RADIO_X_DATA_READBACK, &rx_buf[xfr->len - 1]);
++		ret = sx1301_page_read(priv, ssx->page, ssx->regs + REG_RADIO_X_DATA_READBACK, &rx_buf[xfr->len - 1]);
+ 		if (ret) {
+ 			dev_err(&spi->dev, "SPI radio data read failed\n");
+ 			return ret;
+@@ -246,45 +251,45 @@ static int sx1301_radio_spi_transfer_one(struct spi_controller *ctrl,
+ 	return 0;
+ }
+ 
+-static int sx1301_agc_ram_read(struct spi_device *spi, u8 addr, u8 *val)
++static int sx1301_agc_ram_read(struct sx1301_priv *priv, u8 addr, u8 *val)
+ {
+ 	int ret;
+ 
+-	ret = sx1301_page_write(spi, 2, REG_2_DBG_AGC_MCU_RAM_ADDR, addr);
++	ret = sx1301_page_write(priv, 2, REG_2_DBG_AGC_MCU_RAM_ADDR, addr);
+ 	if (ret) {
+-		dev_err(&spi->dev, "AGC RAM addr write failed\n");
++		dev_err(priv->dev, "AGC RAM addr write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_page_read(spi, 2, REG_2_DBG_AGC_MCU_RAM_DATA, val);
++	ret = sx1301_page_read(priv, 2, REG_2_DBG_AGC_MCU_RAM_DATA, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "AGC RAM data read failed\n");
++		dev_err(priv->dev, "AGC RAM data read failed\n");
+ 		return ret;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int sx1301_arb_ram_read(struct spi_device *spi, u8 addr, u8 *val)
++static int sx1301_arb_ram_read(struct sx1301_priv *priv, u8 addr, u8 *val)
+ {
+ 	int ret;
+ 
+-	ret = sx1301_page_write(spi, 2, REG_2_DBG_ARB_MCU_RAM_ADDR, addr);
++	ret = sx1301_page_write(priv, 2, REG_2_DBG_ARB_MCU_RAM_ADDR, addr);
+ 	if (ret) {
+-		dev_err(&spi->dev, "ARB RAM addr write failed\n");
++		dev_err(priv->dev, "ARB RAM addr write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_page_read(spi, 2, REG_2_DBG_ARB_MCU_RAM_DATA, val);
++	ret = sx1301_page_read(priv, 2, REG_2_DBG_ARB_MCU_RAM_DATA, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "ARB RAM data read failed\n");
++		dev_err(priv->dev, "ARB RAM data read failed\n");
+ 		return ret;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int sx1301_load_firmware(struct spi_device *spi, int mcu, const u8 *data, size_t len)
++static int sx1301_load_firmware(struct sx1301_priv *priv, int mcu, const u8 *data, size_t len)
+ {
+ 	u8 *buf;
+ 	u8 val, rst, select_mux;
+@@ -306,36 +311,36 @@ static int sx1301_load_firmware(struct spi_device *spi, int mcu, const u8 *data,
+ 		return -EINVAL;
+ 	}
+ 
+-	ret = sx1301_page_read(spi, 0, REG_0_MCU, &val);
++	ret = sx1301_page_read(priv, 0, REG_0_MCU, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU read failed\n");
++		dev_err(priv->dev, "MCU read failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val |= rst;
+ 	val &= ~select_mux;
+ 
+-	ret = sx1301_page_write(spi, 0, REG_0_MCU, val);
++	ret = sx1301_page_write(priv, 0, REG_0_MCU, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU reset / select mux write failed\n");
++		dev_err(priv->dev, "MCU reset / select mux write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_write(spi, REG_MCU_PROM_ADDR, 0);
++	ret = sx1301_write(priv, REG_MCU_PROM_ADDR, 0);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU prom addr write failed\n");
++		dev_err(priv->dev, "MCU prom addr write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_write_burst(spi, REG_MCU_PROM_DATA, data, len);
++	ret = sx1301_write_burst(priv, REG_MCU_PROM_DATA, data, len);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU prom data write failed\n");
++		dev_err(priv->dev, "MCU prom data write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_read(spi, REG_MCU_PROM_DATA, &val);
++	ret = sx1301_read(priv, REG_MCU_PROM_DATA, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU prom data dummy read failed\n");
++		dev_err(priv->dev, "MCU prom data dummy read failed\n");
+ 		return ret;
+ 	}
+ 
+@@ -343,73 +348,73 @@ static int sx1301_load_firmware(struct spi_device *spi, int mcu, const u8 *data,
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = sx1301_read_burst(spi, REG_MCU_PROM_DATA, buf, len);
++	ret = sx1301_read_burst(priv, REG_MCU_PROM_DATA, buf, len);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU prom data read failed\n");
++		dev_err(priv->dev, "MCU prom data read failed\n");
+ 		kfree(buf);
+ 		return ret;
+ 	}
+ 
+ 	if (memcmp(data, buf, len)) {
+-		dev_err(&spi->dev, "MCU prom data read does not match data written\n");
++		dev_err(priv->dev, "MCU prom data read does not match data written\n");
+ 		kfree(buf);
+ 		return -ENXIO;
+ 	}
+ 
+ 	kfree(buf);
+ 
+-	ret = sx1301_page_read(spi, 0, REG_0_MCU, &val);
++	ret = sx1301_page_read(priv, 0, REG_0_MCU, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU read (1) failed\n");
++		dev_err(priv->dev, "MCU read (1) failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val |= select_mux;
+ 
+-	ret = sx1301_page_write(spi, 0, REG_0_MCU, val);
++	ret = sx1301_page_write(priv, 0, REG_0_MCU, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU reset / select mux write (1) failed\n");
++		dev_err(priv->dev, "MCU reset / select mux write (1) failed\n");
+ 		return ret;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int sx1301_agc_calibrate(struct spi_device *spi)
++static int sx1301_agc_calibrate(struct sx1301_priv *priv)
+ {
+ 	const struct firmware *fw;
+ 	u8 val;
+ 	int ret;
+ 
+-	ret = request_firmware(&fw, "sx1301_agc_calibration.bin", &spi->dev);
++	ret = request_firmware(&fw, "sx1301_agc_calibration.bin", priv->dev);
+ 	if (ret) {
+-		dev_err(&spi->dev, "agc cal firmware file load failed\n");
++		dev_err(priv->dev, "agc cal firmware file load failed\n");
+ 		return ret;
+ 	}
+ 
+ 	if (fw->size != 8192) {
+-		dev_err(&spi->dev, "unexpected agc cal firmware size\n");
++		dev_err(priv->dev, "unexpected agc cal firmware size\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	ret = sx1301_load_firmware(spi, 1, fw->data, fw->size);
++	ret = sx1301_load_firmware(priv, 1, fw->data, fw->size);
+ 	release_firmware(fw);
+ 	if (ret) {
+-		dev_err(&spi->dev, "agc cal firmware load failed\n");
++		dev_err(priv->dev, "agc cal firmware load failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_page_read(spi, 0, 105, &val);
++	ret = sx1301_page_read(priv, 0, 105, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "0|105 read failed\n");
++		dev_err(priv->dev, "0|105 read failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val &= ~REG_0_105_FORCE_HOST_RADIO_CTRL;
+ 
+-	ret = sx1301_page_write(spi, 0, 105, val);
++	ret = sx1301_page_write(priv, 0, 105, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "0|105 write failed\n");
++		dev_err(priv->dev, "0|105 write failed\n");
+ 		return ret;
+ 	}
+ 
+@@ -417,188 +422,188 @@ static int sx1301_agc_calibrate(struct spi_device *spi)
+ 	if (false)
+ 		val |= BIT(5); /* SX1255 */
+ 
+-	ret = sx1301_page_write(spi, 0, REG_0_RADIO_SELECT, val);
++	ret = sx1301_page_write(priv, 0, REG_0_RADIO_SELECT, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "radio select write failed\n");
++		dev_err(priv->dev, "radio select write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_page_read(spi, 0, REG_0_MCU, &val);
++	ret = sx1301_page_read(priv, 0, REG_0_MCU, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU read (0) failed\n");
++		dev_err(priv->dev, "MCU read (0) failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val &= ~REG_0_MCU_RST_1;
+ 
+-	ret = sx1301_page_write(spi, 0, REG_0_MCU, val);
++	ret = sx1301_page_write(priv, 0, REG_0_MCU, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU write (0) failed\n");
++		dev_err(priv->dev, "MCU write (0) failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_agc_ram_read(spi, 0x20, &val);
++	ret = sx1301_agc_ram_read(priv, 0x20, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "AGC RAM data read failed\n");
++		dev_err(priv->dev, "AGC RAM data read failed\n");
+ 		return ret;
+ 	}
+ 
+-	dev_info(&spi->dev, "AGC calibration firmware version %u\n", (unsigned)val);
++	dev_info(priv->dev, "AGC calibration firmware version %u\n", (unsigned)val);
+ 
+ 	if (val != 2) {
+-		dev_err(&spi->dev, "unexpected firmware version, expecting %u\n", 2);
++		dev_err(priv->dev, "unexpected firmware version, expecting %u\n", 2);
+ 		return -ENXIO;
+ 	}
+ 
+-	ret = sx1301_page_switch(spi, 3);
++	ret = sx1301_page_switch(priv, 3);
+ 	if (ret) {
+-		dev_err(&spi->dev, "page switch 3 failed\n");
++		dev_err(priv->dev, "page switch 3 failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_read(spi, REG_EMERGENCY_FORCE, &val);
++	ret = sx1301_read(priv, REG_EMERGENCY_FORCE, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "emergency force read failed\n");
++		dev_err(priv->dev, "emergency force read failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val &= ~REG_EMERGENCY_FORCE_HOST_CTRL;
+ 
+-	ret = sx1301_write(spi, REG_EMERGENCY_FORCE, val);
++	ret = sx1301_write(priv, REG_EMERGENCY_FORCE, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "emergency force write failed\n");
++		dev_err(priv->dev, "emergency force write failed\n");
+ 		return ret;
+ 	}
+ 
+-	dev_err(&spi->dev, "starting calibration...\n");
++	dev_err(priv->dev, "starting calibration...\n");
+ 	msleep(2300);
+ 
+-	ret = sx1301_read(spi, REG_EMERGENCY_FORCE, &val);
++	ret = sx1301_read(priv, REG_EMERGENCY_FORCE, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "emergency force read (1) failed\n");
++		dev_err(priv->dev, "emergency force read (1) failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val |= REG_EMERGENCY_FORCE_HOST_CTRL;
+ 
+-	ret = sx1301_write(spi, REG_EMERGENCY_FORCE, val);
++	ret = sx1301_write(priv, REG_EMERGENCY_FORCE, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "emergency force write (1) failed\n");
++		dev_err(priv->dev, "emergency force write (1) failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_read(spi, REG_MCU_AGC_STATUS, &val);
++	ret = sx1301_read(priv, REG_MCU_AGC_STATUS, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "AGC status read failed\n");
++		dev_err(priv->dev, "AGC status read failed\n");
+ 		return ret;
+ 	}
+ 
+-	dev_info(&spi->dev, "AGC status: %02x\n", (unsigned)val);
++	dev_info(priv->dev, "AGC status: %02x\n", (unsigned)val);
+ 	if ((val & (BIT(7) | BIT(0))) != (BIT(7) | BIT(0))) {
+-		dev_err(&spi->dev, "AGC calibration failed\n");
++		dev_err(priv->dev, "AGC calibration failed\n");
+ 		return -ENXIO;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static int sx1301_load_all_firmware(struct spi_device *spi)
++static int sx1301_load_all_firmware(struct sx1301_priv *priv)
+ {
+ 	const struct firmware *fw;
+ 	u8 val;
+ 	int ret;
+ 
+-	ret = request_firmware(&fw, "sx1301_arb.bin", &spi->dev);
++	ret = request_firmware(&fw, "sx1301_arb.bin", priv->dev);
+ 	if (ret) {
+-		dev_err(&spi->dev, "arb firmware file load failed\n");
++		dev_err(priv->dev, "arb firmware file load failed\n");
+ 		return ret;
+ 	}
+ 
+ 	if (fw->size != 8192) {
+-		dev_err(&spi->dev, "unexpected arb firmware size\n");
++		dev_err(priv->dev, "unexpected arb firmware size\n");
+ 		release_firmware(fw);
+ 		return -EINVAL;
+ 	}
+ 
+-	ret = sx1301_load_firmware(spi, 0, fw->data, fw->size);
++	ret = sx1301_load_firmware(priv, 0, fw->data, fw->size);
+ 	release_firmware(fw);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = request_firmware(&fw, "sx1301_agc.bin", &spi->dev);
++	ret = request_firmware(&fw, "sx1301_agc.bin", priv->dev);
+ 	if (ret) {
+-		dev_err(&spi->dev, "agc firmware file load failed\n");
++		dev_err(priv->dev, "agc firmware file load failed\n");
+ 		return ret;
+ 	}
+ 
+ 	if (fw->size != 8192) {
+-		dev_err(&spi->dev, "unexpected agc firmware size\n");
++		dev_err(priv->dev, "unexpected agc firmware size\n");
+ 		release_firmware(fw);
+ 		return -EINVAL;
+ 	}
+ 
+-	ret = sx1301_load_firmware(spi, 1, fw->data, fw->size);
++	ret = sx1301_load_firmware(priv, 1, fw->data, fw->size);
+ 	release_firmware(fw);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = sx1301_page_read(spi, 0, 105, &val);
++	ret = sx1301_page_read(priv, 0, 105, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "0|105 read failed\n");
++		dev_err(priv->dev, "0|105 read failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val &= ~(REG_0_105_FORCE_HOST_RADIO_CTRL | REG_0_105_FORCE_HOST_FE_CTRL | REG_0_105_FORCE_DEC_FILTER_GAIN);
+ 
+-	ret = sx1301_page_write(spi, 0, 105, val);
++	ret = sx1301_page_write(priv, 0, 105, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "0|105 write failed\n");
++		dev_err(priv->dev, "0|105 write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_page_write(spi, 0, REG_0_RADIO_SELECT, 0);
++	ret = sx1301_page_write(priv, 0, REG_0_RADIO_SELECT, 0);
+ 	if (ret) {
+-		dev_err(&spi->dev, "radio select write failed\n");
++		dev_err(priv->dev, "radio select write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_page_read(spi, 0, REG_0_MCU, &val);
++	ret = sx1301_page_read(priv, 0, REG_0_MCU, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU read (0) failed\n");
++		dev_err(priv->dev, "MCU read (0) failed\n");
+ 		return ret;
+ 	}
+ 
+ 	val &= ~(REG_0_MCU_RST_1 | REG_0_MCU_RST_0);
+ 
+-	ret = sx1301_page_write(spi, 0, REG_0_MCU, val);
++	ret = sx1301_page_write(priv, 0, REG_0_MCU, val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "MCU write (0) failed\n");
++		dev_err(priv->dev, "MCU write (0) failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_agc_ram_read(spi, 0x20, &val);
++	ret = sx1301_agc_ram_read(priv, 0x20, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "AGC RAM data read failed\n");
++		dev_err(priv->dev, "AGC RAM data read failed\n");
+ 		return ret;
+ 	}
+ 
+-	dev_info(&spi->dev, "AGC firmware version %u\n", (unsigned)val);
++	dev_info(priv->dev, "AGC firmware version %u\n", (unsigned)val);
+ 
+ 	if (val != 4) {
+-		dev_err(&spi->dev, "unexpected firmware version, expecting %u\n", 4);
++		dev_err(priv->dev, "unexpected firmware version, expecting %u\n", 4);
+ 		return -ENXIO;
+ 	}
+ 
+-	ret = sx1301_arb_ram_read(spi, 0x20, &val);
++	ret = sx1301_arb_ram_read(priv, 0x20, &val);
+ 	if (ret) {
+-		dev_err(&spi->dev, "ARB RAM data read failed\n");
++		dev_err(priv->dev, "ARB RAM data read failed\n");
+ 		return ret;
+ 	}
+ 
+-	dev_info(&spi->dev, "ARB firmware version %u\n", (unsigned)val);
++	dev_info(priv->dev, "ARB firmware version %u\n", (unsigned)val);
+ 
+ 	if (val != 1) {
+-		dev_err(&spi->dev, "unexpected firmware version, expecting %u\n", 1);
++		dev_err(priv->dev, "unexpected firmware version, expecting %u\n", 1);
+ 		return -ENXIO;
+ 	}
+ 
+@@ -635,17 +640,6 @@ static int sx1301_probe(struct spi_device *spi)
+ 	spi->bits_per_word = 8;
+ 	spi_setup(spi);
+ 
+-	ret = sx1301_read(spi, REG_VERSION, &val);
+-	if (ret) {
+-		dev_err(&spi->dev, "version read failed\n");
+-		return ret;
+-	}
+-
+-	if (val != 103) {
+-		dev_err(&spi->dev, "unexpected version: %u\n", val);
+-		return -ENXIO;
+-	}
+-
+ 	netdev = devm_alloc_loradev(&spi->dev, sizeof(*priv));
+ 	if (!netdev)
+ 		return -ENOMEM;
+@@ -655,21 +649,34 @@ static int sx1301_probe(struct spi_device *spi)
+ 	priv->cur_page = 0xff;
+ 
+ 	spi_set_drvdata(spi, netdev);
++	priv->dev = &spi->dev;
++	priv->spi = spi;
+ 	SET_NETDEV_DEV(netdev, &spi->dev);
+ 
+-	ret = sx1301_write(spi, REG_PAGE_RESET, 0);
++	ret = sx1301_read(priv, REG_VERSION, &val);
++	if (ret) {
++		dev_err(&spi->dev, "version read failed\n");
++		return ret;
++	}
++
++	if (val != 103) {
++		dev_err(&spi->dev, "unexpected version: %u\n", val);
++		return -ENXIO;
++	}
++
++	ret = sx1301_write(priv, REG_PAGE_RESET, 0);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "page/reset write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_soft_reset(spi);
++	ret = sx1301_soft_reset(priv);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "soft reset failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_read(spi, 16, &val);
++	ret = sx1301_read(priv, 16, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 read failed\n");
+ 		return ret;
+@@ -677,13 +684,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val &= ~REG_16_GLOBAL_EN;
+ 
+-	ret = sx1301_write(spi, 16, val);
++	ret = sx1301_write(priv, 16, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_read(spi, 17, &val);
++	ret = sx1301_read(priv, 17, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 read failed\n");
+ 		return ret;
+@@ -691,13 +698,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val &= ~REG_17_CLK32M_EN;
+ 
+-	ret = sx1301_write(spi, 17, val);
++	ret = sx1301_write(priv, 17, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_page_read(spi, 2, 43, &val);
++	ret = sx1301_page_read(priv, 2, 43, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "2|43 read failed\n");
+ 		return ret;
+@@ -705,7 +712,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val |= REG_2_43_RADIO_B_EN | REG_2_43_RADIO_A_EN;
+ 
+-	ret = sx1301_page_write(spi, 2, 43, val);
++	ret = sx1301_page_write(priv, 2, 43, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "2|43 write failed\n");
+ 		return ret;
+@@ -713,7 +720,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	msleep(500);
+ 
+-	ret = sx1301_page_read(spi, 2, 43, &val);
++	ret = sx1301_page_read(priv, 2, 43, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "2|43 read failed\n");
+ 		return ret;
+@@ -721,7 +728,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val |= REG_2_43_RADIO_RST;
+ 
+-	ret = sx1301_page_write(spi, 2, 43, val);
++	ret = sx1301_page_write(priv, 2, 43, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "2|43 write failed\n");
+ 		return ret;
+@@ -729,7 +736,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	msleep(5);
+ 
+-	ret = sx1301_page_read(spi, 2, 43, &val);
++	ret = sx1301_page_read(priv, 2, 43, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "2|43 read failed\n");
+ 		return ret;
+@@ -737,7 +744,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val &= ~REG_2_43_RADIO_RST;
+ 
+-	ret = sx1301_page_write(spi, 2, 43, val);
++	ret = sx1301_page_write(priv, 2, 43, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "2|43 write failed\n");
+ 		return ret;
+@@ -789,7 +796,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	/* GPIO */
+ 
+-	ret = sx1301_read(spi, REG_GPIO_MODE, &val);
++	ret = sx1301_read(priv, REG_GPIO_MODE, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO mode read failed\n");
+ 		return ret;
+@@ -797,13 +804,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val |= GENMASK(4, 0);
+ 
+-	ret = sx1301_write(spi, REG_GPIO_MODE, val);
++	ret = sx1301_write(priv, REG_GPIO_MODE, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO mode write failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_read(spi, REG_GPIO_SELECT_OUTPUT, &val);
++	ret = sx1301_read(priv, REG_GPIO_SELECT_OUTPUT, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO select output read failed\n");
+ 		return ret;
+@@ -812,7 +819,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	val &= ~GENMASK(3, 0);
+ 	val |= 2;
+ 
+-	ret = sx1301_write(spi, REG_GPIO_SELECT_OUTPUT, val);
++	ret = sx1301_write(priv, REG_GPIO_SELECT_OUTPUT, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO select output write failed\n");
+ 		return ret;
+@@ -820,7 +827,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	/* TODO LBT */
+ 
+-	ret = sx1301_read(spi, 16, &val);
++	ret = sx1301_read(priv, 16, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 read (1) failed\n");
+ 		return ret;
+@@ -828,13 +835,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val |= REG_16_GLOBAL_EN;
+ 
+-	ret = sx1301_write(spi, 16, val);
++	ret = sx1301_write(priv, 16, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 write (1) failed\n");
+ 		return ret;
+ 	}
+ 
+-	ret = sx1301_read(spi, 17, &val);
++	ret = sx1301_read(priv, 17, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 read (1) failed\n");
+ 		return ret;
+@@ -842,7 +849,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	val |= REG_17_CLK32M_EN;
+ 
+-	ret = sx1301_write(spi, 17, val);
++	ret = sx1301_write(priv, 17, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 write (1) failed\n");
+ 		return ret;
+@@ -850,13 +857,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	/* calibration */
+ 
+-	ret = sx1301_agc_calibrate(spi);
++	ret = sx1301_agc_calibrate(priv);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* TODO */
+ 
+-	ret = sx1301_load_all_firmware(spi);
++	ret = sx1301_load_all_firmware(priv);
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.19.1
+

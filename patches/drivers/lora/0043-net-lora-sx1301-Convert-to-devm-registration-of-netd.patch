@@ -1,0 +1,272 @@
+From 6e88bbaf21707e699cecc3df633af6f10471b677 Mon Sep 17 00:00:00 2001
+From: Ben Whitten <ben.whitten@gmail.com>
+Date: Thu, 9 Aug 2018 13:33:32 +0100
+Subject: [PATCH 43/64] net: lora: sx1301: Convert to devm registration of
+ netdev
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+We allow the devres framework handle the clean removal of resources on
+teardown of the device, in this case the SPI device, saving lengthy
+unwind code and improving clarity.
+
+Signed-off-by: Ben Whitten <ben.whitten@lairdtech.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1301.c | 85 +++++++++++++--------------------------
+ 1 file changed, 28 insertions(+), 57 deletions(-)
+
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index 078f4c0a8ef1..8027f497cf60 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -3,6 +3,7 @@
+  * Semtech SX1301 LoRa concentrator
+  *
+  * Copyright (c) 2018 Andreas Färber
++ * Copyright (c) 2018 Ben Whitten
+  *
+  * Based on SX1301 HAL code:
+  * Copyright (c) 2013 Semtech-Cycleo
+@@ -637,20 +638,17 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_read(spi, REG_VERSION, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "version read failed\n");
+-		goto err_version;
++		return ret;
+ 	}
+ 
+ 	if (val != 103) {
+ 		dev_err(&spi->dev, "unexpected version: %u\n", val);
+-		ret = -ENXIO;
+-		goto err_version;
++		return -ENXIO;
+ 	}
+ 
+-	netdev = alloc_loradev(sizeof(*priv));
+-	if (!netdev) {
+-		ret = -ENOMEM;
+-		goto err_alloc_loradev;
+-	}
++	netdev = devm_alloc_loradev(&spi->dev, sizeof(*priv));
++	if (!netdev)
++		return -ENOMEM;
+ 
+ 	priv = netdev_priv(netdev);
+ 	priv->rst_gpio = rst;
+@@ -662,19 +660,19 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, REG_PAGE_RESET, 0);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "page/reset write failed\n");
+-		goto err_init_page;
++		return ret;
+ 	}
+ 
+ 	ret = sx1301_soft_reset(spi);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "soft reset failed\n");
+-		goto err_soft_reset;
++		return ret;
+ 	}
+ 
+ 	ret = sx1301_read(spi, 16, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 read failed\n");
+-		goto err_read_global_en_0;
++		return ret;
+ 	}
+ 
+ 	val &= ~REG_16_GLOBAL_EN;
+@@ -682,13 +680,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, 16, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 write failed\n");
+-		goto err_write_global_en_0;
++		return ret;
+ 	}
+ 
+ 	ret = sx1301_read(spi, 17, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 read failed\n");
+-		goto err_read_clk32m_0;
++		return ret;
+ 	}
+ 
+ 	val &= ~REG_17_CLK32M_EN;
+@@ -696,7 +694,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, 17, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 write failed\n");
+-		goto err_write_clk32m_0;
++		return ret;
+ 	}
+ 
+ 	ret = sx1301_page_read(spi, 2, 43, &val);
+@@ -749,8 +747,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 
+ 	priv->radio_a_ctrl = spi_alloc_master(&spi->dev, sizeof(*radio));
+ 	if (!priv->radio_a_ctrl) {
+-		ret = -ENOMEM;
+-		goto err_radio_a_alloc;
++		return -ENOMEM;
+ 	}
+ 
+ 	sx1301_radio_setup(priv->radio_a_ctrl);
+@@ -765,15 +762,14 @@ static int sx1301_probe(struct spi_device *spi)
+ 	if (ret) {
+ 		dev_err(&spi->dev, "radio A SPI register failed\n");
+ 		spi_controller_put(priv->radio_a_ctrl);
+-		goto err_radio_a_register;
++		return ret;
+ 	}
+ 
+ 	/* radio B */
+ 
+ 	priv->radio_b_ctrl = spi_alloc_master(&spi->dev, sizeof(*radio));
+ 	if (!priv->radio_b_ctrl) {
+-		ret = -ENOMEM;
+-		goto err_radio_b_alloc;
++		return -ENOMEM;
+ 	}
+ 
+ 	sx1301_radio_setup(priv->radio_b_ctrl);
+@@ -788,7 +784,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	if (ret) {
+ 		dev_err(&spi->dev, "radio B SPI register failed\n");
+ 		spi_controller_put(priv->radio_b_ctrl);
+-		goto err_radio_b_register;
++		return ret;
+ 	}
+ 
+ 	/* GPIO */
+@@ -796,7 +792,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_read(spi, REG_GPIO_MODE, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO mode read failed\n");
+-		goto err_read_gpio_mode;
++		return ret;
+ 	}
+ 
+ 	val |= GENMASK(4, 0);
+@@ -804,13 +800,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, REG_GPIO_MODE, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO mode write failed\n");
+-		goto err_write_gpio_mode;
++		return ret;
+ 	}
+ 
+ 	ret = sx1301_read(spi, REG_GPIO_SELECT_OUTPUT, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO select output read failed\n");
+-		goto err_read_gpio_select_output;
++		return ret;
+ 	}
+ 
+ 	val &= ~GENMASK(3, 0);
+@@ -819,7 +815,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, REG_GPIO_SELECT_OUTPUT, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "GPIO select output write failed\n");
+-		goto err_write_gpio_select_output;
++		return ret;
+ 	}
+ 
+ 	/* TODO LBT */
+@@ -827,7 +823,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_read(spi, 16, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 read (1) failed\n");
+-		goto err_read_global_en_1;
++		return ret;
+ 	}
+ 
+ 	val |= REG_16_GLOBAL_EN;
+@@ -835,13 +831,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, 16, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 write (1) failed\n");
+-		goto err_write_global_en_1;
++		return ret;
+ 	}
+ 
+ 	ret = sx1301_read(spi, 17, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 read (1) failed\n");
+-		goto err_read_clk32m_1;
++		return ret;
+ 	}
+ 
+ 	val |= REG_17_CLK32M_EN;
+@@ -849,57 +845,31 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, 17, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 write (1) failed\n");
+-		goto err_write_clk32m_1;
++		return ret;
+ 	}
+ 
+ 	/* calibration */
+ 
+ 	ret = sx1301_agc_calibrate(spi);
+ 	if (ret)
+-		goto err_agc_calibrate;
++		return ret;
+ 
+ 	/* TODO */
+ 
+ 	ret = sx1301_load_all_firmware(spi);
+ 	if (ret)
+-		goto err_load_firmware;
++		return ret;
+ 
+ 	dev_info(&spi->dev, "SX1301 module probed\n");
+ 
+ 	return 0;
+-
+-err_load_firmware:
+-err_agc_calibrate:
+-err_write_clk32m_1:
+-err_read_clk32m_1:
+-err_write_global_en_1:
+-err_read_global_en_1:
+-err_write_gpio_select_output:
+-err_read_gpio_select_output:
+-err_write_gpio_mode:
+-err_read_gpio_mode:
+-err_radio_b_register:
+-err_radio_b_alloc:
+-err_radio_a_register:
+-err_radio_a_alloc:
+-err_write_clk32m_0:
+-err_read_clk32m_0:
+-err_write_global_en_0:
+-err_read_global_en_0:
+-err_soft_reset:
+-err_init_page:
+-	free_loradev(netdev);
+-err_alloc_loradev:
+-err_version:
+-	return ret;
+ }
+ 
+ static int sx1301_remove(struct spi_device *spi)
+ {
+-	struct net_device *netdev = spi_get_drvdata(spi);
++	//struct net_device *netdev = spi_get_drvdata(spi);
+ 
+ 	//unregister_loradev(netdev);
+-	free_loradev(netdev);
+ 
+ 	dev_info(&spi->dev, "SX1301 module removed\n");
+ 
+@@ -927,4 +897,5 @@ module_spi_driver(sx1301_spi_driver);
+ 
+ MODULE_DESCRIPTION("SX1301 SPI driver");
+ MODULE_AUTHOR("Andreas Färber <afaerber@suse.de>");
++MODULE_AUTHOR("Ben Whitten <ben.whitten@gmail.com>");
+ MODULE_LICENSE("GPL");
+-- 
+2.19.1
+

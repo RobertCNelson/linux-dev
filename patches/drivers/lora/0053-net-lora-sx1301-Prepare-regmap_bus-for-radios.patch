@@ -1,0 +1,613 @@
+From 1e3fd0d85db65eec93f8ab83d57b0a0acc03eed3 Mon Sep 17 00:00:00 2001
+From: Ben Whitten <ben.whitten@gmail.com>
+Date: Thu, 9 Aug 2018 22:30:54 +0100
+Subject: [PATCH 53/64] net: lora: sx1301: Prepare regmap_bus for radios
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This is unused at the moment but will be used by the next commit in the
+concentrator version of the sx125x driver.
+The device passed to the context is that of the radio, so we use its parent
+to recover the priv data of the concentrator.
+
+Signed-off-by: Ben Whitten <ben.whitten@gmail.com>
+Co-Developed-by: Andreas Färber <afaerber@suse.de>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/Makefile       |   1 +
+ drivers/net/lora/sx1301.c       |  32 ++-
+ drivers/net/lora/sx1301.h       |  22 ++
+ drivers/net/lora/sx130x_radio.c | 391 ++++++++++++++++++++++++++++++++
+ include/linux/lora/sx130x.h     |  55 +++++
+ 5 files changed, 489 insertions(+), 12 deletions(-)
+ create mode 100644 drivers/net/lora/sx130x_radio.c
+ create mode 100644 include/linux/lora/sx130x.h
+
+diff --git a/drivers/net/lora/Makefile b/drivers/net/lora/Makefile
+index 995fca248616..e678f19d95c4 100644
+--- a/drivers/net/lora/Makefile
++++ b/drivers/net/lora/Makefile
+@@ -24,6 +24,7 @@ lora-sx1276-y := sx1276.o
+ 
+ obj-$(CONFIG_LORA_SX1301) += lora-sx1301.o
+ lora-sx1301-y := sx1301.o
++lora-sx1301-y += sx130x_radio.o
+ 
+ obj-$(CONFIG_LORA_TING01M) += lora-ting01m.o
+ lora-ting01m-y := ting01m.o
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index a5fd2d217f0e..e62deec030d5 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -79,15 +79,6 @@ struct spi_sx1301 {
+ 	unsigned int regs;
+ };
+ 
+-struct sx1301_priv {
+-	struct lora_dev_priv lora;
+-	struct device		*dev;
+-	struct spi_device	*spi;
+-	struct gpio_desc *rst_gpio;
+-	struct spi_controller *radio_a_ctrl, *radio_b_ctrl;
+-	struct regmap		*regmap;
+-};
+-
+ static int sx1301_read_burst(struct sx1301_priv *priv, u8 reg, u8 *val, size_t len)
+ {
+ 	u8 addr = reg & 0x7f;
+@@ -674,6 +665,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 		return -ENOMEM;
+ 
+ 	netdev->netdev_ops = &sx130x_net_device_ops;
++	SET_NETDEV_DEV(netdev, &spi->dev);
+ 
+ 	priv = netdev_priv(netdev);
+ 	priv->rst_gpio = rst;
+@@ -681,7 +673,6 @@ static int sx1301_probe(struct spi_device *spi)
+ 	spi_set_drvdata(spi, netdev);
+ 	priv->dev = &spi->dev;
+ 	priv->spi = spi;
+-	SET_NETDEV_DEV(netdev, &spi->dev);
+ 
+ 	priv->regmap = devm_regmap_init_spi(spi, &sx1301_regmap_config);
+ 	if (IS_ERR(priv->regmap)) {
+@@ -890,7 +881,7 @@ static const struct of_device_id sx1301_dt_ids[] = {
+ MODULE_DEVICE_TABLE(of, sx1301_dt_ids);
+ #endif
+ 
+-static struct spi_driver sx1301_spi_driver = {
++static struct spi_driver sx130x_spi_driver = {
+ 	.driver = {
+ 		.name = "sx1301",
+ 		.of_match_table = of_match_ptr(sx1301_dt_ids),
+@@ -899,7 +890,24 @@ static struct spi_driver sx1301_spi_driver = {
+ 	.remove = sx1301_remove,
+ };
+ 
+-module_spi_driver(sx1301_spi_driver);
++static int __init sx130x_init(void)
++{
++	int ret;
++
++	ret = sx130x_radio_init();
++	if (ret)
++		return ret;
++
++	return spi_register_driver(&sx130x_spi_driver);
++}
++module_init(sx130x_init);
++
++static void __exit sx130x_exit(void)
++{
++	spi_unregister_driver(&sx130x_spi_driver);
++	sx130x_radio_exit();
++}
++module_exit(sx130x_exit);
+ 
+ MODULE_DESCRIPTION("SX1301 SPI driver");
+ MODULE_AUTHOR("Andreas Färber <afaerber@suse.de>");
+diff --git a/drivers/net/lora/sx1301.h b/drivers/net/lora/sx1301.h
+index 72195cbf0897..672dc84422d9 100644
+--- a/drivers/net/lora/sx1301.h
++++ b/drivers/net/lora/sx1301.h
+@@ -3,11 +3,17 @@
+  * Semtech SX1301 LoRa concentrator
+  *
+  * Copyright (c) 2018   Ben Whitten
++ * Copyright (c) 2018 Andreas Färber
+  */
+ 
+ #ifndef _SX1301_
+ #define _SX1301_
+ 
++#include <linux/regmap.h>
++#include <linux/gpio/consumer.h>
++#include <linux/lora/dev.h>
++#include <linux/spi/spi.h>
++
+ #define SX1301_CHIP_VERSION 103
+ 
+ #define SX1301_MCU_FW_BYTE 8192
+@@ -55,4 +61,20 @@
+ 
+ #define SX1301_MAX_REGISTER         (SX1301_PAGE_BASE(3) + 0x7F)
+ 
++struct sx1301_priv {
++	struct lora_dev_priv lora;
++	struct device		*dev;
++	struct spi_device	*spi;
++	struct gpio_desc *rst_gpio;
++	struct spi_controller *radio_a_ctrl, *radio_b_ctrl;
++	struct regmap		*regmap;
++};
++
++int __init sx130x_radio_init(void);
++void __exit sx130x_radio_exit(void);
++int sx130x_register_radio_devices(struct device *dev);
++int devm_sx130x_register_radio_devices(struct device *dev);
++void sx130x_unregister_radio_devices(struct device *dev);
++bool sx130x_radio_devices_okay(struct device *dev);
++
+ #endif
+diff --git a/drivers/net/lora/sx130x_radio.c b/drivers/net/lora/sx130x_radio.c
+new file mode 100644
+index 000000000000..6c94d13cd4db
+--- /dev/null
++++ b/drivers/net/lora/sx130x_radio.c
+@@ -0,0 +1,391 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Semtech SX1301 LoRa concentrator
++ *
++ * Copyright (c) 2018 Andreas Färber
++ * Copyright (c) 2018 Ben Whitten
++ *
++ * Based on SX1301 HAL code:
++ * Copyright (c) 2013 Semtech-Cycleo
++ */
++
++#include <linux/of.h>
++#include <linux/of_device.h>
++#include <linux/regmap.h>
++#include <linux/lora/sx130x.h>
++
++#include "sx1301.h"
++
++static int sx1301_regmap_bus_write(void *context, unsigned int reg,
++		unsigned int val)
++{
++	struct sx130x_radio_device *rdev = context;
++	struct net_device *netdev = dev_get_drvdata(rdev->concentrator);
++	struct sx1301_priv *priv = netdev_priv(netdev);
++	unsigned int addr, data, cs, rb;
++	int ret;
++
++	if (rdev->nr == 0) {
++		addr = SX1301_RADIO_A_SPI_ADDR;
++		data = SX1301_RADIO_A_SPI_DATA;
++		cs = SX1301_RADIO_A_SPI_CS;
++		rb = SX1301_RADIO_A_SPI_DATA_RB;
++	} else {
++		addr = SX1301_RADIO_B_SPI_ADDR;
++		data = SX1301_RADIO_B_SPI_DATA;
++		cs = SX1301_RADIO_B_SPI_CS;
++		rb = SX1301_RADIO_B_SPI_DATA_RB;
++	}
++
++	ret = regmap_write(priv->regmap, cs, 0);
++	if (ret)
++		return ret;
++	ret = regmap_write(priv->regmap, addr, reg);
++	if (ret)
++		return ret;
++	ret = regmap_write(priv->regmap, data, val);
++	if (ret)
++		return ret;
++	ret = regmap_write(priv->regmap, cs, 1);
++	if (ret)
++		return ret;
++	ret = regmap_write(priv->regmap, cs, 0);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static int sx1301_regmap_bus_read(void *context, unsigned int reg,
++		unsigned int *val)
++{
++	struct sx130x_radio_device *rdev = context;
++	struct net_device *netdev = dev_get_drvdata(rdev->concentrator);
++	struct sx1301_priv *priv = netdev_priv(netdev);
++	unsigned int addr, data, cs, rb;
++	int ret;
++
++	if (rdev->nr == 0) {
++		addr = SX1301_RADIO_A_SPI_ADDR;
++		data = SX1301_RADIO_A_SPI_DATA;
++		cs = SX1301_RADIO_A_SPI_CS;
++		rb = SX1301_RADIO_A_SPI_DATA_RB;
++	} else {
++		addr = SX1301_RADIO_B_SPI_ADDR;
++		data = SX1301_RADIO_B_SPI_DATA;
++		cs = SX1301_RADIO_B_SPI_CS;
++		rb = SX1301_RADIO_B_SPI_DATA_RB;
++	}
++
++	ret = regmap_write(priv->regmap, cs, 0);
++	if (ret)
++		return ret;
++	/* address to tx */
++	ret = regmap_write(priv->regmap, addr, reg);
++	if (ret)
++		return ret;
++	ret = regmap_write(priv->regmap, data, 0);
++	if (ret)
++		return ret;
++	ret = regmap_write(priv->regmap, cs, 1);
++	if (ret)
++		return ret;
++	ret = regmap_write(priv->regmap, cs, 0);
++	if (ret)
++		return ret;
++
++	/* reading */
++	return regmap_read(priv->regmap, rb, val);
++}
++
++static const struct regmap_bus sx1301_regmap_bus = {
++	.reg_write = sx1301_regmap_bus_write,
++	.reg_read = sx1301_regmap_bus_read,
++};
++
++static int sx130x_radio_match_device(struct device *dev, struct device_driver *drv)
++{
++	return of_driver_match_device(dev, drv);
++}
++
++static struct bus_type sx130x_radio_bus_type = {
++	.name = "sx130x_radio",
++	.match = sx130x_radio_match_device,
++	.uevent = of_device_uevent_modalias,
++};
++
++int __init sx130x_radio_init(void)
++{
++	int ret;
++
++	ret = bus_register(&sx130x_radio_bus_type);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++void __exit sx130x_radio_exit(void)
++{
++	bus_unregister(&sx130x_radio_bus_type);
++}
++
++static int sx130x_radio_drv_probe(struct device *dev)
++{
++	const struct sx130x_radio_driver *rdrv = to_sx130x_radio_driver(dev->driver);
++	int ret;
++
++	ret = rdrv->probe(to_sx130x_radio_device(dev));
++
++	return ret;
++}
++
++static int sx130x_radio_drv_remove(struct device *dev)
++{
++	const struct sx130x_radio_driver *rdrv = to_sx130x_radio_driver(dev->driver);
++	int ret;
++
++	ret = rdrv->remove(to_sx130x_radio_device(dev));
++
++	return ret;
++}
++
++int __sx130x_register_radio_driver(struct module *owner, struct sx130x_radio_driver *rdrv)
++{
++	rdrv->driver.owner = owner;
++	rdrv->driver.bus = &sx130x_radio_bus_type;
++
++	if (rdrv->probe)
++		rdrv->driver.probe = sx130x_radio_drv_probe;
++	if (rdrv->remove)
++		rdrv->driver.remove = sx130x_radio_drv_remove;
++
++	return driver_register(&rdrv->driver);
++}
++EXPORT_SYMBOL_GPL(__sx130x_register_radio_driver);
++
++static void sx130x_radio_release(struct device *dev)
++{
++	struct sx130x_radio_device *radio = to_sx130x_radio_device(dev);
++
++	put_device(radio->concentrator);
++	kfree(radio);
++}
++
++static struct sx130x_radio_device *sx130x_alloc_radio_device(struct device *dev)
++{
++	struct sx130x_radio_device *radio;
++
++	if (!get_device(dev))
++		return NULL;
++
++	radio = kzalloc(sizeof(*radio), GFP_KERNEL);
++	if (!radio) {
++		put_device(dev);
++		return NULL;
++	}
++
++	radio->dev.parent = dev;
++	radio->dev.bus = &sx130x_radio_bus_type;
++	radio->dev.release = sx130x_radio_release;
++
++	radio->concentrator = dev;
++	radio->regmap_bus = &sx1301_regmap_bus;
++
++	device_initialize(&radio->dev);
++	return radio;
++}
++
++static void sx130x_radio_dev_set_name(struct sx130x_radio_device *radio)
++{
++	dev_set_name(&radio->dev, "%s-%c", dev_name(radio->concentrator), 'a' + radio->nr);
++}
++
++static int sx130x_radio_dev_check(struct device *dev, void *data)
++{
++	struct sx130x_radio_device *radio = to_sx130x_radio_device(dev);
++	struct sx130x_radio_device *new_radio = data;
++
++	if (radio->concentrator == new_radio->concentrator &&
++	    radio->nr == new_radio->nr)
++		return -EBUSY;
++
++	return 0;
++}
++
++static int sx130x_add_radio_device(struct sx130x_radio_device *radio)
++{
++	static DEFINE_MUTEX(sx130x_radio_add_lock);
++	int ret;
++
++	if (radio->nr >= 2)
++		return -EINVAL;
++
++	sx130x_radio_dev_set_name(radio);
++
++	mutex_lock(&sx130x_radio_add_lock);
++
++	ret = bus_for_each_dev(&sx130x_radio_bus_type, NULL, radio, sx130x_radio_dev_check);
++	if (ret)
++		goto done;
++
++	ret = device_add(&radio->dev);
++	if (ret < 0)
++		dev_err(&radio->dev, "can't add %s (%d)\n", dev_name(&radio->dev), ret);
++	else
++		dev_dbg(&radio->dev, "added child %s\n", dev_name(&radio->dev));
++
++done:
++	mutex_unlock(&sx130x_radio_add_lock);
++
++	return ret;
++}
++
++static int sx130x_radio_parse_dt(struct device *dev, struct sx130x_radio_device *radio, struct device_node *node)
++{
++	u32 value;
++	int ret;
++
++	ret = of_property_read_u32(node, "reg", &value);
++	if (ret) {
++		dev_err(dev, "%pOF has no valid reg property (%d)\n", node, ret);
++		return ret;
++	}
++	radio->nr = value;
++
++	return 0;
++}
++
++static struct sx130x_radio_device *sx130x_register_radio_device(struct device *dev, struct device_node *node)
++{
++	struct sx130x_radio_device *radio;
++	int ret;
++
++	radio = sx130x_alloc_radio_device(dev);
++	if (!radio)
++		return ERR_PTR(-ENOMEM);
++
++	ret = sx130x_radio_parse_dt(dev, radio, node);
++	if (ret) {
++		sx130x_radio_put(radio);
++		return ERR_PTR(ret);
++	}
++
++	of_node_get(node);
++	radio->dev.of_node = node;
++
++	ret = sx130x_add_radio_device(radio);
++	if (ret) {
++		of_node_put(node);
++		sx130x_radio_put(radio);
++		return ERR_PTR(ret);
++	}
++
++	return radio;
++}
++
++static void sx130x_unregister_radio_device(struct sx130x_radio_device *radio)
++{
++	if (!radio)
++		return;
++
++	if (radio->dev.of_node) {
++		of_node_clear_flag(radio->dev.of_node, OF_POPULATED);
++		of_node_put(radio->dev.of_node);
++	}
++	device_unregister(&radio->dev);
++}
++
++int sx130x_register_radio_devices(struct device *dev)
++{
++	struct device_node *spi, *node;
++	struct sx130x_radio_device *radio;
++	unsigned int found = 0;
++
++	spi = of_get_child_by_name(dev->of_node, "radio-spi");
++	if (IS_ERR(spi))
++		return PTR_ERR(spi);
++
++	for_each_available_child_of_node(spi, node) {
++		if (of_node_test_and_set_flag(node, OF_POPULATED))
++			continue;
++
++		radio = sx130x_register_radio_device(dev, node);
++		if (IS_ERR(radio)) {
++			dev_warn(dev, "failed to create radio device for %pOF\n", node);
++			of_node_clear_flag(node, OF_POPULATED);
++			return PTR_ERR(radio);
++		}
++		found++;
++	}
++
++	if (found < 2) {
++		dev_err(dev, "found %u radio devices, expected 2\n", found);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int __sx130x_check_radio_device(struct device *dev, void *data)
++{
++	struct device *host = data;
++
++	if (dev->bus == &sx130x_radio_bus_type && device_attach(dev) != 1) {
++		dev_err(host, "radio %s not attached to driver\n", dev_name(dev));
++		return -EBUSY;
++	}
++
++	return 0;
++}
++
++bool sx130x_radio_devices_okay(struct device *dev)
++{
++	int ret;
++
++	ret = device_for_each_child(dev, dev, __sx130x_check_radio_device);
++	if (ret)
++		return false;
++
++	return true;
++}
++
++static int __sx130x_unregister_radio_device(struct device *dev, void *data)
++{
++	sx130x_unregister_radio_device(to_sx130x_radio_device(dev));
++
++	return 0;
++}
++
++void sx130x_unregister_radio_devices(struct device *dev)
++{
++	device_for_each_child(dev, NULL, __sx130x_unregister_radio_device);
++}
++
++static void devm_sx130x_unregister_radio_devices(struct device *dev, void *res)
++{
++	struct device **ptr = res;
++
++	sx130x_unregister_radio_devices(*ptr);
++}
++
++int devm_sx130x_register_radio_devices(struct device *dev)
++{
++	struct device **ptr;
++	int ret;
++
++	ptr = devres_alloc(devm_sx130x_unregister_radio_devices, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr)
++		return -ENOMEM;
++
++	ret = sx130x_register_radio_devices(dev);
++	if (ret) {
++		devres_free(ptr);
++		return ret;
++	}
++
++	*ptr = dev;
++	devres_add(dev, ptr);
++
++	return 0;
++}
+diff --git a/include/linux/lora/sx130x.h b/include/linux/lora/sx130x.h
+new file mode 100644
+index 000000000000..8e673cc47932
+--- /dev/null
++++ b/include/linux/lora/sx130x.h
+@@ -0,0 +1,55 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Semtech SX1301 LoRa concentrator
++ *
++ * Copyright (c) 2018 Ben Whitten
++ * Copyright (c) 2018 Andreas Färber
++ */
++#ifndef LORA_SX130X_H
++#define LORA_SX130X_H
++
++#include <linux/device.h>
++#include <linux/module.h>
++#include <linux/regmap.h>
++
++struct sx130x_radio_device {
++	struct device dev;
++	struct device *concentrator;
++	const struct regmap_bus *regmap_bus;
++	unsigned int nr;
++};
++
++static inline struct sx130x_radio_device *to_sx130x_radio_device(struct device *dev)
++{
++	return dev ? container_of(dev, struct sx130x_radio_device, dev) : NULL;
++}
++
++static inline void sx130x_radio_put(struct sx130x_radio_device *radio)
++{
++	if (radio)
++		put_device(&radio->dev);
++}
++
++struct sx130x_radio_driver {
++	int (*probe)(struct sx130x_radio_device *rdev);
++	int (*remove)(struct sx130x_radio_device *rdev);
++	struct device_driver driver;
++};
++
++static inline struct sx130x_radio_driver *to_sx130x_radio_driver(struct device_driver *drv)
++{
++	return drv ? container_of(drv, struct sx130x_radio_driver, driver) : NULL;
++}
++
++extern int __sx130x_register_radio_driver(struct module *owner, struct sx130x_radio_driver *driver);
++
++static inline void sx130x_unregister_radio_driver(struct sx130x_radio_driver *driver)
++{
++	if (driver)
++		driver_unregister(&driver->driver);
++}
++
++#define sx130x_register_radio_driver(driver) \
++	__sx130x_register_radio_driver(THIS_MODULE, driver)
++
++#endif
+-- 
+2.19.1
+

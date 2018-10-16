@@ -1,0 +1,72 @@
+From f3cc1988ab7c08ff005064512053b28a9770d741 Mon Sep 17 00:00:00 2001
+From: Ben Whitten <ben.whitten@gmail.com>
+Date: Thu, 9 Aug 2018 13:33:31 +0100
+Subject: [PATCH 42/64] net: lora: Add methods for devm registration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Follow the devm model so that we can avoid lengthy unwind code.
+
+Signed-off-by: Ben Whitten <ben.whitten@lairdtech.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/dev.c   | 29 +++++++++++++++++++++++++++++
+ include/linux/lora/dev.h |  1 +
+ 2 files changed, 30 insertions(+)
+
+diff --git a/drivers/net/lora/dev.c b/drivers/net/lora/dev.c
+index 535244566f9e..0d4823de8c06 100644
+--- a/drivers/net/lora/dev.c
++++ b/drivers/net/lora/dev.c
+@@ -85,6 +85,35 @@ void free_loradev(struct net_device *dev)
+ }
+ EXPORT_SYMBOL_GPL(free_loradev);
+ 
++static void devm_free_loradev(struct device *dev, void *res)
++{
++	struct net_device **net = res;
++
++	free_loradev(*net);
++}
++
++struct net_device *devm_alloc_loradev(struct device *dev, size_t priv)
++{
++	struct net_device **ptr;
++	struct net_device *net;
++
++	net = alloc_loradev(priv);
++	if (!net)
++		return NULL;
++
++	ptr = devres_alloc(devm_free_loradev, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr) {
++		free_loradev(net);
++		return NULL;
++	}
++
++	*ptr = net;
++	devres_add(dev, ptr);
++
++	return net;
++}
++EXPORT_SYMBOL_GPL(devm_alloc_loradev);
++
+ static struct rtnl_link_ops lora_link_ops __read_mostly = {
+ 	.kind = "lora",
+ 	.setup = lora_setup,
+diff --git a/include/linux/lora/dev.h b/include/linux/lora/dev.h
+index 7f84bf825c55..ad12ab7154be 100644
+--- a/include/linux/lora/dev.h
++++ b/include/linux/lora/dev.h
+@@ -31,6 +31,7 @@ static inline int lora_strtoeui(const char *str, lora_eui *val)
+ }
+ 
+ struct net_device *alloc_loradev(int sizeof_priv);
++struct net_device *devm_alloc_loradev(struct device *dev, size_t priv);
+ void free_loradev(struct net_device *dev);
+ int register_loradev(struct net_device *dev);
+ void unregister_loradev(struct net_device *dev);
+-- 
+2.19.1
+

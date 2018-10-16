@@ -1,0 +1,44 @@
+From 12bd03952a1c5b2db97e12dc1300e8549f2e5ed7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Sun, 5 Aug 2018 14:45:28 +0200
+Subject: [PATCH 37/64] net: lora: Add magic value to validate netdev
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/dev.c   | 1 +
+ include/linux/lora/dev.h | 3 +++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/net/lora/dev.c b/drivers/net/lora/dev.c
+index 88b485d4d746..535244566f9e 100644
+--- a/drivers/net/lora/dev.c
++++ b/drivers/net/lora/dev.c
+@@ -72,6 +72,7 @@ struct net_device *alloc_loradev(int sizeof_priv)
+ 		return NULL;
+ 
+ 	priv = netdev_priv(dev);
++	priv->magic = LORA_DEV_MAGIC;
+ 	priv->dev = dev;
+ 
+ 	return dev;
+diff --git a/include/linux/lora/dev.h b/include/linux/lora/dev.h
+index 78611d9c45ce..ae52e3c3a179 100644
+--- a/include/linux/lora/dev.h
++++ b/include/linux/lora/dev.h
+@@ -37,7 +37,10 @@ void unregister_loradev(struct net_device *dev);
+ int open_loradev(struct net_device *dev);
+ void close_loradev(struct net_device *dev);
+ 
++#define LORA_DEV_MAGIC 0x4c6f5261 /* LoRa */
++
+ struct lora_dev_priv {
++	u32 magic;
+ 	struct net_device *dev;
+ };
+ 
+-- 
+2.19.1
+

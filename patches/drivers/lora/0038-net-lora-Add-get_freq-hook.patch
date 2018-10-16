@@ -1,0 +1,29 @@
+From 55afa64b87d0be17774024c550519551db2d17c1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Sun, 5 Aug 2018 14:47:41 +0200
+Subject: [PATCH 38/64] net: lora: Add get_freq hook
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ include/linux/lora/dev.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/linux/lora/dev.h b/include/linux/lora/dev.h
+index ae52e3c3a179..7f84bf825c55 100644
+--- a/include/linux/lora/dev.h
++++ b/include/linux/lora/dev.h
+@@ -42,6 +42,8 @@ void close_loradev(struct net_device *dev);
+ struct lora_dev_priv {
+ 	u32 magic;
+ 	struct net_device *dev;
++
++	u32 (*get_freq)(struct net_device *netdev);
+ };
+ 
+ #endif /* _LORA_DEV_H */
+-- 
+2.19.1
+

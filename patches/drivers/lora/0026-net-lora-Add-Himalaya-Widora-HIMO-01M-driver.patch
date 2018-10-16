@@ -1,0 +1,271 @@
+From 2443a9782f7c7526829c48378da9f3f8d1a5b486 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Fri, 13 Jul 2018 03:36:40 +0200
+Subject: [PATCH 26/64] net: lora: Add Himalaya/Widora HIMO-01M driver
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/Kconfig   |   7 ++
+ drivers/net/lora/Makefile  |   3 +
+ drivers/net/lora/ting01m.c | 214 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 224 insertions(+)
+ create mode 100644 drivers/net/lora/ting01m.c
+
+diff --git a/drivers/net/lora/Kconfig b/drivers/net/lora/Kconfig
+index 950450e353b4..bb57a0186c9d 100644
+--- a/drivers/net/lora/Kconfig
++++ b/drivers/net/lora/Kconfig
+@@ -52,6 +52,13 @@ config LORA_SX1301
+ 	help
+ 	  Semtech SX1301
+ 
++config LORA_TING01M
++	tristate "Ting 01M driver"
++	default y
++	depends on SERIAL_DEV_BUS
++	help
++	  Himalaya HIMO-01M
++
+ config LORA_USI
+ 	tristate "USI WM-SG-SM-42 driver"
+ 	default y
+diff --git a/drivers/net/lora/Makefile b/drivers/net/lora/Makefile
+index 1cc1e3aa189b..7ae6af26e3e0 100644
+--- a/drivers/net/lora/Makefile
++++ b/drivers/net/lora/Makefile
+@@ -25,6 +25,9 @@ lora-sx1276-y := sx1276.o
+ obj-$(CONFIG_LORA_SX1301) += lora-sx1301.o
+ lora-sx1301-y := sx1301.o
+ 
++obj-$(CONFIG_LORA_TING01M) += lora-ting01m.o
++lora-ting01m-y := ting01m.o
++
+ obj-$(CONFIG_LORA_USI) += lora-usi.o
+ lora-usi-y := usi.o
+ 
+diff --git a/drivers/net/lora/ting01m.c b/drivers/net/lora/ting01m.c
+new file mode 100644
+index 000000000000..6e01a6c3670a
+--- /dev/null
++++ b/drivers/net/lora/ting01m.c
+@@ -0,0 +1,214 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Himalaya HIMO-01M
++ *
++ * Copyright (c) 2017-2018 Andreas Färber
++ */
++
++#include <linux/delay.h>
++#include <linux/lora.h>
++#include <linux/module.h>
++#include <linux/netdevice.h>
++#include <linux/of.h>
++#include <linux/serdev.h>
++#include <linux/lora/dev.h>
++
++struct widora_device {
++	struct serdev_device *serdev;
++
++	char rx_buf[4096];
++	int rx_len;
++
++	struct completion line_recv_comp;
++};
++
++static int widora_send_command(struct widora_device *widev, const char *cmd, char **data, unsigned long timeout)
++{
++	struct serdev_device *sdev = widev->serdev;
++	const char *crlf = "\r\n";
++	char *resp;
++
++	serdev_device_write_buf(sdev, cmd, strlen(cmd));
++	serdev_device_write_buf(sdev, crlf, 2);
++
++	timeout = wait_for_completion_timeout(&widev->line_recv_comp, timeout);
++	if (!timeout)
++		return -ETIMEDOUT;
++
++	resp = widev->rx_buf;
++	dev_dbg(&sdev->dev, "Received: '%s'\n", resp);
++	if (data)
++		*data = kstrdup(resp, GFP_KERNEL);
++
++	widev->rx_len = 0;
++	reinit_completion(&widev->line_recv_comp);
++
++	return 0;
++}
++
++static int widora_simple_cmd(struct widora_device *widev, const char *cmd, unsigned long timeout)
++{
++	char *resp;
++	int ret;
++
++	ret = widora_send_command(widev, cmd, &resp, timeout);
++	if (ret)
++		return ret;
++
++	if (strcmp(resp, "AT,OK") == 0) {
++		kfree(resp);
++		return 0;
++	}
++
++	kfree(resp);
++
++	return -EINVAL;
++}
++
++static int widora_get_version(struct widora_device *widev, char **version, unsigned long timeout)
++{
++	char *resp;
++	int ret, len;
++
++	ret = widora_send_command(widev, "AT+VER", &resp, timeout);
++	if (ret)
++		return ret;
++
++	len = strlen(resp);
++
++	if ((strncmp(resp, "AT,", 3) == 0) && (strncmp(resp + len - 3, ",OK", 3) == 0)) {
++		*version = kstrndup(resp + 3, len - 3 - 3, GFP_KERNEL);
++		kfree(resp);
++		return 0;
++	}
++
++	kfree(resp);
++
++	return -EINVAL;
++}
++
++static int widora_receive_buf(struct serdev_device *sdev, const u8 *data, size_t count)
++{
++	struct widora_device *widev = serdev_device_get_drvdata(sdev);
++	size_t i = 0;
++	int len = 0;
++
++	dev_dbg(&sdev->dev, "Receive (%d)\n", (int)count);
++
++	for (i = 0; i < count; i++) {
++		dev_dbg(&sdev->dev, "Receive: 0x%02x\n", (int)data[i]);
++	}
++
++	if (completion_done(&widev->line_recv_comp)) {
++		dev_info(&sdev->dev, "RX waiting on completion\n");
++		return 0;
++	}
++	if (widev->rx_len == sizeof(widev->rx_buf) - 1) {
++		dev_warn(&sdev->dev, "RX buffer full\n");
++		return 0;
++	}
++
++	i = min(count, sizeof(widev->rx_buf) - 1 - widev->rx_len);
++	if (i > 0) {
++		memcpy(&widev->rx_buf[widev->rx_len], data, i);
++		widev->rx_len += i;
++		len += i;
++	}
++	if (widev->rx_len >= 2 && strncmp(&widev->rx_buf[widev->rx_len - 2], "\r\n", 2) == 0) {
++		widev->rx_len -= 2;
++		widev->rx_buf[widev->rx_len] = '\0';
++		complete(&widev->line_recv_comp);
++	}
++
++	return len;
++}
++
++static const struct serdev_device_ops widora_serdev_client_ops = {
++	.receive_buf = widora_receive_buf,
++};
++
++static int widora_probe(struct serdev_device *sdev)
++{
++	struct widora_device *widev;
++	char *sz;
++	int ret;
++
++	dev_info(&sdev->dev, "Probing\n");
++
++	widev = devm_kzalloc(&sdev->dev, sizeof(struct widora_device), GFP_KERNEL);
++	if (!widev)
++		return -ENOMEM;
++
++	widev->serdev = sdev;
++	init_completion(&widev->line_recv_comp);
++	serdev_device_set_drvdata(sdev, widev);
++
++	ret = serdev_device_open(sdev);
++	if (ret) {
++		dev_err(&sdev->dev, "Failed to open (%d)\n", ret);
++		return ret;
++	}
++
++	serdev_device_set_baudrate(sdev, 115200);
++	serdev_device_set_flow_control(sdev, false);
++	serdev_device_set_client_ops(sdev, &widora_serdev_client_ops);
++
++	ret = widora_get_version(widev, &sz, HZ);
++	if (ret) {
++		dev_err(&sdev->dev, "Failed to get version (%d)\n", ret);
++		serdev_device_close(sdev);
++		return ret;
++	}
++
++	dev_info(&sdev->dev, "firmware version: %s\n", sz);
++	kfree(sz);
++
++	dev_info(&sdev->dev, "Done.\n");
++
++	return 0;
++}
++
++static void widora_remove(struct serdev_device *sdev)
++{
++	serdev_device_close(sdev);
++
++	dev_info(&sdev->dev, "Removed\n");
++}
++
++static const struct of_device_id widora_of_match[] = {
++	{ .compatible = "himalaya,himo-01m" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, widora_of_match);
++
++static struct serdev_device_driver widora_serdev_driver = {
++	.probe = widora_probe,
++	.remove = widora_remove,
++	.driver = {
++		.name = "ting-01m",
++		.of_match_table = widora_of_match,
++	},
++};
++
++static int __init widora_init(void)
++{
++	int ret;
++
++	ret = serdev_device_driver_register(&widora_serdev_driver);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static void __exit widora_exit(void)
++{
++	serdev_device_driver_unregister(&widora_serdev_driver);
++}
++
++module_init(widora_init);
++module_exit(widora_exit);
++
++MODULE_DESCRIPTION("Widora Ting-01M serdev driver");
++MODULE_AUTHOR("Andreas Färber <afaerber@suse.de>");
++MODULE_LICENSE("GPL");
+-- 
+2.19.1
+

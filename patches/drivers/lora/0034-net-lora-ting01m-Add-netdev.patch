@@ -1,0 +1,463 @@
+From 99440f0bab204b35a200a94df99bd4386f1ca028 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Sun, 15 Jul 2018 04:12:25 +0200
+Subject: [PATCH 34/64] net: lora: ting01m: Add netdev
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/Makefile      |   1 +
+ drivers/net/lora/ting01m.c     | 173 +++++++++++++--------------------
+ drivers/net/lora/ting01m.h     |  38 ++++++++
+ drivers/net/lora/ting01m_cmd.c | 120 +++++++++++++++++++++++
+ 4 files changed, 225 insertions(+), 107 deletions(-)
+ create mode 100644 drivers/net/lora/ting01m.h
+ create mode 100644 drivers/net/lora/ting01m_cmd.c
+
+diff --git a/drivers/net/lora/Makefile b/drivers/net/lora/Makefile
+index 7ae6af26e3e0..ac24733f1d6b 100644
+--- a/drivers/net/lora/Makefile
++++ b/drivers/net/lora/Makefile
+@@ -27,6 +27,7 @@ lora-sx1301-y := sx1301.o
+ 
+ obj-$(CONFIG_LORA_TING01M) += lora-ting01m.o
+ lora-ting01m-y := ting01m.o
++lora-ting01m-y += ting01m_cmd.o
+ 
+ obj-$(CONFIG_LORA_USI) += lora-usi.o
+ lora-usi-y := usi.o
+diff --git a/drivers/net/lora/ting01m.c b/drivers/net/lora/ting01m.c
+index 63f2922c79ee..1982fd0bcd2c 100644
+--- a/drivers/net/lora/ting01m.c
++++ b/drivers/net/lora/ting01m.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ /*
++ * Widora   Ting-01M
+  * Himalaya HIMO-01M
+  *
+  * Copyright (c) 2017-2018 Andreas Färber
+@@ -14,60 +15,12 @@
+ #include <linux/serdev.h>
+ #include <linux/lora/dev.h>
+ 
+-struct widora_device {
+-	struct serdev_device *serdev;
++#include "ting01m.h"
+ 
+-	struct gpio_desc *rst;
+-
+-	char rx_buf[4096];
+-	int rx_len;
+-
+-	struct completion line_recv_comp;
++struct ting01m_priv {
++	struct lora_priv lora;
+ };
+ 
+-static int widora_send_command(struct widora_device *widev, const char *cmd, char **data, unsigned long timeout)
+-{
+-	struct serdev_device *sdev = widev->serdev;
+-	const char *crlf = "\r\n";
+-	char *resp;
+-
+-	serdev_device_write_buf(sdev, cmd, strlen(cmd));
+-	serdev_device_write_buf(sdev, crlf, 2);
+-
+-	timeout = wait_for_completion_timeout(&widev->line_recv_comp, timeout);
+-	if (!timeout)
+-		return -ETIMEDOUT;
+-
+-	resp = widev->rx_buf;
+-	dev_dbg(&sdev->dev, "Received: '%s'\n", resp);
+-	if (data)
+-		*data = kstrdup(resp, GFP_KERNEL);
+-
+-	widev->rx_len = 0;
+-	reinit_completion(&widev->line_recv_comp);
+-
+-	return 0;
+-}
+-
+-static int widora_simple_cmd(struct widora_device *widev, const char *cmd, unsigned long timeout)
+-{
+-	char *resp;
+-	int ret;
+-
+-	ret = widora_send_command(widev, cmd, &resp, timeout);
+-	if (ret)
+-		return ret;
+-
+-	if (strcmp(resp, "AT,OK") == 0) {
+-		kfree(resp);
+-		return 0;
+-	}
+-
+-	kfree(resp);
+-
+-	return -EINVAL;
+-}
+-
+ static void widora_reset_mcu(struct widora_device *widev)
+ {
+ 	gpiod_set_value_cansleep(widev->rst, 0);
+@@ -76,71 +29,50 @@ static void widora_reset_mcu(struct widora_device *widev)
+ 	msleep(500);
+ }
+ 
+-static int widora_do_reset(struct widora_device *widev, unsigned long timeout)
++static netdev_tx_t ting01m_loradev_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+-	char *resp;
+-	int ret;
+-
+-	ret = widora_simple_cmd(widev, "AT+RST", timeout);
+-	if (ret)
+-		return ret;
+-
+-	timeout = wait_for_completion_timeout(&widev->line_recv_comp, timeout);
+-	if (!timeout)
+-		return -ETIMEDOUT;
+-
+-	resp = widev->rx_buf;
+-
+-	dev_info(&widev->serdev->dev, "reset: '%s'\n", resp);
++	if (skb->protocol != htons(ETH_P_LORA)) {
++		kfree_skb(skb);
++		netdev->stats.tx_dropped++;
++		return NETDEV_TX_OK;
++	}
+ 
+-	widev->rx_len = 0;
+-	reinit_completion(&widev->line_recv_comp);
++	netif_stop_queue(netdev);
+ 
+-	return 0;
++	/* TODO */
++	return NETDEV_TX_OK;
+ }
+ 
+-static int widora_get_version(struct widora_device *widev, char **version, unsigned long timeout)
++static int ting01m_loradev_open(struct net_device *netdev)
+ {
+-	char *resp;
+-	int ret, len;
++	int ret;
++
++	netdev_dbg(netdev, "%s", __func__);
+ 
+-	ret = widora_send_command(widev, "AT+VER", &resp, timeout);
++	ret = open_loradev(netdev);
+ 	if (ret)
+ 		return ret;
+ 
+-	len = strlen(resp);
+-
+-	if ((strncmp(resp, "AT,", 3) == 0) && (strncmp(resp + len - 3, ",OK", 3) == 0)) {
+-		*version = kstrndup(resp + 3, len - 3 - 3, GFP_KERNEL);
+-		kfree(resp);
+-		return 0;
+-	}
+-
+-	kfree(resp);
++	netif_start_queue(netdev);
+ 
+-	return -EINVAL;
++	return 0;
+ }
+ 
+-static int widora_set_gpio(struct widora_device *widev, char bank, char pin, bool enabled, unsigned long timeout)
++static int ting01m_loradev_stop(struct net_device *netdev)
+ {
+-	char cmd[] = "AT+Pxx=x";
+-
+-	cmd[4] = bank;
+-	cmd[5] = pin;
+-	cmd[7] = enabled ? '1' : '0';
++	netdev_dbg(netdev, "%s", __func__);
+ 
+-	return widora_simple_cmd(widev, cmd, timeout);
+-}
++	netif_stop_queue(netdev);
++	close_loradev(netdev);
+ 
+-static int widora_set_gpio_pb0(struct widora_device *widev, bool enabled, unsigned long timeout)
+-{
+-	return widora_set_gpio(widev, 'B', '0', enabled, timeout);
++	return 0;
+ }
+ 
+-static int widora_set_gpio_pd0(struct widora_device *widev, bool enabled, unsigned long timeout)
+-{
+-	return widora_set_gpio(widev, 'D', '0', enabled, timeout);
+-}
++static const struct net_device_ops ting01m_net_device_ops = {
++	.ndo_open = ting01m_loradev_open,
++	.ndo_stop = ting01m_loradev_stop,
++	.ndo_start_xmit = ting01m_loradev_start_xmit,
++};
+ 
+ static int widora_receive_buf(struct serdev_device *sdev, const u8 *data, size_t count)
+ {
+@@ -207,7 +139,7 @@ static int widora_probe(struct serdev_device *sdev)
+ 	ret = serdev_device_open(sdev);
+ 	if (ret) {
+ 		dev_err(&sdev->dev, "Failed to open (%d)\n", ret);
+-		return ret;
++		goto err_serdev_open;
+ 	}
+ 
+ 	serdev_device_set_baudrate(sdev, 115200);
+@@ -217,15 +149,13 @@ static int widora_probe(struct serdev_device *sdev)
+ 	ret = widora_do_reset(widev, HZ);
+ 	if (ret) {
+ 		dev_err(&sdev->dev, "Failed to reset (%d)\n", ret);
+-		serdev_device_close(sdev);
+-		return ret;
++		goto err_reset;
+ 	}
+ 
+ 	ret = widora_get_version(widev, &sz, HZ);
+ 	if (ret) {
+ 		dev_err(&sdev->dev, "Failed to get version (%d)\n", ret);
+-		serdev_device_close(sdev);
+-		return ret;
++		goto err_version;
+ 	}
+ 
+ 	dev_info(&sdev->dev, "firmware version: %s\n", sz);
+@@ -234,26 +164,55 @@ static int widora_probe(struct serdev_device *sdev)
+ 	ret = widora_set_gpio_pb0(widev, true, HZ);
+ 	if (ret) {
+ 		dev_err(&sdev->dev, "Failed to set GPIO PB0 (%d)\n", ret);
+-		serdev_device_close(sdev);
+-		return ret;
++		goto err_gpio;
+ 	}
+ 
+ 	ret = widora_set_gpio_pd0(widev, true, HZ);
+ 	if (ret) {
+ 		dev_err(&sdev->dev, "Failed to set GPIO PD0 (%d)\n", ret);
+-		serdev_device_close(sdev);
+-		return ret;
++		goto err_gpio;
++	}
++
++	widev->netdev = alloc_loradev(sizeof(struct ting01m_priv));
++	if (!widev->netdev) {
++		ret = -ENOMEM;
++		goto err_alloc_loradev;
+ 	}
+ 
++	widev->netdev->netdev_ops = &ting01m_net_device_ops;
++	SET_NETDEV_DEV(widev->netdev, &sdev->dev);
++
++	ret = register_loradev(widev->netdev);
++	if (ret)
++		goto err_register_loradev;
++
+ 	dev_info(&sdev->dev, "Done.\n");
+ 
+ 	return 0;
++
++err_register_loradev:
++	free_loradev(widev->netdev);
++err_alloc_loradev:
++err_gpio:
++err_version:
++err_reset:
++	serdev_device_close(sdev);
++err_serdev_open:
++	gpiod_set_value_cansleep(widev->rst, 0);
++	return ret;
+ }
+ 
+ static void widora_remove(struct serdev_device *sdev)
+ {
++	struct widora_device *widev = serdev_device_get_drvdata(sdev);
++
++	unregister_loradev(widev->netdev);
++	free_loradev(widev->netdev);
++
+ 	serdev_device_close(sdev);
+ 
++	gpiod_set_value_cansleep(widev->rst, 0);
++
+ 	dev_info(&sdev->dev, "Removed\n");
+ }
+ 
+diff --git a/drivers/net/lora/ting01m.h b/drivers/net/lora/ting01m.h
+new file mode 100644
+index 000000000000..127d86eb6741
+--- /dev/null
++++ b/drivers/net/lora/ting01m.h
+@@ -0,0 +1,38 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Widora   Ting-01M
++ * Himalaya HIMO-01M
++ *
++ * Copyright (c) 2017-2018 Andreas Färber
++ */
++#ifndef LORA_TING01M_H
++#define LORA_TING01M_H
++
++#include <linux/delay.h>
++#include <linux/gpio/consumer.h>
++#include <linux/netdevice.h>
++#include <linux/serdev.h>
++
++struct widora_device {
++	struct serdev_device *serdev;
++	struct net_device *netdev;
++
++	struct gpio_desc *rst;
++
++	char rx_buf[4096];
++	int rx_len;
++
++	struct completion line_recv_comp;
++};
++
++int widora_send_command(struct widora_device *widev, const char *cmd, char **data, unsigned long timeout);
++int widora_simple_cmd(struct widora_device *widev, const char *cmd, unsigned long timeout);
++
++int widora_do_reset(struct widora_device *widev, unsigned long timeout);
++int widora_get_version(struct widora_device *widev, char **version, unsigned long timeout);
++
++int widora_set_gpio(struct widora_device *widev, char bank, char pin, bool enabled, unsigned long timeout);
++int widora_set_gpio_pb0(struct widora_device *widev, bool enabled, unsigned long timeout);
++int widora_set_gpio_pd0(struct widora_device *widev, bool enabled, unsigned long timeout);
++
++#endif /* LORA_TING01M_H */
+diff --git a/drivers/net/lora/ting01m_cmd.c b/drivers/net/lora/ting01m_cmd.c
+new file mode 100644
+index 000000000000..3d8a677453d3
+--- /dev/null
++++ b/drivers/net/lora/ting01m_cmd.c
+@@ -0,0 +1,120 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Widora   Ting-01M
++ * Himalaya HIMO-01M
++ *
++ * Copyright (c) 2017-2018 Andreas Färber
++ */
++
++#include <linux/serdev.h>
++
++#include "ting01m.h"
++
++int widora_send_command(struct widora_device *widev, const char *cmd, char **data, unsigned long timeout)
++{
++	struct serdev_device *sdev = widev->serdev;
++	const char *crlf = "\r\n";
++	char *resp;
++
++	serdev_device_write_buf(sdev, cmd, strlen(cmd));
++	serdev_device_write_buf(sdev, crlf, 2);
++
++	timeout = wait_for_completion_timeout(&widev->line_recv_comp, timeout);
++	if (!timeout)
++		return -ETIMEDOUT;
++
++	resp = widev->rx_buf;
++	dev_dbg(&sdev->dev, "Received: '%s'\n", resp);
++	if (data)
++		*data = kstrdup(resp, GFP_KERNEL);
++
++	widev->rx_len = 0;
++	reinit_completion(&widev->line_recv_comp);
++
++	return 0;
++}
++
++int widora_simple_cmd(struct widora_device *widev, const char *cmd, unsigned long timeout)
++{
++	char *resp;
++	int ret;
++
++	ret = widora_send_command(widev, cmd, &resp, timeout);
++	if (ret)
++		return ret;
++
++	if (strcmp(resp, "AT,OK") == 0) {
++		kfree(resp);
++		return 0;
++	}
++
++	kfree(resp);
++
++	return -EINVAL;
++}
++
++int widora_do_reset(struct widora_device *widev, unsigned long timeout)
++{
++	char *resp;
++	int ret;
++
++	ret = widora_simple_cmd(widev, "AT+RST", timeout);
++	if (ret)
++		return ret;
++
++	timeout = wait_for_completion_timeout(&widev->line_recv_comp, timeout);
++	if (!timeout)
++		return -ETIMEDOUT;
++
++	resp = widev->rx_buf;
++
++	dev_info(&widev->serdev->dev, "reset: '%s'\n", resp);
++
++	widev->rx_len = 0;
++	reinit_completion(&widev->line_recv_comp);
++
++	return 0;
++}
++
++int widora_get_version(struct widora_device *widev, char **version, unsigned long timeout)
++{
++	char *resp;
++	int ret, len;
++
++	ret = widora_send_command(widev, "AT+VER", &resp, timeout);
++	if (ret)
++		return ret;
++
++	len = strlen(resp);
++
++	if ((strncmp(resp, "AT,", 3) == 0) && (strncmp(resp + len - 3, ",OK", 3) == 0)) {
++		*version = kstrndup(resp + 3, len - 3 - 3, GFP_KERNEL);
++		kfree(resp);
++		return 0;
++	}
++
++	kfree(resp);
++
++	return -EINVAL;
++}
++
++int widora_set_gpio(struct widora_device *widev, char bank, char pin, bool enabled, unsigned long timeout)
++{
++	char cmd[] = "AT+Pxx=x";
++
++	cmd[4] = bank;
++	cmd[5] = pin;
++	cmd[7] = enabled ? '1' : '0';
++
++	return widora_simple_cmd(widev, cmd, timeout);
++}
++
++int widora_set_gpio_pb0(struct widora_device *widev, bool enabled, unsigned long timeout)
++{
++	return widora_set_gpio(widev, 'B', '0', enabled, timeout);
++}
++
++int widora_set_gpio_pd0(struct widora_device *widev, bool enabled, unsigned long timeout)
++{
++	return widora_set_gpio(widev, 'D', '0', enabled, timeout);
++}
+-- 
+2.19.1
+

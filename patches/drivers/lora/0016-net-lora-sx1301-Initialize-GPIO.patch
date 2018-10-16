@@ -1,0 +1,78 @@
+From c5aa34999b8f06bff7a961ca39e4f9a7d4a5123e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Sun, 1 Jul 2018 22:07:11 +0200
+Subject: [PATCH 16/64] net: lora: sx1301: Initialize GPIO
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1301.c | 41 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index 5c936c1116d1..21973206efff 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -21,6 +21,9 @@
+ 
+ #define REG_PAGE_RESET			0
+ #define REG_VERSION			1
++#define REG_GPIO_SELECT_INPUT		27
++#define REG_GPIO_SELECT_OUTPUT		28
++#define REG_GPIO_MODE			29
+ #define REG_2_SPI_RADIO_A_DATA		33
+ #define REG_2_SPI_RADIO_A_DATA_READBACK	34
+ #define REG_2_SPI_RADIO_A_ADDR		35
+@@ -395,9 +398,47 @@ static int sx1301_probe(struct spi_device *spi)
+ 		goto err_radio_b_register;
+ 	}
+ 
++	/* GPIO */
++
++	ret = sx1301_read(spi, REG_GPIO_MODE, &val);
++	if (ret) {
++		dev_err(&spi->dev, "GPIO mode read failed\n");
++		goto err_read_gpio_mode;
++	}
++
++	val |= GENMASK(4, 0);
++
++	ret = sx1301_write(spi, REG_GPIO_MODE, val);
++	if (ret) {
++		dev_err(&spi->dev, "GPIO mode write failed\n");
++		goto err_write_gpio_mode;
++	}
++
++	ret = sx1301_read(spi, REG_GPIO_SELECT_OUTPUT, &val);
++	if (ret) {
++		dev_err(&spi->dev, "GPIO select output read failed\n");
++		goto err_read_gpio_select_output;
++	}
++
++	val &= ~GENMASK(3, 0);
++	val |= 2;
++
++	ret = sx1301_write(spi, REG_GPIO_SELECT_OUTPUT, val);
++	if (ret) {
++		dev_err(&spi->dev, "GPIO select output write failed\n");
++		goto err_write_gpio_select_output;
++	}
++
++	/* TODO LBT */
++
+ 	dev_info(&spi->dev, "SX1301 module probed\n");
+ 
+ 	return 0;
++
++err_write_gpio_select_output:
++err_read_gpio_select_output:
++err_write_gpio_mode:
++err_read_gpio_mode:
+ err_radio_b_register:
+ 	spi_controller_put(priv->radio_b_ctrl);
+ err_radio_b_alloc:
+-- 
+2.19.1
+

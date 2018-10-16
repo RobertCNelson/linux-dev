@@ -1,0 +1,61 @@
+From 6879821965ee3100bcd54b1f2c10732d6baacb33 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Sun, 5 Aug 2018 14:49:52 +0200
+Subject: [PATCH 40/64] net: lora: ting01m: Implement get_freq callback
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/ting01m.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/net/lora/ting01m.c b/drivers/net/lora/ting01m.c
+index 5a1b20939d86..9562e932065b 100644
+--- a/drivers/net/lora/ting01m.c
++++ b/drivers/net/lora/ting01m.c
+@@ -19,6 +19,7 @@
+ 
+ struct ting01m_priv {
+ 	struct lora_dev_priv lora;
++	u32 freq;
+ };
+ 
+ static void widora_reset_mcu(struct widora_device *widev)
+@@ -29,6 +30,13 @@ static void widora_reset_mcu(struct widora_device *widev)
+ 	msleep(500);
+ }
+ 
++static u32 ting01m_get_freq(struct net_device *netdev)
++{
++	struct ting01m_priv *priv = netdev_priv(netdev);
++
++	return priv->freq;
++}
++
+ static netdev_tx_t ting01m_loradev_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	if (skb->protocol != htons(ETH_P_LORA)) {
+@@ -117,6 +125,7 @@ static const struct serdev_device_ops widora_serdev_client_ops = {
+ static int widora_probe(struct serdev_device *sdev)
+ {
+ 	struct widora_device *widev;
++	struct ting01m_priv *priv;
+ 	char *sz;
+ 	int ret;
+ 
+@@ -182,6 +191,10 @@ static int widora_probe(struct serdev_device *sdev)
+ 	widev->netdev->netdev_ops = &ting01m_net_device_ops;
+ 	SET_NETDEV_DEV(widev->netdev, &sdev->dev);
+ 
++	priv = netdev_priv(widev->netdev);
++	priv->lora.get_freq = ting01m_get_freq;
++	priv->freq = 433000000;
++
+ 	ret = register_loradev(widev->netdev);
+ 	if (ret)
+ 		goto err_register_loradev;
+-- 
+2.19.1
+

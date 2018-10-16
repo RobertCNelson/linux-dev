@@ -1,0 +1,50 @@
+From 1de19d41f847a0bf3d0444fe4fa6300f688e4450 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Sun, 1 Jul 2018 22:05:50 +0200
+Subject: [PATCH 15/64] net: lora: sx1257: Clean up register access and debug
+ output
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1257.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/lora/sx1257.c b/drivers/net/lora/sx1257.c
+index c4e04ee3ec4b..9e77350e4804 100644
+--- a/drivers/net/lora/sx1257.c
++++ b/drivers/net/lora/sx1257.c
+@@ -13,6 +13,11 @@
+ #include <linux/of_device.h>
+ #include <linux/spi/spi.h>
+ 
++#define REG_CLK_SELECT		0x10
++
++#define REG_CLK_SELECT_TX_DAC_CLK_SELECT_CLK_IN	BIT(0)
++#define REG_CLK_SELECT_CLK_OUT			BIT(1)
++
+ static int sx1257_write(struct spi_device *spi, u8 reg, u8 val)
+ {
+ 	u8 buf[2];
+@@ -43,13 +48,14 @@ static int sx1257_probe(struct spi_device *spi)
+ 		dev_info(&spi->dev, "SX125x version: %02x\n", (unsigned)val);
+ 	}
+ 
+-	ret = sx1257_write(spi, 0x10, 1 /* + 2 */);
++	ret = sx1257_write(spi, REG_CLK_SELECT,
++		/* REG_CLK_SELECT_CLK_OUT | */ REG_CLK_SELECT_TX_DAC_CLK_SELECT_CLK_IN);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "clk write failed\n");
+ 		return ret;
+ 	}
+ 
+-	dev_info(&spi->dev, "clk written\n");
++	dev_dbg(&spi->dev, "clk written\n");
+ 
+ 	if (true) {
+ 		ret = sx1257_write(spi, 0x26, 13 + 2 * 16);
+-- 
+2.19.1
+

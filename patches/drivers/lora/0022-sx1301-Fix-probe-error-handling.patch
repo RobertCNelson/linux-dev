@@ -1,0 +1,102 @@
+From 16382cd5b7a517d7295b064da18273586ffd7415 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Mon, 2 Jul 2018 03:16:44 +0200
+Subject: [PATCH 22/64] sx1301: Fix probe error handling
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1301.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index e7ff3d0daed4..a44cd5d6ccfa 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -281,19 +281,19 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, REG_PAGE_RESET, 0);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "page/reset write failed\n");
+-		return ret;
++		goto err_init_page;
+ 	}
+ 
+ 	ret = sx1301_soft_reset(spi);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "soft reset failed\n");
+-		return ret;
++		goto err_soft_reset;
+ 	}
+ 
+ 	ret = sx1301_read(spi, 16, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 read failed\n");
+-		return ret;
++		goto err_read_global_en_0;
+ 	}
+ 
+ 	val &= ~REG_16_GLOBAL_EN;
+@@ -301,13 +301,13 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, 16, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "16 write failed\n");
+-		return ret;
++		goto err_write_global_en_0;
+ 	}
+ 
+ 	ret = sx1301_read(spi, 17, &val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 read failed\n");
+-		return ret;
++		goto err_read_clk32m_0;
+ 	}
+ 
+ 	val &= ~REG_17_CLK32M_EN;
+@@ -315,7 +315,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = sx1301_write(spi, 17, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "17 write failed\n");
+-		return ret;
++		goto err_write_clk32m_0;
+ 	}
+ 
+ 	ret = sx1301_page_read(spi, 2, 43, &val);
+@@ -385,6 +385,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = devm_spi_register_controller(&spi->dev, priv->radio_a_ctrl);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "radio A SPI register failed\n");
++		spi_controller_put(priv->radio_a_ctrl);
+ 		goto err_radio_a_register;
+ 	}
+ 
+@@ -409,6 +410,7 @@ static int sx1301_probe(struct spi_device *spi)
+ 	ret = devm_spi_register_controller(&spi->dev, priv->radio_b_ctrl);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "radio B SPI register failed\n");
++		spi_controller_put(priv->radio_b_ctrl);
+ 		goto err_radio_b_register;
+ 	}
+ 
+@@ -454,11 +456,15 @@ static int sx1301_probe(struct spi_device *spi)
+ err_write_gpio_mode:
+ err_read_gpio_mode:
+ err_radio_b_register:
+-	spi_controller_put(priv->radio_b_ctrl);
+ err_radio_b_alloc:
+ err_radio_a_register:
+-	spi_controller_put(priv->radio_a_ctrl);
+ err_radio_a_alloc:
++err_write_clk32m_0:
++err_read_clk32m_0:
++err_write_global_en_0:
++err_read_global_en_0:
++err_soft_reset:
++err_init_page:
+ 	free_loradev(netdev);
+ err_alloc_loradev:
+ err_version:
+-- 
+2.19.1
+

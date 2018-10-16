@@ -1,0 +1,59 @@
+From fa86d07fb04ba5a75ca537ba7d2ac7b58fe920fb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Mon, 2 Jul 2018 03:14:31 +0200
+Subject: [PATCH 21/64] sx1301: Introduce burst read/write
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1301.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index 67d41e2298a1..e7ff3d0daed4 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -56,19 +56,31 @@ struct sx1301_priv {
+ 	struct spi_controller *radio_a_ctrl, *radio_b_ctrl;
+ };
+ 
+-static int sx1301_read(struct spi_device *spi, u8 reg, u8 *val)
++static int sx1301_read_burst(struct spi_device *spi, u8 reg, u8 *val, size_t len)
+ {
+ 	u8 addr = reg & 0x7f;
+-	return spi_write_then_read(spi, &addr, 1, val, 1);
++	return spi_write_then_read(spi, &addr, 1, val, len);
+ }
+ 
+-static int sx1301_write(struct spi_device *spi, u8 reg, u8 val)
++static int sx1301_read(struct spi_device *spi, u8 reg, u8 *val)
++{
++	return sx1301_read_burst(spi, reg, val, 1);
++}
++
++static int sx1301_write_burst(struct spi_device *spi, u8 reg, const u8 *val, size_t len)
+ {
+-	u8 buf[2];
++	u8 addr = reg | BIT(7);
++	struct spi_transfer xfr[2] = {
++		{ .tx_buf = &addr, .len = 1 },
++		{ .tx_buf = val, .len = len },
++	};
++
++	return spi_sync_transfer(spi, xfr, 2);
++}
+ 
+-	buf[0] = reg | BIT(7);
+-	buf[1] = val;
+-	return spi_write(spi, buf, 2);
++static int sx1301_write(struct spi_device *spi, u8 reg, u8 val)
++{
++	return sx1301_write_burst(spi, reg, &val, 1);
+ }
+ 
+ static int sx1301_page_switch(struct spi_device *spi, u8 page)
+-- 
+2.19.1
+

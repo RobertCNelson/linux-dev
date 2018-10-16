@@ -1,0 +1,180 @@
+From c6455615ad6100e0bd6b2604d935da27414440b7 Mon Sep 17 00:00:00 2001
+From: Ben Whitten <ben.whitten@lairdtech.com>
+Date: Thu, 9 Aug 2018 16:41:43 +0100
+Subject: [PATCH 50/64] net: lora: sx125x: Convert to regmap
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Convert the sx125x driver to regmap as we did with sx1301,
+with a view to splitting out the driver to an spi and regmap_bus shim
+with core component.
+
+Signed-off-by: Ben Whitten <ben.whitten@lairdtech.com>
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/Kconfig  |  1 +
+ drivers/net/lora/sx1257.c | 64 +++++++++++++++++++++++++++------------
+ drivers/net/lora/sx125x.h | 19 ++++++++++++
+ 3 files changed, 65 insertions(+), 19 deletions(-)
+ create mode 100644 drivers/net/lora/sx125x.h
+
+diff --git a/drivers/net/lora/Kconfig b/drivers/net/lora/Kconfig
+index 79d23f2d2328..01397626012d 100644
+--- a/drivers/net/lora/Kconfig
++++ b/drivers/net/lora/Kconfig
+@@ -35,6 +35,7 @@ config LORA_SX1257
+ 	tristate "Semtech SX125x SPI driver"
+ 	default y
+ 	depends on SPI
++	select REGMAP_SPI
+ 	help
+ 	  Semtech SX1255/1257
+ 
+diff --git a/drivers/net/lora/sx1257.c b/drivers/net/lora/sx1257.c
+index b41ecb201e28..78180877a6be 100644
+--- a/drivers/net/lora/sx1257.c
++++ b/drivers/net/lora/sx1257.c
+@@ -3,6 +3,7 @@
+  * Semtech SX1255/SX1257 LoRa transceiver
+  *
+  * Copyright (c) 2018 Andreas Färber
++ * Copyright (c) 2018 Ben Whitten
+  *
+  * Based on SX1301 HAL code:
+  * Copyright (c) 2013 Semtech-Cycleo
+@@ -11,41 +12,65 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/regmap.h>
+ #include <linux/spi/spi.h>
+ 
+-#define REG_CLK_SELECT		0x10
++#include "sx125x.h"
+ 
+ #define REG_CLK_SELECT_TX_DAC_CLK_SELECT_CLK_IN	BIT(0)
+ #define REG_CLK_SELECT_CLK_OUT			BIT(1)
+ 
+-static int sx1257_write(struct spi_device *spi, u8 reg, u8 val)
+-{
+-	u8 buf[2];
++static struct regmap_config sx125x_spi_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
+ 
+-	buf[0] = reg | BIT(7);
+-	buf[1] = val;
+-	return spi_write(spi, buf, 2);
+-}
++	.cache_type = REGCACHE_NONE,
+ 
+-static int sx1257_read(struct spi_device *spi, u8 reg, u8 *val)
+-{
+-	u8 addr = reg & 0x7f;
+-	return spi_write_then_read(spi, &addr, 1, val, 1);
+-}
++	.read_flag_mask = 0,
++	.write_flag_mask = BIT(7),
++
++	.max_register = SX125X_MAX_REGISTER,
++};
++
++struct sx125x_priv {
++	struct regmap		*regmap;
++};
+ 
+ static int sx1257_probe(struct spi_device *spi)
+ {
+-	u8 val;
++	struct sx125x_priv *priv;
++	unsigned int val;
+ 	int ret;
+ 
++	spi->mode = SPI_MODE_0;
++	spi->bits_per_word = 8;
++	spi->max_speed_hz = 10000000;
++	ret = spi_setup(spi);
++	if (ret) {
++		dev_err(&spi->dev, "SPI setup failed.\n");
++		return ret;
++	}
++
++	priv = devm_kzalloc(&spi->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	dev_set_drvdata(&spi->dev, priv);
++
++	priv->regmap = devm_regmap_init_spi(spi, &sx125x_spi_regmap_config);
++	if (IS_ERR(priv->regmap)) {
++		ret = PTR_ERR(priv->regmap);
++		dev_err(&spi->dev, "Regmap allocation failed: %d\n", ret);
++		return ret;
++	}
++
+ 	if (false) {
+-		ret = sx1257_read(spi, 0x07, &val);
++		ret = regmap_read(priv->regmap, SX1255_VERSION, &val);
+ 		if (ret) {
+ 			dev_err(&spi->dev, "version read failed\n");
+ 			return ret;
+ 		}
+-
+-		dev_info(&spi->dev, "SX125x version: %02x\n", (unsigned)val);
++		dev_info(&spi->dev, "SX125x version: %02x\n", val);
+ 	}
+ 
+ 	val = REG_CLK_SELECT_TX_DAC_CLK_SELECT_CLK_IN;
+@@ -54,7 +79,7 @@ static int sx1257_probe(struct spi_device *spi)
+ 		dev_info(&spi->dev, "enabling clock output\n");
+ 	}
+ 
+-	ret = sx1257_write(spi, REG_CLK_SELECT, val);
++	ret = regmap_write(priv->regmap, SX125X_CLK_SELECT, val);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "clk write failed\n");
+ 		return ret;
+@@ -63,7 +88,7 @@ static int sx1257_probe(struct spi_device *spi)
+ 	dev_dbg(&spi->dev, "clk written\n");
+ 
+ 	if (true) {
+-		ret = sx1257_write(spi, 0x26, 13 + 2 * 16);
++		ret = regmap_write(priv->regmap, SX1257_XOSC, 13 + 2 * 16);
+ 		if (ret) {
+ 			dev_err(&spi->dev, "xosc write failed\n");
+ 			return ret;
+@@ -104,4 +129,5 @@ module_spi_driver(sx1257_spi_driver);
+ 
+ MODULE_DESCRIPTION("SX1257 SPI driver");
+ MODULE_AUTHOR("Andreas Färber <afaerber@suse.de>");
++MODULE_AUTHOR("Ben Whitten <ben.whitten@gmail.com>");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/net/lora/sx125x.h b/drivers/net/lora/sx125x.h
+new file mode 100644
+index 000000000000..f41ceefe2900
+--- /dev/null
++++ b/drivers/net/lora/sx125x.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Semtech SX1255/SX1257 LoRa transceiver
++ *
++ * Copyright (c) 2018   Ben Whitten
++ */
++
++#ifndef _SX125X_
++#define _SX125X_
++
++#define SX1255_VERSION		0x07
++#define SX125X_CLK_SELECT	0x10
++
++#define SX1257_XOSC		0x26
++#define SX1255_XOSC		0x28
++
++#define SX125X_MAX_REGISTER	0x2A
++
++#endif
+-- 
+2.19.1
+

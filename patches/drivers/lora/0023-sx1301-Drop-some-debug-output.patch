@@ -1,0 +1,38 @@
+From 12c17361bd2a35eef3aae7db93dd44d3a0a9ef23 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Date: Mon, 2 Jul 2018 03:17:32 +0200
+Subject: [PATCH 23/64] sx1301: Drop some debug output
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+---
+ drivers/net/lora/sx1301.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/drivers/net/lora/sx1301.c b/drivers/net/lora/sx1301.c
+index a44cd5d6ccfa..5717bef6b33b 100644
+--- a/drivers/net/lora/sx1301.c
++++ b/drivers/net/lora/sx1301.c
+@@ -380,8 +380,6 @@ static int sx1301_probe(struct spi_device *spi)
+ 	radio->regs = REG_2_SPI_RADIO_A_DATA;
+ 	radio->parent = spi;
+ 
+-	dev_info(&spi->dev, "registering radio A SPI\n");
+-
+ 	ret = devm_spi_register_controller(&spi->dev, priv->radio_a_ctrl);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "radio A SPI register failed\n");
+@@ -405,8 +403,6 @@ static int sx1301_probe(struct spi_device *spi)
+ 	radio->regs = REG_2_SPI_RADIO_B_DATA;
+ 	radio->parent = spi;
+ 
+-	dev_info(&spi->dev, "registering radio B SPI\n");
+-
+ 	ret = devm_spi_register_controller(&spi->dev, priv->radio_b_ctrl);
+ 	if (ret) {
+ 		dev_err(&spi->dev, "radio B SPI register failed\n");
+-- 
+2.19.1
+
