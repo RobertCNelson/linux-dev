@@ -377,7 +377,7 @@ drivers () {
 	dir 'drivers/spi'
 	dir 'drivers/ssd1306'
 	dir 'drivers/tps65217'
-	dir 'drivers/opp'
+#	dir 'drivers/opp'
 	dir 'drivers/wiznet'
 	dir 'drivers/ti/overlays'
 	dir 'drivers/ti/cpsw'
