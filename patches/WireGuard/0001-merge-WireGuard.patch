@@ -1,6 +1,6 @@
-From 53cef4353034a20dd8953b7b6dd9b941e1ae7aff Mon Sep 17 00:00:00 2001
+From 4acfcfb07409896220c76c56817fc282e9d9b727 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 22 Oct 2018 11:08:30 -0500
+Date: Tue, 30 Oct 2018 11:31:32 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -9,7 +9,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/Makefile                                  |    1 +
  net/wireguard/Kconfig                         |   32 +
  net/wireguard/Makefile                        |   14 +
- net/wireguard/allowedips.c                    |  413 +
+ net/wireguard/allowedips.c                    |  420 +
  net/wireguard/allowedips.h                    |   54 +
  net/wireguard/compat/Makefile.include         |   82 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
@@ -75,7 +75,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../crypto/zinc/selftest/curve25519.c         | 1315 +++
  net/wireguard/crypto/zinc/selftest/poly1305.c | 1107 ++
  net/wireguard/crypto/zinc/selftest/run.h      |   48 +
- net/wireguard/device.c                        |  453 +
+ net/wireguard/device.c                        |  461 +
  net/wireguard/device.h                        |   65 +
  net/wireguard/hashtables.c                    |  209 +
  net/wireguard/hashtables.h                    |   64 +
@@ -83,26 +83,26 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/messages.h                      |  128 +
  net/wireguard/netlink.c                       |  609 ++
  net/wireguard/netlink.h                       |   12 +
- net/wireguard/noise.c                         |  788 ++
+ net/wireguard/noise.c                         |  796 ++
  net/wireguard/noise.h                         |  131 +
- net/wireguard/peer.c                          |  193 +
+ net/wireguard/peer.c                          |  215 +
  net/wireguard/peer.h                          |   82 +
  net/wireguard/queueing.c                      |   53 +
- net/wireguard/queueing.h                      |  196 +
- net/wireguard/ratelimiter.c                   |  220 +
+ net/wireguard/queueing.h                      |  197 +
+ net/wireguard/ratelimiter.c                   |  223 +
  net/wireguard/ratelimiter.h                   |   19 +
- net/wireguard/receive.c                       |  597 ++
- net/wireguard/selftest/allowedips.c           |  687 ++
+ net/wireguard/receive.c                       |  604 ++
+ net/wireguard/selftest/allowedips.c           |  689 ++
  net/wireguard/selftest/counter.c              |  104 +
  net/wireguard/selftest/ratelimiter.c          |  229 +
- net/wireguard/send.c                          |  423 +
+ net/wireguard/send.c                          |  431 +
  net/wireguard/socket.c                        |  433 +
  net/wireguard/socket.h                        |   44 +
- net/wireguard/timers.c                        |  271 +
+ net/wireguard/timers.c                        |  241 +
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 97 files changed, 48831 insertions(+)
+ 97 files changed, 48867 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -200,7 +200,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/version.h
 
 diff --git a/net/Kconfig b/net/Kconfig
-index 228dfa382eec..fd14cb4accf2 100644
+index bc8d01996f22..5bc6b7c76b61 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
 @@ -86,6 +86,7 @@ config INET
@@ -283,10 +283,10 @@ index 000000000000..c17728218dab
 +obj-$(if $(KBUILD_EXTMOD),m,$(CONFIG_WIREGUARD)) := wireguard.o
 diff --git a/net/wireguard/allowedips.c b/net/wireguard/allowedips.c
 new file mode 100644
-index 000000000000..bc43b710e70b
+index 000000000000..b99078da1ffe
 --- /dev/null
 +++ b/net/wireguard/allowedips.c
-@@ -0,0 +1,413 @@
+@@ -0,0 +1,420 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -328,8 +328,7 @@ index 000000000000..bc43b710e70b
 +	node->bit_at_b = 7U - (cidr % 8U);
 +	memcpy(node->bits, src, bits / 8U);
 +}
-+
-+#define choose_node(parent, key)                                               \
++#define CHOOSE_NODE(parent, key)                                               \
 +	parent->bit[(key[parent->bit_at_a] >> parent->bit_at_b) & 1]
 +
 +static void node_free_rcu(struct rcu_head *rcu)
@@ -337,23 +336,26 @@ index 000000000000..bc43b710e70b
 +	kfree(container_of(rcu, struct allowedips_node, rcu));
 +}
 +
-+#define push_rcu(stack, p, len) ({                                             \
-+		if (rcu_access_pointer(p)) {                                   \
-+			WARN_ON(IS_ENABLED(DEBUG) && (len) >= 128);            \
-+			stack[(len)++] = rcu_dereference_raw(p);               \
-+		}                                                              \
-+		true;                                                          \
-+	})
++static void push_rcu(struct allowedips_node **stack,
++		     struct allowedips_node __rcu *p, unsigned int *len)
++{
++	if (rcu_access_pointer(p)) {
++		WARN_ON(IS_ENABLED(DEBUG) && *len >= 128);
++		stack[(*len)++] = rcu_dereference_raw(p);
++	}
++}
++
 +static void root_free_rcu(struct rcu_head *rcu)
 +{
 +	struct allowedips_node *node, *stack[128] = {
 +		container_of(rcu, struct allowedips_node, rcu) };
 +	unsigned int len = 1;
 +
-+	while (len > 0 && (node = stack[--len]) &&
-+	       push_rcu(stack, node->bit[0], len) &&
-+	       push_rcu(stack, node->bit[1], len))
++	while (len > 0 && (node = stack[--len])) {
++		push_rcu(stack, node->bit[0], &len);
++		push_rcu(stack, node->bit[1], &len);
 +		kfree(node);
++	}
 +}
 +
 +static int
@@ -363,6 +365,7 @@ index 000000000000..bc43b710e70b
 +	     void *ctx, struct mutex *lock)
 +{
 +	const int address_family = bits == 32 ? AF_INET : AF_INET6;
++	/* Aligned so it can be treated as u64 */
 +	u8 ip[16] __aligned(__alignof(u64));
 +	struct allowedips_node *node;
 +	int ret;
@@ -371,11 +374,11 @@ index 000000000000..bc43b710e70b
 +		return 0;
 +
 +	if (!cursor->len)
-+		push_rcu(cursor->stack, top, cursor->len);
++		push_rcu(cursor->stack, top, &cursor->len);
 +
 +	for (; cursor->len > 0 && (node = cursor->stack[cursor->len - 1]);
-+	     --cursor->len, push_rcu(cursor->stack, node->bit[0], cursor->len),
-+	     push_rcu(cursor->stack, node->bit[1], cursor->len)) {
++	     --cursor->len, push_rcu(cursor->stack, node->bit[0], &cursor->len),
++	     push_rcu(cursor->stack, node->bit[1], &cursor->len)) {
 +		const unsigned int cidr_bytes = DIV_ROUND_UP(node->cidr, 8U);
 +
 +		if (rcu_dereference_protected(node->peer,
@@ -394,62 +397,60 @@ index 000000000000..bc43b710e70b
 +	return 0;
 +}
 +
-+#undef push_rcu
-+
-+#define ref(p) rcu_access_pointer(p)
-+#define deref(p) rcu_dereference_protected(*(p), lockdep_is_held(lock))
-+#define push(p) ({                                                             \
++static void walk_remove_by_peer(struct allowedips_node __rcu **top,
++				struct wg_peer *peer, struct mutex *lock)
++{
++#define REF(p) rcu_access_pointer(p)
++#define DEREF(p) rcu_dereference_protected(*(p), lockdep_is_held(lock))
++#define PUSH(p) ({                                                             \
 +		WARN_ON(IS_ENABLED(DEBUG) && len >= 128);                      \
 +		stack[len++] = p;                                              \
 +	})
 +
-+static void walk_remove_by_peer(struct allowedips_node __rcu **top,
-+				struct wg_peer *peer, struct mutex *lock)
-+{
 +	struct allowedips_node __rcu **stack[128], **nptr;
 +	struct allowedips_node *node, *prev;
 +	unsigned int len;
 +
-+	if (unlikely(!peer || !ref(*top)))
++	if (unlikely(!peer || !REF(*top)))
 +		return;
 +
-+	for (prev = NULL, len = 0, push(top); len > 0; prev = node) {
++	for (prev = NULL, len = 0, PUSH(top); len > 0; prev = node) {
 +		nptr = stack[len - 1];
-+		node = deref(nptr);
++		node = DEREF(nptr);
 +		if (!node) {
 +			--len;
 +			continue;
 +		}
-+		if (!prev || ref(prev->bit[0]) == node ||
-+		    ref(prev->bit[1]) == node) {
-+			if (ref(node->bit[0]))
-+				push(&node->bit[0]);
-+			else if (ref(node->bit[1]))
-+				push(&node->bit[1]);
-+		} else if (ref(node->bit[0]) == prev) {
-+			if (ref(node->bit[1]))
-+				push(&node->bit[1]);
++		if (!prev || REF(prev->bit[0]) == node ||
++		    REF(prev->bit[1]) == node) {
++			if (REF(node->bit[0]))
++				PUSH(&node->bit[0]);
++			else if (REF(node->bit[1]))
++				PUSH(&node->bit[1]);
++		} else if (REF(node->bit[0]) == prev) {
++			if (REF(node->bit[1]))
++				PUSH(&node->bit[1]);
 +		} else {
 +			if (rcu_dereference_protected(node->peer,
 +				lockdep_is_held(lock)) == peer) {
 +				RCU_INIT_POINTER(node->peer, NULL);
 +				if (!node->bit[0] || !node->bit[1]) {
-+					rcu_assign_pointer(*nptr,
-+					deref(&node->bit[!ref(node->bit[0])]));
++					rcu_assign_pointer(*nptr, DEREF(
++					       &node->bit[!REF(node->bit[0])]));
 +					call_rcu_bh(&node->rcu, node_free_rcu);
-+					node = deref(nptr);
++					node = DEREF(nptr);
 +				}
 +			}
 +			--len;
 +		}
 +	}
++
++#undef REF
++#undef DEREF
++#undef PUSH
 +}
 +
-+#undef ref
-+#undef deref
-+#undef push
-+
-+static __always_inline unsigned int fls128(u64 a, u64 b)
++static unsigned int fls128(u64 a, u64 b)
 +{
 +	return a ? fls64(a) + 64U : fls64(b);
 +}
@@ -466,14 +467,17 @@ index 000000000000..bc43b710e70b
 +	return 0;
 +}
 +
-+/* This could be much faster if it actually just compared the common bits
-+ * properly, by precomputing a mask bswap(~0 << (32 - cidr)), and the rest, but
-+ * it turns out that common_bits is already super fast on modern processors,
-+ * even taking into account the unfortunate bswap. So, we just inline it like
-+ * this instead.
-+ */
-+#define prefix_matches(node, key, bits)                                        \
-+	(common_bits(node, key, bits) >= (node)->cidr)
++static __always_inline bool prefix_matches(const struct allowedips_node *node,
++					   const u8 *key, u8 bits)
++{
++	/* This could be much faster if it actually just compared the common
++	 * bits properly, by precomputing a mask bswap(~0 << (32 - cidr)), and
++	 * the rest, but it turns out that common_bits is already super fast on
++	 * modern processors, even taking into account the unfortunate bswap.
++	 * So, we just inline it like this instead.
++	 */
++	return common_bits(node, key, bits) >= node->cidr;
++}
 +
 +static __always_inline struct allowedips_node *
 +find_node(struct allowedips_node *trie, u8 bits, const u8 *key)
@@ -485,7 +489,7 @@ index 000000000000..bc43b710e70b
 +			found = node;
 +		if (node->cidr == bits)
 +			break;
-+		node = rcu_dereference_bh(choose_node(node, key));
++		node = rcu_dereference_bh(CHOOSE_NODE(node, key));
 +	}
 +	return found;
 +}
@@ -494,6 +498,7 @@ index 000000000000..bc43b710e70b
 +static __always_inline struct wg_peer *
 +lookup(struct allowedips_node __rcu *root, u8 bits, const void *be_ip)
 +{
++	/* Aligned so it can be passed to fls/fls64 */
 +	u8 ip[16] __aligned(__alignof(u64));
 +	struct allowedips_node *node;
 +	struct wg_peer *peer = NULL;
@@ -512,9 +517,9 @@ index 000000000000..bc43b710e70b
 +	return peer;
 +}
 +
-+__attribute__((nonnull(1))) static bool
-+node_placement(struct allowedips_node __rcu *trie, const u8 *key, u8 cidr,
-+	       u8 bits, struct allowedips_node **rnode, struct mutex *lock)
++static bool node_placement(struct allowedips_node __rcu *trie, const u8 *key,
++			   u8 cidr, u8 bits, struct allowedips_node **rnode,
++			   struct mutex *lock)
 +{
 +	struct allowedips_node *node = rcu_dereference_protected(trie,
 +						lockdep_is_held(lock));
@@ -527,7 +532,7 @@ index 000000000000..bc43b710e70b
 +			exact = true;
 +			break;
 +		}
-+		node = rcu_dereference_protected(choose_node(parent, key),
++		node = rcu_dereference_protected(CHOOSE_NODE(parent, key),
 +						 lockdep_is_held(lock));
 +	}
 +	*rnode = parent;
@@ -565,10 +570,10 @@ index 000000000000..bc43b710e70b
 +	if (!node) {
 +		down = rcu_dereference_protected(*trie, lockdep_is_held(lock));
 +	} else {
-+		down = rcu_dereference_protected(choose_node(node, key),
++		down = rcu_dereference_protected(CHOOSE_NODE(node, key),
 +						 lockdep_is_held(lock));
 +		if (!down) {
-+			rcu_assign_pointer(choose_node(node, key), newnode);
++			rcu_assign_pointer(CHOOSE_NODE(node, key), newnode);
 +			return 0;
 +		}
 +	}
@@ -576,11 +581,11 @@ index 000000000000..bc43b710e70b
 +	parent = node;
 +
 +	if (newnode->cidr == cidr) {
-+		rcu_assign_pointer(choose_node(newnode, down->bits), down);
++		rcu_assign_pointer(CHOOSE_NODE(newnode, down->bits), down);
 +		if (!parent)
 +			rcu_assign_pointer(*trie, newnode);
 +		else
-+			rcu_assign_pointer(choose_node(parent, newnode->bits),
++			rcu_assign_pointer(CHOOSE_NODE(parent, newnode->bits),
 +					   newnode);
 +	} else {
 +		node = kzalloc(sizeof(*node), GFP_KERNEL);
@@ -590,12 +595,12 @@ index 000000000000..bc43b710e70b
 +		}
 +		copy_and_assign_cidr(node, newnode->bits, cidr, bits);
 +
-+		rcu_assign_pointer(choose_node(node, down->bits), down);
-+		rcu_assign_pointer(choose_node(node, newnode->bits), newnode);
++		rcu_assign_pointer(CHOOSE_NODE(node, down->bits), down);
++		rcu_assign_pointer(CHOOSE_NODE(node, newnode->bits), newnode);
 +		if (!parent)
 +			rcu_assign_pointer(*trie, node);
 +		else
-+			rcu_assign_pointer(choose_node(parent, node->bits),
++			rcu_assign_pointer(CHOOSE_NODE(parent, node->bits),
 +					   node);
 +	}
 +	return 0;
@@ -625,6 +630,7 @@ index 000000000000..bc43b710e70b
 +			    u8 cidr, struct wg_peer *peer,
 +			    struct mutex *lock)
 +{
++	/* Aligned so it can be passed to fls */
 +	u8 key[4] __aligned(__alignof(u32));
 +
 +	++table->seq;
@@ -636,6 +642,7 @@ index 000000000000..bc43b710e70b
 +			    u8 cidr, struct wg_peer *peer,
 +			    struct mutex *lock)
 +{
++	/* Aligned so it can be passed to fls64 */
 +	u8 key[16] __aligned(__alignof(u64));
 +
 +	++table->seq;
@@ -17914,11 +17921,11 @@ index 000000000000..f79c1422a106
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
 new file mode 100644
-index 000000000000..db5e2e619e64
+index 000000000000..e42531d342c6
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
 @@ -0,0 +1,2333 @@
-+// SPDX-License-Identifier: GPL-2.0 OR LGPL-2.1
++// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +/*
 + * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>. All Rights Reserved.
 + * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -22689,7 +22696,7 @@ index 000000000000..e342f03c21f6
 +}
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-donna64.c b/net/wireguard/crypto/zinc/poly1305/poly1305-donna64.c
 new file mode 100644
-index 000000000000..aeb75ab8da6b
+index 000000000000..8a011829c5c5
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-donna64.c
 @@ -0,0 +1,182 @@
@@ -22718,9 +22725,9 @@ index 000000000000..aeb75ab8da6b
 +	t0 = get_unaligned_le64(&key[0]);
 +	t1 = get_unaligned_le64(&key[8]);
 +
-+	st->r[0] = t0 & 0xffc0fffffff;
-+	st->r[1] = ((t0 >> 44) | (t1 << 20)) & 0xfffffc0ffff;
-+	st->r[2] = ((t1 >> 24)) & 0x00ffffffc0f;
++	st->r[0] = t0 & 0xffc0fffffffULL;
++	st->r[1] = ((t0 >> 44) | (t1 << 20)) & 0xfffffc0ffffULL;
++	st->r[2] = ((t1 >> 24)) & 0x00ffffffc0fULL;
 +
 +	/* s = 20*r */
 +	st->s[0] = st->r[1] * 20;
@@ -22761,9 +22768,9 @@ index 000000000000..aeb75ab8da6b
 +		t0 = get_unaligned_le64(&input[0]);
 +		t1 = get_unaligned_le64(&input[8]);
 +
-+		h0 += t0 & 0xfffffffffff;
-+		h1 += ((t0 >> 44) | (t1 << 20)) & 0xfffffffffff;
-+		h2 += (((t1 >> 24)) & 0x3ffffffffff) | hibit;
++		h0 += t0 & 0xfffffffffffULL;
++		h1 += ((t0 >> 44) | (t1 << 20)) & 0xfffffffffffULL;
++		h2 += (((t1 >> 24)) & 0x3ffffffffffULL) | hibit;
 +
 +		/* h *= r */
 +		d0 = (u128)h0 * r0;
@@ -22784,16 +22791,16 @@ index 000000000000..aeb75ab8da6b
 +
 +		/* (partial) h %= p */
 +		c = (u64)(d0 >> 44);
-+		h0 = (u64)d0 & 0xfffffffffff;
++		h0 = (u64)d0 & 0xfffffffffffULL;
 +		d1 += c;
 +		c = (u64)(d1 >> 44);
-+		h1 = (u64)d1 & 0xfffffffffff;
++		h1 = (u64)d1 & 0xfffffffffffULL;
 +		d2 += c;
 +		c = (u64)(d2 >> 42);
-+		h2 = (u64)d2 & 0x3ffffffffff;
++		h2 = (u64)d2 & 0x3ffffffffffULL;
 +		h0 += c * 5;
 +		c = h0 >> 44;
-+		h0 = h0 & 0xfffffffffff;
++		h0 = h0 & 0xfffffffffffULL;
 +		h1 += c;
 +
 +		input += POLY1305_BLOCK_SIZE;
@@ -22818,31 +22825,31 @@ index 000000000000..aeb75ab8da6b
 +	h2 = st->h[2];
 +
 +	c = h1 >> 44;
-+	h1 &= 0xfffffffffff;
++	h1 &= 0xfffffffffffULL;
 +	h2 += c;
 +	c = h2 >> 42;
-+	h2 &= 0x3ffffffffff;
++	h2 &= 0x3ffffffffffULL;
 +	h0 += c * 5;
 +	c = h0 >> 44;
-+	h0 &= 0xfffffffffff;
++	h0 &= 0xfffffffffffULL;
 +	h1 += c;
 +	c = h1 >> 44;
-+	h1 &= 0xfffffffffff;
++	h1 &= 0xfffffffffffULL;
 +	h2 += c;
 +	c = h2 >> 42;
-+	h2 &= 0x3ffffffffff;
++	h2 &= 0x3ffffffffffULL;
 +	h0 += c * 5;
 +	c = h0 >> 44;
-+	h0 &= 0xfffffffffff;
++	h0 &= 0xfffffffffffULL;
 +	h1 += c;
 +
 +	/* compute h + -p */
 +	g0 = h0 + 5;
 +	c  = g0 >> 44;
-+	g0 &= 0xfffffffffff;
++	g0 &= 0xfffffffffffULL;
 +	g1 = h1 + c;
 +	c  = g1 >> 44;
-+	g1 &= 0xfffffffffff;
++	g1 &= 0xfffffffffffULL;
 +	g2 = h2 + c - (1ULL << 42);
 +
 +	/* select h if h < p, or h + -p if h >= p */
@@ -22859,14 +22866,14 @@ index 000000000000..aeb75ab8da6b
 +	t0 = ((u64)nonce[1] << 32) | nonce[0];
 +	t1 = ((u64)nonce[3] << 32) | nonce[2];
 +
-+	h0 += t0 & 0xfffffffffff;
++	h0 += t0 & 0xfffffffffffULL;
 +	c = h0 >> 44;
-+	h0 &= 0xfffffffffff;
-+	h1 += (((t0 >> 44) | (t1 << 20)) & 0xfffffffffff) + c;
++	h0 &= 0xfffffffffffULL;
++	h1 += (((t0 >> 44) | (t1 << 20)) & 0xfffffffffffULL) + c;
 +	c = h1 >> 44;
-+	h1 &= 0xfffffffffff;
-+	h2 += (((t1 >> 24)) & 0x3ffffffffff) + c;
-+	h2 &= 0x3ffffffffff;
++	h1 &= 0xfffffffffffULL;
++	h2 += (((t1 >> 24)) & 0x3ffffffffffULL) + c;
++	h2 &= 0x3ffffffffffULL;
 +
 +	/* mac = h % (2^128) */
 +	h0 = h0 | (h1 << 44);
@@ -43161,10 +43168,10 @@ index 000000000000..74f607a8e0e2
 +#endif
 diff --git a/net/wireguard/device.c b/net/wireguard/device.c
 new file mode 100644
-index 000000000000..3a14e334cbd2
+index 000000000000..877000bca02e
 --- /dev/null
 +++ b/net/wireguard/device.c
-@@ -0,0 +1,453 @@
+@@ -0,0 +1,461 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -43233,12 +43240,19 @@ index 000000000000..3a14e334cbd2
 +	return 0;
 +}
 +
-+#if defined(CONFIG_PM_SLEEP) && !defined(CONFIG_ANDROID)
++#ifdef CONFIG_PM_SLEEP
 +static int wg_pm_notification(struct notifier_block *nb, unsigned long action,
 +			      void *data)
 +{
 +	struct wg_device *wg;
 +	struct wg_peer *peer;
++
++	/* If the machine is constantly suspending and resuming, as part of
++	 * its normal operation rather than as a somewhat rare event, then we
++	 * don't actually want to clear keys.
++	 */
++	if (IS_ENABLED(CONFIG_PM_AUTOSLEEP) || IS_ENABLED(CONFIG_ANDROID))
++		return 0;
 +
 +	if (action != PM_HIBERNATION_PREPARE && action != PM_SUSPEND_PREPARE)
 +		return 0;
@@ -43247,10 +43261,9 @@ index 000000000000..3a14e334cbd2
 +	list_for_each_entry(wg, &device_list, device_list) {
 +		mutex_lock(&wg->device_update_lock);
 +		list_for_each_entry(peer, &wg->peer_list, peer_list) {
++			del_timer(&peer->timer_zero_key_material);
 +			wg_noise_handshake_clear(&peer->handshake);
 +			wg_noise_keypairs_clear(&peer->keypairs);
-+			if (peer->timers_enabled)
-+				del_timer(&peer->timer_zero_key_material);
 +		}
 +		mutex_unlock(&wg->device_update_lock);
 +	}
@@ -43269,7 +43282,7 @@ index 000000000000..3a14e334cbd2
 +
 +	mutex_lock(&wg->device_update_lock);
 +	list_for_each_entry(peer, &wg->peer_list, peer_list) {
-+		skb_queue_purge(&peer->staged_packet_queue);
++		wg_packet_purge_staged_packets(peer);
 +		wg_timers_stop(peer);
 +		wg_noise_handshake_clear(&peer->handshake);
 +		wg_noise_keypairs_clear(&peer->keypairs);
@@ -43357,8 +43370,10 @@ index 000000000000..3a14e334cbd2
 +	 * until it's small again. We do this before adding the new packet, so
 +	 * we don't remove GSO segments that are in excess.
 +	 */
-+	while (skb_queue_len(&peer->staged_packet_queue) > MAX_STAGED_PACKETS)
++	while (skb_queue_len(&peer->staged_packet_queue) > MAX_STAGED_PACKETS) {
 +		dev_kfree_skb(__skb_dequeue(&peer->staged_packet_queue));
++		++dev->stats.tx_dropped;
++	}
 +	skb_queue_splice_tail(&packets, &peer->staged_packet_queue);
 +	spin_unlock_bh(&peer->staged_packet_queue.lock);
 +
@@ -43584,7 +43599,7 @@ index 000000000000..3a14e334cbd2
 +{
 +	int ret;
 +
-+#if defined(CONFIG_PM_SLEEP) && !defined(CONFIG_ANDROID)
++#ifdef CONFIG_PM_SLEEP
 +	ret = register_pm_notifier(&pm_notifier);
 +	if (ret)
 +		return ret;
@@ -43603,7 +43618,7 @@ index 000000000000..3a14e334cbd2
 +error_netdevice:
 +	unregister_netdevice_notifier(&netdevice_notifier);
 +error_pm:
-+#if defined(CONFIG_PM_SLEEP) && !defined(CONFIG_ANDROID)
++#ifdef CONFIG_PM_SLEEP
 +	unregister_pm_notifier(&pm_notifier);
 +#endif
 +	return ret;
@@ -43613,7 +43628,7 @@ index 000000000000..3a14e334cbd2
 +{
 +	rtnl_link_unregister(&link_ops);
 +	unregister_netdevice_notifier(&netdevice_notifier);
-+#if defined(CONFIG_PM_SLEEP) && !defined(CONFIG_ANDROID)
++#ifdef CONFIG_PM_SLEEP
 +	unregister_pm_notifier(&pm_notifier);
 +#endif
 +	rcu_barrier_bh();
@@ -44818,10 +44833,10 @@ index 000000000000..1dc6a67bc719
 +#endif /* _WG_NETLINK_H */
 diff --git a/net/wireguard/noise.c b/net/wireguard/noise.c
 new file mode 100644
-index 000000000000..098c060242c8
+index 000000000000..d0a337a9658e
 --- /dev/null
 +++ b/net/wireguard/noise.c
-@@ -0,0 +1,788 @@
+@@ -0,0 +1,796 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -44983,18 +44998,26 @@ index 000000000000..098c060242c8
 +	struct noise_keypair *old;
 +
 +	spin_lock_bh(&keypairs->keypair_update_lock);
-+	old = rcu_dereference_protected(keypairs->previous_keypair,
-+		lockdep_is_held(&keypairs->keypair_update_lock));
-+	RCU_INIT_POINTER(keypairs->previous_keypair, NULL);
-+	wg_noise_keypair_put(old, true);
++
++	/* We zero the next_keypair before zeroing the others, so that
++	 * wg_noise_received_with_keypair returns early before subsequent ones
++	 * are zeroed.
++	 */
 +	old = rcu_dereference_protected(keypairs->next_keypair,
 +		lockdep_is_held(&keypairs->keypair_update_lock));
 +	RCU_INIT_POINTER(keypairs->next_keypair, NULL);
 +	wg_noise_keypair_put(old, true);
++
++	old = rcu_dereference_protected(keypairs->previous_keypair,
++		lockdep_is_held(&keypairs->keypair_update_lock));
++	RCU_INIT_POINTER(keypairs->previous_keypair, NULL);
++	wg_noise_keypair_put(old, true);
++
 +	old = rcu_dereference_protected(keypairs->current_keypair,
 +		lockdep_is_held(&keypairs->keypair_update_lock));
 +	RCU_INIT_POINTER(keypairs->current_keypair, NULL);
 +	wg_noise_keypair_put(old, true);
++
 +	spin_unlock_bh(&keypairs->keypair_update_lock);
 +}
 +
@@ -45591,8 +45614,8 @@ index 000000000000..098c060242c8
 +
 +	handshake_zero(handshake);
 +	rcu_read_lock_bh();
-+	if (likely(!container_of(handshake, struct wg_peer,
-+				 handshake)->is_dead)) {
++	if (likely(!READ_ONCE(container_of(handshake, struct wg_peer,
++					   handshake)->is_dead))) {
 +		add_new_keypair(keypairs, new_keypair);
 +		net_dbg_ratelimited("%s: Keypair %llu created for peer %llu\n",
 +				    handshake->entry.peer->device->dev->name,
@@ -45749,10 +45772,10 @@ index 000000000000..48fb3fcd76e3
 +#endif /* _WG_NOISE_H */
 diff --git a/net/wireguard/peer.c b/net/wireguard/peer.c
 new file mode 100644
-index 000000000000..58ad83157161
+index 000000000000..e4e24052a151
 --- /dev/null
 +++ b/net/wireguard/peer.c
-@@ -0,0 +1,193 @@
+@@ -0,0 +1,215 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -45842,9 +45865,9 @@ index 000000000000..58ad83157161
 +	return peer;
 +}
 +
-+/* We have a separate "remove" function to get rid of the final reference
-+ * because peer_list, clearing handshakes, and flushing all require mutexes
-+ * which requires sleeping, which must only be done from certain contexts.
++/* We have a separate "remove" function make sure that all active places where
++ * a peer is currently operating will eventually come to an end and not pass
++ * their reference onto another context.
 + */
 +void wg_peer_remove(struct wg_peer *peer)
 +{
@@ -45852,9 +45875,7 @@ index 000000000000..58ad83157161
 +		return;
 +	lockdep_assert_held(&peer->device->device_update_lock);
 +
-+	/* Remove from configuration-time lookup structures so new packets
-+	 * can't enter.
-+	 */
++	/* Remove from configuration-time lookup structures. */
 +	list_del_init(&peer->peer_list);
 +	wg_allowedips_remove_by_peer(&peer->device->peer_allowedips, peer,
 +				     &peer->device->device_update_lock);
@@ -45864,8 +45885,8 @@ index 000000000000..58ad83157161
 +	WRITE_ONCE(peer->is_dead, true);
 +	synchronize_rcu_bh();
 +
-+	/* Now that no more keypairs can be created for this peer, we destroy
-+	 * existing ones.
++	/* No more keypairs can be created for this peer, since is_dead protects
++	 * add_new_keypair, so we can now destroy existing ones.
 +	 */
 +	wg_noise_keypairs_clear(&peer->keypairs);
 +
@@ -45897,6 +45918,23 @@ index 000000000000..58ad83157161
 +	 */
 +	flush_workqueue(peer->device->handshake_send_wq);
 +
++	/* After the above flushes, a peer might still be active in a few
++	 * different contexts: 1) from xmit(), before hitting is_dead and
++	 * returning, 2) from wg_packet_consume_data(), before hitting is_dead
++	 * and returning, 3) from wg_receive_handshake_packet() after a point
++	 * where it has processed an incoming handshake packet, but where
++	 * all calls to pass it off to timers fails because of is_dead. We won't
++	 * have new references in (1) eventually, because we're removed from
++	 * allowedips; we won't have new references in (2) eventually, because
++	 * wg_index_hashtable_lookup will always return NULL, since we removed
++	 * all existing keypairs and no more can be created; we won't have new
++	 * references in (3) eventually, because we're removed from the pubkey
++	 * hash table, which allows for a maximum of one handshake response,
++	 * via the still-uncleared index hashtable entry, but not more than one,
++	 * and in wg_cookie_message_consume, the lookup eventually gets a peer
++	 * with a refcount of zero, so no new reference is taken.
++	 */
++
 +	--peer->device->num_peers;
 +	wg_peer_put(peer);
 +}
@@ -45908,6 +45946,10 @@ index 000000000000..58ad83157161
 +	dst_cache_destroy(&peer->endpoint_cache);
 +	wg_packet_queue_free(&peer->rx_queue, false);
 +	wg_packet_queue_free(&peer->tx_queue, false);
++
++	/* The final zeroing takes care of clearing any remaining handshake key
++	 * material and other potentially sensitive information.
++	 */
 +	kzfree(peer);
 +}
 +
@@ -45918,15 +45960,18 @@ index 000000000000..58ad83157161
 +	pr_debug("%s: Peer %llu (%pISpfsc) destroyed\n",
 +		 peer->device->dev->name, peer->internal_id,
 +		 &peer->endpoint.addr);
++
 +	/* Remove ourself from dynamic runtime lookup structures, now that the
 +	 * last reference is gone.
 +	 */
 +	wg_index_hashtable_remove(&peer->device->index_hashtable,
 +				  &peer->handshake.entry);
++
 +	/* Remove any lingering packets that didn't have a chance to be
 +	 * transmitted.
 +	 */
-+	skb_queue_purge(&peer->staged_packet_queue);
++	wg_packet_purge_staged_packets(peer);
++
 +	/* Free the memory used. */
 +	call_rcu_bh(&peer->rcu, rcu_release);
 +}
@@ -45948,7 +45993,7 @@ index 000000000000..58ad83157161
 +}
 diff --git a/net/wireguard/peer.h b/net/wireguard/peer.h
 new file mode 100644
-index 000000000000..10de4b6ff1e1
+index 000000000000..d19e617e1c67
 --- /dev/null
 +++ b/net/wireguard/peer.h
 @@ -0,0 +1,82 @@
@@ -46008,7 +46053,7 @@ index 000000000000..10de4b6ff1e1
 +	struct timer_list timer_persistent_keepalive;
 +	unsigned int timer_handshake_attempts;
 +	u16 persistent_keepalive_interval;
-+	bool timers_enabled, timer_need_another_keepalive;
++	bool timer_need_another_keepalive;
 +	bool sent_lastminute_handshake;
 +	struct timespec walltime_last_handshake;
 +	struct kref refcount;
@@ -46095,10 +46140,10 @@ index 000000000000..5d0219e15ccc
 +}
 diff --git a/net/wireguard/queueing.h b/net/wireguard/queueing.h
 new file mode 100644
-index 000000000000..ce522d8993ba
+index 000000000000..60688bc905b7
 --- /dev/null
 +++ b/net/wireguard/queueing.h
-@@ -0,0 +1,196 @@
+@@ -0,0 +1,197 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46142,6 +46187,7 @@ index 000000000000..ce522d8993ba
 +				     struct sk_buff *initiating_skb,
 +				     __le32 sender_index);
 +void wg_packet_send_keepalive(struct wg_peer *peer);
++void wg_packet_purge_staged_packets(struct wg_peer *peer);
 +void wg_packet_send_staged_packets(struct wg_peer *peer);
 +/* Workqueue workers: */
 +void wg_packet_handshake_send_worker(struct work_struct *work);
@@ -46297,10 +46343,10 @@ index 000000000000..ce522d8993ba
 +#endif /* _WG_QUEUEING_H */
 diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
 new file mode 100644
-index 000000000000..a3d334be0175
+index 000000000000..7cd50e661ad2
 --- /dev/null
 +++ b/net/wireguard/ratelimiter.c
-@@ -0,0 +1,220 @@
+@@ -0,0 +1,223 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46316,7 +46362,7 @@ index 000000000000..a3d334be0175
 +static hsiphash_key_t key;
 +static spinlock_t table_lock = __SPIN_LOCK_UNLOCKED("ratelimiter_table_lock");
 +static DEFINE_MUTEX(init_lock);
-+static atomic64_t refcnt = ATOMIC64_INIT(0);
++static u64 init_refcnt; /* Protected by init_lock, hence not atomic. */
 +static atomic_t total_entries = ATOMIC_INIT(0);
 +static unsigned int max_entries, table_size;
 +static void wg_ratelimiter_gc_entries(struct work_struct *);
@@ -46327,8 +46373,7 @@ index 000000000000..a3d334be0175
 +#endif
 +
 +struct ratelimiter_entry {
-+	u64 last_time_ns, tokens;
-+	__be64 ip;
++	u64 last_time_ns, tokens, ip;
 +	void *net;
 +	spinlock_t lock;
 +	struct hlist_node hash;
@@ -46387,21 +46432,25 @@ index 000000000000..a3d334be0175
 +
 +bool wg_ratelimiter_allow(struct sk_buff *skb, struct net *net)
 +{
-+	struct { __be64 ip; u32 net; } data = {
-+		.net = (unsigned long)net & 0xffffffff };
++	/* We only take the bottom half of the net pointer, so that we can hash
++	 * 3 words in the end. This way, siphash's len param fits into the final
++	 * u32, and we don't incur an extra round.
++	 */
++	const u32 net_word = (unsigned long)net;
 +	struct ratelimiter_entry *entry;
 +	struct hlist_head *bucket;
++	u64 ip;
 +
 +	if (skb->protocol == htons(ETH_P_IP)) {
-+		data.ip = (__force __be64)ip_hdr(skb)->saddr;
-+		bucket = &table_v4[hsiphash(&data, sizeof(u32) * 3, &key) &
++		ip = (u64 __force)ip_hdr(skb)->saddr;
++		bucket = &table_v4[hsiphash_2u32(net_word, ip, &key) &
 +				   (table_size - 1)];
 +	}
 +#if IS_ENABLED(CONFIG_IPV6)
 +	else if (skb->protocol == htons(ETH_P_IPV6)) {
-+		memcpy(&data.ip, &ipv6_hdr(skb)->saddr,
-+		       sizeof(__be64)); /* Only 64 bits */
-+		bucket = &table_v6[hsiphash(&data, sizeof(u32) * 3, &key) &
++		/* Only use 64 bits, so as to ratelimit the whole /64. */
++		memcpy(&ip, &ipv6_hdr(skb)->saddr, sizeof(ip));
++		bucket = &table_v6[hsiphash_3u32(net_word, ip >> 32, ip, &key) &
 +				   (table_size - 1)];
 +	}
 +#endif
@@ -46409,7 +46458,7 @@ index 000000000000..a3d334be0175
 +		return false;
 +	rcu_read_lock();
 +	hlist_for_each_entry_rcu(entry, bucket, hash) {
-+		if (entry->net == net && entry->ip == data.ip) {
++		if (entry->net == net && entry->ip == ip) {
 +			u64 now, tokens;
 +			bool ret;
 +			/* Quasi-inspired by nft_limit.c, but this is actually a
@@ -46440,7 +46489,7 @@ index 000000000000..a3d334be0175
 +		goto err_oom;
 +
 +	entry->net = net;
-+	entry->ip = data.ip;
++	entry->ip = ip;
 +	INIT_HLIST_NODE(&entry->hash);
 +	spin_lock_init(&entry->lock);
 +	entry->last_time_ns = ktime_get_boot_fast_ns();
@@ -46458,7 +46507,7 @@ index 000000000000..a3d334be0175
 +int wg_ratelimiter_init(void)
 +{
 +	mutex_lock(&init_lock);
-+	if (atomic64_inc_return(&refcnt) != 1)
++	if (++init_refcnt != 1)
 +		goto out;
 +
 +	entry_cache = KMEM_CACHE(ratelimiter_entry, 0);
@@ -46497,7 +46546,7 @@ index 000000000000..a3d334be0175
 +err_kmemcache:
 +	kmem_cache_destroy(entry_cache);
 +err:
-+	atomic64_dec(&refcnt);
++	--init_refcnt;
 +	mutex_unlock(&init_lock);
 +	return -ENOMEM;
 +}
@@ -46505,7 +46554,7 @@ index 000000000000..a3d334be0175
 +void wg_ratelimiter_uninit(void)
 +{
 +	mutex_lock(&init_lock);
-+	if (atomic64_dec_if_positive(&refcnt))
++	if (!init_refcnt || --init_refcnt)
 +		goto out;
 +
 +	cancel_delayed_work_sync(&gc_work);
@@ -46548,10 +46597,10 @@ index 000000000000..0325d10b1f76
 +#endif /* _WG_RATELIMITER_H */
 diff --git a/net/wireguard/receive.c b/net/wireguard/receive.c
 new file mode 100644
-index 000000000000..33a60b7bc3bf
+index 000000000000..81140e9aa18d
 --- /dev/null
 +++ b/net/wireguard/receive.c
-@@ -0,0 +1,597 @@
+@@ -0,0 +1,604 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46785,7 +46834,7 @@ index 000000000000..33a60b7bc3bf
 +
 +	rcu_read_lock_bh();
 +	keypair = rcu_dereference_bh(peer->keypairs.current_keypair);
-+	if (likely(keypair && keypair->sending.is_valid) &&
++	if (likely(keypair && READ_ONCE(keypair->sending.is_valid)) &&
 +	    keypair->i_am_the_initiator &&
 +	    unlikely(wg_birthdate_has_expired(keypair->sending.birthdate,
 +			REJECT_AFTER_TIME - KEEPALIVE_TIMEOUT - REKEY_TIMEOUT)))
@@ -46809,10 +46858,10 @@ index 000000000000..33a60b7bc3bf
 +	if (unlikely(!key))
 +		return false;
 +
-+	if (unlikely(!key->is_valid ||
++	if (unlikely(!READ_ONCE(key->is_valid) ||
 +		  wg_birthdate_has_expired(key->birthdate, REJECT_AFTER_TIME) ||
 +		  key->counter.receive.counter >= REJECT_AFTER_MESSAGES)) {
-+		key->is_valid = false;
++		WRITE_ONCE(key->is_valid, false);
 +		return false;
 +	}
 +
@@ -46933,7 +46982,14 @@ index 000000000000..33a60b7bc3bf
 +		goto dishonest_packet_type;
 +
 +	skb->dev = dev;
++	/* We've already verified the Poly1305 auth tag, which means this packet
++	 * was not modified in transit. We can therefore tell the networking
++	 * stack that all checksums of every layer of encapsulation have already
++	 * been checked "by the hardware" and therefore is unneccessary to check
++	 * again in software.
++	 */
 +	skb->ip_summed = CHECKSUM_UNNECESSARY;
++	skb->csum_level = ~0; /* All levels */
 +	skb->protocol = wg_skb_examine_untrusted_ip_hdr(skb);
 +	if (skb->protocol == htons(ETH_P_IP)) {
 +		len = ntohs(ip_hdr(skb)->tot_len);
@@ -47088,7 +47144,7 @@ index 000000000000..33a60b7bc3bf
 +	if (unlikely(!wg_noise_keypair_get(PACKET_CB(skb)->keypair)))
 +		goto err_keypair;
 +
-+	if (unlikely(peer->is_dead))
++	if (unlikely(READ_ONCE(peer->is_dead)))
 +		goto err;
 +
 +	ret = wg_queue_enqueue_per_device_and_peer(&wg->decrypt_queue,
@@ -47151,10 +47207,10 @@ index 000000000000..33a60b7bc3bf
 +}
 diff --git a/net/wireguard/selftest/allowedips.c b/net/wireguard/selftest/allowedips.c
 new file mode 100644
-index 000000000000..74d1472a0864
+index 000000000000..354fd78044b9
 --- /dev/null
 +++ b/net/wireguard/selftest/allowedips.c
-@@ -0,0 +1,687 @@
+@@ -0,0 +1,689 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -47204,7 +47260,7 @@ index 000000000000..74d1472a0864
 +			"\t\"%pI6/%d\"[style=%s, color=\"#%06x\"];\n";
 +	}
 +	if (node->peer) {
-+		hsiphash_key_t key = { 0 };
++		hsiphash_key_t key = { { 0 } };
 +
 +		memcpy(&key, &node->peer, sizeof(node->peer));
 +		color = hsiphash_1u32(0xdeadbeef, &key) % 200 << 16 |
@@ -47215,25 +47271,27 @@ index 000000000000..74d1472a0864
 +	swap_endian_and_apply_cidr(ip1, node->bits, bits, node->cidr);
 +	printk(fmt_declaration, ip1, node->cidr, style, color);
 +	if (node->bit[0]) {
-+		swap_endian_and_apply_cidr(ip2, node->bit[0]->bits, bits,
-+					   node->cidr);
++		swap_endian_and_apply_cidr(ip2,
++				rcu_dereference_raw(node->bit[0])->bits, bits,
++				node->cidr);
 +		printk(fmt_connection, ip1, node->cidr, ip2,
-+		       node->bit[0]->cidr);
-+		print_node(node->bit[0], bits);
++		       rcu_dereference_raw(node->bit[0])->cidr);
++		print_node(rcu_dereference_raw(node->bit[0]), bits);
 +	}
 +	if (node->bit[1]) {
-+		swap_endian_and_apply_cidr(ip2, node->bit[1]->bits, bits,
-+					   node->cidr);
++		swap_endian_and_apply_cidr(ip2,
++				rcu_dereference_raw(node->bit[1])->bits,
++				bits, node->cidr);
 +		printk(fmt_connection, ip1, node->cidr, ip2,
-+		       node->bit[1]->cidr);
-+		print_node(node->bit[1], bits);
++		       rcu_dereference_raw(node->bit[1])->cidr);
++		print_node(rcu_dereference_raw(node->bit[1]), bits);
 +	}
 +}
 +
-+static __init void print_tree(struct allowedips_node *top, u8 bits)
++static __init void print_tree(struct allowedips_node __rcu *top, u8 bits)
 +{
 +	printk(KERN_DEBUG "digraph trie {\n");
-+	print_node(top, bits);
++	print_node(rcu_dereference_raw(top), bits);
 +	printk(KERN_DEBUG "}\n");
 +}
 +
@@ -47279,7 +47337,7 @@ index 000000000000..74d1472a0864
 +	memset(&mask, 0x00, 128 / 8);
 +	memset(&mask, 0xff, cidr / 8);
 +	if (cidr % 32)
-+		mask.all[cidr / 32] = htonl(
++		mask.all[cidr / 32] = (__force u32)htonl(
 +			(0xFFFFFFFFUL << (32 - (cidr % 32))) & 0xFFFFFFFFUL);
 +	return mask;
 +}
@@ -48189,10 +48247,10 @@ index 000000000000..39734e4420ea
 +#endif
 diff --git a/net/wireguard/send.c b/net/wireguard/send.c
 new file mode 100644
-index 000000000000..b7f828321ed2
+index 000000000000..dc466aec9fb4
 --- /dev/null
 +++ b/net/wireguard/send.c
-@@ -0,0 +1,423 @@
+@@ -0,0 +1,431 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -48260,7 +48318,8 @@ index 000000000000..b7f828321ed2
 +	 * necessary:
 +	 */
 +	if (!wg_birthdate_has_expired(atomic64_read(&peer->last_sent_handshake),
-+				      REKEY_TIMEOUT) || unlikely(peer->is_dead))
++				      REKEY_TIMEOUT) ||
++			unlikely(READ_ONCE(peer->is_dead)))
 +		goto out;
 +
 +	wg_peer_get(peer);
@@ -48323,7 +48382,7 @@ index 000000000000..b7f828321ed2
 +
 +	rcu_read_lock_bh();
 +	keypair = rcu_dereference_bh(peer->keypairs.current_keypair);
-+	if (likely(keypair && keypair->sending.is_valid) &&
++	if (likely(keypair && READ_ONCE(keypair->sending.is_valid)) &&
 +	    (unlikely(atomic64_read(&keypair->sending.counter.counter) >
 +		      REKEY_AFTER_MESSAGES) ||
 +	     (keypair->i_am_the_initiator &&
@@ -48381,11 +48440,10 @@ index 000000000000..b7f828321ed2
 +	if (unlikely(skb_cow_head(skb, DATA_PACKET_HEAD_ROOM) < 0))
 +		return false;
 +
-+	/* We have to remember to add the checksum to the innerpacket, in case
-+	 * the receiver forwards it.
-+	 */
-+	if (likely(!skb_checksum_setup(skb, true)))
-+		skb_checksum_help(skb);
++	/* Finalize checksum calculation for the inner packet, if required. */
++	if (unlikely(skb->ip_summed == CHECKSUM_PARTIAL &&
++		     skb_checksum_help(skb)))
++		return false;
 +
 +	/* Only after checksumming can we safely add on the padding at the end
 +	 * and the header.
@@ -48522,7 +48580,7 @@ index 000000000000..b7f828321ed2
 +	int ret = -EINVAL;
 +
 +	rcu_read_lock_bh();
-+	if (unlikely(peer->is_dead))
++	if (unlikely(READ_ONCE(peer->is_dead)))
 +		goto err;
 +
 +	ret = wg_queue_enqueue_per_device_and_peer(&wg->encrypt_queue,
@@ -48539,6 +48597,14 @@ index 000000000000..b7f828321ed2
 +	wg_noise_keypair_put(PACKET_CB(first)->keypair, false);
 +	wg_peer_put(peer);
 +	skb_free_null_queue(first);
++}
++
++void wg_packet_purge_staged_packets(struct wg_peer *peer)
++{
++	spin_lock_bh(&peer->staged_packet_queue.lock);
++	peer->device->dev->stats.tx_dropped += peer->staged_packet_queue.qlen;
++	__skb_queue_purge(&peer->staged_packet_queue);
++	spin_unlock_bh(&peer->staged_packet_queue.lock);
 +}
 +
 +void wg_packet_send_staged_packets(struct wg_peer *peer)
@@ -48564,7 +48630,7 @@ index 000000000000..b7f828321ed2
 +	if (unlikely(!keypair))
 +		goto out_nokey;
 +	key = &keypair->sending;
-+	if (unlikely(!key->is_valid))
++	if (unlikely(!READ_ONCE(key->is_valid)))
 +		goto out_nokey;
 +	if (unlikely(wg_birthdate_has_expired(key->birthdate,
 +					      REJECT_AFTER_TIME)))
@@ -48593,7 +48659,7 @@ index 000000000000..b7f828321ed2
 +	return;
 +
 +out_invalid:
-+	key->is_valid = false;
++	WRITE_ONCE(key->is_valid, false);
 +out_nokey:
 +	wg_noise_keypair_put(keypair, false);
 +
@@ -49107,10 +49173,10 @@ index 000000000000..9d3e8e1e87e0
 +#endif /* _WG_SOCKET_H */
 diff --git a/net/wireguard/timers.c b/net/wireguard/timers.c
 new file mode 100644
-index 000000000000..0312bd887afd
+index 000000000000..a9bcd368ff85
 --- /dev/null
 +++ b/net/wireguard/timers.c
-@@ -0,0 +1,271 @@
+@@ -0,0 +1,241 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -49139,50 +49205,32 @@ index 000000000000..0312bd887afd
 + * specified seconds.
 + */
 +
-+#define peer_get_from_timer(timer_name) ({                                     \
-+	struct wg_peer *peer;                                                  \
-+	rcu_read_lock_bh();                                                    \
-+	peer = wg_peer_get_maybe_zero(from_timer(peer, timer, timer_name));    \
-+	rcu_read_unlock_bh();                                                  \
-+	peer;                                                                  \
-+})
-+
 +static inline void mod_peer_timer(struct wg_peer *peer,
 +				  struct timer_list *timer,
 +				  unsigned long expires)
 +{
 +	rcu_read_lock_bh();
-+	if (likely(netif_running(peer->device->dev) && !peer->is_dead))
++	if (likely(netif_running(peer->device->dev) &&
++		   !READ_ONCE(peer->is_dead)))
 +		mod_timer(timer, expires);
-+	rcu_read_unlock_bh();
-+}
-+
-+static inline void del_peer_timer(struct wg_peer *peer,
-+				  struct timer_list *timer)
-+{
-+	rcu_read_lock_bh();
-+	if (likely(netif_running(peer->device->dev) && !peer->is_dead))
-+		del_timer(timer);
 +	rcu_read_unlock_bh();
 +}
 +
 +static void wg_expired_retransmit_handshake(struct timer_list *timer)
 +{
-+	struct wg_peer *peer = peer_get_from_timer(timer_retransmit_handshake);
-+
-+	if (unlikely(!peer))
-+		return;
++	struct wg_peer *peer = from_timer(peer, timer,
++					  timer_retransmit_handshake);
 +
 +	if (peer->timer_handshake_attempts > MAX_TIMER_HANDSHAKES) {
 +		pr_debug("%s: Handshake for peer %llu (%pISpfsc) did not complete after %d attempts, giving up\n",
 +			 peer->device->dev->name, peer->internal_id,
 +			 &peer->endpoint.addr, MAX_TIMER_HANDSHAKES + 2);
 +
-+		del_peer_timer(peer, &peer->timer_send_keepalive);
++		del_timer(&peer->timer_send_keepalive);
 +		/* We drop all packets without a keypair and don't try again,
 +		 * if we try unsuccessfully for too long to make a handshake.
 +		 */
-+		skb_queue_purge(&peer->staged_packet_queue);
++		wg_packet_purge_staged_packets(peer);
 +
 +		/* We set a timer for destroying any residue that might be left
 +		 * of a partial exchange.
@@ -49204,15 +49252,11 @@ index 000000000000..0312bd887afd
 +
 +		wg_packet_send_queued_handshake_initiation(peer, true);
 +	}
-+	wg_peer_put(peer);
 +}
 +
 +static void wg_expired_send_keepalive(struct timer_list *timer)
 +{
-+	struct wg_peer *peer = peer_get_from_timer(timer_send_keepalive);
-+
-+	if (unlikely(!peer))
-+		return;
++	struct wg_peer *peer = from_timer(peer, timer, timer_send_keepalive);
 +
 +	wg_packet_send_keepalive(peer);
 +	if (peer->timer_need_another_keepalive) {
@@ -49220,15 +49264,11 @@ index 000000000000..0312bd887afd
 +		mod_peer_timer(peer, &peer->timer_send_keepalive,
 +			       jiffies + KEEPALIVE_TIMEOUT * HZ);
 +	}
-+	wg_peer_put(peer);
 +}
 +
 +static void wg_expired_new_handshake(struct timer_list *timer)
 +{
-+	struct wg_peer *peer = peer_get_from_timer(timer_new_handshake);
-+
-+	if (unlikely(!peer))
-+		return;
++	struct wg_peer *peer = from_timer(peer, timer, timer_new_handshake);
 +
 +	pr_debug("%s: Retrying handshake with peer %llu (%pISpfsc) because we stopped hearing back after %d seconds\n",
 +		 peer->device->dev->name, peer->internal_id,
@@ -49238,22 +49278,20 @@ index 000000000000..0312bd887afd
 +	 */
 +	wg_socket_clear_peer_endpoint_src(peer);
 +	wg_packet_send_queued_handshake_initiation(peer, false);
-+	wg_peer_put(peer);
 +}
 +
 +static void wg_expired_zero_key_material(struct timer_list *timer)
 +{
-+	struct wg_peer *peer = peer_get_from_timer(timer_zero_key_material);
-+
-+	if (unlikely(!peer))
-+		return;
++	struct wg_peer *peer = from_timer(peer, timer, timer_zero_key_material);
 +
 +	rcu_read_lock_bh();
-+	if (!peer->is_dead) {
-+		 /* Should take our reference. */
++	if (!READ_ONCE(peer->is_dead)) {
++		wg_peer_get(peer);
 +		if (!queue_work(peer->device->handshake_send_wq,
 +				&peer->clear_peer_work))
-+			/* If the work was already on the queue, we want to drop the extra reference */
++			/* If the work was already on the queue, we want to drop
++			 * the extra reference.
++			 */
 +			wg_peer_put(peer);
 +	}
 +	rcu_read_unlock_bh();
@@ -49274,14 +49312,11 @@ index 000000000000..0312bd887afd
 +
 +static void wg_expired_send_persistent_keepalive(struct timer_list *timer)
 +{
-+	struct wg_peer *peer = peer_get_from_timer(timer_persistent_keepalive);
-+
-+	if (unlikely(!peer))
-+		return;
++	struct wg_peer *peer = from_timer(peer, timer,
++					  timer_persistent_keepalive);
 +
 +	if (likely(peer->persistent_keepalive_interval))
 +		wg_packet_send_keepalive(peer);
-+	wg_peer_put(peer);
 +}
 +
 +/* Should be called after an authenticated data packet is sent. */
@@ -49309,7 +49344,7 @@ index 000000000000..0312bd887afd
 + */
 +void wg_timers_any_authenticated_packet_sent(struct wg_peer *peer)
 +{
-+	del_peer_timer(peer, &peer->timer_send_keepalive);
++	del_timer(&peer->timer_send_keepalive);
 +}
 +
 +/* Should be called after any type of authenticated packet is received, whether
@@ -49317,7 +49352,7 @@ index 000000000000..0312bd887afd
 + */
 +void wg_timers_any_authenticated_packet_received(struct wg_peer *peer)
 +{
-+	del_peer_timer(peer, &peer->timer_new_handshake);
++	del_timer(&peer->timer_new_handshake);
 +}
 +
 +/* Should be called after a handshake initiation message is sent. */
@@ -49333,7 +49368,7 @@ index 000000000000..0312bd887afd
 + */
 +void wg_timers_handshake_complete(struct wg_peer *peer)
 +{
-+	del_peer_timer(peer, &peer->timer_retransmit_handshake);
++	del_timer(&peer->timer_retransmit_handshake);
 +	peer->timer_handshake_attempts = 0;
 +	peer->sent_lastminute_handshake = false;
 +	getnstimeofday(&peer->walltime_last_handshake);
@@ -49364,7 +49399,8 @@ index 000000000000..0312bd887afd
 +		    wg_expired_retransmit_handshake, 0);
 +	timer_setup(&peer->timer_send_keepalive, wg_expired_send_keepalive, 0);
 +	timer_setup(&peer->timer_new_handshake, wg_expired_new_handshake, 0);
-+	timer_setup(&peer->timer_zero_key_material, wg_expired_zero_key_material, 0);
++	timer_setup(&peer->timer_zero_key_material,
++		    wg_expired_zero_key_material, 0);
 +	timer_setup(&peer->timer_persistent_keepalive,
 +		    wg_expired_send_persistent_keepalive, 0);
 +	INIT_WORK(&peer->clear_peer_work, wg_queued_expired_zero_key_material);
