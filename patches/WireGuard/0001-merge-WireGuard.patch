@@ -1,6 +1,6 @@
-From 4acfcfb07409896220c76c56817fc282e9d9b727 Mon Sep 17 00:00:00 2001
+From d0be23206ed41e5a0331e67cde3a2b329cdf60ae Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 30 Oct 2018 11:31:32 -0500
+Date: Thu, 8 Nov 2018 16:30:33 -0600
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   82 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  808 ++
+ net/wireguard/compat/compat.h                 |  809 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -32,7 +32,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../udp_tunnel/udp_tunnel_partial_compat.h    |  226 +
  net/wireguard/cookie.c                        |  236 +
  net/wireguard/cookie.h                        |   59 +
- net/wireguard/crypto/Makefile.include         |   47 +
+ net/wireguard/crypto/Makefile.include         |   56 +
  net/wireguard/crypto/include/zinc/blake2s.h   |   56 +
  net/wireguard/crypto/include/zinc/chacha20.h  |   70 +
  .../crypto/include/zinc/chacha20poly1305.h    |   50 +
@@ -43,10 +43,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../crypto/zinc/blake2s/blake2s-x86_64.S      |  685 ++
  net/wireguard/crypto/zinc/blake2s/blake2s.c   |  305 +
  .../crypto/zinc/chacha20/chacha20-arm-glue.c  |   98 +
- .../crypto/zinc/chacha20/chacha20-arm.S       | 1860 ++++
- .../crypto/zinc/chacha20/chacha20-arm64.S     | 1942 ++++
+ .../zinc/chacha20/chacha20-arm.S_shipped      | 1502 +++
+ .../zinc/chacha20/chacha20-arm64.S_shipped    | 2019 ++++
  .../crypto/zinc/chacha20/chacha20-mips-glue.c |   28 +
  .../crypto/zinc/chacha20/chacha20-mips.S      |  424 +
+ .../zinc/chacha20/chacha20-unrolled-arm.S     |  461 +
  .../zinc/chacha20/chacha20-x86_64-glue.c      |  105 +
  .../crypto/zinc/chacha20/chacha20-x86_64.S    | 2632 +++++
  net/wireguard/crypto/zinc/chacha20/chacha20.c |  193 +
@@ -59,13 +60,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../zinc/curve25519/curve25519-x86_64.c       | 2333 +++++
  .../crypto/zinc/curve25519/curve25519.c       |  120 +
  .../crypto/zinc/poly1305/poly1305-arm-glue.c  |  140 +
- .../crypto/zinc/poly1305/poly1305-arm.S       | 1117 ++
- .../crypto/zinc/poly1305/poly1305-arm64.S     |  824 ++
+ .../zinc/poly1305/poly1305-arm.S_shipped      | 1207 +++
+ .../zinc/poly1305/poly1305-arm64.S_shipped    |  914 ++
  .../crypto/zinc/poly1305/poly1305-donna32.c   |  205 +
  .../crypto/zinc/poly1305/poly1305-donna64.c   |  182 +
  .../crypto/zinc/poly1305/poly1305-mips-glue.c |   37 +
  .../crypto/zinc/poly1305/poly1305-mips.S      |  407 +
- .../crypto/zinc/poly1305/poly1305-mips64.S    |  360 +
+ .../zinc/poly1305/poly1305-mips64.S_shipped   |  386 +
  .../zinc/poly1305/poly1305-x86_64-glue.c      |  156 +
  .../crypto/zinc/poly1305/poly1305-x86_64.S    | 2792 +++++
  net/wireguard/crypto/zinc/poly1305/poly1305.c |  168 +
@@ -91,7 +92,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/queueing.h                      |  197 +
  net/wireguard/ratelimiter.c                   |  223 +
  net/wireguard/ratelimiter.h                   |   19 +
- net/wireguard/receive.c                       |  604 ++
+ net/wireguard/receive.c                       |  606 ++
  net/wireguard/selftest/allowedips.c           |  689 ++
  net/wireguard/selftest/counter.c              |  104 +
  net/wireguard/selftest/ratelimiter.c          |  229 +
@@ -102,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 97 files changed, 48867 insertions(+)
+ 98 files changed, 49265 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -139,10 +140,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/crypto/zinc/blake2s/blake2s-x86_64.S
  create mode 100644 net/wireguard/crypto/zinc/blake2s/blake2s.c
  create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-arm-glue.c
- create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-arm.S
- create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S
+ create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-arm.S_shipped
+ create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S_shipped
  create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-mips-glue.c
  create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-mips.S
+ create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-unrolled-arm.S
  create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-x86_64-glue.c
  create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.S
  create mode 100644 net/wireguard/crypto/zinc/chacha20/chacha20.c
@@ -155,13 +157,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
  create mode 100644 net/wireguard/crypto/zinc/curve25519/curve25519.c
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-arm-glue.c
- create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-arm.S
- create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S
+ create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-arm.S_shipped
+ create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S_shipped
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-donna32.c
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-donna64.c
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-mips-glue.c
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-mips.S
- create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S
+ create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S_shipped
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-x86_64-glue.c
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305-x86_64.S
  create mode 100644 net/wireguard/crypto/zinc/poly1305/poly1305.c
@@ -200,7 +202,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/version.h
 
 diff --git a/net/Kconfig b/net/Kconfig
-index bc8d01996f22..5bc6b7c76b61 100644
+index f235edb593ba..8c455e77367a 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
 @@ -86,6 +86,7 @@ config INET
@@ -1120,10 +1122,10 @@ index 000000000000..8ce3045693fb
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..6223f9d00cd6
+index 000000000000..c4b20ae3e6b2
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,808 @@
+@@ -0,0 +1,809 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1275,6 +1277,7 @@ index 000000000000..6223f9d00cd6
 +{
 +	dev->priv_flags &= ~IFF_XMIT_DST_RELEASE;
 +}
++#define COMPAT_CANNOT_USE_CSUM_LEVEL
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0) && !defined(ISRHEL7)
@@ -4974,10 +4977,10 @@ index 000000000000..856ede8ff426
 +#endif /* _WG_COOKIE_H */
 diff --git a/net/wireguard/crypto/Makefile.include b/net/wireguard/crypto/Makefile.include
 new file mode 100644
-index 000000000000..ab5eceaee5ed
+index 000000000000..adceafaf8e4f
 --- /dev/null
 +++ b/net/wireguard/crypto/Makefile.include
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,56 @@
 +ifeq ($(CONFIG_X86_64)$(if $(CONFIG_UML),y,n),yn)
 +CONFIG_ZINC_ARCH_X86_64 := y
 +endif
@@ -4996,7 +4999,7 @@ index 000000000000..ab5eceaee5ed
 +
 +zinc-y += chacha20/chacha20.o
 +zinc-$(CONFIG_ZINC_ARCH_X86_64) += chacha20/chacha20-x86_64.o
-+zinc-$(CONFIG_ZINC_ARCH_ARM) += chacha20/chacha20-arm.o
++zinc-$(CONFIG_ZINC_ARCH_ARM) += chacha20/chacha20-arm.o chacha20/chacha20-unrolled-arm.o
 +zinc-$(CONFIG_ZINC_ARCH_ARM64) += chacha20/chacha20-arm64.o
 +zinc-$(CONFIG_ZINC_ARCH_MIPS) += chacha20/chacha20-mips.o
 +AFLAGS_chacha20-mips.o += -O2 # This is required to fill the branch delay slots
@@ -5016,6 +5019,15 @@ index 000000000000..ab5eceaee5ed
 +
 +zinc-y += curve25519/curve25519.o
 +zinc-$(CONFIG_ZINC_ARCH_ARM) += curve25519/curve25519-arm.o
++
++ifdef REGENERATE_PERLASM
++quiet_cmd_perlasm = PERLASM $@
++      cmd_perlasm = $(PERL) $(<) > $(@)
++%.S_shipped: %.perlasm
++	$(call cmd,perlasm)
++targets += $(patsubst $(srctree)/$(src)/%,%,$(patsubst %.perlasm,%.S_shipped,$(wildcard $(srctree)/$(src)/crypto/zinc/*/*.perlasm)))
++endif
++targets += $(patsubst $(srctree)/$(src)/%,%,$(patsubst %.perlasm,%.S,$(wildcard $(srctree)/$(src)/crypto/zinc/*/*.perlasm)))
 +
 +wireguard-y += $(addprefix crypto/zinc/,$(zinc-y))
 +ccflags-y += -I$(src)/crypto/include
@@ -6490,488 +6502,74 @@ index 000000000000..a0da95d3b9c4
 +	}
 +	return false;
 +}
-diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm.S b/net/wireguard/crypto/zinc/chacha20/chacha20-arm.S
+diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm.S_shipped b/net/wireguard/crypto/zinc/chacha20/chacha20-arm.S_shipped
 new file mode 100644
-index 000000000000..79ed18fbcce3
+index 000000000000..0917bdc54385
 --- /dev/null
-+++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm.S
-@@ -0,0 +1,1860 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-+/*
-+ * Copyright (C) 2018 Google, Inc.
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-+ * Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
-+ */
++++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm.S_shipped
+@@ -0,0 +1,1502 @@
++@ SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
++@
++@ This code is taken from the OpenSSL project but the author, Andy Polyakov,
++@ has relicensed it under the licenses specified in the SPDX header above.
++@ The original headers, including the original license headers, are
++@ included below for completeness.
++@
++@ ====================================================================
++@ Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
++@ project. The module is, however, dual licensed under OpenSSL and
++@ CRYPTOGAMS licenses depending on where you obtain it. For further
++@ details see http://www.openssl.org/~appro/cryptogams/.
++@ ====================================================================
++@
++@ December 2014
++@
++@ ChaCha20 for ARMv4.
++@
++@ September 2018
++@
++@ Improve scalar performance per Eric Biggers' suggestion to eliminate
++@ separate rotates. This requires b[0..3] and d[0..3] to be maintained
++@ pre-rotated, hence odd twists prior inner loop and when accumulating
++@ key material. Since amount of instructions is reduced as result, even
++@ NEON performance is improved somewhat, most notably by ~9% on low-end
++@ Cortex-A5/A7. Full unroll was shown to provide even better scalar
++@ performance on Cortex-A5/A7, naturally at the cost of manyfold size
++@ increase. We let it be. Oversized code works in benchmarks, but is not
++@ necessarily optimal in real life, when it's likely to be out-of-cache
++@ upon entry and evict significant part of cache upon completion.
++@
++@ Performance in cycles per byte out of large buffer.
++@
++@			IALU/gcc-4.4    1xNEON      3xNEON+1xIALU
++@
++@ Cortex-A5		14.2(*)/+160%   21.8        12.9(**)
++@ Cortex-A8		10.2(*)/+190%   13.9        6.10
++@ Cortex-A9		10.8(*)/+150%   14.3        6.50
++@ Cortex-A15		11.0/+40%       16.0        4.90
++@ Snapdragon S4		13.9(***)/+90%  13.6        4.90
++@
++@ (*)	most "favourable" result for aligned data on little-endian
++@	processor, result for misaligned data is 10-15% lower;
++@ (**)	pure 4xNEON [with "vertical" layout] was shown to provide ~8%
++@	better performance on Cortex-A5/A7, but not on others;
++@ (***)	it's 17% slower than original, trade-off is considered
++@	acceptable, because of improvement on others, specifically
++@	+36% on Cortex-A5/A7 and +20% on Cortex-A9;
 +
-+#include <linux/linkage.h>
-+#include <asm/assembler.h>
-+
-+/*
-+ * The following scalar routine was written by Eric Biggers.
-+ *
-+ * Design notes:
-+ *
-+ * 16 registers would be needed to hold the state matrix, but only 14 are
-+ * available because 'sp' and 'pc' cannot be used.  So we spill the elements
-+ * (x8, x9) to the stack and swap them out with (x10, x11).  This adds one
-+ * 'ldrd' and one 'strd' instruction per round.
-+ *
-+ * All rotates are performed using the implicit rotate operand accepted by the
-+ * 'add' and 'eor' instructions.  This is faster than using explicit rotate
-+ * instructions.  To make this work, we allow the values in the second and last
-+ * rows of the ChaCha state matrix (rows 'b' and 'd') to temporarily have the
-+ * wrong rotation amount.  The rotation amount is then fixed up just in time
-+ * when the values are used.  'brot' is the number of bits the values in row 'b'
-+ * need to be rotated right to arrive at the correct values, and 'drot'
-+ * similarly for row 'd'.  (brot, drot) start out as (0, 0) but we make it such
-+ * that they end up as (25, 24) after every round.
-+ */
-+
-+	// ChaCha state registers
-+	X0	.req	r0
-+	X1	.req	r1
-+	X2	.req	r2
-+	X3	.req	r3
-+	X4	.req	r4
-+	X5	.req	r5
-+	X6	.req	r6
-+	X7	.req	r7
-+	X8_X10	.req	r8	// shared by x8 and x10
-+	X9_X11	.req	r9	// shared by x9 and x11
-+	X12	.req	r10
-+	X13	.req	r11
-+	X14	.req	r12
-+	X15	.req	r14
-+
-+.Lexpand_32byte_k:
-+	// "expand 32-byte k"
-+	.word	0x61707865, 0x3320646e, 0x79622d32, 0x6b206574
-+
-+#ifdef __thumb2__
-+#  define adrl adr
-+#endif
-+
-+.macro __rev		out, in,  t0, t1, t2
-+.if __LINUX_ARM_ARCH__ >= 6
-+	rev		\out, \in
-+.else
-+	lsl		\t0, \in, #24
-+	and		\t1, \in, #0xff00
-+	and		\t2, \in, #0xff0000
-+	orr		\out, \t0, \in, lsr #24
-+	orr		\out, \out, \t1, lsl #8
-+	orr		\out, \out, \t2, lsr #8
-+.endif
-+.endm
-+
-+.macro _le32_bswap	x,  t0, t1, t2
-+#ifdef __ARMEB__
-+	__rev		\x, \x,  \t0, \t1, \t2
-+#endif
-+.endm
-+
-+.macro _le32_bswap_4x	a, b, c, d,  t0, t1, t2
-+	_le32_bswap	\a,  \t0, \t1, \t2
-+	_le32_bswap	\b,  \t0, \t1, \t2
-+	_le32_bswap	\c,  \t0, \t1, \t2
-+	_le32_bswap	\d,  \t0, \t1, \t2
-+.endm
-+
-+.macro __ldrd		a, b, src, offset
-+#if __LINUX_ARM_ARCH__ >= 6
-+	ldrd		\a, \b, [\src, #\offset]
++#ifndef __KERNEL__
++# include "arm_arch.h"
 +#else
-+	ldr		\a, [\src, #\offset]
-+	ldr		\b, [\src, #\offset + 4]
++# define __ARM_ARCH__ __LINUX_ARM_ARCH__
++# define __ARM_MAX_ARCH__ __LINUX_ARM_ARCH__
++# define ChaCha20_ctr32 chacha20_arm_cryptogams
++# define ChaCha20_neon  chacha20_neon
 +#endif
-+.endm
-+
-+.macro __strd		a, b, dst, offset
-+#if __LINUX_ARM_ARCH__ >= 6
-+	strd		\a, \b, [\dst, #\offset]
-+#else
-+	str		\a, [\dst, #\offset]
-+	str		\b, [\dst, #\offset + 4]
-+#endif
-+.endm
-+
-+.macro _halfround	a1, b1, c1, d1,  a2, b2, c2, d2
-+
-+	// a += b; d ^= a; d = rol(d, 16);
-+	add		\a1, \a1, \b1, ror #brot
-+	add		\a2, \a2, \b2, ror #brot
-+	eor		\d1, \a1, \d1, ror #drot
-+	eor		\d2, \a2, \d2, ror #drot
-+	// drot == 32 - 16 == 16
-+
-+	// c += d; b ^= c; b = rol(b, 12);
-+	add		\c1, \c1, \d1, ror #16
-+	add		\c2, \c2, \d2, ror #16
-+	eor		\b1, \c1, \b1, ror #brot
-+	eor		\b2, \c2, \b2, ror #brot
-+	// brot == 32 - 12 == 20
-+
-+	// a += b; d ^= a; d = rol(d, 8);
-+	add		\a1, \a1, \b1, ror #20
-+	add		\a2, \a2, \b2, ror #20
-+	eor		\d1, \a1, \d1, ror #16
-+	eor		\d2, \a2, \d2, ror #16
-+	// drot == 32 - 8 == 24
-+
-+	// c += d; b ^= c; b = rol(b, 7);
-+	add		\c1, \c1, \d1, ror #24
-+	add		\c2, \c2, \d2, ror #24
-+	eor		\b1, \c1, \b1, ror #20
-+	eor		\b2, \c2, \b2, ror #20
-+	// brot == 32 - 7 == 25
-+.endm
-+
-+.macro _doubleround
-+
-+	// column round
-+
-+	// quarterrounds: (x0, x4, x8, x12) and (x1, x5, x9, x13)
-+	_halfround	X0, X4, X8_X10, X12,  X1, X5, X9_X11, X13
-+
-+	// save (x8, x9); restore (x10, x11)
-+	__strd		X8_X10, X9_X11, sp, 0
-+	__ldrd		X8_X10, X9_X11, sp, 8
-+
-+	// quarterrounds: (x2, x6, x10, x14) and (x3, x7, x11, x15)
-+	_halfround	X2, X6, X8_X10, X14,  X3, X7, X9_X11, X15
-+
-+	.set brot, 25
-+	.set drot, 24
-+
-+	// diagonal round
-+
-+	// quarterrounds: (x0, x5, x10, x15) and (x1, x6, x11, x12)
-+	_halfround	X0, X5, X8_X10, X15,  X1, X6, X9_X11, X12
-+
-+	// save (x10, x11); restore (x8, x9)
-+	__strd		X8_X10, X9_X11, sp, 8
-+	__ldrd		X8_X10, X9_X11, sp, 0
-+
-+	// quarterrounds: (x2, x7, x8, x13) and (x3, x4, x9, x14)
-+	_halfround	X2, X7, X8_X10, X13,  X3, X4, X9_X11, X14
-+.endm
-+
-+.macro _chacha_permute	nrounds
-+	.set brot, 0
-+	.set drot, 0
-+	.rept \nrounds / 2
-+	 _doubleround
-+	.endr
-+.endm
-+
-+.macro _chacha		nrounds
-+
-+.Lnext_block\@:
-+	// Stack: unused0-unused1 x10-x11 x0-x15 OUT IN LEN
-+	// Registers contain x0-x9,x12-x15.
-+
-+	// Do the core ChaCha permutation to update x0-x15.
-+	_chacha_permute	\nrounds
-+
-+	add		sp, #8
-+	// Stack: x10-x11 orig_x0-orig_x15 OUT IN LEN
-+	// Registers contain x0-x9,x12-x15.
-+	// x4-x7 are rotated by 'brot'; x12-x15 are rotated by 'drot'.
-+
-+	// Free up some registers (r8-r12,r14) by pushing (x8-x9,x12-x15).
-+	push		{X8_X10, X9_X11, X12, X13, X14, X15}
-+
-+	// Load (OUT, IN, LEN).
-+	ldr		r14, [sp, #96]
-+	ldr		r12, [sp, #100]
-+	ldr		r11, [sp, #104]
-+
-+	orr		r10, r14, r12
-+
-+	// Use slow path if fewer than 64 bytes remain.
-+	cmp		r11, #64
-+	blt		.Lxor_slowpath\@
-+
-+	// Use slow path if IN and/or OUT isn't 4-byte aligned.  Needed even on
-+	// ARMv6+, since ldmia and stmia (used below) still require alignment.
-+	tst		r10, #3
-+	bne		.Lxor_slowpath\@
-+
-+	// Fast path: XOR 64 bytes of aligned data.
-+
-+	// Stack: x8-x9 x12-x15 x10-x11 orig_x0-orig_x15 OUT IN LEN
-+	// Registers: r0-r7 are x0-x7; r8-r11 are free; r12 is IN; r14 is OUT.
-+	// x4-x7 are rotated by 'brot'; x12-x15 are rotated by 'drot'.
-+
-+	// x0-x3
-+	__ldrd		r8, r9, sp, 32
-+	__ldrd		r10, r11, sp, 40
-+	add		X0, X0, r8
-+	add		X1, X1, r9
-+	add		X2, X2, r10
-+	add		X3, X3, r11
-+	_le32_bswap_4x	X0, X1, X2, X3,  r8, r9, r10
-+	ldmia		r12!, {r8-r11}
-+	eor		X0, X0, r8
-+	eor		X1, X1, r9
-+	eor		X2, X2, r10
-+	eor		X3, X3, r11
-+	stmia		r14!, {X0-X3}
-+
-+	// x4-x7
-+	__ldrd		r8, r9, sp, 48
-+	__ldrd		r10, r11, sp, 56
-+	add		X4, r8, X4, ror #brot
-+	add		X5, r9, X5, ror #brot
-+	ldmia		r12!, {X0-X3}
-+	add		X6, r10, X6, ror #brot
-+	add		X7, r11, X7, ror #brot
-+	_le32_bswap_4x	X4, X5, X6, X7,  r8, r9, r10
-+	eor		X4, X4, X0
-+	eor		X5, X5, X1
-+	eor		X6, X6, X2
-+	eor		X7, X7, X3
-+	stmia		r14!, {X4-X7}
-+
-+	// x8-x15
-+	pop		{r0-r7}			// (x8-x9,x12-x15,x10-x11)
-+	__ldrd		r8, r9, sp, 32
-+	__ldrd		r10, r11, sp, 40
-+	add		r0, r0, r8		// x8
-+	add		r1, r1, r9		// x9
-+	add		r6, r6, r10		// x10
-+	add		r7, r7, r11		// x11
-+	_le32_bswap_4x	r0, r1, r6, r7,  r8, r9, r10
-+	ldmia		r12!, {r8-r11}
-+	eor		r0, r0, r8		// x8
-+	eor		r1, r1, r9		// x9
-+	eor		r6, r6, r10		// x10
-+	eor		r7, r7, r11		// x11
-+	stmia		r14!, {r0,r1,r6,r7}
-+	ldmia		r12!, {r0,r1,r6,r7}
-+	__ldrd		r8, r9, sp, 48
-+	__ldrd		r10, r11, sp, 56
-+	add		r2, r8, r2, ror #drot	// x12
-+	add		r3, r9, r3, ror #drot	// x13
-+	add		r4, r10, r4, ror #drot	// x14
-+	add		r5, r11, r5, ror #drot	// x15
-+	_le32_bswap_4x	r2, r3, r4, r5,  r9, r10, r11
-+	  ldr		r9, [sp, #72]		// load LEN
-+	eor		r2, r2, r0		// x12
-+	eor		r3, r3, r1		// x13
-+	eor		r4, r4, r6		// x14
-+	eor		r5, r5, r7		// x15
-+	  subs		r9, #64			// decrement and check LEN
-+	stmia		r14!, {r2-r5}
-+
-+	beq		.Ldone\@
-+
-+.Lprepare_for_next_block\@:
-+
-+	// Stack: x0-x15 OUT IN LEN
-+
-+	// Increment block counter (x12)
-+	add		r8, #1
-+
-+	// Store updated (OUT, IN, LEN)
-+	str		r14, [sp, #64]
-+	str		r12, [sp, #68]
-+	str		r9, [sp, #72]
-+
-+	  mov		r14, sp
-+
-+	// Store updated block counter (x12)
-+	str		r8, [sp, #48]
-+
-+	  sub		sp, #16
-+
-+	// Reload state and do next block
-+	ldmia		r14!, {r0-r11}		// load x0-x11
-+	__strd		r10, r11, sp, 8		// store x10-x11 before state
-+	ldmia		r14, {r10-r12,r14}	// load x12-x15
-+	b		.Lnext_block\@
-+
-+.Lxor_slowpath\@:
-+	// Slow path: < 64 bytes remaining, or unaligned input or output buffer.
-+	// We handle it by storing the 64 bytes of keystream to the stack, then
-+	// XOR-ing the needed portion with the data.
-+
-+	// Allocate keystream buffer
-+	sub		sp, #64
-+	mov		r14, sp
-+
-+	// Stack: ks0-ks15 x8-x9 x12-x15 x10-x11 orig_x0-orig_x15 OUT IN LEN
-+	// Registers: r0-r7 are x0-x7; r8-r11 are free; r12 is IN; r14 is &ks0.
-+	// x4-x7 are rotated by 'brot'; x12-x15 are rotated by 'drot'.
-+
-+	// Save keystream for x0-x3
-+	__ldrd		r8, r9, sp, 96
-+	__ldrd		r10, r11, sp, 104
-+	add		X0, X0, r8
-+	add		X1, X1, r9
-+	add		X2, X2, r10
-+	add		X3, X3, r11
-+	_le32_bswap_4x	X0, X1, X2, X3,  r8, r9, r10
-+	stmia		r14!, {X0-X3}
-+
-+	// Save keystream for x4-x7
-+	__ldrd		r8, r9, sp, 112
-+	__ldrd		r10, r11, sp, 120
-+	add		X4, r8, X4, ror #brot
-+	add		X5, r9, X5, ror #brot
-+	add		X6, r10, X6, ror #brot
-+	add		X7, r11, X7, ror #brot
-+	_le32_bswap_4x	X4, X5, X6, X7,  r8, r9, r10
-+	  add		r8, sp, #64
-+	stmia		r14!, {X4-X7}
-+
-+	// Save keystream for x8-x15
-+	ldm		r8, {r0-r7}		// (x8-x9,x12-x15,x10-x11)
-+	__ldrd		r8, r9, sp, 128
-+	__ldrd		r10, r11, sp, 136
-+	add		r0, r0, r8		// x8
-+	add		r1, r1, r9		// x9
-+	add		r6, r6, r10		// x10
-+	add		r7, r7, r11		// x11
-+	_le32_bswap_4x	r0, r1, r6, r7,  r8, r9, r10
-+	stmia		r14!, {r0,r1,r6,r7}
-+	__ldrd		r8, r9, sp, 144
-+	__ldrd		r10, r11, sp, 152
-+	add		r2, r8, r2, ror #drot	// x12
-+	add		r3, r9, r3, ror #drot	// x13
-+	add		r4, r10, r4, ror #drot	// x14
-+	add		r5, r11, r5, ror #drot	// x15
-+	_le32_bswap_4x	r2, r3, r4, r5,  r9, r10, r11
-+	stmia		r14, {r2-r5}
-+
-+	// Stack: ks0-ks15 unused0-unused7 x0-x15 OUT IN LEN
-+	// Registers: r8 is block counter, r12 is IN.
-+
-+	ldr		r9, [sp, #168]		// LEN
-+	ldr		r14, [sp, #160]		// OUT
-+	cmp		r9, #64
-+	  mov		r0, sp
-+	movle		r1, r9
-+	movgt		r1, #64
-+	// r1 is number of bytes to XOR, in range [1, 64]
-+
-+.if __LINUX_ARM_ARCH__ < 6
-+	orr		r2, r12, r14
-+	tst		r2, #3			// IN or OUT misaligned?
-+	bne		.Lxor_next_byte\@
-+.endif
-+
-+	// XOR a word at a time
-+.rept 16
-+	subs		r1, #4
-+	blt		.Lxor_words_done\@
-+	ldr		r2, [r12], #4
-+	ldr		r3, [r0], #4
-+	eor		r2, r2, r3
-+	str		r2, [r14], #4
-+.endr
-+	b		.Lxor_slowpath_done\@
-+.Lxor_words_done\@:
-+	ands		r1, r1, #3
-+	beq		.Lxor_slowpath_done\@
-+
-+	// XOR a byte at a time
-+.Lxor_next_byte\@:
-+	ldrb		r2, [r12], #1
-+	ldrb		r3, [r0], #1
-+	eor		r2, r2, r3
-+	strb		r2, [r14], #1
-+	subs		r1, #1
-+	bne		.Lxor_next_byte\@
-+
-+.Lxor_slowpath_done\@:
-+	subs		r9, #64
-+	add		sp, #96
-+	bgt		.Lprepare_for_next_block\@
-+
-+.Ldone\@:
-+.endm	// _chacha
-+
-+/*
-+ * void chacha20_arm(u8 *out, const u8 *in, size_t len, const u32 key[8],
-+ *		     const u32 iv[4]);
-+ */
-+ENTRY(chacha20_arm)
-+	cmp		r2, #0			// len == 0?
-+	reteq		lr
-+
-+	push		{r0-r2,r4-r11,lr}
-+
-+	// Push state x0-x15 onto stack.
-+	// Also store an extra copy of x10-x11 just before the state.
-+
-+	ldr		r4, [sp, #48]		// iv
-+	mov		r0, sp
-+	sub		sp, #80
-+
-+	// iv: x12-x15
-+	ldm		r4, {X12,X13,X14,X15}
-+	stmdb		r0!, {X12,X13,X14,X15}
-+
-+	// key: x4-x11
-+	__ldrd		X8_X10, X9_X11, r3, 24
-+	__strd		X8_X10, X9_X11, sp, 8
-+	stmdb		r0!, {X8_X10, X9_X11}
-+	ldm		r3, {X4-X9_X11}
-+	stmdb		r0!, {X4-X9_X11}
-+
-+	// constants: x0-x3
-+	adrl		X3, .Lexpand_32byte_k
-+	ldm		X3, {X0-X3}
-+	__strd		X0, X1, sp, 16
-+	__strd		X2, X3, sp, 24
-+
-+	_chacha		20
-+
-+	add		sp, #76
-+	pop		{r4-r11, pc}
-+ENDPROC(chacha20_arm)
-+
-+/*
-+ * void hchacha20_arm(const u32 state[16], u32 out[8]);
-+ */
-+ENTRY(hchacha20_arm)
-+	push		{r1,r4-r11,lr}
-+
-+	mov		r14, r0
-+	ldmia		r14!, {r0-r11}		// load x0-x11
-+	push		{r10-r11}		// store x10-x11 to stack
-+	ldm		r14, {r10-r12,r14}	// load x12-x15
-+	sub		sp, #8
-+
-+	_chacha_permute	20
-+
-+	// Skip over (unused0-unused1, x10-x11)
-+	add		sp, #16
-+
-+	// Fix up rotations of x12-x15
-+	ror		X12, X12, #drot
-+	ror		X13, X13, #drot
-+	  pop		{r4}			// load 'out'
-+	ror		X14, X14, #drot
-+	ror		X15, X15, #drot
-+
-+	// Store (x0-x3,x12-x15) to 'out'
-+	stm		r4, {X0,X1,X2,X3,X12,X13,X14,X15}
-+
-+	pop		{r4-r11,pc}
-+ENDPROC(hchacha20_arm)
-+
-+#ifdef CONFIG_KERNEL_MODE_NEON
-+/*
-+ * This following NEON routine was ported from Andy Polyakov's implementation
-+ * from CRYPTOGAMS. It begins with parts of the CRYPTOGAMS scalar routine,
-+ * since certain NEON code paths actually branch to it.
-+ */
 +
 +.text
 +#if defined(__thumb2__) || defined(__clang__)
 +.syntax	unified
++# define ldrhsb	ldrbhs
 +#endif
 +#if defined(__thumb2__)
 +.thumb
@@ -6979,9 +6577,61 @@ index 000000000000..79ed18fbcce3
 +.code	32
 +#endif
 +
-+#if defined(__thumb2__) || defined(__clang__)
-+#define ldrhsb	ldrbhs
++.align	5
++.Lsigma:
++.long	0x61707865,0x3320646e,0x79622d32,0x6b206574	@ endian-neutral
++.Lone:
++.long	1,0,0,0
++.Lrot8:
++.long	0x02010003,0x06050407
++#if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
++.LOPENSSL_armcap:
++.word   OPENSSL_armcap_P-.LChaCha20_ctr32
++#else
++.word	-1
 +#endif
++
++.globl	ChaCha20_ctr32
++.type	ChaCha20_ctr32,%function
++.align	5
++ChaCha20_ctr32:
++.LChaCha20_ctr32:
++	ldr	r12,[sp,#0]		@ pull pointer to counter and nonce
++	stmdb	sp!,{r0-r2,r4-r11,lr}
++#if __ARM_ARCH__<7 && !defined(__thumb2__)
++	sub	r14,pc,#16		@ ChaCha20_ctr32
++#else
++	adr	r14,.LChaCha20_ctr32
++#endif
++	cmp	r2,#0			@ len==0?
++#ifdef	__thumb2__
++	itt	eq
++#endif
++	addeq	sp,sp,#4*3
++	beq	.Lno_data
++#if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
++	cmp	r2,#192			@ test len
++	bls	.Lshort
++	ldr	r4,[r14,#-24]
++	ldr	r4,[r14,r4]
++# ifdef	__APPLE__
++	ldr	r4,[r4]
++# endif
++	tst	r4,#ARMV7_NEON
++	bne	.LChaCha20_neon
++.Lshort:
++#endif
++	ldmia	r12,{r4-r7}		@ load counter and nonce
++	sub	sp,sp,#4*(16)		@ off-load area
++	sub	r14,r14,#64		@ .Lsigma
++	stmdb	sp!,{r4-r7}		@ copy counter and nonce
++	ldmia	r3,{r4-r11}		@ load key
++	ldmia	r14,{r0-r3}		@ load sigma
++	stmdb	sp!,{r4-r11}		@ copy key
++	stmdb	sp!,{r0-r3}		@ copy sigma
++	str	r10,[sp,#4*(16+10)]	@ off-load "rx"
++	str	r11,[sp,#4*(16+11)]	@ off-load "rx"
++	b	.Loop_outer_enter
 +
 +.align	4
 +.Loop_outer:
@@ -7099,7 +6749,7 @@ index 000000000000..79ed18fbcce3
 +	@ rx and second half at sp+4*(16+8)
 +
 +	cmp	r11,#64		@ done yet?
-+#ifdef __thumb2__
++#ifdef	__thumb2__
 +	itete	lo
 +#endif
 +	addlo	r12,sp,#4*(0)		@ shortcut or ...
@@ -7110,49 +6760,49 @@ index 000000000000..79ed18fbcce3
 +	ldr	r8,[sp,#4*(0)]	@ load key material
 +	ldr	r9,[sp,#4*(1)]
 +
-+#if __LINUX_ARM_ARCH__ >= 6 || !defined(__ARMEB__)
-+#if __LINUX_ARM_ARCH__ < 7
++#if __ARM_ARCH__>=6 || !defined(__ARMEB__)
++# if __ARM_ARCH__<7
 +	orr	r10,r12,r14
 +	tst	r10,#3		@ are input and output aligned?
 +	ldr	r10,[sp,#4*(2)]
 +	bne	.Lunaligned
 +	cmp	r11,#64		@ restore flags
-+#else
++# else
 +	ldr	r10,[sp,#4*(2)]
-+#endif
++# endif
 +	ldr	r11,[sp,#4*(3)]
 +
 +	add	r0,r0,r8	@ accumulate key material
 +	add	r1,r1,r9
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r8,[r12],#16		@ load input
 +	ldrhs	r9,[r12,#-12]
 +
 +	add	r2,r2,r10
 +	add	r3,r3,r11
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r10,[r12,#-8]
 +	ldrhs	r11,[r12,#-4]
-+#if __LINUX_ARM_ARCH__ >= 6 && defined(__ARMEB__)
++# if __ARM_ARCH__>=6 && defined(__ARMEB__)
 +	rev	r0,r0
 +	rev	r1,r1
 +	rev	r2,r2
 +	rev	r3,r3
-+#endif
-+#ifdef __thumb2__
++# endif
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r0,r0,r8	@ xor with input
 +	eorhs	r1,r1,r9
 +	 add	r8,sp,#4*(4)
 +	str	r0,[r14],#16		@ store output
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r2,r2,r10
 +	eorhs	r3,r3,r11
 +	 ldmia	r8,{r8-r11}	@ load key material
@@ -7162,34 +6812,34 @@ index 000000000000..79ed18fbcce3
 +
 +	add	r4,r8,r4,ror#13 @ accumulate key material
 +	add	r5,r9,r5,ror#13
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r8,[r12],#16		@ load input
 +	ldrhs	r9,[r12,#-12]
 +	add	r6,r10,r6,ror#13
 +	add	r7,r11,r7,ror#13
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r10,[r12,#-8]
 +	ldrhs	r11,[r12,#-4]
-+#if __LINUX_ARM_ARCH__ >= 6 && defined(__ARMEB__)
++# if __ARM_ARCH__>=6 && defined(__ARMEB__)
 +	rev	r4,r4
 +	rev	r5,r5
 +	rev	r6,r6
 +	rev	r7,r7
-+#endif
-+#ifdef __thumb2__
++# endif
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r4,r4,r8
 +	eorhs	r5,r5,r9
 +	 add	r8,sp,#4*(8)
 +	str	r4,[r14],#16		@ store output
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r6,r6,r10
 +	eorhs	r7,r7,r11
 +	str	r5,[r14,#-12]
@@ -7202,39 +6852,39 @@ index 000000000000..79ed18fbcce3
 +
 +	add	r0,r0,r8	@ accumulate key material
 +	add	r1,r1,r9
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r8,[r12],#16		@ load input
 +	ldrhs	r9,[r12,#-12]
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hi
-+#endif
++# endif
 +	 strhi	r10,[sp,#4*(16+10)]	@ copy "rx" while at it
 +	 strhi	r11,[sp,#4*(16+11)]	@ copy "rx" while at it
 +	add	r2,r2,r10
 +	add	r3,r3,r11
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r10,[r12,#-8]
 +	ldrhs	r11,[r12,#-4]
-+#if __LINUX_ARM_ARCH__ >= 6 && defined(__ARMEB__)
++# if __ARM_ARCH__>=6 && defined(__ARMEB__)
 +	rev	r0,r0
 +	rev	r1,r1
 +	rev	r2,r2
 +	rev	r3,r3
-+#endif
-+#ifdef __thumb2__
++# endif
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r0,r0,r8
 +	eorhs	r1,r1,r9
 +	 add	r8,sp,#4*(12)
 +	str	r0,[r14],#16		@ store output
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r2,r2,r10
 +	eorhs	r3,r3,r11
 +	str	r1,[r14,#-12]
@@ -7244,79 +6894,79 @@ index 000000000000..79ed18fbcce3
 +
 +	add	r4,r8,r4,ror#24 @ accumulate key material
 +	add	r5,r9,r5,ror#24
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hi
-+#endif
++# endif
 +	 addhi	r8,r8,#1		@ next counter value
 +	 strhi	r8,[sp,#4*(12)]	@ save next counter value
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r8,[r12],#16		@ load input
 +	ldrhs	r9,[r12,#-12]
 +	add	r6,r10,r6,ror#24
 +	add	r7,r11,r7,ror#24
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhs	r10,[r12,#-8]
 +	ldrhs	r11,[r12,#-4]
-+#if __LINUX_ARM_ARCH__ >= 6 && defined(__ARMEB__)
++# if __ARM_ARCH__>=6 && defined(__ARMEB__)
 +	rev	r4,r4
 +	rev	r5,r5
 +	rev	r6,r6
 +	rev	r7,r7
-+#endif
-+#ifdef __thumb2__
++# endif
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r4,r4,r8
 +	eorhs	r5,r5,r9
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	 it	ne
-+#endif
++# endif
 +	 ldrne	r8,[sp,#4*(32+2)]	@ re-load len
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	eorhs	r6,r6,r10
 +	eorhs	r7,r7,r11
 +	str	r4,[r14],#16		@ store output
 +	str	r5,[r14,#-12]
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	it	hs
-+#endif
++# endif
 +	 subhs	r11,r8,#64		@ len-=64
 +	str	r6,[r14,#-8]
 +	str	r7,[r14,#-4]
 +	bhi	.Loop_outer
 +
 +	beq	.Ldone
-+#if __LINUX_ARM_ARCH__ < 7
++# if __ARM_ARCH__<7
 +	b	.Ltail
 +
 +.align	4
 +.Lunaligned:				@ unaligned endian-neutral path
 +	cmp	r11,#64		@ restore flags
++# endif
 +#endif
-+#endif
-+#if __LINUX_ARM_ARCH__ < 7
++#if __ARM_ARCH__<7
 +	ldr	r11,[sp,#4*(3)]
 +	add	r0,r8,r0	@ accumulate key material
 +	add	r1,r9,r1
 +	add	r2,r10,r2
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r8,r8,r8		@ zero or ...
 +	ldrhsb	r8,[r12],#16			@ ... load input
 +	eorlo	r9,r9,r9
 +	ldrhsb	r9,[r12,#-12]
 +
 +	add	r3,r11,r3
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r10,r10,r10
 +	ldrhsb	r10,[r12,#-8]
 +	eorlo	r11,r11,r11
@@ -7324,53 +6974,53 @@ index 000000000000..79ed18fbcce3
 +
 +	eor	r0,r8,r0		@ xor with input (or zero)
 +	eor	r1,r9,r1
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-15]		@ load more input
 +	ldrhsb	r9,[r12,#-11]
 +	eor	r2,r10,r2
 +	 strb	r0,[r14],#16		@ store output
 +	eor	r3,r11,r3
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-7]
 +	ldrhsb	r11,[r12,#-3]
 +	 strb	r1,[r14,#-12]
 +	eor	r0,r8,r0,lsr#8
 +	 strb	r2,[r14,#-8]
 +	eor	r1,r9,r1,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-14]		@ load more input
 +	ldrhsb	r9,[r12,#-10]
 +	 strb	r3,[r14,#-4]
 +	eor	r2,r10,r2,lsr#8
 +	 strb	r0,[r14,#-15]
 +	eor	r3,r11,r3,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-6]
 +	ldrhsb	r11,[r12,#-2]
 +	 strb	r1,[r14,#-11]
 +	eor	r0,r8,r0,lsr#8
 +	 strb	r2,[r14,#-7]
 +	eor	r1,r9,r1,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-13]		@ load more input
 +	ldrhsb	r9,[r12,#-9]
 +	 strb	r3,[r14,#-3]
 +	eor	r2,r10,r2,lsr#8
 +	 strb	r0,[r14,#-14]
 +	eor	r3,r11,r3,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-5]
 +	ldrhsb	r11,[r12,#-1]
 +	 strb	r1,[r14,#-10]
@@ -7390,18 +7040,18 @@ index 000000000000..79ed18fbcce3
 +	add	r4,r8,r4,ror#13	@ accumulate key material
 +	add	r5,r9,r5,ror#13
 +	add	r6,r10,r6,ror#13
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r8,r8,r8		@ zero or ...
 +	ldrhsb	r8,[r12],#16			@ ... load input
 +	eorlo	r9,r9,r9
 +	ldrhsb	r9,[r12,#-12]
 +
 +	add	r7,r11,r7,ror#13
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r10,r10,r10
 +	ldrhsb	r10,[r12,#-8]
 +	eorlo	r11,r11,r11
@@ -7409,53 +7059,53 @@ index 000000000000..79ed18fbcce3
 +
 +	eor	r4,r8,r4		@ xor with input (or zero)
 +	eor	r5,r9,r5
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-15]		@ load more input
 +	ldrhsb	r9,[r12,#-11]
 +	eor	r6,r10,r6
 +	 strb	r4,[r14],#16		@ store output
 +	eor	r7,r11,r7
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-7]
 +	ldrhsb	r11,[r12,#-3]
 +	 strb	r5,[r14,#-12]
 +	eor	r4,r8,r4,lsr#8
 +	 strb	r6,[r14,#-8]
 +	eor	r5,r9,r5,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-14]		@ load more input
 +	ldrhsb	r9,[r12,#-10]
 +	 strb	r7,[r14,#-4]
 +	eor	r6,r10,r6,lsr#8
 +	 strb	r4,[r14,#-15]
 +	eor	r7,r11,r7,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-6]
 +	ldrhsb	r11,[r12,#-2]
 +	 strb	r5,[r14,#-11]
 +	eor	r4,r8,r4,lsr#8
 +	 strb	r6,[r14,#-7]
 +	eor	r5,r9,r5,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-13]		@ load more input
 +	ldrhsb	r9,[r12,#-9]
 +	 strb	r7,[r14,#-3]
 +	eor	r6,r10,r6,lsr#8
 +	 strb	r4,[r14,#-14]
 +	eor	r7,r11,r7,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-5]
 +	ldrhsb	r11,[r12,#-1]
 +	 strb	r5,[r14,#-10]
@@ -7472,26 +7122,26 @@ index 000000000000..79ed18fbcce3
 +	add	r8,sp,#4*(4+4)
 +	ldmia	r8,{r8-r11}		@ load key material
 +	ldmia	r0,{r0-r7}		@ load second half
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hi
-+#endif
++# endif
 +	strhi	r10,[sp,#4*(16+10)]		@ copy "rx"
 +	strhi	r11,[sp,#4*(16+11)]		@ copy "rx"
 +	add	r0,r8,r0	@ accumulate key material
 +	add	r1,r9,r1
 +	add	r2,r10,r2
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r8,r8,r8		@ zero or ...
 +	ldrhsb	r8,[r12],#16			@ ... load input
 +	eorlo	r9,r9,r9
 +	ldrhsb	r9,[r12,#-12]
 +
 +	add	r3,r11,r3
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r10,r10,r10
 +	ldrhsb	r10,[r12,#-8]
 +	eorlo	r11,r11,r11
@@ -7499,53 +7149,53 @@ index 000000000000..79ed18fbcce3
 +
 +	eor	r0,r8,r0		@ xor with input (or zero)
 +	eor	r1,r9,r1
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-15]		@ load more input
 +	ldrhsb	r9,[r12,#-11]
 +	eor	r2,r10,r2
 +	 strb	r0,[r14],#16		@ store output
 +	eor	r3,r11,r3
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-7]
 +	ldrhsb	r11,[r12,#-3]
 +	 strb	r1,[r14,#-12]
 +	eor	r0,r8,r0,lsr#8
 +	 strb	r2,[r14,#-8]
 +	eor	r1,r9,r1,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-14]		@ load more input
 +	ldrhsb	r9,[r12,#-10]
 +	 strb	r3,[r14,#-4]
 +	eor	r2,r10,r2,lsr#8
 +	 strb	r0,[r14,#-15]
 +	eor	r3,r11,r3,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-6]
 +	ldrhsb	r11,[r12,#-2]
 +	 strb	r1,[r14,#-11]
 +	eor	r0,r8,r0,lsr#8
 +	 strb	r2,[r14,#-7]
 +	eor	r1,r9,r1,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-13]		@ load more input
 +	ldrhsb	r9,[r12,#-9]
 +	 strb	r3,[r14,#-3]
 +	eor	r2,r10,r2,lsr#8
 +	 strb	r0,[r14,#-14]
 +	eor	r3,r11,r3,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-5]
 +	ldrhsb	r11,[r12,#-1]
 +	 strb	r1,[r14,#-10]
@@ -7562,25 +7212,25 @@ index 000000000000..79ed18fbcce3
 +	add	r8,sp,#4*(4+8)
 +	ldmia	r8,{r8-r11}		@ load key material
 +	add	r4,r8,r4,ror#24	@ accumulate key material
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hi
-+#endif
++# endif
 +	addhi	r8,r8,#1			@ next counter value
 +	strhi	r8,[sp,#4*(12)]		@ save next counter value
 +	add	r5,r9,r5,ror#24
 +	add	r6,r10,r6,ror#24
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r8,r8,r8		@ zero or ...
 +	ldrhsb	r8,[r12],#16			@ ... load input
 +	eorlo	r9,r9,r9
 +	ldrhsb	r9,[r12,#-12]
 +
 +	add	r7,r11,r7,ror#24
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itete	lo
-+#endif
++# endif
 +	eorlo	r10,r10,r10
 +	ldrhsb	r10,[r12,#-8]
 +	eorlo	r11,r11,r11
@@ -7588,53 +7238,53 @@ index 000000000000..79ed18fbcce3
 +
 +	eor	r4,r8,r4		@ xor with input (or zero)
 +	eor	r5,r9,r5
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-15]		@ load more input
 +	ldrhsb	r9,[r12,#-11]
 +	eor	r6,r10,r6
 +	 strb	r4,[r14],#16		@ store output
 +	eor	r7,r11,r7
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-7]
 +	ldrhsb	r11,[r12,#-3]
 +	 strb	r5,[r14,#-12]
 +	eor	r4,r8,r4,lsr#8
 +	 strb	r6,[r14,#-8]
 +	eor	r5,r9,r5,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-14]		@ load more input
 +	ldrhsb	r9,[r12,#-10]
 +	 strb	r7,[r14,#-4]
 +	eor	r6,r10,r6,lsr#8
 +	 strb	r4,[r14,#-15]
 +	eor	r7,r11,r7,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-6]
 +	ldrhsb	r11,[r12,#-2]
 +	 strb	r5,[r14,#-11]
 +	eor	r4,r8,r4,lsr#8
 +	 strb	r6,[r14,#-7]
 +	eor	r5,r9,r5,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r8,[r12,#-13]		@ load more input
 +	ldrhsb	r9,[r12,#-9]
 +	 strb	r7,[r14,#-3]
 +	eor	r6,r10,r6,lsr#8
 +	 strb	r4,[r14,#-14]
 +	eor	r7,r11,r7,lsr#8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	itt	hs
-+#endif
++# endif
 +	ldrhsb	r10,[r12,#-5]
 +	ldrhsb	r11,[r12,#-1]
 +	 strb	r5,[r14,#-10]
@@ -7648,13 +7298,13 @@ index 000000000000..79ed18fbcce3
 +	eor	r7,r11,r7,lsr#8
 +	 strb	r6,[r14,#-5]
 +	 strb	r7,[r14,#-1]
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	it	ne
-+#endif
++# endif
 +	ldrne	r8,[sp,#4*(32+2)]		@ re-load len
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	it	hs
-+#endif
++# endif
 +	subhs	r11,r8,#64			@ len-=64
 +	bhi	.Loop_outer
 +
@@ -7676,30 +7326,32 @@ index 000000000000..79ed18fbcce3
 +
 +.Ldone:
 +	add	sp,sp,#4*(32+3)
++.Lno_data:
++#if __ARM_ARCH__>=5
 +	ldmia	sp!,{r4-r11,pc}
-+
-+.align	5
-+.Lsigma2:
-+.long	0x61707865,0x3320646e,0x79622d32,0x6b206574	@ endian-neutral
-+.Lone2:
-+.long	1,0,0,0
-+.word	-1
-+
++#else
++	ldmia	sp!,{r4-r12,lr}
++	tst	lr,#1
++	moveq	pc,lr			@ be binary compatible with V4, yet
++	.long	0xe12fff1e		@ interoperable with Thumb ISA:-)
++#endif
++.size	ChaCha20_ctr32,.-ChaCha20_ctr32
++#if __ARM_MAX_ARCH__>=7
 +.arch	armv7-a
 +.fpu	neon
 +
++# ifdef __KERNEL__
++.globl	ChaCha20_neon
++@ For optimal performance it's appropriate for caller to enforce
++@ minimum input length, 193 bytes is suggested.
++# endif
++.type	ChaCha20_neon,%function
 +.align	5
-+ENTRY(chacha20_neon)
++ChaCha20_neon:
 +	ldr		r12,[sp,#0]		@ pull pointer to counter and nonce
 +	stmdb		sp!,{r0-r2,r4-r11,lr}
-+	cmp		r2,#0			@ len==0?
-+#ifdef	__thumb2__
-+	itt		eq
-+#endif
-+	addeq		sp,sp,#4*3
-+	beq		.Lno_data_neon
-+.Lchacha20_neon_begin:
-+	adr		r14,.Lsigma2
++.LChaCha20_neon:
++	adr		r14,.Lsigma
 +	vstmdb		sp!,{d8-d15}		@ ABI spec says so
 +	stmdb		sp!,{r0-r3}
 +
@@ -8039,12 +7691,12 @@ index 000000000000..79ed18fbcce3
 +	ldr		r10,[r12,#-8]
 +	add		r3,r3,r11
 +	ldr		r11,[r12,#-4]
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	rev		r0,r0
 +	rev		r1,r1
 +	rev		r2,r2
 +	rev		r3,r3
-+#endif
++# endif
 +	eor		r0,r0,r8	@ xor with input
 +	 add		r8,sp,#4*(4)
 +	eor		r1,r1,r9
@@ -8064,12 +7716,12 @@ index 000000000000..79ed18fbcce3
 +	ldr		r10,[r12,#-8]
 +	add		r7,r11,r7,ror#13
 +	ldr		r11,[r12,#-4]
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	rev		r4,r4
 +	rev		r5,r5
 +	rev		r6,r6
 +	rev		r7,r7
-+#endif
++# endif
 +	eor		r4,r4,r8
 +	 add		r8,sp,#4*(8)
 +	eor		r5,r5,r9
@@ -8088,24 +7740,24 @@ index 000000000000..79ed18fbcce3
 +	ldr		r8,[r12],#16		@ load input
 +	add		r1,r1,r9
 +	ldr		r9,[r12,#-12]
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	it	hi
-+#endif
++# endif
 +	 strhi		r10,[sp,#4*(16+10)]	@ copy "rx" while at it
 +	add		r2,r2,r10
 +	ldr		r10,[r12,#-8]
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	it	hi
-+#endif
++# endif
 +	 strhi		r11,[sp,#4*(16+11)]	@ copy "rx" while at it
 +	add		r3,r3,r11
 +	ldr		r11,[r12,#-4]
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	rev		r0,r0
 +	rev		r1,r1
 +	rev		r2,r2
 +	rev		r3,r3
-+#endif
++# endif
 +	eor		r0,r0,r8
 +	 add		r8,sp,#4*(12)
 +	eor		r1,r1,r9
@@ -8128,16 +7780,16 @@ index 000000000000..79ed18fbcce3
 +	add		r7,r11,r7,ror#24
 +	ldr		r10,[r12,#-8]
 +	ldr		r11,[r12,#-4]
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	rev		r4,r4
 +	rev		r5,r5
 +	rev		r6,r6
 +	rev		r7,r7
-+#endif
++# endif
 +	eor		r4,r4,r8
-+#ifdef __thumb2__
++# ifdef	__thumb2__
 +	it	hi
-+#endif
++# endif
 +	 ldrhi		r8,[sp,#4*(32+2)]	@ re-load len
 +	eor		r5,r5,r9
 +	eor		r6,r6,r10
@@ -8297,7 +7949,7 @@ index 000000000000..79ed18fbcce3
 +	add		r6,r10,r6,ror#13
 +	add		r7,r11,r7,ror#13
 +	 ldmia		r8,{r8-r11}	@ load key material
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	rev		r0,r0
 +	rev		r1,r1
 +	rev		r2,r2
@@ -8306,7 +7958,7 @@ index 000000000000..79ed18fbcce3
 +	rev		r5,r5
 +	rev		r6,r6
 +	rev		r7,r7
-+#endif
++# endif
 +	stmia		sp,{r0-r7}
 +	 add		r0,sp,#4*(16+8)
 +
@@ -8326,7 +7978,7 @@ index 000000000000..79ed18fbcce3
 +	add		r6,r10,r6,ror#24
 +	add		r7,r11,r7,ror#24
 +	 ldr		r11,[sp,#4*(32+2)]	@ re-load len
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	rev		r0,r0
 +	rev		r1,r1
 +	rev		r2,r2
@@ -8335,7 +7987,7 @@ index 000000000000..79ed18fbcce3
 +	rev		r5,r5
 +	rev		r6,r6
 +	rev		r7,r7
-+#endif
++# endif
 +	stmia		r8,{r0-r7}
 +	 add		r10,sp,#4*(0)
 +	 sub		r11,r11,#64*3	@ len-=64*3
@@ -8352,37 +8004,99 @@ index 000000000000..79ed18fbcce3
 +	add		sp,sp,#4*(32+4)
 +	vldmia		sp,{d8-d15}
 +	add		sp,sp,#4*(16+3)
-+.Lno_data_neon:
 +	ldmia		sp!,{r4-r11,pc}
-+ENDPROC(chacha20_neon)
++.size	ChaCha20_neon,.-ChaCha20_neon
++# ifndef __KERNEL__
++.comm	OPENSSL_armcap_P,4,4
++# endif
 +#endif
-diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S b/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S
+diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S_shipped b/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S_shipped
 new file mode 100644
-index 000000000000..1ae11a5c5a14
+index 000000000000..5ed9ee15ca50
 --- /dev/null
-+++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S
-@@ -0,0 +1,1942 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-+/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-+ * Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
-+ *
-+ * This is based in part on Andy Polyakov's implementation from CRYPTOGAMS.
-+ */
++++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S_shipped
+@@ -0,0 +1,2019 @@
++// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
++//
++// This code is taken from the OpenSSL project but the author, Andy Polyakov,
++// has relicensed it under the licenses specified in the SPDX header above.
++// The original headers, including the original license headers, are
++// included below for completeness.
++//
++// ====================================================================
++// Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
++// project. The module is, however, dual licensed under OpenSSL and
++// CRYPTOGAMS licenses depending on where you obtain it. For further
++// details see http://www.openssl.org/~appro/cryptogams/.
++// ====================================================================
++//
++// June 2015
++//
++// ChaCha20 for ARMv8.
++//
++// Performance in cycles per byte out of large buffer.
++//
++//			IALU/gcc-4.9    3xNEON+1xIALU	6xNEON+2xIALU(*)
++//
++// Apple A7		5.50/+49%       3.33            1.70
++// Cortex-A53		8.40/+80%       4.72		4.72(**)
++// Cortex-A57		8.06/+43%       4.90            4.43(***)
++// Denver		4.50/+82%       2.63		2.67(**)
++// X-Gene		9.50/+46%       8.82		8.89(**)
++// Mongoose		8.00/+44%	3.64		3.25(***)
++// Kryo			8.17/+50%	4.83		4.65(***)
++//
++// (*)	since no non-Apple processor exhibits significantly better
++//	performance, the code path is #ifdef __APPLE__-ed;
++// (**)	it's expected that doubling interleave factor doesn't help
++//	all processors, only those with higher NEON latency and
++//	higher instruction issue rate;
++// (***)	expected improvement was actually higher;
 +
-+#include <linux/linkage.h>
++#ifndef	__KERNEL__
++# include "arm_arch.h"
++.extern	OPENSSL_armcap_P
++#else
++# define ChaCha20_ctr32 chacha20_arm
++# define ChaCha20_neon  chacha20_neon
++#endif
 +
 +.text
++
 +.align	5
 +.Lsigma:
 +.quad	0x3320646e61707865,0x6b20657479622d32		// endian-neutral
 +.Lone:
 +.long	1,0,0,0
++#ifndef	__KERNEL__
++.LOPENSSL_armcap_P:
++# ifdef	__ILP32__
++.long	OPENSSL_armcap_P-.
++# else
++.quad	OPENSSL_armcap_P-.
++# endif
++#endif
 +
++.globl	ChaCha20_ctr32
++.type	ChaCha20_ctr32,%function
 +.align	5
-+ENTRY(chacha20_arm)
++ChaCha20_ctr32:
 +	cbz	x2,.Labort
++#ifndef	__KERNEL__
++	adr	x5,.LOPENSSL_armcap_P
++	cmp	x2,#192
++	b.lo	.Lshort
++# ifdef	__ILP32__
++	ldrsw	x6,[x5]
++# else
++	ldr	x6,[x5]
++# endif
++	ldr	w17,[x6,x5]
++	tst	w17,#ARMV7_NEON
++	b.ne	ChaCha20_neon
 +
++.Lshort:
++#endif
 +	stp	x29,x30,[sp,#-96]!
 +	add	x29,sp,#0
 +
@@ -8579,7 +8293,7 @@ index 000000000000..1ae11a5c5a14
 +	eor	x20,x20,x21
 +
 +	stp	x5,x7,[x0,#0]		// store output
-+	add	x28,x28,#1			// increment counter
++	 add	x28,x28,#1			// increment counter
 +	stp	x9,x11,[x0,#16]
 +	stp	x13,x15,[x0,#32]
 +	stp	x17,x20,[x0,#48]
@@ -8651,13 +8365,15 @@ index 000000000000..1ae11a5c5a14
 +	ldp	x27,x28,[x29,#80]
 +	ldp	x29,x30,[sp],#96
 +	ret
-+ENDPROC(chacha20_arm)
++.size	ChaCha20_ctr32,.-ChaCha20_ctr32
 +
-+#ifdef CONFIG_KERNEL_MODE_NEON
++#ifdef __KERNEL__
++.globl  ChaCha20_neon
++.type   ChaCha20_neon,%function
++#endif
++.type	ChaCha20_neon,%function
 +.align	5
-+ENTRY(chacha20_neon)
-+	cbz	x2,.Labort_neon
-+
++ChaCha20_neon:
 +	stp	x29,x30,[sp,#-96]!
 +	add	x29,sp,#0
 +
@@ -8667,8 +8383,10 @@ index 000000000000..1ae11a5c5a14
 +	stp	x23,x24,[sp,#48]
 +	stp	x25,x26,[sp,#64]
 +	stp	x27,x28,[sp,#80]
++#ifdef	__APPLE__
 +	cmp	x2,#512
 +	b.hs	.L512_or_more_neon
++#endif
 +
 +	sub	sp,sp,#64
 +
@@ -8697,31 +8415,31 @@ index 000000000000..1ae11a5c5a14
 +.Loop_outer_neon:
 +	mov	w5,w22			// unpack key block
 +	lsr	x6,x22,#32
-+	mov	v0.16b,v24.16b
++	 mov	v0.16b,v24.16b
 +	mov	w7,w23
 +	lsr	x8,x23,#32
-+	mov	v4.16b,v24.16b
++	 mov	v4.16b,v24.16b
 +	mov	w9,w24
 +	lsr	x10,x24,#32
-+	mov	v16.16b,v24.16b
++	 mov	v16.16b,v24.16b
 +	mov	w11,w25
-+	mov	v1.16b,v25.16b
++	 mov	v1.16b,v25.16b
 +	lsr	x12,x25,#32
-+	mov	v5.16b,v25.16b
++	 mov	v5.16b,v25.16b
 +	mov	w13,w26
-+	mov	v17.16b,v25.16b
++	 mov	v17.16b,v25.16b
 +	lsr	x14,x26,#32
-+	mov	v3.16b,v27.16b
++	 mov	v3.16b,v27.16b
 +	mov	w15,w27
-+	mov	v7.16b,v28.16b
++	 mov	v7.16b,v28.16b
 +	lsr	x16,x27,#32
-+	mov	v19.16b,v29.16b
++	 mov	v19.16b,v29.16b
 +	mov	w17,w28
-+	mov	v2.16b,v26.16b
++	 mov	v2.16b,v26.16b
 +	lsr	x19,x28,#32
-+	mov	v6.16b,v26.16b
++	 mov	v6.16b,v26.16b
 +	mov	w20,w30
-+	mov	v18.16b,v26.16b
++	 mov	v18.16b,v26.16b
 +	lsr	x21,x30,#32
 +
 +	mov	x4,#10
@@ -8935,33 +8653,33 @@ index 000000000000..1ae11a5c5a14
 +	cbnz	x4,.Loop_neon
 +
 +	add	w5,w5,w22		// accumulate key block
-+	add	v0.4s,v0.4s,v24.4s
++	 add	v0.4s,v0.4s,v24.4s
 +	add	x6,x6,x22,lsr#32
-+	add	v4.4s,v4.4s,v24.4s
++	 add	v4.4s,v4.4s,v24.4s
 +	add	w7,w7,w23
-+	add	v16.4s,v16.4s,v24.4s
++	 add	v16.4s,v16.4s,v24.4s
 +	add	x8,x8,x23,lsr#32
-+	add	v2.4s,v2.4s,v26.4s
++	 add	v2.4s,v2.4s,v26.4s
 +	add	w9,w9,w24
-+	add	v6.4s,v6.4s,v26.4s
++	 add	v6.4s,v6.4s,v26.4s
 +	add	x10,x10,x24,lsr#32
-+	add	v18.4s,v18.4s,v26.4s
++	 add	v18.4s,v18.4s,v26.4s
 +	add	w11,w11,w25
-+	add	v3.4s,v3.4s,v27.4s
++	 add	v3.4s,v3.4s,v27.4s
 +	add	x12,x12,x25,lsr#32
 +	add	w13,w13,w26
-+	add	v7.4s,v7.4s,v28.4s
++	 add	v7.4s,v7.4s,v28.4s
 +	add	x14,x14,x26,lsr#32
 +	add	w15,w15,w27
-+	add	v19.4s,v19.4s,v29.4s
++	 add	v19.4s,v19.4s,v29.4s
 +	add	x16,x16,x27,lsr#32
 +	add	w17,w17,w28
-+	add	v1.4s,v1.4s,v25.4s
++	 add	v1.4s,v1.4s,v25.4s
 +	add	x19,x19,x28,lsr#32
 +	add	w20,w20,w30
-+	add	v5.4s,v5.4s,v25.4s
++	 add	v5.4s,v5.4s,v25.4s
 +	add	x21,x21,x30,lsr#32
-+	add	v17.4s,v17.4s,v25.4s
++	 add	v17.4s,v17.4s,v25.4s
 +
 +	b.lo	.Ltail_neon
 +
@@ -8988,45 +8706,45 @@ index 000000000000..1ae11a5c5a14
 +	rev	x17,x17
 +	rev	x20,x20
 +#endif
-+	ld1	{v20.16b,v21.16b,v22.16b,v23.16b},[x1],#64
++	ld1	{v20.16b-v23.16b},[x1],#64
 +	eor	x5,x5,x6
 +	eor	x7,x7,x8
 +	eor	x9,x9,x10
 +	eor	x11,x11,x12
 +	eor	x13,x13,x14
-+	eor	v0.16b,v0.16b,v20.16b
++	 eor	v0.16b,v0.16b,v20.16b
 +	eor	x15,x15,x16
-+	eor	v1.16b,v1.16b,v21.16b
++	 eor	v1.16b,v1.16b,v21.16b
 +	eor	x17,x17,x19
-+	eor	v2.16b,v2.16b,v22.16b
++	 eor	v2.16b,v2.16b,v22.16b
 +	eor	x20,x20,x21
-+	eor	v3.16b,v3.16b,v23.16b
-+	ld1	{v20.16b,v21.16b,v22.16b,v23.16b},[x1],#64
++	 eor	v3.16b,v3.16b,v23.16b
++	 ld1	{v20.16b-v23.16b},[x1],#64
 +
 +	stp	x5,x7,[x0,#0]		// store output
-+	add	x28,x28,#4			// increment counter
++	 add	x28,x28,#4			// increment counter
 +	stp	x9,x11,[x0,#16]
-+	add	v27.4s,v27.4s,v31.4s		// += 4
++	 add	v27.4s,v27.4s,v31.4s		// += 4
 +	stp	x13,x15,[x0,#32]
-+	add	v28.4s,v28.4s,v31.4s
++	 add	v28.4s,v28.4s,v31.4s
 +	stp	x17,x20,[x0,#48]
-+	add	v29.4s,v29.4s,v31.4s
++	 add	v29.4s,v29.4s,v31.4s
 +	add	x0,x0,#64
 +
-+	st1	{v0.16b,v1.16b,v2.16b,v3.16b},[x0],#64
-+	ld1	{v0.16b,v1.16b,v2.16b,v3.16b},[x1],#64
++	st1	{v0.16b-v3.16b},[x0],#64
++	ld1	{v0.16b-v3.16b},[x1],#64
 +
 +	eor	v4.16b,v4.16b,v20.16b
 +	eor	v5.16b,v5.16b,v21.16b
 +	eor	v6.16b,v6.16b,v22.16b
 +	eor	v7.16b,v7.16b,v23.16b
-+	st1	{v4.16b,v5.16b,v6.16b,v7.16b},[x0],#64
++	st1	{v4.16b-v7.16b},[x0],#64
 +
 +	eor	v16.16b,v16.16b,v0.16b
 +	eor	v17.16b,v17.16b,v1.16b
 +	eor	v18.16b,v18.16b,v2.16b
 +	eor	v19.16b,v19.16b,v3.16b
-+	st1	{v16.16b,v17.16b,v18.16b,v19.16b},[x0],#64
++	st1	{v16.16b-v19.16b},[x0],#64
 +
 +	b.hi	.Loop_outer_neon
 +
@@ -9077,7 +8795,7 @@ index 000000000000..1ae11a5c5a14
 +	eor	x20,x20,x21
 +
 +	stp	x5,x7,[x0,#0]		// store output
-+	add	x28,x28,#4			// increment counter
++	 add	x28,x28,#4			// increment counter
 +	stp	x9,x11,[x0,#16]
 +	stp	x13,x15,[x0,#32]
 +	stp	x17,x20,[x0,#48]
@@ -9087,34 +8805,34 @@ index 000000000000..1ae11a5c5a14
 +	cmp	x2,#64
 +	b.lo	.Less_than_128
 +
-+	ld1	{v20.16b,v21.16b,v22.16b,v23.16b},[x1],#64
++	ld1	{v20.16b-v23.16b},[x1],#64
 +	eor	v0.16b,v0.16b,v20.16b
 +	eor	v1.16b,v1.16b,v21.16b
 +	eor	v2.16b,v2.16b,v22.16b
 +	eor	v3.16b,v3.16b,v23.16b
-+	st1	{v0.16b,v1.16b,v2.16b,v3.16b},[x0],#64
++	st1	{v0.16b-v3.16b},[x0],#64
 +	b.eq	.Ldone_neon
 +	sub	x2,x2,#64
 +	cmp	x2,#64
 +	b.lo	.Less_than_192
 +
-+	ld1	{v20.16b,v21.16b,v22.16b,v23.16b},[x1],#64
++	ld1	{v20.16b-v23.16b},[x1],#64
 +	eor	v4.16b,v4.16b,v20.16b
 +	eor	v5.16b,v5.16b,v21.16b
 +	eor	v6.16b,v6.16b,v22.16b
 +	eor	v7.16b,v7.16b,v23.16b
-+	st1	{v4.16b,v5.16b,v6.16b,v7.16b},[x0],#64
++	st1	{v4.16b-v7.16b},[x0],#64
 +	b.eq	.Ldone_neon
 +	sub	x2,x2,#64
 +
-+	st1	{v16.16b,v17.16b,v18.16b,v19.16b},[sp]
++	st1	{v16.16b-v19.16b},[sp]
 +	b	.Last_neon
 +
 +.Less_than_128:
-+	st1	{v0.16b,v1.16b,v2.16b,v3.16b},[sp]
++	st1	{v0.16b-v3.16b},[sp]
 +	b	.Last_neon
 +.Less_than_192:
-+	st1	{v4.16b,v5.16b,v6.16b,v7.16b},[sp]
++	st1	{v4.16b-v7.16b},[sp]
 +	b	.Last_neon
 +
 +.align	4
@@ -9147,6 +8865,20 @@ index 000000000000..1ae11a5c5a14
 +	ldp	x27,x28,[x29,#80]
 +	ldp	x29,x30,[sp],#96
 +	ret
++.size	ChaCha20_neon,.-ChaCha20_neon
++#ifdef	__APPLE__
++.type	ChaCha20_512_neon,%function
++.align	5
++ChaCha20_512_neon:
++	stp	x29,x30,[sp,#-96]!
++	add	x29,sp,#0
++
++	adr	x5,.Lsigma
++	stp	x19,x20,[sp,#16]
++	stp	x21,x22,[sp,#32]
++	stp	x23,x24,[sp,#48]
++	stp	x25,x26,[sp,#64]
++	stp	x27,x28,[sp,#80]
 +
 +.L512_or_more_neon:
 +	sub	sp,sp,#128+64
@@ -9159,7 +8891,7 @@ index 000000000000..1ae11a5c5a14
 +	ldp	x28,x30,[x4]		// load counter
 +	ld1	{v27.4s},[x4]
 +	ld1	{v31.4s},[x5]
-+#ifdef	__AARCH64EB__
++# ifdef	__AARCH64EB__
 +	rev64	v24.4s,v24.4s
 +	ror	x24,x24,#32
 +	ror	x25,x25,#32
@@ -9167,7 +8899,7 @@ index 000000000000..1ae11a5c5a14
 +	ror	x27,x27,#32
 +	ror	x28,x28,#32
 +	ror	x30,x30,#32
-+#endif
++# endif
 +	add	v27.4s,v27.4s,v31.4s		// += 1
 +	stp	q24,q25,[sp,#0]		// off-load key block, invariant part
 +	add	v27.4s,v27.4s,v31.4s		// not typo
@@ -9185,48 +8917,48 @@ index 000000000000..1ae11a5c5a14
 +	sub	x2,x2,#512			// not typo
 +
 +.Loop_outer_512_neon:
-+	mov	v0.16b,v24.16b
-+	mov	v4.16b,v24.16b
-+	mov	v8.16b,v24.16b
-+	mov	v12.16b,v24.16b
-+	mov	v16.16b,v24.16b
-+	mov	v20.16b,v24.16b
-+	mov	v1.16b,v25.16b
++	 mov	v0.16b,v24.16b
++	 mov	v4.16b,v24.16b
++	 mov	v8.16b,v24.16b
++	 mov	v12.16b,v24.16b
++	 mov	v16.16b,v24.16b
++	 mov	v20.16b,v24.16b
++	 mov	v1.16b,v25.16b
 +	mov	w5,w22			// unpack key block
-+	mov	v5.16b,v25.16b
++	 mov	v5.16b,v25.16b
 +	lsr	x6,x22,#32
-+	mov	v9.16b,v25.16b
++	 mov	v9.16b,v25.16b
 +	mov	w7,w23
-+	mov	v13.16b,v25.16b
++	 mov	v13.16b,v25.16b
 +	lsr	x8,x23,#32
-+	mov	v17.16b,v25.16b
++	 mov	v17.16b,v25.16b
 +	mov	w9,w24
-+	mov	v21.16b,v25.16b
++	 mov	v21.16b,v25.16b
 +	lsr	x10,x24,#32
-+	mov	v3.16b,v27.16b
++	 mov	v3.16b,v27.16b
 +	mov	w11,w25
-+	mov	v7.16b,v28.16b
++	 mov	v7.16b,v28.16b
 +	lsr	x12,x25,#32
-+	mov	v11.16b,v29.16b
++	 mov	v11.16b,v29.16b
 +	mov	w13,w26
-+	mov	v15.16b,v30.16b
++	 mov	v15.16b,v30.16b
 +	lsr	x14,x26,#32
-+	mov	v2.16b,v26.16b
++	 mov	v2.16b,v26.16b
 +	mov	w15,w27
-+	mov	v6.16b,v26.16b
++	 mov	v6.16b,v26.16b
 +	lsr	x16,x27,#32
-+	add	v19.4s,v3.4s,v31.4s			// +4
++	 add	v19.4s,v3.4s,v31.4s			// +4
 +	mov	w17,w28
-+	add	v23.4s,v7.4s,v31.4s			// +4
++	 add	v23.4s,v7.4s,v31.4s			// +4
 +	lsr	x19,x28,#32
-+	mov	v10.16b,v26.16b
++	 mov	v10.16b,v26.16b
 +	mov	w20,w30
-+	mov	v14.16b,v26.16b
++	 mov	v14.16b,v26.16b
 +	lsr	x21,x30,#32
-+	mov	v18.16b,v26.16b
-+	stp	q27,q28,[sp,#48]		// off-load key block, variable part
-+	mov	v22.16b,v26.16b
-+	str	q29,[sp,#80]
++	 mov	v18.16b,v26.16b
++	 stp	q27,q28,[sp,#48]		// off-load key block, variable part
++	 mov	v22.16b,v26.16b
++	 str	q29,[sp,#80]
 +
 +	mov	x4,#5
 +	subs	x2,x2,#512
@@ -9672,7 +9404,7 @@ index 000000000000..1ae11a5c5a14
 +	add	x20,x20,x21,lsl#32
 +	ldp	x19,x21,[x1,#48]
 +	add	x1,x1,#64
-+#ifdef	__AARCH64EB__
++# ifdef	__AARCH64EB__
 +	rev	x5,x5
 +	rev	x7,x7
 +	rev	x9,x9
@@ -9681,7 +9413,7 @@ index 000000000000..1ae11a5c5a14
 +	rev	x15,x15
 +	rev	x17,x17
 +	rev	x20,x20
-+#endif
++# endif
 +	eor	x5,x5,x6
 +	eor	x7,x7,x8
 +	eor	x9,x9,x10
@@ -9691,18 +9423,18 @@ index 000000000000..1ae11a5c5a14
 +	eor	x17,x17,x19
 +	eor	x20,x20,x21
 +
-+	stp	x5,x7,[x0,#0]		// store output
-+	add	x28,x28,#1			// increment counter
++	 stp	x5,x7,[x0,#0]		// store output
++	 add	x28,x28,#1			// increment counter
 +	mov	w5,w22			// unpack key block
 +	lsr	x6,x22,#32
-+	stp	x9,x11,[x0,#16]
++	 stp	x9,x11,[x0,#16]
 +	mov	w7,w23
 +	lsr	x8,x23,#32
-+	stp	x13,x15,[x0,#32]
++	 stp	x13,x15,[x0,#32]
 +	mov	w9,w24
 +	lsr	x10,x24,#32
-+	stp	x17,x20,[x0,#48]
-+	add	x0,x0,#64
++	 stp	x17,x20,[x0,#48]
++	 add	x0,x0,#64
 +	mov	w11,w25
 +	lsr	x12,x25,#32
 +	mov	w13,w26
@@ -10128,65 +9860,65 @@ index 000000000000..1ae11a5c5a14
 +	cbnz	x4,.Loop_lower_neon
 +
 +	add	w5,w5,w22		// accumulate key block
-+	ldp	q24,q25,[sp,#0]
++	 ldp	q24,q25,[sp,#0]
 +	add	x6,x6,x22,lsr#32
-+	ldp	q26,q27,[sp,#32]
++	 ldp	q26,q27,[sp,#32]
 +	add	w7,w7,w23
-+	ldp	q28,q29,[sp,#64]
++	 ldp	q28,q29,[sp,#64]
 +	add	x8,x8,x23,lsr#32
-+	add	v0.4s,v0.4s,v24.4s
++	 add	v0.4s,v0.4s,v24.4s
 +	add	w9,w9,w24
-+	add	v4.4s,v4.4s,v24.4s
++	 add	v4.4s,v4.4s,v24.4s
 +	add	x10,x10,x24,lsr#32
-+	add	v8.4s,v8.4s,v24.4s
++	 add	v8.4s,v8.4s,v24.4s
 +	add	w11,w11,w25
-+	add	v12.4s,v12.4s,v24.4s
++	 add	v12.4s,v12.4s,v24.4s
 +	add	x12,x12,x25,lsr#32
-+	add	v16.4s,v16.4s,v24.4s
++	 add	v16.4s,v16.4s,v24.4s
 +	add	w13,w13,w26
-+	add	v20.4s,v20.4s,v24.4s
++	 add	v20.4s,v20.4s,v24.4s
 +	add	x14,x14,x26,lsr#32
-+	add	v2.4s,v2.4s,v26.4s
++	 add	v2.4s,v2.4s,v26.4s
 +	add	w15,w15,w27
-+	add	v6.4s,v6.4s,v26.4s
++	 add	v6.4s,v6.4s,v26.4s
 +	add	x16,x16,x27,lsr#32
-+	add	v10.4s,v10.4s,v26.4s
++	 add	v10.4s,v10.4s,v26.4s
 +	add	w17,w17,w28
-+	add	v14.4s,v14.4s,v26.4s
++	 add	v14.4s,v14.4s,v26.4s
 +	add	x19,x19,x28,lsr#32
-+	add	v18.4s,v18.4s,v26.4s
++	 add	v18.4s,v18.4s,v26.4s
 +	add	w20,w20,w30
-+	add	v22.4s,v22.4s,v26.4s
++	 add	v22.4s,v22.4s,v26.4s
 +	add	x21,x21,x30,lsr#32
-+	add	v19.4s,v19.4s,v31.4s			// +4
++	 add	v19.4s,v19.4s,v31.4s			// +4
 +	add	x5,x5,x6,lsl#32	// pack
-+	add	v23.4s,v23.4s,v31.4s			// +4
++	 add	v23.4s,v23.4s,v31.4s			// +4
 +	add	x7,x7,x8,lsl#32
-+	add	v3.4s,v3.4s,v27.4s
++	 add	v3.4s,v3.4s,v27.4s
 +	ldp	x6,x8,[x1,#0]		// load input
-+	add	v7.4s,v7.4s,v28.4s
++	 add	v7.4s,v7.4s,v28.4s
 +	add	x9,x9,x10,lsl#32
-+	add	v11.4s,v11.4s,v29.4s
++	 add	v11.4s,v11.4s,v29.4s
 +	add	x11,x11,x12,lsl#32
-+	add	v15.4s,v15.4s,v30.4s
++	 add	v15.4s,v15.4s,v30.4s
 +	ldp	x10,x12,[x1,#16]
-+	add	v19.4s,v19.4s,v27.4s
++	 add	v19.4s,v19.4s,v27.4s
 +	add	x13,x13,x14,lsl#32
-+	add	v23.4s,v23.4s,v28.4s
++	 add	v23.4s,v23.4s,v28.4s
 +	add	x15,x15,x16,lsl#32
-+	add	v1.4s,v1.4s,v25.4s
++	 add	v1.4s,v1.4s,v25.4s
 +	ldp	x14,x16,[x1,#32]
-+	add	v5.4s,v5.4s,v25.4s
++	 add	v5.4s,v5.4s,v25.4s
 +	add	x17,x17,x19,lsl#32
-+	add	v9.4s,v9.4s,v25.4s
++	 add	v9.4s,v9.4s,v25.4s
 +	add	x20,x20,x21,lsl#32
-+	add	v13.4s,v13.4s,v25.4s
++	 add	v13.4s,v13.4s,v25.4s
 +	ldp	x19,x21,[x1,#48]
-+	add	v17.4s,v17.4s,v25.4s
++	 add	v17.4s,v17.4s,v25.4s
 +	add	x1,x1,#64
-+	add	v21.4s,v21.4s,v25.4s
++	 add	v21.4s,v21.4s,v25.4s
 +
-+#ifdef	__AARCH64EB__
++# ifdef	__AARCH64EB__
 +	rev	x5,x5
 +	rev	x7,x7
 +	rev	x9,x9
@@ -10195,66 +9927,66 @@ index 000000000000..1ae11a5c5a14
 +	rev	x15,x15
 +	rev	x17,x17
 +	rev	x20,x20
-+#endif
-+	ld1	{v24.16b,v25.16b,v26.16b,v27.16b},[x1],#64
++# endif
++	ld1	{v24.16b-v27.16b},[x1],#64
 +	eor	x5,x5,x6
 +	eor	x7,x7,x8
 +	eor	x9,x9,x10
 +	eor	x11,x11,x12
 +	eor	x13,x13,x14
-+	eor	v0.16b,v0.16b,v24.16b
++	 eor	v0.16b,v0.16b,v24.16b
 +	eor	x15,x15,x16
-+	eor	v1.16b,v1.16b,v25.16b
++	 eor	v1.16b,v1.16b,v25.16b
 +	eor	x17,x17,x19
-+	eor	v2.16b,v2.16b,v26.16b
++	 eor	v2.16b,v2.16b,v26.16b
 +	eor	x20,x20,x21
-+	eor	v3.16b,v3.16b,v27.16b
-+	ld1	{v24.16b,v25.16b,v26.16b,v27.16b},[x1],#64
++	 eor	v3.16b,v3.16b,v27.16b
++	 ld1	{v24.16b-v27.16b},[x1],#64
 +
 +	stp	x5,x7,[x0,#0]		// store output
-+	add	x28,x28,#7			// increment counter
++	 add	x28,x28,#7			// increment counter
 +	stp	x9,x11,[x0,#16]
 +	stp	x13,x15,[x0,#32]
 +	stp	x17,x20,[x0,#48]
 +	add	x0,x0,#64
-+	st1	{v0.16b,v1.16b,v2.16b,v3.16b},[x0],#64
++	st1	{v0.16b-v3.16b},[x0],#64
 +
-+	ld1	{v0.16b,v1.16b,v2.16b,v3.16b},[x1],#64
++	ld1	{v0.16b-v3.16b},[x1],#64
 +	eor	v4.16b,v4.16b,v24.16b
 +	eor	v5.16b,v5.16b,v25.16b
 +	eor	v6.16b,v6.16b,v26.16b
 +	eor	v7.16b,v7.16b,v27.16b
-+	st1	{v4.16b,v5.16b,v6.16b,v7.16b},[x0],#64
++	st1	{v4.16b-v7.16b},[x0],#64
 +
-+	ld1	{v4.16b,v5.16b,v6.16b,v7.16b},[x1],#64
++	ld1	{v4.16b-v7.16b},[x1],#64
 +	eor	v8.16b,v8.16b,v0.16b
-+	ldp	q24,q25,[sp,#0]
++	 ldp	q24,q25,[sp,#0]
 +	eor	v9.16b,v9.16b,v1.16b
-+	ldp	q26,q27,[sp,#32]
++	 ldp	q26,q27,[sp,#32]
 +	eor	v10.16b,v10.16b,v2.16b
 +	eor	v11.16b,v11.16b,v3.16b
-+	st1	{v8.16b,v9.16b,v10.16b,v11.16b},[x0],#64
++	st1	{v8.16b-v11.16b},[x0],#64
 +
-+	ld1	{v8.16b,v9.16b,v10.16b,v11.16b},[x1],#64
++	ld1	{v8.16b-v11.16b},[x1],#64
 +	eor	v12.16b,v12.16b,v4.16b
 +	eor	v13.16b,v13.16b,v5.16b
 +	eor	v14.16b,v14.16b,v6.16b
 +	eor	v15.16b,v15.16b,v7.16b
-+	st1	{v12.16b,v13.16b,v14.16b,v15.16b},[x0],#64
++	st1	{v12.16b-v15.16b},[x0],#64
 +
-+	ld1	{v12.16b,v13.16b,v14.16b,v15.16b},[x1],#64
++	ld1	{v12.16b-v15.16b},[x1],#64
 +	eor	v16.16b,v16.16b,v8.16b
 +	eor	v17.16b,v17.16b,v9.16b
 +	eor	v18.16b,v18.16b,v10.16b
 +	eor	v19.16b,v19.16b,v11.16b
-+	st1	{v16.16b,v17.16b,v18.16b,v19.16b},[x0],#64
++	st1	{v16.16b-v19.16b},[x0],#64
 +
 +	shl	v0.4s,v31.4s,#1			// 4 -> 8
 +	eor	v20.16b,v20.16b,v12.16b
 +	eor	v21.16b,v21.16b,v13.16b
 +	eor	v22.16b,v22.16b,v14.16b
 +	eor	v23.16b,v23.16b,v15.16b
-+	st1	{v20.16b,v21.16b,v22.16b,v23.16b},[x0],#64
++	st1	{v20.16b-v23.16b},[x0],#64
 +
 +	add	v27.4s,v27.4s,v0.4s			// += 8
 +	add	v28.4s,v28.4s,v0.4s
@@ -10300,9 +10032,8 @@ index 000000000000..1ae11a5c5a14
 +	ldp	x25,x26,[x29,#64]
 +	ldp	x27,x28,[x29,#80]
 +	ldp	x29,x30,[sp],#96
-+.Labort_neon:
 +	ret
-+ENDPROC(chacha20_neon)
++.size	ChaCha20_512_neon,.-ChaCha20_512_neon
 +#endif
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-mips-glue.c b/net/wireguard/crypto/zinc/chacha20/chacha20-mips-glue.c
 new file mode 100644
@@ -10768,6 +10499,473 @@ index 000000000000..031ee5e794df
 +	FOR_EACH_WORD(JMPTBL_UNALIGNED)
 +.end chacha20_mips
 +.set at
+diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-unrolled-arm.S b/net/wireguard/crypto/zinc/chacha20/chacha20-unrolled-arm.S
+new file mode 100644
+index 000000000000..2140319b64a0
+--- /dev/null
++++ b/net/wireguard/crypto/zinc/chacha20/chacha20-unrolled-arm.S
+@@ -0,0 +1,461 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2018 Google, Inc.
++ */
++
++#include <linux/linkage.h>
++#include <asm/assembler.h>
++
++/*
++ * Design notes:
++ *
++ * 16 registers would be needed to hold the state matrix, but only 14 are
++ * available because 'sp' and 'pc' cannot be used.  So we spill the elements
++ * (x8, x9) to the stack and swap them out with (x10, x11).  This adds one
++ * 'ldrd' and one 'strd' instruction per round.
++ *
++ * All rotates are performed using the implicit rotate operand accepted by the
++ * 'add' and 'eor' instructions.  This is faster than using explicit rotate
++ * instructions.  To make this work, we allow the values in the second and last
++ * rows of the ChaCha state matrix (rows 'b' and 'd') to temporarily have the
++ * wrong rotation amount.  The rotation amount is then fixed up just in time
++ * when the values are used.  'brot' is the number of bits the values in row 'b'
++ * need to be rotated right to arrive at the correct values, and 'drot'
++ * similarly for row 'd'.  (brot, drot) start out as (0, 0) but we make it such
++ * that they end up as (25, 24) after every round.
++ */
++
++	// ChaCha state registers
++	X0	.req	r0
++	X1	.req	r1
++	X2	.req	r2
++	X3	.req	r3
++	X4	.req	r4
++	X5	.req	r5
++	X6	.req	r6
++	X7	.req	r7
++	X8_X10	.req	r8	// shared by x8 and x10
++	X9_X11	.req	r9	// shared by x9 and x11
++	X12	.req	r10
++	X13	.req	r11
++	X14	.req	r12
++	X15	.req	r14
++
++.Lexpand_32byte_k:
++	// "expand 32-byte k"
++	.word	0x61707865, 0x3320646e, 0x79622d32, 0x6b206574
++
++#ifdef __thumb2__
++#  define adrl adr
++#endif
++
++.macro __rev		out, in,  t0, t1, t2
++.if __LINUX_ARM_ARCH__ >= 6
++	rev		\out, \in
++.else
++	lsl		\t0, \in, #24
++	and		\t1, \in, #0xff00
++	and		\t2, \in, #0xff0000
++	orr		\out, \t0, \in, lsr #24
++	orr		\out, \out, \t1, lsl #8
++	orr		\out, \out, \t2, lsr #8
++.endif
++.endm
++
++.macro _le32_bswap	x,  t0, t1, t2
++#ifdef __ARMEB__
++	__rev		\x, \x,  \t0, \t1, \t2
++#endif
++.endm
++
++.macro _le32_bswap_4x	a, b, c, d,  t0, t1, t2
++	_le32_bswap	\a,  \t0, \t1, \t2
++	_le32_bswap	\b,  \t0, \t1, \t2
++	_le32_bswap	\c,  \t0, \t1, \t2
++	_le32_bswap	\d,  \t0, \t1, \t2
++.endm
++
++.macro __ldrd		a, b, src, offset
++#if __LINUX_ARM_ARCH__ >= 6
++	ldrd		\a, \b, [\src, #\offset]
++#else
++	ldr		\a, [\src, #\offset]
++	ldr		\b, [\src, #\offset + 4]
++#endif
++.endm
++
++.macro __strd		a, b, dst, offset
++#if __LINUX_ARM_ARCH__ >= 6
++	strd		\a, \b, [\dst, #\offset]
++#else
++	str		\a, [\dst, #\offset]
++	str		\b, [\dst, #\offset + 4]
++#endif
++.endm
++
++.macro _halfround	a1, b1, c1, d1,  a2, b2, c2, d2
++
++	// a += b; d ^= a; d = rol(d, 16);
++	add		\a1, \a1, \b1, ror #brot
++	add		\a2, \a2, \b2, ror #brot
++	eor		\d1, \a1, \d1, ror #drot
++	eor		\d2, \a2, \d2, ror #drot
++	// drot == 32 - 16 == 16
++
++	// c += d; b ^= c; b = rol(b, 12);
++	add		\c1, \c1, \d1, ror #16
++	add		\c2, \c2, \d2, ror #16
++	eor		\b1, \c1, \b1, ror #brot
++	eor		\b2, \c2, \b2, ror #brot
++	// brot == 32 - 12 == 20
++
++	// a += b; d ^= a; d = rol(d, 8);
++	add		\a1, \a1, \b1, ror #20
++	add		\a2, \a2, \b2, ror #20
++	eor		\d1, \a1, \d1, ror #16
++	eor		\d2, \a2, \d2, ror #16
++	// drot == 32 - 8 == 24
++
++	// c += d; b ^= c; b = rol(b, 7);
++	add		\c1, \c1, \d1, ror #24
++	add		\c2, \c2, \d2, ror #24
++	eor		\b1, \c1, \b1, ror #20
++	eor		\b2, \c2, \b2, ror #20
++	// brot == 32 - 7 == 25
++.endm
++
++.macro _doubleround
++
++	// column round
++
++	// quarterrounds: (x0, x4, x8, x12) and (x1, x5, x9, x13)
++	_halfround	X0, X4, X8_X10, X12,  X1, X5, X9_X11, X13
++
++	// save (x8, x9); restore (x10, x11)
++	__strd		X8_X10, X9_X11, sp, 0
++	__ldrd		X8_X10, X9_X11, sp, 8
++
++	// quarterrounds: (x2, x6, x10, x14) and (x3, x7, x11, x15)
++	_halfround	X2, X6, X8_X10, X14,  X3, X7, X9_X11, X15
++
++	.set brot, 25
++	.set drot, 24
++
++	// diagonal round
++
++	// quarterrounds: (x0, x5, x10, x15) and (x1, x6, x11, x12)
++	_halfround	X0, X5, X8_X10, X15,  X1, X6, X9_X11, X12
++
++	// save (x10, x11); restore (x8, x9)
++	__strd		X8_X10, X9_X11, sp, 8
++	__ldrd		X8_X10, X9_X11, sp, 0
++
++	// quarterrounds: (x2, x7, x8, x13) and (x3, x4, x9, x14)
++	_halfround	X2, X7, X8_X10, X13,  X3, X4, X9_X11, X14
++.endm
++
++.macro _chacha_permute	nrounds
++	.set brot, 0
++	.set drot, 0
++	.rept \nrounds / 2
++	 _doubleround
++	.endr
++.endm
++
++.macro _chacha		nrounds
++
++.Lnext_block\@:
++	// Stack: unused0-unused1 x10-x11 x0-x15 OUT IN LEN
++	// Registers contain x0-x9,x12-x15.
++
++	// Do the core ChaCha permutation to update x0-x15.
++	_chacha_permute	\nrounds
++
++	add		sp, #8
++	// Stack: x10-x11 orig_x0-orig_x15 OUT IN LEN
++	// Registers contain x0-x9,x12-x15.
++	// x4-x7 are rotated by 'brot'; x12-x15 are rotated by 'drot'.
++
++	// Free up some registers (r8-r12,r14) by pushing (x8-x9,x12-x15).
++	push		{X8_X10, X9_X11, X12, X13, X14, X15}
++
++	// Load (OUT, IN, LEN).
++	ldr		r14, [sp, #96]
++	ldr		r12, [sp, #100]
++	ldr		r11, [sp, #104]
++
++	orr		r10, r14, r12
++
++	// Use slow path if fewer than 64 bytes remain.
++	cmp		r11, #64
++	blt		.Lxor_slowpath\@
++
++	// Use slow path if IN and/or OUT isn't 4-byte aligned.  Needed even on
++	// ARMv6+, since ldmia and stmia (used below) still require alignment.
++	tst		r10, #3
++	bne		.Lxor_slowpath\@
++
++	// Fast path: XOR 64 bytes of aligned data.
++
++	// Stack: x8-x9 x12-x15 x10-x11 orig_x0-orig_x15 OUT IN LEN
++	// Registers: r0-r7 are x0-x7; r8-r11 are free; r12 is IN; r14 is OUT.
++	// x4-x7 are rotated by 'brot'; x12-x15 are rotated by 'drot'.
++
++	// x0-x3
++	__ldrd		r8, r9, sp, 32
++	__ldrd		r10, r11, sp, 40
++	add		X0, X0, r8
++	add		X1, X1, r9
++	add		X2, X2, r10
++	add		X3, X3, r11
++	_le32_bswap_4x	X0, X1, X2, X3,  r8, r9, r10
++	ldmia		r12!, {r8-r11}
++	eor		X0, X0, r8
++	eor		X1, X1, r9
++	eor		X2, X2, r10
++	eor		X3, X3, r11
++	stmia		r14!, {X0-X3}
++
++	// x4-x7
++	__ldrd		r8, r9, sp, 48
++	__ldrd		r10, r11, sp, 56
++	add		X4, r8, X4, ror #brot
++	add		X5, r9, X5, ror #brot
++	ldmia		r12!, {X0-X3}
++	add		X6, r10, X6, ror #brot
++	add		X7, r11, X7, ror #brot
++	_le32_bswap_4x	X4, X5, X6, X7,  r8, r9, r10
++	eor		X4, X4, X0
++	eor		X5, X5, X1
++	eor		X6, X6, X2
++	eor		X7, X7, X3
++	stmia		r14!, {X4-X7}
++
++	// x8-x15
++	pop		{r0-r7}			// (x8-x9,x12-x15,x10-x11)
++	__ldrd		r8, r9, sp, 32
++	__ldrd		r10, r11, sp, 40
++	add		r0, r0, r8		// x8
++	add		r1, r1, r9		// x9
++	add		r6, r6, r10		// x10
++	add		r7, r7, r11		// x11
++	_le32_bswap_4x	r0, r1, r6, r7,  r8, r9, r10
++	ldmia		r12!, {r8-r11}
++	eor		r0, r0, r8		// x8
++	eor		r1, r1, r9		// x9
++	eor		r6, r6, r10		// x10
++	eor		r7, r7, r11		// x11
++	stmia		r14!, {r0,r1,r6,r7}
++	ldmia		r12!, {r0,r1,r6,r7}
++	__ldrd		r8, r9, sp, 48
++	__ldrd		r10, r11, sp, 56
++	add		r2, r8, r2, ror #drot	// x12
++	add		r3, r9, r3, ror #drot	// x13
++	add		r4, r10, r4, ror #drot	// x14
++	add		r5, r11, r5, ror #drot	// x15
++	_le32_bswap_4x	r2, r3, r4, r5,  r9, r10, r11
++	  ldr		r9, [sp, #72]		// load LEN
++	eor		r2, r2, r0		// x12
++	eor		r3, r3, r1		// x13
++	eor		r4, r4, r6		// x14
++	eor		r5, r5, r7		// x15
++	  subs		r9, #64			// decrement and check LEN
++	stmia		r14!, {r2-r5}
++
++	beq		.Ldone\@
++
++.Lprepare_for_next_block\@:
++
++	// Stack: x0-x15 OUT IN LEN
++
++	// Increment block counter (x12)
++	add		r8, #1
++
++	// Store updated (OUT, IN, LEN)
++	str		r14, [sp, #64]
++	str		r12, [sp, #68]
++	str		r9, [sp, #72]
++
++	  mov		r14, sp
++
++	// Store updated block counter (x12)
++	str		r8, [sp, #48]
++
++	  sub		sp, #16
++
++	// Reload state and do next block
++	ldmia		r14!, {r0-r11}		// load x0-x11
++	__strd		r10, r11, sp, 8		// store x10-x11 before state
++	ldmia		r14, {r10-r12,r14}	// load x12-x15
++	b		.Lnext_block\@
++
++.Lxor_slowpath\@:
++	// Slow path: < 64 bytes remaining, or unaligned input or output buffer.
++	// We handle it by storing the 64 bytes of keystream to the stack, then
++	// XOR-ing the needed portion with the data.
++
++	// Allocate keystream buffer
++	sub		sp, #64
++	mov		r14, sp
++
++	// Stack: ks0-ks15 x8-x9 x12-x15 x10-x11 orig_x0-orig_x15 OUT IN LEN
++	// Registers: r0-r7 are x0-x7; r8-r11 are free; r12 is IN; r14 is &ks0.
++	// x4-x7 are rotated by 'brot'; x12-x15 are rotated by 'drot'.
++
++	// Save keystream for x0-x3
++	__ldrd		r8, r9, sp, 96
++	__ldrd		r10, r11, sp, 104
++	add		X0, X0, r8
++	add		X1, X1, r9
++	add		X2, X2, r10
++	add		X3, X3, r11
++	_le32_bswap_4x	X0, X1, X2, X3,  r8, r9, r10
++	stmia		r14!, {X0-X3}
++
++	// Save keystream for x4-x7
++	__ldrd		r8, r9, sp, 112
++	__ldrd		r10, r11, sp, 120
++	add		X4, r8, X4, ror #brot
++	add		X5, r9, X5, ror #brot
++	add		X6, r10, X6, ror #brot
++	add		X7, r11, X7, ror #brot
++	_le32_bswap_4x	X4, X5, X6, X7,  r8, r9, r10
++	  add		r8, sp, #64
++	stmia		r14!, {X4-X7}
++
++	// Save keystream for x8-x15
++	ldm		r8, {r0-r7}		// (x8-x9,x12-x15,x10-x11)
++	__ldrd		r8, r9, sp, 128
++	__ldrd		r10, r11, sp, 136
++	add		r0, r0, r8		// x8
++	add		r1, r1, r9		// x9
++	add		r6, r6, r10		// x10
++	add		r7, r7, r11		// x11
++	_le32_bswap_4x	r0, r1, r6, r7,  r8, r9, r10
++	stmia		r14!, {r0,r1,r6,r7}
++	__ldrd		r8, r9, sp, 144
++	__ldrd		r10, r11, sp, 152
++	add		r2, r8, r2, ror #drot	// x12
++	add		r3, r9, r3, ror #drot	// x13
++	add		r4, r10, r4, ror #drot	// x14
++	add		r5, r11, r5, ror #drot	// x15
++	_le32_bswap_4x	r2, r3, r4, r5,  r9, r10, r11
++	stmia		r14, {r2-r5}
++
++	// Stack: ks0-ks15 unused0-unused7 x0-x15 OUT IN LEN
++	// Registers: r8 is block counter, r12 is IN.
++
++	ldr		r9, [sp, #168]		// LEN
++	ldr		r14, [sp, #160]		// OUT
++	cmp		r9, #64
++	  mov		r0, sp
++	movle		r1, r9
++	movgt		r1, #64
++	// r1 is number of bytes to XOR, in range [1, 64]
++
++.if __LINUX_ARM_ARCH__ < 6
++	orr		r2, r12, r14
++	tst		r2, #3			// IN or OUT misaligned?
++	bne		.Lxor_next_byte\@
++.endif
++
++	// XOR a word at a time
++.rept 16
++	subs		r1, #4
++	blt		.Lxor_words_done\@
++	ldr		r2, [r12], #4
++	ldr		r3, [r0], #4
++	eor		r2, r2, r3
++	str		r2, [r14], #4
++.endr
++	b		.Lxor_slowpath_done\@
++.Lxor_words_done\@:
++	ands		r1, r1, #3
++	beq		.Lxor_slowpath_done\@
++
++	// XOR a byte at a time
++.Lxor_next_byte\@:
++	ldrb		r2, [r12], #1
++	ldrb		r3, [r0], #1
++	eor		r2, r2, r3
++	strb		r2, [r14], #1
++	subs		r1, #1
++	bne		.Lxor_next_byte\@
++
++.Lxor_slowpath_done\@:
++	subs		r9, #64
++	add		sp, #96
++	bgt		.Lprepare_for_next_block\@
++
++.Ldone\@:
++.endm	// _chacha
++
++/*
++ * void chacha20_arm(u8 *out, const u8 *in, size_t len, const u32 key[8],
++ *		     const u32 iv[4]);
++ */
++ENTRY(chacha20_arm)
++	cmp		r2, #0			// len == 0?
++	reteq		lr
++
++	push		{r0-r2,r4-r11,lr}
++
++	// Push state x0-x15 onto stack.
++	// Also store an extra copy of x10-x11 just before the state.
++
++	ldr		r4, [sp, #48]		// iv
++	mov		r0, sp
++	sub		sp, #80
++
++	// iv: x12-x15
++	ldm		r4, {X12,X13,X14,X15}
++	stmdb		r0!, {X12,X13,X14,X15}
++
++	// key: x4-x11
++	__ldrd		X8_X10, X9_X11, r3, 24
++	__strd		X8_X10, X9_X11, sp, 8
++	stmdb		r0!, {X8_X10, X9_X11}
++	ldm		r3, {X4-X9_X11}
++	stmdb		r0!, {X4-X9_X11}
++
++	// constants: x0-x3
++	adrl		X3, .Lexpand_32byte_k
++	ldm		X3, {X0-X3}
++	__strd		X0, X1, sp, 16
++	__strd		X2, X3, sp, 24
++
++	_chacha		20
++
++	add		sp, #76
++	pop		{r4-r11, pc}
++ENDPROC(chacha20_arm)
++
++/*
++ * void hchacha20_arm(const u32 state[16], u32 out[8]);
++ */
++ENTRY(hchacha20_arm)
++	push		{r1,r4-r11,lr}
++
++	mov		r14, r0
++	ldmia		r14!, {r0-r11}		// load x0-x11
++	push		{r10-r11}		// store x10-x11 to stack
++	ldm		r14, {r10-r12,r14}	// load x12-x15
++	sub		sp, #8
++
++	_chacha_permute	20
++
++	// Skip over (unused0-unused1, x10-x11)
++	add		sp, #16
++
++	// Fix up rotations of x12-x15
++	ror		X12, X12, #drot
++	ror		X13, X13, #drot
++	  pop		{r4}			// load 'out'
++	ror		X14, X14, #drot
++	ror		X15, X15, #drot
++
++	// Store (x0-x3,x12-x15) to 'out'
++	stm		r4, {X0,X1,X2,X3,X12,X13,X14,X15}
++
++	pop		{r4-r11,pc}
++ENDPROC(hchacha20_arm)
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64-glue.c b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64-glue.c
 new file mode 100644
 index 000000000000..f5a9c215ced0
@@ -20530,21 +20728,51 @@ index 000000000000..f4f08ecffbf6
 +		poly1305_emit_neon(ctx, mac, nonce);
 +	return true;
 +}
-diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-arm.S b/net/wireguard/crypto/zinc/poly1305/poly1305-arm.S
+diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-arm.S_shipped b/net/wireguard/crypto/zinc/poly1305/poly1305-arm.S_shipped
 new file mode 100644
-index 000000000000..4a0e9d451119
+index 000000000000..1164e2066ea3
 --- /dev/null
-+++ b/net/wireguard/crypto/zinc/poly1305/poly1305-arm.S
-@@ -0,0 +1,1117 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-+/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-+ * Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
-+ *
-+ * This is based in part on Andy Polyakov's implementation from CRYPTOGAMS.
-+ */
++++ b/net/wireguard/crypto/zinc/poly1305/poly1305-arm.S_shipped
+@@ -0,0 +1,1207 @@
++@ SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
++@
++@ This code is taken from the OpenSSL project but the author, Andy Polyakov,
++@ has relicensed it under the licenses specified in the SPDX header above.
++@ The original headers, including the original license headers, are
++@ included below for completeness.
++@
++@ ====================================================================
++@ Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
++@ project. The module is, however, dual licensed under OpenSSL and
++@ CRYPTOGAMS licenses depending on where you obtain it. For further
++@ details see http://www.openssl.org/~appro/cryptogams/.
++@ ====================================================================
++@
++@			IALU(*)/gcc-4.4		NEON
++@
++@ ARM11xx(ARMv6)	7.78/+100%		-
++@ Cortex-A5		6.35/+130%		3.00
++@ Cortex-A8		6.25/+115%		2.36
++@ Cortex-A9		5.10/+95%		2.55
++@ Cortex-A15		3.85/+85%		1.25(**)
++@ Snapdragon S4		5.70/+100%		1.48(**)
++@
++@ (*)	this is for -march=armv6, i.e. with bunch of ldrb loading data;
++@ (**)	these are trade-off results, they can be improved by ~8% but at
++@	the cost of 15/12% regression on Cortex-A5/A7, it's even possible
++@	to improve Cortex-A9 result, but then A5/A7 loose more than 20%;
 +
-+#include <linux/linkage.h>
++#ifndef	__KERNEL__
++# include "arm_arch.h"
++#else
++# define __ARM_ARCH__ __LINUX_ARM_ARCH__
++# define __ARM_MAX_ARCH__ __LINUX_ARM_ARCH__
++# define poly1305_init   poly1305_init_arm
++# define poly1305_blocks poly1305_blocks_arm
++# define poly1305_emit   poly1305_emit_arm
++.globl	poly1305_emit_neon
++.globl	poly1305_blocks_neon
++#endif
 +
 +.text
 +#if defined(__thumb2__)
@@ -20554,8 +20782,13 @@ index 000000000000..4a0e9d451119
 +.code	32
 +#endif
 +
++.globl	poly1305_emit
++.globl	poly1305_blocks
++.globl	poly1305_init
++.type	poly1305_init,%function
 +.align	5
-+ENTRY(poly1305_init_arm)
++poly1305_init:
++.Lpoly1305_init:
 +	stmdb	sp!,{r4-r11}
 +
 +	eor	r3,r3,r3
@@ -20574,6 +20807,10 @@ index 000000000000..4a0e9d451119
 +	moveq	r0,#0
 +	beq	.Lno_key
 +
++#if	__ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
++	adr	r11,.Lpoly1305_init
++	ldr	r12,.LOPENSSL_armcap
++#endif
 +	ldrb	r4,[r1,#0]
 +	mov	r10,#0x0fffffff
 +	ldrb	r5,[r1,#1]
@@ -20588,6 +20825,12 @@ index 000000000000..4a0e9d451119
 +	ldrb	r7,[r1,#6]
 +	and	r4,r4,r10
 +
++#if	__ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
++	ldr	r12,[r11,r12]		@ OPENSSL_armcap_P
++# ifdef	__APPLE__
++	ldr	r12,[r12]
++# endif
++#endif
 +	ldrb	r8,[r1,#7]
 +	orr	r5,r5,r6,lsl#8
 +	ldrb	r6,[r1,#8]
@@ -20597,6 +20840,35 @@ index 000000000000..4a0e9d451119
 +	ldrb	r8,[r1,#10]
 +	and	r5,r5,r3
 +
++#if	__ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
++	tst	r12,#ARMV7_NEON		@ check for NEON
++# ifdef	__APPLE__
++	adr	r9,poly1305_blocks_neon
++	adr	r11,poly1305_blocks
++#  ifdef __thumb2__
++	it	ne
++#  endif
++	movne	r11,r9
++	adr	r12,poly1305_emit
++	adr	r10,poly1305_emit_neon
++#  ifdef __thumb2__
++	it	ne
++#  endif
++	movne	r12,r10
++# else
++#  ifdef __thumb2__
++	itete	eq
++#  endif
++	addeq	r12,r11,#(poly1305_emit-.Lpoly1305_init)
++	addne	r12,r11,#(poly1305_emit_neon-.Lpoly1305_init)
++	addeq	r11,r11,#(poly1305_blocks-.Lpoly1305_init)
++	addne	r11,r11,#(poly1305_blocks_neon-.Lpoly1305_init)
++# endif
++# ifdef	__thumb2__
++	orr	r12,r12,#1	@ thumb-ify address
++	orr	r11,r11,#1
++# endif
++#endif
 +	ldrb	r9,[r1,#11]
 +	orr	r6,r6,r7,lsl#8
 +	ldrb	r7,[r1,#12]
@@ -20615,20 +20887,26 @@ index 000000000000..4a0e9d451119
 +	str	r6,[r0,#8]
 +	and	r7,r7,r3
 +	str	r7,[r0,#12]
++#if	__ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
++	stmia	r2,{r11,r12}		@ fill functions table
++	mov	r0,#1
++#else
++	mov	r0,#0
++#endif
 +.Lno_key:
 +	ldmia	sp!,{r4-r11}
-+#if __LINUX_ARM_ARCH__ >= 5
++#if	__ARM_ARCH__>=5
 +	bx	lr				@ bx	lr
 +#else
 +	tst	lr,#1
 +	moveq	pc,lr			@ be binary compatible with V4, yet
 +	.word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 +#endif
-+ENDPROC(poly1305_init_arm)
-+
++.size	poly1305_init,.-poly1305_init
++.type	poly1305_blocks,%function
 +.align	5
-+ENTRY(poly1305_blocks_arm)
-+.Lpoly1305_blocks_arm:
++poly1305_blocks:
++.Lpoly1305_blocks:
 +	stmdb	sp!,{r3-r11,lr}
 +
 +	ands	r2,r2,#-16
@@ -20649,11 +20927,11 @@ index 000000000000..4a0e9d451119
 +	b	.Loop
 +
 +.Loop:
-+#if __LINUX_ARM_ARCH__ < 7
++#if __ARM_ARCH__<7
 +	ldrb	r0,[lr],#16		@ load input
-+#ifdef	__thumb2__
++# ifdef	__thumb2__
 +	it	hi
-+#endif
++# endif
 +	addhi	r8,r8,#1		@ 1<<128
 +	ldrb	r1,[lr,#-15]
 +	ldrb	r2,[lr,#-14]
@@ -20692,19 +20970,19 @@ index 000000000000..4a0e9d451119
 +	orr	r3,r2,r3,lsl#24
 +#else
 +	ldr	r0,[lr],#16		@ load input
-+#ifdef	__thumb2__
++# ifdef	__thumb2__
 +	it	hi
-+#endif
++# endif
 +	addhi	r8,r8,#1		@ padbit
 +	ldr	r1,[lr,#-12]
 +	ldr	r2,[lr,#-8]
 +	ldr	r3,[lr,#-4]
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	rev	r0,r0
 +	rev	r1,r1
 +	rev	r2,r2
 +	rev	r3,r3
-+#endif
++# endif
 +	adds	r4,r4,r0		@ accumulate input
 +	str	lr,[sp,#8]		@ offload input pointer
 +	adcs	r5,r5,r1
@@ -20774,7 +21052,7 @@ index 000000000000..4a0e9d451119
 +	stmia	r0,{r4-r8}		@ store the result
 +
 +.Lno_data:
-+#if __LINUX_ARM_ARCH__ >= 5
++#if	__ARM_ARCH__>=5
 +	ldmia	sp!,{r3-r11,pc}
 +#else
 +	ldmia	sp!,{r3-r11,lr}
@@ -20782,12 +21060,13 @@ index 000000000000..4a0e9d451119
 +	moveq	pc,lr			@ be binary compatible with V4, yet
 +	.word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 +#endif
-+ENDPROC(poly1305_blocks_arm)
-+
++.size	poly1305_blocks,.-poly1305_blocks
++.type	poly1305_emit,%function
 +.align	5
-+ENTRY(poly1305_emit_arm)
++poly1305_emit:
 +	stmdb	sp!,{r4-r11}
 +.Lpoly1305_emit_enter:
++
 +	ldmia	r0,{r3-r7}
 +	adds	r8,r3,#5		@ compare to modulus
 +	adcs	r9,r4,#0
@@ -20822,13 +21101,13 @@ index 000000000000..4a0e9d451119
 +	adcs	r5,r5,r10
 +	adc	r6,r6,r11
 +
-+#if __LINUX_ARM_ARCH__ >= 7
-+#ifdef __ARMEB__
++#if __ARM_ARCH__>=7
++# ifdef __ARMEB__
 +	rev	r3,r3
 +	rev	r4,r4
 +	rev	r5,r5
 +	rev	r6,r6
-+#endif
++# endif
 +	str	r3,[r1,#0]
 +	str	r4,[r1,#4]
 +	str	r5,[r1,#8]
@@ -20867,21 +21146,20 @@ index 000000000000..4a0e9d451119
 +	strb	r6,[r1,#15]
 +#endif
 +	ldmia	sp!,{r4-r11}
-+#if __LINUX_ARM_ARCH__ >= 5
++#if	__ARM_ARCH__>=5
 +	bx	lr				@ bx	lr
 +#else
 +	tst	lr,#1
 +	moveq	pc,lr			@ be binary compatible with V4, yet
 +	.word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 +#endif
-+ENDPROC(poly1305_emit_arm)
-+
-+
-+#ifdef CONFIG_KERNEL_MODE_NEON
++.size	poly1305_emit,.-poly1305_emit
++#if	__ARM_MAX_ARCH__>=7
 +.fpu	neon
 +
++.type	poly1305_init_neon,%function
 +.align	5
-+ENTRY(poly1305_init_neon)
++poly1305_init_neon:
 +.Lpoly1305_init_neon:
 +	ldr	r4,[r0,#20]		@ load key base 2^32
 +	ldr	r5,[r0,#24]
@@ -21092,10 +21370,11 @@ index 000000000000..4a0e9d451119
 +	vst1.32		{d8[1]},[r7]
 +
 +	bx	lr				@ bx	lr
-+ENDPROC(poly1305_init_neon)
++.size	poly1305_init_neon,.-poly1305_init_neon
 +
++.type	poly1305_blocks_neon,%function
 +.align	5
-+ENTRY(poly1305_blocks_neon)
++poly1305_blocks_neon:
 +	ldr	ip,[r0,#36]		@ is_base2_26
 +	ands	r2,r2,#-16
 +	beq	.Lno_data_neon
@@ -21103,7 +21382,7 @@ index 000000000000..4a0e9d451119
 +	cmp	r2,#64
 +	bhs	.Lenter_neon
 +	tst	ip,ip			@ is_base2_26?
-+	beq	.Lpoly1305_blocks_arm
++	beq	.Lpoly1305_blocks
 +
 +.Lenter_neon:
 +	stmdb	sp!,{r4-r7}
@@ -21177,12 +21456,12 @@ index 000000000000..4a0e9d451119
 +	sub		r2,r2,#16
 +	add		r4,r1,#32
 +
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	vrev32.8	q10,q10
 +	vrev32.8	q13,q13
 +	vrev32.8	q11,q11
 +	vrev32.8	q12,q12
-+#endif
++# endif
 +	vsri.u32	d28,d26,#8	@ base 2^32 -> base 2^26
 +	vshl.u32	d26,d26,#18
 +
@@ -21226,12 +21505,12 @@ index 000000000000..4a0e9d451119
 +	addhi		r7,r0,#(48+1*9*4)
 +	addhi		r6,r0,#(48+3*9*4)
 +
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	vrev32.8	q10,q10
 +	vrev32.8	q13,q13
 +	vrev32.8	q11,q11
 +	vrev32.8	q12,q12
-+#endif
++# endif
 +	vsri.u32	q14,q13,#8		@ base 2^32 -> base 2^26
 +	vshl.u32	q13,q13,#18
 +
@@ -21357,12 +21636,12 @@ index 000000000000..4a0e9d451119
 +
 +	vld4.32		{d20,d22,d24,d26},[r1]	@ inp[0:1]
 +	add		r1,r1,#64
-+#ifdef	__ARMEB__
++# ifdef	__ARMEB__
 +	vrev32.8	q10,q10
 +	vrev32.8	q11,q11
 +	vrev32.8	q12,q12
 +	vrev32.8	q13,q13
-+#endif
++# endif
 +
 +	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 +	@ lazy reduction interleaved with base 2^32 -> base 2^26 of
@@ -21577,10 +21856,11 @@ index 000000000000..4a0e9d451119
 +	ldmia	sp!,{r4-r7}
 +.Lno_data_neon:
 +	bx	lr					@ bx	lr
-+ENDPROC(poly1305_blocks_neon)
++.size	poly1305_blocks_neon,.-poly1305_blocks_neon
 +
++.type	poly1305_emit_neon,%function
 +.align	5
-+ENTRY(poly1305_emit_neon)
++poly1305_emit_neon:
 +	ldr	ip,[r0,#36]		@ is_base2_26
 +
 +	stmdb	sp!,{r4-r11}
@@ -21634,12 +21914,12 @@ index 000000000000..4a0e9d451119
 +	adcs	r5,r5,r10
 +	adc	r6,r6,r11
 +
-+#ifdef __ARMEB__
++# ifdef __ARMEB__
 +	rev	r3,r3
 +	rev	r4,r4
 +	rev	r5,r5
 +	rev	r6,r6
-+#endif
++# endif
 +	str	r3,[r1,#0]		@ store the result
 +	str	r4,[r1,#4]
 +	str	r5,[r1,#8]
@@ -21647,37 +21927,99 @@ index 000000000000..4a0e9d451119
 +
 +	ldmia	sp!,{r4-r11}
 +	bx	lr				@ bx	lr
-+ENDPROC(poly1305_emit_neon)
++.size	poly1305_emit_neon,.-poly1305_emit_neon
 +
 +.align	5
 +.Lzeros:
 +.long	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
++# ifndef __KERNEL__
++.LOPENSSL_armcap:
++.word	OPENSSL_armcap_P-.Lpoly1305_init
++# endif
 +#endif
-diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S b/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S
++.align	2
++#if	__ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
++.comm   OPENSSL_armcap_P,4,4
++#endif
+diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S_shipped b/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S_shipped
 new file mode 100644
-index 000000000000..5f4e7fb0a836
+index 000000000000..0fde2c0953f8
 --- /dev/null
-+++ b/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S
-@@ -0,0 +1,824 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-+/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-+ * Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
-+ *
-+ * This is based in part on Andy Polyakov's implementation from CRYPTOGAMS.
-+ */
++++ b/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S_shipped
+@@ -0,0 +1,914 @@
++// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
++//
++// This code is taken from the OpenSSL project but the author, Andy Polyakov,
++// has relicensed it under the licenses specified in the SPDX header above.
++// The original headers, including the original license headers, are
++// included below for completeness.
++//
++// ====================================================================
++// Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
++// project. The module is, however, dual licensed under OpenSSL and
++// CRYPTOGAMS licenses depending on where you obtain it. For further
++// details see http://www.openssl.org/~appro/cryptogams/.
++// ====================================================================
++//
++// This module implements Poly1305 hash for ARMv8.
++//
++// June 2015
++//
++// Numbers are cycles per processed byte with poly1305_blocks alone.
++//
++//		IALU/gcc-4.9	NEON
++//
++// Apple A7	1.86/+5%	0.72
++// Cortex-A53	2.69/+58%	1.47
++// Cortex-A57	2.70/+7%	1.14
++// Denver	1.64/+50%	1.18(*)
++// X-Gene	2.13/+68%	2.27
++// Mongoose	1.77/+75%	1.12
++// Kryo		2.70/+55%	1.13
++//
++// (*)	estimate based on resources availability is less than 1.0,
++//	i.e. measured result is worse than expected, presumably binary
++//	translator is not almighty;
 +
-+#include <linux/linkage.h>
++#ifndef	__KERNEL__
++# include "arm_arch.h"
++.extern	OPENSSL_armcap_P
++#else
++# define poly1305_init   poly1305_init_arm
++# define poly1305_blocks poly1305_blocks_arm
++# define poly1305_emit   poly1305_emit_arm
++#endif
++
 +.text
 +
++// forward "declarations" are required for Apple
++.globl	poly1305_blocks
++.globl	poly1305_emit
++#ifdef	__KERNEL__
++.globl	poly1305_blocks_neon
++.globl	poly1305_emit_neon
++#endif
++
++.globl	poly1305_init
++.type	poly1305_init,%function
 +.align	5
-+ENTRY(poly1305_init_arm)
++poly1305_init:
 +	cmp	x1,xzr
 +	stp	xzr,xzr,[x0]		// zero hash value
 +	stp	xzr,xzr,[x0,#16]	// [along with is_base2_26]
 +
 +	csel	x0,xzr,x0,eq
 +	b.eq	.Lno_key
++
++#ifndef	__KERNEL__
++# ifdef	__ILP32__
++	ldrsw	x11,.LOPENSSL_armcap_P
++# else
++	ldr	x11,.LOPENSSL_armcap_P
++# endif
++	adr	x10,.LOPENSSL_armcap_P
++	ldr	w17,[x10,x11]
++#endif
 +
 +	ldp	x7,x8,[x1]		// load key
 +	mov	x9,#0xfffffffc0fffffff
@@ -21691,12 +22033,34 @@ index 000000000000..5f4e7fb0a836
 +	and	x8,x8,x9		// &=0ffffffc0ffffffc
 +	stp	x7,x8,[x0,#32]	// save key value
 +
++#ifndef	__KERNEL__
++	tst	w17,#ARMV7_NEON
++
++	adr	x12,poly1305_blocks
++	adr	x7,poly1305_blocks_neon
++	adr	x13,poly1305_emit
++	adr	x8,poly1305_emit_neon
++
++	csel	x12,x12,x7,eq
++	csel	x13,x13,x8,eq
++
++# ifdef	__ILP32__
++	stp	w12,w13,[x2]
++# else
++	stp	x12,x13,[x2]
++# endif
++
++	mov	x0,#1
++#else
++	mov	x0,#0
++#endif
 +.Lno_key:
 +	ret
-+ENDPROC(poly1305_init_arm)
++.size	poly1305_init,.-poly1305_init
 +
++.type	poly1305_blocks,%function
 +.align	5
-+ENTRY(poly1305_blocks_arm)
++poly1305_blocks:
 +	ands	x2,x2,#-16
 +	b.eq	.Lno_data
 +
@@ -21756,10 +22120,11 @@ index 000000000000..5f4e7fb0a836
 +
 +.Lno_data:
 +	ret
-+ENDPROC(poly1305_blocks_arm)
++.size	poly1305_blocks,.-poly1305_blocks
 +
++.type	poly1305_emit,%function
 +.align	5
-+ENTRY(poly1305_emit_arm)
++poly1305_emit:
 +	ldp	x4,x5,[x0]		// load hash base 2^64
 +	ldr	x6,[x0,#16]
 +	ldp	x10,x11,[x2]	// load nonce
@@ -21786,8 +22151,8 @@ index 000000000000..5f4e7fb0a836
 +	stp	x4,x5,[x1]		// write result
 +
 +	ret
-+ENDPROC(poly1305_emit_arm)
-+
++.size	poly1305_emit,.-poly1305_emit
++.type	__poly1305_mult,%function
 +.align	5
 +__poly1305_mult:
 +	mul	x12,x4,x7		// h0*r0
@@ -21822,7 +22187,10 @@ index 000000000000..5f4e7fb0a836
 +	adc	x6,x6,xzr
 +
 +	ret
++.size	__poly1305_mult,.-__poly1305_mult
 +
++.type	__poly1305_splat,%function
++.align	5
 +__poly1305_splat:
 +	and	x12,x4,#0x03ffffff	// base 2^64 -> base 2^26
 +	ubfx	x13,x4,#26,#26
@@ -21846,14 +22214,15 @@ index 000000000000..5f4e7fb0a836
 +	str	w15,[x0,#16*8]	// s4
 +
 +	ret
++.size	__poly1305_splat,.-__poly1305_splat
 +
-+#ifdef CONFIG_KERNEL_MODE_NEON
++.type	poly1305_blocks_neon,%function
 +.align	5
-+ENTRY(poly1305_blocks_neon)
++poly1305_blocks_neon:
 +	ldr	x17,[x0,#24]
 +	cmp	x2,#128
 +	b.hs	.Lblocks_neon
-+	cbz	x17,poly1305_blocks_arm
++	cbz	x17,poly1305_blocks
 +
 +.Lblocks_neon:
 +	stp	x29,x30,[sp,#-80]!
@@ -22117,130 +22486,130 @@ index 000000000000..5f4e7fb0a836
 +	csel	x16,x17,x16,lo
 +	umull	v22.2d,v14.2s,v5.s[2]
 +	umull	v21.2d,v14.2s,v3.s[2]
-+	ldp	x8,x12,[x16],#16	// inp[2:3] (or zero)
++	 ldp	x8,x12,[x16],#16	// inp[2:3] (or zero)
 +	umull	v20.2d,v14.2s,v1.s[2]
-+	ldp	x9,x13,[x16],#48
++	 ldp	x9,x13,[x16],#48
 +	umull	v19.2d,v14.2s,v0.s[2]
 +#ifdef	__AARCH64EB__
-+	rev	x8,x8
-+	rev	x12,x12
-+	rev	x9,x9
-+	rev	x13,x13
++	 rev	x8,x8
++	 rev	x12,x12
++	 rev	x9,x9
++	 rev	x13,x13
 +#endif
 +
 +	umlal	v23.2d,v15.2s,v5.s[2]
-+	and	x4,x8,#0x03ffffff	// base 2^64 -> base 2^26
++	 and	x4,x8,#0x03ffffff	// base 2^64 -> base 2^26
 +	umlal	v22.2d,v15.2s,v3.s[2]
-+	and	x5,x9,#0x03ffffff
++	 and	x5,x9,#0x03ffffff
 +	umlal	v21.2d,v15.2s,v1.s[2]
-+	ubfx	x6,x8,#26,#26
++	 ubfx	x6,x8,#26,#26
 +	umlal	v20.2d,v15.2s,v0.s[2]
-+	ubfx	x7,x9,#26,#26
++	 ubfx	x7,x9,#26,#26
 +	umlal	v19.2d,v15.2s,v8.s[2]
-+	add	x4,x4,x5,lsl#32		// bfi	x4,x5,#32,#32
++	 add	x4,x4,x5,lsl#32		// bfi	x4,x5,#32,#32
 +
 +	umlal	v23.2d,v16.2s,v3.s[2]
-+	extr	x8,x12,x8,#52
++	 extr	x8,x12,x8,#52
 +	umlal	v22.2d,v16.2s,v1.s[2]
-+	extr	x9,x13,x9,#52
++	 extr	x9,x13,x9,#52
 +	umlal	v21.2d,v16.2s,v0.s[2]
-+	add	x6,x6,x7,lsl#32		// bfi	x6,x7,#32,#32
++	 add	x6,x6,x7,lsl#32		// bfi	x6,x7,#32,#32
 +	umlal	v20.2d,v16.2s,v8.s[2]
-+	fmov	d14,x4
++	 fmov	d14,x4
 +	umlal	v19.2d,v16.2s,v6.s[2]
-+	and	x8,x8,#0x03ffffff
++	 and	x8,x8,#0x03ffffff
 +
 +	umlal	v23.2d,v17.2s,v1.s[2]
-+	and	x9,x9,#0x03ffffff
++	 and	x9,x9,#0x03ffffff
 +	umlal	v22.2d,v17.2s,v0.s[2]
-+	ubfx	x10,x12,#14,#26
++	 ubfx	x10,x12,#14,#26
 +	umlal	v21.2d,v17.2s,v8.s[2]
-+	ubfx	x11,x13,#14,#26
++	 ubfx	x11,x13,#14,#26
 +	umlal	v20.2d,v17.2s,v6.s[2]
-+	add	x8,x8,x9,lsl#32		// bfi	x8,x9,#32,#32
++	 add	x8,x8,x9,lsl#32		// bfi	x8,x9,#32,#32
 +	umlal	v19.2d,v17.2s,v4.s[2]
-+	fmov	d15,x6
++	 fmov	d15,x6
 +
 +	add	v11.2s,v11.2s,v26.2s
-+	add	x12,x3,x12,lsr#40
++	 add	x12,x3,x12,lsr#40
 +	umlal	v23.2d,v18.2s,v0.s[2]
-+	add	x13,x3,x13,lsr#40
++	 add	x13,x3,x13,lsr#40
 +	umlal	v22.2d,v18.2s,v8.s[2]
-+	add	x10,x10,x11,lsl#32	// bfi	x10,x11,#32,#32
++	 add	x10,x10,x11,lsl#32	// bfi	x10,x11,#32,#32
 +	umlal	v21.2d,v18.2s,v6.s[2]
-+	add	x12,x12,x13,lsl#32	// bfi	x12,x13,#32,#32
++	 add	x12,x12,x13,lsl#32	// bfi	x12,x13,#32,#32
 +	umlal	v20.2d,v18.2s,v4.s[2]
-+	fmov	d16,x8
++	 fmov	d16,x8
 +	umlal	v19.2d,v18.2s,v2.s[2]
-+	fmov	d17,x10
++	 fmov	d17,x10
 +
 +	////////////////////////////////////////////////////////////////
 +	// (hash+inp[0:1])*r^4 and accumulate
 +
 +	add	v9.2s,v9.2s,v24.2s
-+	fmov	d18,x12
++	 fmov	d18,x12
 +	umlal	v22.2d,v11.2s,v1.s[0]
-+	ldp	x8,x12,[x1],#16	// inp[0:1]
++	 ldp	x8,x12,[x1],#16	// inp[0:1]
 +	umlal	v19.2d,v11.2s,v6.s[0]
-+	ldp	x9,x13,[x1],#48
++	 ldp	x9,x13,[x1],#48
 +	umlal	v23.2d,v11.2s,v3.s[0]
 +	umlal	v20.2d,v11.2s,v8.s[0]
 +	umlal	v21.2d,v11.2s,v0.s[0]
 +#ifdef	__AARCH64EB__
-+	rev	x8,x8
-+	rev	x12,x12
-+	rev	x9,x9
-+	rev	x13,x13
++	 rev	x8,x8
++	 rev	x12,x12
++	 rev	x9,x9
++	 rev	x13,x13
 +#endif
 +
 +	add	v10.2s,v10.2s,v25.2s
 +	umlal	v22.2d,v9.2s,v5.s[0]
 +	umlal	v23.2d,v9.2s,v7.s[0]
-+	and	x4,x8,#0x03ffffff	// base 2^64 -> base 2^26
++	 and	x4,x8,#0x03ffffff	// base 2^64 -> base 2^26
 +	umlal	v21.2d,v9.2s,v3.s[0]
-+	and	x5,x9,#0x03ffffff
++	 and	x5,x9,#0x03ffffff
 +	umlal	v19.2d,v9.2s,v0.s[0]
-+	ubfx	x6,x8,#26,#26
++	 ubfx	x6,x8,#26,#26
 +	umlal	v20.2d,v9.2s,v1.s[0]
-+	ubfx	x7,x9,#26,#26
++	 ubfx	x7,x9,#26,#26
 +
 +	add	v12.2s,v12.2s,v27.2s
-+	add	x4,x4,x5,lsl#32		// bfi	x4,x5,#32,#32
++	 add	x4,x4,x5,lsl#32		// bfi	x4,x5,#32,#32
 +	umlal	v22.2d,v10.2s,v3.s[0]
-+	extr	x8,x12,x8,#52
++	 extr	x8,x12,x8,#52
 +	umlal	v23.2d,v10.2s,v5.s[0]
-+	extr	x9,x13,x9,#52
++	 extr	x9,x13,x9,#52
 +	umlal	v19.2d,v10.2s,v8.s[0]
-+	add	x6,x6,x7,lsl#32		// bfi	x6,x7,#32,#32
++	 add	x6,x6,x7,lsl#32		// bfi	x6,x7,#32,#32
 +	umlal	v21.2d,v10.2s,v1.s[0]
-+	fmov	d9,x4
++	 fmov	d9,x4
 +	umlal	v20.2d,v10.2s,v0.s[0]
-+	and	x8,x8,#0x03ffffff
++	 and	x8,x8,#0x03ffffff
 +
 +	add	v13.2s,v13.2s,v28.2s
-+	and	x9,x9,#0x03ffffff
++	 and	x9,x9,#0x03ffffff
 +	umlal	v22.2d,v12.2s,v0.s[0]
-+	ubfx	x10,x12,#14,#26
++	 ubfx	x10,x12,#14,#26
 +	umlal	v19.2d,v12.2s,v4.s[0]
-+	ubfx	x11,x13,#14,#26
++	 ubfx	x11,x13,#14,#26
 +	umlal	v23.2d,v12.2s,v1.s[0]
-+	add	x8,x8,x9,lsl#32		// bfi	x8,x9,#32,#32
++	 add	x8,x8,x9,lsl#32		// bfi	x8,x9,#32,#32
 +	umlal	v20.2d,v12.2s,v6.s[0]
-+	fmov	d10,x6
++	 fmov	d10,x6
 +	umlal	v21.2d,v12.2s,v8.s[0]
-+	add	x12,x3,x12,lsr#40
++	 add	x12,x3,x12,lsr#40
 +
 +	umlal	v22.2d,v13.2s,v8.s[0]
-+	add	x13,x3,x13,lsr#40
++	 add	x13,x3,x13,lsr#40
 +	umlal	v19.2d,v13.2s,v2.s[0]
-+	add	x10,x10,x11,lsl#32	// bfi	x10,x11,#32,#32
++	 add	x10,x10,x11,lsl#32	// bfi	x10,x11,#32,#32
 +	umlal	v23.2d,v13.2s,v0.s[0]
-+	add	x12,x12,x13,lsl#32	// bfi	x12,x13,#32,#32
++	 add	x12,x12,x13,lsl#32	// bfi	x12,x13,#32,#32
 +	umlal	v20.2d,v13.2s,v4.s[0]
-+	fmov	d11,x8
++	 fmov	d11,x8
 +	umlal	v21.2d,v13.2s,v6.s[0]
-+	fmov	d12,x10
-+	fmov	d13,x12
++	 fmov	d12,x10
++	 fmov	d13,x12
 +
 +	/////////////////////////////////////////////////////////////////
 +	// lazy reduction as discussed in "NEON crypto" by D.J. Bernstein
@@ -22250,35 +22619,35 @@ index 000000000000..5f4e7fb0a836
 +
 +	ushr	v29.2d,v22.2d,#26
 +	xtn	v27.2s,v22.2d
-+	ushr	v30.2d,v19.2d,#26
-+	and	v19.16b,v19.16b,v31.16b
++	 ushr	v30.2d,v19.2d,#26
++	 and	v19.16b,v19.16b,v31.16b
 +	add	v23.2d,v23.2d,v29.2d	// h3 -> h4
 +	bic	v27.2s,#0xfc,lsl#24	// &=0x03ffffff
-+	add	v20.2d,v20.2d,v30.2d	// h0 -> h1
++	 add	v20.2d,v20.2d,v30.2d	// h0 -> h1
 +
 +	ushr	v29.2d,v23.2d,#26
 +	xtn	v28.2s,v23.2d
-+	ushr	v30.2d,v20.2d,#26
-+	xtn	v25.2s,v20.2d
++	 ushr	v30.2d,v20.2d,#26
++	 xtn	v25.2s,v20.2d
 +	bic	v28.2s,#0xfc,lsl#24
-+	add	v21.2d,v21.2d,v30.2d	// h1 -> h2
++	 add	v21.2d,v21.2d,v30.2d	// h1 -> h2
 +
 +	add	v19.2d,v19.2d,v29.2d
 +	shl	v29.2d,v29.2d,#2
-+	shrn	v30.2s,v21.2d,#26
-+	xtn	v26.2s,v21.2d
++	 shrn	v30.2s,v21.2d,#26
++	 xtn	v26.2s,v21.2d
 +	add	v19.2d,v19.2d,v29.2d	// h4 -> h0
-+	bic	v25.2s,#0xfc,lsl#24
-+	add	v27.2s,v27.2s,v30.2s		// h2 -> h3
-+	bic	v26.2s,#0xfc,lsl#24
++	 bic	v25.2s,#0xfc,lsl#24
++	 add	v27.2s,v27.2s,v30.2s		// h2 -> h3
++	 bic	v26.2s,#0xfc,lsl#24
 +
 +	shrn	v29.2s,v19.2d,#26
 +	xtn	v24.2s,v19.2d
-+	ushr	v30.2s,v27.2s,#26
-+	bic	v27.2s,#0xfc,lsl#24
-+	bic	v24.2s,#0xfc,lsl#24
++	 ushr	v30.2s,v27.2s,#26
++	 bic	v27.2s,#0xfc,lsl#24
++	 bic	v24.2s,#0xfc,lsl#24
 +	add	v25.2s,v25.2s,v29.2s		// h0 -> h1
-+	add	v28.2s,v28.2s,v30.2s		// h3 -> h4
++	 add	v28.2s,v28.2s,v30.2s		// h3 -> h4
 +
 +	b.hi	.Loop_neon
 +
@@ -22377,13 +22746,13 @@ index 000000000000..5f4e7fb0a836
 +	// horizontal add
 +
 +	addp	v22.2d,v22.2d,v22.2d
-+	ldp	d8,d9,[sp,#16]		// meet ABI requirements
++	 ldp	d8,d9,[sp,#16]		// meet ABI requirements
 +	addp	v19.2d,v19.2d,v19.2d
-+	ldp	d10,d11,[sp,#32]
++	 ldp	d10,d11,[sp,#32]
 +	addp	v23.2d,v23.2d,v23.2d
-+	ldp	d12,d13,[sp,#48]
++	 ldp	d12,d13,[sp,#48]
 +	addp	v20.2d,v20.2d,v20.2d
-+	ldp	d14,d15,[sp,#64]
++	 ldp	d14,d15,[sp,#64]
 +	addp	v21.2d,v21.2d,v21.2d
 +
 +	////////////////////////////////////////////////////////////////
@@ -22391,31 +22760,31 @@ index 000000000000..5f4e7fb0a836
 +
 +	ushr	v29.2d,v22.2d,#26
 +	and	v22.16b,v22.16b,v31.16b
-+	ushr	v30.2d,v19.2d,#26
-+	and	v19.16b,v19.16b,v31.16b
++	 ushr	v30.2d,v19.2d,#26
++	 and	v19.16b,v19.16b,v31.16b
 +
 +	add	v23.2d,v23.2d,v29.2d	// h3 -> h4
-+	add	v20.2d,v20.2d,v30.2d	// h0 -> h1
++	 add	v20.2d,v20.2d,v30.2d	// h0 -> h1
 +
 +	ushr	v29.2d,v23.2d,#26
 +	and	v23.16b,v23.16b,v31.16b
-+	ushr	v30.2d,v20.2d,#26
-+	and	v20.16b,v20.16b,v31.16b
-+	add	v21.2d,v21.2d,v30.2d	// h1 -> h2
++	 ushr	v30.2d,v20.2d,#26
++	 and	v20.16b,v20.16b,v31.16b
++	 add	v21.2d,v21.2d,v30.2d	// h1 -> h2
 +
 +	add	v19.2d,v19.2d,v29.2d
 +	shl	v29.2d,v29.2d,#2
-+	ushr	v30.2d,v21.2d,#26
-+	and	v21.16b,v21.16b,v31.16b
++	 ushr	v30.2d,v21.2d,#26
++	 and	v21.16b,v21.16b,v31.16b
 +	add	v19.2d,v19.2d,v29.2d	// h4 -> h0
-+	add	v22.2d,v22.2d,v30.2d	// h2 -> h3
++	 add	v22.2d,v22.2d,v30.2d	// h2 -> h3
 +
 +	ushr	v29.2d,v19.2d,#26
 +	and	v19.16b,v19.16b,v31.16b
-+	ushr	v30.2d,v22.2d,#26
-+	and	v22.16b,v22.16b,v31.16b
++	 ushr	v30.2d,v22.2d,#26
++	 and	v22.16b,v22.16b,v31.16b
 +	add	v20.2d,v20.2d,v29.2d	// h0 -> h1
-+	add	v23.2d,v23.2d,v30.2d	// h3 -> h4
++	 add	v23.2d,v23.2d,v30.2d	// h3 -> h4
 +
 +	////////////////////////////////////////////////////////////////
 +	// write the result, can be partially reduced
@@ -22426,12 +22795,13 @@ index 000000000000..5f4e7fb0a836
 +.Lno_data_neon:
 +	ldr	x29,[sp],#80
 +	ret
-+ENDPROC(poly1305_blocks_neon)
++.size	poly1305_blocks_neon,.-poly1305_blocks_neon
 +
++.type	poly1305_emit_neon,%function
 +.align	5
-+ENTRY(poly1305_emit_neon)
++poly1305_emit_neon:
 +	ldr	x17,[x0,#24]
-+	cbz	x17,poly1305_emit_arm
++	cbz	x17,poly1305_emit
 +
 +	ldp	w10,w11,[x0]		// load hash value base 2^26
 +	ldp	w12,w13,[x0,#8]
@@ -22477,12 +22847,20 @@ index 000000000000..5f4e7fb0a836
 +	stp	x4,x5,[x1]		// write result
 +
 +	ret
-+ENDPROC(poly1305_emit_neon)
++.size	poly1305_emit_neon,.-poly1305_emit_neon
 +
 +.align	5
 +.Lzeros:
 +.long	0,0,0,0,0,0,0,0
++#ifndef __KERNEL__
++.LOPENSSL_armcap_P:
++#ifdef	__ILP32__
++.long	OPENSSL_armcap_P-.
++#else
++.quad	OPENSSL_armcap_P-.
 +#endif
++#endif
++.align	2
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-donna32.c b/net/wireguard/crypto/zinc/poly1305/poly1305-donna32.c
 new file mode 100644
 index 000000000000..e342f03c21f6
@@ -23338,58 +23716,84 @@ index 000000000000..4d695eef1091
 +	/* Jump Back  */
 +	jr	$ra
 +.end poly1305_init_mips
-diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S b/net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S
+diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S_shipped b/net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S_shipped
 new file mode 100644
-index 000000000000..272a86c47bcb
+index 000000000000..e1bea51b4a70
 --- /dev/null
-+++ b/net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S
-@@ -0,0 +1,360 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
-+/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-+ * Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
-+ *
-+ * This is based in part on Andy Polyakov's implementation from CRYPTOGAMS.
-+ */
++++ b/net/wireguard/crypto/zinc/poly1305/poly1305-mips64.S_shipped
+@@ -0,0 +1,386 @@
++// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
++//
++// This code is taken from the OpenSSL project but the author, Andy Polyakov,
++// has relicensed it under the licenses specified in the SPDX header above.
++// The original headers, including the original license headers, are
++// included below for completeness.
++//
++// ====================================================================
++// Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
++// project. The module is, however, dual licensed under OpenSSL and
++// CRYPTOGAMS licenses depending on where you obtain it. For further
++// details see http://www.openssl.org/~appro/cryptogams/.
++// ====================================================================
++//
++// Poly1305 hash for MIPS64.
++//
++// May 2016
++//
++// Numbers are cycles per processed byte with poly1305_blocks alone.
++//
++//		IALU/gcc
++// R1x000	5.64/+120%	(big-endian)
++// Octeon II	3.80/+280%	(little-endian)
 +
++//#####################################################################
++// There is a number of MIPS ABI in use, O32 and N32/64 are most
++// widely used. Then there is a new contender: NUBI. It appears that if
++// one picks the latter, it's possible to arrange code in ABI neutral
++// manner. Therefore let's stick to NUBI register layout:
++//
 +#if (defined(_MIPS_ARCH_MIPS64R3) || defined(_MIPS_ARCH_MIPS64R5) || \
-+     defined(_MIPS_ARCH_MIPS64R6)) && !defined(_MIPS_ARCH_MIPS64R2)
-+#define _MIPS_ARCH_MIPS64R2
-+#endif
-+
-+#ifdef __MIPSEB__
-+#define MSB 0
-+#define LSB 7
-+#else
-+#define MSB 7
-+#define LSB 0
++     defined(_MIPS_ARCH_MIPS64R6)) \
++     && !defined(_MIPS_ARCH_MIPS64R2)
++# define _MIPS_ARCH_MIPS64R2
 +#endif
 +
 +#if defined(_MIPS_ARCH_MIPS64R6)
-+#define dmultu(rs,rt)
-+#define mflo(rd,rs,rt)	dmulu	rd,rs,rt
-+#define mfhi(rd,rs,rt)	dmuhu	rd,rs,rt
++# define dmultu(rs,rt)
++# define mflo(rd,rs,rt)	dmulu	rd,rs,rt
++# define mfhi(rd,rs,rt)	dmuhu	rd,rs,rt
 +#else
-+#define dmultu(rs,rt)		dmultu	rs,rt
-+#define multu(rs,rt)		multu	rs,rt
-+#define mflo(rd,rs,rt)	mflo	rd
-+#define mfhi(rd,rs,rt)	mfhi	rd
++# define dmultu(rs,rt)		dmultu	rs,rt
++# define mflo(rd,rs,rt)	mflo	rd
++# define mfhi(rd,rs,rt)	mfhi	rd
++#endif
++
++#ifdef	__KERNEL__
++# define poly1305_init   poly1305_init_mips
++# define poly1305_blocks poly1305_blocks_mips
++# define poly1305_emit   poly1305_emit_mips
++#endif
++
++#if defined(__MIPSEB__) && !defined(MIPSEB)
++# define MIPSEB
++#endif
++
++#ifdef MIPSEB
++# define MSB 0
++# define LSB 7
++#else
++# define MSB 7
++# define LSB 0
 +#endif
 +
 +.text
 +.set	noat
 +.set	noreorder
 +
-+/* While most of the assembly in the kernel prefers ENTRY() and ENDPROC(),
-+ * there is no existing MIPS assembly that uses it, and MIPS assembler seems
-+ * to like its own .ent/.end notation, which the MIPS include files don't
-+ * provide in a MIPS-specific ENTRY/ENDPROC definition. So, we skip these
-+ * for now, until somebody complains. */
-+
 +.align	5
-+.globl	poly1305_init_mips
-+.ent	poly1305_init_mips
-+poly1305_init_mips:
++.globl	poly1305_init
++.ent	poly1305_init
++poly1305_init:
 +	.frame	$29,0,$31
 +	.set	reorder
 +
@@ -23408,13 +23812,13 @@ index 000000000000..272a86c47bcb
 +	ldr	$8,0+LSB($5)
 +	ldr	$9,8+LSB($5)
 +#endif
-+#ifdef	__MIPSEB__
-+#if defined(_MIPS_ARCH_MIPS64R2)
++#ifdef	MIPSEB
++# if defined(_MIPS_ARCH_MIPS64R2)
 +	dsbh	$8,$8		# byte swap
 +	 dsbh	$9,$9
 +	dshd	$8,$8
 +	 dshd	$9,$9
-+#else
++# else
 +	ori	$10,$0,0xFF
 +	dsll	$1,$10,32
 +	or	$10,$1		# 0x000000FF000000FF
@@ -23448,7 +23852,7 @@ index 000000000000..272a86c47bcb
 +	 dsll	$9,32
 +	or	$8,$11
 +	 or	$9,$2
-+#endif
++# endif
 +#endif
 +	li	$10,1
 +	dsll	$10,32
@@ -23469,19 +23873,18 @@ index 000000000000..272a86c47bcb
 +.Lno_key:
 +	li	$2,0			# return 0
 +	jr	$31
-+.end	poly1305_init_mips
-+
++.end	poly1305_init
 +.align	5
-+.globl	poly1305_blocks_mips
-+.ent	poly1305_blocks_mips
-+poly1305_blocks_mips:
++.globl	poly1305_blocks
++.ent	poly1305_blocks
++poly1305_blocks:
 +	.set	noreorder
 +	dsrl	$6,4			# number of complete blocks
 +	bnez	$6,poly1305_blocks_internal
 +	nop
 +	jr	$31
 +	nop
-+.end	poly1305_blocks_mips
++.end	poly1305_blocks
 +
 +.align	5
 +.ent	poly1305_blocks_internal
@@ -23514,13 +23917,13 @@ index 000000000000..272a86c47bcb
 +#endif
 +	daddiu	$6,-1
 +	daddiu	$5,16
-+#ifdef	__MIPSEB__
-+#if defined(_MIPS_ARCH_MIPS64R2)
++#ifdef	MIPSEB
++# if defined(_MIPS_ARCH_MIPS64R2)
 +	dsbh	$8,$8		# byte swap
 +	 dsbh	$9,$9
 +	dshd	$8,$8
 +	 dshd	$9,$9
-+#else
++# else
 +	ori	$10,$0,0xFF
 +	dsll	$1,$10,32
 +	or	$10,$1		# 0x000000FF000000FF
@@ -23554,7 +23957,7 @@ index 000000000000..272a86c47bcb
 +	 dsll	$9,32
 +	or	$8,$11
 +	 or	$9,$2
-+#endif
++# endif
 +#endif
 +	daddu	$12,$8		# accumulate input
 +	daddu	$13,$9
@@ -23627,11 +24030,10 @@ index 000000000000..272a86c47bcb
 +	jr	$31
 +	daddu	$29,6*8
 +.end	poly1305_blocks_internal
-+
 +.align	5
-+.globl	poly1305_emit_mips
-+.ent	poly1305_emit_mips
-+poly1305_emit_mips:
++.globl	poly1305_emit
++.ent	poly1305_emit
++poly1305_emit:
 +	.frame	$29,0,$31
 +	.set	reorder
 +
@@ -23703,7 +24105,9 @@ index 000000000000..272a86c47bcb
 +	sb	$11,15($5)
 +
 +	jr	$31
-+.end	poly1305_emit_mips
++.end	poly1305_emit
++.rdata
++.align	2
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64-glue.c b/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64-glue.c
 new file mode 100644
 index 000000000000..0229aca9c3b2
@@ -46597,10 +47001,10 @@ index 000000000000..0325d10b1f76
 +#endif /* _WG_RATELIMITER_H */
 diff --git a/net/wireguard/receive.c b/net/wireguard/receive.c
 new file mode 100644
-index 000000000000..81140e9aa18d
+index 000000000000..5417ab91b79a
 --- /dev/null
 +++ b/net/wireguard/receive.c
-@@ -0,0 +1,604 @@
+@@ -0,0 +1,606 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46989,7 +47393,9 @@ index 000000000000..81140e9aa18d
 +	 * again in software.
 +	 */
 +	skb->ip_summed = CHECKSUM_UNNECESSARY;
++#ifndef COMPAT_CANNOT_USE_CSUM_LEVEL
 +	skb->csum_level = ~0; /* All levels */
++#endif
 +	skb->protocol = wg_skb_examine_untrusted_ip_hdr(skb);
 +	if (skb->protocol == htons(ETH_P_IP)) {
 +		len = ntohs(ip_hdr(skb)->tot_len);
