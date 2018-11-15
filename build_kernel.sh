@@ -146,6 +146,14 @@ make_kernel () {
 		echo "-----------------------------"
 		make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=${BUILD} CROSS_COMPILE="${CC}" dtbs
 		echo "-----------------------------"
+	else
+		#v4.20-rc
+		if grep -q dtbs_install "${DIR}/KERNEL/Makefile"; then
+			echo "make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=${BUILD} CROSS_COMPILE=\"${CC}\" dtbs"
+			echo "-----------------------------"
+			make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=${BUILD} CROSS_COMPILE="${CC}" dtbs
+			echo "-----------------------------"
+		fi
 	fi
 
 	KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
