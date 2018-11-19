@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2017 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2018 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -132,9 +132,6 @@ make_pkg () {
 	modules)
 		make -s ARCH=${KERNEL_ARCH} LOCALVERSION=${BUILD} CROSS_COMPILE="${CC}" modules_install INSTALL_MOD_PATH="${DIR}/deploy/tmp"
 		;;
-	firmware)
-		make -s ARCH=${KERNEL_ARCH} LOCALVERSION=${BUILD} CROSS_COMPILE="${CC}" firmware_install INSTALL_FW_PATH="${DIR}/deploy/tmp"
-		;;
 	dtbs)
 		make -s ARCH=${KERNEL_ARCH} LOCALVERSION=${BUILD} CROSS_COMPILE="${CC}" dtbs_install INSTALL_DTBS_PATH="${DIR}/deploy/tmp"
 		;;
@@ -157,11 +154,6 @@ make_pkg () {
 
 make_modules_pkg () {
 	pkg="modules"
-	make_pkg
-}
-
-make_firmware_pkg () {
-	pkg="firmware"
 	make_pkg
 }
 
@@ -225,10 +217,6 @@ if [  -f "${DIR}/.yakbuild" ] ; then
 fi
 make_kernel
 make_modules_pkg
-if [ -f "${DIR}/KERNEL/scripts/Makefile.fwinst" ] ; then
-	#Finally nuked in v4.14.0-rc0 merge...
-	make_firmware_pkg
-fi
 make_dtbs_pkg
 echo "-----------------------------"
 echo "Script Complete"
