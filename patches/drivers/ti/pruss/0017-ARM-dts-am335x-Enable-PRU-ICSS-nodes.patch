@@ -1,0 +1,85 @@
+From ee7faafb1a3012e42a41979e55fa3510875e3853 Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Thu, 22 Nov 2018 13:39:13 +0200
+Subject: [PATCH 17/17] ARM: dts: am335x-*: Enable PRU-ICSS nodes
+
+The PRU-ICSS processor bus node and subsystem nodes were left in
+disabled state in the base am33xx.dtsi file. PRU-ICSS is supported
+on these AM335x boards so enable the PRUSS node.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ arch/arm/boot/dts/am335x-bone-common.dtsi | 8 ++++++++
+ arch/arm/boot/dts/am335x-evm.dts          | 8 ++++++++
+ arch/arm/boot/dts/am335x-evmsk.dts        | 8 ++++++++
+ arch/arm/boot/dts/am335x-icev2.dts        | 8 ++++++++
+ 4 files changed, 32 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 9e5e75ea87f5..ea0e8693f979 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -422,3 +422,11 @@
+ 	clocks = <&clk_32768_ck>, <&l4_per_clkctrl AM3_CLKDIV32K_CLKCTRL 0>;
+ 	clock-names = "ext-clk", "int-clk";
+ };
++
++&pruss_soc_bus {
++	status = "okay";
++
++	pruss: pruss@4a300000 {
++		status = "okay";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
+index 98ec9c3e49ba..0e071601ff8b 100644
+--- a/arch/arm/boot/dts/am335x-evm.dts
++++ b/arch/arm/boot/dts/am335x-evm.dts
+@@ -800,3 +800,11 @@
+ 	clocks = <&clk_32768_ck>, <&l4_per_clkctrl AM3_CLKDIV32K_CLKCTRL 0>;
+ 	clock-names = "ext-clk", "int-clk";
+ };
++
++&pruss_soc_bus {
++	status = "okay";
++
++	pruss: pruss@4a300000 {
++		status = "okay";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-evmsk.dts b/arch/arm/boot/dts/am335x-evmsk.dts
+index 245868f58fe3..f152c15739ea 100644
+--- a/arch/arm/boot/dts/am335x-evmsk.dts
++++ b/arch/arm/boot/dts/am335x-evmsk.dts
+@@ -741,3 +741,11 @@
+ 	clocks = <&clk_32768_ck>, <&l4_per_clkctrl AM3_CLKDIV32K_CLKCTRL 0>;
+ 	clock-names = "ext-clk", "int-clk";
+ };
++
++&pruss_soc_bus {
++	status = "okay";
++
++	pruss: pruss@4a300000 {
++		status = "okay";
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-icev2.dts b/arch/arm/boot/dts/am335x-icev2.dts
+index f2005ecca74f..7d2fff2e992c 100644
+--- a/arch/arm/boot/dts/am335x-icev2.dts
++++ b/arch/arm/boot/dts/am335x-icev2.dts
+@@ -504,3 +504,11 @@
+ 		reg = <3>;
+ 	};
+ };
++
++&pruss_soc_bus {
++	status = "okay";
++
++	pruss: pruss@4a300000 {
++		status = "okay";
++	};
++};
+-- 
+2.19.1
+

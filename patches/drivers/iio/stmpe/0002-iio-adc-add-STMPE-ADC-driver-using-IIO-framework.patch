@@ -1,6 +1,6 @@
-From b5828e92fe52b8cbdb20b934e648fbce4a6c9efa Mon Sep 17 00:00:00 2001
+From 0befb1a2d055e9d246dc2a168ee9d50a4fa98875 Mon Sep 17 00:00:00 2001
 From: Stefan Agner <stefan@agner.ch>
-Date: Mon, 19 Nov 2018 11:25:26 +0100
+Date: Fri, 23 Nov 2018 15:24:09 +0100
 Subject: [PATCH 2/3] iio: adc: add STMPE ADC driver using IIO framework
 
 This adds an ADC driver for the STMPE device using the industrial
@@ -14,16 +14,16 @@ Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
 ---
  drivers/iio/adc/Kconfig              |   7 +
  drivers/iio/adc/Makefile             |   1 +
- drivers/iio/adc/stmpe-adc.c          | 340 +++++++++++++++++++++++++++
- drivers/input/touchscreen/stmpe-ts.c |  43 +---
+ drivers/iio/adc/stmpe-adc.c          | 326 +++++++++++++++++++++++++++
+ drivers/input/touchscreen/stmpe-ts.c |  36 +--
  drivers/mfd/Kconfig                  |   3 +-
- drivers/mfd/stmpe.c                  |  84 +++++++
- include/linux/mfd/stmpe.h            |   6 +
- 7 files changed, 445 insertions(+), 39 deletions(-)
+ drivers/mfd/stmpe.c                  |  81 +++++++
+ include/linux/mfd/stmpe.h            |   9 +
+ 7 files changed, 437 insertions(+), 26 deletions(-)
  create mode 100644 drivers/iio/adc/stmpe-adc.c
 
 diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index a52fea8749a9..5d4c061d8296 100644
+index a52fea8749a9..224f2067494d 100644
 --- a/drivers/iio/adc/Kconfig
 +++ b/drivers/iio/adc/Kconfig
 @@ -734,6 +734,13 @@ config STM32_DFSDM_ADC
@@ -32,7 +32,7 @@ index a52fea8749a9..5d4c061d8296 100644
  
 +config STMPE_ADC
 +	tristate "STMicroelectronics STMPE ADC driver"
-+	depends on (OF || COMPILE_TEST || MFD_STMPE)
++	depends on OF && MFD_STMPE
 +	help
 +	  Say yes here to build support for ST Microelectronics STMPE
 +	  built-in ADC block (stmpe811).
@@ -54,10 +54,10 @@ index a6e6a0b659e2..cba889c30bf9 100644
  obj-$(CONFIG_TI_ADC084S021) += ti-adc084s021.o
 diff --git a/drivers/iio/adc/stmpe-adc.c b/drivers/iio/adc/stmpe-adc.c
 new file mode 100644
-index 000000000000..151f1c8f827e
+index 000000000000..bea3f3c27bb5
 --- /dev/null
 +++ b/drivers/iio/adc/stmpe-adc.c
-@@ -0,0 +1,340 @@
+@@ -0,0 +1,326 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + *  STMicroelectronics STMPE811 IIO ADC Driver
@@ -114,7 +114,6 @@ index 000000000000..151f1c8f827e
 +
 +	u8 channel;
 +	u32 value;
-+	u32 norequest_mask;
 +};
 +
 +static int stmpe_read_raw(struct iio_dev *indio_dev,
@@ -271,28 +270,12 @@ index 000000000000..151f1c8f827e
 +	return 0;
 +}
 +
-+static void stmpe_adc_get_platform_info(struct platform_device *pdev,
-+					struct stmpe_adc *adc)
-+{
-+	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
-+	struct device_node *np = pdev->dev.of_node;
-+	u32 val;
-+
-+	adc->stmpe = stmpe;
-+
-+	if (!np) {
-+		dev_err(&pdev->dev, "no device tree node found\n");
-+		return;
-+	}
-+
-+	if (!of_property_read_u32(np, "st,norequest-mask", &val))
-+		adc->norequest_mask = val;
-+}
-+
 +static int stmpe_adc_probe(struct platform_device *pdev)
 +{
 +	struct iio_dev *indio_dev = NULL;
 +	struct stmpe_adc *info = NULL;
++	struct device_node *np;
++	u32 norequest_mask = 0;
 +	int irq_temp, irq_adc;
 +	int num_chan = 0;
 +	int i = 0;
@@ -337,9 +320,16 @@ index 000000000000..151f1c8f827e
 +	indio_dev->info		= &stmpe_adc_iio_info;
 +	indio_dev->modes	= INDIO_DIRECT_MODE;
 +
-+	stmpe_adc_get_platform_info(pdev, info);
++	info->stmpe = dev_get_drvdata(pdev->dev.parent);
 +
-+	for_each_clear_bit(i, (unsigned long *) &info->norequest_mask,
++	np = pdev->dev.of_node;
++
++	if (!np)
++		dev_err(&pdev->dev, "no device tree node found\n");
++
++	of_property_read_u32(np, "st,norequest-mask", &norequest_mask);
++
++	for_each_clear_bit(i, (unsigned long *) &norequest_mask,
 +			   (STMPE_ADC_LAST_NR + 1)) {
 +		stmpe_adc_voltage_chan(&info->stmpe_adc_iio_channels[num_chan], i);
 +		num_chan++;
@@ -353,11 +343,7 @@ index 000000000000..151f1c8f827e
 +	if (ret)
 +		return ret;
 +
-+	ret = iio_device_register(indio_dev);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
++	return iio_device_register(indio_dev);
 +}
 +
 +static int stmpe_adc_remove(struct platform_device *pdev)
@@ -399,7 +385,7 @@ index 000000000000..151f1c8f827e
 +MODULE_LICENSE("GPL v2");
 +MODULE_ALIAS("platform:stmpe-adc");
 diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-index c5d9006588a2..31d157032f4a 100644
+index c5d9006588a2..81aa313d6e5a 100644
 --- a/drivers/input/touchscreen/stmpe-ts.c
 +++ b/drivers/input/touchscreen/stmpe-ts.c
 @@ -30,8 +30,6 @@
@@ -411,7 +397,23 @@ index c5d9006588a2..31d157032f4a 100644
  #define STMPE_REG_TSC_CTRL		0x40
  #define STMPE_REG_TSC_CFG		0x41
  #define STMPE_REG_FIFO_TH		0x4A
-@@ -88,10 +86,6 @@ struct stmpe_touch {
+@@ -58,15 +56,6 @@
+  * @idev: registered input device
+  * @work: a work item used to scan the device
+  * @dev: a pointer back to the MFD cell struct device*
+- * @sample_time: ADC converstion time in number of clock.
+- * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
+- * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
+- * recommended is 4.
+- * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
+- * @ref_sel: ADC reference source
+- * (0 -> internal reference, 1 -> external reference)
+- * @adc_freq: ADC Clock speed
+- * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
+  * @ave_ctrl: Sample average control
+  * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
+  * @touch_det_delay: Touch detect interrupt delay
+@@ -88,10 +77,6 @@ struct stmpe_touch {
  	struct input_dev *idev;
  	struct delayed_work work;
  	struct device *dev;
@@ -422,7 +424,7 @@ index c5d9006588a2..31d157032f4a 100644
  	u8 ave_ctrl;
  	u8 touch_det_delay;
  	u8 settling;
-@@ -176,7 +170,7 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
+@@ -176,7 +161,7 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
  	input_report_key(ts->idev, BTN_TOUCH, 1);
  	input_sync(ts->idev);
  
@@ -431,79 +433,48 @@ index c5d9006588a2..31d157032f4a 100644
  	__stmpe_reset_fifo(ts->stmpe);
  
  	/* reenable the tsc */
-@@ -192,7 +186,7 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
- static int stmpe_init_hw(struct stmpe_touch *ts)
- {
- 	int ret;
--	u8 adc_ctrl1, adc_ctrl1_mask, tsc_cfg, tsc_cfg_mask;
-+	u8 tsc_cfg, tsc_cfg_mask;
- 	struct stmpe *stmpe = ts->stmpe;
- 	struct device *dev = ts->dev;
- 
-@@ -202,25 +196,6 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
+@@ -202,20 +187,21 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
  		return ret;
  	}
  
 -	adc_ctrl1 = STMPE_SAMPLE_TIME(ts->sample_time) |
 -		    STMPE_MOD_12B(ts->mod_12b) | STMPE_REF_SEL(ts->ref_sel);
--	adc_ctrl1_mask = STMPE_SAMPLE_TIME(0xff) | STMPE_MOD_12B(0xff) |
--			 STMPE_REF_SEL(0xff);
--
++	adc_ctrl1 = STMPE_SAMPLE_TIME(stmpe->sample_time) |
++		    STMPE_MOD_12B(stmpe->mod_12b) |
++		    STMPE_REF_SEL(stmpe->ref_sel);
+ 	adc_ctrl1_mask = STMPE_SAMPLE_TIME(0xff) | STMPE_MOD_12B(0xff) |
+ 			 STMPE_REF_SEL(0xff);
+ 
 -	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL1,
--			adc_ctrl1_mask, adc_ctrl1);
--	if (ret) {
--		dev_err(dev, "Could not setup ADC\n");
--		return ret;
--	}
--
++	ret = stmpe_set_bits(stmpe, STMPE811_REG_ADC_CTRL1,
+ 			adc_ctrl1_mask, adc_ctrl1);
+ 	if (ret) {
+ 		dev_err(dev, "Could not setup ADC\n");
+ 		return ret;
+ 	}
+ 
 -	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL2,
 -			STMPE_ADC_FREQ(0xff), STMPE_ADC_FREQ(ts->adc_freq));
--	if (ret) {
--		dev_err(dev, "Could not setup ADC\n");
--		return ret;
--	}
--
- 	tsc_cfg = STMPE_AVE_CTRL(ts->ave_ctrl) |
- 		  STMPE_DET_DELAY(ts->touch_det_delay) |
- 		  STMPE_SETTLING(ts->settling);
-@@ -234,14 +209,14 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
- 	}
- 
- 	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_FRACTION_Z,
--			STMPE_FRACTION_Z(0xff), STMPE_FRACTION_Z(ts->fraction_z));
-+		STMPE_FRACTION_Z(0xff), STMPE_FRACTION_Z(ts->fraction_z));
++	ret = stmpe_set_bits(stmpe, STMPE811_REG_ADC_CTRL2,
++			STMPE_ADC_FREQ(0xff), STMPE_ADC_FREQ(stmpe->adc_freq));
  	if (ret) {
- 		dev_err(dev, "Could not config touch\n");
+ 		dev_err(dev, "Could not setup ADC\n");
  		return ret;
- 	}
- 
- 	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_I_DRIVE,
--			STMPE_I_DRIVE(0xff), STMPE_I_DRIVE(ts->i_drive));
-+		STMPE_I_DRIVE(0xff), STMPE_I_DRIVE(ts->i_drive));
- 	if (ret) {
- 		dev_err(dev, "Could not config touch\n");
- 		return ret;
-@@ -255,7 +230,7 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
- 	}
- 
- 	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_CTRL,
--			STMPE_OP_MODE(0xff), STMPE_OP_MODE(OP_MOD_XYZ));
-+		STMPE_OP_MODE(0xff), STMPE_OP_MODE(OP_MOD_XYZ));
- 	if (ret) {
- 		dev_err(dev, "Could not set mode\n");
- 		return ret;
-@@ -294,14 +269,6 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
- 	u32 val;
+@@ -295,13 +281,13 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
  
  	if (np) {
--		if (!of_property_read_u32(np, "st,sample-time", &val))
+ 		if (!of_property_read_u32(np, "st,sample-time", &val))
 -			ts->sample_time = val;
--		if (!of_property_read_u32(np, "st,mod-12b", &val))
++			ts->stmpe->sample_time = val;
+ 		if (!of_property_read_u32(np, "st,mod-12b", &val))
 -			ts->mod_12b = val;
--		if (!of_property_read_u32(np, "st,ref-sel", &val))
++			ts->stmpe->mod_12b = val;
+ 		if (!of_property_read_u32(np, "st,ref-sel", &val))
 -			ts->ref_sel = val;
--		if (!of_property_read_u32(np, "st,adc-freq", &val))
++			ts->stmpe->ref_sel = val;
+ 		if (!of_property_read_u32(np, "st,adc-freq", &val))
 -			ts->adc_freq = val;
++			ts->stmpe->adc_freq = val;
  		if (!of_property_read_u32(np, "st,ave-ctrl", &val))
  			ts->ave_ctrl = val;
  		if (!of_property_read_u32(np, "st,touch-det-delay", &val))
@@ -529,20 +500,10 @@ index 8c5dfdce4326..bba159e8eaa4 100644
  menu "STMicroelectronics STMPE Interface Drivers"
  depends on MFD_STMPE
 diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
-index 566caca4efd8..eab3d33e4093 100644
+index 566caca4efd8..35390d1c2e64 100644
 --- a/drivers/mfd/stmpe.c
 +++ b/drivers/mfd/stmpe.c
-@@ -23,6 +23,9 @@
- #include <linux/regulator/consumer.h>
- #include "stmpe.h"
- 
-+#define STMPE_REG_ADC_CTRL1	0x20
-+#define STMPE_REG_ADC_CTRL2	0x21
-+
- /**
-  * struct stmpe_platform_data - STMPE platform data
-  * @id: device id to distinguish between multiple STMPEs on the same board
-@@ -463,6 +466,28 @@ static const struct mfd_cell stmpe_ts_cell = {
+@@ -463,6 +463,28 @@ static const struct mfd_cell stmpe_ts_cell = {
  	.num_resources	= ARRAY_SIZE(stmpe_ts_resources),
  };
  
@@ -571,7 +532,7 @@ index 566caca4efd8..eab3d33e4093 100644
  /*
   * STMPE811 or STMPE610
   */
-@@ -497,6 +522,11 @@ static struct stmpe_variant_block stmpe811_blocks[] = {
+@@ -497,6 +519,11 @@ static struct stmpe_variant_block stmpe811_blocks[] = {
  		.irq	= STMPE811_IRQ_TOUCH_DET,
  		.block	= STMPE_BLOCK_TOUCHSCREEN,
  	},
@@ -583,7 +544,7 @@ index 566caca4efd8..eab3d33e4093 100644
  };
  
  static int stmpe811_enable(struct stmpe *stmpe, unsigned int blocks,
-@@ -517,6 +547,44 @@ static int stmpe811_enable(struct stmpe *stmpe, unsigned int blocks,
+@@ -517,6 +544,44 @@ static int stmpe811_enable(struct stmpe *stmpe, unsigned int blocks,
  				enable ? 0 : mask);
  }
  
@@ -604,14 +565,14 @@ index 566caca4efd8..eab3d33e4093 100644
 +	adc_ctrl1_mask = STMPE_SAMPLE_TIME(0xff) | STMPE_MOD_12B(0xff) |
 +			 STMPE_REF_SEL(0xff);
 +
-+	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL1,
++	ret = stmpe_set_bits(stmpe, STMPE811_REG_ADC_CTRL1,
 +			adc_ctrl1_mask, adc_ctrl1);
 +	if (ret) {
 +		dev_err(stmpe->dev, "Could not setup ADC\n");
 +		goto err_adc;
 +	}
 +
-+	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL2,
++	ret = stmpe_set_bits(stmpe, STMPE811_REG_ADC_CTRL2,
 +			STMPE_ADC_FREQ(0xff), STMPE_ADC_FREQ(stmpe->adc_freq));
 +	if (ret) {
 +		dev_err(stmpe->dev, "Could not setup ADC\n");
@@ -628,11 +589,11 @@ index 566caca4efd8..eab3d33e4093 100644
  static int stmpe811_get_altfunc(struct stmpe *stmpe, enum stmpe_block block)
  {
  	/* 0 for touchscreen, 1 for GPIO */
-@@ -1235,6 +1303,12 @@ static int stmpe_chip_init(struct stmpe *stmpe)
+@@ -1235,6 +1300,12 @@ static int stmpe_chip_init(struct stmpe *stmpe)
  			return ret;
  	}
  
-+	if (id == STMPE610 || id == STMPE811) {
++	if (id == STMPE811_ID) {
 +		ret = stmpe811_init_adc(stmpe);
 +		if (ret)
 +			return ret;
@@ -641,7 +602,7 @@ index 566caca4efd8..eab3d33e4093 100644
  	return stmpe_reg_write(stmpe, stmpe->regs[STMPE_IDX_ICR_LSB], icr);
  }
  
-@@ -1325,6 +1399,7 @@ int stmpe_probe(struct stmpe_client_info *ci, enum stmpe_partnum partnum)
+@@ -1325,6 +1396,7 @@ int stmpe_probe(struct stmpe_client_info *ci, enum stmpe_partnum partnum)
  	struct device_node *np = ci->dev->of_node;
  	struct stmpe *stmpe;
  	int ret;
@@ -649,7 +610,7 @@ index 566caca4efd8..eab3d33e4093 100644
  
  	pdata = devm_kzalloc(ci->dev, sizeof(*pdata), GFP_KERNEL);
  	if (!pdata)
-@@ -1342,6 +1417,15 @@ int stmpe_probe(struct stmpe_client_info *ci, enum stmpe_partnum partnum)
+@@ -1342,6 +1414,15 @@ int stmpe_probe(struct stmpe_client_info *ci, enum stmpe_partnum partnum)
  	mutex_init(&stmpe->irq_lock);
  	mutex_init(&stmpe->lock);
  
@@ -666,10 +627,20 @@ index 566caca4efd8..eab3d33e4093 100644
  	stmpe->client = ci->client;
  	stmpe->pdata = pdata;
 diff --git a/include/linux/mfd/stmpe.h b/include/linux/mfd/stmpe.h
-index c0353f6431f9..4e3f6ff60408 100644
+index c0353f6431f9..86dca9e9880a 100644
 --- a/include/linux/mfd/stmpe.h
 +++ b/include/linux/mfd/stmpe.h
-@@ -134,6 +134,12 @@ struct stmpe {
+@@ -21,6 +21,9 @@
+ #define STMPE_I_DRIVE(x)	(x & 0x1)
+ #define STMPE_OP_MODE(x)	((x & 0x7) << 1)
+ 
++#define STMPE811_REG_ADC_CTRL1	0x20
++#define STMPE811_REG_ADC_CTRL2	0x21
++
+ struct device;
+ struct regulator;
+ 
+@@ -134,6 +137,12 @@ struct stmpe {
  	u8 ier[2];
  	u8 oldier[2];
  	struct stmpe_platform_data *pdata;

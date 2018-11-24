@@ -1,0 +1,49 @@
+From 3b43d4d2b978a25ff8b4206a4f44c7e7004969e0 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sat, 24 Nov 2018 14:00:01 -0600
+Subject: [PATCH 6/6] ARM: dts: am335x-boneblack-common: remove CEC noise
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am335x-boneblack-common.dtsi | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/arch/arm/boot/dts/am335x-boneblack-common.dtsi b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
+index e543c2bee8c2..4413a0afacd6 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-common.dtsi
++++ b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
+@@ -30,7 +30,6 @@
+ &am33xx_pinmux {
+ 	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
+ 		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
+ 			AM33XX_IOPAD(0x8a0, PIN_OUTPUT | MUX_MODE0)		/* lcd_data0.lcd_data0 */
+ 			AM33XX_IOPAD(0x8a4, PIN_OUTPUT | MUX_MODE0)		/* lcd_data1.lcd_data1 */
+ 			AM33XX_IOPAD(0x8a8, PIN_OUTPUT | MUX_MODE0)		/* lcd_data2.lcd_data2 */
+@@ -54,12 +53,6 @@
+ 		>;
+ 	};
+ 
+-	nxp_hdmi_bonelt_off_pins: nxp_hdmi_bonelt_off_pins {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
+-		>;
+-	};
+-
+ 	mcasp0_pins: mcasp0_pins {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x9ac, PIN_INPUT_PULLUP | MUX_MODE0) /* mcasp0_ahcklx.mcasp0_ahclkx */
+@@ -95,9 +88,8 @@
+ 		nxp,calib-gpios = <&gpio1 25 0>;
+ 		interrupts-extended = <&gpio1 25 IRQ_TYPE_LEVEL_LOW>;
+ 
+-		pinctrl-names = "default", "off";
++		pinctrl-names = "default";
+ 		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
+-		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
+ 
+ 		/* Convert 24bit BGR to RGB, e.g. cross red and blue wiring */
+ 		/* video-ports = <0x234501>; */
+-- 
+2.19.1
+

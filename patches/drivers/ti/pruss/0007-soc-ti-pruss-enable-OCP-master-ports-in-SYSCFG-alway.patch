@@ -1,0 +1,64 @@
+From 93aa5ebc67d510d0278265d7557ba804c08384e6 Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Thu, 22 Nov 2018 13:39:03 +0200
+Subject: [PATCH 07/17] soc: ti: pruss: enable OCP master ports in SYSCFG
+ always
+
+The PRUSS CFG module's SYSCFG register is used for managing the
+PRCM clock management settings at the PRU-ICSS subsystem level,
+and is being programmed for the PRCM Idle/Standby protocol properly
+during probe and remove. The register is also programmed to enable
+the OCP master ports (disable MStandby) by default during probe now
+to allow the PRUs access to on-chip memories and peripherals outside
+the PRUSS without having to do it in firmware (primarily for the PRU
+Ethernet usecase currently, the firmware is not programming this
+register).
+
+NOTE:
+1. The AM57xx TRM suggests to enable "No Standby" during the
+   Idle + Standby state to an Active/Normal state, but this
+   sequence is not documented in either of AM33xx and AM437x
+   SoCs. Furthermore, it did not have an impact on the working
+   of Ethernet Rx, so is left out.
+2. This has an impact on the PM suspend/resume operation usually
+   (same bit is used to trigger PRU standby), and even when the
+   PRU cores are in halted state. The STANDBY_INIT has to be
+   re-programmed to initiate a standby sequence and have the PM
+   suspend/resume functional when PRUs are halted. This is already
+   handled in commit b7e68ab66385 ("remoteproc/pruss_soc: fix system
+   suspend/MStandby config issues").
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/soc/ti/pruss_soc_bus.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/soc/ti/pruss_soc_bus.c b/drivers/soc/ti/pruss_soc_bus.c
+index 46dfb7ae5b45..f477168e5cb2 100644
+--- a/drivers/soc/ti/pruss_soc_bus.c
++++ b/drivers/soc/ti/pruss_soc_bus.c
+@@ -67,8 +67,7 @@ static inline void pruss_soc_bus_rmw(void __iomem *reg, u32 mask, u32 set)
+  * outside of the PRU-ICSS. The function has to wait for the PRCM to
+  * acknowledge through the monitoring of the PRUSS_SYSCFG.SUB_MWAIT bit.
+  */
+-static
+-int __maybe_unused pruss_soc_bus_enable_ocp_master_ports(struct device *dev)
++static int pruss_soc_bus_enable_ocp_master_ports(struct device *dev)
+ {
+ 	struct pruss_soc_bus *psoc_bus = dev_get_drvdata(dev);
+ 	u32 syscfg_val, i;
+@@ -160,6 +159,11 @@ static int pruss_enable_module(struct device *dev)
+ 	pruss_soc_bus_rmw(psoc_bus->syscfg, SYSCFG_STANDBY_MODE_MASK,
+ 			  SYSCFG_STANDBY_MODE_SMART);
+ 
++	/* enable OCP master ports/disable MStandby */
++	ret = pruss_soc_bus_enable_ocp_master_ports(dev);
++	if (ret)
++		pruss_disable_module(dev);
++
+ 	return ret;
+ }
+ 
+-- 
+2.19.1
+
