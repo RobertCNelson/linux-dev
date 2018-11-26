@@ -1,0 +1,208 @@
+From bc88a2ae611735c269ebc07349b2db463af57033 Mon Sep 17 00:00:00 2001
+From: Tero Kristo <t-kristo@ti.com>
+Date: Mon, 26 Nov 2018 09:52:42 +0200
+Subject: [PATCH 09/16] remoteproc/pru: add APIs to get and put the PRU cores
+
+Add two new APIs, pru_rproc_get() and pru_rproc_put(), to the PRU
+driver to allow client drivers to acquire and release the remoteproc
+device associated with a PRU core. The PRU cores are treated as
+resources with only one client owning it at a time.
+
+The pru_rproc_get() function returns the rproc handle corresponding
+to a PRU core identified by the device tree "prus" property under
+the client node. The pru_rproc_put() is the complementary function
+to pru_rproc_get().
+
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+[s-anna@ti.com: improve error checking, various fixes and cleanups]
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/remoteproc/pru_rproc.c | 112 +++++++++++++++++++++++++++++++++
+ include/linux/pruss.h          |   9 +++
+ 2 files changed, 121 insertions(+)
+
+diff --git a/drivers/remoteproc/pru_rproc.c b/drivers/remoteproc/pru_rproc.c
+index fa3559b78ed6..2aa05b00a53f 100644
+--- a/drivers/remoteproc/pru_rproc.c
++++ b/drivers/remoteproc/pru_rproc.c
+@@ -57,6 +57,7 @@ enum pru_mem {
+  * @id: id of the PRU core within the PRUSS
+  * @pruss: back-reference to parent PRUSS structure
+  * @rproc: remoteproc pointer for this PRU core
++ * @client_np: client device node
+  * @mbox: mailbox channel handle used for vring signalling with MPU
+  * @client: mailbox client to request the mailbox channel
+  * @irq_ring: IRQ number to use for processing vring buffers
+@@ -71,6 +72,7 @@ enum pru_mem {
+  * @sdram_da: device address of secondary Data RAM for this PRU
+  * @shrdram_da: device address of shared Data RAM
+  * @fw_name: name of firmware image used during loading
++ * @lock: mutex to protect client usage
+  * @dbg_single_step: debug state variable to set PRU into single step mode
+  * @dbg_continuous: debug state variable to restore PRU execution mode
+  */
+@@ -78,6 +80,7 @@ struct pru_rproc {
+ 	int id;
+ 	struct pruss *pruss;
+ 	struct rproc *rproc;
++	struct device_node *client_np;
+ 	struct mbox_chan *mbox;
+ 	struct mbox_client client;
+ 	int irq_vring;
+@@ -92,6 +95,7 @@ struct pru_rproc {
+ 	u32 sdram_da;
+ 	u32 shrdram_da;
+ 	const char *fw_name;
++	struct mutex lock; /* client access lock */
+ 	u32 dbg_single_step;
+ 	u32 dbg_continuous;
+ };
+@@ -126,6 +130,113 @@ void pru_control_set_reg(struct pru_rproc *pru, unsigned int reg,
+ 	spin_unlock_irqrestore(&pru->rmw_lock, flags);
+ }
+ 
++static struct rproc *__pru_rproc_get(struct device_node *np, int index)
++{
++	struct device_node *rproc_np = NULL;
++	struct platform_device *pdev;
++	struct rproc *rproc;
++
++	rproc_np = of_parse_phandle(np, "prus", index);
++	if (!rproc_np || !of_device_is_available(rproc_np))
++		return ERR_PTR(-ENODEV);
++
++	pdev = of_find_device_by_node(rproc_np);
++	of_node_put(rproc_np);
++
++	if (!pdev)
++		/* probably PRU not yet probed */
++		return ERR_PTR(-EPROBE_DEFER);
++
++	/* TODO: replace the crude string based check to make sure it is PRU */
++	if (!strstr(dev_name(&pdev->dev), "pru")) {
++		put_device(&pdev->dev);
++		return ERR_PTR(-ENODEV);
++	}
++
++	rproc = platform_get_drvdata(pdev);
++	put_device(&pdev->dev);
++	if (!rproc)
++		return ERR_PTR(-EPROBE_DEFER);
++
++	get_device(&rproc->dev);
++
++	return rproc;
++}
++
++/**
++ * pru_rproc_get() - get the PRU rproc instance from a device node
++ * @np: the user/client device node
++ * @index: index to use for the prus property
++ *
++ * This function looks through a client device node's "prus" property at index
++ * @index and returns the rproc handle for a valid PRU remote processor if
++ * found. The function allows only one user to own the PRU rproc resource at
++ * a time. Caller must call pru_rproc_put() when done with using the rproc,
++ * not required if the function returns a failure.
++ *
++ * Returns the rproc handle on success, and an ERR_PTR on failure using one
++ * of the following error values
++ *    -ENODEV if device is not found
++ *    -EBUSY if PRU is already acquired by anyone
++ *    -EPROBE_DEFER is PRU device is not probed yet
++ */
++struct rproc *pru_rproc_get(struct device_node *np, int index)
++{
++	struct rproc *rproc;
++	struct pru_rproc *pru;
++
++	rproc = __pru_rproc_get(np, index);
++	if (IS_ERR(rproc))
++		return rproc;
++
++	pru = rproc->priv;
++
++	mutex_lock(&pru->lock);
++
++	if (pru->client_np) {
++		mutex_unlock(&pru->lock);
++		put_device(&rproc->dev);
++		return ERR_PTR(-EBUSY);
++	}
++
++	pru->client_np = np;
++
++	mutex_unlock(&pru->lock);
++
++	return rproc;
++}
++EXPORT_SYMBOL_GPL(pru_rproc_get);
++
++/**
++ * pru_rproc_put() - release the PRU rproc resource
++ * @rproc: the rproc resource to release
++ *
++ * Releases the PRU rproc resource and makes it available to other
++ * users.
++ */
++void pru_rproc_put(struct rproc *rproc)
++{
++	struct pru_rproc *pru;
++
++	if (IS_ERR_OR_NULL(rproc))
++		return;
++
++	/* TODO: replace the crude string based check to make sure it is PRU */
++	if (!strstr(dev_name(rproc->dev.parent), "pru"))
++		return;
++
++	pru = rproc->priv;
++	if (!pru->client_np)
++		return;
++
++	mutex_lock(&pru->lock);
++	pru->client_np = NULL;
++	mutex_unlock(&pru->lock);
++
++	put_device(&rproc->dev);
++}
++EXPORT_SYMBOL_GPL(pru_rproc_put);
++
+ /**
+  * pru_rproc_set_ctable() - set the constant table index for the PRU
+  * @rproc: the rproc instance of the PRU
+@@ -588,6 +699,7 @@ static int pru_rproc_probe(struct platform_device *pdev)
+ 	pru->rproc = rproc;
+ 	pru->fw_name = fw_name;
+ 	spin_lock_init(&pru->rmw_lock);
++	mutex_init(&pru->lock);
+ 
+ 	ret = pruss_request_mem_region(pru->pruss, PRUSS_MEM_DRAM0,
+ 				       &pru->dram0);
+diff --git a/include/linux/pruss.h b/include/linux/pruss.h
+index af04a1cc173d..405039a96c85 100644
+--- a/include/linux/pruss.h
++++ b/include/linux/pruss.h
+@@ -249,10 +249,19 @@ int pruss_intc_unconfigure(struct pruss *pruss,
+ 
+ #if IS_ENABLED(CONFIG_PRUSS_REMOTEPROC)
+ 
++struct rproc *pru_rproc_get(struct device_node *node, int index);
++void pru_rproc_put(struct rproc *rproc);
+ int pru_rproc_set_ctable(struct rproc *rproc, enum pru_ctable_idx c, u32 addr);
+ 
+ #else
+ 
++static inline struct rproc *pru_rproc_get(struct device_node *node, int index)
++{
++	return ERR_PTR(-ENOTSUPP);
++}
++
++static inline void pru_rproc_put(struct rproc *rproc) { }
++
+ static inline int pru_rproc_set_ctable(struct rproc *rproc,
+ 				       enum pru_ctable_idx c, u32 addr)
+ {
+-- 
+2.19.2
+
