@@ -11,12 +11,13 @@ extended to revc1, rcn-ee
 Signed-off-by: Vladimir Ermakov <vooon341@gmail.com>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi | 19 ++++++++++++++++++-
- arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi | 18 ++++++++++++++++++
- 2 files changed, 36 insertions(+), 1 deletion(-)
+ .../arm/boot/dts/imx6qdl-wandboard-revb1.dtsi | 19 +++++++++++++++++-
+ .../arm/boot/dts/imx6qdl-wandboard-revc1.dtsi | 18 +++++++++++++++++
+ .../arm/boot/dts/imx6qdl-wandboard-revd1.dtsi | 20 +++++++++++++++++++
+ 3 files changed, 56 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi
-index a32089132263..2005777e746b 100644
+index 855dc6f9df75..8476b8927f4c 100644
 --- a/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-wandboard-revb1.dtsi
 @@ -11,6 +11,24 @@
@@ -44,7 +45,7 @@ index a32089132263..2005777e746b 100644
  &iomuxc {
  	pinctrl-0 = <&pinctrl_hog>;
  
-@@ -37,6 +55,5 @@
+@@ -36,6 +54,5 @@
  &usdhc2 {
  	pinctrl-names = "default";
  	pinctrl-0 = <&pinctrl_usdhc2>;
@@ -52,7 +53,7 @@ index a32089132263..2005777e746b 100644
  	status = "okay";
  };
 diff --git a/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi
-index 8d893a78cdf0..b2097ef980ac 100644
+index 49a0a557e62e..a909ac63286e 100644
 --- a/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-wandboard-revc1.dtsi
 @@ -11,6 +11,24 @@
@@ -80,6 +81,37 @@ index 8d893a78cdf0..b2097ef980ac 100644
  &iomuxc {
  	pinctrl-0 = <&pinctrl_hog>;
  
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard-revd1.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard-revd1.dtsi
+index 69d9c8661439..e8a567ee81c4 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard-revd1.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard-revd1.dtsi
+@@ -12,6 +12,26 @@
+ #include "imx6qdl-wandboard.dtsi"
+ 
+ / {
++	rfkill {
++		compatible = "wand,imx6qdl-wandboard-rfkill";
++		pinctrl-names = "default";
++		pinctrl-0 = <>;
++
++		bluetooth-on = <&gpio5 30 0>;		/* BT_RST_N */
++		bluetooth-wake = <&gpio5 21 0>;		/* BT_WAKE */
++		bluetooth-host-wake = <&gpio5 20 0>;	/* BT_HOST_WAKE */
++
++		wifi-ref-on = <&gpio6 0 0>;		/* WIFI_ON: M4: CSI0_DAT14 */
++		wifi-reg-on = <&gpio1 26 0>;		/* WL_REG_ON: W22: ENET_RXD1 */
++		wifi-host-wake = <&gpio1 29 0>;		/* WL_HOST_WAKE: W20: ENET_TXD1 */
++
++		//HACK: use un-populated pins for missing rfkill pins, dont want to fix the driver...
++		//GPIO6_IO17 - SD3_DAT7
++		//GPIO6_IO18 - SD3_DAT6
++		wifi-rst-n = <&gpio6 17 0>;	/* NOT POPULATED */
++		wifi-wake = <&gpio6 18 0>;	/* NOT POPULATED */
++	};
++
+ 	reg_eth_phy: regulator-eth-phy {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "ETH_PHY";
 -- 
-2.13.2
+2.19.2
 
