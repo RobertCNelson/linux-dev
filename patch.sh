@@ -403,7 +403,10 @@ soc () {
 	dir 'soc/imx/wandboard'
 	dir 'soc/imx'
 	dir 'soc/ti'
-	dir 'soc/ti/bone_common'
+
+	dir 'soc/ti/omap4'
+	dir 'soc/ti/am335x'
+
 	dir 'soc/ti/blue'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
