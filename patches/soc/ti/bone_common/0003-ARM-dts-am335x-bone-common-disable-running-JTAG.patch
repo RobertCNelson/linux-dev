@@ -1,7 +1,7 @@
-From 046198fcd5a40a42a425a17d16b14797e0ef631a Mon Sep 17 00:00:00 2001
+From 2b79c7c7b1bf0fa766519b32fa07c2a2f1efbf93 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 1 Mar 2017 12:25:04 -0600
-Subject: [PATCH 3/5] ARM: dts: am335x-bone-common: disable running JTAG
+Date: Tue, 27 Nov 2018 14:35:14 -0600
+Subject: [PATCH 3/6] ARM: dts: am335x-bone-common: disable running JTAG
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
@@ -12,11 +12,12 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-boneblack.dts        |  1 +
  .../boot/dts/am335x-bonegreen-wireless.dts    |  1 +
  arch/arm/boot/dts/am335x-bonegreen.dts        |  1 +
- 7 files changed, 25 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/am335x-osd3358-sm-red.dts   | 10 +---------
+ 8 files changed, 26 insertions(+), 18 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-jtag.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 360e8f1cc415..167fb2237e9b 100644
+index 073dc44061f0..31f145c29ea1 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
 @@ -66,9 +66,6 @@
@@ -128,6 +129,41 @@ index a8b4d969ce2a..575a5a93a89e 100644
  
  / {
  	model = "TI AM335x BeagleBone Green";
+diff --git a/arch/arm/boot/dts/am335x-osd3358-sm-red.dts b/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
+index 85cd1d0a73ca..8eb4c065c7d8 100644
+--- a/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
++++ b/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
+@@ -13,6 +13,7 @@
+ #include <dt-bindings/interrupt-controller/irq.h>
+ 
+ #include <dt-bindings/display/tda998x.h>
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "Octavo Systems OSD3358-SM-RED";
+@@ -264,9 +265,6 @@
+ };
+ 
+ &am33xx_pinmux {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&clkout2_pin>;
+-
+ 	user_leds_s0: user-leds-s0 {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x854, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
+@@ -290,12 +288,6 @@
+ 		>;
+ 	};
+ 
+-	clkout2_pin: pinmux-clkout2-pin {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+-		>;
+-	};
+-
+ 	cpsw_default: cpsw-default {
+ 		pinctrl-single,pins = <
+ 			/* Slave 1 */
 -- 
-2.17.1
+2.19.2
 
