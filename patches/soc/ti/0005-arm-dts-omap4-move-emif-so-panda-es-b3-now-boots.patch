@@ -1,26 +1,26 @@
-From 167fc1879816331b4fa7e7b402fb9380cea25a93 Mon Sep 17 00:00:00 2001
+From c823b9a29a47ea537b81e23b859e420a4a342ee5 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Thu, 23 Aug 2018 17:22:01 -0500
-Subject: [PATCH 5/8] arm: dts: omap4: move emif so panda-es-b3 now boots
+Subject: [PATCH 5/6] arm: dts: omap4: move emif so panda-es-b3 now boots
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile                |  1 +
  arch/arm/boot/dts/omap4-panda-a4.dts      | 12 ++++
- arch/arm/boot/dts/omap4-panda-common.dtsi | 10 ----
- arch/arm/boot/dts/omap4-panda-es-b3.dts   | 73 +++++++++++++++++++++++
+ arch/arm/boot/dts/omap4-panda-common.dtsi | 10 ---
+ arch/arm/boot/dts/omap4-panda-es-b3.dts   | 85 +++++++++++++++++++++++
  arch/arm/boot/dts/omap4-panda-es.dts      | 12 ++++
  arch/arm/boot/dts/omap4-panda.dts         | 12 ++++
  arch/arm/boot/dts/omap4-sdp.dts           |  2 +
  arch/arm/boot/dts/omap4.dtsi              |  2 +
- 8 files changed, 114 insertions(+), 10 deletions(-)
+ 8 files changed, 126 insertions(+), 10 deletions(-)
  create mode 100644 arch/arm/boot/dts/omap4-panda-es-b3.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index d3c65a7c74ef..88102c93763e 100644
+index 4495d22ad46e..da05ef56b5ba 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -733,6 +733,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
+@@ -738,6 +738,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
  	omap4-panda.dtb \
  	omap4-panda-a4.dtb \
  	omap4-panda-es.dtb \
@@ -74,10 +74,10 @@ index 27895c1604b9..bcdfe29a4b84 100644
  	pinctrl-0 = <&mcbsp1_pins>;
 diff --git a/arch/arm/boot/dts/omap4-panda-es-b3.dts b/arch/arm/boot/dts/omap4-panda-es-b3.dts
 new file mode 100644
-index 000000000000..2f1dabcc6adf
+index 000000000000..19d02df8d8a5
 --- /dev/null
 +++ b/arch/arm/boot/dts/omap4-panda-es-b3.dts
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,85 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -114,23 +114,29 @@ index 000000000000..2f1dabcc6adf
 +/* PandaboardES has external pullups on SCL & SDA */
 +&dss_hdmi_pins {
 +	pinctrl-single,pins = <
-+		0x5a (PIN_INPUT_PULLUP | MUX_MODE0)	/* hdmi_cec.hdmi_cec */
-+		0x5c (PIN_INPUT | MUX_MODE0)		/* hdmi_scl.hdmi_scl */
-+		0x5e (PIN_INPUT | MUX_MODE0)		/* hdmi_sda.hdmi_sda */
++		OMAP4_IOPAD(0x09a, PIN_INPUT | MUX_MODE0)		/* hdmi_cec.hdmi_cec */
++		OMAP4_IOPAD(0x09c, PIN_INPUT | MUX_MODE0)		/* hdmi_scl.hdmi_scl */
++		OMAP4_IOPAD(0x09e, PIN_INPUT | MUX_MODE0)		/* hdmi_sda.hdmi_sda */
 +		>;
 +};
 +
 +&omap4_pmx_core {
 +	led_gpio_pins: gpio_led_pmx {
 +		pinctrl-single,pins = <
-+			0xb6 (PIN_OUTPUT | MUX_MODE3)	/* gpio_110 */
++			OMAP4_IOPAD(0x0f6, PIN_OUTPUT | MUX_MODE3)	/* gpio_110 */
++		>;
++	};
++
++	button_pins: pinmux_button_pins {
++		pinctrl-single,pins = <
++			OMAP4_IOPAD(0x11b, PIN_INPUT_PULLUP | MUX_MODE3) /* gpio_113 */
 +		>;
 +	};
 +};
 +
 +&led_wkgpio_pins {
 +	pinctrl-single,pins = <
-+		0x1c (PIN_OUTPUT | MUX_MODE3)	/* gpio_wk8 */
++		OMAP4_IOPAD(0x05c, PIN_OUTPUT | MUX_MODE3)	/* gpio_wk8 */
 +	>;
 +};
 +
@@ -148,7 +154,13 @@ index 000000000000..2f1dabcc6adf
 +	};
 +};
 +
-+&gpio1 {
++&gpio_keys {
++	buttonS2 {
++		gpios = <&gpio4 17 GPIO_ACTIVE_LOW>; /* gpio_113 */
++	};
++};
++
++&gpio1_target {
 +	 ti,no-reset-on-init;
 +};
 diff --git a/arch/arm/boot/dts/omap4-panda-es.dts b/arch/arm/boot/dts/omap4-panda-es.dts
@@ -233,5 +245,5 @@ index 1a96d4317c97..142ba6bf38a3 100644
  
  		timer5: timer@40138000 {
 -- 
-2.18.0
+2.19.2
 
