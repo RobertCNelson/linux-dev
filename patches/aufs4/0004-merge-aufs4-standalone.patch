@@ -1,6 +1,6 @@
-From b7e333c86633ea98719bff78b5ae38f7e5ceb890 Mon Sep 17 00:00:00 2001
+From 4cc50bca96716648ca083ede7441acb359f07b0b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 30 Oct 2018 11:26:52 -0500
+Date: Mon, 26 Nov 2018 12:58:11 -0600
 Subject: [PATCH 4/5] merge: aufs4-standalone
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -98,10 +98,10 @@ index e49af4caf15d..569020fd1fb3 100644
  void __init files_init(void)
  {
 diff --git a/fs/inode.c b/fs/inode.c
-index fa6ae6a217fb..69d4a6cded14 100644
+index 01b27ad78bc5..799ec25cd212 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
-@@ -1666,6 +1666,7 @@ int update_time(struct inode *inode, struct timespec64 *time, int flags)
+@@ -1669,6 +1669,7 @@ int update_time(struct inode *inode, struct timespec64 *time, int flags)
  
  	return update_time(inode, time, flags);
  }
@@ -110,7 +110,7 @@ index fa6ae6a217fb..69d4a6cded14 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 72c93f3e8647..c49803ce04b8 100644
+index fbd7edd49a2f..d6eca814d9fc 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -437,6 +437,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
@@ -129,7 +129,7 @@ index 72c93f3e8647..c49803ce04b8 100644
  
  /*
   * vfsmount lock must be held for write
-@@ -1832,6 +1834,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1844,6 +1846,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
@@ -174,10 +174,10 @@ index c03b83662876..817f22c6e191 100644
  int fsnotify_fasync(int fd, struct file *file, int on)
  {
 diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 59cdb27826de..ce365c73f4fe 100644
+index 09535f6423fc..e9401ec71fc7 100644
 --- a/fs/notify/mark.c
 +++ b/fs/notify/mark.c
-@@ -263,6 +263,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
+@@ -285,6 +285,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
  	queue_delayed_work(system_unbound_wq, &reaper_work,
  			   FSNOTIFY_REAPER_DELAY);
  }
@@ -185,7 +185,7 @@ index 59cdb27826de..ce365c73f4fe 100644
  
  /*
   * Get mark reference when we found the mark via lockless traversal of object
-@@ -417,6 +418,7 @@ void fsnotify_destroy_mark(struct fsnotify_mark *mark,
+@@ -439,6 +440,7 @@ void fsnotify_destroy_mark(struct fsnotify_mark *mark,
  	mutex_unlock(&group->mark_mutex);
  	fsnotify_free_mark(mark);
  }
@@ -193,7 +193,7 @@ index 59cdb27826de..ce365c73f4fe 100644
  
  /*
   * Sorting function for lists of fsnotify marks.
-@@ -632,6 +634,7 @@ int fsnotify_add_mark(struct fsnotify_mark *mark, fsnotify_connp_t *connp,
+@@ -654,6 +656,7 @@ int fsnotify_add_mark(struct fsnotify_mark *mark, fsnotify_connp_t *connp,
  	mutex_unlock(&group->mark_mutex);
  	return ret;
  }
@@ -201,7 +201,7 @@ index 59cdb27826de..ce365c73f4fe 100644
  
  /*
   * Given a list of marks, find the mark associated with given group. If found
-@@ -754,6 +757,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
+@@ -777,6 +780,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
  	fsnotify_get_group(group);
  	mark->group = group;
  }
@@ -302,7 +302,7 @@ index 0d6a6a4af861..7ce4701b7289 100644
  ssize_t
  __vfs_getxattr(struct dentry *dentry, struct inode *inode, const char *name,
 diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index fa6f5599a2a5..7ac19efdac04 100644
+index 8e8ea55065ba..81cff67931bd 100644
 --- a/kernel/locking/lockdep.c
 +++ b/kernel/locking/lockdep.c
 @@ -151,6 +151,7 @@ inline struct lock_class *lockdep_hlock_class(struct held_lock *hlock)
@@ -443,5 +443,5 @@ index 736e78da1ab9..b3145394cbca 100644
  int security_mmap_addr(unsigned long addr)
  {
 -- 
-2.19.1
+2.19.2
 

@@ -1,13 +1,13 @@
-From cd4ac38657d092b9eadbd853cca9f4c072a676e1 Mon Sep 17 00:00:00 2001
+From 0aeffbf4fc444817e83429710b6b68bf308e2b78 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 30 Oct 2018 11:26:54 -0500
+Date: Mon, 26 Nov 2018 12:58:12 -0600
 Subject: [PATCH 5/5] merge: aufs4
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  Documentation/ABI/testing/debugfs-aufs        |   55 +
  Documentation/ABI/testing/sysfs-aufs          |   31 +
- Documentation/filesystems/aufs/README         |  394 ++++
+ Documentation/filesystems/aufs/README         |  395 ++++
  .../filesystems/aufs/design/01intro.txt       |  171 ++
  .../filesystems/aufs/design/02struct.txt      |  258 +++
  .../filesystems/aufs/design/03atomic_open.txt |   85 +
@@ -16,7 +16,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../filesystems/aufs/design/05wbr_policy.txt  |   64 +
  .../filesystems/aufs/design/06dirren.dot      |   31 +
  .../filesystems/aufs/design/06dirren.txt      |  102 +
- .../filesystems/aufs/design/06fhsm.txt        |  120 ++
+ .../filesystems/aufs/design/06fhsm.txt        |  120 +
  .../filesystems/aufs/design/06mmap.txt        |   72 +
  .../filesystems/aufs/design/06xattr.txt       |   96 +
  .../filesystems/aufs/design/07export.txt      |   58 +
@@ -25,10 +25,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/Kconfig                               |  199 ++
  fs/aufs/Makefile                              |   46 +
  fs/aufs/aufs.h                                |   62 +
- fs/aufs/branch.c                              | 1422 +++++++++++++
- fs/aufs/branch.h                              |  367 ++++
+ fs/aufs/branch.c                              | 1422 ++++++++++++
+ fs/aufs/branch.h                              |  365 +++
  fs/aufs/conf.mk                               |   40 +
- fs/aufs/cpup.c                                | 1444 +++++++++++++
+ fs/aufs/cpup.c                                | 1445 ++++++++++++
  fs/aufs/cpup.h                                |  100 +
  fs/aufs/dbgaufs.c                             |  519 +++++
  fs/aufs/dbgaufs.h                             |   53 +
@@ -41,11 +41,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/dinfo.c                               |  554 +++++
  fs/aufs/dir.c                                 |  762 +++++++
  fs/aufs/dir.h                                 |  132 ++
- fs/aufs/dirren.c                              | 1316 ++++++++++++
+ fs/aufs/dirren.c                              | 1316 +++++++++++
  fs/aufs/dirren.h                              |  140 ++
  fs/aufs/dynop.c                               |  370 ++++
  fs/aufs/dynop.h                               |   75 +
- fs/aufs/export.c                              |  838 ++++++++
+ fs/aufs/export.c                              |  838 +++++++
  fs/aufs/f_op.c                                |  819 +++++++
  fs/aufs/fhsm.c                                |  427 ++++
  fs/aufs/file.c                                |  863 ++++++++
@@ -55,7 +55,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/hbl.h                                 |   65 +
  fs/aufs/hfsnotify.c                           |  289 +++
  fs/aufs/hfsplus.c                             |   60 +
- fs/aufs/hnotify.c                             |  720 +++++++
+ fs/aufs/hnotify.c                             |  720 ++++++
  fs/aufs/i_op.c                                | 1506 +++++++++++++
  fs/aufs/i_op_add.c                            |  935 ++++++++
  fs/aufs/i_op_del.c                            |  512 +++++
@@ -88,16 +88,16 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/sysrq.c                               |  160 ++
  fs/aufs/vdir.c                                |  895 ++++++++
  fs/aufs/vfsub.c                               |  902 ++++++++
- fs/aufs/vfsub.h                               |  355 ++++
- fs/aufs/wbr_policy.c                          |  830 ++++++++
+ fs/aufs/vfsub.h                               |  355 +++
+ fs/aufs/wbr_policy.c                          |  830 +++++++
  fs/aufs/whout.c                               | 1062 +++++++++
  fs/aufs/whout.h                               |   86 +
  fs/aufs/wkq.c                                 |  392 ++++
  fs/aufs/wkq.h                                 |   89 +
- fs/aufs/xattr.c                               |  356 ++++
- fs/aufs/xino.c                                | 1890 +++++++++++++++++
+ fs/aufs/xattr.c                               |  356 +++
+ fs/aufs/xino.c                                | 1956 +++++++++++++++++
  include/uapi/linux/aufs_type.h                |  448 ++++
- 92 files changed, 37655 insertions(+)
+ 92 files changed, 37721 insertions(+)
  create mode 100644 Documentation/ABI/testing/debugfs-aufs
  create mode 100644 Documentation/ABI/testing/sysfs-aufs
  create mode 100644 Documentation/filesystems/aufs/README
@@ -291,10 +291,10 @@ index 000000000000..82f9518495ea
 +		will be empty. About XINO files, see the aufs manual.
 diff --git a/Documentation/filesystems/aufs/README b/Documentation/filesystems/aufs/README
 new file mode 100644
-index 000000000000..79eb50ae06bd
+index 000000000000..fb05e3b722ea
 --- /dev/null
 +++ b/Documentation/filesystems/aufs/README
-@@ -0,0 +1,394 @@
+@@ -0,0 +1,395 @@
 +
 +Aufs4 -- advanced multi layered unification filesystem version 4.x
 +http://aufs.sf.net
@@ -672,6 +672,7 @@ index 000000000000..79eb50ae06bd
 +Tomasz Szewczyk made a donation (2016/4).
 +James Burry made a donation (2016/12).
 +Carsten Rose made a donation (2018/9).
++Porteus Kiosk made a donation (2018/10).
 +
 +Thank you very much.
 +Donations are always, including future donations, very important and
@@ -3871,10 +3872,10 @@ index 000000000000..2fc6dc1e38b1
 +}
 diff --git a/fs/aufs/branch.h b/fs/aufs/branch.h
 new file mode 100644
-index 000000000000..2b0f58bb9d01
+index 000000000000..3a551cec204a
 --- /dev/null
 +++ b/fs/aufs/branch.h
-@@ -0,0 +1,367 @@
+@@ -0,0 +1,365 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
@@ -3926,9 +3927,7 @@ index 000000000000..2b0f58bb9d01
 +	} xi_nondir;
 +
 +	struct mutex		xi_mtx;	/* protects xi_file array */
-+	/* reserved for future use */
-+	/* wait_queue_head_t	xi_wq; */
-+	/* atomic_t		xi_pending; */
++	struct hlist_bl_head	xi_writing;
 +
 +	atomic_t		xi_truncating;
 +
@@ -4290,10 +4289,10 @@ index 000000000000..12782f8e0f38
 +-include ${srctree}/${src}/conf_priv.mk
 diff --git a/fs/aufs/cpup.c b/fs/aufs/cpup.c
 new file mode 100644
-index 000000000000..a1ef90f08090
+index 000000000000..f95b567ea0d8
 --- /dev/null
 +++ b/fs/aufs/cpup.c
-@@ -0,0 +1,1444 @@
+@@ -0,0 +1,1445 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
@@ -4729,18 +4728,15 @@ index 000000000000..a1ef90f08090
 +		struct dentry *dentry;
 +		int force_wr;
 +		struct file *file;
-+		void *label;
 +	} *f, file[] = {
 +		{
 +			.bindex = cpg->bsrc,
 +			.flags = O_RDONLY | O_NOATIME | O_LARGEFILE,
-+			.label = &&out
 +		},
 +		{
 +			.bindex = cpg->bdst,
 +			.flags = O_WRONLY | O_NOATIME | O_LARGEFILE,
 +			.force_wr = !!au_ftest_cpup(cpg->flags, RWDST),
-+			.label = &&out_src
 +		}
 +	};
 +	struct au_branch *br;
@@ -4755,9 +4751,13 @@ index 000000000000..a1ef90f08090
 +		f->dentry = au_h_dptr(cpg->dentry, f->bindex);
 +		f->file = au_h_open(cpg->dentry, f->bindex, f->flags,
 +				    /*file*/NULL, f->force_wr);
-+		err = PTR_ERR(f->file);
-+		if (IS_ERR(f->file))
-+			goto *f->label;
++		if (IS_ERR(f->file)) {
++			err = PTR_ERR(f->file);
++			if (i == SRC)
++				goto out;
++			else
++				goto out_src;
++		}
 +	}
 +
 +	/* try stopping to update while we copyup */
@@ -36050,10 +36050,10 @@ index 000000000000..70b891716e49
 +}
 diff --git a/fs/aufs/xino.c b/fs/aufs/xino.c
 new file mode 100644
-index 000000000000..1236699a364f
+index 000000000000..c5fca81b063d
 --- /dev/null
 +++ b/fs/aufs/xino.c
-@@ -0,0 +1,1890 @@
+@@ -0,0 +1,1956 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2018 Junjiro R. Okajima
@@ -36703,6 +36703,11 @@ index 000000000000..1236699a364f
 +	ino_t ino;
 +};
 +
++struct au_xi_writing {
++	struct hlist_bl_node node;
++	ino_t h_ino, ino;
++};
++
 +static int au_xino_do_write(vfs_writef_t write, struct file *file,
 +			    struct au_xi_calc *calc, ino_t ino);
 +
@@ -36714,6 +36719,9 @@ index 000000000000..1236699a364f
 +	struct au_sbinfo *sbi;
 +	struct inode *root;
 +	struct file *file;
++	struct au_xi_writing *del, *p;
++	struct hlist_bl_head *hbl;
++	struct hlist_bl_node *pos;
 +	int err;
 +
 +	br = a->br;
@@ -36723,15 +36731,34 @@ index 000000000000..1236699a364f
 +	root = d_inode(sb->s_root);
 +	ii_read_lock_child(root);
 +	err = au_xino_do_new_async(sb, br, &a->calc);
-+	if (!err) {
-+		file = au_xino_file(br->br_xino, a->calc.idx);
-+		if (file)
-+			err = au_xino_do_write(sbi->si_xwrite, file, &a->calc,
-+					       a->ino);
-+		if (unlikely(err))
-+			AuIOErr("err %d\n", err);
-+	} else
++	if (unlikely(err)) {
 +		AuIOErr("err %d\n", err);
++		goto out;
++	}
++
++	file = au_xino_file(br->br_xino, a->calc.idx);
++	AuDebugOn(!file);
++	err = au_xino_do_write(sbi->si_xwrite, file, &a->calc, a->ino);
++	if (unlikely(err)) {
++		AuIOErr("err %d\n", err);
++		goto out;
++	}
++
++	del = NULL;
++	hbl = &br->br_xino->xi_writing;
++	hlist_bl_lock(hbl);
++	au_hbl_for_each(pos, hbl) {
++		p = container_of(pos, struct au_xi_writing, node);
++		if (p->ino == a->ino) {
++			del = p;
++			hlist_bl_del(&p->node);
++			break;
++		}
++	}
++	hlist_bl_unlock(hbl);
++	kfree(del);
++
++out:
 +	au_lcnt_dec(&br->br_count);
 +	ii_read_unlock(root);
 +	si_read_unlock(sb);
@@ -36781,6 +36808,10 @@ index 000000000000..1236699a364f
 +	struct au_xi_calc calc;
 +	struct au_sbinfo *sbinfo;
 +	struct file *file;
++	struct au_xino *xi;
++	struct hlist_bl_head *hbl;
++	struct hlist_bl_node *pos;
++	struct au_xi_writing *p;
 +
 +	*ino = 0;
 +	if (!au_opt_test(au_mntflags(sb), XINO))
@@ -36788,10 +36819,24 @@ index 000000000000..1236699a364f
 +
 +	err = 0;
 +	au_xi_calc(sb, h_ino, &calc);
-+	file = au_xino_file(au_sbr(sb, bindex)->br_xino, calc.idx);
-+	if (!file
-+	    || vfsub_f_size_read(file) < calc.pos + sizeof(*ino))
-+		return 0; /* no ino */
++	xi = au_sbr(sb, bindex)->br_xino;
++	file = au_xino_file(xi, calc.idx);
++	if (!file) {
++		hbl = &xi->xi_writing;
++		hlist_bl_lock(hbl);
++		au_hbl_for_each(pos, hbl) {
++			p = container_of(pos, struct au_xi_writing, node);
++			if (p->h_ino == h_ino) {
++				AuDbg("hi%llu, i%llu, found\n",
++				      (u64)p->h_ino, (u64)p->ino);
++				*ino = p->ino;
++				break;
++			}
++		}
++		hlist_bl_unlock(hbl);
++		return 0;
++	} else if (vfsub_f_size_read(file) < calc.pos + sizeof(*ino))
++		return 0; /* no xino */
 +
 +	sbinfo = au_sbi(sb);
 +	sz = xino_fread(sbinfo->si_xread, file, ino, sizeof(*ino), &calc.pos);
@@ -36835,6 +36880,7 @@ index 000000000000..1236699a364f
 +	struct file *file;
 +	struct au_branch *br;
 +	struct au_xino *xi;
++	struct au_xi_writing *p;
 +
 +	SiMustAnyLock(sb);
 +
@@ -36847,6 +36893,12 @@ index 000000000000..1236699a364f
 +	xi = br->br_xino;
 +	file = au_xino_file(xi, calc.idx);
 +	if (!file) {
++		/* store the inum pair into the list */
++		p = kmalloc(sizeof(*p), GFP_NOFS | __GFP_NOFAIL);
++		p->h_ino = h_ino;
++		p->ino = ino;
++		au_hbl_add(&p->node, &xi->xi_writing);
++
 +		/* create and write a new xino file asynchronously */
 +		err = au_xino_new_async(sb, br, &calc, ino);
 +		if (!err)
@@ -37294,8 +37346,7 @@ index 000000000000..1236699a364f
 +	spin_lock_init(&xi->xi_nondir.spin);
 +	init_waitqueue_head(&xi->xi_nondir.wqh);
 +	mutex_init(&xi->xi_mtx);
-+	/* init_waitqueue_head(&xi->xi_wq); */
-+	/* atomic_set(&xi->xi_pending, 0); */
++	INIT_HLIST_BL_HEAD(&xi->xi_writing);
 +	atomic_set(&xi->xi_truncating, 0);
 +	kref_init(&xi->xi_kref);
 +	goto out; /* success */
@@ -37335,6 +37386,10 @@ index 000000000000..1236699a364f
 +{
 +	struct au_xino *xi;
 +	int i;
++	unsigned long ul;
++	struct hlist_bl_head *hbl;
++	struct hlist_bl_node *pos, *n;
++	struct au_xi_writing *p;
 +
 +	xi = container_of(kref, struct au_xino, xi_kref);
 +	for (i = 0; i < xi->xi_nfile; i++)
@@ -37343,6 +37398,17 @@ index 000000000000..1236699a364f
 +	for (i = xi->xi_nondir.total - 1; i >= 0; i--)
 +		AuDebugOn(xi->xi_nondir.array[i]);
 +	mutex_destroy(&xi->xi_mtx);
++	hbl = &xi->xi_writing;
++	ul = au_hbl_count(hbl);
++	if (unlikely(ul)) {
++		pr_warn("xi_writing %lu\n", ul);
++		hlist_bl_lock(hbl);
++		hlist_bl_for_each_entry_safe (p, pos, n, hbl, node) {
++			hlist_bl_del(&p->node);
++			kfree(p);
++		}
++		hlist_bl_unlock(hbl);
++	}
 +	kfree(xi->xi_file);
 +	kfree(xi->xi_nondir.array);
 +	kfree(xi);
@@ -37946,7 +38012,7 @@ index 000000000000..1236699a364f
 +}
 diff --git a/include/uapi/linux/aufs_type.h b/include/uapi/linux/aufs_type.h
 new file mode 100644
-index 000000000000..8958f874b6a3
+index 000000000000..9c46b16e8a81
 --- /dev/null
 +++ b/include/uapi/linux/aufs_type.h
 @@ -0,0 +1,448 @@
@@ -37992,7 +38058,7 @@ index 000000000000..8958f874b6a3
 +
 +#include <linux/limits.h>
 +
-+#define AUFS_VERSION	"4.19-20181029"
++#define AUFS_VERSION	"4.19-20181119"
 +
 +/* todo? move this to linux-2.6.19/include/magic.h */
 +#define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')
@@ -38399,5 +38465,5 @@ index 000000000000..8958f874b6a3
 +
 +#endif /* __AUFS_TYPE_H__ */
 -- 
-2.19.1
+2.19.2
 
