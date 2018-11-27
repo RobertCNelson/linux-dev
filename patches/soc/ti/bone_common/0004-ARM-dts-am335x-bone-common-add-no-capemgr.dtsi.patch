@@ -1,20 +1,20 @@
-From 31b3d615a1aae8c568472ab063558ab320ec199f Mon Sep 17 00:00:00 2001
+From 8eaa94c6898c8cf45a784684b0adcc8da8d73601 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 1 Mar 2017 12:46:52 -0600
+Date: Tue, 27 Nov 2018 14:39:42 -0600
 Subject: [PATCH 4/6] ARM: dts: am335x-bone-common: add no-capemgr.dtsi
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- .../dts/am335x-bone-common-no-capemgr.dtsi    | 367 ++++++++++++++++++
- 1 file changed, 367 insertions(+)
+ .../dts/am335x-bone-common-no-capemgr.dtsi    | 387 ++++++++++++++++++
+ 1 file changed, 387 insertions(+)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 000000000000..73d5f5424e01
+index 000000000000..6927d478eee1
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,367 @@
+@@ -0,0 +1,387 @@
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + *
@@ -261,6 +261,14 @@ index 000000000000..73d5f5424e01
 +	};
 +};
 +
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
++
++	status = "okay";
++};
++
++
 +/include/ "tps65217.dtsi"
 +
 +&tps {
@@ -342,7 +350,7 @@ index 000000000000..73d5f5424e01
 +};
 +
 +&cpsw_emac0 {
-+	phy_id = <&davinci_mdio>, <0>;
++	phy-handle = <&ethphy0>;
 +	phy-mode = "mii";
 +};
 +
@@ -359,6 +367,10 @@ index 000000000000..73d5f5424e01
 +	pinctrl-0 = <&davinci_mdio_default>;
 +	pinctrl-1 = <&davinci_mdio_sleep>;
 +	status = "okay";
++
++	ethphy0: ethernet-phy@0 {
++		reg = <0>;
++	};
 +};
 +
 +&mmc1 {
@@ -381,6 +393,14 @@ index 000000000000..73d5f5424e01
 +	clocks = <&clk_32768_ck>, <&l4_per_clkctrl AM3_CLKDIV32K_CLKCTRL 0>;
 +	clock-names = "ext-clk", "int-clk";
 +	system-power-controller;
++};
++
++&pruss_soc_bus {
++	status = "okay";
++
++	pruss: pruss@4a300000 {
++		status = "okay";
++	};
 +};
 -- 
 2.19.2
