@@ -404,12 +404,13 @@ soc () {
 	dir 'soc/imx'
 	dir 'soc/ti'
 	dir 'soc/ti/bone_common'
-	dir 'soc/ti/uboot'
 	dir 'soc/ti/blue'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
 	dir 'soc/ti/beaglebone_capes'
 	dir 'soc/ti/pocketbeagle'
+
+	dir 'soc/ti/uboot'
 	dir 'soc/ti/uboot_univ'
 }
 
