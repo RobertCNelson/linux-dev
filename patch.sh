@@ -404,6 +404,7 @@ soc () {
 	dir 'soc/imx'
 	dir 'soc/ti'
 
+	dir 'soc/ti/omap3'
 	dir 'soc/ti/omap4'
 	dir 'soc/ti/am335x'
 
