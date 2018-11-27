@@ -407,11 +407,9 @@ soc () {
 	dir 'soc/ti/blue'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/am335x_olimex_som'
-	dir 'soc/ti/beaglebone_capes'
 	dir 'soc/ti/pocketbeagle'
-
+	dir 'soc/ti/beaglebone_capes'
 	dir 'soc/ti/uboot'
-	dir 'soc/ti/uboot_univ'
 }
 
 dtb_makefile_append () {
