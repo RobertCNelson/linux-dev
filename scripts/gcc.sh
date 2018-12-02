@@ -325,13 +325,14 @@ gcc_toolchain () {
 	gcc_arm_gnueabihf_8)
 		#
 		#https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-arm-linux-gnueabihf.tar.xz
+		#https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-arm-linux-gnueabihf.tar.xz
 		#
 		site="https://developer.arm.com/-/media/Files/downloads/gnu-a"
 		archive_site="https://developer.arm.com/-/media/Files/downloads/gnu-a"
 
 		gcc_version="8.2"
 		gcc_minor=""
-		release="18.08"
+		release="18.11"
 		target="arm-linux-gnueabihf"
 
 		version="${gcc_version}-20${release}"
