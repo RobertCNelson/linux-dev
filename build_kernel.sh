@@ -280,16 +280,9 @@ FULL_REBUILD=1
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 
-	cp -v "${DIR}/KERNEL/scripts/package/Makefile" "${DIR}/3rdparty/packaging/"
 	cp -v "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
 
-	#Work around new deb script:
-	#https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b41d920acff8305b8a25a183a8e4d41b8975097d
-	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-undo-new-4.17-rc0-debpkg.diff"
-
-	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-mk-linux-firmware-pkg.diff"
-	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-depends-initramfs-tools.diff"
-	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-make-dtbs_install.diff"
+	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-use-boot-dtbs-uname-r-path.diff"
 
 	if [ "${RUN_BISECT}" ] ; then
 		/bin/sh -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }

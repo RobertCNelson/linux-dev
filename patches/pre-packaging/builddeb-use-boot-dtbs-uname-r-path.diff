@@ -1,24 +1,13 @@
 diff --git a/3rdparty/packaging/builddeb b/3rdparty/packaging/builddeb
-index 6b660219..f4dcc319 100755
+index f43a274f4f1d..67f4c6ae95f0 100755
 --- a/3rdparty/packaging/builddeb
 +++ b/3rdparty/packaging/builddeb
-@@ -146,9 +146,18 @@ fi
- cp "$($MAKE -s -f $srctree/Makefile image_name)" "$tmpdir/$installed_image_path"
- 
+@@ -86,7 +86,7 @@ cp "$($MAKE -s -f $srctree/Makefile image_name)" "$tmpdir/$installed_image_path"
  if grep -q "^CONFIG_OF_EARLY_FLATTREE=y" $KCONFIG_CONFIG ; then
-+	mkdir -p "$tmpdir/boot/dtbs/$version"
  	# Only some architectures with OF support have this target
  	if [ -d "${srctree}/arch/$SRCARCH/boot/dts" ]; then
 -		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
 +		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" dtbs_install
-+	else
-+		$MAKE KBUILD_SRC= dtbs
-+		find arch/arm/boot/ -iname "*.dtb" -exec cp -v '{}' "$tmpdir/boot/dtbs/$version" \;
-+	fi
-+
-+	#make dtbs_install seems to add an .old directory
-+	if [ -d "$tmpdir/boot/dtbs/$version.old" ] ; then
-+		rm -rf "$tmpdir/boot/dtbs/$version.old"
  	fi
  fi
  
