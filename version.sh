@@ -28,7 +28,7 @@ toolchain="gcc_arm_gnueabihf_8"
 #toolchain="gcc_linaro_aarch64_gnu_5"
 #toolchain="gcc_linaro_aarch64_gnu_6"
 #toolchain="gcc_linaro_aarch64_gnu_7"
-toolchain="gcc_arm_aarch64_gnu_8"
+#toolchain="gcc_arm_aarch64_gnu_8"
 
 #Kernel
 KERNEL_REL=4.20
@@ -38,8 +38,8 @@ kernel_rt=".X-rtY"
 BUILD=${build_prefix}2
 
 #v4.X-rcX + upto SHA
-prev_KERNEL_SHA="2e6e902d185027f8e3cb8b7305238f7e35d6a436"
-KERNEL_SHA="ef78e5ec9214376c5cb989f5da70b02d0c117b66"
+#prev_KERNEL_SHA="2e6e902d185027f8e3cb8b7305238f7e35d6a436"
+#KERNEL_SHA="ef78e5ec9214376c5cb989f5da70b02d0c117b66"
 
 #git branch
 #BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
