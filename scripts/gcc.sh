@@ -405,6 +405,26 @@ gcc_toolchain () {
 
 		binary="bin/${target}-"
 		;;
+	gcc_arm_aarch64_gnu_8)
+		#
+		#https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-aarch64-linux-gnu.tar.xz
+		#
+		site="https://developer.arm.com/-/media/Files/downloads/gnu-a"
+		archive_site="https://developer.arm.com/-/media/Files/downloads/gnu-a"
+
+		gcc_version="8.2"
+		gcc_minor=""
+		release="18.11"
+		target="aarch64-linux-gnu"
+
+		version="${gcc_version}-20${release}"
+		filename="gcc-arm-${gcc_version}${gcc_minor}-20${release}-x86_64-${target}.tar.xz"
+		directory="gcc-arm-${gcc_version}${gcc_minor}-20${release}-x86_64-${target}"
+
+		datestamp="${gcc_version}-20${release}-${target}"
+
+		binary="bin/${target}-"
+		;;
 
 	*)
 		echo "bug: maintainer forgot to set:"
