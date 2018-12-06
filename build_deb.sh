@@ -71,6 +71,15 @@ make_deb () {
 		deb_distro="unstable"
 	fi
 
+	#/bin/sh ./scripts/package/mkdebian
+	#dpkg-buildpackage -r"fakeroot -u" -a$(cat debian/arch) -b -nc -uc
+	#dpkg-buildpackage: info: source package linux-upstream
+	#dpkg-buildpackage: info: source version 1xross
+	#dpkg-buildpackage: info: source distribution buster
+	#dpkg-buildpackage: info: source changed by voodoo <voodoo@work-i7>
+	#dpkg-buildpackage: info: host architecture armhf
+	#dpkg-buildpackage: warning: debian/rules is not executable; fixing that
+
 	build_opts="-j${CORES}"
 	build_opts="${build_opts} ARCH=${KERNEL_ARCH}"
 	build_opts="${build_opts} KBUILD_DEBARCH=${DEBARCH}"
