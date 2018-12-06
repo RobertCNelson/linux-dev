@@ -86,8 +86,9 @@ make_deb () {
 	echo "-----------------------------"
 	make ${build_opts} CROSS_COMPILE="${CC}" bindeb-pkg
 
-	mv "${DIR}"/*.deb "${DIR}/deploy/" || true
+	mv "${DIR}"/*.buildinfo "${DIR}/deploy/" || true
 	mv "${DIR}"/*.changes "${DIR}/deploy/" || true
+	mv "${DIR}"/*.deb "${DIR}/deploy/" || true
 
 	KERNEL_UTS=$(cat "${DIR}/KERNEL/include/generated/utsrelease.h" | awk '{print $3}' | sed 's/\"//g' )
 
