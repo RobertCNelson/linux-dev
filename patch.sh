@@ -379,11 +379,11 @@ drivers () {
 
 	#https://lkml.org/lkml/2018/11/22/948
 	#[PATCH 00/17] Add support for TI PRU ICSS
-	dir 'drivers/ti/pruss/'
+	dir 'drivers/ti/pruss'
 
 	#https://lkml.org/lkml/2018/11/26/319
 	#[PATCH 00/16] remoteproc: Add support for TI PRU
-	dir 'drivers/ti/remoteproc/'
+	dir 'drivers/ti/remoteproc'
 
 	dir 'drivers/ti/overlays'
 	dir 'drivers/ti/cpsw'

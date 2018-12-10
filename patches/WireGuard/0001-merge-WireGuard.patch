@@ -1,6 +1,6 @@
-From ac244782f4664e2bceb0e96501f69cb2c6549fda Mon Sep 17 00:00:00 2001
+From 61118fcc17bec76149b762b79e476c9e5a78204c Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 26 Nov 2018 12:58:50 -0600
+Date: Sun, 9 Dec 2018 18:12:26 -0600
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -49,7 +49,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../crypto/zinc/chacha20/chacha20-mips.S      |  424 +
  .../zinc/chacha20/chacha20-unrolled-arm.S     |  461 +
  .../zinc/chacha20/chacha20-x86_64-glue.c      |  105 +
- .../crypto/zinc/chacha20/chacha20-x86_64.pl   | 4108 ++++++++
+ .../crypto/zinc/chacha20/chacha20-x86_64.pl   | 4106 ++++++++
  net/wireguard/crypto/zinc/chacha20/chacha20.c |  193 +
  net/wireguard/crypto/zinc/chacha20poly1305.c  |  368 +
  .../zinc/curve25519/curve25519-arm-glue.c     |   43 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51287 insertions(+)
+ 98 files changed, 51285 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -202,7 +202,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/version.h
 
 diff --git a/net/Kconfig b/net/Kconfig
-index bc8d01996f22..5bc6b7c76b61 100644
+index f235edb593ba..8c455e77367a 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
 @@ -86,6 +86,7 @@ config INET
@@ -9941,10 +9941,10 @@ index 000000000000..f5a9c215ced0
 +}
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl
 new file mode 100644
-index 000000000000..ccc3c3779863
+index 000000000000..47bf36b6480c
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl
-@@ -0,0 +1,4108 @@
+@@ -0,0 +1,4106 @@
 +#!/usr/bin/env perl
 +# SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +#
@@ -10227,14 +10227,12 @@ index 000000000000..ccc3c3779863
 +
 +########################################################################
 +# Generic code path that handles all lengths on pre-SSSE3 processors.
++if(!$kernel) {
 +&declare_function("chacha20_ctr32", 64, 5);
 +$code.=<<___;
 +.cfi_startproc
 +	cmp	\$0,$len
 +	je	.Lno_data
-+___
-+if(!kernel) {
-+$code.=<<___;
 +	mov	OPENSSL_ia32cap_P+4(%rip),%r9
 +___
 +$code.=<<___	if ($avx>2);
@@ -10247,7 +10245,6 @@ index 000000000000..ccc3c3779863
 +	test	\$`1<<(41-32)`,%r9d
 +	jnz	.Lchacha20_ssse3
 +___
-+}
 +$code.=<<___;
 +	push	%rbx
 +.cfi_push	%rbx
@@ -10421,6 +10418,7 @@ index 000000000000..ccc3c3779863
 +.cfi_endproc
 +___
 +&end_function("chacha20_ctr32");
++}
 +
 +########################################################################
 +# SSSE3 code path that handles shorter lengths
