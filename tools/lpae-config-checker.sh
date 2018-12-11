@@ -65,22 +65,25 @@ config_value () {
 cd ${DIR}/KERNEL/
 
 #
+# General setup
+#
+config="CONFIG_KERNEL_XZ" ; config_disable
+config="CONFIG_KERNEL_LZO" ; config_enable
+
+config="CONFIG_THUMB2_KERNEL" ; config_enable
+config="CONFIG_THUMB2_AVOID_R_ARM_THM_JUMP11" ; config_disable
+
+#
 # Timers subsystem
 #
 config="CONFIG_PREEMPT_VOLUNTARY" ; config_disable
 config="CONFIG_PREEMPT" ; config_enable
-config="CONFIG_THUMB2_KERNEL" ; config_enable
 
 #
 # RCU Subsystem
 #
 config="CONFIG_IKCONFIG" ; config_enable
 config="CONFIG_IKCONFIG_PROC" ; config_enable
-config="CONFIG_MEMCG_SWAP_ENABLED" ; config_enable
-config="CONFIG_RT_GROUP_SCHED" ; config_enable
-config="CONFIG_SYSFS_SYSCALL" ; config_enable
-config="CONFIG_SYSCTL_SYSCALL" ; config_enable
-config="CONFIG_KALLSYMS_ALL" ; config_enable
 config="CONFIG_EMBEDDED" ; config_enable
 
 #
@@ -261,8 +264,6 @@ config="CONFIG_MAC80211_RC_MINSTREL_VHT" ; config_enable
 #
 # Generic Driver Options
 #
-config="CONFIG_UEVENT_HELPER" ; config_enable
-config="CONFIG_UEVENT_HELPER_PATH" ; option="" ; config_string
 config="CONFIG_DEVTMPFS_MOUNT" ; config_enable
 
 #
@@ -417,6 +418,7 @@ config="CONFIG_BRCMSMAC" ; config_disable
 config="CONFIG_INPUT_MOUSEDEV" ; config_disable
 
 config="CONFIG_KEYBOARD_ATKBD" ; config_disable
+config="CONFIG_KEYBOARD_OPENCORES" ; config_disable
 config="CONFIG_KEYBOARD_OMAP4" ; config_disable
 config="CONFIG_KEYBOARD_TWL4030" ; config_disable
 
@@ -453,12 +455,9 @@ config="CONFIG_INPUT_PALMAS_PWRBUTTON" ; config_enable
 # Hardware I/O ports
 #
 config="CONFIG_SERIO_AMBAKMI" ; config_disable
+config="CONFIG_SERIO_LIBPS2" ; config_disable
 config="CONFIG_SERIO_ALTERA_PS2" ; config_disable
-
-#
-# Character devices
-#
-config="CONFIG_DEVKMEM" ; config_enable
+config="CONFIG_SERIO_SUN4I_PS2" ; config_disable
 
 #
 # Serial drivers
@@ -576,6 +575,7 @@ config="CONFIG_W1_MASTER_MXC" ; config_module
 config="CONFIG_ROCKCHIP_IODOMAIN" ; config_enable
 config="CONFIG_GENERIC_ADC_BATTERY" ; config_module
 config="CONFIG_CHARGER_TPS65217" ; config_disable
+config="CONFIG_PWRSEQ_GENERIC" ; config_enable
 
 #exit
 
@@ -781,11 +781,6 @@ config="CONFIG_DRM" ; config_enable
 config="CONFIG_DRM_KMS_HELPER" ; config_enable
 
 #
-# I2C encoder or helper chips
-#
-config="CONFIG_DRM_I2C_ADIHDMI" ; config_disable
-
-#
 # AMD Library routines
 #
 config="CONFIG_DRM_EXYNOS" ; config_disable
@@ -841,9 +836,11 @@ config="CONFIG_DRM_LEGACY" ; config_disable
 #
 # Frame buffer hardware drivers
 #
+config="CONFIG_FB_EFI" ; config_disable
 config="CONFIG_FB_MX3" ; config_disable
 config="CONFIG_FB_SSD1307" ; config_enable
 config="CONFIG_BACKLIGHT_PWM" ; config_enable
+config="CONFIG_BACKLIGHT_PANDORA" ; config_disable
 config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 
 #
@@ -862,8 +859,6 @@ config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
 # HID support
 #
 config="CONFIG_HID" ; config_enable
-config="CONFIG_UHID" ; config_enable
-config="CONFIG_HID_GENERIC" ; config_enable
 
 #
 # Special HID drivers
@@ -893,6 +888,7 @@ config="CONFIG_USB_OTG" ; config_enable
 #
 config="CONFIG_USB_XHCI_HCD" ; config_enable
 config="CONFIG_USB_XHCI_PLATFORM" ; config_enable
+config="CONFIG_USB_EHCI_MXC" ; config_enable
 config="CONFIG_USB_XHCI_TEGRA" ; config_enable
 config="CONFIG_USB_EHCI_HCD" ; config_enable
 config="CONFIG_USB_EHCI_HCD_OMAP" ; config_enable
@@ -1131,8 +1127,9 @@ config="CONFIG_TI_CPPI41" ; config_enable
 #
 # DMABUF options
 #
-config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
-config="CONFIG_UIO_DMEM_GENIRQ" ; config_module
+config="CONFIG_UIO" ; config_disable
+#config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
+#config="CONFIG_UIO_DMEM_GENIRQ" ; config_module
 #Broken in v4.19.x
 config="CONFIG_UIO_PRUSS" ; config_disable
 
@@ -1320,6 +1317,9 @@ config="CONFIG_ADIS16201" ; config_module
 config="CONFIG_ADIS16209" ; config_module
 config="CONFIG_ADXL345_I2C" ; config_module
 config="CONFIG_ADXL345_SPI" ; config_module
+config="CONFIG_ADXL372" ; config_module
+config="CONFIG_ADXL372_SPI" ; config_module
+config="CONFIG_ADXL372_I2C" ; config_module
 config="CONFIG_BMA180" ; config_module
 config="CONFIG_BMA220" ; config_module
 config="CONFIG_BMC150_ACCEL" ; config_module
@@ -1329,8 +1329,11 @@ config="CONFIG_DMARD06" ; config_module
 config="CONFIG_DMARD09" ; config_module
 config="CONFIG_DMARD10" ; config_module
 
-#CONFIG_HID_SENSOR_ACCEL_3D
-#CONFIG_IIO_ST_ACCEL_SPI_3AXIS
+#CONFIG_HID_SENSOR_ACCEL_3D=m
+## CONFIG_IIO_CROS_EC_ACCEL_LEGACY is not set
+#CONFIG_IIO_ST_ACCEL_3AXIS=m
+#CONFIG_IIO_ST_ACCEL_I2C_3AXIS=m
+#CONFIG_IIO_ST_ACCEL_SPI_3AXIS=m
 
 config="CONFIG_KXSD9" ; config_module
 config="CONFIG_MMA8452" ; config_module
@@ -1340,7 +1343,7 @@ config="CONFIG_MMA7455_I2C" ; config_module
 config="CONFIG_MMA7455_SPI" ; config_module
 config="CONFIG_MMA7660" ; config_module
 
-#CONFIG_MMA8452
+#CONFIG_MMA8452=m
 
 config="CONFIG_MMA9551" ; config_module
 config="CONFIG_MMA9553" ; config_module
@@ -1353,7 +1356,7 @@ config="CONFIG_STK8BA50" ; config_module
 #
 # Analog to digital converters
 #
-#CONFIG_AD_SIGMA_DELTA
+#CONFIG_AD_SIGMA_DELTA=m
 
 config="CONFIG_AD7266" ; config_module
 config="CONFIG_AD7291" ; config_module
@@ -1385,9 +1388,11 @@ config="CONFIG_MAX1363" ; config_module
 config="CONFIG_MAX9611" ; config_module
 config="CONFIG_MCP320X" ; config_module
 config="CONFIG_MCP3422" ; config_module
+config="CONFIG_MCP3911" ; config_module
 config="CONFIG_NAU7802" ; config_module
 config="CONFIG_PALMAS_GPADC" ; config_module
 config="CONFIG_SD_ADC_MODULATOR" ; config_module
+config="CONFIG_STMPE_ADC" ; config_module
 config="CONFIG_SUN4I_GPADC" ; config_module
 config="CONFIG_TI_ADC081C" ; config_module
 config="CONFIG_TI_ADC0832" ; config_module
@@ -1407,6 +1412,7 @@ config="CONFIG_TI_TLC4541" ; config_module
 #CONFIG_TWL4030_MADC=m
 
 config="CONFIG_TWL6030_GPADC" ; config_module
+# CONFIG_VF610_ADC is not set
 
 #
 # Analog Front Ends
@@ -1440,6 +1446,7 @@ config="CONFIG_AD5592R" ; config_module
 config="CONFIG_AD5593R" ; config_module
 config="CONFIG_AD5504" ; config_module
 config="CONFIG_AD5624R_SPI" ; config_module
+config="CONFIG_LTC1660" ; config_module
 config="CONFIG_LTC2632" ; config_module
 config="CONFIG_AD5686_SPI" ; config_module
 config="CONFIG_AD5696_I2C" ; config_module
@@ -1459,6 +1466,7 @@ config="CONFIG_MCP4725" ; config_module
 config="CONFIG_MCP4922" ; config_module
 config="CONFIG_TI_DAC082S085" ; config_module
 config="CONFIG_TI_DAC5571" ; config_module
+# CONFIG_VF610_DAC is not set
 
 #
 # Clock Generator/Distribution
@@ -1658,6 +1666,7 @@ config="CONFIG_RFD77402" ; config_module
 config="CONFIG_SRF04" ; config_module
 config="CONFIG_SX9500" ; config_module
 config="CONFIG_SRF08" ; config_module
+config="CONFIG_VL53L0X_I2C" ; config_module
 
 #
 # Resolver to digital converters
@@ -1677,6 +1686,7 @@ config="CONFIG_TSYS01" ; config_module
 config="CONFIG_TSYS02D" ; config_module
 
 config="CONFIG_PWM_PCA9685" ; config_module
+config="CONFIG_PWM_STMPE" ; config_enable
 
 #
 # IRQ chip support
@@ -1725,11 +1735,15 @@ config="CONFIG_OF_FPGA_REGION" ; config_module
 #
 config="CONFIG_EXT4_FS" ; config_enable
 config="CONFIG_JBD2" ; config_enable
-config="CONFIG_FS_MBCACHE" ; config_enable
-config="CONFIG_XFS_FS" ; config_enable
+config="CONFIG_REISERFS_FS" ; config_disable
+config="CONFIG_XFS_FS" ; config_disable
+config="CONFIG_GFS2_FS" ; config_disable
+config="CONFIG_OCFS2_FS" ; config_disable
 config="CONFIG_BTRFS_FS" ; config_enable
+config="CONFIG_NILFS2_FS" ; config_disable
 config="CONFIG_F2FS_FS" ; config_disable
 config="CONFIG_FS_ENCRYPTION" ; config_enable
+config="CONFIG_QFMT_V1" ; config_disable
 config="CONFIG_AUTOFS4_FS" ; config_enable
 config="CONFIG_FUSE_FS" ; config_enable
 config="CONFIG_OVERLAY_FS" ; config_enable
@@ -1744,18 +1758,25 @@ config="CONFIG_VFAT_FS" ; config_enable
 #
 # Pseudo filesystems
 #
-config="CONFIG_CONFIGFS_FS" ; config_enable
-
+config="CONFIG_CONFIGFS_FS" ; config_disable
 config="CONFIG_ADFS_FS" ; config_disable
+config="CONFIG_AFFS_FS" ; config_disable
 config="CONFIG_HFS_FS" ; config_disable
 config="CONFIG_HFSPLUS_FS" ; config_disable
+config="CONFIG_BEFS_FS" ; config_disable
+config="CONFIG_BFS_FS" ; config_disable
 config="CONFIG_EFS_FS" ; config_disable
 
 config="CONFIG_UBIFS_FS" ; config_enable
 
+config="CONFIG_VXFS_FS" ; config_disable
 config="CONFIG_MINIX_FS" ; config_disable
+config="CONFIG_OMFS_FS" ; config_disable
+config="CONFIG_HPFS_FS" ; config_disable
 config="CONFIG_QNX4FS_FS" ; config_disable
 config="CONFIG_QNX6FS_FS" ; config_disable
+config="CONFIG_SYSV_FS" ; config_disable
+config="CONFIG_UFS_FS" ; config_disable
 config="CONFIG_EXOFS_FS" ; config_disable
 
 config="CONFIG_NFS_FS" ; config_enable
@@ -1770,6 +1791,7 @@ config="CONFIG_NLS_UTF8" ; config_enable
 #
 # Security options
 #
+config="CONFIG_KEY_DH_OPERATIONS" ; config_disable
 config="CONFIG_SECURITY_DMESG_RESTRICT" ; config_disable
 
 #

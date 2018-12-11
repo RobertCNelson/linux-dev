@@ -65,15 +65,6 @@ config_value () {
 cd ${DIR}/KERNEL/
 
 #
-# General setup
-#
-config="CONFIG_KERNEL_XZ" ; config_disable
-config="CONFIG_KERNEL_LZO" ; config_enable
-
-config="CONFIG_THUMB2_KERNEL" ; config_enable
-config="CONFIG_THUMB2_AVOID_R_ARM_THM_JUMP11" ; config_disable
-
-#
 # CPU Core family selection
 #
 config="CONFIG_ARCH_MXC" ; config_disable
