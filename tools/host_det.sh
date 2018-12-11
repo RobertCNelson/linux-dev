@@ -156,6 +156,9 @@ debian_regs () {
 	#GCC_PLUGINS
 	pkg="libmpc-dev"
 	check_dpkg
+	#"mkimage" command not found - U-Boot images will not be built
+	pkg="u-boot-tools"
+	check_dpkg
 
 	unset warn_dpkg_ia32
 	unset stop_pkg_search
