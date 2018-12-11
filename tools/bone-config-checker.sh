@@ -82,6 +82,7 @@ config="CONFIG_SOC_DRA7XX" ; config_disable
 # OMAP Legacy Platform Data Board Type
 #
 config="CONFIG_ARCH_SUNXI" ; config_disable
+config="CONFIG_EFI_ARMSTUB_DTB_LOADER" ; config_disable
 
 #
 # Processor Features
@@ -106,6 +107,7 @@ config="CONFIG_CAN" ; config_enable
 #
 # CAN Device Drivers
 #
+config="CONFIG_CAN_FLEXCAN" ; config_disable
 config="CONFIG_CAN_DEV" ; config_enable
 config="CONFIG_CAN_C_CAN" ; config_enable
 config="CONFIG_CAN_C_CAN_PLATFORM" ; config_enable
@@ -115,6 +117,7 @@ config="CONFIG_CAN_C_CAN_PLATFORM" ; config_enable
 #
 config="CONFIG_ENCLOSURE_SERVICES" ; config_disable
 config="CONFIG_TIEQEP" ; config_enable
+config="CONFIG_UDOO_ARD" ; config_disable
 
 #
 # VOP Driver

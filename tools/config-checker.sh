@@ -1800,7 +1800,7 @@ config="CONFIG_VFAT_FS" ; config_enable
 #
 # Pseudo filesystems
 #
-config="CONFIG_CONFIGFS_FS" ; config_disable
+config="CONFIG_CONFIGFS_FS" ; config_enable
 config="CONFIG_ADFS_FS" ; config_disable
 config="CONFIG_AFFS_FS" ; config_disable
 config="CONFIG_HFS_FS" ; config_disable
