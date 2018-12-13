@@ -280,7 +280,9 @@ FULL_REBUILD=1
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 
+	cp -v "${DIR}/KERNEL/scripts/package/Makefile" "${DIR}/3rdparty/packaging/"
 	cp -v "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
+	cp -v "${DIR}/KERNEL/scripts/package/mkdebian" "${DIR}/3rdparty/packaging/"
 
 	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-use-boot-dtbs-uname-r-path.diff"
 
