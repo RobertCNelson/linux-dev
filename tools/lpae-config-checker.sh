@@ -70,9 +70,6 @@ cd ${DIR}/KERNEL/
 config="CONFIG_KERNEL_XZ" ; config_disable
 config="CONFIG_KERNEL_LZO" ; config_enable
 
-config="CONFIG_THUMB2_KERNEL" ; config_enable
-config="CONFIG_THUMB2_AVOID_R_ARM_THM_JUMP11" ; config_disable
-
 #
 # Timers subsystem
 #
@@ -141,6 +138,8 @@ config="CONFIG_ARM_ERRATA_773022" ; config_disable
 #
 # Kernel Features
 #
+config="CONFIG_THUMB2_KERNEL" ; config_enable
+config="CONFIG_THUMB2_AVOID_R_ARM_THM_JUMP11" ; config_disable
 config="CONFIG_PARAVIRT" ; config_disable
 config="CONFIG_XEN" ; config_disable
 
@@ -188,6 +187,7 @@ config="CONFIG_CRYPTO_SHA512_ARM" ; config_module
 config="CONFIG_CRYPTO_AES_ARM" ; config_module
 config="CONFIG_CRYPTO_AES_ARM_BS" ; config_module
 config="CRYPTO_CHACHA20_NEON" ; config_module
+config="CONFIG_CRYPTO_NHPOLY1305_NEON" ; config_module
 
 ##
 ## GCOV-based kernel profiling
@@ -477,7 +477,6 @@ config="CONFIG_SERIAL_OMAP" ; config_disable
 config="CONFIG_SERIAL_ARC" ; config_disable
 config="CONFIG_SERIAL_FSL_LPUART" ; config_enable
 config="CONFIG_SERIAL_FSL_LPUART_CONSOLE" ; config_enable
-config="CONFIG_SERIAL_DEV_BUS" ; config_enable
 
 config="CONFIG_HW_RANDOM" ; config_enable
 config="CONFIG_HW_RANDOM_OMAP" ; config_enable
@@ -806,6 +805,7 @@ config="CONFIG_DRM_OMAP_PANEL_DPI" ; config_enable
 config="CONFIG_DRM_TILCDC" ; config_disable
 config="CONFIG_DRM_TEGRA" ; config_enable
 config="CONFIG_DRM_STM" ; config_disable
+config="CONFIG_DRM_MSM" ; config_disable
 
 #
 # Display Interface Bridges
@@ -822,6 +822,7 @@ config="CONFIG_DRM_IMX" ; config_disable
 config="CONFIG_DRM_ETNAVIV" ; config_enable
 config="CONFIG_DRM_TINYDRM" ; config_module
 config="CONFIG_TINYDRM_MIPI_DBI" ; config_module
+config="CONFIG_TINYDRM_HX8357D" ; config_module
 config="CONFIG_TINYDRM_ILI9225" ; config_module
 config="CONFIG_TINYDRM_ILI9341" ; config_module
 config="CONFIG_TINYDRM_MI0283QT" ; config_module
@@ -849,11 +850,25 @@ config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 config="CONFIG_LOGO" ; config_enable
 
 #
-# HD-Audio
+# Audio support for Texas Instruments SoCs
 #
-config="CONFIG_SND_DAVINCI_SOC_I2S" ; config_module
-config="CONFIG_SND_DAVINCI_SOC_GENERIC_EVM" ; config_module
-config="CONFIG_SND_AM33XX_SOC_EVM" ; config_module
+config="CONFIG_SND_SOC_TI_EDMA_PCM" ; config_module
+config="CONFIG_SND_SOC_TI_SDMA_PCM" ; config_module
+
+#
+# Texas Instruments DAI support for:
+#
+config="CONFIG_SND_SOC_DAVINCI_MCASP" ; config_module
+config="CONFIG_SND_SOC_OMAP_DMIC" ; config_module
+config="CONFIG_SND_SOC_OMAP_MCBSP" ; config_module
+config="CONFIG_SND_SOC_OMAP_MCPDM" ; config_module
+
+#
+# Audio support for boards with Texas Instruments SoCs
+#
+config="CONFIG_SND_SOC_OMAP3_TWL4030" ; config_module
+config="CONFIG_SND_SOC_OMAP_ABE_TWL6040" ; config_module
+config="CONFIG_SND_SOC_OMAP_HDMI" ; config_module
 
 #
 # HID support
@@ -1759,6 +1774,7 @@ config="CONFIG_VFAT_FS" ; config_enable
 # Pseudo filesystems
 #
 config="CONFIG_CONFIGFS_FS" ; config_enable
+config="CONFIG_ORANGEFS_FS" ; config_disable
 config="CONFIG_ADFS_FS" ; config_disable
 config="CONFIG_AFFS_FS" ; config_disable
 config="CONFIG_HFS_FS" ; config_disable
@@ -1786,6 +1802,7 @@ config="CONFIG_NFS_V4" ; config_enable
 config="CONFIG_ROOT_NFS" ; config_enable
 
 config="CONFIG_NLS_CODEPAGE_437" ; config_enable
+config="CONFIG_NLS_ASCII" ; config_enable
 config="CONFIG_NLS_UTF8" ; config_enable
 
 #
@@ -1798,6 +1815,11 @@ config="CONFIG_SECURITY_DMESG_RESTRICT" ; config_disable
 # Crypto core or helper
 #
 config="CONFIG_CRYPTO_MANAGER_DISABLE_TESTS" ; config_enable
+
+#
+# Block modes
+#
+config="CONFIG_CRYPTO_ADIANTUM" ; config_module
 
 #
 # Random Number Generation
