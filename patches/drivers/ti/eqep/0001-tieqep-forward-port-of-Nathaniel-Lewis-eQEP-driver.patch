@@ -12,61 +12,61 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  4 files changed, 780 insertions(+)
  create mode 100644 drivers/misc/tieqep.c
 
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index b7e3f69dac48..afa611cff48a 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -770,6 +770,16 @@
- 				status = "disabled";
- 			};
+diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
+index 7b818d9d2eab..74b82fd23f9c 100644
+--- a/arch/arm/boot/dts/am33xx-l4.dtsi
++++ b/arch/arm/boot/dts/am33xx-l4.dtsi
+@@ -1913,6 +1913,16 @@
+ 					status = "disabled";
+ 				};
  
-+			eqep0: eqep@0x48300180 {
-+				compatible = "ti,am33xx-eqep";
-+				reg = <0x48300180 0x80>;
-+				clocks = <&l4ls_gclk>;
-+				clock-names = "fck";
-+				interrupt-parent = <&intc>;
-+				interrupts = <79>;
-+				status = "disabled";
-+			};
++				eqep0: eqep@180 {
++					compatible = "ti,am33xx-eqep";
++					reg = <0x180 0x80>;
++					clocks = <&l4ls_gclk>;
++					clock-names = "fck";
++					interrupts = <79>;
++					interrupt-names = "eqep0";
++					status = "disabled";
++				}
 +
- 			ehrpwm0: pwm@48300200 {
- 				compatible = "ti,am3352-ehrpwm",
- 					     "ti,am33xx-ehrpwm";
-@@ -804,6 +814,16 @@
- 				status = "disabled";
- 			};
+ 				ehrpwm0: pwm@200 {
+ 					compatible = "ti,am3352-ehrpwm",
+ 						     "ti,am33xx-ehrpwm";
+@@ -1966,6 +1976,16 @@
+ 					status = "disabled";
+ 				};
  
-+			eqep1: eqep@0x48302180 {
-+				compatible = "ti,am33xx-eqep";
-+				reg = <0x48302180 0x80>;
-+				clocks = <&l4ls_gclk>;
-+				clock-names = "fck";
-+				interrupt-parent = <&intc>;
-+				interrupts = <88>;
-+				status = "disabled";
-+			};
++				eqep1: eqep@180 {
++					compatible = "ti,am33xx-eqep";
++					reg = <0x180 0x80>;
++					clocks = <&l4ls_gclk>;
++					clock-names = "fck";
++					interrupts = <88>;
++					interrupt-names = "eqep1";
++					status = "disabled";
++				}
 +
- 			ehrpwm1: pwm@48302200 {
- 				compatible = "ti,am3352-ehrpwm",
- 					     "ti,am33xx-ehrpwm";
-@@ -838,6 +858,16 @@
- 				status = "disabled";
- 			};
+ 				ehrpwm1: pwm@200 {
+ 					compatible = "ti,am3352-ehrpwm",
+ 						     "ti,am33xx-ehrpwm";
+@@ -2019,6 +2039,16 @@
+ 					status = "disabled";
+ 				};
  
-+			eqep2: eqep@0x48304180 {
-+				compatible = "ti,am33xx-eqep";
-+				reg = <0x48304180 0x80>;
-+				clocks = <&l4ls_gclk>;
-+				clock-names = "fck";
-+				interrupt-parent = <&intc>;
-+				interrupts = <89>;
-+				status = "disabled";
-+			};
++				eqep2: eqep@180 {
++					compatible = "ti,am33xx-eqep";
++					reg = <0x180 0x80>;
++					clocks = <&l4ls_gclk>;
++					clock-names = "fck";
++					interrupts = <89>;
++					interrupt-names = "eqep2";
++					status = "disabled";
++				}
 +
- 			ehrpwm2: pwm@48304200 {
- 				compatible = "ti,am3352-ehrpwm",
- 					     "ti,am33xx-ehrpwm";
+ 				ehrpwm2: pwm@200 {
+ 					compatible = "ti,am3352-ehrpwm",
+ 						     "ti,am33xx-ehrpwm";
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
 index f417b06e11c5..6794ef7099b8 100644
 --- a/drivers/misc/Kconfig
