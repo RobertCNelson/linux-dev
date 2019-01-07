@@ -1,0 +1,92 @@
+From 034e2f15ba3858050e42d5772508f7c143a1bd22 Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Tue, 9 Jan 2018 12:45:04 -0600
+Subject: [PATCH 2/2] rpmsg: virtio_rpmsg_bus: move back rpmsg_hdr into a
+ public header
+
+Commit e88dae5da46d ("rpmsg: Move virtio specifics from public header")
+has moved the struct rpmsg_hdr definition from the public rpmsg.h and
+made it private to virtio_rpmsg_bus module. This structure is a common
+header used in all virtio rpmsg messages, and used by various virtio
+rpmsg bus drivers. So, move this back into the virtio_rpmsg specific
+public header to make it visible to various rpmsg drivers.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+---
+ drivers/rpmsg/virtio_rpmsg_bus.c   | 21 +--------------------
+ include/linux/rpmsg/virtio_rpmsg.h | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 20 deletions(-)
+ create mode 100644 include/linux/rpmsg/virtio_rpmsg.h
+
+diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+index 664f957012cd..f654923c027c 100644
+--- a/drivers/rpmsg/virtio_rpmsg_bus.c
++++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+@@ -26,6 +26,7 @@
+ #include <linux/rpmsg.h>
+ #include <linux/mutex.h>
+ #include <linux/of_device.h>
++#include <linux/rpmsg/virtio_rpmsg.h>
+ 
+ #include "rpmsg_internal.h"
+ 
+@@ -72,26 +73,6 @@ struct virtproc_info {
+ /* The feature bitmap for virtio rpmsg */
+ #define VIRTIO_RPMSG_F_NS	0 /* RP supports name service notifications */
+ 
+-/**
+- * struct rpmsg_hdr - common header for all rpmsg messages
+- * @src: source address
+- * @dst: destination address
+- * @reserved: reserved for future use
+- * @len: length of payload (in bytes)
+- * @flags: message flags
+- * @data: @len bytes of message payload data
+- *
+- * Every message sent(/received) on the rpmsg bus begins with this header.
+- */
+-struct rpmsg_hdr {
+-	u32 src;
+-	u32 dst;
+-	u32 reserved;
+-	u16 len;
+-	u16 flags;
+-	u8 data[0];
+-} __packed;
+-
+ /**
+  * struct rpmsg_ns_msg - dynamic name service announcement message
+  * @name: name of remote service that is published
+diff --git a/include/linux/rpmsg/virtio_rpmsg.h b/include/linux/rpmsg/virtio_rpmsg.h
+new file mode 100644
+index 000000000000..ff2695e95139
+--- /dev/null
++++ b/include/linux/rpmsg/virtio_rpmsg.h
+@@ -0,0 +1,24 @@
++#ifndef _LINUX_RPMSG_VIRTIO_RPMSG_H
++#define _LINUX_RPMSG_VIRTIO_RPMSG_H
++
++/**
++ * struct rpmsg_hdr - common header for all virtio rpmsg messages
++ * @src: source address
++ * @dst: destination address
++ * @reserved: reserved for future use
++ * @len: length of payload (in bytes)
++ * @flags: message flags
++ * @data: @len bytes of message payload data
++ *
++ * Every message sent(/received) on the rpmsg bus begins with this header.
++ */
++struct rpmsg_hdr {
++	u32 src;
++	u32 dst;
++	u32 reserved;
++	u16 len;
++	u16 flags;
++	u8 data[0];
++} __packed;
++
++#endif
+-- 
+2.19.2
+

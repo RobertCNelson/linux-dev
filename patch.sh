@@ -384,6 +384,9 @@ drivers () {
 	#[PATCH 00/16] remoteproc: Add support for TI PRU
 	dir 'drivers/ti/remoteproc'
 
+	#https://lkml.org/lkml/2018/12/2/361
+	dir 'drivers/ti/pruss-from-v4.14.x-ti'
+
 	dir 'drivers/ti/overlays'
 	dir 'drivers/ti/cpsw'
 	dir 'drivers/ti/etnaviv'

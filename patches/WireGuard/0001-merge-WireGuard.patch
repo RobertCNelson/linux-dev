@@ -1,6 +1,6 @@
-From 00ae4fe41b7db8f712d0557b2bbcbbbfdcabfb8a Mon Sep 17 00:00:00 2001
+From fabfab3567e8d3a32ebee83cc02933adbb4fa09b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 26 Dec 2018 08:53:47 -0600
+Date: Sun, 6 Jan 2019 20:44:58 -0600
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   78 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  809 ++
+ net/wireguard/compat/compat.h                 |  813 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -82,7 +82,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/hashtables.h                    |   64 +
  net/wireguard/main.c                          |   69 +
  net/wireguard/messages.h                      |  128 +
- net/wireguard/netlink.c                       |  609 ++
+ net/wireguard/netlink.c                       |  616 ++
  net/wireguard/netlink.h                       |   12 +
  net/wireguard/noise.c                         |  797 ++
  net/wireguard/noise.h                         |  131 +
@@ -95,7 +95,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/receive.c                       |  606 ++
  net/wireguard/selftest/allowedips.c           |  689 ++
  net/wireguard/selftest/counter.c              |  104 +
- net/wireguard/selftest/ratelimiter.c          |  229 +
+ net/wireguard/selftest/ratelimiter.c          |  226 +
  net/wireguard/send.c                          |  431 +
  net/wireguard/socket.c                        |  433 +
  net/wireguard/socket.h                        |   44 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51285 insertions(+)
+ 98 files changed, 51293 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -202,10 +202,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/version.h
 
 diff --git a/net/Kconfig b/net/Kconfig
-index f235edb593ba..8c455e77367a 100644
+index 5cb9de1aaf88..173c87fd6d48 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
-@@ -86,6 +86,7 @@ config INET
+@@ -89,6 +89,7 @@ config INET
  	  Short answer: say Y.
  
  if INET
@@ -265,13 +265,13 @@ index 000000000000..cc2ba9ff3130
 +	  Say N here unless you know what you're doing.
 diff --git a/net/wireguard/Makefile b/net/wireguard/Makefile
 new file mode 100644
-index 000000000000..c17728218dab
+index 000000000000..c9cbf0991ed4
 --- /dev/null
 +++ b/net/wireguard/Makefile
 @@ -0,0 +1,14 @@
 +# SPDX-License-Identifier: GPL-2.0
 +#
-+# Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++# Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 +
 +ccflags-y := -O3 -fvisibility=hidden
 +ccflags-$(CONFIG_WIREGUARD_DEBUG) += -DDEBUG -g
@@ -285,13 +285,13 @@ index 000000000000..c17728218dab
 +obj-$(if $(KBUILD_EXTMOD),m,$(CONFIG_WIREGUARD)) := wireguard.o
 diff --git a/net/wireguard/allowedips.c b/net/wireguard/allowedips.c
 new file mode 100644
-index 000000000000..2de752d9adcf
+index 000000000000..30b66f4399b6
 --- /dev/null
 +++ b/net/wireguard/allowedips.c
 @@ -0,0 +1,417 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "allowedips.h"
@@ -708,13 +708,13 @@ index 000000000000..2de752d9adcf
 +#include "selftest/allowedips.c"
 diff --git a/net/wireguard/allowedips.h b/net/wireguard/allowedips.h
 new file mode 100644
-index 000000000000..8e63f6321116
+index 000000000000..29e15a2d8a41
 --- /dev/null
 +++ b/net/wireguard/allowedips.h
 @@ -0,0 +1,54 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_ALLOWEDIPS_H
@@ -768,13 +768,13 @@ index 000000000000..8e63f6321116
 +#endif /* _WG_ALLOWEDIPS_H */
 diff --git a/net/wireguard/compat/Makefile.include b/net/wireguard/compat/Makefile.include
 new file mode 100644
-index 000000000000..f69b376b1c92
+index 000000000000..627a418756d0
 --- /dev/null
 +++ b/net/wireguard/compat/Makefile.include
 @@ -0,0 +1,78 @@
 +# SPDX-License-Identifier: GPL-2.0
 +#
-+# Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++# Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 +
 +kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
 +
@@ -852,13 +852,13 @@ index 000000000000..f69b376b1c92
 +endif
 diff --git a/net/wireguard/compat/checksum/checksum_partial_compat.h b/net/wireguard/compat/checksum/checksum_partial_compat.h
 new file mode 100644
-index 000000000000..aa6a3a417d67
+index 000000000000..3dfe5397a94f
 --- /dev/null
 +++ b/net/wireguard/compat/checksum/checksum_partial_compat.h
 @@ -0,0 +1,208 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <net/route.h>
@@ -1066,13 +1066,13 @@ index 000000000000..aa6a3a417d67
 +}
 diff --git a/net/wireguard/compat/compat-asm.h b/net/wireguard/compat/compat-asm.h
 new file mode 100644
-index 000000000000..8ce3045693fb
+index 000000000000..f5c5bc29db26
 --- /dev/null
 +++ b/net/wireguard/compat/compat-asm.h
 @@ -0,0 +1,43 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_COMPATASM_H
@@ -1115,13 +1115,13 @@ index 000000000000..8ce3045693fb
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..c6b725dec64e
+index 000000000000..15cf8bb15588
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,809 @@
+@@ -0,0 +1,813 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_COMPAT_H
@@ -1768,7 +1768,7 @@ index 000000000000..c6b725dec64e
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
 +#define timespec64 timespec
-+#define getnstimeofday64 getnstimeofday
++#define ktime_get_real_ts64 ktime_get_real_ts
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
@@ -1867,6 +1867,10 @@ index 000000000000..c6b725dec64e
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
 +#define hlist_add_behind(a, b) hlist_add_after(b, a)
++#endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 21, 0)
++#define totalram_pages() totalram_pages
 +#endif
 +
 +/* https://github.com/ClangBuiltLinux/linux/issues/7 */
@@ -3173,13 +3177,13 @@ index 000000000000..a975b38b5578
 +#endif
 diff --git a/net/wireguard/compat/simd/include/linux/simd.h b/net/wireguard/compat/simd/include/linux/simd.h
 new file mode 100644
-index 000000000000..11ee98a2cf0e
+index 000000000000..c75c72471e9e
 --- /dev/null
 +++ b/net/wireguard/compat/simd/include/linux/simd.h
 @@ -0,0 +1,70 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_SIMD_H
@@ -3249,11 +3253,11 @@ index 000000000000..11ee98a2cf0e
 +#endif /* _WG_SIMD_H */
 diff --git a/net/wireguard/compat/siphash/include/linux/siphash.h b/net/wireguard/compat/siphash/include/linux/siphash.h
 new file mode 100644
-index 000000000000..ac8f53c6cdbb
+index 000000000000..1e5e337d15bf
 --- /dev/null
 +++ b/net/wireguard/compat/siphash/include/linux/siphash.h
 @@ -0,0 +1,140 @@
-+/* Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++/* Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This file is provided under a dual BSD/GPLv2 license.
 + *
@@ -3395,11 +3399,11 @@ index 000000000000..ac8f53c6cdbb
 +#endif /* _WG_LINUX_SIPHASH_H */
 diff --git a/net/wireguard/compat/siphash/siphash.c b/net/wireguard/compat/siphash/siphash.c
 new file mode 100644
-index 000000000000..a9b4dff3318d
+index 000000000000..58855328e6e0
 --- /dev/null
 +++ b/net/wireguard/compat/siphash/siphash.c
 @@ -0,0 +1,539 @@
-+/* Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++/* Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This file is provided under a dual BSD/GPLv2 license.
 + *
@@ -4431,13 +4435,13 @@ index 000000000000..6afb11dc02f8
 +#endif
 diff --git a/net/wireguard/compat/udp_tunnel/udp_tunnel_partial_compat.h b/net/wireguard/compat/udp_tunnel/udp_tunnel_partial_compat.h
 new file mode 100644
-index 000000000000..83327d8dfff9
+index 000000000000..a4b5a1493a10
 --- /dev/null
 +++ b/net/wireguard/compat/udp_tunnel/udp_tunnel_partial_compat.h
 @@ -0,0 +1,226 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0)
@@ -4663,13 +4667,13 @@ index 000000000000..83327d8dfff9
 +#endif
 diff --git a/net/wireguard/cookie.c b/net/wireguard/cookie.c
 new file mode 100644
-index 000000000000..a6fa077e00a1
+index 000000000000..97ab28a63a3a
 --- /dev/null
 +++ b/net/wireguard/cookie.c
 @@ -0,0 +1,236 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "cookie.h"
@@ -4905,13 +4909,13 @@ index 000000000000..a6fa077e00a1
 +}
 diff --git a/net/wireguard/cookie.h b/net/wireguard/cookie.h
 new file mode 100644
-index 000000000000..c403645b7a19
+index 000000000000..c4bd61ca03f2
 --- /dev/null
 +++ b/net/wireguard/cookie.h
 @@ -0,0 +1,59 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_COOKIE_H
@@ -5033,13 +5037,13 @@ index 000000000000..460684d845c3
 +ccflags-$(CONFIG_WIREGUARD_DEBUG) += -DCONFIG_ZINC_SELFTEST
 diff --git a/net/wireguard/crypto/include/zinc/blake2s.h b/net/wireguard/crypto/include/zinc/blake2s.h
 new file mode 100644
-index 000000000000..701a08ba47c1
+index 000000000000..5f1a1aeaf129
 --- /dev/null
 +++ b/net/wireguard/crypto/include/zinc/blake2s.h
 @@ -0,0 +1,56 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _ZINC_BLAKE2S_H
@@ -5095,13 +5099,13 @@ index 000000000000..701a08ba47c1
 +#endif /* _ZINC_BLAKE2S_H */
 diff --git a/net/wireguard/crypto/include/zinc/chacha20.h b/net/wireguard/crypto/include/zinc/chacha20.h
 new file mode 100644
-index 000000000000..0b98bd6946ae
+index 000000000000..8de54c97ed29
 --- /dev/null
 +++ b/net/wireguard/crypto/include/zinc/chacha20.h
 @@ -0,0 +1,70 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _ZINC_CHACHA20_H
@@ -5171,13 +5175,13 @@ index 000000000000..0b98bd6946ae
 +#endif /* _ZINC_CHACHA20_H */
 diff --git a/net/wireguard/crypto/include/zinc/chacha20poly1305.h b/net/wireguard/crypto/include/zinc/chacha20poly1305.h
 new file mode 100644
-index 000000000000..d2753c5bada5
+index 000000000000..ce7274092965
 --- /dev/null
 +++ b/net/wireguard/crypto/include/zinc/chacha20poly1305.h
 @@ -0,0 +1,50 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _ZINC_CHACHA20POLY1305_H
@@ -5227,13 +5231,13 @@ index 000000000000..d2753c5bada5
 +#endif /* _ZINC_CHACHA20POLY1305_H */
 diff --git a/net/wireguard/crypto/include/zinc/curve25519.h b/net/wireguard/crypto/include/zinc/curve25519.h
 new file mode 100644
-index 000000000000..def173e736fc
+index 000000000000..0b46552fbce0
 --- /dev/null
 +++ b/net/wireguard/crypto/include/zinc/curve25519.h
 @@ -0,0 +1,22 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _ZINC_CURVE25519_H
@@ -5255,13 +5259,13 @@ index 000000000000..def173e736fc
 +#endif /* _ZINC_CURVE25519_H */
 diff --git a/net/wireguard/crypto/include/zinc/poly1305.h b/net/wireguard/crypto/include/zinc/poly1305.h
 new file mode 100644
-index 000000000000..13fe0e50fc3c
+index 000000000000..8a16d19f8177
 --- /dev/null
 +++ b/net/wireguard/crypto/include/zinc/poly1305.h
 @@ -0,0 +1,31 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _ZINC_POLY1305_H
@@ -5292,13 +5296,13 @@ index 000000000000..13fe0e50fc3c
 +#endif /* _ZINC_POLY1305_H */
 diff --git a/net/wireguard/crypto/zinc.h b/net/wireguard/crypto/zinc.h
 new file mode 100644
-index 000000000000..319b71d83442
+index 000000000000..9aa1e8d59bf5
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc.h
 @@ -0,0 +1,15 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_ZINC_H
@@ -5313,13 +5317,13 @@ index 000000000000..319b71d83442
 +#endif
 diff --git a/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64-glue.c b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64-glue.c
 new file mode 100644
-index 000000000000..1319480db0b2
+index 000000000000..9a956be904c2
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64-glue.c
 @@ -0,0 +1,73 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <linux/simd.h>
@@ -5392,13 +5396,13 @@ index 000000000000..1319480db0b2
 +}
 diff --git a/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64.S b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64.S
 new file mode 100644
-index 000000000000..1407a5ffb5c2
+index 000000000000..675288fa4cca
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64.S
 @@ -0,0 +1,685 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + * Copyright (C) 2017 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
 + */
 +
@@ -6083,14 +6087,14 @@ index 000000000000..1407a5ffb5c2
 +#endif /* CONFIG_AS_AVX512 */
 diff --git a/net/wireguard/crypto/zinc/blake2s/blake2s.c b/net/wireguard/crypto/zinc/blake2s/blake2s.c
 new file mode 100644
-index 000000000000..311c3fdcb7bc
+index 000000000000..b881db03f1f8
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/blake2s/blake2s.c
 @@ -0,0 +1,305 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
 + * Copyright (C) 2012 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is an implementation of the BLAKE2s hash and PRF functions.
 + *
@@ -6394,13 +6398,13 @@ index 000000000000..311c3fdcb7bc
 +#endif
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm-glue.c b/net/wireguard/crypto/zinc/chacha20/chacha20-arm-glue.c
 new file mode 100644
-index 000000000000..a0da95d3b9c4
+index 000000000000..84c3bb7487b3
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm-glue.c
 @@ -0,0 +1,98 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <asm/hwcap.h>
@@ -8900,13 +8904,13 @@ index 000000000000..fc63cc818eca
 +close STDOUT;	# flush
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-mips-glue.c b/net/wireguard/crypto/zinc/chacha20/chacha20-mips-glue.c
 new file mode 100644
-index 000000000000..055932142613
+index 000000000000..96ce01e2c133
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-mips-glue.c
 @@ -0,0 +1,27 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +asmlinkage void chacha20_mips(u32 state[16], u8 *out, const u8 *in,
@@ -8933,14 +8937,14 @@ index 000000000000..055932142613
 +}
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-mips.S b/net/wireguard/crypto/zinc/chacha20/chacha20-mips.S
 new file mode 100644
-index 000000000000..031ee5e794df
+index 000000000000..a81e02db95e7
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-mips.S
 @@ -0,0 +1,424 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
 + * Copyright (C) 2016-2018 René van Dorst <opensource@vdorst.com>. All Rights Reserved.
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#define MASK_U32		0x3c
@@ -9830,13 +9834,13 @@ index 000000000000..2140319b64a0
 +ENDPROC(hchacha20_arm)
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64-glue.c b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64-glue.c
 new file mode 100644
-index 000000000000..f5a9c215ced0
+index 000000000000..5ac5f686a641
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64-glue.c
 @@ -0,0 +1,105 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <asm/fpu/api.h>
@@ -9941,7 +9945,7 @@ index 000000000000..f5a9c215ced0
 +}
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl
 new file mode 100644
-index 000000000000..47bf36b6480c
+index 000000000000..38532f87a754
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl
 @@ -0,0 +1,4106 @@
@@ -9949,7 +9953,7 @@ index 000000000000..47bf36b6480c
 +# SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +#
 +# Copyright (C) 2017-2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
-+# Copyright (C) 2017-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++# Copyright (C) 2017-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 +# Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
 +#
 +# This code is taken from the OpenSSL project but the author, Andy Polyakov,
@@ -14053,13 +14057,13 @@ index 000000000000..47bf36b6480c
 +close STDOUT;
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20.c b/net/wireguard/crypto/zinc/chacha20/chacha20.c
 new file mode 100644
-index 000000000000..971391caeede
+index 000000000000..b4763c81e082
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20.c
 @@ -0,0 +1,193 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * Implementation of the ChaCha20 stream cipher.
 + *
@@ -14252,13 +14256,13 @@ index 000000000000..971391caeede
 +#endif
 diff --git a/net/wireguard/crypto/zinc/chacha20poly1305.c b/net/wireguard/crypto/zinc/chacha20poly1305.c
 new file mode 100644
-index 000000000000..6f709e00818e
+index 000000000000..28b9880c6b6a
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20poly1305.c
 @@ -0,0 +1,368 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is an implementation of the ChaCha20Poly1305 AEAD construction.
 + *
@@ -14626,13 +14630,13 @@ index 000000000000..6f709e00818e
 +#endif
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-arm-glue.c b/net/wireguard/crypto/zinc/curve25519/curve25519-arm-glue.c
 new file mode 100644
-index 000000000000..c71c981c3ba9
+index 000000000000..e0c5a5d297c0
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-arm-glue.c
 @@ -0,0 +1,43 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <linux/simd.h>
@@ -14675,13 +14679,13 @@ index 000000000000..c71c981c3ba9
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-arm.S b/net/wireguard/crypto/zinc/curve25519/curve25519-arm.S
 new file mode 100644
-index 000000000000..b63ac48e7f8d
+index 000000000000..0ef143104121
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-arm.S
 @@ -0,0 +1,2064 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * Based on public domain code from Daniel J. Bernstein and Peter Schwabe. This
 + * began from SUPERCOP's curve25519/neon2/scalarmult.s, but has subsequently been
@@ -16745,14 +16749,14 @@ index 000000000000..b63ac48e7f8d
 +#endif
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-fiat32.c b/net/wireguard/crypto/zinc/curve25519/curve25519-fiat32.c
 new file mode 100644
-index 000000000000..50e6f3f1025a
+index 000000000000..55c3718c07bd
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-fiat32.c
 @@ -0,0 +1,860 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
 + * Copyright (C) 2015-2016 The fiat-crypto Authors.
-+ * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is a machine-generated formally verified implementation of Curve25519
 + * ECDH from: <https://github.com/mit-plv/fiat-crypto>. Though originally
@@ -17611,14 +17615,14 @@ index 000000000000..50e6f3f1025a
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-hacl64.c b/net/wireguard/crypto/zinc/curve25519/curve25519-hacl64.c
 new file mode 100644
-index 000000000000..ce7dfcf064b1
+index 000000000000..c6e726ff9ddb
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-hacl64.c
 @@ -0,0 +1,784 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
 + * Copyright (C) 2016-2017 INRIA and Microsoft Corporation.
-+ * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is a machine-generated formally verified implementation of Curve25519
 + * ECDH from: <https://github.com/mitls/hacl-star>. Though originally machine
@@ -18401,13 +18405,13 @@ index 000000000000..ce7dfcf064b1
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64-glue.c b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64-glue.c
 new file mode 100644
-index 000000000000..f79c1422a106
+index 000000000000..19c86c6c3955
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64-glue.c
 @@ -0,0 +1,48 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <asm/cpufeature.h>
@@ -18455,14 +18459,14 @@ index 000000000000..f79c1422a106
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
 new file mode 100644
-index 000000000000..e42531d342c6
+index 000000000000..2ae0fef542cf
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
 @@ -0,0 +1,2333 @@
 +// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +/*
 + * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>. All Rights Reserved.
-+ * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + * Copyright (C) 2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
 + */
 +
@@ -20794,13 +20798,13 @@ index 000000000000..e42531d342c6
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519.c b/net/wireguard/crypto/zinc/curve25519/curve25519.c
 new file mode 100644
-index 000000000000..e3c1f7dea6c0
+index 000000000000..f1bfe86b009a
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519.c
 @@ -0,0 +1,120 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is an implementation of the Curve25519 ECDH algorithm, using either
 + * a 32-bit implementation or a 64-bit implementation with 128-bit integers,
@@ -20920,13 +20924,13 @@ index 000000000000..e3c1f7dea6c0
 +#endif
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-arm-glue.c b/net/wireguard/crypto/zinc/poly1305/poly1305-arm-glue.c
 new file mode 100644
-index 000000000000..f4f08ecffbf6
+index 000000000000..a80f0460ea13
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-arm-glue.c
 @@ -0,0 +1,140 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <asm/hwcap.h>
@@ -23328,13 +23332,13 @@ index 000000000000..d513b45a149b
 +close STDOUT;
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-donna32.c b/net/wireguard/crypto/zinc/poly1305/poly1305-donna32.c
 new file mode 100644
-index 000000000000..e342f03c21f6
+index 000000000000..527ccc3b59cc
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-donna32.c
 @@ -0,0 +1,205 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is based in part on Andrew Moon's poly1305-donna, which is in the
 + * public domain.
@@ -23539,13 +23543,13 @@ index 000000000000..e342f03c21f6
 +}
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-donna64.c b/net/wireguard/crypto/zinc/poly1305/poly1305-donna64.c
 new file mode 100644
-index 000000000000..8a011829c5c5
+index 000000000000..131f1dda1b1d
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-donna64.c
 @@ -0,0 +1,182 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is based in part on Andrew Moon's poly1305-donna, which is in the
 + * public domain.
@@ -23727,13 +23731,13 @@ index 000000000000..8a011829c5c5
 +}
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-mips-glue.c b/net/wireguard/crypto/zinc/poly1305/poly1305-mips-glue.c
 new file mode 100644
-index 000000000000..1eba9512a05c
+index 000000000000..a540e9c4eee8
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-mips-glue.c
 @@ -0,0 +1,37 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +asmlinkage void poly1305_init_mips(void *ctx, const u8 key[16]);
@@ -23770,14 +23774,14 @@ index 000000000000..1eba9512a05c
 +}
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-mips.S b/net/wireguard/crypto/zinc/poly1305/poly1305-mips.S
 new file mode 100644
-index 000000000000..4d695eef1091
+index 000000000000..4291c156815b
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-mips.S
 @@ -0,0 +1,407 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
 + * Copyright (C) 2016-2018 René van Dorst <opensource@vdorst.com> All Rights Reserved.
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -24655,13 +24659,13 @@ index 000000000000..4adb9d4007ce
 +close STDOUT;
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64-glue.c b/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64-glue.c
 new file mode 100644
-index 000000000000..0229aca9c3b2
+index 000000000000..ce48a42f7654
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64-glue.c
 @@ -0,0 +1,156 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include <asm/cpufeature.h>
@@ -24817,7 +24821,7 @@ index 000000000000..0229aca9c3b2
 +}
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64.pl b/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64.pl
 new file mode 100644
-index 000000000000..1b8f3935f80a
+index 000000000000..9293b358d430
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64.pl
 @@ -0,0 +1,4266 @@
@@ -24825,7 +24829,7 @@ index 000000000000..1b8f3935f80a
 +# SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +#
 +# Copyright (C) 2017-2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
-+# Copyright (C) 2017-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++# Copyright (C) 2017-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 +# Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
 +#
 +# This code is taken from the OpenSSL project but the author, Andy Polyakov,
@@ -29089,13 +29093,13 @@ index 000000000000..1b8f3935f80a
 +close STDOUT;
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305.c b/net/wireguard/crypto/zinc/poly1305/poly1305.c
 new file mode 100644
-index 000000000000..a8a009cf4a97
+index 000000000000..7d373b90e011
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305.c
 @@ -0,0 +1,168 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * Implementation of the Poly1305 message authenticator.
 + *
@@ -29263,13 +29267,13 @@ index 000000000000..a8a009cf4a97
 +#endif
 diff --git a/net/wireguard/crypto/zinc/selftest/blake2s.c b/net/wireguard/crypto/zinc/selftest/blake2s.c
 new file mode 100644
-index 000000000000..7325a42334aa
+index 000000000000..1b5c210dc7a8
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/selftest/blake2s.c
 @@ -0,0 +1,2090 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +static const u8 blake2s_testvecs[][BLAKE2S_HASH_SIZE] __initconst = {
@@ -31359,13 +31363,13 @@ index 000000000000..7325a42334aa
 +}
 diff --git a/net/wireguard/crypto/zinc/selftest/chacha20.c b/net/wireguard/crypto/zinc/selftest/chacha20.c
 new file mode 100644
-index 000000000000..b8c9c709071d
+index 000000000000..1a2390aaf6c2
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/selftest/chacha20.c
 @@ -0,0 +1,2698 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +struct chacha20_testvec {
@@ -34063,13 +34067,13 @@ index 000000000000..b8c9c709071d
 +}
 diff --git a/net/wireguard/crypto/zinc/selftest/chacha20poly1305.c b/net/wireguard/crypto/zinc/selftest/chacha20poly1305.c
 new file mode 100644
-index 000000000000..571befe60466
+index 000000000000..dba9cd794acd
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/selftest/chacha20poly1305.c
 @@ -0,0 +1,9034 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +struct chacha20poly1305_testvec {
@@ -43103,13 +43107,13 @@ index 000000000000..571befe60466
 +}
 diff --git a/net/wireguard/crypto/zinc/selftest/curve25519.c b/net/wireguard/crypto/zinc/selftest/curve25519.c
 new file mode 100644
-index 000000000000..fa653d47df5a
+index 000000000000..0e3e3af06ba4
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/selftest/curve25519.c
 @@ -0,0 +1,1315 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +struct curve25519_test_vector {
@@ -44424,13 +44428,13 @@ index 000000000000..fa653d47df5a
 +}
 diff --git a/net/wireguard/crypto/zinc/selftest/poly1305.c b/net/wireguard/crypto/zinc/selftest/poly1305.c
 new file mode 100644
-index 000000000000..6b1f87288490
+index 000000000000..b4d7a9c2f6ec
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/selftest/poly1305.c
 @@ -0,0 +1,1107 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +struct poly1305_testvec {
@@ -45537,13 +45541,13 @@ index 000000000000..6b1f87288490
 +}
 diff --git a/net/wireguard/crypto/zinc/selftest/run.h b/net/wireguard/crypto/zinc/selftest/run.h
 new file mode 100644
-index 000000000000..74f607a8e0e2
+index 000000000000..4ffaf6089eea
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/selftest/run.h
 @@ -0,0 +1,48 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _ZINC_SELFTEST_RUN_H
@@ -45591,13 +45595,13 @@ index 000000000000..74f607a8e0e2
 +#endif
 diff --git a/net/wireguard/device.c b/net/wireguard/device.c
 new file mode 100644
-index 000000000000..877000bca02e
+index 000000000000..98c05bcb7f88
 --- /dev/null
 +++ b/net/wireguard/device.c
 @@ -0,0 +1,461 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "queueing.h"
@@ -46058,13 +46062,13 @@ index 000000000000..877000bca02e
 +}
 diff --git a/net/wireguard/device.h b/net/wireguard/device.h
 new file mode 100644
-index 000000000000..b0cbc783dc2b
+index 000000000000..b85638c0dc52
 --- /dev/null
 +++ b/net/wireguard/device.h
 @@ -0,0 +1,65 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_DEVICE_H
@@ -46129,13 +46133,13 @@ index 000000000000..b0cbc783dc2b
 +#endif /* _WG_DEVICE_H */
 diff --git a/net/wireguard/hashtables.c b/net/wireguard/hashtables.c
 new file mode 100644
-index 000000000000..14baf5be0fc3
+index 000000000000..18cac91d7a43
 --- /dev/null
 +++ b/net/wireguard/hashtables.c
 @@ -0,0 +1,209 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "hashtables.h"
@@ -46344,13 +46348,13 @@ index 000000000000..14baf5be0fc3
 +}
 diff --git a/net/wireguard/hashtables.h b/net/wireguard/hashtables.h
 new file mode 100644
-index 000000000000..9e7638cbfe56
+index 000000000000..7b12b864501e
 --- /dev/null
 +++ b/net/wireguard/hashtables.h
 @@ -0,0 +1,64 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_HASHTABLES_H
@@ -46414,13 +46418,13 @@ index 000000000000..9e7638cbfe56
 +#endif /* _WG_HASHTABLES_H */
 diff --git a/net/wireguard/main.c b/net/wireguard/main.c
 new file mode 100644
-index 000000000000..df547d662dad
+index 000000000000..4b5b58e8956e
 --- /dev/null
 +++ b/net/wireguard/main.c
 @@ -0,0 +1,69 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "version.h"
@@ -46463,7 +46467,7 @@ index 000000000000..df547d662dad
 +		goto err_netlink;
 +
 +	pr_info("WireGuard " WIREGUARD_VERSION " loaded. See www.wireguard.com for information.\n");
-+	pr_info("Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.\n");
++	pr_info("Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.\n");
 +
 +	return 0;
 +
@@ -46489,13 +46493,13 @@ index 000000000000..df547d662dad
 +MODULE_ALIAS_GENL_FAMILY(WG_GENL_NAME);
 diff --git a/net/wireguard/messages.h b/net/wireguard/messages.h
 new file mode 100644
-index 000000000000..aa700e584ccb
+index 000000000000..3cfd1c5e9b02
 --- /dev/null
 +++ b/net/wireguard/messages.h
 @@ -0,0 +1,128 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_MESSAGES_H
@@ -46623,13 +46627,13 @@ index 000000000000..aa700e584ccb
 +#endif /* _WG_MESSAGES_H */
 diff --git a/net/wireguard/netlink.c b/net/wireguard/netlink.c
 new file mode 100644
-index 000000000000..18bebb8e319a
+index 000000000000..bdd31509a53e
 --- /dev/null
 +++ b/net/wireguard/netlink.c
-@@ -0,0 +1,609 @@
+@@ -0,0 +1,616 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "netlink.h"
@@ -47109,6 +47113,13 @@ index 000000000000..18bebb8e319a
 +
 +	rtnl_lock();
 +	mutex_lock(&wg->device_update_lock);
++
++	ret = -EPERM;
++	if ((info->attrs[WGDEVICE_A_LISTEN_PORT] ||
++	     info->attrs[WGDEVICE_A_FWMARK]) &&
++	    !ns_capable(wg->creating_net->user_ns, CAP_NET_ADMIN))
++		goto out;
++
 +	++wg->device_update_gen;
 +
 +	if (info->attrs[WGDEVICE_A_FWMARK]) {
@@ -47238,13 +47249,13 @@ index 000000000000..18bebb8e319a
 +}
 diff --git a/net/wireguard/netlink.h b/net/wireguard/netlink.h
 new file mode 100644
-index 000000000000..1dc6a67bc719
+index 000000000000..15100d92e2e3
 --- /dev/null
 +++ b/net/wireguard/netlink.h
 @@ -0,0 +1,12 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_NETLINK_H
@@ -47256,13 +47267,13 @@ index 000000000000..1dc6a67bc719
 +#endif /* _WG_NETLINK_H */
 diff --git a/net/wireguard/noise.c b/net/wireguard/noise.c
 new file mode 100644
-index 000000000000..8581f7e1a26b
+index 000000000000..e629307b412e
 --- /dev/null
 +++ b/net/wireguard/noise.c
 @@ -0,0 +1,797 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "noise.h"
@@ -47712,7 +47723,7 @@ index 000000000000..8581f7e1a26b
 +{
 +	struct timespec64 now;
 +
-+	getnstimeofday64(&now);
++	ktime_get_real_ts64(&now);
 +	/* https://cr.yp.to/libtai/tai64.html */
 +	*(__be64 *)output = cpu_to_be64(0x400000000000000aULL + now.tv_sec);
 +	*(__be32 *)(output + sizeof(__be64)) = cpu_to_be32(now.tv_nsec);
@@ -48059,13 +48070,13 @@ index 000000000000..8581f7e1a26b
 +}
 diff --git a/net/wireguard/noise.h b/net/wireguard/noise.h
 new file mode 100644
-index 000000000000..48fb3fcd76e3
+index 000000000000..8e5cc0acb80b
 --- /dev/null
 +++ b/net/wireguard/noise.h
 @@ -0,0 +1,131 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +#ifndef _WG_NOISE_H
 +#define _WG_NOISE_H
@@ -48196,13 +48207,13 @@ index 000000000000..48fb3fcd76e3
 +#endif /* _WG_NOISE_H */
 diff --git a/net/wireguard/peer.c b/net/wireguard/peer.c
 new file mode 100644
-index 000000000000..e4e24052a151
+index 000000000000..020a97b545aa
 --- /dev/null
 +++ b/net/wireguard/peer.c
 @@ -0,0 +1,215 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "peer.h"
@@ -48417,13 +48428,13 @@ index 000000000000..e4e24052a151
 +}
 diff --git a/net/wireguard/peer.h b/net/wireguard/peer.h
 new file mode 100644
-index 000000000000..d19e617e1c67
+index 000000000000..f3cf2553ae76
 --- /dev/null
 +++ b/net/wireguard/peer.h
 @@ -0,0 +1,82 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_PEER_H
@@ -48505,13 +48516,13 @@ index 000000000000..d19e617e1c67
 +#endif /* _WG_PEER_H */
 diff --git a/net/wireguard/queueing.c b/net/wireguard/queueing.c
 new file mode 100644
-index 000000000000..5d0219e15ccc
+index 000000000000..6f87fcac11d6
 --- /dev/null
 +++ b/net/wireguard/queueing.c
 @@ -0,0 +1,53 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "queueing.h"
@@ -48564,13 +48575,13 @@ index 000000000000..5d0219e15ccc
 +}
 diff --git a/net/wireguard/queueing.h b/net/wireguard/queueing.h
 new file mode 100644
-index 000000000000..60688bc905b7
+index 000000000000..d2866aa3c415
 --- /dev/null
 +++ b/net/wireguard/queueing.h
 @@ -0,0 +1,197 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_QUEUEING_H
@@ -48767,13 +48778,13 @@ index 000000000000..60688bc905b7
 +#endif /* _WG_QUEUEING_H */
 diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
 new file mode 100644
-index 000000000000..7cd50e661ad2
+index 000000000000..b3b1d258ccd4
 --- /dev/null
 +++ b/net/wireguard/ratelimiter.c
 @@ -0,0 +1,223 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "ratelimiter.h"
@@ -48943,9 +48954,9 @@ index 000000000000..7cd50e661ad2
 +	 * we borrow their wisdom about good table sizes on different systems
 +	 * dependent on RAM. This calculation here comes from there.
 +	 */
-+	table_size = (totalram_pages > (1U << 30) / PAGE_SIZE) ? 8192 :
++	table_size = (totalram_pages() > (1U << 30) / PAGE_SIZE) ? 8192 :
 +		max_t(unsigned long, 16, roundup_pow_of_two(
-+			(totalram_pages << PAGE_SHIFT) /
++			(totalram_pages() << PAGE_SHIFT) /
 +			(1U << 14) / sizeof(struct hlist_head)));
 +	max_entries = table_size * 8;
 +
@@ -48996,13 +49007,13 @@ index 000000000000..7cd50e661ad2
 +#include "selftest/ratelimiter.c"
 diff --git a/net/wireguard/ratelimiter.h b/net/wireguard/ratelimiter.h
 new file mode 100644
-index 000000000000..0325d10b1f76
+index 000000000000..83067f71ea99
 --- /dev/null
 +++ b/net/wireguard/ratelimiter.h
 @@ -0,0 +1,19 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_RATELIMITER_H
@@ -49021,13 +49032,13 @@ index 000000000000..0325d10b1f76
 +#endif /* _WG_RATELIMITER_H */
 diff --git a/net/wireguard/receive.c b/net/wireguard/receive.c
 new file mode 100644
-index 000000000000..09ff506750bd
+index 000000000000..693ec57dc5a4
 --- /dev/null
 +++ b/net/wireguard/receive.c
 @@ -0,0 +1,606 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "queueing.h"
@@ -49633,13 +49644,13 @@ index 000000000000..09ff506750bd
 +}
 diff --git a/net/wireguard/selftest/allowedips.c b/net/wireguard/selftest/allowedips.c
 new file mode 100644
-index 000000000000..354fd78044b9
+index 000000000000..379ac318fe06
 --- /dev/null
 +++ b/net/wireguard/selftest/allowedips.c
 @@ -0,0 +1,689 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This contains some basic static unit tests for the allowedips data structure.
 + * It also has two additional modes that are disabled and meant to be used by
@@ -50328,13 +50339,13 @@ index 000000000000..354fd78044b9
 +#endif
 diff --git a/net/wireguard/selftest/counter.c b/net/wireguard/selftest/counter.c
 new file mode 100644
-index 000000000000..0d8b1920f53d
+index 000000000000..f4fbb9072ed7
 --- /dev/null
 +++ b/net/wireguard/selftest/counter.c
 @@ -0,0 +1,104 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifdef DEBUG
@@ -50438,13 +50449,13 @@ index 000000000000..0d8b1920f53d
 +#endif
 diff --git a/net/wireguard/selftest/ratelimiter.c b/net/wireguard/selftest/ratelimiter.c
 new file mode 100644
-index 000000000000..39734e4420ea
+index 000000000000..bcd6462e4540
 --- /dev/null
 +++ b/net/wireguard/selftest/ratelimiter.c
-@@ -0,0 +1,229 @@
+@@ -0,0 +1,226 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifdef DEBUG
@@ -50564,12 +50575,9 @@ index 000000000000..39734e4420ea
 +	enum { TRIALS_BEFORE_GIVING_UP = 5000 };
 +	bool success = false;
 +	int test = 0, trials;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	struct sk_buff *skb6;
-+	struct ipv6hdr *hdr6;
-+#endif
-+	struct sk_buff *skb4;
++	struct sk_buff *skb4, *skb6;
 +	struct iphdr *hdr4;
++	struct ipv6hdr *hdr6;
 +
 +	if (IS_ENABLED(CONFIG_KASAN) || IS_ENABLED(CONFIG_UBSAN))
 +		return true;
@@ -50673,13 +50681,13 @@ index 000000000000..39734e4420ea
 +#endif
 diff --git a/net/wireguard/send.c b/net/wireguard/send.c
 new file mode 100644
-index 000000000000..dc466aec9fb4
+index 000000000000..b0df5c717502
 --- /dev/null
 +++ b/net/wireguard/send.c
 @@ -0,0 +1,431 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "queueing.h"
@@ -51110,13 +51118,13 @@ index 000000000000..dc466aec9fb4
 +}
 diff --git a/net/wireguard/socket.c b/net/wireguard/socket.c
 new file mode 100644
-index 000000000000..275233546e91
+index 000000000000..652d79817e58
 --- /dev/null
 +++ b/net/wireguard/socket.c
 @@ -0,0 +1,433 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "device.h"
@@ -51549,13 +51557,13 @@ index 000000000000..275233546e91
 +}
 diff --git a/net/wireguard/socket.h b/net/wireguard/socket.h
 new file mode 100644
-index 000000000000..9d3e8e1e87e0
+index 000000000000..bab5848efbcd
 --- /dev/null
 +++ b/net/wireguard/socket.h
 @@ -0,0 +1,44 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_SOCKET_H
@@ -51599,13 +51607,13 @@ index 000000000000..9d3e8e1e87e0
 +#endif /* _WG_SOCKET_H */
 diff --git a/net/wireguard/timers.c b/net/wireguard/timers.c
 new file mode 100644
-index 000000000000..a9bcd368ff85
+index 000000000000..ee16c56713b0
 --- /dev/null
 +++ b/net/wireguard/timers.c
 @@ -0,0 +1,241 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#include "timers.h"
@@ -51846,13 +51854,13 @@ index 000000000000..a9bcd368ff85
 +}
 diff --git a/net/wireguard/timers.h b/net/wireguard/timers.h
 new file mode 100644
-index 000000000000..5f294612df23
+index 000000000000..f9d11fe9f306
 --- /dev/null
 +++ b/net/wireguard/timers.h
 @@ -0,0 +1,31 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
 +
 +#ifndef _WG_TIMERS_H
@@ -51883,13 +51891,13 @@ index 000000000000..5f294612df23
 +#endif /* _WG_TIMERS_H */
 diff --git a/net/wireguard/uapi/wireguard.h b/net/wireguard/uapi/wireguard.h
 new file mode 100644
-index 000000000000..0203f2c30260
+index 000000000000..3db6ff844291
 --- /dev/null
 +++ b/net/wireguard/uapi/wireguard.h
 @@ -0,0 +1,190 @@
 +/* SPDX-License-Identifier: (GPL-2.0 WITH Linux-syscall-note) OR MIT */
 +/*
-+ * Copyright (C) 2015-2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * Documentation
 + * =============
@@ -52085,5 +52093,5 @@ index 000000000000..ad1f8b9b31ef
 @@ -0,0 +1 @@
 +#define WIREGUARD_VERSION "0.0.20181218"
 -- 
-2.19.2
+2.20.1
 
