@@ -32,14 +32,14 @@ toolchain="gcc_arm_gnueabihf_8"
 
 #Kernel
 KERNEL_REL=5.0
-KERNEL_TAG=${KERNEL_REL}-rc1
+KERNEL_TAG=${KERNEL_REL}-rc2
 kernel_rt=".X-rtY"
 #Kernel Build
 BUILD=${build_prefix}0
 
 #v4.X-rcX + upto SHA
-prev_KERNEL_SHA="bfeffd155283772bbe78c6a05dec7c0128ee500c"
-KERNEL_SHA="4064e47c82810586975b4304b105056389beaa06"
+#prev_KERNEL_SHA="bfeffd155283772bbe78c6a05dec7c0128ee500c"
+#KERNEL_SHA="4064e47c82810586975b4304b105056389beaa06"
 
 #git branch
 #BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"

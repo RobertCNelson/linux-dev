@@ -1,6 +1,6 @@
-From fabfab3567e8d3a32ebee83cc02933adbb4fa09b Mon Sep 17 00:00:00 2001
+From adeb34e6edd75eb747e89756ad1f99083a593cab Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 6 Jan 2019 20:44:58 -0600
+Date: Sun, 13 Jan 2019 18:19:26 -0600
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -57,7 +57,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../zinc/curve25519/curve25519-fiat32.c       |  860 ++
  .../zinc/curve25519/curve25519-hacl64.c       |  784 ++
  .../zinc/curve25519/curve25519-x86_64-glue.c  |   48 +
- .../zinc/curve25519/curve25519-x86_64.c       | 2333 +++++
+ .../zinc/curve25519/curve25519-x86_64.c       | 2326 +++++
  .../crypto/zinc/curve25519/curve25519.c       |  120 +
  .../crypto/zinc/poly1305/poly1305-arm-glue.c  |  140 +
  .../crypto/zinc/poly1305/poly1305-arm.pl      | 1276 +++
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51293 insertions(+)
+ 98 files changed, 51286 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -227,7 +227,7 @@ index bdaf53925acd..14afe7e03083 100644
  obj-$(CONFIG_XFRM)		+= xfrm/
 diff --git a/net/wireguard/Kconfig b/net/wireguard/Kconfig
 new file mode 100644
-index 000000000000..cc2ba9ff3130
+index 000000000000..3a688849b621
 --- /dev/null
 +++ b/net/wireguard/Kconfig
 @@ -0,0 +1,32 @@
@@ -244,7 +244,7 @@ index 000000000000..cc2ba9ff3130
 +	select KERNEL_MODE_NEON if CPU_V7
 +	default m
 +	help
-+	  WireGuard is a secure, fast, and easy to use replacement for IPSec
++	  WireGuard is a secure, fast, and easy to use replacement for IPsec
 +	  that uses modern cryptography and clever networking tricks. It's
 +	  designed to be fairly general purpose and abstract enough to fit most
 +	  use cases, while at the same time remaining extremely simple to
@@ -16749,14 +16749,14 @@ index 000000000000..0ef143104121
 +#endif
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-fiat32.c b/net/wireguard/crypto/zinc/curve25519/curve25519-fiat32.c
 new file mode 100644
-index 000000000000..55c3718c07bd
+index 000000000000..7f4f01ce9f2e
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-fiat32.c
 @@ -0,0 +1,860 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
 + * Copyright (C) 2015-2016 The fiat-crypto Authors.
-+ * Copyright (C) 2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2018-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is a machine-generated formally verified implementation of Curve25519
 + * ECDH from: <https://github.com/mit-plv/fiat-crypto>. Though originally
@@ -17515,7 +17515,7 @@ index 000000000000..55c3718c07bd
 +	u8 e[32];
 +
 +	memcpy(e, scalar, 32);
-+	normalize_secret(e);
++	clamp_secret(e);
 +
 +	/* The following implementation was transcribed to Coq and proven to
 +	 * correspond to unary scalar multiplication in affine coordinates given
@@ -17615,14 +17615,14 @@ index 000000000000..55c3718c07bd
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-hacl64.c b/net/wireguard/crypto/zinc/curve25519/curve25519-hacl64.c
 new file mode 100644
-index 000000000000..c6e726ff9ddb
+index 000000000000..ff22d3b3939a
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-hacl64.c
 @@ -0,0 +1,784 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
 + * Copyright (C) 2016-2017 INRIA and Microsoft Corporation.
-+ * Copyright (C) 2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2018-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + *
 + * This is a machine-generated formally verified implementation of Curve25519
 + * ECDH from: <https://github.com/mitls/hacl-star>. Though originally machine
@@ -18388,7 +18388,7 @@ index 000000000000..c6e726ff9ddb
 +		u8 e[32] __aligned(32) = { 0 };
 +		u8 *scalar;
 +		memcpy(e, secret, 32);
-+		normalize_secret(e);
++		clamp_secret(e);
 +		scalar = e;
 +		{
 +			u64 buf[15] = { 0 };
@@ -18459,14 +18459,14 @@ index 000000000000..19c86c6c3955
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
 new file mode 100644
-index 000000000000..2ae0fef542cf
+index 000000000000..81ef5757d44d
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
-@@ -0,0 +1,2333 @@
+@@ -0,0 +1,2326 @@
 +// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +/*
 + * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>. All Rights Reserved.
-+ * Copyright (C) 2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
++ * Copyright (C) 2018-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + * Copyright (C) 2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
 + */
 +
@@ -20400,13 +20400,6 @@ index 000000000000..2ae0fef542cf
 +	);
 +}
 +
-+static __always_inline void clamp_secret(u8 secret[CURVE25519_KEY_SIZE])
-+{
-+	secret[0] &= 248;
-+	secret[31] &= 127;
-+	secret[31] |= 64;
-+}
-+
 +static void curve25519_adx(u8 shared[CURVE25519_KEY_SIZE],
 +			   const u8 private_key[CURVE25519_KEY_SIZE],
 +			   const u8 session_key[CURVE25519_KEY_SIZE])
@@ -20798,7 +20791,7 @@ index 000000000000..2ae0fef542cf
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519.c b/net/wireguard/crypto/zinc/curve25519/curve25519.c
 new file mode 100644
-index 000000000000..f1bfe86b009a
+index 000000000000..6b3f12a64321
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519.c
 @@ -0,0 +1,120 @@
@@ -20824,6 +20817,13 @@ index 000000000000..f1bfe86b009a
 +#include <linux/init.h>
 +#include <crypto/algapi.h> // For crypto_memneq.
 +
++static __always_inline void clamp_secret(u8 secret[CURVE25519_KEY_SIZE])
++{
++	secret[0] &= 248;
++	secret[31] &= 127;
++	secret[31] |= 64;
++}
++
 +#if defined(CONFIG_ZINC_ARCH_X86_64)
 +#include "curve25519-x86_64-glue.c"
 +#elif defined(CONFIG_ZINC_ARCH_ARM)
@@ -20845,13 +20845,6 @@ index 000000000000..f1bfe86b009a
 +	return false;
 +}
 +#endif
-+
-+static __always_inline void normalize_secret(u8 secret[CURVE25519_KEY_SIZE])
-+{
-+	secret[0] &= 248;
-+	secret[31] &= 127;
-+	secret[31] |= 64;
-+}
 +
 +#if defined(CONFIG_ARCH_SUPPORTS_INT128) && defined(__SIZEOF_INT128__)
 +#include "curve25519-hacl64.c"
@@ -20888,7 +20881,7 @@ index 000000000000..f1bfe86b009a
 +void curve25519_generate_secret(u8 secret[CURVE25519_KEY_SIZE])
 +{
 +	get_random_bytes_wait(secret, CURVE25519_KEY_SIZE);
-+	normalize_secret(secret);
++	clamp_secret(secret);
 +}
 +EXPORT_SYMBOL(curve25519_generate_secret);
 +
