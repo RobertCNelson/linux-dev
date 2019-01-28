@@ -1,6 +1,6 @@
-From adeb34e6edd75eb747e89756ad1f99083a593cab Mon Sep 17 00:00:00 2001
+From 00e5a91b6450c048249eec84348ca9bcc32fe94f Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 13 Jan 2019 18:19:26 -0600
+Date: Mon, 28 Jan 2019 11:46:30 -0600
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   78 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  813 ++
+ net/wireguard/compat/compat.h                 |  827 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -82,7 +82,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/hashtables.h                    |   64 +
  net/wireguard/main.c                          |   69 +
  net/wireguard/messages.h                      |  128 +
- net/wireguard/netlink.c                       |  616 ++
+ net/wireguard/netlink.c                       |  620 ++
  net/wireguard/netlink.h                       |   12 +
  net/wireguard/noise.c                         |  797 ++
  net/wireguard/noise.h                         |  131 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51286 insertions(+)
+ 98 files changed, 51304 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -1115,10 +1115,10 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..15cf8bb15588
+index 000000000000..19dd71a54888
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,813 @@
+@@ -0,0 +1,827 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1869,8 +1869,22 @@ index 000000000000..15cf8bb15588
 +#define hlist_add_behind(a, b) hlist_add_after(b, a)
 +#endif
 +
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 21, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)
 +#define totalram_pages() totalram_pages
++#endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
++struct __kernel_timespec {
++	int64_t tv_sec, tv_nsec;
++};
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0)
++#include <linux/time64.h>
++#ifdef __kernel_timespec
++#undef __kernel_timespec
++struct __kernel_timespec {
++	int64_t tv_sec, tv_nsec;
++};
++#endif
 +#endif
 +
 +/* https://github.com/ClangBuiltLinux/linux/issues/7 */
@@ -46620,10 +46634,10 @@ index 000000000000..3cfd1c5e9b02
 +#endif /* _WG_MESSAGES_H */
 diff --git a/net/wireguard/netlink.c b/net/wireguard/netlink.c
 new file mode 100644
-index 000000000000..bdd31509a53e
+index 000000000000..3458c817a23f
 --- /dev/null
 +++ b/net/wireguard/netlink.c
-@@ -0,0 +1,616 @@
+@@ -0,0 +1,620 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46659,7 +46673,7 @@ index 000000000000..bdd31509a53e
 +	[WGPEER_A_FLAGS]				= { .type = NLA_U32 },
 +	[WGPEER_A_ENDPOINT]				= { .len = sizeof(struct sockaddr) },
 +	[WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL]	= { .type = NLA_U16 },
-+	[WGPEER_A_LAST_HANDSHAKE_TIME]			= { .len = sizeof(struct timespec) },
++	[WGPEER_A_LAST_HANDSHAKE_TIME]			= { .len = sizeof(struct __kernel_timespec) },
 +	[WGPEER_A_RX_BYTES]				= { .type = NLA_U64 },
 +	[WGPEER_A_TX_BYTES]				= { .type = NLA_U64 },
 +	[WGPEER_A_ALLOWEDIPS]				= { .type = NLA_NESTED },
@@ -46733,6 +46747,11 @@ index 000000000000..bdd31509a53e
 +		goto err;
 +
 +	if (!rt_cursor->seq) {
++		const struct __kernel_timespec last_handshake = {
++			.tv_sec = peer->walltime_last_handshake.tv_sec,
++			.tv_nsec = peer->walltime_last_handshake.tv_nsec
++		};
++
 +		down_read(&peer->handshake.lock);
 +		fail = nla_put(skb, WGPEER_A_PRESHARED_KEY,
 +			       NOISE_SYMMETRIC_KEY_LEN,
@@ -46742,8 +46761,7 @@ index 000000000000..bdd31509a53e
 +			goto err;
 +
 +		if (nla_put(skb, WGPEER_A_LAST_HANDSHAKE_TIME,
-+			    sizeof(peer->walltime_last_handshake),
-+			    &peer->walltime_last_handshake) ||
++			    sizeof(last_handshake), &last_handshake) ||
 +		    nla_put_u16(skb, WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL,
 +				peer->persistent_keepalive_interval) ||
 +		    nla_put_u64_64bit(skb, WGPEER_A_TX_BYTES, peer->tx_bytes,
@@ -48421,7 +48439,7 @@ index 000000000000..020a97b545aa
 +}
 diff --git a/net/wireguard/peer.h b/net/wireguard/peer.h
 new file mode 100644
-index 000000000000..f3cf2553ae76
+index 000000000000..2e04262169d7
 --- /dev/null
 +++ b/net/wireguard/peer.h
 @@ -0,0 +1,82 @@
@@ -48483,7 +48501,7 @@ index 000000000000..f3cf2553ae76
 +	u16 persistent_keepalive_interval;
 +	bool timer_need_another_keepalive;
 +	bool sent_lastminute_handshake;
-+	struct timespec walltime_last_handshake;
++	struct timespec64 walltime_last_handshake;
 +	struct kref refcount;
 +	struct rcu_head rcu;
 +	struct list_head peer_list;
@@ -51600,7 +51618,7 @@ index 000000000000..bab5848efbcd
 +#endif /* _WG_SOCKET_H */
 diff --git a/net/wireguard/timers.c b/net/wireguard/timers.c
 new file mode 100644
-index 000000000000..ee16c56713b0
+index 000000000000..7614c85fb23b
 --- /dev/null
 +++ b/net/wireguard/timers.c
 @@ -0,0 +1,241 @@
@@ -51798,7 +51816,7 @@ index 000000000000..ee16c56713b0
 +	del_timer(&peer->timer_retransmit_handshake);
 +	peer->timer_handshake_attempts = 0;
 +	peer->sent_lastminute_handshake = false;
-+	getnstimeofday(&peer->walltime_last_handshake);
++	ktime_get_real_ts64(&peer->walltime_last_handshake);
 +}
 +
 +/* Should be called after an ephemeral key is created, which is before sending a
@@ -51884,7 +51902,7 @@ index 000000000000..f9d11fe9f306
 +#endif /* _WG_TIMERS_H */
 diff --git a/net/wireguard/uapi/wireguard.h b/net/wireguard/uapi/wireguard.h
 new file mode 100644
-index 000000000000..3db6ff844291
+index 000000000000..071ce4167f54
 --- /dev/null
 +++ b/net/wireguard/uapi/wireguard.h
 @@ -0,0 +1,190 @@
@@ -51925,7 +51943,7 @@ index 000000000000..3db6ff844291
 + *            WGPEER_A_PRESHARED_KEY: len WG_KEY_LEN
 + *            WGPEER_A_ENDPOINT: struct sockaddr_in or struct sockaddr_in6
 + *            WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL: NLA_U16
-+ *            WGPEER_A_LAST_HANDSHAKE_TIME: struct timespec
++ *            WGPEER_A_LAST_HANDSHAKE_TIME: struct __kernel_timespec
 + *            WGPEER_A_RX_BYTES: NLA_U64
 + *            WGPEER_A_TX_BYTES: NLA_U64
 + *            WGPEER_A_ALLOWEDIPS: NLA_NESTED
@@ -52080,11 +52098,11 @@ index 000000000000..3db6ff844291
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..ad1f8b9b31ef
+index 000000000000..55e9f528e917
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20181218"
++#define WIREGUARD_VERSION "0.0.20190123"
 -- 
 2.20.1
 
