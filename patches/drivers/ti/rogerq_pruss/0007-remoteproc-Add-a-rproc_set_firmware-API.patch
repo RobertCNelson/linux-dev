@@ -1,7 +1,7 @@
-From 5b150cd1900d754e8d333ca1c13674f77b4fa30b Mon Sep 17 00:00:00 2001
+From 58c737d3c7f11037c68dd6f50daa9d94042ae1b7 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
-Date: Mon, 26 Nov 2018 09:52:35 +0200
-Subject: [PATCH 02/16] remoteproc: Add a rproc_set_firmware() API
+Date: Mon, 29 Jan 2018 16:25:31 -0600
+Subject: [PATCH 07/25] remoteproc: Add a rproc_set_firmware() API
 
 A new API, rproc_set_firmware() is added to allow the remoteproc platform
 drivers and remoteproc client drivers to be able to configure a custom
@@ -18,6 +18,7 @@ Also, update the firmware_store() function used by the sysfs interface
 to reuse this function to avoid code duplication.
 
 Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
 ---
  drivers/remoteproc/remoteproc_core.c  | 61 +++++++++++++++++++++++++++
  drivers/remoteproc/remoteproc_sysfs.c | 33 +--------------
@@ -25,10 +26,10 @@ Signed-off-by: Suman Anna <s-anna@ti.com>
  3 files changed, 64 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index 39458a7d89f0..581e6e8e63af 100644
+index 06ef4faec83f..2d9646f13a54 100644
 --- a/drivers/remoteproc/remoteproc_core.c
 +++ b/drivers/remoteproc/remoteproc_core.c
-@@ -2151,6 +2151,67 @@ void rproc_report_crash(struct rproc *rproc, enum rproc_crash_type type)
+@@ -2149,6 +2149,67 @@ void rproc_report_crash(struct rproc *rproc, enum rproc_crash_type type)
  }
  EXPORT_SYMBOL(rproc_report_crash);
  
@@ -73,7 +74,7 @@ index 39458a7d89f0..581e6e8e63af 100644
 +
 +	len = strcspn(fw_name, "\n");
 +	if (!len) {
-+		dev_err(dev, "can't provide a NULL firmware\n");
++		dev_err(dev, "empty firmware name string\n");
 +		ret = -EINVAL;
 +		goto out;
 +	}
@@ -142,10 +143,10 @@ index 3a4c3d7cafca..6cf04a71b75a 100644
  	return err ? err : count;
  }
 diff --git a/include/linux/remoteproc.h b/include/linux/remoteproc.h
-index 3d9bf586d873..f7aa1d91044b 100644
+index e908b5823412..b5aa5fbff09b 100644
 --- a/include/linux/remoteproc.h
 +++ b/include/linux/remoteproc.h
-@@ -604,6 +604,7 @@ rproc_of_resm_mem_entry_init(struct device *dev, u32 of_resm_idx, int len,
+@@ -590,6 +590,7 @@ rproc_of_resm_mem_entry_init(struct device *dev, u32 of_resm_idx, int len,
  
  int rproc_boot(struct rproc *rproc);
  void rproc_shutdown(struct rproc *rproc);
@@ -154,5 +155,5 @@ index 3d9bf586d873..f7aa1d91044b 100644
  int rproc_coredump_add_segment(struct rproc *rproc, dma_addr_t da, size_t size);
  int rproc_coredump_add_custom_segment(struct rproc *rproc,
 -- 
-2.19.2
+2.20.1
 

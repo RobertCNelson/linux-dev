@@ -1,0 +1,33 @@
+From 9d61f2dd6439b145053206ea9148feb8525a34a5 Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Thu, 15 Nov 2018 12:32:14 +0200
+Subject: [PATCH 22/25] optional: am57xx-idk: prueth: provide intc config in DT
+
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ arch/arm/boot/dts/am57xx-idk-common.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am57xx-idk-common.dtsi b/arch/arm/boot/dts/am57xx-idk-common.dtsi
+index 6c4a0b9d17e9..eff28cb44b9d 100644
+--- a/arch/arm/boot/dts/am57xx-idk-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-idk-common.dtsi
+@@ -110,6 +110,15 @@
+ 				"ti-pruss/am57xx-pru1-prueth-fw.elf";
+ 		sram = <&ocmcram1>;
+ 		interrupt-parent = <&pruss2_intc>;
++		ti,pru-interrupt-map =  <0 42 0 0>, /* PORT1_RX_EOF_EVENT */
++					<0 20 2 2>, /* PRU_ARM_EVENT0 */
++					<0 22 4 4>, /* PRU_ARM_EVENT2 */
++					<0 41 7 8>, /* MII_LINK0_EVENT */
++
++					<1 54 1 1>, /* PORT2_RX_EOF_EVENT */
++					<1 21 3 3>, /* PRU_ARM_EVENT1 */
++					<1 23 5 5>, /* PRU_ARM_EVENT3 */
++					<1 53 8 9>; /* MII_LINK1_EVENT */
+ 		mii-rt = <&pruss2_mii_rt>;
+ 		iep = <&pruss2_iep>;
+ 
+-- 
+2.20.1
+

@@ -1,0 +1,134 @@
+From 0a360ee69a2df589dec69ba57980baafc73db19f Mon Sep 17 00:00:00 2001
+From: "Andrew F. Davis" <afd@ti.com>
+Date: Mon, 26 Feb 2018 16:16:24 +0200
+Subject: [PATCH 21/25] ARM: dts: am57xx-idk-common: Add PRUSS2 Ethernet
+ application node
+
+Add PRUSS Ethernet application node for PRU-ICSS2. We don't add this on
+PRU-ICSS1 as it is not connected to the SoC by default on AM57xx IDKs.
+
+[rogerq@ti.com: Add PHY reset GPIOs]
+
+Signed-off-by: Andrew F. Davis <afd@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+---
+ arch/arm/boot/dts/am571x-idk.dts         |  5 +++
+ arch/arm/boot/dts/am572x-idk.dts         |  6 +++
+ arch/arm/boot/dts/am574x-idk.dts         |  6 +++
+ arch/arm/boot/dts/am57xx-idk-common.dtsi | 47 ++++++++++++++++++++++++
+ 4 files changed, 64 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am571x-idk.dts b/arch/arm/boot/dts/am571x-idk.dts
+index 6432309b39e3..1fdc0d266963 100644
+--- a/arch/arm/boot/dts/am571x-idk.dts
++++ b/arch/arm/boot/dts/am571x-idk.dts
+@@ -194,3 +194,8 @@
+ 	pinctrl-1 = <&mmc2_pins_hs>;
+ 	pinctrl-2 = <&mmc2_pins_ddr_rev20 &mmc2_iodelay_ddr_conf>;
+ };
++
++&pruss2_mdio {
++	reset-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
++	reset-delay-us = <2>;   /* PHY datasheet states 1uS min */
++};
+diff --git a/arch/arm/boot/dts/am572x-idk.dts b/arch/arm/boot/dts/am572x-idk.dts
+index b2fb6e097be7..5cbde6aa2971 100644
+--- a/arch/arm/boot/dts/am572x-idk.dts
++++ b/arch/arm/boot/dts/am572x-idk.dts
+@@ -36,3 +36,9 @@
+ 	pinctrl-1 = <&mmc2_pins_hs>;
+ 	pinctrl-2 = <&mmc2_pins_ddr_rev20>;
+ };
++
++&pruss2_mdio {
++	reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>,
++		      <&gpio5 9 GPIO_ACTIVE_LOW>;
++	reset-delay-us = <2>;	/* PHY datasheet states 1uS min */
++};
+diff --git a/arch/arm/boot/dts/am574x-idk.dts b/arch/arm/boot/dts/am574x-idk.dts
+index 378dfa780ac1..acd5a4eb135b 100644
+--- a/arch/arm/boot/dts/am574x-idk.dts
++++ b/arch/arm/boot/dts/am574x-idk.dts
+@@ -40,3 +40,9 @@
+ 	pinctrl-1 = <&mmc2_pins_default>;
+ 	pinctrl-2 = <&mmc2_pins_default>;
+ };
++
++&pruss2_mdio {
++	reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>,
++		      <&gpio5 9 GPIO_ACTIVE_LOW>;
++	reset-delay-us = <2>;   /* PHY datasheet states 1uS min */
++};
+diff --git a/arch/arm/boot/dts/am57xx-idk-common.dtsi b/arch/arm/boot/dts/am57xx-idk-common.dtsi
+index 6991412890c5..6c4a0b9d17e9 100644
+--- a/arch/arm/boot/dts/am57xx-idk-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-idk-common.dtsi
+@@ -12,6 +12,8 @@
+ 	aliases {
+ 		rtc0 = &tps659038_rtc;
+ 		rtc1 = &rtc;
++		ethernet2 = &pruss2_emac0;
++		ethernet3 = &pruss2_emac1;
+ 	};
+ 
+ 	chosen {
+@@ -99,6 +101,36 @@
+ 			default-state = "off";
+ 		};
+ 	};
++
++	/* Dual-MAC Ethernet application node on PRU-ICSS2 */
++	pruss2_eth {
++		compatible = "ti,am57-prueth";
++		prus = <&pru2_0>, <&pru2_1>;
++		firmware-name = "ti-pruss/am57xx-pru0-prueth-fw.elf",
++				"ti-pruss/am57xx-pru1-prueth-fw.elf";
++		sram = <&ocmcram1>;
++		interrupt-parent = <&pruss2_intc>;
++		mii-rt = <&pruss2_mii_rt>;
++		iep = <&pruss2_iep>;
++
++		pruss2_emac0: ethernet-mii0 {
++			phy-handle = <&pruss2_eth0_phy>;
++			phy-mode = "mii";
++			interrupts = <20>, <22>;
++			interrupt-names = "rx", "tx";
++			/* Filled in by bootloader */
++			local-mac-address = [00 00 00 00 00 00];
++		};
++
++		pruss2_emac1: ethernet-mii1 {
++			phy-handle = <&pruss2_eth1_phy>;
++			phy-mode = "mii";
++			interrupts = <21>, <23>;
++			interrupt-names = "rx", "tx";
++			/* Filled in by bootloader */
++			local-mac-address = [00 00 00 00 00 00];
++		};
++	};
+ };
+ 
+ &dra7_pmx_core {
+@@ -500,3 +532,18 @@
+ &pruss2 {
+ 	status = "okay";
+ };
++
++&pruss2_mdio {
++	status = "okay";
++	pruss2_eth0_phy: ethernet-phy@0 {
++		reg = <0>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <30 IRQ_TYPE_EDGE_FALLING>;
++	};
++
++	pruss2_eth1_phy: ethernet-phy@1 {
++		reg = <1>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <31 IRQ_TYPE_EDGE_FALLING>;
++	};
++};
+-- 
+2.20.1
+

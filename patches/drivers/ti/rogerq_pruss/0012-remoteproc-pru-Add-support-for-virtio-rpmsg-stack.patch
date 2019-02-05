@@ -1,7 +1,7 @@
-From a2767d9ee4ab864c5e6ac7e37f0bcde5a3a67d89 Mon Sep 17 00:00:00 2001
+From 511090af4a64f1063fff7bf4b9c7570f3038b918 Mon Sep 17 00:00:00 2001
 From: Suman Anna <s-anna@ti.com>
-Date: Mon, 26 Nov 2018 09:52:40 +0200
-Subject: [PATCH 07/16] remoteproc/pru: Add support for virtio rpmsg stack
+Date: Wed, 31 Jan 2018 14:29:57 -0600
+Subject: [PATCH 12/25] remoteproc/pru: Add support for virtio rpmsg stack
 
 The PRU remoteproc driver has been enhanced to support the optional
 rpmsg stack using the virtio-ring based communication transport
@@ -26,10 +26,11 @@ IP is not present on 66AK2G and Davinci SoCs, so it is only selected
 for OMAP-based SoCs.
 
 Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
 ---
  drivers/remoteproc/Kconfig     |   2 +
- drivers/remoteproc/pru_rproc.c | 169 ++++++++++++++++++++++++++++++++-
- 2 files changed, 168 insertions(+), 3 deletions(-)
+ drivers/remoteproc/pru_rproc.c | 165 ++++++++++++++++++++++++++++++++-
+ 2 files changed, 166 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/remoteproc/Kconfig b/drivers/remoteproc/Kconfig
 index 333666ef91a3..b89acb0cc5a4 100644
@@ -45,41 +46,41 @@ index 333666ef91a3..b89acb0cc5a4 100644
  	help
  	  Support for TI PRU-ICSS remote processors via the remote processor
 diff --git a/drivers/remoteproc/pru_rproc.c b/drivers/remoteproc/pru_rproc.c
-index 73a7f136de7b..e0554b3d47f0 100644
+index 85463f7bd430..b47c4fdb7e21 100644
 --- a/drivers/remoteproc/pru_rproc.c
 +++ b/drivers/remoteproc/pru_rproc.c
-@@ -10,6 +10,7 @@
- #include <linux/bitops.h>
+@@ -11,6 +11,7 @@
  #include <linux/debugfs.h>
  #include <linux/interrupt.h>
+ #include <linux/irqchip/irq-pruss-intc.h>
 +#include <linux/mailbox_client.h>
+ #include <linux/mfd/syscon.h>
  #include <linux/module.h>
  #include <linux/of_device.h>
- #include <linux/remoteproc.h>
-@@ -56,6 +57,10 @@ enum pru_mem {
-  * @id: id of the PRU core within the PRUSS
-  * @pruss: back-reference to parent PRUSS structure
-  * @rproc: remoteproc pointer for this PRU core
+@@ -64,6 +65,10 @@
+  * @debug_regmap: regmap to PRU DEBUG IOMEM
+  * @client_np: client device node
+  * @intc_config: PRU INTC configuration data
 + * @mbox: mailbox channel handle used for vring signalling with MPU
 + * @client: mailbox client to request the mailbox channel
 + * @irq_ring: IRQ number to use for processing vring buffers
 + * @irq_kick: IRQ number to use to perform virtio kick
-  * @mem_regions: data for each of the PRU memory regions
   * @dram0: PRUSS DRAM0 region
   * @dram1: PRUSS DRAM1 region
-@@ -72,6 +77,10 @@ struct pru_rproc {
- 	int id;
- 	struct pruss *pruss;
- 	struct rproc *rproc;
+  * @shrdram: PRUSS SHARED RAM region
+@@ -90,6 +95,10 @@ struct pru_rproc {
+ 	struct regmap *debug_regmap;
+ 	struct device_node *client_np;
+ 	struct pruss_intc_config intc_config;
 +	struct mbox_chan *mbox;
 +	struct mbox_client client;
 +	int irq_vring;
 +	int irq_kick;
- 	struct pruss_mem_region mem_regions[PRU_MEM_MAX];
  	struct pruss_mem_region dram0;
  	struct pruss_mem_region dram1;
-@@ -233,22 +242,124 @@ static void pru_rproc_create_debug_entries(struct rproc *rproc)
- 			    rproc, &pru_rproc_debug_ss_fops);
+ 	struct pruss_mem_region shrdram;
+@@ -615,6 +624,82 @@ static int pru_rproc_handle_vendor_rsc(struct rproc *rproc,
+ 	return ret;
  }
  
 +/**
@@ -161,16 +162,10 @@ index 73a7f136de7b..e0554b3d47f0 100644
  /* start a PRU core */
  static int pru_rproc_start(struct rproc *rproc)
  {
- 	struct device *dev = &rproc->dev;
- 	struct pru_rproc *pru = rproc->priv;
- 	u32 val;
-+	int ret;
+@@ -635,10 +720,36 @@ static int pru_rproc_start(struct rproc *rproc)
+ 		}
+ 	}
  
- 	dev_dbg(dev, "starting PRU%d: entry-point = 0x%x\n",
- 		pru->id, (rproc->bootaddr >> 2));
- 
-+	/* TODO: INTC setup */
-+
 +	if (!list_empty(&pru->rproc->rvdevs)) {
 +		if (!pru->mbox && (pru->irq_vring <= 0 || pru->irq_kick <= 0)) {
 +			dev_err(dev, "virtio vring interrupt mechanisms are not provided\n");
@@ -192,47 +187,46 @@ index 73a7f136de7b..e0554b3d47f0 100644
 +	}
 +
  	val = CTRL_CTRL_EN | ((rproc->bootaddr >> 2) << 16);
- 	pru_control_write_reg(pru, PRU_CTRL_CTRL, val);
+ 	regmap_write(pru->ctrl_regmap, PRU_CTRL_CTRL, val);
  
--	/* TODO: INTC setup */
--
  	return 0;
 +
 +fail:
-+	/* TODO: INTC cleanup */
++	if (pru->dt_irqs || pru->fw_irqs)
++		pruss_intc_unconfigure(rproc->dev.parent, &pru->intc_config);
 +
 +	return ret;
  }
  
  /* stop/disable a PRU core */
-@@ -264,6 +375,10 @@ static int pru_rproc_stop(struct rproc *rproc)
- 	val &= ~CTRL_CTRL_EN;
- 	pru_control_write_reg(pru, PRU_CTRL_CTRL, val);
+@@ -650,6 +761,10 @@ static int pru_rproc_stop(struct rproc *rproc)
+ 	dev_dbg(dev, "stopping PRU%d\n", pru->id);
+ 	regmap_update_bits(pru->ctrl_regmap, PRU_CTRL_CTRL, CTRL_CTRL_EN, 0);
  
 +	if (!list_empty(&pru->rproc->rvdevs) &&
 +	    !pru->mbox && pru->irq_vring > 0)
 +		free_irq(pru->irq_vring, pru);
 +
- 	/* TODO: INTC cleanup */
- 
- 	return 0;
-@@ -356,6 +471,7 @@ static void *pru_da_to_va(struct rproc *rproc, u64 da, int len, u32 flags)
+ 	/* undo INTC config */
+ 	if (pru->dt_irqs || pru->fw_irqs)
+ 		pruss_intc_unconfigure(rproc->dev.parent, &pru->intc_config);
+@@ -746,6 +861,7 @@ static void *pru_da_to_va(struct rproc *rproc, u64 da, int len, int map)
  static struct rproc_ops pru_rproc_ops = {
  	.start			= pru_rproc_start,
  	.stop			= pru_rproc_stop,
 +	.kick			= pru_rproc_kick,
  	.da_to_va		= pru_da_to_va,
+ 	.handle_vendor_rsc	= pru_rproc_handle_vendor_rsc,
  };
- 
-@@ -383,6 +499,7 @@ static int pru_rproc_probe(struct platform_device *pdev)
+@@ -789,6 +905,7 @@ static int pru_rproc_probe(struct platform_device *pdev)
  	struct pru_rproc *pru;
  	const char *fw_name;
  	struct rproc *rproc = NULL;
 +	struct mbox_client *client;
  	struct resource *res;
- 	int i, ret;
- 	const char *mem_names[PRU_MEM_MAX] = { "iram", "control", "debug" };
-@@ -475,10 +592,51 @@ static int pru_rproc_probe(struct platform_device *pdev)
+ 	int ret;
+ 	void __iomem *va;
+@@ -924,10 +1041,51 @@ static int pru_rproc_probe(struct platform_device *pdev)
  
  	platform_set_drvdata(pdev, rproc);
  
@@ -285,7 +279,7 @@ index 73a7f136de7b..e0554b3d47f0 100644
  	}
  
  	pru_rproc_create_debug_entries(rproc);
-@@ -487,6 +645,8 @@ static int pru_rproc_probe(struct platform_device *pdev)
+@@ -936,6 +1094,8 @@ static int pru_rproc_probe(struct platform_device *pdev)
  
  	return 0;
  
@@ -294,7 +288,7 @@ index 73a7f136de7b..e0554b3d47f0 100644
  free_rproc:
  	rproc_free(rproc);
  	return ret;
-@@ -496,9 +656,12 @@ static int pru_rproc_remove(struct platform_device *pdev)
+@@ -945,9 +1105,12 @@ static int pru_rproc_remove(struct platform_device *pdev)
  {
  	struct device *dev = &pdev->dev;
  	struct rproc *rproc = platform_get_drvdata(pdev);
@@ -308,5 +302,5 @@ index 73a7f136de7b..e0554b3d47f0 100644
  	rproc_free(rproc);
  
 -- 
-2.19.2
+2.20.1
 

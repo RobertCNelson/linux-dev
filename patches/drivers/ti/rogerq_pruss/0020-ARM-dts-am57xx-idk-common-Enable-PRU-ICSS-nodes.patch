@@ -1,0 +1,42 @@
+From f7aeb69d7853beb9331c24cb5d0cb8f4385cbb37 Mon Sep 17 00:00:00 2001
+From: Suman Anna <s-anna@ti.com>
+Date: Tue, 30 Jan 2018 13:56:44 -0600
+Subject: [PATCH 20/25] ARM: dts: am57xx-idk-common: Enable PRU-ICSS nodes
+
+The two PRU-ICSS processor subsystem bus nodes and their corresponding
+subsystem nodes were left in disabled state in the base dra7.dts file.
+The PRU-ICSSs are supported on only the AM57xx SoCs, so enable these
+nodes (both PRU-ICSS1 and PRU-ICSS2 instances) to support them on
+all the AM571x, AM572x and AM574x IDK boards. The PRU nodes are
+already enabled in the base dts file, and so become effective
+automatically with the enabling of these PRU-ICSS nodes.
+
+The corresponding PRU nodes can be disabled later on if there are
+no use-cases defined to use a particular PRU core or the whole
+PRU-ICSS subsystem itself if both its PRU cores are unused.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+---
+ arch/arm/boot/dts/am57xx-idk-common.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am57xx-idk-common.dtsi b/arch/arm/boot/dts/am57xx-idk-common.dtsi
+index f7bd26458915..6991412890c5 100644
+--- a/arch/arm/boot/dts/am57xx-idk-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-idk-common.dtsi
+@@ -492,3 +492,11 @@
+ &cpu0 {
+ 	vdd-supply = <&smps12_reg>;
+ };
++
++&pruss1 {
++	status = "okay";
++};
++
++&pruss2 {
++	status = "okay";
++};
+-- 
+2.20.1
+

@@ -1,7 +1,7 @@
-From c553bc91d3d4a099f9be9e8293839d998ab8bb36 Mon Sep 17 00:00:00 2001
+From 487d5c26f10a4b397b72ce3f6ab6c4eafd645267 Mon Sep 17 00:00:00 2001
 From: Jason Reeder <jreeder@ti.com>
 Date: Thu, 2 Feb 2017 20:48:57 -0600
-Subject: [PATCH 1/2] rpmsg: pru: add a PRU RPMsg driver
+Subject: [PATCH 14/25] rpmsg: pru: add a PRU RPMsg driver
 
 An RPMsg driver that exposes interfaces to user space, to
 allow applications to communicate with the PRU processors
@@ -11,15 +11,16 @@ SoCs that have the PRUSS remoteproc support.
 Signed-off-by: Jason Reeder <jreeder@ti.com>
 [s-anna@ti.com: various cleanups, rpmsg rebase fixes for 4.14]
 Signed-off-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
 ---
  drivers/rpmsg/Kconfig     |  14 ++
  drivers/rpmsg/Makefile    |   1 +
- drivers/rpmsg/rpmsg_pru.c | 359 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 374 insertions(+)
+ drivers/rpmsg/rpmsg_pru.c | 360 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 375 insertions(+)
  create mode 100644 drivers/rpmsg/rpmsg_pru.c
 
 diff --git a/drivers/rpmsg/Kconfig b/drivers/rpmsg/Kconfig
-index d0322b41eca5..b5f849094c8c 100644
+index d0322b41eca5..5beb5e479c25 100644
 --- a/drivers/rpmsg/Kconfig
 +++ b/drivers/rpmsg/Kconfig
 @@ -55,4 +55,18 @@ config RPMSG_VIRTIO
@@ -32,7 +33,7 @@ index d0322b41eca5..b5f849094c8c 100644
 +	depends on RPMSG_VIRTIO
 +	depends on REMOTEPROC
 +	depends on PRUSS_REMOTEPROC
-+	---help---
++	help
 +	  An rpmsg driver that exposes interfaces to user space, to allow
 +	  applications to communicate with the PRU processors on available
 +	  TI SoCs. This is restricted to SoCs that have the PRUSS remoteproc
@@ -55,14 +56,15 @@ index 9aa859502d27..b66a5dddcce8 100644
  obj-$(CONFIG_RPMSG_QCOM_GLINK_SMEM) += qcom_glink_smem.o
 diff --git a/drivers/rpmsg/rpmsg_pru.c b/drivers/rpmsg/rpmsg_pru.c
 new file mode 100644
-index 000000000000..db7e75c86454
+index 000000000000..2e8d2b1ac7c7
 --- /dev/null
 +++ b/drivers/rpmsg/rpmsg_pru.c
-@@ -0,0 +1,359 @@
+@@ -0,0 +1,360 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
 + * PRU Remote Processor Messaging Driver
 + *
-+ * Copyright (C) 2015-2018 Texas Instruments Incorporated - http://www.ti.com/
++ * Copyright (C) 2015-2019 Texas Instruments Incorporated - http://www.ti.com/
 + *	Jason Reeder <jreeder@ti.com>
 + *	Suman Anna <s-anna@ti.com>
 + *
@@ -419,5 +421,5 @@ index 000000000000..db7e75c86454
 +MODULE_DESCRIPTION("PRU Remote Processor Messaging Driver");
 +MODULE_LICENSE("GPL v2");
 -- 
-2.19.2
+2.20.1
 

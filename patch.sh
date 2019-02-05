@@ -349,6 +349,49 @@ backports () {
 	fi
 }
 
+ti_rogerq_pruss () {
+	#https://github.com/rogerq/linux/commits/for-v5.1/pruss-2.0
+	echo "dir: drivers/ti/rogerq_pruss"
+	#regenerate="enable"
+	branch="for-v5.1/pruss-2.0"
+	git_depth="30"
+	patch_depth="25"
+	if [ "x${regenerate}" = "xenable" ] ; then
+
+		cd ../
+		if [ ! -d ./rogerq_pruss/ ] ; then
+			${git_bin} clone -b ${branch} https://github.com/rogerq/linux --depth=${git_depth} ./rogerq_pruss/
+		else
+			rm -rf ./rogerq_pruss || true
+			${git_bin} clone -b ${branch} https://github.com/rogerq/linux --depth=${git_depth} ./rogerq_pruss/
+		fi
+
+		cd ./rogerq_pruss/
+
+		${git_bin} format-patch -${patch_depth} -o ../patches/drivers/ti/rogerq_pruss
+
+		cd ../KERNEL/
+
+		rm -rf ../rogerq_pruss/ || true
+
+		dir 'drivers/ti/rogerq_pruss'
+		exit 2
+	fi
+
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		start_cleanup
+	fi
+
+	dir 'drivers/ti/rogerq_pruss'
+
+	if [ "x${regenerate}" = "xenable" ] ; then
+		wdir="drivers/ti/rogerq_pruss"
+		number=25
+		cleanup
+	fi
+}
+
 reverts () {
 	echo "dir: reverts"
 	#regenerate="enable"
@@ -375,17 +418,6 @@ drivers () {
 	dir 'drivers/ssd1306'
 	dir 'drivers/tps65217'
 	dir 'drivers/wiznet'
-
-	#https://lkml.org/lkml/2018/11/22/948
-	#[PATCH 00/17] Add support for TI PRU ICSS
-	dir 'drivers/ti/pruss'
-
-	#https://lkml.org/lkml/2018/11/26/319
-	#[PATCH 00/16] remoteproc: Add support for TI PRU
-	dir 'drivers/ti/remoteproc'
-
-	#https://lkml.org/lkml/2018/12/2/361
-	dir 'drivers/ti/pruss-from-v4.14.x-ti'
 
 	dir 'drivers/ti/overlays'
 	dir 'drivers/ti/cpsw'
@@ -478,6 +510,7 @@ beaglebone () {
 
 ###
 #backports
+ti_rogerq_pruss
 #reverts
 drivers
 soc
