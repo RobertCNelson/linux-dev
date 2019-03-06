@@ -351,7 +351,6 @@ backports () {
 
 ti_rogerq_pruss () {
 	#https://github.com/rogerq/linux/commits/for-v5.1/pruss-2.0
-	echo "dir: drivers/ti/rogerq_pruss"
 	#regenerate="enable"
 	branch="for-v5.1/pruss-2.0"
 	git_depth="30"
