@@ -38,8 +38,8 @@ kernel_rt=".X-rtY"
 BUILD=${build_prefix}0
 
 #v4.X-rcX + upto SHA
-prev_KERNEL_SHA="1c163f4c7b3f621efff9b28a47abb36f7378d783"
-KERNEL_SHA="3717f613f48df0222311f974cf8a06c8a6c97bae"
+prev_KERNEL_SHA="3717f613f48df0222311f974cf8a06c8a6c97bae"
+KERNEL_SHA="afe6fe7036c6efdcb46cabc64bec9b6e4a005210"
 
 #git branch
 #BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
