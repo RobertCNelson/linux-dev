@@ -5,15 +5,15 @@ Subject: [PATCH] fb_ssd1306: add support for MikroElectronica OLED B Click
 
 https://www.mikroe.com/oled-b-click
 ---
- drivers/staging/fbtft/fb_ssd1306.c   | 67 ++++++++++++++++++++++++++++++------
- drivers/staging/fbtft/fbtft_device.c | 19 ++++++++++
+ drivers/staging/fbtft/fb_ssd1306.c   | 67 +++++++++++++++++++++++-----
+ drivers/staging/fbtft/fbtft_device.c | 19 ++++++++
  2 files changed, 75 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/staging/fbtft/fb_ssd1306.c b/drivers/staging/fbtft/fb_ssd1306.c
-index 96c58de85288..602f2b5c4681 100644
+index d7c5e2e0eee9..ae524d44c4b3 100644
 --- a/drivers/staging/fbtft/fb_ssd1306.c
 +++ b/drivers/staging/fbtft/fb_ssd1306.c
-@@ -64,6 +64,8 @@ static int init_display(struct fbtft_par *par)
+@@ -55,6 +55,8 @@ static int init_display(struct fbtft_par *par)
  		write_reg(par, 0x3F);
  	else if (par->info->var.yres == 48)
  		write_reg(par, 0x2F);
@@ -22,7 +22,7 @@ index 96c58de85288..602f2b5c4681 100644
  	else
  		write_reg(par, 0x1F);
  
-@@ -81,16 +83,24 @@ static int init_display(struct fbtft_par *par)
+@@ -72,16 +74,24 @@ static int init_display(struct fbtft_par *par)
  
  	/* Set Memory Addressing Mode */
  	write_reg(par, 0x20);
@@ -52,7 +52,7 @@ index 96c58de85288..602f2b5c4681 100644
  
  	/* Set COM Pins Hardware Configuration */
  	write_reg(par, 0xDA);
-@@ -100,18 +110,27 @@ static int init_display(struct fbtft_par *par)
+@@ -91,18 +101,27 @@ static int init_display(struct fbtft_par *par)
  	else if (par->info->var.yres == 48)
  		/* A[4]=1b, Alternative COM pin configuration */
  		write_reg(par, 0x12);
@@ -83,7 +83,7 @@ index 96c58de85288..602f2b5c4681 100644
  
  	/* Entire Display ON */
  	/* Resume to RAM content display. Output follows RAM content */
-@@ -142,17 +161,35 @@ static void set_addr_win_64x48(struct fbtft_par *par)
+@@ -133,17 +152,35 @@ static void set_addr_win_64x48(struct fbtft_par *par)
  	write_reg(par, 0x5);
  }
  
@@ -121,7 +121,7 @@ index 96c58de85288..602f2b5c4681 100644
  }
  
  static int blank(struct fbtft_par *par, bool on)
-@@ -196,11 +233,19 @@ static int write_vmem(struct fbtft_par *par, size_t offset, size_t len)
+@@ -187,11 +224,19 @@ static int write_vmem(struct fbtft_par *par, size_t offset, size_t len)
  				*buf |= (vmem16[(y * 8 + i) * xres + x] ? 1 : 0) << i;
  			buf++;
  		}
@@ -135,18 +135,18 @@ index 96c58de85288..602f2b5c4681 100644
  	}
  
  	/* Write data */
- 	gpio_set_value(par->gpio.dc, 1);
+ 	gpiod_set_value(par->gpio.dc, 1);
 -	ret = par->fbtftops.write(par, par->txbuf.buf, xres * yres / 8);
 +	ret = par->fbtftops.write(par, par->txbuf.buf, xres * (yres / 8 + (yres % 8 != 0)));
-+	//ret = par->fbtftops.write(par, par->txbuf.buf, xres * 128 / 8);
++	//ret = par->fbtftops.write(par, par->txbuf.buf, xres * yres / 8);
  	if (ret < 0)
  		dev_err(par->info->device, "write failed and returned: %d\n",
  			ret);
 diff --git a/drivers/staging/fbtft/fbtft_device.c b/drivers/staging/fbtft/fbtft_device.c
-index 0d974738c1c4..c60d7505813c 100644
+index 5f6cd0816d58..e89122f0ef80 100644
 --- a/drivers/staging/fbtft/fbtft_device.c
 +++ b/drivers/staging/fbtft/fbtft_device.c
-@@ -391,6 +391,25 @@ static struct fbtft_device_display displays[] = {
+@@ -348,6 +348,25 @@ static struct fbtft_device_display displays[] = {
  				},
  			}
  		}
@@ -173,5 +173,5 @@ index 0d974738c1c4..c60d7505813c 100644
  		.name = "admatec_c-berry28",
  		.spi = &(struct spi_board_info) {
 -- 
-2.15.1
+2.20.1
 

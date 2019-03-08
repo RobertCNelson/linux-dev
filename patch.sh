@@ -427,8 +427,6 @@ drivers () {
 	dir 'drivers/ti/spi'
 	dir 'drivers/ti/tsc'
 	dir 'drivers/ti/gpio'
-	#[PATCH v3 1/4] mfd: stmpe: Move ADC related defines to header of mfd
-	dir 'drivers/iio/stmpe'
 }
 
 soc () {
