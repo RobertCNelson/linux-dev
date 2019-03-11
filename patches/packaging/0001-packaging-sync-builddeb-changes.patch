@@ -1,6 +1,6 @@
-From 680e3a081feac04c7e790219fbc8b06d6706ee4d Mon Sep 17 00:00:00 2001
+From fc21412185268980ed354fbae6fec2c419eee49f Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 6 Jan 2019 20:45:51 -0600
+Date: Mon, 11 Mar 2019 12:02:11 -0500
 Subject: [PATCH] packaging: sync builddeb changes
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -9,14 +9,14 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/scripts/package/builddeb b/scripts/package/builddeb
-index f43a274f4f1d..b274b7994ac7 100755
+index 8ac25d10a6ad..a9123900d1c4 100755
 --- a/scripts/package/builddeb
 +++ b/scripts/package/builddeb
 @@ -87,6 +87,7 @@ if grep -q "^CONFIG_OF_EARLY_FLATTREE=y" $KCONFIG_CONFIG ; then
  	# Only some architectures with OF support have this target
  	if [ -d "${srctree}/arch/$SRCARCH/boot/dts" ]; then
- 		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
-+		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" dtbs_install
+ 		$MAKE -f $srctree/Makefile INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
++		$MAKE -f $srctree/Makefile INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" dtbs_install
  	fi
  fi
  

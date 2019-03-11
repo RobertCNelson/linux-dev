@@ -1,12 +1,12 @@
 diff --git a/3rdparty/packaging/builddeb b/3rdparty/packaging/builddeb
-index f43a274f..b274b799 100755
+index 8ac25d10..a9123900 100755
 --- a/3rdparty/packaging/builddeb
 +++ b/3rdparty/packaging/builddeb
 @@ -87,6 +87,7 @@ if grep -q "^CONFIG_OF_EARLY_FLATTREE=y" $KCONFIG_CONFIG ; then
  	# Only some architectures with OF support have this target
  	if [ -d "${srctree}/arch/$SRCARCH/boot/dts" ]; then
- 		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
-+		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" dtbs_install
+ 		$MAKE -f $srctree/Makefile INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
++		$MAKE -f $srctree/Makefile INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" dtbs_install
  	fi
  fi
  
