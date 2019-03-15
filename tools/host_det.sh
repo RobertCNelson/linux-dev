@@ -206,6 +206,20 @@ debian_regs () {
 			fi
 		fi
 
+		if [ "x${deb_distro}" = "xunstable" ] ; then
+			echo "+ Warning: [lsb_release -cs] just returned [unstable], so now testing [lsb_release -is] instead..."
+			deb_lsb_is=$(lsb_release -is | awk '{print $1}')
+
+			#lsb_release -a
+			#Distributor ID: Deepin
+			#Description:    Deepin 15.9.2
+			#Release:        15.9.2
+			#Codename:       unstable
+			if [ "x${deb_lsb_is}" = "xDeepin" ] ; then
+				deb_distro="stretch"
+			fi
+		fi
+
 		if [ "x${deb_distro}" = "xluna" ] ; then
 			#http://distrowatch.com/table.php?distribution=elementary
 			#lsb_release -a
