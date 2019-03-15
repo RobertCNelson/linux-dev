@@ -508,7 +508,7 @@ beaglebone () {
 
 ###
 #backports
-ti_rogerq_pruss
+#ti_rogerq_pruss
 #reverts
 drivers
 soc
