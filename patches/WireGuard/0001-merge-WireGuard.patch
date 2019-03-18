@@ -1,6 +1,6 @@
-From fd20550c4d57be54f3bea78412652a08dcbd5c40 Mon Sep 17 00:00:00 2001
+From 08c85c49f6c97095b362a2a7f9e2214f9a04fa76 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 11 Mar 2019 11:26:36 -0500
+Date: Sun, 17 Mar 2019 19:10:37 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   78 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  839 ++
+ net/wireguard/compat/compat.h                 |  852 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -90,7 +90,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/peer.h                          |   83 +
  net/wireguard/queueing.c                      |   53 +
  net/wireguard/queueing.h                      |  198 +
- net/wireguard/ratelimiter.c                   |  223 +
+ net/wireguard/ratelimiter.c                   |  232 +
  net/wireguard/ratelimiter.h                   |   19 +
  net/wireguard/receive.c                       |  606 ++
  net/wireguard/selftest/allowedips.c           |  682 ++
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51340 insertions(+)
+ 98 files changed, 51362 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -202,7 +202,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/version.h
 
 diff --git a/net/Kconfig b/net/Kconfig
-index 5cb9de1aaf88..173c87fd6d48 100644
+index 1efe1f9ee492..20f6adb1c795 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
 @@ -89,6 +89,7 @@ config INET
@@ -214,7 +214,7 @@ index 5cb9de1aaf88..173c87fd6d48 100644
  source "net/ipv6/Kconfig"
  source "net/netlabel/Kconfig"
 diff --git a/net/Makefile b/net/Makefile
-index bdaf53925acd..14afe7e03083 100644
+index 449fc0b221f8..bf63f55e444b 100644
 --- a/net/Makefile
 +++ b/net/Makefile
 @@ -15,6 +15,7 @@ obj-$(CONFIG_NET)		+= $(tmp-y)
@@ -285,7 +285,7 @@ index 000000000000..c9cbf0991ed4
 +obj-$(if $(KBUILD_EXTMOD),m,$(CONFIG_WIREGUARD)) := wireguard.o
 diff --git a/net/wireguard/allowedips.c b/net/wireguard/allowedips.c
 new file mode 100644
-index 000000000000..bfb6020f350e
+index 000000000000..592501e39bc3
 --- /dev/null
 +++ b/net/wireguard/allowedips.c
 @@ -0,0 +1,377 @@
@@ -403,7 +403,7 @@ index 000000000000..bfb6020f350e
 +				if (!node->bit[0] || !node->bit[1]) {
 +					rcu_assign_pointer(*nptr, DEREF(
 +					       &node->bit[!REF(node->bit[0])]));
-+					call_rcu_bh(&node->rcu, node_free_rcu);
++					call_rcu(&node->rcu, node_free_rcu);
 +					node = DEREF(nptr);
 +				}
 +			}
@@ -591,12 +591,12 @@ index 000000000000..bfb6020f350e
 +	RCU_INIT_POINTER(table->root6, NULL);
 +	if (rcu_access_pointer(old4)) {
 +		root_remove_peer_lists(old4);
-+		call_rcu_bh(&rcu_dereference_protected(old4,
++		call_rcu(&rcu_dereference_protected(old4,
 +				lockdep_is_held(lock))->rcu, root_free_rcu);
 +	}
 +	if (rcu_access_pointer(old6)) {
 +		root_remove_peer_lists(old6);
-+		call_rcu_bh(&rcu_dereference_protected(old6,
++		call_rcu(&rcu_dereference_protected(old6,
 +				lockdep_is_held(lock))->rcu, root_free_rcu);
 +	}
 +}
@@ -1080,10 +1080,10 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..7a61e4c1a5cd
+index 000000000000..8662b835d57f
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,839 @@
+@@ -0,0 +1,852 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1864,6 +1864,17 @@ index 000000000000..7a61e4c1a5cd
 +#define skb_probe_transport_header(a) skb_probe_transport_header(a, 0)
 +#endif
 +
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0)
++/* Note that all intentional uses of the non-_bh variety need to explicitly
++ * undef these, conditionalized on COMPAT_CANNOT_DEPRECIATE_BH_RCU.
++ */
++#define synchronize_rcu synchronize_rcu_bh
++#define call_rcu call_rcu_bh
++#define rcu_barrier rcu_barrier_bh
++#define COMPAT_CANNOT_DEPRECIATE_BH_RCU
++#endif
++
 +/* https://github.com/ClangBuiltLinux/linux/issues/7 */
 +#if defined( __clang__) && (!defined(CONFIG_CLANG_VERSION) || CONFIG_CLANG_VERSION < 80000)
 +#include <linux/bug.h>
@@ -1878,7 +1889,9 @@ index 000000000000..7a61e4c1a5cd
 +#include <net/ipv6.h>
 +#include <net/icmp.h>
 +#include <net/netfilter/nf_conntrack.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0)
 +#include <net/netfilter/nf_nat_core.h>
++#endif
 +static inline void new_icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info)
 +{
 +	enum ip_conntrack_info ctinfo;
@@ -45574,7 +45587,7 @@ index 000000000000..4ffaf6089eea
 +#endif
 diff --git a/net/wireguard/device.c b/net/wireguard/device.c
 new file mode 100644
-index 000000000000..2866dd98ff4e
+index 000000000000..779c41521ea9
 --- /dev/null
 +++ b/net/wireguard/device.c
 @@ -0,0 +1,472 @@
@@ -45674,7 +45687,7 @@ index 000000000000..2866dd98ff4e
 +		mutex_unlock(&wg->device_update_lock);
 +	}
 +	rtnl_unlock();
-+	rcu_barrier_bh();
++	rcu_barrier();
 +	return 0;
 +}
 +
@@ -45824,7 +45837,7 @@ index 000000000000..2866dd98ff4e
 +	destroy_workqueue(wg->packet_crypt_wq);
 +	wg_packet_queue_free(&wg->decrypt_queue, true);
 +	wg_packet_queue_free(&wg->encrypt_queue, true);
-+	rcu_barrier_bh(); /* Wait for all the peers to be actually freed. */
++	rcu_barrier(); /* Wait for all the peers to be actually freed. */
 +	wg_ratelimiter_uninit();
 +	memzero_explicit(&wg->static_identity, sizeof(wg->static_identity));
 +	skb_queue_purge(&wg->incoming_handshakes);
@@ -46048,7 +46061,7 @@ index 000000000000..2866dd98ff4e
 +#ifdef CONFIG_PM_SLEEP
 +	unregister_pm_notifier(&pm_notifier);
 +#endif
-+	rcu_barrier_bh();
++	rcu_barrier();
 +}
 diff --git a/net/wireguard/device.h b/net/wireguard/device.h
 new file mode 100644
@@ -47285,7 +47298,7 @@ index 000000000000..15100d92e2e3
 +#endif /* _WG_NETLINK_H */
 diff --git a/net/wireguard/noise.c b/net/wireguard/noise.c
 new file mode 100644
-index 000000000000..4405125e7a0a
+index 000000000000..2e05e2740685
 --- /dev/null
 +++ b/net/wireguard/noise.c
 @@ -0,0 +1,807 @@
@@ -47423,7 +47436,7 @@ index 000000000000..4405125e7a0a
 +			    keypair->entry.peer->internal_id);
 +	wg_index_hashtable_remove(keypair->entry.peer->device->index_hashtable,
 +				  &keypair->entry);
-+	call_rcu_bh(&keypair->rcu, keypair_free_rcu);
++	call_rcu(&keypair->rcu, keypair_free_rcu);
 +}
 +
 +void wg_noise_keypair_put(struct noise_keypair *keypair, bool unreference_now)
@@ -48235,7 +48248,7 @@ index 000000000000..8e5cc0acb80b
 +#endif /* _WG_NOISE_H */
 diff --git a/net/wireguard/peer.c b/net/wireguard/peer.c
 new file mode 100644
-index 000000000000..996f40b919ca
+index 000000000000..0c7e942f6893
 --- /dev/null
 +++ b/net/wireguard/peer.c
 @@ -0,0 +1,239 @@
@@ -48340,7 +48353,7 @@ index 000000000000..996f40b919ca
 +	/* Mark as dead, so that we don't allow jumping contexts after. */
 +	WRITE_ONCE(peer->is_dead, true);
 +
-+	/* The caller must now synchronize_rcu_bh() for this to take effect. */
++	/* The caller must now synchronize_rcu() for this to take effect. */
 +}
 +
 +static void peer_remove_after_dead(struct wg_peer *peer)
@@ -48412,7 +48425,7 @@ index 000000000000..996f40b919ca
 +	lockdep_assert_held(&peer->device->device_update_lock);
 +
 +	peer_make_dead(peer);
-+	synchronize_rcu_bh();
++	synchronize_rcu();
 +	peer_remove_after_dead(peer);
 +}
 +
@@ -48430,7 +48443,7 @@ index 000000000000..996f40b919ca
 +		peer_make_dead(peer);
 +		list_add_tail(&peer->peer_list, &dead_peers);
 +	}
-+	synchronize_rcu_bh();
++	synchronize_rcu();
 +	list_for_each_entry_safe(peer, temp, &dead_peers, peer_list)
 +		peer_remove_after_dead(peer);
 +}
@@ -48469,7 +48482,7 @@ index 000000000000..996f40b919ca
 +	wg_packet_purge_staged_packets(peer);
 +
 +	/* Free the memory used. */
-+	call_rcu_bh(&peer->rcu, rcu_release);
++	call_rcu(&peer->rcu, rcu_release);
 +}
 +
 +void wg_peer_put(struct wg_peer *peer)
@@ -48832,14 +48845,23 @@ index 000000000000..f8de703dff97
 +#endif /* _WG_QUEUEING_H */
 diff --git a/net/wireguard/ratelimiter.c b/net/wireguard/ratelimiter.c
 new file mode 100644
-index 000000000000..b3b1d258ccd4
+index 000000000000..cfc30273e671
 --- /dev/null
 +++ b/net/wireguard/ratelimiter.c
-@@ -0,0 +1,223 @@
+@@ -0,0 +1,232 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 + */
++
++#ifdef COMPAT_CANNOT_DEPRECIATE_BH_RCU
++/* We normally alias all non-_bh functions to the _bh ones in the compat layer,
++ * but that's not appropriate here, where we actually do want non-_bh ones.
++ */
++#undef synchronize_rcu
++#undef call_rcu
++#undef rcu_barrier
++#endif
 +
 +#include "ratelimiter.h"
 +#include <linux/siphash.h>
@@ -51165,7 +51187,7 @@ index 000000000000..b0df5c717502
 +}
 diff --git a/net/wireguard/socket.c b/net/wireguard/socket.c
 new file mode 100644
-index 000000000000..652d79817e58
+index 000000000000..5a77b0c9ba2e
 --- /dev/null
 +++ b/net/wireguard/socket.c
 @@ -0,0 +1,433 @@
@@ -51597,7 +51619,7 @@ index 000000000000..652d79817e58
 +	if (new4)
 +		wg->incoming_port = ntohs(inet_sk(new4)->inet_sport);
 +	mutex_unlock(&wg->socket_update_lock);
-+	synchronize_rcu_bh();
++	synchronize_rcu();
 +	synchronize_net();
 +	sock_free(old4);
 +	sock_free(old6);
