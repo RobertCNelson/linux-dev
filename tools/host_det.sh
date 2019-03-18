@@ -426,7 +426,7 @@ debian_regs () {
 			;;
 		bionic|cosmic)
 			#18.04 bionic: (EOL: April 2023) lts: bionic -> xyz
-			#18.10 cosmic: (EOL: )
+			#18.10 cosmic: (EOL: July 2019)
 			unset warn_eol_distro
 			;;
 		yakkety|zesty|artful)
