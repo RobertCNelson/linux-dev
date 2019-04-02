@@ -393,6 +393,11 @@ debian_regs () {
 			#https://blog.linuxmint.com/?p=3671
 			deb_distro="bionic"
 			;;
+		tina)
+			#19.2
+			#https://blog.linuxmint.com/?p=3736
+			deb_distro="bionic"
+			;;
 		esac
 
 		#Future Debian Code names:
