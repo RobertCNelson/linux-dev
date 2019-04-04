@@ -1,7 +1,7 @@
-From 5a4337a51d034235276947faee68c6e01a09daff Mon Sep 17 00:00:00 2001
+From 0ae59d1767a9cf9875b35a026b5df13eeb3694db Mon Sep 17 00:00:00 2001
 From: Joshua Clayton <stillcompiling@gmail.com>
 Date: Thu, 18 May 2017 08:49:03 +0800
-Subject: [PATCH 7/7] ARM: dts: imx6q-evi: Fix onboard hub reset line
+Subject: [PATCH 7/9] ARM: dts: imx6q-evi: Fix onboard hub reset line
 
 Previously the onboard hub was made to work by treating its
 reset gpio as a regulator enable.
@@ -15,10 +15,10 @@ Signed-off-by: Peter Chen <peter.chen@nxp.com>
  1 file changed, 7 insertions(+), 18 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6q-evi.dts b/arch/arm/boot/dts/imx6q-evi.dts
-index fd2220aa49e2..24fe093a66db 100644
+index c63f371ede8b..546d9d4e8ca1 100644
 --- a/arch/arm/boot/dts/imx6q-evi.dts
 +++ b/arch/arm/boot/dts/imx6q-evi.dts
-@@ -54,18 +54,6 @@
+@@ -55,18 +55,6 @@
  		reg = <0x10000000 0x40000000>;
  	};
  
@@ -37,7 +37,7 @@ index fd2220aa49e2..24fe093a66db 100644
  	reg_usb_otg_vbus: regulator-usbotgvbus {
  		compatible = "regulator-fixed";
  		regulator-name = "usb_otg_vbus";
-@@ -204,12 +192,18 @@
+@@ -214,12 +202,18 @@
  };
  
  &usbh1 {
@@ -57,7 +57,7 @@ index fd2220aa49e2..24fe093a66db 100644
  };
  
  &usbotg {
-@@ -465,11 +459,6 @@
+@@ -482,11 +476,6 @@
  			MX6QDL_PAD_GPIO_3__USB_H1_OC 0x1b0b0
  			/* usbh1_b OC */
  			MX6QDL_PAD_GPIO_0__GPIO1_IO00 0x1b0b0
@@ -70,5 +70,5 @@ index fd2220aa49e2..24fe093a66db 100644
  		>;
  	};
 -- 
-2.11.0
+2.20.1
 

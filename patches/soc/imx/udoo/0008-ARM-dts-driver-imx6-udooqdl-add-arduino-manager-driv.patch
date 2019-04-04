@@ -1,8 +1,8 @@
-From a35b9dfc80338cf2049c75b0f4af22776001d5d3 Mon Sep 17 00:00:00 2001
+From 9a4d8e886600c7c330590a2435dd74eb16d480ce Mon Sep 17 00:00:00 2001
 From: Steve Arnold <nerdboy@gentoo.org>
 Date: Fri, 15 Dec 2017 16:43:22 -0800
-Subject: [PATCH] ARM: dts,driver: imx6,udooqdl: add arduino manager driver and
- update dts
+Subject: [PATCH 8/9] ARM: dts,driver: imx6,udooqdl: add arduino manager driver
+ and update dts
 
 * note this is required to upload sketches to sam3 from arduino IDE
 
@@ -11,15 +11,15 @@ Signed-off-by: Steve Arnold <nerdboy@gentoo.org>
  arch/arm/boot/dts/imx6qdl-udoo.dtsi |  20 ++
  drivers/misc/Kconfig                |   7 +
  drivers/misc/Makefile               |   1 +
- drivers/misc/udoo_ard.c             | 417 ++++++++++++++++++++++++++++++++++++
+ drivers/misc/udoo_ard.c             | 417 ++++++++++++++++++++++++++++
  4 files changed, 445 insertions(+)
  create mode 100755 drivers/misc/udoo_ard.c
 
 diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index e28f90005130..fd404d3299a5 100644
+index 4781a9e04338..554f601eb72a 100644
 --- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-@@ -89,6 +89,17 @@
+@@ -84,6 +84,17 @@
  		mux-int-port = <1>;
  		mux-ext-port = <6>;
  	};
@@ -37,7 +37,7 @@ index e28f90005130..fd404d3299a5 100644
  };
  
  &fec {
-@@ -200,6 +211,15 @@
+@@ -201,6 +212,15 @@
  			>;
  		};
  
@@ -54,10 +54,10 @@ index e28f90005130..fd404d3299a5 100644
  			fsl,pins = <
  				MX6QDL_PAD_SD3_CMD__SD3_CMD		0x17059
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index f1c4c891cda3..afd54fdc983d 100644
+index 5a1c54960685..78afa68ec86c 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -536,6 +536,13 @@ config TIEQEP
+@@ -543,6 +543,13 @@ config TIEQEP
  	  To compile this driver as a module, choose M here: the module
  	  will be called tieqep.
  
@@ -72,10 +72,10 @@ index f1c4c891cda3..afd54fdc983d 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 3225f1e37dfc..b68828f424c4 100644
+index 0a139ba5446a..07caf5326851 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -57,6 +57,7 @@ obj-y				+= cape/
+@@ -56,6 +56,7 @@ obj-y				+= cape/
  obj-$(CONFIG_ECHO)		+= echo/
  obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
@@ -507,5 +507,5 @@ index 000000000000..2210738e09c0
 +MODULE_ALIAS("platform:"DRIVER_NAME);
 +MODULE_LICENSE("GPL");
 -- 
-2.15.0
+2.20.1
 

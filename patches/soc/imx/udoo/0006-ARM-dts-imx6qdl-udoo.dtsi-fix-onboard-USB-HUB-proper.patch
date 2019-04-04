@@ -1,7 +1,7 @@
-From b089b85cd5ef6359e13c5dd90b95f39638477e39 Mon Sep 17 00:00:00 2001
+From c46707dde637ec75182c2f42f61aab96486bbcee Mon Sep 17 00:00:00 2001
 From: Peter Chen <peter.chen@nxp.com>
 Date: Thu, 18 May 2017 08:49:02 +0800
-Subject: [PATCH 6/7] ARM: dts: imx6qdl-udoo.dtsi: fix onboard USB HUB property
+Subject: [PATCH 6/9] ARM: dts: imx6qdl-udoo.dtsi: fix onboard USB HUB property
 
 The current dts describes USB HUB's property at USB controller's
 entry, it is improper. The USB HUB should be the child node
@@ -16,7 +16,7 @@ Tested-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
  1 file changed, 12 insertions(+), 14 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index 4f27861bbb32..dead14b0d4bf 100644
+index 776bfc77f89d..4781a9e04338 100644
 --- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
 @@ -5,6 +5,8 @@
@@ -28,7 +28,7 @@ index 4f27861bbb32..dead14b0d4bf 100644
  / {
  	aliases {
  		backlight = &backlight;
-@@ -61,17 +63,6 @@
+@@ -62,17 +64,6 @@
  		#address-cells = <1>;
  		#size-cells = <0>;
  
@@ -46,7 +46,7 @@ index 4f27861bbb32..dead14b0d4bf 100644
  		reg_panel: regulator@1 {
  			compatible = "regulator-fixed";
  			reg = <1>;
-@@ -197,7 +188,7 @@
+@@ -205,7 +196,7 @@
  
  		pinctrl_usbh: usbhgrp {
  			fsl,pins = <
@@ -55,7 +55,7 @@ index 4f27861bbb32..dead14b0d4bf 100644
  				MX6QDL_PAD_NANDF_CS2__CCM_CLKO2 0x130b0
  			>;
  		};
-@@ -268,9 +259,16 @@
+@@ -282,9 +273,16 @@
  &usbh1 {
  	pinctrl-names = "default";
  	pinctrl-0 = <&pinctrl_usbh>;
@@ -75,5 +75,5 @@ index 4f27861bbb32..dead14b0d4bf 100644
  
  &usdhc3 {
 -- 
-2.19.0
+2.20.1
 
