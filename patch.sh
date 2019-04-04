@@ -432,7 +432,6 @@ drivers () {
 soc () {
 	dir 'soc/imx/udoo'
 	dir 'soc/imx/wandboard'
-	dir 'soc/imx/imx6'
 	dir 'soc/imx/imx7'
 
 	dir 'soc/ti/omap3'
