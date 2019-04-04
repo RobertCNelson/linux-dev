@@ -1,18 +1,18 @@
-From 6ee3efdc428c3ebbbd23ed8686659c3a4c9a31b4 Mon Sep 17 00:00:00 2001
+From fe9afccc9356ce4327c61f843158257b22786577 Mon Sep 17 00:00:00 2001
 From: frost <ifagle@qq.com>
 Date: Fri, 12 May 2017 00:22:29 +0800
-Subject: [PATCH] ti_am335x_tsc: correct formula code to calculate pressure;
- fix touchscreen jitter problem
+Subject: [PATCH 2/2] ti_am335x_tsc: correct formula code to calculate
+ pressure; fix touchscreen jitter problem
 
 ---
  drivers/input/touchscreen/ti_am335x_tsc.c | 10 ++++++----
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 22a76efce2b3..8379e8639a07 100644
+index 4e0f28e0b548..dd358bff4a55 100644
 --- a/drivers/input/touchscreen/ti_am335x_tsc.c
 +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -33,6 +33,7 @@
+@@ -34,6 +34,7 @@
  #define ADCFSM_STEPID		0x10
  #define SEQ_SETTLE		275
  #define MAX_12BIT		((1 << 12) - 1)
@@ -20,7 +20,7 @@ index 22a76efce2b3..8379e8639a07 100644
  
  #define TSC_IRQENB_MASK		(IRQENB_FIFO0THRES | IRQENB_EOS | IRQENB_HW_PEN)
  
-@@ -232,6 +233,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+@@ -234,6 +235,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
  	for (i = 0; i < creads; i++) {
  		xvals[i] = titsc_readl(ts_dev, REG_FIFO0);
  		xvals[i] &= 0xfff;
@@ -28,7 +28,7 @@ index 22a76efce2b3..8379e8639a07 100644
  	}
  
  	/*
-@@ -310,13 +312,13 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+@@ -312,13 +314,13 @@ static irqreturn_t titsc_irq(int irq, void *dev)
  			 * Resistance(touch) = x plate resistance *
  			 * x postion/4096 * ((z2 / z1) - 1)
  			 */
@@ -47,5 +47,5 @@ index 22a76efce2b3..8379e8639a07 100644
  				input_report_abs(input_dev, ABS_Y, y);
  				input_report_abs(input_dev, ABS_PRESSURE, z);
 -- 
-2.17.1
+2.20.1
 

@@ -1,7 +1,7 @@
-From f5f7209b572ddeb4831a1f9ae5e27655e0fb3e04 Mon Sep 17 00:00:00 2001
+From 8c343fd056216ba03345da5f1ca16ede76f72f6a Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@pdp7.com>
 Date: Thu, 2 Feb 2017 05:19:11 -0600
-Subject: [PATCH] tieqep: fix unhandled fault on eQEP register access
+Subject: [PATCH 2/2] tieqep: fix unhandled fault on eQEP register access
 
 Call pm_runtime_get_sync() at the beginning of any functions that will
 read or write to the memory mapped eQEP registers.  This is to ensure
@@ -24,7 +24,7 @@ https://groups.google.com/d/msg/beagleboard/_TdTH7oPEXE/MNvU-mY6DgAJ
  1 file changed, 17 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/misc/tieqep.c b/drivers/misc/tieqep.c
-index d2628847..bb69ad4 100644
+index d2628847bb8e..bb69ad4468e2 100644
 --- a/drivers/misc/tieqep.c
 +++ b/drivers/misc/tieqep.c
 @@ -241,9 +241,13 @@ static ssize_t eqep_get_enabled(struct device *dev, struct device_attribute *att
@@ -97,5 +97,5 @@ index d2628847..bb69ad4 100644
  
  	if (tmp_mode == TIEQEP_MODE_ABSOLUTE) {
 -- 
-2.9.3
+2.20.1
 
