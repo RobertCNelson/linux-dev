@@ -425,7 +425,6 @@ drivers () {
 	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/serial'
-	dir 'drivers/ti/spi'
 	dir 'drivers/ti/tsc'
 	dir 'drivers/ti/gpio'
 }
