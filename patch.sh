@@ -350,48 +350,6 @@ backports () {
 	fi
 }
 
-ti_rogerq_pruss () {
-	#https://github.com/rogerq/linux/commits/for-v5.1/pruss-2.0
-	#regenerate="enable"
-	branch="for-v5.1/pruss-2.0"
-	git_depth="30"
-	patch_depth="25"
-	if [ "x${regenerate}" = "xenable" ] ; then
-
-		cd ../
-		if [ ! -d ./rogerq_pruss/ ] ; then
-			${git_bin} clone -b ${branch} https://github.com/rogerq/linux --depth=${git_depth} ./rogerq_pruss/
-		else
-			rm -rf ./rogerq_pruss || true
-			${git_bin} clone -b ${branch} https://github.com/rogerq/linux --depth=${git_depth} ./rogerq_pruss/
-		fi
-
-		cd ./rogerq_pruss/
-
-		${git_bin} format-patch -${patch_depth} -o ../patches/drivers/ti/rogerq_pruss
-
-		cd ../KERNEL/
-
-		rm -rf ../rogerq_pruss/ || true
-
-		dir 'drivers/ti/rogerq_pruss'
-		exit 2
-	fi
-
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		start_cleanup
-	fi
-
-	dir 'drivers/ti/rogerq_pruss'
-
-	if [ "x${regenerate}" = "xenable" ] ; then
-		wdir="drivers/ti/rogerq_pruss"
-		number=25
-		cleanup
-	fi
-}
-
 reverts () {
 	echo "dir: reverts"
 	#regenerate="enable"
@@ -473,7 +431,6 @@ beaglebone () {
 
 ###
 #backports
-#ti_rogerq_pruss
 #reverts
 drivers
 soc
