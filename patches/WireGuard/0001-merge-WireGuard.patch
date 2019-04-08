@@ -1,6 +1,6 @@
-From db1e83d0bb250ed904319596404db4a7d99fc303 Mon Sep 17 00:00:00 2001
+From 1c1c0a69a117b1c02cd03af8d3bf2c4f62405bcd Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 1 Apr 2019 09:51:23 -0500
+Date: Mon, 8 Apr 2019 10:12:11 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -285,7 +285,7 @@ index 000000000000..c1a2673f6fe2
 +obj-$(if $(KBUILD_EXTMOD),m,$(CONFIG_WIREGUARD)) := wireguard.o
 diff --git a/net/wireguard/allowedips.c b/net/wireguard/allowedips.c
 new file mode 100644
-index 000000000000..f175944384cd
+index 000000000000..610aab047751
 --- /dev/null
 +++ b/net/wireguard/allowedips.c
 @@ -0,0 +1,377 @@
@@ -399,7 +399,7 @@ index 000000000000..f175944384cd
 +			if (rcu_dereference_protected(node->peer,
 +				lockdep_is_held(lock)) == peer) {
 +				RCU_INIT_POINTER(node->peer, NULL);
-+				list_del(&node->peer_list);
++				list_del_init(&node->peer_list);
 +				if (!node->bit[0] || !node->bit[1]) {
 +					rcu_assign_pointer(*nptr, DEREF(
 +					       &node->bit[!REF(node->bit[0])]));
@@ -52159,11 +52159,11 @@ index 000000000000..071ce4167f54
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..723534b11200
+index 000000000000..27261565bc00
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20190227"
++#define WIREGUARD_VERSION "0.0.20190406"
 -- 
 2.20.1
 
