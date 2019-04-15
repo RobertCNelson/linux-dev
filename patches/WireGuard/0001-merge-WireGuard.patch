@@ -1,6 +1,6 @@
-From 1c1c0a69a117b1c02cd03af8d3bf2c4f62405bcd Mon Sep 17 00:00:00 2001
+From 45b4523ef8c38d9a2179d985a5a1741d59f65b56 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 8 Apr 2019 10:12:11 -0500
+Date: Mon, 15 Apr 2019 11:44:09 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -28,7 +28,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../compat/siphash/include/linux/siphash.h    |  140 +
  net/wireguard/compat/siphash/siphash.c        |  539 +
  .../udp_tunnel/include/net/udp_tunnel.h       |   94 +
- net/wireguard/compat/udp_tunnel/udp_tunnel.c  |  385 +
+ net/wireguard/compat/udp_tunnel/udp_tunnel.c  |  387 +
  .../udp_tunnel/udp_tunnel_partial_compat.h    |  226 +
  net/wireguard/cookie.c                        |  236 +
  net/wireguard/cookie.h                        |   59 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51365 insertions(+)
+ 98 files changed, 51367 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -4077,10 +4077,10 @@ index 000000000000..8999527d6952
 +#endif /* _WG_NET_UDP_TUNNEL_H */
 diff --git a/net/wireguard/compat/udp_tunnel/udp_tunnel.c b/net/wireguard/compat/udp_tunnel/udp_tunnel.c
 new file mode 100644
-index 000000000000..6afb11dc02f8
+index 000000000000..dc47d6161a46
 --- /dev/null
 +++ b/net/wireguard/compat/udp_tunnel/udp_tunnel.c
-@@ -0,0 +1,385 @@
+@@ -0,0 +1,387 @@
 +#include <linux/module.h>
 +#include <linux/errno.h>
 +#include <linux/socket.h>
@@ -4167,7 +4167,9 @@ index 000000000000..6afb11dc02f8
 +	inet_sk(sock->sk)->mc_loop = 0;
 +	encap_rcv = cfg->encap_rcv;
 +	rcu_assign_sk_user_data(sock->sk, cfg->sk_user_data);
-+	sock->sk->sk_data_ready = our_sk_data_ready;
++	/* We force the cast in this awful way, due to various Android kernels
++	 * backporting things stupidly. */
++	*(void **)&sock->sk->sk_data_ready = (void *)our_sk_data_ready;
 +}
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
