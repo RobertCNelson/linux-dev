@@ -53,13 +53,29 @@ redhat_reqs () {
 	check_rpm
 	pkg="wget"
 	check_rpm
+	pkg="fakeroot"
+	check_rpm
+	pkg="lzma"
+	check_rpm
+	pkg="lzop"
+	check_rpm
+	pkg="bison"
+	check_rpm
+	pkg="flex"
+	check_rpm
+	pkg="uboot-tools"
+	check_rpm
 
 	arch=$(uname -m)
 	if [ "x${arch}" = "xx86_64" ] ; then
 		pkg="ncurses-devel.x86_64"
 		check_rpm
+		pkg="libmpc-devel.x86_64"
+		check_rpm
 		if [ "x${ignore_32bit}" = "xfalse" ] ; then
 			pkg="ncurses-devel.i686"
+			check_rpm
+			pkg="libmpc-devel.i686"
 			check_rpm
 			pkg="libstdc++.i686"
 			check_rpm
