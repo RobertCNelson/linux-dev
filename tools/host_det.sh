@@ -429,9 +429,11 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		bionic|cosmic)
+		bionic|cosmic|disco|eoan)
 			#18.04 bionic: (EOL: April 2023) lts: bionic -> xyz
 			#18.10 cosmic: (EOL: July 2019)
+			#19.04 disco: (EOL: )
+			#19.10 eoan: (EOL: )
 			unset warn_eol_distro
 			;;
 		yakkety|zesty|artful)
