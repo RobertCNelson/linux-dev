@@ -226,6 +226,11 @@ wireguard () {
 			rm -rf ./WireGuard || true
 			${git_bin} clone https://git.zx2c4.com/WireGuard --depth=1
 		fi
+
+		#cd ./WireGuard/
+		#${git_bin}  revert --no-edit xyz
+		#cd ../
+
 		cd ./KERNEL/
 
 		../WireGuard/contrib/kernel-tree/create-patch.sh | patch -p1 || wireguard_fail
