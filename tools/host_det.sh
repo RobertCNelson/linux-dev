@@ -55,7 +55,7 @@ redhat_reqs () {
 	check_rpm
 	pkg="fakeroot"
 	check_rpm
-	pkg="lzma"
+	pkg="xz"
 	check_rpm
 	pkg="lzop"
 	check_rpm
