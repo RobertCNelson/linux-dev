@@ -39,7 +39,7 @@ check_rpm () {
 }
 
 redhat_reqs () {
-	pkgtool="yum"
+	pkgtool="dnf"
 
 	#https://fedoraproject.org/wiki/Releases
 	unset rpm_pkgs
@@ -66,17 +66,6 @@ redhat_reqs () {
 			pkg="zlib.i686"
 			check_rpm
 		fi
-	fi
-
-	if [ "$(which lsb_release)" ] ; then
-		rpm_distro=$(lsb_release -rs)
-		echo "RPM distro version: [${rpm_distro}]"
-
-		case "${rpm_distro}" in
-		22|23|24|25|26)
-			pkgtool="dnf"
-			;;
-		esac
 	fi
 
 	if [ "${rpm_pkgs}" ] ; then
