@@ -65,6 +65,8 @@ redhat_reqs () {
 	check_rpm
 	pkg="uboot-tools"
 	check_rpm
+	pkg="openssl-devel"
+	check_rpm
 
 	arch=$(uname -m)
 	if [ "x${arch}" = "xx86_64" ] ; then
