@@ -1,30 +1,13 @@
-From 8db8c4b6f9ef45c415aa8989e38b728922213e90 Mon Sep 17 00:00:00 2001
+From 9ca2b469f03fa2b051f6680e805c19d32db9183e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Tue, 26 Feb 2019 12:38:20 -0600
-Subject: [PATCH 2/2] HACK: PandaBoard: Bring back twl6030-clk32kg regulator
+Subject: [PATCH] HACK: PandaBoard: Bring back twl6030-clk32kg regulator
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- arch/arm/boot/dts/twl6030.dtsi        |  5 +++++
  drivers/regulator/twl6030-regulator.c | 23 +++++++++++++++++++++++
- 2 files changed, 28 insertions(+)
+ 1 file changed, 23 insertions(+)
 
-diff --git a/arch/arm/boot/dts/twl6030.dtsi b/arch/arm/boot/dts/twl6030.dtsi
-index c45f97f37563..5ad5f8b993a3 100644
---- a/arch/arm/boot/dts/twl6030.dtsi
-+++ b/arch/arm/boot/dts/twl6030.dtsi
-@@ -83,6 +83,11 @@
- 		regulator-always-on;
- 	};
- 
-+	clk32kg: regulator-clk32kg {
-+		compatible = "ti,twl6030-clk32kg";
-+		regulator-always-on;
-+	};
-+
- 	twl_usb_comparator: usb-comparator {
- 		compatible = "ti,twl6030-usb";
- 		interrupts = <4>, <10>;
 diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
 index 15f19df6bc5d..97c7788279a5 100644
 --- a/drivers/regulator/twl6030-regulator.c

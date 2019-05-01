@@ -1,6 +1,6 @@
-From a5d5fe5e757aff78c877e2eac0912acfc628be07 Mon Sep 17 00:00:00 2001
+From 90f77a75167cae84979d9b7bf451e9f778dd6727 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 1 May 2019 16:14:13 -0500
+Date: Wed, 1 May 2019 16:17:57 -0500
 Subject: [PATCH] Add BeagleBoard.org DTBS: v5.1.x
 
 https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.1.x
@@ -37,8 +37,9 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/omap4-panda-es-b3.dts       |   85 +
  arch/arm/boot/dts/omap4-panda-es.dts          |   12 +
  arch/arm/boot/dts/omap4-panda.dts             |   12 +
+ arch/arm/boot/dts/twl6030.dtsi                |    5 +
  .../dt-bindings/board/am335x-bbw-bbb-base.h   |  103 +
- 32 files changed, 9372 insertions(+), 119 deletions(-)
+ 33 files changed, 9377 insertions(+), 119 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-abbbi.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-univ.dtsi
@@ -10018,6 +10019,22 @@ index a0e28b2e254e..3ee41ef824c0 100644
 +	device-handle = <&elpida_ECB240ABACN>;
 +	status = "ok";
 +};
+diff --git a/arch/arm/boot/dts/twl6030.dtsi b/arch/arm/boot/dts/twl6030.dtsi
+index c45f97f37563..5ad5f8b993a3 100644
+--- a/arch/arm/boot/dts/twl6030.dtsi
++++ b/arch/arm/boot/dts/twl6030.dtsi
+@@ -83,6 +83,11 @@
+ 		regulator-always-on;
+ 	};
+ 
++	clk32kg: regulator-clk32kg {
++		compatible = "ti,twl6030-clk32kg";
++		regulator-always-on;
++	};
++
+ 	twl_usb_comparator: usb-comparator {
+ 		compatible = "ti,twl6030-usb";
+ 		interrupts = <4>, <10>;
 diff --git a/include/dt-bindings/board/am335x-bbw-bbb-base.h b/include/dt-bindings/board/am335x-bbw-bbb-base.h
 new file mode 100644
 index 000000000000..35f6d57ef492
