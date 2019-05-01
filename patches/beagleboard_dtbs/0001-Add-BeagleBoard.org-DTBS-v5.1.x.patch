@@ -1,32 +1,34 @@
-From 63ae5056ba0762cf477d622d3686d5341ebbf6c1 Mon Sep 17 00:00:00 2001
+From 5f45ef459509ea00e0571be8d404b1664da4ef5e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 1 May 2019 13:46:56 -0500
+Date: Wed, 1 May 2019 14:15:10 -0500
 Subject: [PATCH] Add BeagleBoard.org DTBS: v5.1.x
 
 https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.1.x
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile                    |   1 +
- .../dts/am335x-bone-common-no-capemgr.dtsi    | 376 ++++++++++++++++++
+ .../dts/am335x-bone-common-no-capemgr.dtsi    | 376 ++++++++++++++
  arch/arm/boot/dts/am335x-bone-common.dtsi     |  14 +-
  arch/arm/boot/dts/am335x-bone-jtag.dtsi       |  20 +
  arch/arm/boot/dts/am335x-bone.dts             |   1 +
  .../arm/boot/dts/am335x-boneblack-common.dtsi |  10 +-
  .../boot/dts/am335x-boneblack-wireless.dts    |   1 +
  arch/arm/boot/dts/am335x-boneblack.dts        |   1 +
+ arch/arm/boot/dts/am335x-boneblue.dts         | 487 +++++++++++++++++-
  .../boot/dts/am335x-bonegreen-wireless.dts    |   1 +
  arch/arm/boot/dts/am335x-bonegreen.dts        |   1 +
  arch/arm/boot/dts/am335x-osd3358-sm-red.dts   |  20 +-
- arch/arm/boot/dts/am33xx-l4.dtsi              | 132 ++++++
- arch/arm/boot/dts/omap3-beagle-xm.dts         |  53 ++-
+ arch/arm/boot/dts/am33xx-l4.dtsi              | 162 ++++++
+ arch/arm/boot/dts/am33xx.dtsi                 |   2 +-
+ arch/arm/boot/dts/omap3-beagle-xm.dts         |  53 +-
  arch/arm/boot/dts/omap3-beagle.dts            |  11 +
  arch/arm/boot/dts/omap4-panda-a4.dts          |  12 +
  arch/arm/boot/dts/omap4-panda-common.dtsi     |  10 -
- arch/arm/boot/dts/omap4-panda-es-b3.dts       |  85 ++++
+ arch/arm/boot/dts/omap4-panda-es-b3.dts       |  85 +++
  arch/arm/boot/dts/omap4-panda-es.dts          |  12 +
  arch/arm/boot/dts/omap4-panda.dts             |  12 +
- .../dt-bindings/board/am335x-bbw-bbb-base.h   | 103 +++++
- 20 files changed, 827 insertions(+), 49 deletions(-)
+ .../dt-bindings/board/am335x-bbw-bbb-base.h   | 103 ++++
+ 22 files changed, 1320 insertions(+), 75 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-jtag.dtsi
  create mode 100644 arch/arm/boot/dts/omap4-panda-es-b3.dts
@@ -574,6 +576,565 @@ index d154d3133c16..e62023252165 100644
  
  / {
  	model = "TI AM335x BeagleBone Black";
+diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
+index ccb147e70d17..0d4c361e44a0 100644
+--- a/arch/arm/boot/dts/am335x-boneblue.dts
++++ b/arch/arm/boot/dts/am335x-boneblue.dts
+@@ -125,9 +125,183 @@
+ 		gpio = <&gpio3 9 0>;
+ 		enable-active-high;
+ 	};
++
++	bt_en {
++		pinctrl-names = "default";
++		pinctrl-0 = <&bt_pins>;
++		compatible = "gpio-leds";
++
++		wl18xx_bt_en {
++			label = "wl18xx_bt_en";
++			gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++};
++
++&cpu0_opp_table {
++	/*
++	* Octavo Systems:
++	* The EFUSE_SMA register is not programmed for any of the AM335x wafers
++	* we get and we are not programming them during our production test.
++	* Therefore, from a DEVICE_ID revision point of view, the silicon looks
++	* like it is Revision 2.1.  However, from an EFUSE_SMA point of view for
++	* the HW OPP table, the silicon looks like it is Revision 1.0 (ie the
++	* EFUSE_SMA register reads as all zeros).
++	*/
++	oppnitro-1000000000 {
++		opp-supported-hw = <0x06 0x0100>;
++	};
+ };
+ 
+ &am33xx_pinmux {
++	/***************************************************************************
++	* Static Pinmux
++	***************************************************************************/
++	mux_helper_pins: pins {
++		pinctrl-single,pins = <
++
++			/* GPIO Inputs */
++			0x09c 0x37	/*P8.9  Pause BUTTON, input pullup*/
++			0x098 0x37	/*P8.10 MODE BUTTON input pullup*/
++			0x1AC 0x37	/*P9.25 MPU-9150 INTERRUPT IN*/
++
++			/* Motor Control GPIO Out*/
++			0x088 ( PIN_OUTPUT | MUX_MODE7 ) /* (T13) gpmc_csn3.gpio2[0] - MDIR_1A different from cape! */
++			0x074 ( PIN_OUTPUT | MUX_MODE7 ) /* (U17) gpmc_wpn.gpio0[31] - P9.13, MDIR_1B */
++			0x040 ( PIN_OUTPUT | MUX_MODE7 ) /* (R13) gpmc_a0.gpio1[16] - P9.15, MDIR_2A */
++			0x0D8 ( PIN_OUTPUT | MUX_MODE7 ) /* (V4) lcd_data14.gpio0[10] - P8.31, MDIR_2B different from cape! */
++			0x0AC ( PIN_OUTPUT | MUX_MODE7 ) /* (R4) lcd_data3.gpio2[9] - P8.44, MDIR_3A */
++			0x0A8 ( PIN_OUTPUT | MUX_MODE7 ) /* (R3) lcd_data2.gpio2[8] - P8.43, MDIR_3B */
++			0x0A0 ( PIN_OUTPUT | MUX_MODE7 ) /* (R1) lcd_data0.gpio2[6] - P8.45, MDIR_4A */
++			0x0A4 ( PIN_OUTPUT | MUX_MODE7 ) /* (R2) lcd_data1.gpio2[7] - P8.46, MDIR_4B */
++			0x1B4 ( PIN_OUTPUT | MUX_MODE7 ) /* (D14) xdma_event_intr1.gpio0[20] - P9.41, MOT_STBY */
++
++			/* PRU encoder input */
++			0x038 0x36	/* P8_16,PRU0_r31_16,MODE6 */
++
++			/* PRU Servo output */
++			0x0e0 0x05	/*pru1_pru_r30_8, MODE5*/
++			0x0e8 0x05	/*pru1_pru_r30_10, MODE5 */
++			0x0e4 0x05	/*pr1_pru1_pru_r30_9, MODE5 */
++			0x0ec 0x05	/*pru1_pru_r30_11, MODE5 */
++			0x0b8 0x05	/*pru1_pru_r30_6, MODE5 */
++			0x0bc 0x05	/*pru1_pru_r30_7, MODE5 */
++			0x0b0 0x05	/*pru1_pru_r30_4, MODE5 */
++			0x0b4 0x05	/*pru1_pru_r30_5, MODE5 */
++			0x0C8 0x0F	/*P8.36, SERVO_PWR GPIO OUT*/
++
++			/* WILINK 8 */
++			0x08c 0x0F	/*P8.18 V12 A2DP FSYNC */
++			0x078 0x0F	/*P9.12 A2DP_CLOCK*/
++		>;
++
++		/* D13 BLUE_GP0_PIN_5 gpio 3_20  */
++		D13_default_pin: pinmux_D13_default_pin {
++			pinctrl-single,pins = < 0x1A8 ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		D13_gpio_pin: pinmux_D13_gpio_pin {
++			pinctrl-single,pins = < 0x1A8 ( PIN_OUTPUT | MUX_MODE7 ) >; };
++		D13_gpio_pu_pin: pinmux_D13_gpio_pu_pin {
++			pinctrl-single,pins = < 0x1A8 ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		D13_gpio_pd_pin: pinmux_D13_gpio_pd_pin {
++			pinctrl-single,pins = < 0x1A8 ( PIN_INPUT_PULLDOWN | MUX_MODE7 ) >; };
++
++		/* H17 BLUE_GP1_PIN_4 gpio 3_1  */
++		H17_default_pin: pinmux_H17_default_pin {
++			pinctrl-single,pins = < 0x10C ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		H17_gpio_pin: pinmux_H17_gpio_pin {
++			pinctrl-single,pins = < 0x10C ( PIN_OUTPUT | MUX_MODE7 ) >; };
++		H17_gpio_pu_pin: pinmux_H17_gpio_pu_pin {
++			pinctrl-single,pins = < 0x10C ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		H17_gpio_pd_pin: pinmux_H17_gpio_pd_pin {
++			pinctrl-single,pins = < 0x10C ( PIN_INPUT_PULLDOWN | MUX_MODE7 ) >; };
++
++		/* J15 BLUE_GP1_PIN_3 gpio 3_2  */
++		J15_default_pin: pinmux_J15_default_pin {
++			pinctrl-single,pins = < 0x110 ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		J15_gpio_pin: pinmux_J15_gpio_pin {
++			pinctrl-single,pins = < 0x110 ( PIN_OUTPUT | MUX_MODE7 ) >; };
++		J15_gpio_pu_pin: pinmux_J15_gpio_pu_pin {
++			pinctrl-single,pins = < 0x110 ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		J15_gpio_pd_pin: pinmux_J15_gpio_pd_pin {
++			pinctrl-single,pins = < 0x110 ( PIN_INPUT_PULLDOWN | MUX_MODE7 ) >; };
++
++		/* P8_15 (ZCZ ball U13) */
++		P8_15_default_pin: pinmux_P8_15_default_pin {
++			pinctrl-single,pins = <0x03c  0x27>; };     /* Mode 7, Pull-Down, RxActive */
++		P8_15_gpio_pin: pinmux_P8_15_gpio_pin {
++			pinctrl-single,pins = <0x03c  0x2F>; };     /* Mode 7, RxActive */
++		P8_15_gpio_pu_pin: pinmux_P8_15_gpio_pu_pin {
++			pinctrl-single,pins = <0x03c  0x37>; };     /* Mode 7, Pull-Up, RxActive */
++		P8_15_gpio_pd_pin: pinmux_P8_15_gpio_pd_pin {
++			pinctrl-single,pins = <0x03c  0x27>; };     /* Mode 7, Pull-Down, RxActive */
++		P8_15_pruin_pin: pinmux_P8_15_pruin_pin {
++			pinctrl-single,pins = <0x03c  0x26>; };     /* Mode 6, Pull-Down, RxActive */
++		P8_15_qep_pin: pinmux_P8_15_qep_pin {
++			pinctrl-single,pins = <0x03c  0x24>; };     /* Mode 4, Pull-Down, RxActive */
++		P8_15_pruin_pu_pin: pinmux_P8_15_pruin_pu_pin {
++			pinctrl-single,pins = <0x03c  0x36>; };     /* Mode 6, Pull-Up, RxActive */
++		P8_15_pruecapin_pu_pin: pinmux_P8_15_pruecapin_pu_pin {
++			pinctrl-single,pins = <0x03c  0x35>; };     /* Mode 5, Pull-Up, RxActive */
++
++		/* P9_11 (ZCZ ball T17) */
++		P9_11_default_pin: pinmux_P9_11_default_pin {
++			pinctrl-single,pins = <0x070  0x37>; };     /* Mode 7, Pull-Up, RxActive */
++		P9_11_gpio_pin: pinmux_P9_11_gpio_pin {
++			pinctrl-single,pins = <0x070  0x2F>; };     /* Mode 7, RxActive */
++		P9_11_gpio_pu_pin: pinmux_P9_11_gpio_pu_pin {
++			pinctrl-single,pins = <0x070  0x37>; };     /* Mode 7, Pull-Up, RxActive */
++		P9_11_gpio_pd_pin: pinmux_P9_11_gpio_pd_pin {
++			pinctrl-single,pins = <0x070  0x27>; };     /* Mode 7, Pull-Down, RxActive */
++		P9_11_uart_pin: pinmux_P9_11_uart_pin {
++			pinctrl-single,pins = <0x070  0x36>; };     /* Mode 6, Pull-Up, RxActive */
++
++		/* P9_23 (ZCZ ball V14) */
++		P9_23_default_pin: pinmux_P9_23_default_pin {
++			pinctrl-single,pins = <0x044  0x27>; };     /* Mode 7, Pull-Down, RxActive */
++		P9_23_gpio_pin: pinmux_P9_23_gpio_pin {
++			pinctrl-single,pins = <0x044  0x2F>; };     /* Mode 7, RxActive */
++		P9_23_gpio_pu_pin: pinmux_P9_23_gpio_pu_pin {
++			pinctrl-single,pins = <0x044  0x37>; };     /* Mode 7, Pull-Up, RxActive */
++		P9_23_gpio_pd_pin: pinmux_P9_23_gpio_pd_pin {
++			pinctrl-single,pins = <0x044  0x27>; };     /* Mode 7, Pull-Down, RxActive */
++		P9_23_pwm_pin: pinmux_P9_23_pwm_pin {
++			pinctrl-single,pins = <0x044  0x26>; };     /* Mode 6, Pull-Down, RxActive */
++
++		/* P9_28 (ZCZ ball C12) Audio   */
++		P9_28_default_pin: pinmux_P9_28_default_pin {
++			pinctrl-single,pins = <0x19c  0x27>; };     /* Mode 7, Pull-Down, RxActive */
++		P9_28_gpio_pin: pinmux_P9_28_gpio_pin {
++			pinctrl-single,pins = <0x19c  0x2F>; };     /* Mode 7, RxActive */
++		P9_28_gpio_pu_pin: pinmux_P9_28_gpio_pu_pin {
++			pinctrl-single,pins = <0x19c  0x37>; };     /* Mode 7, Pull-Up, RxActive */
++		P9_28_gpio_pd_pin: pinmux_P9_28_gpio_pd_pin {
++			pinctrl-single,pins = <0x19c  0x27>; };     /* Mode 7, Pull-Down, RxActive */
++		P9_28_pwm_pin: pinmux_P9_28_pwm_pin {
++			pinctrl-single,pins = <0x19c  0x21>; };     /* Mode 1, Pull-Down, RxActive */
++		P9_28_spi_pin: pinmux_P9_28_spi_pin {
++			pinctrl-single,pins = <0x19c  0x23>; };     /* Mode 3, Pull-Down, RxActive */
++		P9_28_pwm2_pin: pinmux_P9_28_pwm2_pin {
++			pinctrl-single,pins = <0x19c  0x24>; };     /* Mode 4, Pull-Down, RxActive */
++		P9_28_pruout_pin: pinmux_P9_28_pruout_pin {
++			pinctrl-single,pins = <0x19c  0x25>; };     /* Mode 5, Pull-Down, RxActive */
++		P9_28_pruin_pin: pinmux_P9_28_pruin_pin {
++			pinctrl-single,pins = <0x19c  0x26>; };     /* Mode 6, Pull-Down, RxActive */
++		P9_28_audio_pin: pinmux_P9_28_audio_pin {
++			pinctrl-single,pins = <0x19c  (PIN_OUTPUT_PULLDOWN | MUX_MODE2)>; };	/* mcasp0_ahclkr.mcasp0_axr2 */
++
++		/* U16 BLUE_GP0_PIN_3 gpio 1_25   */
++		U16_default_pin: pinmux_U16_default_pin {
++			pinctrl-single,pins = < 0x064 ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		U16_gpio_pin: pinmux_U16_gpio_pin {
++			pinctrl-single,pins = < 0x064 ( PIN_OUTPUT | MUX_MODE7 ) >; };
++		U16_gpio_pu_pin: pinmux_U16_gpio_pu_pin {
++			pinctrl-single,pins = < 0x064 ( PIN_INPUT_PULLUP | MUX_MODE7 ) >; };
++		U16_gpio_pd_pin: pinmux_U16_gpio_pd_pin {
++			pinctrl-single,pins = < 0x064 ( PIN_INPUT_PULLDOWN | MUX_MODE7 ) >; };
++
++	};
++
+ 	user_leds_s0: user_leds_s0 {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x854, PIN_OUTPUT | MUX_MODE7) /* (V15) gpmc_a5.gpio1[21] - USR_LED_0 */
+@@ -141,7 +315,6 @@
+ 			AM33XX_IOPAD(0x8dc, PIN_OUTPUT | MUX_MODE7) /* (T5) lcd_data15.gpio0[11] - P8.32, BATT_LED_2 */
+ 			AM33XX_IOPAD(0x87c, PIN_OUTPUT | MUX_MODE7) /* (V6) gpmc_csn0.gpio1[29] - P8.26, BATT_LED_3 */
+ 			AM33XX_IOPAD(0x828, PIN_OUTPUT | MUX_MODE7) /* (T11) gpmc_ad10.gpio0[26] - P8.14, BATT_LED_4 */
+-
+ 		>;
+ 	};
+ 
+@@ -184,11 +357,11 @@
+ 	};
+ 
+ 	/* DSM2 */
+-	uart4_pins: pinmux_uart4_pins {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x870, PIN_INPUT_PULLUP | MUX_MODE6)	/* (T17) gpmc_wait0.uart4_rxd */
+-		>;
+-	};
++	//uart4_pins: pinmux_uart4_pins {
++	//	pinctrl-single,pins = <
++	//		AM33XX_IOPAD(0x870, PIN_INPUT_PULLUP | MUX_MODE6)	/* (T17) gpmc_wait0.uart4_rxd */
++	//	>;
++	//};
+ 
+ 	/* UT5 */
+ 	uart5_pins: pinmux_uart5_pins {
+@@ -261,6 +434,51 @@
+ 			AM33XX_IOPAD(0x940, PIN_OUTPUT | MUX_MODE7)		/* (M16) gmii1_rxd0.gpio2[21] */
+ 		>;
+ 	};
++
++	ehrpwm1_pins: pinmux_ehrpwm1_pins {
++		pinctrl-single,pins = <
++			0x020  0x24 /* P8_19_pwm_pin */
++			0x024  0x24 /* P8_13_pwm_pin */
++		>;
++	};
++
++	ehrpwm2_pins: pinmux_ehrpwm2_pins {
++		pinctrl-single,pins = <
++			0x048  0x26 /* P9_14_pwm_pin */
++			0x04c  0x26 /* P9_16_pwm_pin */
++		>;
++	};
++
++	eqep0_pins: pinmux_eqep0_pins {
++		pinctrl-single,pins = <
++			0x1a0  0x21 /* P9_92_qep_pin */
++			0x1a4  0x21 /* P9_27_qep_pin */
++		>;
++	};
++
++	eqep1_pins: pinmux_eqep1_pins {
++		pinctrl-single,pins = <
++			0x0d4  0x22 /* P8_33_qep_pin */
++			0x0d0  0x22 /* P8_35_qep_pin */
++		>;
++	};
++
++	eqep2_pins: pinmux_eqep2_pins {
++		pinctrl-single,pins = <
++			0x030  0x24 /* P8_12_qep_pin */
++			0x034  0x24 /* P8_11_qep_pin */
++		>;
++	};
++
++	spi1_pins: pinmux_spi1_pins {
++		pinctrl-single,pins = <
++			0x190  0x23 /* spi1_sclk */
++			0x194  0x23 /* spi1_d0 */
++			0x198  0x23 /* spi1_d1 */
++			0x144 ( PIN_OUTPUT | MUX_MODE2 ) /* spi1_cs0 */
++			0x164 ( PIN_OUTPUT | MUX_MODE2 ) /* spi1_cs1 */
++		>;
++	};
+ };
+ 
+ &uart0 {
+@@ -284,12 +502,12 @@
+ 	status = "okay";
+ };
+ 
+-&uart4 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&uart4_pins>;
+-
+-	status = "okay";
+-};
++//&uart4 {
++//	pinctrl-names = "default";
++//	pinctrl-0 = <&uart4_pins>;
++//
++//	status = "okay";
++//};
+ 
+ &uart5 {
+ 	pinctrl-names = "default";
+@@ -387,6 +605,8 @@
+ 	interrupts = <7>; /* NMI */
+ 	interrupt-parent = <&intc>;
+ 
++	ti,pmic-shutdown-controller;
++
+ 	charger {
+ 		interrupts = <0>, <1>;
+ 		interrupt-names = "USB", "AC";
+@@ -487,22 +707,23 @@
+ 	};
+ };
+ 
+-&tscadc {
+-	status = "okay";
+-	adc {
+-		ti,adc-channels = <0 1 2 3 4 5 6 7>;
+-	};
+-};
++//&tscadc {
++//	status = "okay";
++//	adc {
++//		ti,adc-channels = <0 1 2 3 4 5 6 7>;
++//	};
++//};
+ 
+ &uart3 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&uart3_pins &bt_pins>;
++	//pinctrl-0 = <&uart3_pins &bt_pins>;
++	pinctrl-0 = <&uart3_pins>;
+ 	status = "okay";
+ 
+-	bluetooth {
+-		compatible = "ti,wl1835-st";
+-		enable-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
+-	};
++//	bluetooth {
++//		compatible = "ti,wl1835-st";
++//		enable-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
++//	};
+ };
+ 
+ &aes {
+@@ -515,8 +736,10 @@
+ 
+ &rtc {
+ 	system-power-controller;
+-	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
+-	clock-names = "ext-clk", "int-clk";
++};
++
++&wkup_m3_ipc {
++	ti,scale-data-fw = "am335x-bone-scale-data.bin";
+ };
+ 
+ &dcan1 {
+@@ -533,3 +756,217 @@
+ 		line-name = "LS_BUF_EN";
+ 	};
+ };
++
++&ocp {
++	/* activate the static pinmux helper list of pin modes above */
++	test_helper: helper {
++		compatible = "bone-pinmux-helper";
++		pinctrl-names = "default";
++		pinctrl-0 = <&mux_helper_pins>;
++
++		status = "okay";
++	};
++
++	/* Encoder 4 (U13) */
++	P8_15_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "pruin_pu", "gpio", "gpio_pu", "gpio_pd", "pruin", "qep", "pruecapin_pu";
++		pinctrl-0 = <&P8_15_pruin_pu_pin>;
++		pinctrl-1 = <&P8_15_pruin_pu_pin>;
++		pinctrl-2 = <&P8_15_gpio_pin>;
++		pinctrl-3 = <&P8_15_gpio_pu_pin>;
++		pinctrl-4 = <&P8_15_gpio_pd_pin>;
++		pinctrl-5 = <&P8_15_pruin_pin>;
++		pinctrl-6 = <&P8_15_qep_pin>;
++		pinctrl-7 = <&P8_15_pruecapin_pu_pin>;
++	};
++
++	/* UART4 RX DSM */
++	P9_11_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "uart", "gpio", "gpio_pu", "gpio_pd";
++		pinctrl-0 = <&P9_11_uart_pin>;
++		pinctrl-1 = <&P9_11_uart_pin>;
++		pinctrl-2 = <&P9_11_gpio_pin>;
++		pinctrl-3 = <&P9_11_gpio_pu_pin>;
++		pinctrl-4 = <&P9_11_gpio_pd_pin>;
++	};
++
++	/* U16 BLUE_GP0_PIN_3 gpio 1_25*/
++	U16_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd";
++		pinctrl-0 = <&U16_default_pin>;
++		pinctrl-1 = <&U16_gpio_pin>;
++		pinctrl-2 = <&U16_gpio_pu_pin>;
++		pinctrl-3 = <&U16_gpio_pd_pin>;
++	};
++
++
++	/* BLUE_GP0_PIN_3 gpio1_17*/
++	P9_23_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd", "pwm";
++		pinctrl-0 = <&P9_23_default_pin>;
++		pinctrl-1 = <&P9_23_gpio_pin>;
++		pinctrl-2 = <&P9_23_gpio_pu_pin>;
++		pinctrl-3 = <&P9_23_gpio_pd_pin>;
++		pinctrl-4 = <&P9_23_pwm_pin>;
++	};
++
++	/* BLUE_GP0_PIN_5 gpio3_20 */
++	D13_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd";
++		pinctrl-0 = <&D13_default_pin>;
++		pinctrl-1 = <&D13_gpio_pin>;
++		pinctrl-2 = <&D13_gpio_pu_pin>;
++		pinctrl-3 = <&D13_gpio_pd_pin>;
++	};
++
++	/* BLUE_GP0_PIN_6 gpio3_17 */
++	P9_28_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd", "pwm", "spi", "pwm2", "pruout", "pruin";
++		pinctrl-0 = <&P9_28_default_pin>;
++		pinctrl-1 = <&P9_28_gpio_pin>;
++		pinctrl-2 = <&P9_28_gpio_pu_pin>;
++		pinctrl-3 = <&P9_28_gpio_pd_pin>;
++		pinctrl-4 = <&P9_28_pwm_pin>;
++		pinctrl-5 = <&P9_28_spi_pin>;
++		pinctrl-6 = <&P9_28_pwm2_pin>;
++		pinctrl-7 = <&P9_28_pruout_pin>;
++		pinctrl-8 = <&P9_28_pruin_pin>;
++	};
++
++	/* BLUE_GP1_PIN_3 gpio3_2 */
++	J15_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd";
++		pinctrl-0 = <&J15_default_pin>;
++		pinctrl-1 = <&J15_gpio_pin>;
++		pinctrl-2 = <&J15_gpio_pu_pin>;
++		pinctrl-3 = <&J15_gpio_pd_pin>;
++	};
++
++	/* BLUE_GP1_PIN_4 gpio3_1 */
++	H17_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "gpio", "gpio_pu", "gpio_pd";
++		pinctrl-0 = <&H17_default_pin>;
++		pinctrl-1 = <&H17_gpio_pin>;
++		pinctrl-2 = <&H17_gpio_pu_pin>;
++		pinctrl-3 = <&H17_gpio_pd_pin>;
++	};
++};
++
++/*******************************************************************************
++*	PWMSS
++*******************************************************************************/
++&epwmss0 {
++	status = "okay";
++};
++
++&epwmss1 {
++	status = "okay";
++};
++
++&epwmss2 {
++	status = "okay";
++};
++
++&ehrpwm0 {
++	status = "okay";
++};
++
++&ehrpwm1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm1_pins>;
++	status = "okay";
++};
++
++&ehrpwm2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ehrpwm2_pins>;
++	status = "okay";
++};
++
++/*******************************************************************************
++* EQEP
++*******************************************************************************/
++&eqep0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&eqep0_pins>;
++
++	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>;   /* Should we invert the channel A input?  */
++	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>;   /* Should we invert the index input? */
++	invert_qs = <0>;   /* Should we invert the strobe input? */
++	status = "okay";
++};
++
++&eqep1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&eqep1_pins>;
++
++	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>;   /* Should we invert the channel A input?  */
++	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>;   /* Should we invert the index input? */
++	invert_qs = <0>;   /* Should we invert the strobe input? */
++	status = "okay";
++};
++
++&eqep2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&eqep2_pins>;
++
++	count_mode = <0>;  /* 0 - Quadrature mode, normal 90 phase offset cha & chb.  1 - Direction mode.  cha input = clock, chb input = direction */
++	swap_inputs = <0>; /* Are channel A and channel B swapped? (0 - no, 1 - yes) */
++	invert_qa = <1>;   /* Should we invert the channel A input?  */
++	invert_qb = <1>;   /* Should we invert the channel B input? I invert these because my encoder outputs drive transistors that pull down the pins */
++	invert_qi = <0>;   /* Should we invert the index input? */
++	invert_qs = <0>;   /* Should we invert the strobe input? */
++	status = "okay";
++};
++
++/*******************************************************************************
++	SPI
++*******************************************************************************/
++&spi1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi1_pins>;
++
++	#address-cells = <1>;
++	#size-cells = <0>;
++	status = "okay";
++
++	channel@0 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "spidev";
++		symlink = "spi/1.0";
++		reg = <0>;
++		spi-max-frequency = <24000000>;
++	};
++
++	channel@1 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "spidev";
++		symlink = "spi/1.1";
++		reg = <1>;
++		spi-max-frequency = <24000000>;
++	};
++};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
 index 57731f0daf10..de299ad8ee40 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
@@ -666,7 +1227,7 @@ index 95d54cf3849e..7dc90e986dc2 100644
  		pinctrl-single,pins = <
  			/* Slave 1 */
 diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
-index ca6d9f02a800..9d95505ee3ab 100644
+index ca6d9f02a800..90ab82dd74d0 100644
 --- a/arch/arm/boot/dts/am33xx-l4.dtsi
 +++ b/arch/arm/boot/dts/am33xx-l4.dtsi
 @@ -158,6 +158,39 @@
@@ -829,6 +1390,70 @@ index ca6d9f02a800..9d95505ee3ab 100644
  			};
  		};
  
+@@ -1912,6 +2044,16 @@
+ 					status = "disabled";
+ 				};
+ 
++				eqep0: eqep@180 {
++					compatible = "ti,am33xx-eqep";
++					reg = <0x180 0x80>;
++					clocks = <&l4ls_gclk>;
++					clock-names = "fck";
++					interrupts = <79>;
++					interrupt-names = "eqep0";
++					status = "disabled";
++				};
++
+ 				ehrpwm0: pwm@200 {
+ 					compatible = "ti,am3352-ehrpwm",
+ 						     "ti,am33xx-ehrpwm";
+@@ -1965,6 +2107,16 @@
+ 					status = "disabled";
+ 				};
+ 
++				eqep1: eqep@180 {
++					compatible = "ti,am33xx-eqep";
++					reg = <0x180 0x80>;
++					clocks = <&l4ls_gclk>;
++					clock-names = "fck";
++					interrupts = <88>;
++					interrupt-names = "eqep1";
++					status = "disabled";
++				};
++
+ 				ehrpwm1: pwm@200 {
+ 					compatible = "ti,am3352-ehrpwm",
+ 						     "ti,am33xx-ehrpwm";
+@@ -2018,6 +2170,16 @@
+ 					status = "disabled";
+ 				};
+ 
++				eqep2: eqep@180 {
++					compatible = "ti,am33xx-eqep";
++					reg = <0x180 0x80>;
++					clocks = <&l4ls_gclk>;
++					clock-names = "fck";
++					interrupts = <89>;
++					interrupt-names = "eqep2";
++					status = "disabled";
++				};
++
+ 				ehrpwm2: pwm@200 {
+ 					compatible = "ti,am3352-ehrpwm",
+ 						     "ti,am33xx-ehrpwm";
+diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
+index e5c2f71a7c77..267fe366665b 100644
+--- a/arch/arm/boot/dts/am33xx.dtsi
++++ b/arch/arm/boot/dts/am33xx.dtsi
+@@ -160,7 +160,7 @@
+ 	 * for the moment, just use a fake OCP bus entry to represent
+ 	 * the whole bus hierarchy.
+ 	 */
+-	ocp {
++	ocp: ocp {
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
 index 9985ee2aae0c..ffdecab54480 100644
 --- a/arch/arm/boot/dts/omap3-beagle-xm.dts
