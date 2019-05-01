@@ -293,6 +293,48 @@ ti_pm_firmware () {
 	${git} "${DIR}/patches/drivers/ti/firmware/0001-Add-AM335x-CM3-Power-Managment-Firmware.patch"
 }
 
+dtb_makefile_append () {
+	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
+}
+
+beagleboard_dtbs () {
+	bbdtbs="v5.1.x"
+	echo "dir: beagleboard_dtbs"
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		cd ../
+		if [ ! -d ./BeagleBoard-DeviceTrees ] ; then
+			${git_bin} clone -b ${bbdtbs} https://github.com/beagleboard/BeagleBoard-DeviceTrees --depth=1
+		else
+			rm -rf ./BeagleBoard-DeviceTrees || true
+			${git_bin} clone -b ${bbdtbs} https://github.com/beagleboard/BeagleBoard-DeviceTrees --depth=1
+		fi
+		cd ./KERNEL/
+
+		cp -vr ../BeagleBoard-DeviceTrees/src/arm/* arch/arm/boot/dts/
+		cp -vr ../BeagleBoard-DeviceTrees/include/dt-bindings/* ./include/dt-bindings/
+
+		${git_bin} add -f arch/arm/boot/dts/
+		${git_bin} add -f include/dt-bindings/
+		${git_bin} commit -a -m "Add BeagleBoard.org DTBS: $bbdtbs" -m "https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/${bbdtbs}" -s
+		${git_bin} format-patch -1 -o ../patches/beagleboard_dtbs/
+
+		rm -rf ../BeagleBoard-DeviceTrees/ || true
+
+		${git_bin} reset --hard HEAD^
+
+		start_cleanup
+
+		${git} "${DIR}/patches/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$bbdtbs.patch"
+
+		wdir="beagleboard_dtbs"
+		number=1
+		cleanup
+	fi
+
+	${git} "${DIR}/patches/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$bbdtbs.patch"
+}
+
 local_patch () {
 	echo "dir: dir"
 	${git} "${DIR}/patches/dir/0001-patch.patch"
@@ -303,6 +345,7 @@ local_patch () {
 #rt
 #wireguard
 ti_pm_firmware
+beagleboard_dtbs
 #local_patch
 
 pre_backports () {
@@ -400,16 +443,11 @@ soc () {
 
 	dir 'soc/ti/omap3'
 	dir 'soc/ti/omap4'
-	dir 'soc/ti/am335x'
 
 	dir 'soc/ti/blue'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/pocketbeagle'
 	dir 'soc/ti/uboot'
-}
-
-dtb_makefile_append () {
-	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
 
 beaglebone () {

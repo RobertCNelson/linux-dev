@@ -1,0 +1,757 @@
+From d24abca8d1f634d6ad8a6a9cd24fd1ea87265dec Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Wed, 1 May 2019 12:58:33 -0500
+Subject: [PATCH] Add BeagleBoard.org DTBS: v5.1.x
+
+https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.1.x
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ .../dts/am335x-bone-common-no-capemgr.dtsi    | 376 ++++++++++++++++++
+ arch/arm/boot/dts/am335x-bone-common.dtsi     |  14 +-
+ arch/arm/boot/dts/am335x-bone-jtag.dtsi       |  20 +
+ arch/arm/boot/dts/am335x-bone.dts             |   1 +
+ .../arm/boot/dts/am335x-boneblack-common.dtsi |  10 +-
+ .../boot/dts/am335x-boneblack-wireless.dts    |   1 +
+ arch/arm/boot/dts/am335x-boneblack.dts        |   1 +
+ .../boot/dts/am335x-bonegreen-wireless.dts    |   1 +
+ arch/arm/boot/dts/am335x-bonegreen.dts        |   1 +
+ arch/arm/boot/dts/am335x-osd3358-sm-red.dts   |  20 +-
+ .../dt-bindings/board/am335x-bbw-bbb-base.h   | 103 +++++
+ 11 files changed, 510 insertions(+), 38 deletions(-)
+ create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+ create mode 100644 arch/arm/boot/dts/am335x-bone-jtag.dtsi
+ create mode 100644 include/dt-bindings/board/am335x-bbw-bbb-base.h
+
+diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+new file mode 100644
+index 000000000000..94ae0f9fa6dd
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
+@@ -0,0 +1,376 @@
++/*
++ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/ {
++	cpus {
++		cpu@0 {
++			cpu0-supply = <&dcdc2_reg>;
++		};
++	};
++
++	memory@80000000 {
++		device_type = "memory";
++		reg = <0x80000000 0x10000000>; /* 256 MB */
++	};
++
++	chosen {
++		stdout-path = &uart0;
++	};
++
++	leds {
++		pinctrl-names = "default";
++		pinctrl-0 = <&user_leds_s0>;
++
++		compatible = "gpio-leds";
++
++		led2 {
++			label = "beaglebone:green:usr0";
++			gpios = <&gpio1 21 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++			default-state = "off";
++		};
++
++		led3 {
++			label = "beaglebone:green:usr1";
++			gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "mmc0";
++			default-state = "off";
++		};
++
++		led4 {
++			label = "beaglebone:green:usr2";
++			gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "cpu0";
++			default-state = "off";
++		};
++
++		led5 {
++			label = "beaglebone:green:usr3";
++			gpios = <&gpio1 24 GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "mmc1";
++			default-state = "off";
++		};
++	};
++
++	vmmcsd_fixed: fixedregulator0 {
++		compatible = "regulator-fixed";
++		regulator-name = "vmmcsd_fixed";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++	};
++};
++
++&am33xx_pinmux {
++	user_leds_s0: user_leds_s0 {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x854, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
++			AM33XX_IOPAD(0x858, PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_a6.gpio1_22 */
++			AM33XX_IOPAD(0x85c, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a7.gpio1_23 */
++			AM33XX_IOPAD(0x860, PIN_OUTPUT_PULLUP | MUX_MODE7)	/* gpmc_a8.gpio1_24 */
++		>;
++	};
++
++	i2c0_pins: pinmux_i2c0_pins {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x988, PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_sda.i2c0_sda */
++			AM33XX_IOPAD(0x98c, PIN_INPUT_PULLUP | MUX_MODE0)	/* i2c0_scl.i2c0_scl */
++		>;
++	};
++
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x978, PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_ctsn.i2c2_sda */
++			AM33XX_IOPAD(0x97c, PIN_INPUT_PULLUP | MUX_MODE3)	/* uart1_rtsn.i2c2_scl */
++		>;
++	};
++
++	uart0_pins: pinmux_uart0_pins {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x970, PIN_INPUT_PULLUP | MUX_MODE0)	/* uart0_rxd.uart0_rxd */
++			AM33XX_IOPAD(0x974, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* uart0_txd.uart0_txd */
++		>;
++	};
++
++	cpsw_default: cpsw_default {
++		pinctrl-single,pins = <
++			/* Slave 1 */
++			AM33XX_IOPAD(0x910, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxerr.mii1_rxerr */
++			AM33XX_IOPAD(0x914, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txen.mii1_txen */
++			AM33XX_IOPAD(0x918, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxdv.mii1_rxdv */
++			AM33XX_IOPAD(0x91c, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd3.mii1_txd3 */
++			AM33XX_IOPAD(0x920, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd2.mii1_txd2 */
++			AM33XX_IOPAD(0x924, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd1.mii1_txd1 */
++			AM33XX_IOPAD(0x928, PIN_OUTPUT_PULLDOWN | MUX_MODE0)	/* mii1_txd0.mii1_txd0 */
++			AM33XX_IOPAD(0x92c, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_txclk.mii1_txclk */
++			AM33XX_IOPAD(0x930, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxclk.mii1_rxclk */
++			AM33XX_IOPAD(0x934, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd3.mii1_rxd3 */
++			AM33XX_IOPAD(0x938, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd2.mii1_rxd2 */
++			AM33XX_IOPAD(0x93c, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd1.mii1_rxd1 */
++			AM33XX_IOPAD(0x940, PIN_INPUT_PULLUP | MUX_MODE0)	/* mii1_rxd0.mii1_rxd0 */
++		>;
++	};
++
++	cpsw_sleep: cpsw_sleep {
++		pinctrl-single,pins = <
++			/* Slave 1 reset value */
++			AM33XX_IOPAD(0x910, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x914, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x918, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x91c, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x920, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x924, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x928, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x92c, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x930, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x934, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x938, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x93c, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x940, PIN_INPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	davinci_mdio_default: davinci_mdio_default {
++		pinctrl-single,pins = <
++			/* MDIO */
++			AM33XX_IOPAD(0x948, PIN_INPUT_PULLUP | SLEWCTRL_FAST | MUX_MODE0)	/* mdio_data.mdio_data */
++			AM33XX_IOPAD(0x94c, PIN_OUTPUT_PULLUP | MUX_MODE0)			/* mdio_clk.mdio_clk */
++		>;
++	};
++
++	davinci_mdio_sleep: davinci_mdio_sleep {
++		pinctrl-single,pins = <
++			/* MDIO reset value */
++			AM33XX_IOPAD(0x948, PIN_INPUT_PULLDOWN | MUX_MODE7)
++			AM33XX_IOPAD(0x94c, PIN_INPUT_PULLDOWN | MUX_MODE7)
++		>;
++	};
++
++	mmc1_pins: pinmux_mmc1_pins {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x960, PIN_INPUT | MUX_MODE7)		/* spio0_cs1.gpio0_6 */
++			AM33XX_IOPAD(0x8fc, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat0.mmc0_dat0 */
++			AM33XX_IOPAD(0x8f8, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat1.mmc0_dat1 */
++			AM33XX_IOPAD(0x8f4, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat2.mmc0_dat2 */
++			AM33XX_IOPAD(0x8f0, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_dat3.mmc0_dat3 */
++			AM33XX_IOPAD(0x904, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_cmd.mmc0_cmd */
++			AM33XX_IOPAD(0x900, PIN_INPUT_PULLUP | MUX_MODE0)	/* mmc0_clk.mmc0_clk */
++		>;
++	};
++
++	emmc_pins: pinmux_emmc_pins {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x880, PIN_INPUT_PULLUP | MUX_MODE2) /* gpmc_csn1.mmc1_clk */
++			AM33XX_IOPAD(0x884, PIN_INPUT_PULLUP | MUX_MODE2) /* gpmc_csn2.mmc1_cmd */
++			AM33XX_IOPAD(0x800, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad0.mmc1_dat0 */
++			AM33XX_IOPAD(0x804, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad1.mmc1_dat1 */
++			AM33XX_IOPAD(0x808, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad2.mmc1_dat2 */
++			AM33XX_IOPAD(0x80c, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad3.mmc1_dat3 */
++			AM33XX_IOPAD(0x810, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad4.mmc1_dat4 */
++			AM33XX_IOPAD(0x814, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad5.mmc1_dat5 */
++			AM33XX_IOPAD(0x818, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad6.mmc1_dat6 */
++			AM33XX_IOPAD(0x81c, PIN_INPUT_PULLUP | MUX_MODE1) /* gpmc_ad7.mmc1_dat7 */
++		>;
++	};
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_pins>;
++
++	status = "okay";
++};
++
++&usb {
++	status = "okay";
++};
++
++&usb_ctrl_mod {
++	status = "okay";
++};
++
++&usb0_phy {
++	status = "okay";
++};
++
++&usb1_phy {
++	status = "okay";
++};
++
++&usb0 {
++	status = "okay";
++	dr_mode = "peripheral";
++	interrupts-extended = <&intc 18 &tps 0>;
++	interrupt-names = "mc", "vbus";
++};
++
++&usb1 {
++	status = "okay";
++	dr_mode = "host";
++};
++
++&cppi41dma  {
++	status = "okay";
++};
++
++&i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c0_pins>;
++
++	status = "okay";
++	clock-frequency = <400000>;
++
++	tps: tps@24 {
++		reg = <0x24>;
++	};
++
++	baseboard_eeprom: baseboard_eeprom@50 {
++		compatible = "atmel,24c256";
++		reg = <0x50>;
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++		baseboard_data: baseboard_data@0 {
++			reg = <0 0x100>;
++		};
++	};
++};
++
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
++
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++
++/include/ "tps65217.dtsi"
++
++&tps {
++	/*
++	 * Configure pmic to enter OFF-state instead of SLEEP-state ("RTC-only
++	 * mode") at poweroff.  Most BeagleBone versions do not support RTC-only
++	 * mode and risk hardware damage if this mode is entered.
++	 *
++	 * For details, see linux-omap mailing list May 2015 thread
++	 *	[PATCH] ARM: dts: am335x-bone* enable pmic-shutdown-controller
++	 * In particular, messages:
++	 *	http://www.spinics.net/lists/linux-omap/msg118585.html
++	 *	http://www.spinics.net/lists/linux-omap/msg118615.html
++	 *
++	 * You can override this later with
++	 *	&tps {  /delete-property/ ti,pmic-shutdown-controller;  }
++	 * if you want to use RTC-only mode and made sure you are not affected
++	 * by the hardware problems. (Tip: double-check by performing a current
++	 * measurement after shutdown: it should be less than 1 mA.)
++	 */
++
++	interrupts = <7>; /* NMI */
++	interrupt-parent = <&intc>;
++
++	ti,pmic-shutdown-controller;
++
++	charger {
++		status = "okay";
++	};
++
++	pwrbutton {
++		status = "okay";
++	};
++
++	regulators {
++		dcdc1_reg: regulator@0 {
++			regulator-name = "vdds_dpr";
++			regulator-always-on;
++		};
++
++		dcdc2_reg: regulator@1 {
++			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
++			regulator-name = "vdd_mpu";
++			regulator-min-microvolt = <925000>;
++			regulator-max-microvolt = <1351500>;
++			regulator-boot-on;
++			regulator-always-on;
++		};
++
++		dcdc3_reg: regulator@2 {
++			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
++			regulator-name = "vdd_core";
++			regulator-min-microvolt = <925000>;
++			regulator-max-microvolt = <1150000>;
++			regulator-boot-on;
++			regulator-always-on;
++		};
++
++		ldo1_reg: regulator@3 {
++			regulator-name = "vio,vrtc,vdds";
++			regulator-always-on;
++		};
++
++		ldo2_reg: regulator@4 {
++			regulator-name = "vdd_3v3aux";
++			regulator-always-on;
++		};
++
++		ldo3_reg: regulator@5 {
++			regulator-name = "vdd_1v8";
++			regulator-always-on;
++		};
++
++		ldo4_reg: regulator@6 {
++			regulator-name = "vdd_3v3a";
++			regulator-always-on;
++		};
++	};
++};
++
++&cpsw_emac0 {
++	phy-handle = <&ethphy0>;
++	phy-mode = "mii";
++};
++
++&mac {
++	slaves = <1>;
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&cpsw_default>;
++	pinctrl-1 = <&cpsw_sleep>;
++	status = "okay";
++};
++
++&davinci_mdio {
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&davinci_mdio_default>;
++	pinctrl-1 = <&davinci_mdio_sleep>;
++	status = "okay";
++
++	ethphy0: ethernet-phy@0 {
++		reg = <0>;
++	};
++};
++
++&mmc1 {
++	status = "okay";
++	bus-width = <0x4>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&mmc1_pins>;
++	cd-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
++};
++
++&aes {
++	status = "okay";
++};
++
++&sham {
++	status = "okay";
++};
++
++&rtc {
++	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
++	clock-names = "ext-clk", "int-clk";
++	system-power-controller;
++};
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 456eef57ef89..27489c9b2dc1 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -29,14 +29,14 @@
+ 		compatible = "gpio-leds";
+ 
+ 		led2 {
+-			label = "beaglebone:green:heartbeat";
++			label = "beaglebone:green:usr0";
+ 			gpios = <&gpio1 21 GPIO_ACTIVE_HIGH>;
+ 			linux,default-trigger = "heartbeat";
+ 			default-state = "off";
+ 		};
+ 
+ 		led3 {
+-			label = "beaglebone:green:mmc0";
++			label = "beaglebone:green:usr1";
+ 			gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
+ 			linux,default-trigger = "mmc0";
+ 			default-state = "off";
+@@ -66,9 +66,6 @@
+ };
+ 
+ &am33xx_pinmux {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&clkout2_pin>;
+-
+ 	user_leds_s0: user_leds_s0 {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x854, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
+@@ -99,12 +96,6 @@
+ 		>;
+ 	};
+ 
+-	clkout2_pin: pinmux_clkout2_pin {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+-		>;
+-	};
+-
+ 	cpsw_default: cpsw_default {
+ 		pinctrl-single,pins = <
+ 			/* Slave 1 */
+@@ -421,4 +412,5 @@
+ &rtc {
+ 	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
+ 	clock-names = "ext-clk", "int-clk";
++	system-power-controller;
+ };
+diff --git a/arch/arm/boot/dts/am335x-bone-jtag.dtsi b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
+new file mode 100644
+index 000000000000..603ef0a4d7b2
+--- /dev/null
++++ b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
+@@ -0,0 +1,20 @@
++/*
++ * Device Tree Source for bone jtag
++ *
++ * Copyright (C) 2015 Robert Nelson <robertcnelson@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++&am33xx_pinmux {
++	pinctrl-names = "default";
++	pinctrl-0 = <&clkout2_pin>;
++
++	clkout2_pin: pinmux_clkout2_pin {
++		pinctrl-single,pins = <
++			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
++		>;
++	};
++};
+diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
+index 6b8493720424..3688fff0a5f0 100644
+--- a/arch/arm/boot/dts/am335x-bone.dts
++++ b/arch/arm/boot/dts/am335x-bone.dts
+@@ -9,6 +9,7 @@
+ 
+ #include "am33xx.dtsi"
+ #include "am335x-bone-common.dtsi"
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone";
+diff --git a/arch/arm/boot/dts/am335x-boneblack-common.dtsi b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
+index e543c2bee8c2..4413a0afacd6 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-common.dtsi
++++ b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
+@@ -30,7 +30,6 @@
+ &am33xx_pinmux {
+ 	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
+ 		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
+ 			AM33XX_IOPAD(0x8a0, PIN_OUTPUT | MUX_MODE0)		/* lcd_data0.lcd_data0 */
+ 			AM33XX_IOPAD(0x8a4, PIN_OUTPUT | MUX_MODE0)		/* lcd_data1.lcd_data1 */
+ 			AM33XX_IOPAD(0x8a8, PIN_OUTPUT | MUX_MODE0)		/* lcd_data2.lcd_data2 */
+@@ -54,12 +53,6 @@
+ 		>;
+ 	};
+ 
+-	nxp_hdmi_bonelt_off_pins: nxp_hdmi_bonelt_off_pins {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
+-		>;
+-	};
+-
+ 	mcasp0_pins: mcasp0_pins {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x9ac, PIN_INPUT_PULLUP | MUX_MODE0) /* mcasp0_ahcklx.mcasp0_ahclkx */
+@@ -95,9 +88,8 @@
+ 		nxp,calib-gpios = <&gpio1 25 0>;
+ 		interrupts-extended = <&gpio1 25 IRQ_TYPE_LEVEL_LOW>;
+ 
+-		pinctrl-names = "default", "off";
++		pinctrl-names = "default";
+ 		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
+-		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
+ 
+ 		/* Convert 24bit BGR to RGB, e.g. cross red and blue wiring */
+ 		/* video-ports = <0x234501>; */
+diff --git a/arch/arm/boot/dts/am335x-boneblack-wireless.dts b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
+index 83f49f616b19..4664f203b17c 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-wireless.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
+@@ -11,6 +11,7 @@
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-boneblack-common.dtsi"
+ #include <dt-bindings/interrupt-controller/irq.h>
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Black Wireless";
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index d154d3133c16..e62023252165 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -10,6 +10,7 @@
+ #include "am33xx.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-boneblack-common.dtsi"
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Black";
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+index 57731f0daf10..de299ad8ee40 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+@@ -11,6 +11,7 @@
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-bonegreen-common.dtsi"
+ #include <dt-bindings/interrupt-controller/irq.h>
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Green Wireless";
+diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
+index a8b4d969ce2a..575a5a93a89e 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen.dts
+@@ -10,6 +10,7 @@
+ #include "am33xx.dtsi"
+ #include "am335x-bone-common.dtsi"
+ #include "am335x-bonegreen-common.dtsi"
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "TI AM335x BeagleBone Green";
+diff --git a/arch/arm/boot/dts/am335x-osd3358-sm-red.dts b/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
+index 95d54cf3849e..7dc90e986dc2 100644
+--- a/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
++++ b/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
+@@ -13,6 +13,7 @@
+ #include <dt-bindings/interrupt-controller/irq.h>
+ 
+ #include <dt-bindings/display/tda998x.h>
++/* #include "am335x-bone-jtag.dtsi" */
+ 
+ / {
+ 	model = "Octavo Systems OSD3358-SM-RED";
+@@ -40,7 +41,6 @@
+ &am33xx_pinmux {
+ 	nxp_hdmi_bonelt_pins: nxp-hdmi-bonelt-pins {
+ 		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
+ 			AM33XX_IOPAD(0x8a0, PIN_OUTPUT | MUX_MODE0)		/* lcd_data0.lcd_data0 */
+ 			AM33XX_IOPAD(0x8a4, PIN_OUTPUT | MUX_MODE0)		/* lcd_data1.lcd_data1 */
+ 			AM33XX_IOPAD(0x8a8, PIN_OUTPUT | MUX_MODE0)		/* lcd_data2.lcd_data2 */
+@@ -64,12 +64,6 @@
+ 		>;
+ 	};
+ 
+-	nxp_hdmi_bonelt_off_pins: nxp-hdmi-bonelt-off-pins {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b0, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr0 */
+-		>;
+-	};
+-
+ 	mcasp0_pins: mcasp0-pins {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x9ac, PIN_INPUT_PULLUP | MUX_MODE0) /* mcasp0_ahcklx.mcasp0_ahclkx */
+@@ -124,9 +118,8 @@
+ 		compatible = "nxp,tda998x";
+ 		reg = <0x70>;
+ 
+-		pinctrl-names = "default", "off";
++		pinctrl-names = "default";
+ 		pinctrl-0 = <&nxp_hdmi_bonelt_pins>;
+-		pinctrl-1 = <&nxp_hdmi_bonelt_off_pins>;
+ 
+ 		/* Convert 24bit BGR to RGB, e.g. cross red and blue wiring */
+ 		/* video-ports = <0x234501>; */
+@@ -264,9 +257,6 @@
+ };
+ 
+ &am33xx_pinmux {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&clkout2_pin>;
+-
+ 	user_leds_s0: user-leds-s0 {
+ 		pinctrl-single,pins = <
+ 			AM33XX_IOPAD(0x854, PIN_OUTPUT_PULLDOWN | MUX_MODE7)	/* gpmc_a5.gpio1_21 */
+@@ -290,12 +280,6 @@
+ 		>;
+ 	};
+ 
+-	clkout2_pin: pinmux-clkout2-pin {
+-		pinctrl-single,pins = <
+-			AM33XX_IOPAD(0x9b4, PIN_OUTPUT_PULLDOWN | MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+-		>;
+-	};
+-
+ 	cpsw_default: cpsw-default {
+ 		pinctrl-single,pins = <
+ 			/* Slave 1 */
+diff --git a/include/dt-bindings/board/am335x-bbw-bbb-base.h b/include/dt-bindings/board/am335x-bbw-bbb-base.h
+new file mode 100644
+index 000000000000..35f6d57ef492
+--- /dev/null
++++ b/include/dt-bindings/board/am335x-bbw-bbb-base.h
+@@ -0,0 +1,103 @@
++/*
++ * This header provides constants for bbw/bbb pinctrl bindings.
++ *
++ * Copyright (C) 2014 Robert Nelson <robertcnelson@gmail.com>
++ *
++ * Numbers Based on: https://github.com/derekmolloy/boneDeviceTree/tree/master/docs
++ */
++
++#ifndef _DT_BINDINGS_BOARD_AM335X_BBW_BBB_BASE_H
++#define _DT_BINDINGS_BOARD_AM335X_BBW_BBB_BASE_H
++
++#define BONE_P8_03 0x018
++#define BONE_P8_04 0x01C
++
++#define BONE_P8_05 0x008
++#define BONE_P8_06 0x00C
++#define BONE_P8_07 0x090
++#define BONE_P8_08 0x094
++
++#define BONE_P8_09 0x09C
++#define BONE_P8_10 0x098
++#define BONE_P8_11 0x034
++#define BONE_P8_12 0x030
++
++#define BONE_P8_13 0x024
++#define BONE_P8_14 0x028
++#define BONE_P8_15 0x03C
++#define BONE_P8_16 0x038
++
++#define BONE_P8_17 0x02C
++#define BONE_P8_18 0x08C
++#define BONE_P8_19 0x020
++#define BONE_P8_20 0x084
++
++#define BONE_P8_21 0x080
++#define BONE_P8_22 0x014
++#define BONE_P8_23 0x010
++#define BONE_P8_24 0x004
++
++#define BONE_P8_25 0x000
++#define BONE_P8_26 0x07C
++#define BONE_P8_27 0x0E0
++#define BONE_P8_28 0x0E8
++
++#define BONE_P8_29 0x0E4
++#define BONE_P8_30 0x0EC
++#define BONE_P8_31 0x0D8
++#define BONE_P8_32 0x0DC
++
++#define BONE_P8_33 0x0D4
++#define BONE_P8_34 0x0CC
++#define BONE_P8_35 0x0D0
++#define BONE_P8_36 0x0C8
++
++#define BONE_P8_37 0x0C0
++#define BONE_P8_38 0x0C4
++#define BONE_P8_39 0x0B8
++#define BONE_P8_40 0x0BC
++
++#define BONE_P8_41 0x0B0
++#define BONE_P8_42 0x0B4
++#define BONE_P8_43 0x0A8
++#define BONE_P8_44 0x0AC
++
++#define BONE_P8_45 0x0A0
++#define BONE_P8_46 0x0A4
++
++#define BONE_P9_11 0x070
++#define BONE_P9_12 0x078
++
++#define BONE_P9_13 0x074
++#define BONE_P9_14 0x048
++#define BONE_P9_15 0x040
++#define BONE_P9_16 0x04C
++
++#define BONE_P9_17 0x15C
++#define BONE_P9_18 0x158
++#define BONE_P9_19 0x17C
++#define BONE_P9_20 0x178
++
++#define BONE_P9_21 0x154
++#define BONE_P9_22 0x150
++#define BONE_P9_23 0x044
++#define BONE_P9_24 0x184
++
++#define BONE_P9_25 0x1AC
++#define BONE_P9_26 0x180
++#define BONE_P9_27 0x1A4
++#define BONE_P9_28 0x19C
++
++#define BONE_P9_29 0x194
++#define BONE_P9_30 0x198
++#define BONE_P9_31 0x190
++
++/* Shared P21 of P11 */
++#define BONE_P9_41A 0x1B4
++#define BONE_P9_41B 0x1A8
++
++/* Shared P22 of P11 */
++#define BONE_P9_42A 0x164
++#define BONE_P9_42B 0x1A0
++
++#endif
+-- 
+2.20.1
+
