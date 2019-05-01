@@ -331,7 +331,7 @@ beagleboard_dtbs () {
 		${git_bin} add -f arch/arm/boot/dts/
 		${git_bin} add -f include/dt-bindings/
 		${git_bin} commit -a -m "Add BeagleBoard.org DTBS: $bbdtbs" -m "https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/${bbdtbs}" -s
-		${git_bin} format-patch -1 -o ../patches/beagleboard_dtbs/
+		${git_bin} format-patch -1 -o ../patches/soc/ti/beagleboard_dtbs/
 
 		rm -rf ../BeagleBoard-DeviceTrees/ || true
 
@@ -339,14 +339,14 @@ beagleboard_dtbs () {
 
 		start_cleanup
 
-		${git} "${DIR}/patches/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$bbdtbs.patch"
+		${git} "${DIR}/patches/soc/ti/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$bbdtbs.patch"
 
-		wdir="beagleboard_dtbs"
+		wdir="soc/ti/beagleboard_dtbs"
 		number=1
 		cleanup
 	fi
 
-	${git} "${DIR}/patches/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$bbdtbs.patch"
+	dir 'soc/ti/beagleboard_dtbs'
 }
 
 local_patch () {
