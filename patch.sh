@@ -293,6 +293,10 @@ ti_pm_firmware () {
 	${git} "${DIR}/patches/drivers/ti/firmware/0001-Add-AM335x-CM3-Power-Managment-Firmware.patch"
 }
 
+dtb_makefile_append_omap4 () {
+	sed -i -e 's:omap4-panda.dtb \\:omap4-panda.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
+}
+
 dtb_makefile_append () {
 	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
@@ -313,6 +317,8 @@ beagleboard_dtbs () {
 
 		cp -vr ../BeagleBoard-DeviceTrees/src/arm/* arch/arm/boot/dts/
 		cp -vr ../BeagleBoard-DeviceTrees/include/dt-bindings/* ./include/dt-bindings/
+
+		device="omap4-panda-es-b3.dtb" ; dtb_makefile_append_omap4
 
 		${git_bin} add -f arch/arm/boot/dts/
 		${git_bin} add -f include/dt-bindings/
@@ -442,11 +448,11 @@ soc () {
 	dir 'soc/imx/imx7'
 
 	dir 'soc/ti/omap3'
-	dir 'soc/ti/omap4'
 
 	dir 'soc/ti/blue'
 	dir 'soc/ti/abbbi'
 	dir 'soc/ti/pocketbeagle'
+	dir 'soc/ti/panda'
 	dir 'soc/ti/uboot'
 }
 
