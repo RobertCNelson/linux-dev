@@ -1,6 +1,6 @@
-From 5489804426879bab35e203c71697aa696a77f0cb Mon Sep 17 00:00:00 2001
+From a5d5fe5e757aff78c877e2eac0912acfc628be07 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 1 May 2019 16:11:11 -0500
+Date: Wed, 1 May 2019 16:14:13 -0500
 Subject: [PATCH] Add BeagleBoard.org DTBS: v5.1.x
 
 https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.1.x
@@ -28,6 +28,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-pocketbeagle.dts     | 2040 +++++++++++-
  arch/arm/boot/dts/am33xx-l4.dtsi              |  162 +
  arch/arm/boot/dts/am33xx.dtsi                 |    2 +-
+ .../boot/dts/am57xx-beagle-x15-common.dtsi    |    4 +
+ arch/arm/boot/dts/dra7.dtsi                   |   10 +
  arch/arm/boot/dts/omap3-beagle-xm.dts         |   53 +-
  arch/arm/boot/dts/omap3-beagle.dts            |   11 +
  arch/arm/boot/dts/omap4-panda-a4.dts          |   12 +
@@ -36,7 +38,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/omap4-panda-es.dts          |   12 +
  arch/arm/boot/dts/omap4-panda.dts             |   12 +
  .../dt-bindings/board/am335x-bbw-bbb-base.h   |  103 +
- 30 files changed, 9358 insertions(+), 119 deletions(-)
+ 32 files changed, 9372 insertions(+), 119 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-abbbi.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-univ.dtsi
@@ -9671,6 +9673,42 @@ index e5c2f71a7c77..267fe366665b 100644
  		compatible = "simple-bus";
  		#address-cells = <1>;
  		#size-cells = <1>;
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+index 1e6620f139dd..5dd7bc1f9bb5 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+@@ -167,6 +167,10 @@
+ 	};
+ };
+ 
++&bb2d {
++	status = "okay";
++};
++
+ &i2c1 {
+ 	status = "okay";
+ 	clock-frequency = <400000>;
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index 2bc9add8b7a5..cb71acbc77cb 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -377,6 +377,16 @@
+ 			ti,hwmods = "dmm";
+ 		};
+ 
++		bb2d: bb2d@59000000 {
++			compatible = "ti,dra7-bb2d","vivante,gc";
++			reg = <0x59000000 0x0700>;
++			interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
++			ti,hwmods = "bb2d";
++			clocks = <&dpll_core_h24x2_ck>;
++			clock-names = "fclk";
++			status = "disabled";
++		};
++
+ 		mmu0_dsp1: mmu@40d01000 {
+ 			compatible = "ti,dra7-dsp-iommu";
+ 			reg = <0x40d01000 0x100>;
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
 index 9985ee2aae0c..ffdecab54480 100644
 --- a/arch/arm/boot/dts/omap3-beagle-xm.dts
