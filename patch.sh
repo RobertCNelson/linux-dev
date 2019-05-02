@@ -109,7 +109,6 @@ aufs_fail () {
 }
 
 aufs () {
-	echo "dir: aufs"
 	aufs_prefix="aufs5-"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
@@ -176,11 +175,7 @@ aufs () {
 		cleanup
 	fi
 
-	${git} "${DIR}/patches/aufs/0001-merge-aufs-kbuild.patch"
-	${git} "${DIR}/patches/aufs/0002-merge-aufs-base.patch"
-	${git} "${DIR}/patches/aufs/0003-merge-aufs-mmap.patch"
-	${git} "${DIR}/patches/aufs/0004-merge-aufs-standalone.patch"
-	${git} "${DIR}/patches/aufs/0005-merge-aufs.patch"
+	dir 'aufs'
 }
 
 rt_cleanup () {
@@ -189,7 +184,6 @@ rt_cleanup () {
 }
 
 rt () {
-	echo "dir: rt"
 	rt_patch="${KERNEL_REL}${kernel_rt}"
 
 	#${git_bin} revert --no-edit xyz
@@ -207,7 +201,7 @@ rt () {
 		exit 2
 	fi
 
-	${git} "${DIR}/patches/rt/0001-merge-CONFIG_PREEMPT_RT-Patch-Set.patch"
+	dir 'rt'
 }
 
 wireguard_fail () {
@@ -216,7 +210,6 @@ wireguard_fail () {
 }
 
 wireguard () {
-	echo "dir: WireGuard"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
@@ -252,12 +245,11 @@ wireguard () {
 		cleanup
 	fi
 
-	${git} "${DIR}/patches/WireGuard/0001-merge-WireGuard.patch"
+	dir 'WireGuard'
 }
 
 ti_pm_firmware () {
 	#http://git.ti.com/gitweb/?p=processor-firmware/ti-amx3-cm3-pm-firmware.git;a=shortlog;h=refs/heads/ti-v4.1.y-next
-	echo "dir: drivers/ti/firmware"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 
@@ -290,9 +282,8 @@ ti_pm_firmware () {
 		cleanup
 	fi
 
-	${git} "${DIR}/patches/drivers/ti/firmware/0001-Add-AM335x-CM3-Power-Managment-Firmware.patch"
+	dir 'drivers/ti/firmware'
 }
-
 dtb_makefile_append_omap4 () {
 	sed -i -e 's:omap4-panda.dtb \\:omap4-panda.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
@@ -303,7 +294,6 @@ dtb_makefile_append () {
 
 beagleboard_dtbs () {
 	bbdtbs="v5.1.x"
-	echo "dir: beagleboard_dtbs"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
