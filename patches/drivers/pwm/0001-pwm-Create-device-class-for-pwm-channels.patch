@@ -39,7 +39,7 @@ index 8fbf0aa3ba2d..72db8dd15f53 100644
    period
      The total period of the PWM signal (read/write).
 diff --git a/drivers/pwm/sysfs.c b/drivers/pwm/sysfs.c
-index ceb233dd6048..5c34b816c628 100644
+index 719f8fada0a7..66406267e0a7 100644
 --- a/drivers/pwm/sysfs.c
 +++ b/drivers/pwm/sysfs.c
 @@ -23,6 +23,8 @@
@@ -93,7 +93,7 @@ index ceb233dd6048..5c34b816c628 100644
  static int pwmchip_sysfs_match(struct device *parent, const void *data)
 @@ -400,7 +408,8 @@ void pwmchip_sysfs_export(struct pwm_chip *chip)
  	 * If device_create() fails the pwm_chip is still usable by
- 	 * the kernel its just not exported.
+ 	 * the kernel it's just not exported.
  	 */
 -	parent = device_create(&pwm_class, chip->dev, MKDEV(0, 0), chip,
 +	parent = device_create_with_groups(&pwm_class, chip->dev, MKDEV(0, 0),
