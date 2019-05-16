@@ -293,7 +293,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	bbdtbs="v5.1.x"
+	bbdtbs="v5.2.x"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
