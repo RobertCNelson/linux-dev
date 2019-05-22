@@ -1,6 +1,6 @@
-From c109438cbb6f2bfde2db0cc5def4948ce94c3e9b Mon Sep 17 00:00:00 2001
+From 8929802e5decae5805cfa20608a4217cae6c7cb3 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 6 May 2019 10:43:34 -0500
+Date: Wed, 22 May 2019 14:59:59 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   78 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  881 ++
+ net/wireguard/compat/compat.h                 |  892 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -80,7 +80,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/device.h                        |   65 +
  net/wireguard/main.c                          |   69 +
  net/wireguard/messages.h                      |  128 +
- net/wireguard/netlink.c                       |  632 ++
+ net/wireguard/netlink.c                       |  639 ++
  net/wireguard/netlink.h                       |   12 +
  net/wireguard/noise.c                         |  807 ++
  net/wireguard/noise.h                         |  131 +
@@ -97,13 +97,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/selftest/counter.c              |  104 +
  net/wireguard/selftest/ratelimiter.c          |  226 +
  net/wireguard/send.c                          |  431 +
- net/wireguard/socket.c                        |  433 +
+ net/wireguard/socket.c                        |  436 +
  net/wireguard/socket.h                        |   44 +
  net/wireguard/timers.c                        |  241 +
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51367 insertions(+)
+ 98 files changed, 51388 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -1080,10 +1080,10 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..6ee3ac8bcdd8
+index 000000000000..436fe4420a30
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,881 @@
+@@ -0,0 +1,892 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1864,6 +1864,9 @@ index 000000000000..6ee3ac8bcdd8
 +#define skb_probe_transport_header(a) skb_probe_transport_header(a, 0)
 +#endif
 +
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0) && !defined(ISRHEL7)
++#define ignore_df local_df
++#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0)
 +/* Note that all intentional uses of the non-_bh variety need to explicitly
@@ -1902,6 +1905,14 @@ index 000000000000..6ee3ac8bcdd8
 +{
 +	skb->next = NULL;
 +}
++#endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0)
++#define NLA_EXACT_LEN NLA_UNSPEC
++#endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
++#define NLA_MIN_LEN NLA_UNSPEC
++#define COMPAT_CANNOT_INDIVIDUAL_NETLINK_OPS_POLICY
 +#endif
 +
 +/* https://github.com/ClangBuiltLinux/linux/issues/7 */
@@ -46347,10 +46358,10 @@ index 000000000000..3cfd1c5e9b02
 +#endif /* _WG_MESSAGES_H */
 diff --git a/net/wireguard/netlink.c b/net/wireguard/netlink.c
 new file mode 100644
-index 000000000000..b179b3184725
+index 000000000000..ae3319750dd8
 --- /dev/null
 +++ b/net/wireguard/netlink.c
-@@ -0,0 +1,632 @@
+@@ -0,0 +1,639 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46372,8 +46383,8 @@ index 000000000000..b179b3184725
 +static const struct nla_policy device_policy[WGDEVICE_A_MAX + 1] = {
 +	[WGDEVICE_A_IFINDEX]		= { .type = NLA_U32 },
 +	[WGDEVICE_A_IFNAME]		= { .type = NLA_NUL_STRING, .len = IFNAMSIZ - 1 },
-+	[WGDEVICE_A_PRIVATE_KEY]	= { .len = NOISE_PUBLIC_KEY_LEN },
-+	[WGDEVICE_A_PUBLIC_KEY]		= { .len = NOISE_PUBLIC_KEY_LEN },
++	[WGDEVICE_A_PRIVATE_KEY]	= { .type = NLA_EXACT_LEN, .len = NOISE_PUBLIC_KEY_LEN },
++	[WGDEVICE_A_PUBLIC_KEY]		= { .type = NLA_EXACT_LEN, .len = NOISE_PUBLIC_KEY_LEN },
 +	[WGDEVICE_A_FLAGS]		= { .type = NLA_U32 },
 +	[WGDEVICE_A_LISTEN_PORT]	= { .type = NLA_U16 },
 +	[WGDEVICE_A_FWMARK]		= { .type = NLA_U32 },
@@ -46381,12 +46392,12 @@ index 000000000000..b179b3184725
 +};
 +
 +static const struct nla_policy peer_policy[WGPEER_A_MAX + 1] = {
-+	[WGPEER_A_PUBLIC_KEY]				= { .len = NOISE_PUBLIC_KEY_LEN },
-+	[WGPEER_A_PRESHARED_KEY]			= { .len = NOISE_SYMMETRIC_KEY_LEN },
++	[WGPEER_A_PUBLIC_KEY]				= { .type = NLA_EXACT_LEN, .len = NOISE_PUBLIC_KEY_LEN },
++	[WGPEER_A_PRESHARED_KEY]			= { .type = NLA_EXACT_LEN, .len = NOISE_SYMMETRIC_KEY_LEN },
 +	[WGPEER_A_FLAGS]				= { .type = NLA_U32 },
-+	[WGPEER_A_ENDPOINT]				= { .len = sizeof(struct sockaddr) },
++	[WGPEER_A_ENDPOINT]				= { .type = NLA_MIN_LEN, .len = sizeof(struct sockaddr) },
 +	[WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL]	= { .type = NLA_U16 },
-+	[WGPEER_A_LAST_HANDSHAKE_TIME]			= { .len = sizeof(struct __kernel_timespec) },
++	[WGPEER_A_LAST_HANDSHAKE_TIME]			= { .type = NLA_EXACT_LEN, .len = sizeof(struct __kernel_timespec) },
 +	[WGPEER_A_RX_BYTES]				= { .type = NLA_U64 },
 +	[WGPEER_A_TX_BYTES]				= { .type = NLA_U64 },
 +	[WGPEER_A_ALLOWEDIPS]				= { .type = NLA_NESTED },
@@ -46395,7 +46406,7 @@ index 000000000000..b179b3184725
 +
 +static const struct nla_policy allowedip_policy[WGALLOWEDIP_A_MAX + 1] = {
 +	[WGALLOWEDIP_A_FAMILY]		= { .type = NLA_U16 },
-+	[WGALLOWEDIP_A_IPADDR]		= { .len = sizeof(struct in_addr) },
++	[WGALLOWEDIP_A_IPADDR]		= { .type = NLA_MIN_LEN, .len = sizeof(struct in_addr) },
 +	[WGALLOWEDIP_A_CIDR_MASK]	= { .type = NLA_U8 }
 +};
 +
@@ -46949,12 +46960,16 @@ index 000000000000..b179b3184725
 +#endif
 +		.dumpit = wg_get_device_dump,
 +		.done = wg_get_device_done,
++#ifdef COMPAT_CANNOT_INDIVIDUAL_NETLINK_OPS_POLICY
 +		.policy = device_policy,
++#endif
 +		.flags = GENL_UNS_ADMIN_PERM
 +	}, {
 +		.cmd = WG_CMD_SET_DEVICE,
 +		.doit = wg_set_device,
++#ifdef COMPAT_CANNOT_INDIVIDUAL_NETLINK_OPS_POLICY
 +		.policy = device_policy,
++#endif
 +		.flags = GENL_UNS_ADMIN_PERM
 +	}
 +};
@@ -46971,6 +46986,9 @@ index 000000000000..b179b3184725
 +	.version = WG_GENL_VERSION,
 +	.maxattr = WGDEVICE_A_MAX,
 +	.module = THIS_MODULE,
++#ifndef COMPAT_CANNOT_INDIVIDUAL_NETLINK_OPS_POLICY
++	.policy = device_policy,
++#endif
 +	.netnsok = true
 +};
 +
@@ -51192,10 +51210,10 @@ index 000000000000..b0df5c717502
 +}
 diff --git a/net/wireguard/socket.c b/net/wireguard/socket.c
 new file mode 100644
-index 000000000000..5a77b0c9ba2e
+index 000000000000..d4f65bb07044
 --- /dev/null
 +++ b/net/wireguard/socket.c
-@@ -0,0 +1,433 @@
+@@ -0,0 +1,436 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -51284,6 +51302,8 @@ index 000000000000..5a77b0c9ba2e
 +		if (cache)
 +			dst_cache_set_ip4(cache, &rt->dst, fl.saddr);
 +	}
++
++	skb->ignore_df = 1;
 +	udp_tunnel_xmit_skb(rt, sock, skb, fl.saddr, fl.daddr, ds,
 +			    ip4_dst_hoplimit(&rt->dst), 0, fl.fl4_sport,
 +			    fl.fl4_dport, false, false);
@@ -51355,6 +51375,7 @@ index 000000000000..5a77b0c9ba2e
 +			dst_cache_set_ip6(cache, dst, &fl.saddr);
 +	}
 +
++	skb->ignore_df = 1;
 +	udp_tunnel6_xmit_skb(dst, sock, skb, skb->dev, &fl.saddr, &fl.daddr, ds,
 +			     ip6_dst_hoplimit(dst), 0, fl.fl6_sport,
 +			     fl.fl6_dport, false);
@@ -51965,7 +51986,7 @@ index 000000000000..f9d11fe9f306
 +#endif /* _WG_TIMERS_H */
 diff --git a/net/wireguard/uapi/wireguard.h b/net/wireguard/uapi/wireguard.h
 new file mode 100644
-index 000000000000..071ce4167f54
+index 000000000000..912f2167a202
 --- /dev/null
 +++ b/net/wireguard/uapi/wireguard.h
 @@ -0,0 +1,190 @@
@@ -51996,23 +52017,23 @@ index 000000000000..071ce4167f54
 + *
 + *    WGDEVICE_A_IFINDEX: NLA_U32
 + *    WGDEVICE_A_IFNAME: NLA_NUL_STRING, maxlen IFNAMESIZ - 1
-+ *    WGDEVICE_A_PRIVATE_KEY: len WG_KEY_LEN
-+ *    WGDEVICE_A_PUBLIC_KEY: len WG_KEY_LEN
++ *    WGDEVICE_A_PRIVATE_KEY: NLA_EXACT_LEN, len WG_KEY_LEN
++ *    WGDEVICE_A_PUBLIC_KEY: NLA_EXACT_LEN, len WG_KEY_LEN
 + *    WGDEVICE_A_LISTEN_PORT: NLA_U16
 + *    WGDEVICE_A_FWMARK: NLA_U32
 + *    WGDEVICE_A_PEERS: NLA_NESTED
 + *        0: NLA_NESTED
-+ *            WGPEER_A_PUBLIC_KEY: len WG_KEY_LEN
-+ *            WGPEER_A_PRESHARED_KEY: len WG_KEY_LEN
-+ *            WGPEER_A_ENDPOINT: struct sockaddr_in or struct sockaddr_in6
++ *            WGPEER_A_PUBLIC_KEY: NLA_EXACT_LEN, len WG_KEY_LEN
++ *            WGPEER_A_PRESHARED_KEY: NLA_EXACT_LEN, len WG_KEY_LEN
++ *            WGPEER_A_ENDPOINT: NLA_MIN_LEN(struct sockaddr), struct sockaddr_in or struct sockaddr_in6
 + *            WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL: NLA_U16
-+ *            WGPEER_A_LAST_HANDSHAKE_TIME: struct __kernel_timespec
++ *            WGPEER_A_LAST_HANDSHAKE_TIME: NLA_EXACT_LEN, struct __kernel_timespec
 + *            WGPEER_A_RX_BYTES: NLA_U64
 + *            WGPEER_A_TX_BYTES: NLA_U64
 + *            WGPEER_A_ALLOWEDIPS: NLA_NESTED
 + *                0: NLA_NESTED
 + *                    WGALLOWEDIP_A_FAMILY: NLA_U16
-+ *                    WGALLOWEDIP_A_IPADDR: struct in_addr or struct in6_addr
++ *                    WGALLOWEDIP_A_IPADDR: NLA_MIN_LEN(struct in_addr), struct in_addr or struct in6_addr
 + *                    WGALLOWEDIP_A_CIDR_MASK: NLA_U8
 + *                0: NLA_NESTED
 + *                    ...

@@ -1,6 +1,6 @@
-From d1de7e1209b4685f377f337c9196e80551cea499 Mon Sep 17 00:00:00 2001
+From e3ecce08a4a9082ad0fa918e6d244333866df31e Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 11 Mar 2019 11:52:07 -0500
+Date: Wed, 22 May 2019 14:59:24 -0500
 Subject: [PATCH 5/5] merge: aufs
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -43,8 +43,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/dir.h                                 |  134 ++
  fs/aufs/dirren.c                              | 1316 +++++++++++
  fs/aufs/dirren.h                              |  140 ++
- fs/aufs/dynop.c                               |  370 ++++
- fs/aufs/dynop.h                               |   75 +
+ fs/aufs/dynop.c                               |  367 ++++
+ fs/aufs/dynop.h                               |   77 +
  fs/aufs/export.c                              |  838 +++++++
  fs/aufs/f_op.c                                |  819 +++++++
  fs/aufs/fhsm.c                                |  427 ++++
@@ -97,7 +97,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/xattr.c                               |  356 +++
  fs/aufs/xino.c                                | 1956 +++++++++++++++++
  include/uapi/linux/aufs_type.h                |  448 ++++
- 92 files changed, 37826 insertions(+)
+ 92 files changed, 37825 insertions(+)
  create mode 100644 Documentation/ABI/testing/debugfs-aufs
  create mode 100644 Documentation/ABI/testing/sysfs-aufs
  create mode 100644 Documentation/filesystems/aufs/README
@@ -11872,10 +11872,10 @@ index 000000000000..a986736462c3
 +#endif /* __AUFS_DIRREN_H__ */
 diff --git a/fs/aufs/dynop.c b/fs/aufs/dynop.c
 new file mode 100644
-index 000000000000..06c558367944
+index 000000000000..b2d4263dae42
 --- /dev/null
 +++ b/fs/aufs/dynop.c
-@@ -0,0 +1,370 @@
+@@ -0,0 +1,367 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2010-2019 Junjiro R. Okajima
@@ -12232,9 +12232,6 @@ index 000000000000..06c558367944
 +{
 +	int i;
 +
-+	/* make sure that 'struct au_dykey *' can be any type */
-+	BUILD_BUG_ON(offsetof(struct au_dyaop, da_key));
-+
 +	for (i = 0; i < AuDyLast; i++)
 +		INIT_HLIST_BL_HEAD(dynop + i);
 +}
@@ -12248,10 +12245,10 @@ index 000000000000..06c558367944
 +}
 diff --git a/fs/aufs/dynop.h b/fs/aufs/dynop.h
 new file mode 100644
-index 000000000000..f3301c2a6a9b
+index 000000000000..5d0b36559425
 --- /dev/null
 +++ b/fs/aufs/dynop.h
-@@ -0,0 +1,75 @@
+@@ -0,0 +1,77 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2010-2019 Junjiro R. Okajima
@@ -12311,6 +12308,8 @@ index 000000000000..f3301c2a6a9b
 +	struct au_dykey			da_key;
 +	struct address_space_operations	da_op; /* not const */
 +};
++/* make sure that 'struct au_dykey *' can be any type */
++static_assert(!offsetof(struct au_dyaop, da_key));
 +
 +/* ---------------------------------------------------------------------- */
 +
@@ -16642,7 +16641,7 @@ index 000000000000..3bd869a69c8f
 +}
 diff --git a/fs/aufs/hnotify.c b/fs/aufs/hnotify.c
 new file mode 100644
-index 000000000000..95bced39c290
+index 000000000000..2c1bb556a716
 --- /dev/null
 +++ b/fs/aufs/hnotify.c
 @@ -0,0 +1,721 @@
@@ -17233,7 +17232,7 @@ index 000000000000..95bced39c290
 +		flags[AuHn_CHILD] = AuHnJob_ISDIR;
 +	au_fset_hnjob(flags[AuHn_PARENT], DIRENT);
 +	au_fset_hnjob(flags[AuHn_CHILD], GEN);
-+	switch (mask & FS_EVENTS_POSS_ON_CHILD) {
++	switch (mask & ALL_FSNOTIFY_DIRENT_EVENTS) {
 +	case FS_MOVED_FROM:
 +	case FS_MOVED_TO:
 +		au_fset_hnjob(flags[AuHn_CHILD], XINO0);
@@ -23548,7 +23547,7 @@ index 000000000000..d8508f875f28
 +#endif /* __AUFS_LCNT_H__ */
 diff --git a/fs/aufs/loop.c b/fs/aufs/loop.c
 new file mode 100644
-index 000000000000..cef7d96362c7
+index 000000000000..bfcb9f994c2d
 --- /dev/null
 +++ b/fs/aufs/loop.c
 @@ -0,0 +1,148 @@
@@ -23683,7 +23682,7 @@ index 000000000000..cef7d96362c7
 +	int err;
 +	struct super_block *sb __maybe_unused;
 +
-+	BUILD_BUG_ON(sizeof(sb->s_magic) != sizeof(unsigned long));
++	BUILD_BUG_ON(sizeof(sb->s_magic) != sizeof(*au_warn_loopback_array));
 +
 +	err = 0;
 +	au_warn_loopback_array = kcalloc(au_warn_loopback_step,
@@ -29786,7 +29785,7 @@ index 000000000000..bcb0b26fdfbe
 +};
 diff --git a/fs/aufs/super.h b/fs/aufs/super.h
 new file mode 100644
-index 000000000000..74571acf3eb9
+index 000000000000..37f02bb21324
 --- /dev/null
 +++ b/fs/aufs/super.h
 @@ -0,0 +1,589 @@
@@ -30230,7 +30229,7 @@ index 000000000000..74571acf3eb9
 +
 +/* current->atomic_flags */
 +/* this value should never corrupt the ones defined in linux/sched.h */
-+#define PFA_AUFS	7
++#define PFA_AUFS	0x10
 +
 +TASK_PFA_TEST(AUFS, test_aufs)	/* task_test_aufs */
 +TASK_PFA_SET(AUFS, aufs)	/* task_set_aufs */
@@ -38117,7 +38116,7 @@ index 000000000000..7733b9a28779
 +}
 diff --git a/include/uapi/linux/aufs_type.h b/include/uapi/linux/aufs_type.h
 new file mode 100644
-index 000000000000..e13685967d81
+index 000000000000..f1607cdbcb6f
 --- /dev/null
 +++ b/include/uapi/linux/aufs_type.h
 @@ -0,0 +1,448 @@
@@ -38163,7 +38162,7 @@ index 000000000000..e13685967d81
 +
 +#include <linux/limits.h>
 +
-+#define AUFS_VERSION	"5.0-20190311"
++#define AUFS_VERSION	"5.1-20190520"
 +
 +/* todo? move this to linux-2.6.19/include/magic.h */
 +#define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')
