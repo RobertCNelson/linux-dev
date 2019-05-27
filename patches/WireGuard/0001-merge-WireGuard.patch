@@ -1,6 +1,6 @@
-From 8929802e5decae5805cfa20608a4217cae6c7cb3 Mon Sep 17 00:00:00 2001
+From e1ff12886d76c9a339b452335c3939edb5718201 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 22 May 2019 14:59:59 -0500
+Date: Sun, 26 May 2019 20:47:51 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   78 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  892 ++
+ net/wireguard/compat/compat.h                 |  896 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -99,11 +99,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/send.c                          |  431 +
  net/wireguard/socket.c                        |  436 +
  net/wireguard/socket.h                        |   44 +
- net/wireguard/timers.c                        |  241 +
+ net/wireguard/timers.c                        |  243 +
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51388 insertions(+)
+ 98 files changed, 51394 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -202,10 +202,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 net/wireguard/version.h
 
 diff --git a/net/Kconfig b/net/Kconfig
-index 1efe1f9ee492..20f6adb1c795 100644
+index d122f53c6fa2..ccf00655100b 100644
 --- a/net/Kconfig
 +++ b/net/Kconfig
-@@ -89,6 +89,7 @@ config INET
+@@ -90,6 +90,7 @@ config INET
  	  Short answer: say Y.
  
  if INET
@@ -733,7 +733,7 @@ index 000000000000..e5c83cafcef4
 +#endif /* _WG_ALLOWEDIPS_H */
 diff --git a/net/wireguard/compat/Makefile.include b/net/wireguard/compat/Makefile.include
 new file mode 100644
-index 000000000000..627a418756d0
+index 000000000000..f73455aeac6a
 --- /dev/null
 +++ b/net/wireguard/compat/Makefile.include
 @@ -0,0 +1,78 @@
@@ -747,37 +747,37 @@ index 000000000000..627a418756d0
 +asflags-y += -include $(kbuild-dir)/compat/compat-asm.h
 +
 +ifeq ($(wildcard $(srctree)/include/linux/ptr_ring.h),)
-+ccflags-y += -I$(src)/compat/ptr_ring/include
++ccflags-y += -I$(kbuild-dir)/compat/ptr_ring/include
 +endif
 +
 +ifeq ($(wildcard $(srctree)/include/linux/siphash.h),)
-+ccflags-y += -I$(src)/compat/siphash/include
++ccflags-y += -I$(kbuild-dir)/compat/siphash/include
 +wireguard-y += compat/siphash/siphash.o
 +endif
 +
 +ifeq ($(wildcard $(srctree)/include/net/dst_cache.h),)
-+ccflags-y += -I$(src)/compat/dst_cache/include
++ccflags-y += -I$(kbuild-dir)/compat/dst_cache/include
 +wireguard-y += compat/dst_cache/dst_cache.o
 +endif
 +
 +ifeq ($(wildcard $(srctree)/arch/x86/include/asm/intel-family.h)$(CONFIG_X86),y)
-+ccflags-y += -I$(src)/compat/intel-family-x86/include
++ccflags-y += -I$(kbuild-dir)/compat/intel-family-x86/include
 +endif
 +
 +ifeq ($(wildcard $(srctree)/arch/x86/include/asm/fpu/api.h)$(CONFIG_X86),y)
-+ccflags-y += -I$(src)/compat/fpu-x86/include
++ccflags-y += -I$(kbuild-dir)/compat/fpu-x86/include
 +endif
 +
 +ifeq ($(wildcard $(srctree)/arch/$(SRCARCH)/include/asm/simd.h)$(shell grep -s -F "generic-y += simd.h" "$(srctree)/arch/$(SRCARCH)/Makefile" "$(srctree)/arch/$(SRCARCH)/Makefile"),)
-+ccflags-y += -I$(src)/compat/simd-asm/include
++ccflags-y += -I$(kbuild-dir)/compat/simd-asm/include
 +endif
 +
 +ifeq ($(wildcard $(srctree)/include/linux/simd.h),)
-+ccflags-y += -I$(src)/compat/simd/include
++ccflags-y += -I$(kbuild-dir)/compat/simd/include
 +endif
 +
 +ifeq ($(wildcard $(srctree)/include/net/udp_tunnel.h),)
-+ccflags-y += -I$(src)/compat/udp_tunnel/include
++ccflags-y += -I$(kbuild-dir)/compat/udp_tunnel/include
 +wireguard-y += compat/udp_tunnel/udp_tunnel.o
 +endif
 +
@@ -787,10 +787,10 @@ index 000000000000..627a418756d0
 +endif
 +
 +ifeq ($(wildcard $(srctree)/arch/arm/include/asm/neon.h)$(CONFIG_ARM),y)
-+ccflags-y += -I$(src)/compat/neon-arm/include
++ccflags-y += -I$(kbuild-dir)/compat/neon-arm/include
 +endif
 +ifeq ($(wildcard $(srctree)/arch/arm64/include/asm/neon.h)$(CONFIG_ARM64),y)
-+ccflags-y += -I$(src)/compat/neon-arm/include
++ccflags-y += -I$(kbuild-dir)/compat/neon-arm/include
 +endif
 +
 +ifeq ($(CONFIG_X86_64),y)
@@ -1080,10 +1080,10 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..436fe4420a30
+index 000000000000..c34f75419013
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,892 @@
+@@ -0,0 +1,896 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1913,6 +1913,10 @@ index 000000000000..436fe4420a30
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
 +#define NLA_MIN_LEN NLA_UNSPEC
 +#define COMPAT_CANNOT_INDIVIDUAL_NETLINK_OPS_POLICY
++#endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0) && defined(__aarch64__)
++#define cpu_have_named_feature(name) (elf_hwcap & (HWCAP_ ## name))
 +#endif
 +
 +/* https://github.com/ClangBuiltLinux/linux/issues/7 */
@@ -5020,7 +5024,7 @@ index 000000000000..c4bd61ca03f2
 +#endif /* _WG_COOKIE_H */
 diff --git a/net/wireguard/crypto/Makefile.include b/net/wireguard/crypto/Makefile.include
 new file mode 100644
-index 000000000000..460684d845c3
+index 000000000000..f2a312e96d88
 --- /dev/null
 +++ b/net/wireguard/crypto/Makefile.include
 @@ -0,0 +1,57 @@
@@ -5074,7 +5078,7 @@ index 000000000000..460684d845c3
 +.SECONDARY:
 +
 +wireguard-y += $(addprefix crypto/zinc/,$(zinc-y))
-+ccflags-y += -I$(src)/crypto/include
++ccflags-y += -I$(kbuild-dir)/crypto/include
 +ccflags-$(CONFIG_ZINC_ARCH_X86_64) += -DCONFIG_ZINC_ARCH_X86_64
 +ccflags-$(CONFIG_ZINC_ARCH_ARM) += -DCONFIG_ZINC_ARCH_ARM
 +ccflags-$(CONFIG_ZINC_ARCH_ARM64) += -DCONFIG_ZINC_ARCH_ARM64
@@ -6421,7 +6425,7 @@ index 000000000000..e9e0bdaffc82
 +#endif
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm-glue.c b/net/wireguard/crypto/zinc/chacha20/chacha20-arm-glue.c
 new file mode 100644
-index 000000000000..84c3bb7487b3
+index 000000000000..41e2e79abb2b
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm-glue.c
 @@ -0,0 +1,98 @@
@@ -6448,7 +6452,7 @@ index 000000000000..84c3bb7487b3
 +static void __init chacha20_fpu_init(void)
 +{
 +#if defined(CONFIG_ZINC_ARCH_ARM64)
-+	chacha20_use_neon = elf_hwcap & HWCAP_ASIMD;
++	chacha20_use_neon = cpu_have_named_feature(ASIMD);
 +#elif defined(CONFIG_ZINC_ARCH_ARM)
 +	switch (read_cpuid_part()) {
 +	case ARM_CPU_PART_CORTEX_A7:
@@ -20929,7 +20933,7 @@ index 000000000000..82c669e4123c
 +#endif
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-arm-glue.c b/net/wireguard/crypto/zinc/poly1305/poly1305-arm-glue.c
 new file mode 100644
-index 000000000000..a80f0460ea13
+index 000000000000..291fe4ba98b0
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-arm-glue.c
 @@ -0,0 +1,140 @@
@@ -20955,7 +20959,7 @@ index 000000000000..a80f0460ea13
 +static void __init poly1305_fpu_init(void)
 +{
 +#if defined(CONFIG_ZINC_ARCH_ARM64)
-+	poly1305_use_neon = elf_hwcap & HWCAP_ASIMD;
++	poly1305_use_neon = cpu_have_named_feature(ASIMD);
 +#elif defined(CONFIG_ZINC_ARCH_ARM)
 +	poly1305_use_neon = elf_hwcap & HWCAP_NEON;
 +#endif
@@ -51702,10 +51706,10 @@ index 000000000000..bab5848efbcd
 +#endif /* _WG_SOCKET_H */
 diff --git a/net/wireguard/timers.c b/net/wireguard/timers.c
 new file mode 100644
-index 000000000000..7614c85fb23b
+index 000000000000..d54d32ac9bc4
 --- /dev/null
 +++ b/net/wireguard/timers.c
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,243 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -51725,7 +51729,8 @@ index 000000000000..7614c85fb23b
 + * not sent one for `KEEPALIVE_TIMEOUT` ms.
 + *
 + * - Timer for initiating new handshake if we have sent a packet but after have
-+ * not received one (even empty) for `(KEEPALIVE_TIMEOUT + REKEY_TIMEOUT)` ms.
++ * not received one (even empty) for `(KEEPALIVE_TIMEOUT + REKEY_TIMEOUT) +
++ * jitter` ms.
 + *
 + * - Timer for zeroing out all ephemeral keys after `(REJECT_AFTER_TIME * 3)` ms
 + * if no new keys have been received.
@@ -51853,7 +51858,8 @@ index 000000000000..7614c85fb23b
 +{
 +	if (!timer_pending(&peer->timer_new_handshake))
 +		mod_peer_timer(peer, &peer->timer_new_handshake,
-+			jiffies + (KEEPALIVE_TIMEOUT + REKEY_TIMEOUT) * HZ);
++			jiffies + (KEEPALIVE_TIMEOUT + REKEY_TIMEOUT) * HZ +
++			prandom_u32_max(REKEY_TIMEOUT_JITTER_MAX_JIFFIES));
 +}
 +
 +/* Should be called after an authenticated data packet is received. */
