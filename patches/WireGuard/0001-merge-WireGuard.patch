@@ -1,6 +1,6 @@
-From e1ff12886d76c9a339b452335c3939edb5718201 Mon Sep 17 00:00:00 2001
+From 3981ee921c86ef8d324d6c0b0f6baace9345435b Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 26 May 2019 20:47:51 -0500
+Date: Sun, 2 Jun 2019 21:42:34 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -11,7 +11,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/Makefile                        |   14 +
  net/wireguard/allowedips.c                    |  377 +
  net/wireguard/allowedips.h                    |   59 +
- net/wireguard/compat/Makefile.include         |   78 +
+ net/wireguard/compat/Makefile.include         |   88 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
  net/wireguard/compat/compat.h                 |  896 ++
@@ -39,8 +39,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../crypto/include/zinc/curve25519.h          |   28 +
  net/wireguard/crypto/include/zinc/poly1305.h  |   31 +
  net/wireguard/crypto/zinc.h                   |   15 +
- .../crypto/zinc/blake2s/blake2s-x86_64-glue.c |   73 +
- .../crypto/zinc/blake2s/blake2s-x86_64.S      |  685 ++
+ .../crypto/zinc/blake2s/blake2s-x86_64-glue.c |   72 +
+ .../crypto/zinc/blake2s/blake2s-x86_64.S      |  258 +
  net/wireguard/crypto/zinc/blake2s/blake2s.c   |  276 +
  .../crypto/zinc/chacha20/chacha20-arm-glue.c  |   98 +
  .../crypto/zinc/chacha20/chacha20-arm.pl      | 1227 +++
@@ -56,8 +56,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  .../crypto/zinc/curve25519/curve25519-arm.S   | 2064 ++++
  .../zinc/curve25519/curve25519-fiat32.c       |  860 ++
  .../zinc/curve25519/curve25519-hacl64.c       |  784 ++
- .../zinc/curve25519/curve25519-x86_64-glue.c  |   48 +
- .../zinc/curve25519/curve25519-x86_64.c       | 2326 +++++
+ .../zinc/curve25519/curve25519-x86_64-glue.c  |   50 +
+ .../zinc/curve25519/curve25519-x86_64.c       | 2366 +++++
  .../crypto/zinc/curve25519/curve25519.c       |  113 +
  .../crypto/zinc/poly1305/poly1305-arm-glue.c  |  140 +
  .../crypto/zinc/poly1305/poly1305-arm.pl      | 1276 +++
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51394 insertions(+)
+ 98 files changed, 51018 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -733,10 +733,10 @@ index 000000000000..e5c83cafcef4
 +#endif /* _WG_ALLOWEDIPS_H */
 diff --git a/net/wireguard/compat/Makefile.include b/net/wireguard/compat/Makefile.include
 new file mode 100644
-index 000000000000..f73455aeac6a
+index 000000000000..f537abec1ac0
 --- /dev/null
 +++ b/net/wireguard/compat/Makefile.include
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,88 @@
 +# SPDX-License-Identifier: GPL-2.0
 +#
 +# Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -813,6 +813,16 @@ index 000000000000..f73455aeac6a
 +		avx512_instr := $(call as-instr,vpmovm2b %k1$(comma)%zmm5,-DCONFIG_AS_AVX512=1)
 +		ccflags-y += $(avx512_instr)
 +		asflags-y += $(avx512_instr)
++	endif
++	ifeq ($(bmi2_instr),)
++		bmi2_instr :=$(call as-instr,mulx %rax$(comma)%rax$(comma)%rax,-DCONFIG_AS_BMI2=1)
++		ccflags-y += $(bmi2_instr)
++		asflags-y += $(bmi2_instr)
++	endif
++	ifeq ($(adx_instr),)
++		adx_instr :=$(call as-instr,adcx %rax$(comma)%rax,-DCONFIG_AS_ADX=1)
++		ccflags-y += $(adx_instr)
++		asflags-y += $(adx_instr)
 +	endif
 +endif
 diff --git a/net/wireguard/compat/checksum/checksum_partial_compat.h b/net/wireguard/compat/checksum/checksum_partial_compat.h
@@ -1080,7 +1090,7 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..c34f75419013
+index 000000000000..861601cbdf54
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
 @@ -0,0 +1,896 @@
@@ -1685,7 +1695,7 @@ index 000000000000..c34f75419013
 +#include <asm/xcr.h>
 +static inline int cpu_has_xfeatures(u64 xfeatures_needed, const char **feature_name)
 +{
-+	return xgetbv(XCR_XFEATURE_ENABLED_MASK) & xfeatures_needed;
++	return boot_cpu_has(X86_FEATURE_XSAVE) && xgetbv(XCR_XFEATURE_ENABLED_MASK) & xfeatures_needed;
 +}
 +#endif
 +#ifndef XFEATURE_MASK_YMM
@@ -5373,10 +5383,10 @@ index 000000000000..9aa1e8d59bf5
 +#endif
 diff --git a/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64-glue.c b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64-glue.c
 new file mode 100644
-index 000000000000..9a956be904c2
+index 000000000000..74d81d4e0488
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64-glue.c
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,72 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -5387,22 +5397,21 @@ index 000000000000..9a956be904c2
 +#include <asm/processor.h>
 +#include <asm/fpu/api.h>
 +
-+asmlinkage void blake2s_compress_avx(struct blake2s_state *state,
++asmlinkage void blake2s_compress_ssse3(struct blake2s_state *state,
 +				     const u8 *block, const size_t nblocks,
 +				     const u32 inc);
 +asmlinkage void blake2s_compress_avx512(struct blake2s_state *state,
 +					const u8 *block, const size_t nblocks,
 +					const u32 inc);
 +
-+static bool blake2s_use_avx __ro_after_init;
++static bool blake2s_use_ssse3 __ro_after_init;
 +static bool blake2s_use_avx512 __ro_after_init;
-+static bool *const blake2s_nobs[] __initconst = { &blake2s_use_avx512 };
++static bool *const blake2s_nobs[] __initconst = { &blake2s_use_ssse3,
++						  &blake2s_use_avx512 };
 +
 +static void __init blake2s_fpu_init(void)
 +{
-+	blake2s_use_avx =
-+		boot_cpu_has(X86_FEATURE_AVX) &&
-+		cpu_has_xfeatures(XFEATURE_MASK_SSE | XFEATURE_MASK_YMM, NULL);
++	blake2s_use_ssse3 = boot_cpu_has(X86_FEATURE_SSSE3);
 +#ifndef COMPAT_CANNOT_USE_AVX512
 +	blake2s_use_avx512 =
 +		boot_cpu_has(X86_FEATURE_AVX) &&
@@ -5426,7 +5435,7 @@ index 000000000000..9a956be904c2
 +
 +	simd_get(&simd_context);
 +
-+	if (!IS_ENABLED(CONFIG_AS_AVX) || !blake2s_use_avx ||
++	if (!IS_ENABLED(CONFIG_AS_SSSE3) || !blake2s_use_ssse3 ||
 +	    !simd_use(&simd_context))
 +		goto out;
 +	used_arch = true;
@@ -5438,7 +5447,7 @@ index 000000000000..9a956be904c2
 +		if (IS_ENABLED(CONFIG_AS_AVX512) && blake2s_use_avx512)
 +			blake2s_compress_avx512(state, block, blocks, inc);
 +		else
-+			blake2s_compress_avx(state, block, blocks, inc);
++			blake2s_compress_ssse3(state, block, blocks, inc);
 +
 +		nblocks -= blocks;
 +		if (!nblocks)
@@ -5452,14 +5461,14 @@ index 000000000000..9a956be904c2
 +}
 diff --git a/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64.S b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64.S
 new file mode 100644
-index 000000000000..675288fa4cca
+index 000000000000..0c395a441151
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/blake2s/blake2s-x86_64.S
-@@ -0,0 +1,685 @@
+@@ -0,0 +1,258 @@
 +/* SPDX-License-Identifier: GPL-2.0 OR MIT */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-+ * Copyright (C) 2017 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
++ * Copyright (C) 2017-2019 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
 + */
 +
 +#include <linux/linkage.h>
@@ -5474,592 +5483,165 @@ index 000000000000..675288fa4cca
 +.section .rodata.cst16.ROR328, "aM", @progbits, 16
 +.align 16
 +ROR328:	.octa 0x0C0F0E0D080B0A090407060500030201
-+#ifdef CONFIG_AS_AVX512
-+.section .rodata.cst64.BLAKE2S_SIGMA, "aM", @progbits, 640
++.section .rodata.cst64.BLAKE2S_SIGMA, "aM", @progbits, 160
 +.align 64
 +SIGMA:
-+.long 0, 2, 4, 6, 1, 3, 5, 7, 8, 10, 12, 14, 9, 11, 13, 15
-+.long 11, 2, 12, 14, 9, 8, 15, 3, 4, 0, 13, 6, 10, 1, 7, 5
-+.long 10, 12, 11, 6, 5, 9, 13, 3, 4, 15, 14, 2, 0, 7, 8, 1
-+.long 10, 9, 7, 0, 11, 14, 1, 12, 6, 2, 15, 3, 13, 8, 5, 4
-+.long 4, 9, 8, 13, 14, 0, 10, 11, 7, 3, 12, 1, 5, 6, 15, 2
-+.long 2, 10, 4, 14, 13, 3, 9, 11, 6, 5, 7, 12, 15, 1, 8, 0
-+.long 4, 11, 14, 8, 13, 10, 12, 5, 2, 1, 15, 3, 9, 7, 0, 6
-+.long 6, 12, 0, 13, 15, 2, 1, 10, 4, 5, 11, 14, 8, 3, 9, 7
-+.long 14, 5, 4, 12, 9, 7, 3, 10, 2, 0, 6, 15, 11, 1, 13, 8
-+.long 11, 7, 13, 10, 12, 14, 0, 15, 4, 5, 6, 9, 2, 1, 8, 3
++.byte  0,  2,  4,  6,  1,  3,  5,  7, 14,  8, 10, 12, 15,  9, 11, 13
++.byte 14,  4,  9, 13, 10,  8, 15,  6,  5,  1,  0, 11,  3, 12,  2,  7
++.byte 11, 12,  5, 15,  8,  0,  2, 13,  9, 10,  3,  7,  4, 14,  6,  1
++.byte  7,  3, 13, 11,  9,  1, 12, 14, 15,  2,  5,  4,  8,  6, 10,  0
++.byte  9,  5,  2, 10,  0,  7,  4, 15,  3, 14, 11,  6, 13,  1, 12,  8
++.byte  2,  6,  0,  8, 12, 10, 11,  3,  1,  4,  7, 15,  9, 13,  5, 14
++.byte 12,  1, 14,  4,  5, 15, 13, 10,  8,  0,  6,  9, 11,  7,  3,  2
++.byte 13,  7, 12,  3, 11, 14,  1,  9,  2,  5, 15,  8, 10,  0,  4,  6
++.byte  6, 14, 11,  0, 15,  9,  3,  8, 10, 12, 13,  1,  5,  2,  7,  4
++.byte 10,  8,  7,  1,  2,  4,  6,  5, 13, 15,  9,  3,  0, 11, 14, 12
++#ifdef CONFIG_AS_AVX512
++.section .rodata.cst64.BLAKE2S_SIGMA2, "aM", @progbits, 640
++.align 64
++SIGMA2:
++.long  0,  2,  4,  6,  1,  3,  5,  7, 14,  8, 10, 12, 15,  9, 11, 13
++.long  8,  2, 13, 15, 10,  9, 12,  3,  6,  4,  0, 14,  5, 11,  1,  7
++.long 11, 13,  8,  6,  5, 10, 14,  3,  2,  4, 12, 15,  1,  0,  7,  9
++.long 11, 10,  7,  0,  8, 15,  1, 13,  3,  6,  2, 12,  4, 14,  9,  5
++.long  4, 10,  9, 14, 15,  0, 11,  8,  1,  7,  3, 13,  2,  5,  6, 12
++.long  2, 11,  4, 15, 14,  3, 10,  8, 13,  6,  5,  7,  0, 12,  1,  9
++.long  4,  8, 15,  9, 14, 11, 13,  5,  3,  2,  1, 12,  6, 10,  7,  0
++.long  6, 13,  0, 14, 12,  2,  1, 11, 15,  4,  5,  8,  7,  9,  3, 10
++.long 15,  5,  4, 13, 10,  7,  3, 11, 12,  2,  0,  6,  9,  8,  1, 14
++.long  8,  7, 14, 11, 13, 15,  0, 12, 10,  4,  5,  6,  3,  2,  1,  9
 +#endif /* CONFIG_AS_AVX512 */
 +
 +.text
-+#ifdef CONFIG_AS_AVX
-+ENTRY(blake2s_compress_avx)
-+	movl		%ecx, %ecx
-+	testq		%rdx, %rdx
-+	je		.Lendofloop
++#ifdef CONFIG_AS_SSSE3
++ENTRY(blake2s_compress_ssse3)
++	testq %rdx, %rdx
++	je  .Lendofloop
++	movdqu (%rdi),%xmm0
++	movdqu 0x10(%rdi),%xmm1
++	movdqa ROT16(%rip),%xmm12
++	movdqa ROR328(%rip),%xmm13
++	movdqu 0x20(%rdi),%xmm14
++	movq   %rcx,%xmm15
++	leaq   SIGMA+0xa0(%rip),%r8
++	jmp .Lbeginofloop
 +	.align 32
 +.Lbeginofloop:
-+	addq		%rcx, 32(%rdi)
-+	vmovdqu		IV+16(%rip), %xmm1
-+	vmovdqu		(%rsi), %xmm4
-+	vpxor		32(%rdi), %xmm1, %xmm1
-+	vmovdqu		16(%rsi), %xmm3
-+	vshufps		$136, %xmm3, %xmm4, %xmm6
-+	vmovdqa		ROT16(%rip), %xmm7
-+	vpaddd		(%rdi), %xmm6, %xmm6
-+	vpaddd		16(%rdi), %xmm6, %xmm6
-+	vpxor		%xmm6, %xmm1, %xmm1
-+	vmovdqu		IV(%rip), %xmm8
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vmovdqu		48(%rsi), %xmm5
-+	vpaddd		%xmm1, %xmm8, %xmm8
-+	vpxor		16(%rdi), %xmm8, %xmm9
-+	vmovdqu		32(%rsi), %xmm2
-+	vpblendw	$12, %xmm3, %xmm5, %xmm13
-+	vshufps		$221, %xmm5, %xmm2, %xmm12
-+	vpunpckhqdq	%xmm2, %xmm4, %xmm14
-+	vpslld		$20, %xmm9, %xmm0
-+	vpsrld		$12, %xmm9, %xmm9
-+	vpxor		%xmm0, %xmm9, %xmm0
-+	vshufps		$221, %xmm3, %xmm4, %xmm9
-+	vpaddd		%xmm9, %xmm6, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vmovdqa		ROR328(%rip), %xmm6
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm8, %xmm8
-+	vpxor		%xmm8, %xmm0, %xmm0
-+	vpshufd		$147, %xmm1, %xmm1
-+	vpshufd		$78, %xmm8, %xmm8
-+	vpslld		$25, %xmm0, %xmm10
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm10, %xmm0, %xmm0
-+	vshufps		$136, %xmm5, %xmm2, %xmm10
-+	vpshufd		$57, %xmm0, %xmm0
-+	vpaddd		%xmm10, %xmm9, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpaddd		%xmm12, %xmm9, %xmm9
-+	vpblendw	$12, %xmm2, %xmm3, %xmm12
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm8, %xmm8
-+	vpxor		%xmm8, %xmm0, %xmm10
-+	vpslld		$20, %xmm10, %xmm0
-+	vpsrld		$12, %xmm10, %xmm10
-+	vpxor		%xmm0, %xmm10, %xmm0
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm8, %xmm8
-+	vpxor		%xmm8, %xmm0, %xmm0
-+	vpshufd		$57, %xmm1, %xmm1
-+	vpshufd		$78, %xmm8, %xmm8
-+	vpslld		$25, %xmm0, %xmm10
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm10, %xmm0, %xmm0
-+	vpslldq		$4, %xmm5, %xmm10
-+	vpblendw	$240, %xmm10, %xmm12, %xmm12
-+	vpshufd		$147, %xmm0, %xmm0
-+	vpshufd		$147, %xmm12, %xmm12
-+	vpaddd		%xmm9, %xmm12, %xmm12
-+	vpaddd		%xmm0, %xmm12, %xmm12
-+	vpxor		%xmm12, %xmm1, %xmm1
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm8, %xmm8
-+	vpxor		%xmm8, %xmm0, %xmm11
-+	vpslld		$20, %xmm11, %xmm9
-+	vpsrld		$12, %xmm11, %xmm11
-+	vpxor		%xmm9, %xmm11, %xmm0
-+	vpshufd		$8, %xmm2, %xmm9
-+	vpblendw	$192, %xmm5, %xmm3, %xmm11
-+	vpblendw	$240, %xmm11, %xmm9, %xmm9
-+	vpshufd		$177, %xmm9, %xmm9
-+	vpaddd		%xmm12, %xmm9, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm11
-+	vpxor		%xmm11, %xmm1, %xmm1
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm8, %xmm8
-+	vpxor		%xmm8, %xmm0, %xmm9
-+	vpshufd		$147, %xmm1, %xmm1
-+	vpshufd		$78, %xmm8, %xmm8
-+	vpslld		$25, %xmm9, %xmm0
-+	vpsrld		$7, %xmm9, %xmm9
-+	vpxor		%xmm0, %xmm9, %xmm0
-+	vpslldq		$4, %xmm3, %xmm9
-+	vpblendw	$48, %xmm9, %xmm2, %xmm9
-+	vpblendw	$240, %xmm9, %xmm4, %xmm9
-+	vpshufd		$57, %xmm0, %xmm0
-+	vpshufd		$177, %xmm9, %xmm9
-+	vpaddd		%xmm11, %xmm9, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm8, %xmm11
-+	vpxor		%xmm11, %xmm0, %xmm0
-+	vpslld		$20, %xmm0, %xmm8
-+	vpsrld		$12, %xmm0, %xmm0
-+	vpxor		%xmm8, %xmm0, %xmm0
-+	vpunpckhdq	%xmm3, %xmm4, %xmm8
-+	vpblendw	$12, %xmm10, %xmm8, %xmm12
-+	vpshufd		$177, %xmm12, %xmm12
-+	vpaddd		%xmm9, %xmm12, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm11, %xmm11
-+	vpxor		%xmm11, %xmm0, %xmm0
-+	vpshufd		$57, %xmm1, %xmm1
-+	vpshufd		$78, %xmm11, %xmm11
-+	vpslld		$25, %xmm0, %xmm12
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm12, %xmm0, %xmm0
-+	vpunpckhdq	%xmm5, %xmm2, %xmm12
-+	vpshufd		$147, %xmm0, %xmm0
-+	vpblendw	$15, %xmm13, %xmm12, %xmm12
-+	vpslldq		$8, %xmm5, %xmm13
-+	vpshufd		$210, %xmm12, %xmm12
-+	vpaddd		%xmm9, %xmm12, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm11, %xmm11
-+	vpxor		%xmm11, %xmm0, %xmm0
-+	vpslld		$20, %xmm0, %xmm12
-+	vpsrld		$12, %xmm0, %xmm0
-+	vpxor		%xmm12, %xmm0, %xmm0
-+	vpunpckldq	%xmm4, %xmm2, %xmm12
-+	vpblendw	$240, %xmm4, %xmm12, %xmm12
-+	vpblendw	$192, %xmm13, %xmm12, %xmm12
-+	vpsrldq		$12, %xmm3, %xmm13
-+	vpaddd		%xmm12, %xmm9, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm11, %xmm11
-+	vpxor		%xmm11, %xmm0, %xmm0
-+	vpshufd		$147, %xmm1, %xmm1
-+	vpshufd		$78, %xmm11, %xmm11
-+	vpslld		$25, %xmm0, %xmm12
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm12, %xmm0, %xmm0
-+	vpblendw	$60, %xmm2, %xmm4, %xmm12
-+	vpblendw	$3, %xmm13, %xmm12, %xmm12
-+	vpshufd		$57, %xmm0, %xmm0
-+	vpshufd		$78, %xmm12, %xmm12
-+	vpaddd		%xmm9, %xmm12, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm11, %xmm11
-+	vpxor		%xmm11, %xmm0, %xmm12
-+	vpslld		$20, %xmm12, %xmm13
-+	vpsrld		$12, %xmm12, %xmm0
-+	vpblendw	$51, %xmm3, %xmm4, %xmm12
-+	vpxor		%xmm13, %xmm0, %xmm0
-+	vpblendw	$192, %xmm10, %xmm12, %xmm10
-+	vpslldq		$8, %xmm2, %xmm12
-+	vpshufd		$27, %xmm10, %xmm10
-+	vpaddd		%xmm9, %xmm10, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm11, %xmm11
-+	vpxor		%xmm11, %xmm0, %xmm0
-+	vpshufd		$57, %xmm1, %xmm1
-+	vpshufd		$78, %xmm11, %xmm11
-+	vpslld		$25, %xmm0, %xmm10
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm10, %xmm0, %xmm0
-+	vpunpckhdq	%xmm2, %xmm8, %xmm10
-+	vpshufd		$147, %xmm0, %xmm0
-+	vpblendw	$12, %xmm5, %xmm10, %xmm10
-+	vpshufd		$210, %xmm10, %xmm10
-+	vpaddd		%xmm9, %xmm10, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm11, %xmm11
-+	vpxor		%xmm11, %xmm0, %xmm10
-+	vpslld		$20, %xmm10, %xmm0
-+	vpsrld		$12, %xmm10, %xmm10
-+	vpxor		%xmm0, %xmm10, %xmm0
-+	vpblendw	$12, %xmm4, %xmm5, %xmm10
-+	vpblendw	$192, %xmm12, %xmm10, %xmm10
-+	vpunpckldq	%xmm2, %xmm4, %xmm12
-+	vpshufd		$135, %xmm10, %xmm10
-+	vpaddd		%xmm9, %xmm10, %xmm9
-+	vpaddd		%xmm0, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm1, %xmm1
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm11, %xmm13
-+	vpxor		%xmm13, %xmm0, %xmm0
-+	vpshufd		$147, %xmm1, %xmm1
-+	vpshufd		$78, %xmm13, %xmm13
-+	vpslld		$25, %xmm0, %xmm10
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm10, %xmm0, %xmm0
-+	vpblendw	$15, %xmm3, %xmm4, %xmm10
-+	vpblendw	$192, %xmm5, %xmm10, %xmm10
-+	vpshufd		$57, %xmm0, %xmm0
-+	vpshufd		$198, %xmm10, %xmm10
-+	vpaddd		%xmm9, %xmm10, %xmm10
-+	vpaddd		%xmm0, %xmm10, %xmm10
-+	vpxor		%xmm10, %xmm1, %xmm1
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm0, %xmm9
-+	vpslld		$20, %xmm9, %xmm0
-+	vpsrld		$12, %xmm9, %xmm9
-+	vpxor		%xmm0, %xmm9, %xmm0
-+	vpunpckhdq	%xmm2, %xmm3, %xmm9
-+	vpunpcklqdq	%xmm12, %xmm9, %xmm15
-+	vpunpcklqdq	%xmm12, %xmm8, %xmm12
-+	vpblendw	$15, %xmm5, %xmm8, %xmm8
-+	vpaddd		%xmm15, %xmm10, %xmm15
-+	vpaddd		%xmm0, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm1, %xmm1
-+	vpshufd		$141, %xmm8, %xmm8
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm0, %xmm0
-+	vpshufd		$57, %xmm1, %xmm1
-+	vpshufd		$78, %xmm13, %xmm13
-+	vpslld		$25, %xmm0, %xmm10
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm10, %xmm0, %xmm0
-+	vpunpcklqdq	%xmm2, %xmm3, %xmm10
-+	vpshufd		$147, %xmm0, %xmm0
-+	vpblendw	$51, %xmm14, %xmm10, %xmm14
-+	vpshufd		$135, %xmm14, %xmm14
-+	vpaddd		%xmm15, %xmm14, %xmm14
-+	vpaddd		%xmm0, %xmm14, %xmm14
-+	vpxor		%xmm14, %xmm1, %xmm1
-+	vpunpcklqdq	%xmm3, %xmm4, %xmm15
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm0, %xmm0
-+	vpslld		$20, %xmm0, %xmm11
-+	vpsrld		$12, %xmm0, %xmm0
-+	vpxor		%xmm11, %xmm0, %xmm0
-+	vpunpckhqdq	%xmm5, %xmm3, %xmm11
-+	vpblendw	$51, %xmm15, %xmm11, %xmm11
-+	vpunpckhqdq	%xmm3, %xmm5, %xmm15
-+	vpaddd		%xmm11, %xmm14, %xmm11
-+	vpaddd		%xmm0, %xmm11, %xmm11
-+	vpxor		%xmm11, %xmm1, %xmm1
-+	vpshufb		%xmm6, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm0, %xmm0
-+	vpshufd		$147, %xmm1, %xmm1
-+	vpshufd		$78, %xmm13, %xmm13
-+	vpslld		$25, %xmm0, %xmm14
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm14, %xmm0, %xmm14
-+	vpunpckhqdq	%xmm4, %xmm2, %xmm0
-+	vpshufd		$57, %xmm14, %xmm14
-+	vpblendw	$51, %xmm15, %xmm0, %xmm15
-+	vpaddd		%xmm15, %xmm11, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm1, %xmm1
-+	vpshufb		%xmm7, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm14, %xmm14
-+	vpslld		$20, %xmm14, %xmm11
-+	vpsrld		$12, %xmm14, %xmm14
-+	vpxor		%xmm11, %xmm14, %xmm14
-+	vpblendw	$3, %xmm2, %xmm4, %xmm11
-+	vpslldq		$8, %xmm11, %xmm0
-+	vpblendw	$15, %xmm5, %xmm0, %xmm0
-+	vpshufd		$99, %xmm0, %xmm0
-+	vpaddd		%xmm15, %xmm0, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm1, %xmm0
-+	vpaddd		%xmm12, %xmm15, %xmm15
-+	vpshufb		%xmm6, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm14, %xmm14
-+	vpshufd		$57, %xmm0, %xmm0
-+	vpshufd		$78, %xmm13, %xmm13
-+	vpslld		$25, %xmm14, %xmm1
-+	vpsrld		$7, %xmm14, %xmm14
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpblendw	$3, %xmm5, %xmm4, %xmm1
-+	vpshufd		$147, %xmm14, %xmm14
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpshufb		%xmm7, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm14, %xmm14
-+	vpslld		$20, %xmm14, %xmm12
-+	vpsrld		$12, %xmm14, %xmm14
-+	vpxor		%xmm12, %xmm14, %xmm14
-+	vpsrldq		$4, %xmm2, %xmm12
-+	vpblendw	$60, %xmm12, %xmm1, %xmm1
-+	vpaddd		%xmm1, %xmm15, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpblendw	$12, %xmm4, %xmm3, %xmm1
-+	vpshufb		%xmm6, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm13, %xmm13
-+	vpxor		%xmm13, %xmm14, %xmm14
-+	vpshufd		$147, %xmm0, %xmm0
-+	vpshufd		$78, %xmm13, %xmm13
-+	vpslld		$25, %xmm14, %xmm12
-+	vpsrld		$7, %xmm14, %xmm14
-+	vpxor		%xmm12, %xmm14, %xmm14
-+	vpsrldq		$4, %xmm5, %xmm12
-+	vpblendw	$48, %xmm12, %xmm1, %xmm1
-+	vpshufd		$33, %xmm5, %xmm12
-+	vpshufd		$57, %xmm14, %xmm14
-+	vpshufd		$108, %xmm1, %xmm1
-+	vpblendw	$51, %xmm12, %xmm10, %xmm12
-+	vpaddd		%xmm15, %xmm1, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpaddd		%xmm12, %xmm15, %xmm15
-+	vpshufb		%xmm7, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm13, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpslld		$20, %xmm14, %xmm13
-+	vpsrld		$12, %xmm14, %xmm14
-+	vpxor		%xmm13, %xmm14, %xmm14
-+	vpslldq		$12, %xmm3, %xmm13
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpshufb		%xmm6, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpshufd		$57, %xmm0, %xmm0
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpslld		$25, %xmm14, %xmm12
-+	vpsrld		$7, %xmm14, %xmm14
-+	vpxor		%xmm12, %xmm14, %xmm14
-+	vpblendw	$51, %xmm5, %xmm4, %xmm12
-+	vpshufd		$147, %xmm14, %xmm14
-+	vpblendw	$192, %xmm13, %xmm12, %xmm12
-+	vpaddd		%xmm12, %xmm15, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpsrldq		$4, %xmm3, %xmm12
-+	vpshufb		%xmm7, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpslld		$20, %xmm14, %xmm13
-+	vpsrld		$12, %xmm14, %xmm14
-+	vpxor		%xmm13, %xmm14, %xmm14
-+	vpblendw	$48, %xmm2, %xmm5, %xmm13
-+	vpblendw	$3, %xmm12, %xmm13, %xmm13
-+	vpshufd		$156, %xmm13, %xmm13
-+	vpaddd		%xmm15, %xmm13, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpshufb		%xmm6, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpshufd		$147, %xmm0, %xmm0
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpslld		$25, %xmm14, %xmm13
-+	vpsrld		$7, %xmm14, %xmm14
-+	vpxor		%xmm13, %xmm14, %xmm14
-+	vpunpcklqdq	%xmm2, %xmm4, %xmm13
-+	vpshufd		$57, %xmm14, %xmm14
-+	vpblendw	$12, %xmm12, %xmm13, %xmm12
-+	vpshufd		$180, %xmm12, %xmm12
-+	vpaddd		%xmm15, %xmm12, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpshufb		%xmm7, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpslld		$20, %xmm14, %xmm12
-+	vpsrld		$12, %xmm14, %xmm14
-+	vpxor		%xmm12, %xmm14, %xmm14
-+	vpunpckhqdq	%xmm9, %xmm4, %xmm12
-+	vpshufd		$198, %xmm12, %xmm12
-+	vpaddd		%xmm15, %xmm12, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpaddd		%xmm15, %xmm8, %xmm15
-+	vpshufb		%xmm6, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpshufd		$57, %xmm0, %xmm0
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpslld		$25, %xmm14, %xmm12
-+	vpsrld		$7, %xmm14, %xmm14
-+	vpxor		%xmm12, %xmm14, %xmm14
-+	vpsrldq		$4, %xmm4, %xmm12
-+	vpshufd		$147, %xmm14, %xmm14
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm15, %xmm0, %xmm0
-+	vpshufb		%xmm7, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpslld		$20, %xmm14, %xmm8
-+	vpsrld		$12, %xmm14, %xmm14
-+	vpxor		%xmm14, %xmm8, %xmm14
-+	vpblendw	$48, %xmm5, %xmm2, %xmm8
-+	vpblendw	$3, %xmm12, %xmm8, %xmm8
-+	vpunpckhqdq	%xmm5, %xmm4, %xmm12
-+	vpshufd		$75, %xmm8, %xmm8
-+	vpblendw	$60, %xmm10, %xmm12, %xmm10
-+	vpaddd		%xmm15, %xmm8, %xmm15
-+	vpaddd		%xmm14, %xmm15, %xmm15
-+	vpxor		%xmm0, %xmm15, %xmm0
-+	vpshufd		$45, %xmm10, %xmm10
-+	vpshufb		%xmm6, %xmm0, %xmm0
-+	vpaddd		%xmm15, %xmm10, %xmm15
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm14, %xmm14
-+	vpshufd		$147, %xmm0, %xmm0
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpslld		$25, %xmm14, %xmm8
-+	vpsrld		$7, %xmm14, %xmm14
-+	vpxor		%xmm14, %xmm8, %xmm8
-+	vpshufd		$57, %xmm8, %xmm8
-+	vpaddd		%xmm8, %xmm15, %xmm15
-+	vpxor		%xmm0, %xmm15, %xmm0
-+	vpshufb		%xmm7, %xmm0, %xmm0
-+	vpaddd		%xmm0, %xmm1, %xmm1
-+	vpxor		%xmm8, %xmm1, %xmm8
-+	vpslld		$20, %xmm8, %xmm10
-+	vpsrld		$12, %xmm8, %xmm8
-+	vpxor		%xmm8, %xmm10, %xmm10
-+	vpunpckldq	%xmm3, %xmm4, %xmm8
-+	vpunpcklqdq	%xmm9, %xmm8, %xmm9
-+	vpaddd		%xmm9, %xmm15, %xmm9
-+	vpaddd		%xmm10, %xmm9, %xmm9
-+	vpxor		%xmm0, %xmm9, %xmm8
-+	vpshufb		%xmm6, %xmm8, %xmm8
-+	vpaddd		%xmm8, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm10, %xmm10
-+	vpshufd		$57, %xmm8, %xmm8
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpslld		$25, %xmm10, %xmm12
-+	vpsrld		$7, %xmm10, %xmm10
-+	vpxor		%xmm10, %xmm12, %xmm10
-+	vpblendw	$48, %xmm4, %xmm3, %xmm12
-+	vpshufd		$147, %xmm10, %xmm0
-+	vpunpckhdq	%xmm5, %xmm3, %xmm10
-+	vpshufd		$78, %xmm12, %xmm12
-+	vpunpcklqdq	%xmm4, %xmm10, %xmm10
-+	vpblendw	$192, %xmm2, %xmm10, %xmm10
-+	vpshufhw	$78, %xmm10, %xmm10
-+	vpaddd		%xmm10, %xmm9, %xmm10
-+	vpaddd		%xmm0, %xmm10, %xmm10
-+	vpxor		%xmm8, %xmm10, %xmm8
-+	vpshufb		%xmm7, %xmm8, %xmm8
-+	vpaddd		%xmm8, %xmm1, %xmm1
-+	vpxor		%xmm0, %xmm1, %xmm9
-+	vpslld		$20, %xmm9, %xmm0
-+	vpsrld		$12, %xmm9, %xmm9
-+	vpxor		%xmm9, %xmm0, %xmm0
-+	vpunpckhdq	%xmm5, %xmm4, %xmm9
-+	vpblendw	$240, %xmm9, %xmm2, %xmm13
-+	vpshufd		$39, %xmm13, %xmm13
-+	vpaddd		%xmm10, %xmm13, %xmm10
-+	vpaddd		%xmm0, %xmm10, %xmm10
-+	vpxor		%xmm8, %xmm10, %xmm8
-+	vpblendw	$12, %xmm4, %xmm2, %xmm13
-+	vpshufb		%xmm6, %xmm8, %xmm8
-+	vpslldq		$4, %xmm13, %xmm13
-+	vpblendw	$15, %xmm5, %xmm13, %xmm13
-+	vpaddd		%xmm8, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm0, %xmm0
-+	vpaddd		%xmm13, %xmm10, %xmm13
-+	vpshufd		$147, %xmm8, %xmm8
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpslld		$25, %xmm0, %xmm14
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm0, %xmm14, %xmm14
-+	vpshufd		$57, %xmm14, %xmm14
-+	vpaddd		%xmm14, %xmm13, %xmm13
-+	vpxor		%xmm8, %xmm13, %xmm8
-+	vpaddd		%xmm13, %xmm12, %xmm12
-+	vpshufb		%xmm7, %xmm8, %xmm8
-+	vpaddd		%xmm8, %xmm1, %xmm1
-+	vpxor		%xmm14, %xmm1, %xmm14
-+	vpslld		$20, %xmm14, %xmm10
-+	vpsrld		$12, %xmm14, %xmm14
-+	vpxor		%xmm14, %xmm10, %xmm10
-+	vpaddd		%xmm10, %xmm12, %xmm12
-+	vpxor		%xmm8, %xmm12, %xmm8
-+	vpshufb		%xmm6, %xmm8, %xmm8
-+	vpaddd		%xmm8, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm10, %xmm0
-+	vpshufd		$57, %xmm8, %xmm8
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpslld		$25, %xmm0, %xmm10
-+	vpsrld		$7, %xmm0, %xmm0
-+	vpxor		%xmm0, %xmm10, %xmm10
-+	vpblendw	$48, %xmm2, %xmm3, %xmm0
-+	vpblendw	$15, %xmm11, %xmm0, %xmm0
-+	vpshufd		$147, %xmm10, %xmm10
-+	vpshufd		$114, %xmm0, %xmm0
-+	vpaddd		%xmm12, %xmm0, %xmm0
-+	vpaddd		%xmm10, %xmm0, %xmm0
-+	vpxor		%xmm8, %xmm0, %xmm8
-+	vpshufb		%xmm7, %xmm8, %xmm8
-+	vpaddd		%xmm8, %xmm1, %xmm1
-+	vpxor		%xmm10, %xmm1, %xmm10
-+	vpslld		$20, %xmm10, %xmm11
-+	vpsrld		$12, %xmm10, %xmm10
-+	vpxor		%xmm10, %xmm11, %xmm10
-+	vpslldq		$4, %xmm4, %xmm11
-+	vpblendw	$192, %xmm11, %xmm3, %xmm3
-+	vpunpckldq	%xmm5, %xmm4, %xmm4
-+	vpshufd		$99, %xmm3, %xmm3
-+	vpaddd		%xmm0, %xmm3, %xmm3
-+	vpaddd		%xmm10, %xmm3, %xmm3
-+	vpxor		%xmm8, %xmm3, %xmm11
-+	vpunpckldq	%xmm5, %xmm2, %xmm0
-+	vpblendw	$192, %xmm2, %xmm5, %xmm2
-+	vpshufb		%xmm6, %xmm11, %xmm11
-+	vpunpckhqdq	%xmm0, %xmm9, %xmm0
-+	vpblendw	$15, %xmm4, %xmm2, %xmm4
-+	vpaddd		%xmm11, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm10, %xmm10
-+	vpshufd		$147, %xmm11, %xmm11
-+	vpshufd		$201, %xmm0, %xmm0
-+	vpslld		$25, %xmm10, %xmm8
-+	vpsrld		$7, %xmm10, %xmm10
-+	vpxor		%xmm10, %xmm8, %xmm10
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpaddd		%xmm3, %xmm0, %xmm0
-+	vpshufd		$27, %xmm4, %xmm4
-+	vpshufd		$57, %xmm10, %xmm10
-+	vpaddd		%xmm10, %xmm0, %xmm0
-+	vpxor		%xmm11, %xmm0, %xmm11
-+	vpaddd		%xmm0, %xmm4, %xmm0
-+	vpshufb		%xmm7, %xmm11, %xmm7
-+	vpaddd		%xmm7, %xmm1, %xmm1
-+	vpxor		%xmm10, %xmm1, %xmm10
-+	vpslld		$20, %xmm10, %xmm8
-+	vpsrld		$12, %xmm10, %xmm10
-+	vpxor		%xmm10, %xmm8, %xmm8
-+	vpaddd		%xmm8, %xmm0, %xmm0
-+	vpxor		%xmm7, %xmm0, %xmm7
-+	vpshufb		%xmm6, %xmm7, %xmm6
-+	vpaddd		%xmm6, %xmm1, %xmm1
-+	vpxor		%xmm1, %xmm8, %xmm8
-+	vpshufd		$78, %xmm1, %xmm1
-+	vpshufd		$57, %xmm6, %xmm6
-+	vpslld		$25, %xmm8, %xmm2
-+	vpsrld		$7, %xmm8, %xmm8
-+	vpxor		%xmm8, %xmm2, %xmm8
-+	vpxor		(%rdi), %xmm1, %xmm1
-+	vpshufd		$147, %xmm8, %xmm8
-+	vpxor		%xmm0, %xmm1, %xmm0
-+	vmovups		%xmm0, (%rdi)
-+	vpxor		16(%rdi), %xmm8, %xmm0
-+	vpxor		%xmm6, %xmm0, %xmm6
-+	vmovups		%xmm6, 16(%rdi)
-+	addq		$64, %rsi
-+	decq		%rdx
-+	jnz .Lbeginofloop
++	movdqa %xmm0,%xmm10
++	movdqa %xmm1,%xmm11
++	paddq  %xmm15,%xmm14
++	movdqa IV(%rip),%xmm2
++	movdqa %xmm14,%xmm3
++	pxor   IV+0x10(%rip),%xmm3
++	leaq   SIGMA(%rip),%rcx
++.Lroundloop:
++	movzbl (%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm4
++	movzbl 0x1(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm5
++	movzbl 0x2(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm6
++	movzbl 0x3(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm7
++	punpckldq %xmm5,%xmm4
++	punpckldq %xmm7,%xmm6
++	punpcklqdq %xmm6,%xmm4
++	paddd  %xmm4,%xmm0
++	paddd  %xmm1,%xmm0
++	pxor   %xmm0,%xmm3
++	pshufb %xmm12,%xmm3
++	paddd  %xmm3,%xmm2
++	pxor   %xmm2,%xmm1
++	movdqa %xmm1,%xmm8
++	psrld  $0xc,%xmm1
++	pslld  $0x14,%xmm8
++	por    %xmm8,%xmm1
++	movzbl 0x4(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm5
++	movzbl 0x5(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm6
++	movzbl 0x6(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm7
++	movzbl 0x7(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm4
++	punpckldq %xmm6,%xmm5
++	punpckldq %xmm4,%xmm7
++	punpcklqdq %xmm7,%xmm5
++	paddd  %xmm5,%xmm0
++	paddd  %xmm1,%xmm0
++	pxor   %xmm0,%xmm3
++	pshufb %xmm13,%xmm3
++	paddd  %xmm3,%xmm2
++	pxor   %xmm2,%xmm1
++	movdqa %xmm1,%xmm8
++	psrld  $0x7,%xmm1
++	pslld  $0x19,%xmm8
++	por    %xmm8,%xmm1
++	pshufd $0x93,%xmm0,%xmm0
++	pshufd $0x4e,%xmm3,%xmm3
++	pshufd $0x39,%xmm2,%xmm2
++	movzbl 0x8(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm6
++	movzbl 0x9(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm7
++	movzbl 0xa(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm4
++	movzbl 0xb(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm5
++	punpckldq %xmm7,%xmm6
++	punpckldq %xmm5,%xmm4
++	punpcklqdq %xmm4,%xmm6
++	paddd  %xmm6,%xmm0
++	paddd  %xmm1,%xmm0
++	pxor   %xmm0,%xmm3
++	pshufb %xmm12,%xmm3
++	paddd  %xmm3,%xmm2
++	pxor   %xmm2,%xmm1
++	movdqa %xmm1,%xmm8
++	psrld  $0xc,%xmm1
++	pslld  $0x14,%xmm8
++	por    %xmm8,%xmm1
++	movzbl 0xc(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm7
++	movzbl 0xd(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm4
++	movzbl 0xe(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm5
++	movzbl 0xf(%rcx),%eax
++	movd   (%rsi,%rax,4),%xmm6
++	punpckldq %xmm4,%xmm7
++	punpckldq %xmm6,%xmm5
++	punpcklqdq %xmm5,%xmm7
++	paddd  %xmm7,%xmm0
++	paddd  %xmm1,%xmm0
++	pxor   %xmm0,%xmm3
++	pshufb %xmm13,%xmm3
++	paddd  %xmm3,%xmm2
++	pxor   %xmm2,%xmm1
++	movdqa %xmm1,%xmm8
++	psrld  $0x7,%xmm1
++	pslld  $0x19,%xmm8
++	por    %xmm8,%xmm1
++	pshufd $0x39,%xmm0,%xmm0
++	pshufd $0x4e,%xmm3,%xmm3
++	pshufd $0x93,%xmm2,%xmm2
++	addq   $0x10,%rcx
++	cmpq   %r8,%rcx
++	jnz    .Lroundloop
++	pxor   %xmm2,%xmm0
++	pxor   %xmm3,%xmm1
++	pxor   %xmm10,%xmm0
++	pxor   %xmm11,%xmm1
++	addq   $0x40,%rsi
++	decq   %rdx
++	jnz    .Lbeginofloop
++	movdqu %xmm0,(%rdi)
++	movdqu %xmm1,0x10(%rdi)
++	movdqu %xmm14,0x20(%rdi)
 +.Lendofloop:
 +	ret
-+ENDPROC(blake2s_compress_avx)
-+#endif /* CONFIG_AS_AVX */
++ENDPROC(blake2s_compress_ssse3)
++#endif /* CONFIG_AS_SSSE3 */
 +
 +#ifdef CONFIG_AS_AVX512
 +ENTRY(blake2s_compress_avx512)
@@ -6080,7 +5662,7 @@ index 000000000000..675288fa4cca
 +	vmovdqu		(%rsi),%ymm6
 +	vmovdqu		0x20(%rsi),%ymm7
 +	addq		$0x40,%rsi
-+	leaq		SIGMA(%rip),%rax
++	leaq		SIGMA2(%rip),%rax
 +	movb		$0xa,%cl
 +.Lblake2s_compress_avx512_roundloop:
 +	addq		$0x40,%rax
@@ -6105,9 +5687,9 @@ index 000000000000..675288fa4cca
 +	vpaddd		%xmm3,%xmm2,%xmm2
 +	vpxor		%xmm2,%xmm1,%xmm1
 +	vprord		$0x7,%xmm1,%xmm1
-+	vpshufd		$0x39,%xmm1,%xmm1
-+	vpshufd		$0x4e,%xmm2,%xmm2
-+	vpshufd		$0x93,%xmm3,%xmm3
++	vpshufd		$0x93,%xmm0,%xmm0
++	vpshufd		$0x4e,%xmm3,%xmm3
++	vpshufd		$0x39,%xmm2,%xmm2
 +	vpaddd		%xmm9,%xmm0,%xmm0
 +	vpaddd		%xmm1,%xmm0,%xmm0
 +	vpxor		%xmm0,%xmm3,%xmm3
@@ -6123,9 +5705,9 @@ index 000000000000..675288fa4cca
 +	vpaddd		%xmm3,%xmm2,%xmm2
 +	vpxor		%xmm2,%xmm1,%xmm1
 +	vprord		$0x7,%xmm1,%xmm1
-+	vpshufd		$0x93,%xmm1,%xmm1
-+	vpshufd		$0x4e,%xmm2,%xmm2
-+	vpshufd		$0x39,%xmm3,%xmm3
++	vpshufd		$0x39,%xmm0,%xmm0
++	vpshufd		$0x4e,%xmm3,%xmm3
++	vpshufd		$0x93,%xmm2,%xmm2
 +	decb		%cl
 +	jne		.Lblake2s_compress_avx512_roundloop
 +	vpxor		%xmm10,%xmm0,%xmm0
@@ -6529,7 +6111,7 @@ index 000000000000..41e2e79abb2b
 +}
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm.pl b/net/wireguard/crypto/zinc/chacha20/chacha20-arm.pl
 new file mode 100644
-index 000000000000..6a7d62cfd2ae
+index 000000000000..6785383ab7bb
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm.pl
 @@ -0,0 +1,1227 @@
@@ -7221,9 +6803,9 @@ index 000000000000..6a7d62cfd2ae
 +	"&vshr_u32	($b,$t,25)",
 +	"&vsli_32	($b,$t,7)",
 +
-+	"&vext_8	($c,$c,$c,8)",
-+	"&vext_8	($b,$b,$b,$odd?12:4)",
-+	"&vext_8	($d,$d,$d,$odd?4:12)"
++	"&vext_8	($a,$a,$a,$odd?4:12)",
++	"&vext_8	($d,$d,$d,8)",
++	"&vext_8	($c,$c,$c,$odd?12:4)"
 +	);
 +}
 +
@@ -7762,7 +7344,7 @@ index 000000000000..6a7d62cfd2ae
 +close STDOUT;
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.pl b/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.pl
 new file mode 100644
-index 000000000000..fc63cc818eca
+index 000000000000..ac14a9924165
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.pl
 @@ -0,0 +1,1163 @@
@@ -8146,9 +7728,9 @@ index 000000000000..fc63cc818eca
 +	"&ushr		('$b','$t',25)",
 +	"&sli		('$b','$t',7)",
 +
-+	"&ext		('$c','$c','$c',8)",
-+	"&ext		('$d','$d','$d',$odd?4:12)",
-+	"&ext		('$b','$b','$b',$odd?12:4)"
++	"&ext		('$a','$a','$a',$odd?4:12)",
++	"&ext		('$d','$d','$d',8)",
++	"&ext		('$c','$c','$c',$odd?12:4)"
 +	);
 +}
 +
@@ -9972,14 +9554,14 @@ index 000000000000..5ac5f686a641
 +}
 diff --git a/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl
 new file mode 100644
-index 000000000000..38532f87a754
+index 000000000000..cec75729bf69
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/chacha20/chacha20-x86_64.pl
 @@ -0,0 +1,4106 @@
 +#!/usr/bin/env perl
 +# SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +#
-+# Copyright (C) 2017-2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
++# Copyright (C) 2017-2019 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
 +# Copyright (C) 2017-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 +# Copyright (C) 2006-2017 CRYPTOGAMS by <appro@openssl.org>. All Rights Reserved.
 +#
@@ -10503,15 +10085,15 @@ index 000000000000..38532f87a754
 +1:
 +___
 +	&SSSE3ROUND();
-+	&pshufd	($c,$c,0b01001110);
-+	&pshufd	($b,$b,0b00111001);
-+	&pshufd	($d,$d,0b10010011);
++	&pshufd	($a,$a,0b10010011);
++	&pshufd	($d,$d,0b01001110);
++	&pshufd	($c,$c,0b00111001);
 +	&nop	();
 +
 +	&SSSE3ROUND();
-+	&pshufd	($c,$c,0b01001110);
-+	&pshufd	($b,$b,0b10010011);
-+	&pshufd	($d,$d,0b00111001);
++	&pshufd	($a,$a,0b00111001);
++	&pshufd	($d,$d,0b01001110);
++	&pshufd	($c,$c,0b10010011);
 +
 +	&dec	($counter);
 +	&jnz	("1b");
@@ -10578,15 +10160,15 @@ index 000000000000..38532f87a754
 +.Loop_ssse3:
 +___
 +	&SSSE3ROUND();
-+	&pshufd	($c,$c,0b01001110);
-+	&pshufd	($b,$b,0b00111001);
-+	&pshufd	($d,$d,0b10010011);
++	&pshufd	($a,$a,0b10010011);
++	&pshufd	($d,$d,0b01001110);
++	&pshufd	($c,$c,0b00111001);
 +	&nop	();
 +
 +	&SSSE3ROUND();
-+	&pshufd	($c,$c,0b01001110);
-+	&pshufd	($b,$b,0b10010011);
-+	&pshufd	($d,$d,0b00111001);
++	&pshufd	($a,$a,0b00111001);
++	&pshufd	($d,$d,0b01001110);
++	&pshufd	($c,$c,0b10010011);
 +
 +	&dec	($counter);
 +	&jnz	(".Loop_ssse3");
@@ -10748,20 +10330,20 @@ index 000000000000..38532f87a754
 +.Loop_128:
 +___
 +	&SSSE3ROUND_2x();
-+	&pshufd	($c,$c,0b01001110);
-+	&pshufd	($b,$b,0b00111001);
-+	&pshufd	($d,$d,0b10010011);
-+	&pshufd	($c1,$c1,0b01001110);
-+	&pshufd	($b1,$b1,0b00111001);
-+	&pshufd	($d1,$d1,0b10010011);
++	&pshufd	($a,$a,0b10010011);
++	&pshufd	($d,$d,0b01001110);
++	&pshufd	($c,$c,0b00111001);
++	&pshufd	($a1,$a1,0b10010011);
++	&pshufd	($d1,$d1,0b01001110);
++	&pshufd	($c1,$c1,0b00111001);
 +
 +	&SSSE3ROUND_2x();
-+	&pshufd	($c,$c,0b01001110);
-+	&pshufd	($b,$b,0b10010011);
-+	&pshufd	($d,$d,0b00111001);
-+	&pshufd	($c1,$c1,0b01001110);
-+	&pshufd	($b1,$b1,0b10010011);
-+	&pshufd	($d1,$d1,0b00111001);
++	&pshufd	($a,$a,0b00111001);
++	&pshufd	($d,$d,0b01001110);
++	&pshufd	($c,$c,0b10010011);
++	&pshufd	($a1,$a1,0b00111001);
++	&pshufd	($d1,$d1,0b01001110);
++	&pshufd	($c1,$c1,0b10010011);
 +
 +	&dec	($counter);
 +	&jnz	(".Loop_128");
@@ -18428,10 +18010,10 @@ index 000000000000..0f729ec74ece
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64-glue.c b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64-glue.c
 new file mode 100644
-index 000000000000..19c86c6c3955
+index 000000000000..d62bd37b007f
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64-glue.c
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,50 @@
 +// SPDX-License-Identifier: GPL-2.0 OR MIT
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -18449,8 +18031,10 @@ index 000000000000..19c86c6c3955
 +
 +static void __init curve25519_fpu_init(void)
 +{
-+	curve25519_use_bmi2 = boot_cpu_has(X86_FEATURE_BMI2);
-+	curve25519_use_adx = boot_cpu_has(X86_FEATURE_BMI2) &&
++	curve25519_use_bmi2 = IS_ENABLED(CONFIG_AS_BMI2) &&
++			      boot_cpu_has(X86_FEATURE_BMI2);
++	curve25519_use_adx = IS_ENABLED(CONFIG_AS_ADX) &&
++			     boot_cpu_has(X86_FEATURE_BMI2) &&
 +			     boot_cpu_has(X86_FEATURE_ADX);
 +}
 +
@@ -18458,10 +18042,10 @@ index 000000000000..19c86c6c3955
 +				   const u8 secret[CURVE25519_KEY_SIZE],
 +				   const u8 basepoint[CURVE25519_KEY_SIZE])
 +{
-+	if (curve25519_use_adx) {
++	if (IS_ENABLED(CONFIG_AS_ADX) && curve25519_use_adx) {
 +		curve25519_adx(mypublic, secret, basepoint);
 +		return true;
-+	} else if (curve25519_use_bmi2) {
++	} else if (IS_ENABLED(CONFIG_AS_BMI2) && curve25519_use_bmi2) {
 +		curve25519_bmi2(mypublic, secret, basepoint);
 +		return true;
 +	}
@@ -18471,10 +18055,10 @@ index 000000000000..19c86c6c3955
 +static inline bool curve25519_base_arch(u8 pub[CURVE25519_KEY_SIZE],
 +					const u8 secret[CURVE25519_KEY_SIZE])
 +{
-+	if (curve25519_use_adx) {
++	if (IS_ENABLED(CONFIG_AS_ADX) && curve25519_use_adx) {
 +		curve25519_adx_base(pub, secret);
 +		return true;
-+	} else if (curve25519_use_bmi2) {
++	} else if (IS_ENABLED(CONFIG_AS_BMI2) && curve25519_use_bmi2) {
 +		curve25519_bmi2_base(pub, secret);
 +		return true;
 +	}
@@ -18482,10 +18066,10 @@ index 000000000000..19c86c6c3955
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
 new file mode 100644
-index 000000000000..3d1806f9c9f7
+index 000000000000..e8af3e2e30f8
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/curve25519/curve25519-x86_64.c
-@@ -0,0 +1,2326 @@
+@@ -0,0 +1,2366 @@
 +// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 +/*
 + * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>. All Rights Reserved.
@@ -19070,6 +18654,7 @@ index 000000000000..3d1806f9c9f7
 +		  0x980697f95e2937e3UL, 0x02fbba1cd0126e8cUL
 +};
 +
++#ifdef CONFIG_AS_ADX
 +/* c is two 512-bit products: c0[0:7]=a0[0:3]*b0[0:3] and c1[8:15]=a1[4:7]*b1[4:7]
 + * a is two 256-bit integers: a0[0:3] and a1[4:7]
 + * b is two 256-bit integers: b0[0:3] and b1[4:7]
@@ -19224,7 +18809,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9",
 +		  "%r10", "%r11", "%r13", "%r14", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static void mul2_256x256_integer_bmi2(u64 *const c, const u64 *const a,
 +				      const u64 *const b)
 +{
@@ -19373,7 +18960,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9",
 +		  "%r10", "%r11", "%r13", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_ADX
 +static void sqr2_256x256_integer_adx(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -19498,7 +19087,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9",
 +		  "%r10", "%r11", "%r13", "%r14", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static void sqr2_256x256_integer_bmi2(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -19624,7 +19215,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10",
 +		  "%r11", "%r13", "%r14", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_ADX
 +static void red_eltfp25519_2w_adx(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -19689,7 +19282,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9",
 +		  "%r10", "%r11");
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static void red_eltfp25519_2w_bmi2(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -19752,7 +19347,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10",
 +		  "%r11");
 +}
++#endif
 +
++#ifdef CONFIG_AS_ADX
 +static void mul_256x256_integer_adx(u64 *const c, const u64 *const a,
 +				    const u64 *const b)
 +{
@@ -19842,7 +19439,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rdx", "%r8", "%r9", "%r10", "%r11",
 +		  "%r13", "%r14", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static void mul_256x256_integer_bmi2(u64 *const c, const u64 *const a,
 +				     const u64 *const b)
 +{
@@ -19921,7 +19520,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9",
 +		  "%r10", "%r11", "%r13", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_ADX
 +static void sqr_256x256_integer_adx(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -19987,7 +19588,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9",
 +		  "%r10", "%r11", "%r13", "%r14", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static void sqr_256x256_integer_bmi2(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -20054,7 +19657,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10",
 +		  "%r11", "%r13", "%r14", "%r15");
 +}
++#endif
 +
++#ifdef CONFIG_AS_ADX
 +static void red_eltfp25519_1w_adx(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -20091,7 +19696,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9",
 +		  "%r10", "%r11");
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static void red_eltfp25519_1w_bmi2(u64 *const c, const u64 *const a)
 +{
 +	asm volatile(
@@ -20127,7 +19734,9 @@ index 000000000000..3d1806f9c9f7
 +		: "memory", "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10",
 +		  "%r11");
 +}
++#endif
 +
++#ifdef CONFIG_AS_ADX
 +static __always_inline void
 +add_eltfp25519_1w_adx(u64 *const c, const u64 *const a, const u64 *const b)
 +{
@@ -20159,7 +19768,9 @@ index 000000000000..3d1806f9c9f7
 +		: "r"(c), "r"(a), "r"(b)
 +		: "memory", "cc", "%rax", "%rcx", "%r8", "%r9", "%r10", "%r11");
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static __always_inline void
 +add_eltfp25519_1w_bmi2(u64 *const c, const u64 *const a, const u64 *const b)
 +{
@@ -20190,6 +19801,7 @@ index 000000000000..3d1806f9c9f7
 +		: "r"(c), "r"(a), "r"(b)
 +		: "memory", "cc", "%rax", "%rcx", "%r8", "%r9", "%r10", "%r11");
 +}
++#endif
 +
 +static __always_inline void
 +sub_eltfp25519_1w(u64 *const c, const u64 *const a, const u64 *const b)
@@ -20257,6 +19869,7 @@ index 000000000000..3d1806f9c9f7
 +		  "%r11");
 +}
 +
++#ifdef CONFIG_AS_ADX
 +static void inv_eltfp25519_1w_adx(u64 *const c, const u64 *const a)
 +{
 +	struct {
@@ -20303,7 +19916,9 @@ index 000000000000..3d1806f9c9f7
 +
 +	memzero_explicit(&m, sizeof(m));
 +}
++#endif
 +
++#ifdef CONFIG_AS_BMI2
 +static void inv_eltfp25519_1w_bmi2(u64 *const c, const u64 *const a)
 +{
 +	struct {
@@ -20350,6 +19965,7 @@ index 000000000000..3d1806f9c9f7
 +
 +	memzero_explicit(&m, sizeof(m));
 +}
++#endif
 +
 +/* Given c, a 256-bit number, fred_eltfp25519_1w updates c
 + * with a number such that 0 <= C < 2**255-19.
@@ -20427,6 +20043,7 @@ index 000000000000..3d1806f9c9f7
 +			   const u8 private_key[CURVE25519_KEY_SIZE],
 +			   const u8 session_key[CURVE25519_KEY_SIZE])
 +{
++#ifdef CONFIG_AS_ADX
 +	struct {
 +		u64 buffer[4 * NUM_WORDS_ELTFP25519];
 +		u64 coordinates[4 * NUM_WORDS_ELTFP25519];
@@ -20522,11 +20139,13 @@ index 000000000000..3d1806f9c9f7
 +	fred_eltfp25519_1w((u64 *)shared);
 +
 +	memzero_explicit(&m, sizeof(m));
++#endif
 +}
 +
 +static void curve25519_adx_base(u8 session_key[CURVE25519_KEY_SIZE],
 +				const u8 private_key[CURVE25519_KEY_SIZE])
 +{
++#ifdef CONFIG_AS_ADX
 +	struct {
 +		u64 buffer[4 * NUM_WORDS_ELTFP25519];
 +		u64 coordinates[4 * NUM_WORDS_ELTFP25519];
@@ -20616,12 +20235,14 @@ index 000000000000..3d1806f9c9f7
 +	fred_eltfp25519_1w((u64 *)session_key);
 +
 +	memzero_explicit(&m, sizeof(m));
++#endif
 +}
 +
 +static void curve25519_bmi2(u8 shared[CURVE25519_KEY_SIZE],
 +			    const u8 private_key[CURVE25519_KEY_SIZE],
 +			    const u8 session_key[CURVE25519_KEY_SIZE])
 +{
++#ifdef CONFIG_AS_BMI2
 +	struct {
 +		u64 buffer[4 * NUM_WORDS_ELTFP25519];
 +		u64 coordinates[4 * NUM_WORDS_ELTFP25519];
@@ -20717,11 +20338,13 @@ index 000000000000..3d1806f9c9f7
 +	fred_eltfp25519_1w((u64 *)shared);
 +
 +	memzero_explicit(&m, sizeof(m));
++#endif
 +}
 +
 +static void curve25519_bmi2_base(u8 session_key[CURVE25519_KEY_SIZE],
 +				 const u8 private_key[CURVE25519_KEY_SIZE])
 +{
++#ifdef CONFIG_AS_BMI2
 +	struct {
 +		u64 buffer[4 * NUM_WORDS_ELTFP25519];
 +		u64 coordinates[4 * NUM_WORDS_ELTFP25519];
@@ -20811,6 +20434,7 @@ index 000000000000..3d1806f9c9f7
 +	fred_eltfp25519_1w((u64 *)session_key);
 +
 +	memzero_explicit(&m, sizeof(m));
++#endif
 +}
 diff --git a/net/wireguard/crypto/zinc/curve25519/curve25519.c b/net/wireguard/crypto/zinc/curve25519/curve25519.c
 new file mode 100644
@@ -52188,11 +51812,11 @@ index 000000000000..912f2167a202
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..27261565bc00
+index 000000000000..8ec1423ef2ef
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20190406"
++#define WIREGUARD_VERSION "0.0.20190601"
 -- 
 2.20.1
 
