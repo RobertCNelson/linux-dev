@@ -1,6 +1,6 @@
-From 1c33724bde9ced68572255f81f34a102bd374792 Mon Sep 17 00:00:00 2001
+From c2583ff6ed9ce9950f432a3d0b7fc93f16471593 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Wed, 22 May 2019 14:59:22 -0500
+Date: Sat, 15 Jun 2019 19:42:33 -0500
 Subject: [PATCH 3/5] merge: aufs-mmap
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -21,7 +21,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 mm/prfile.c
 
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 6a803a0b75df..a51f41a1b4dd 100644
+index 0c9bef89ac43..051579cf1e49 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
 @@ -2019,7 +2019,7 @@ static int map_files_get_link(struct dentry *dentry, struct path *path)
@@ -183,7 +183,7 @@ index d78f577baef2..7dcd21948a79 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/mmap.c b/mm/mmap.c
-index bd7b9f293b39..f3fd32a1df36 100644
+index 2d6a6662edb9..fb68b16fc342 100644
 --- a/mm/mmap.c
 +++ b/mm/mmap.c
 @@ -181,7 +181,7 @@ static struct vm_area_struct *remove_vma(struct vm_area_struct *vma)
@@ -232,7 +232,7 @@ index bd7b9f293b39..f3fd32a1df36 100644
  	unlink_anon_vmas(new);
   out_free_mpol:
  	mpol_put(vma_policy(new));
-@@ -2888,7 +2888,7 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
+@@ -2889,7 +2889,7 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
  	struct vm_area_struct *vma;
  	unsigned long populate = 0;
  	unsigned long ret = -EINVAL;
@@ -241,7 +241,7 @@ index bd7b9f293b39..f3fd32a1df36 100644
  
  	pr_warn_once("%s (%d) uses deprecated remap_file_pages() syscall. See Documentation/vm/remap_file_pages.rst.\n",
  		     current->comm, current->pid);
-@@ -2963,10 +2963,27 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
+@@ -2964,10 +2964,27 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
  		}
  	}
  
@@ -270,7 +270,7 @@ index bd7b9f293b39..f3fd32a1df36 100644
  out:
  	up_write(&mm->mmap_sem);
  	if (populate)
-@@ -3256,7 +3273,7 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
+@@ -3257,7 +3274,7 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
  		if (anon_vma_clone(new_vma, vma))
  			goto out_free_mempol;
  		if (new_vma->vm_file)
