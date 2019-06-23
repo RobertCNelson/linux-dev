@@ -1,6 +1,6 @@
-From 6fd5f03cba5836c26ac5606178d04110615eb53d Mon Sep 17 00:00:00 2001
+From 9abc042bb3819eceed9234c08251c97312949953 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 16 Jun 2019 15:23:59 -0500
+Date: Sun, 23 Jun 2019 11:47:04 -0500
 Subject: [PATCH] Add BeagleBoard.org DTBS: v5.2.x
 
 https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.2.x
@@ -3558,10 +3558,10 @@ index 000000000000..037683957292
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
-index 42cfc3b37c32..fc7b10bc7154 100644
+index 89b4cf2cb7f8..914f23be9bcf 100644
 --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-@@ -29,14 +29,14 @@
+@@ -26,14 +26,14 @@
  		compatible = "gpio-leds";
  
  		led2 {
@@ -3578,7 +3578,7 @@ index 42cfc3b37c32..fc7b10bc7154 100644
  			gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
  			linux,default-trigger = "mmc0";
  			default-state = "off";
-@@ -66,9 +66,6 @@
+@@ -63,9 +63,6 @@
  };
  
  &am33xx_pinmux {
@@ -3588,7 +3588,7 @@ index 42cfc3b37c32..fc7b10bc7154 100644
  	user_leds_s0: user_leds_s0 {
  		pinctrl-single,pins = <
  			AM33XX_PADCONF(AM335X_PIN_GPMC_A5, PIN_OUTPUT_PULLDOWN, MUX_MODE7)	/* gpmc_a5.gpio1_21 */
-@@ -99,12 +96,6 @@
+@@ -96,12 +93,6 @@
  		>;
  	};
  
@@ -3601,7 +3601,7 @@ index 42cfc3b37c32..fc7b10bc7154 100644
  	cpsw_default: cpsw_default {
  		pinctrl-single,pins = <
  			/* Slave 1 */
-@@ -421,4 +412,5 @@
+@@ -418,4 +409,5 @@
  &rtc {
  	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
  	clock-names = "ext-clk", "int-clk";
@@ -3667,10 +3667,10 @@ index 000000000000..24cc6956ac7c
 +	vmmc-supply = <&ldo3_reg>;
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 6b8493720424..3688fff0a5f0 100644
+index 43bfbce41049..ef128ba5e8d6 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
-@@ -9,6 +9,7 @@
+@@ -6,6 +6,7 @@
  
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
@@ -3679,10 +3679,10 @@ index 6b8493720424..3688fff0a5f0 100644
  / {
  	model = "TI AM335x BeagleBone";
 diff --git a/arch/arm/boot/dts/am335x-boneblack-common.dtsi b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
-index 283e288b6e42..b50037e0a84a 100644
+index 7ad079861efd..40e88b1c2d5f 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-common.dtsi
 +++ b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
-@@ -30,7 +30,6 @@
+@@ -27,7 +27,6 @@
  &am33xx_pinmux {
  	nxp_hdmi_bonelt_pins: nxp_hdmi_bonelt_pins {
  		pinctrl-single,pins = <
@@ -3690,7 +3690,7 @@ index 283e288b6e42..b50037e0a84a 100644
  			AM33XX_PADCONF(AM335X_PIN_LCD_DATA0, PIN_OUTPUT, MUX_MODE0)
  			AM33XX_PADCONF(AM335X_PIN_LCD_DATA1, PIN_OUTPUT, MUX_MODE0)
  			AM33XX_PADCONF(AM335X_PIN_LCD_DATA2, PIN_OUTPUT, MUX_MODE0)
-@@ -54,12 +53,6 @@
+@@ -51,12 +50,6 @@
  		>;
  	};
  
@@ -3703,7 +3703,7 @@ index 283e288b6e42..b50037e0a84a 100644
  	mcasp0_pins: mcasp0_pins {
  		pinctrl-single,pins = <
  			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKX, PIN_INPUT_PULLUP, MUX_MODE0) /* mcasp0_ahcklx.mcasp0_ahclkx */
-@@ -95,9 +88,8 @@
+@@ -92,9 +85,8 @@
  		nxp,calib-gpios = <&gpio1 25 0>;
  		interrupts-extended = <&gpio1 25 IRQ_TYPE_LEVEL_LOW>;
  
@@ -3802,10 +3802,10 @@ index 000000000000..738fa396855b
 +	vmmc-supply = <&vmmcsd_fixed>;
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-wireless.dts b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
-index 5b275c96fccf..de0bf5c729a2 100644
+index 3124d94c0b3c..6ecafaaf7966 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-wireless.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
-@@ -11,6 +11,7 @@
+@@ -8,6 +8,7 @@
  #include "am335x-bone-common.dtsi"
  #include "am335x-boneblack-common.dtsi"
  #include <dt-bindings/interrupt-controller/irq.h>
@@ -3814,10 +3814,10 @@ index 5b275c96fccf..de0bf5c729a2 100644
  / {
  	model = "TI AM335x BeagleBone Black Wireless";
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index d154d3133c16..e62023252165 100644
+index d3928662aed4..327948464394 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -10,6 +10,7 @@
+@@ -7,6 +7,7 @@
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
  #include "am335x-boneblack-common.dtsi"
@@ -3826,10 +3826,10 @@ index d154d3133c16..e62023252165 100644
  / {
  	model = "TI AM335x BeagleBone Black";
 diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
-index 8d241c856c8d..c80c06920966 100644
+index 0257576d5d16..3fdeb8e4d5d4 100644
 --- a/arch/arm/boot/dts/am335x-boneblue.dts
 +++ b/arch/arm/boot/dts/am335x-boneblue.dts
-@@ -125,9 +125,183 @@
+@@ -122,9 +122,183 @@
  		gpio = <&gpio3 9 0>;
  		enable-active-high;
  	};
@@ -4013,7 +4013,7 @@ index 8d241c856c8d..c80c06920966 100644
  	user_leds_s0: user_leds_s0 {
  		pinctrl-single,pins = <
  			AM33XX_PADCONF(AM335X_PIN_GPMC_A5, PIN_OUTPUT, MUX_MODE7) /* (V15) gpmc_a5.gpio1[21] - USR_LED_0 */
-@@ -184,11 +358,11 @@
+@@ -181,11 +355,11 @@
  	};
  
  	/* DSM2 */
@@ -4030,7 +4030,7 @@ index 8d241c856c8d..c80c06920966 100644
  
  	/* UT5 */
  	uart5_pins: pinmux_uart5_pins {
-@@ -261,6 +435,51 @@
+@@ -258,6 +432,51 @@
  			AM33XX_PADCONF(AM335X_PIN_MII1_RXD0, PIN_OUTPUT, MUX_MODE7)		/* (M16) gmii1_rxd0.gpio2[21] */
  		>;
  	};
@@ -4082,7 +4082,7 @@ index 8d241c856c8d..c80c06920966 100644
  };
  
  &uart0 {
-@@ -284,12 +503,12 @@
+@@ -281,12 +500,12 @@
  	status = "okay";
  };
  
@@ -4101,7 +4101,7 @@ index 8d241c856c8d..c80c06920966 100644
  
  &uart5 {
  	pinctrl-names = "default";
-@@ -387,6 +606,8 @@
+@@ -384,6 +603,8 @@
  	interrupts = <7>; /* NMI */
  	interrupt-parent = <&intc>;
  
@@ -4110,7 +4110,7 @@ index 8d241c856c8d..c80c06920966 100644
  	charger {
  		interrupts = <0>, <1>;
  		interrupt-names = "USB", "AC";
-@@ -487,22 +708,23 @@
+@@ -484,22 +705,23 @@
  	};
  };
  
@@ -4145,7 +4145,7 @@ index 8d241c856c8d..c80c06920966 100644
  };
  
  &aes {
-@@ -515,8 +737,10 @@
+@@ -512,8 +734,10 @@
  
  &rtc {
  	system-power-controller;
@@ -4158,7 +4158,7 @@ index 8d241c856c8d..c80c06920966 100644
  };
  
  &dcan1 {
-@@ -533,3 +757,217 @@
+@@ -530,3 +754,217 @@
  		line-name = "LS_BUF_EN";
  	};
  };
@@ -7239,10 +7239,10 @@ index 000000000000..5d87c70b45b3
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
-index 7db86a9c836a..fbf3ae1ef14f 100644
+index 4092cd193b8a..82f8f61520f5 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
-@@ -11,6 +11,7 @@
+@@ -8,6 +8,7 @@
  #include "am335x-bone-common.dtsi"
  #include "am335x-bonegreen-common.dtsi"
  #include <dt-bindings/interrupt-controller/irq.h>
@@ -7251,10 +7251,10 @@ index 7db86a9c836a..fbf3ae1ef14f 100644
  / {
  	model = "TI AM335x BeagleBone Green Wireless";
 diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
-index a8b4d969ce2a..575a5a93a89e 100644
+index c12bb0717779..e66eadde1d0b 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen.dts
-@@ -10,6 +10,7 @@
+@@ -7,6 +7,7 @@
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
  #include "am335x-bonegreen-common.dtsi"
@@ -9441,7 +9441,7 @@ index ff4f919d22f6..6021bb2701aa 100644
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
-index ca6d9f02a800..90ab82dd74d0 100644
+index ced1a19d5f89..baba50525dd8 100644
 --- a/arch/arm/boot/dts/am33xx-l4.dtsi
 +++ b/arch/arm/boot/dts/am33xx-l4.dtsi
 @@ -158,6 +158,39 @@
@@ -9604,7 +9604,7 @@ index ca6d9f02a800..90ab82dd74d0 100644
  			};
  		};
  
-@@ -1912,6 +2044,16 @@
+@@ -1910,6 +2042,16 @@
  					status = "disabled";
  				};
  
@@ -9621,7 +9621,7 @@ index ca6d9f02a800..90ab82dd74d0 100644
  				ehrpwm0: pwm@200 {
  					compatible = "ti,am3352-ehrpwm",
  						     "ti,am33xx-ehrpwm";
-@@ -1965,6 +2107,16 @@
+@@ -1963,6 +2105,16 @@
  					status = "disabled";
  				};
  
@@ -9638,7 +9638,7 @@ index ca6d9f02a800..90ab82dd74d0 100644
  				ehrpwm1: pwm@200 {
  					compatible = "ti,am3352-ehrpwm",
  						     "ti,am33xx-ehrpwm";
-@@ -2018,6 +2170,16 @@
+@@ -2016,6 +2168,16 @@
  					status = "disabled";
  				};
  
@@ -9669,10 +9669,10 @@ index e5c2f71a7c77..267fe366665b 100644
  		#address-cells = <1>;
  		#size-cells = <1>;
 diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-index 2341a56ebab9..3aeaba2f6093 100644
+index d02f5fa61e5f..361f66bbc493 100644
 --- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
 +++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
-@@ -167,6 +167,10 @@
+@@ -164,6 +164,10 @@
  	};
  };
  
@@ -9684,10 +9684,10 @@ index 2341a56ebab9..3aeaba2f6093 100644
  	status = "okay";
  	clock-frequency = <400000>;
 diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index d87e932f45bd..552dc9fd9583 100644
+index 953f0ffce2a9..05ebd38d54dc 100644
 --- a/arch/arm/boot/dts/dra7.dtsi
 +++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -379,6 +379,16 @@
+@@ -377,6 +377,16 @@
  			ti,hwmods = "dmm";
  		};
  
@@ -9705,10 +9705,10 @@ index d87e932f45bd..552dc9fd9583 100644
  			compatible = "ti,dra7-dsp-iommu";
  			reg = <0x40d01000 0x100>;
 diff --git a/arch/arm/boot/dts/omap3-beagle-xm.dts b/arch/arm/boot/dts/omap3-beagle-xm.dts
-index 9985ee2aae0c..ffdecab54480 100644
+index 1aa99fc1487a..28d5c0707218 100644
 --- a/arch/arm/boot/dts/omap3-beagle-xm.dts
 +++ b/arch/arm/boot/dts/omap3-beagle-xm.dts
-@@ -155,6 +155,7 @@
+@@ -152,6 +152,7 @@
  	};
  
  	etb@5401b000 {
@@ -9716,7 +9716,7 @@ index 9985ee2aae0c..ffdecab54480 100644
  		compatible = "arm,coresight-etb10", "arm,primecell";
  		reg = <0x5401b000 0x1000>;
  
-@@ -170,6 +171,7 @@
+@@ -167,6 +168,7 @@
  	};
  
  	etm@54010000 {
@@ -9724,7 +9724,7 @@ index 9985ee2aae0c..ffdecab54480 100644
  		compatible = "arm,coresight-etm3x", "arm,primecell";
  		reg = <0x54010000 0x1000>;
  
-@@ -217,6 +219,25 @@
+@@ -214,6 +216,25 @@
  		>;
  	};
  
@@ -9750,7 +9750,7 @@ index 9985ee2aae0c..ffdecab54480 100644
  	hsusb2_pins: pinmux_hsusb2_pins {
  		pinctrl-single,pins = <
  			OMAP3_CORE1_IOPAD(0x21d4, PIN_INPUT_PULLDOWN | MUX_MODE3)	/* mcspi1_cs3.hsusb2_data2 */
-@@ -294,7 +315,7 @@
+@@ -291,7 +312,7 @@
  		};
  
  		twl_power: power {
@@ -9759,7 +9759,7 @@ index 9985ee2aae0c..ffdecab54480 100644
  			ti,use_poweroff;
  		};
  	};
-@@ -325,6 +346,36 @@
+@@ -322,6 +343,36 @@
  	status = "disabled";
  };
  
@@ -9797,10 +9797,10 @@ index 9985ee2aae0c..ffdecab54480 100644
  	ti,use-leds;
  	/* pullups: BIT(1) */
 diff --git a/arch/arm/boot/dts/omap3-beagle.dts b/arch/arm/boot/dts/omap3-beagle.dts
-index 91bb50ad9a4f..80ebdfb782bd 100644
+index e3df3c166902..64f0787d961f 100644
 --- a/arch/arm/boot/dts/omap3-beagle.dts
 +++ b/arch/arm/boot/dts/omap3-beagle.dts
-@@ -142,6 +142,7 @@
+@@ -139,6 +139,7 @@
  	};
  
  	etb@540000000 {
@@ -9808,7 +9808,7 @@ index 91bb50ad9a4f..80ebdfb782bd 100644
  		compatible = "arm,coresight-etb10", "arm,primecell";
  		reg = <0x5401b000 0x1000>;
  
-@@ -157,6 +158,7 @@
+@@ -154,6 +155,7 @@
  	};
  
  	etm@54010000 {
@@ -9816,7 +9816,7 @@ index 91bb50ad9a4f..80ebdfb782bd 100644
  		compatible = "arm,coresight-etm3x", "arm,primecell";
  		reg = <0x54010000 0x1000>;
  
-@@ -275,9 +277,18 @@
+@@ -272,9 +274,18 @@
  			codec {
  			};
  		};
@@ -9836,10 +9836,10 @@ index 91bb50ad9a4f..80ebdfb782bd 100644
  #include "twl4030_omap3.dtsi"
  
 diff --git a/arch/arm/boot/dts/omap4-panda-a4.dts b/arch/arm/boot/dts/omap4-panda-a4.dts
-index f1a6476af371..63b895b85eda 100644
+index 64083075dd52..065f3db3f29d 100644
 --- a/arch/arm/boot/dts/omap4-panda-a4.dts
 +++ b/arch/arm/boot/dts/omap4-panda-a4.dts
-@@ -10,6 +10,18 @@
+@@ -7,6 +7,18 @@
  #include "omap443x.dtsi"
  #include "omap4-panda-common.dtsi"
  
@@ -9859,10 +9859,10 @@ index f1a6476af371..63b895b85eda 100644
  &dss_hdmi_pins {
  	pinctrl-single,pins = <
 diff --git a/arch/arm/boot/dts/omap4-panda-common.dtsi b/arch/arm/boot/dts/omap4-panda-common.dtsi
-index 68e1894df713..69a913c1f329 100644
+index 14be2ecb62b1..e5f842c122a8 100644
 --- a/arch/arm/boot/dts/omap4-panda-common.dtsi
 +++ b/arch/arm/boot/dts/omap4-panda-common.dtsi
-@@ -484,16 +484,6 @@
+@@ -481,16 +481,6 @@
  	};
  };
  
@@ -9971,10 +9971,10 @@ index 000000000000..19d02df8d8a5
 +	 ti,no-reset-on-init;
 +};
 diff --git a/arch/arm/boot/dts/omap4-panda-es.dts b/arch/arm/boot/dts/omap4-panda-es.dts
-index 19d02df8d8a5..027b587eeecf 100644
+index 9dd307b52604..ea4dce2f3a6b 100644
 --- a/arch/arm/boot/dts/omap4-panda-es.dts
 +++ b/arch/arm/boot/dts/omap4-panda-es.dts
-@@ -15,6 +15,18 @@
+@@ -12,6 +12,18 @@
  	compatible = "ti,omap4-panda-es", "ti,omap4-panda", "ti,omap4460", "ti,omap4430", "ti,omap4";
  };
  
@@ -9994,10 +9994,10 @@ index 19d02df8d8a5..027b587eeecf 100644
  &sound {
  	ti,model = "PandaBoardES";
 diff --git a/arch/arm/boot/dts/omap4-panda.dts b/arch/arm/boot/dts/omap4-panda.dts
-index a0e28b2e254e..3ee41ef824c0 100644
+index fb2f47717b45..2ca852eadb8d 100644
 --- a/arch/arm/boot/dts/omap4-panda.dts
 +++ b/arch/arm/boot/dts/omap4-panda.dts
-@@ -14,3 +14,15 @@
+@@ -11,3 +11,15 @@
  	model = "TI OMAP4 PandaBoard";
  	compatible = "ti,omap4-panda", "ti,omap4430", "ti,omap4";
  };
@@ -10014,10 +10014,10 @@ index a0e28b2e254e..3ee41ef824c0 100644
 +	status = "ok";
 +};
 diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
-index fb51a4bffd35..9a75581efc47 100644
+index 3c274965ff40..97001fefe875 100644
 --- a/arch/arm/boot/dts/omap4-sdp.dts
 +++ b/arch/arm/boot/dts/omap4-sdp.dts
-@@ -524,11 +524,13 @@
+@@ -521,11 +521,13 @@
  &emif1 {
  	cs1-used;
  	device-handle = <&elpida_ECB240ABACN>;
@@ -10032,10 +10032,10 @@ index fb51a4bffd35..9a75581efc47 100644
  
  &keypad {
 diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index 442a737f35fe..50c329987295 100644
+index c43e52fd5f65..ec51eaabb463 100644
 --- a/arch/arm/boot/dts/omap4.dtsi
 +++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -255,6 +255,7 @@
+@@ -252,6 +252,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
@@ -10043,7 +10043,7 @@ index 442a737f35fe..50c329987295 100644
  		};
  
  		emif2: emif@4d000000 {
-@@ -267,6 +268,7 @@
+@@ -264,6 +265,7 @@
  			hw-caps-read-idle-ctrl;
  			hw-caps-ll-interface;
  			hw-caps-temp-alert;
@@ -10052,10 +10052,10 @@ index 442a737f35fe..50c329987295 100644
  
  		aes1: aes@4b501000 {
 diff --git a/arch/arm/boot/dts/twl6030.dtsi b/arch/arm/boot/dts/twl6030.dtsi
-index c45f97f37563..5ad5f8b993a3 100644
+index 9d588cfaa5cb..c0094e0c4e0f 100644
 --- a/arch/arm/boot/dts/twl6030.dtsi
 +++ b/arch/arm/boot/dts/twl6030.dtsi
-@@ -83,6 +83,11 @@
+@@ -80,6 +80,11 @@
  		regulator-always-on;
  	};
  

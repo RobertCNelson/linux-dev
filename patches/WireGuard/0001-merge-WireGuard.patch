@@ -1,6 +1,6 @@
-From 2f228bd2f3649e334b891a49cf917adc1adb7217 Mon Sep 17 00:00:00 2001
+From 2b7f35ff6c6e0033c12f149df4df2449eb784dcd Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 16 Jun 2019 15:23:40 -0500
+Date: Sun, 23 Jun 2019 11:17:42 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -14,7 +14,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/compat/Makefile.include         |   88 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  893 ++
+ net/wireguard/compat/compat.h                 |  906 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51014 insertions(+)
+ 98 files changed, 51027 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -1090,10 +1090,10 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..614f458956ad
+index 000000000000..0f43077c932a
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,893 @@
+@@ -0,0 +1,906 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1222,7 +1222,7 @@ index 000000000000..614f458956ad
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
 +#include <linux/random.h>
 +#include <linux/siphash.h>
-+static inline u32 __wgcompat_get_random_u32(void)
++static inline u32 __compat_get_random_u32(void)
 +{
 +	static siphash_key_t key;
 +	static u32 counter = 0;
@@ -1237,7 +1237,7 @@ index 000000000000..614f458956ad
 +#endif
 +	return siphash_2u32(counter++, get_random_int(), &key);
 +}
-+#define get_random_u32 __wgcompat_get_random_u32
++#define get_random_u32 __compat_get_random_u32
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(ISRHEL7)
@@ -1277,7 +1277,7 @@ index 000000000000..614f458956ad
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0) && !defined(ISRHEL7)
 +#include "checksum/checksum_partial_compat.h"
-+static inline void *our_pskb_put(struct sk_buff *skb, struct sk_buff *tail, int len)
++static inline void *__compat_pskb_put(struct sk_buff *skb, struct sk_buff *tail, int len)
 +{
 +	if (tail != skb) {
 +		skb->data_len += len;
@@ -1285,7 +1285,7 @@ index 000000000000..614f458956ad
 +	}
 +	return skb_put(tail, len);
 +}
-+#define pskb_put our_pskb_put
++#define pskb_put __compat_pskb_put
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 11, 0) && !defined(ISRHEL7)
@@ -1312,10 +1312,11 @@ index 000000000000..614f458956ad
 +
 +#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) || defined(ISUBUNTU1404)) && !defined(ISRHEL7)
 +#include <linux/random.h>
-+static inline u32 prandom_u32_max(u32 ep_ro)
++static inline u32 __compat_prandom_u32_max(u32 ep_ro)
 +{
-+	return (u32)(((u64) prandom_u32() * ep_ro) >> 32);
++	return (u32)(((u64)prandom_u32() * ep_ro) >> 32);
 +}
++#define prandom_u32_max __compat_prandom_u32_max
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 10, 75) && !defined(ISRHEL7)
@@ -1368,8 +1369,8 @@ index 000000000000..614f458956ad
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) && !defined(ISRHEL7)
-+static const struct in6_addr our_in6addr_any = IN6ADDR_ANY_INIT;
-+#define in6addr_any our_in6addr_any
++static const struct in6_addr __compat_in6addr_any = IN6ADDR_ANY_INIT;
++#define in6addr_any __compat_in6addr_any
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0) && !defined(ISOPENSUSE15)
@@ -1483,9 +1484,39 @@ index 000000000000..614f458956ad
 +#define system_power_efficient_wq system_unbound_wq
 +#endif
 +
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0) && !defined(ISRHEL7)
++#include <linux/hrtimer.h>
++static inline u64 ktime_get_boot_ns(void)
++{
++	return ktime_to_ns(ktime_get_boottime());
++}
++#endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
++#include <linux/hrtimer.h>
++#else
++#include <linux/timekeeping.h>
++#endif
++static inline u64 __compat_ktime_get_boot_fast_ns(void)
++{
++	return ktime_get_boot_ns();
++}
++#define ktime_get_boot_fast_ns __compat_ktime_get_boot_fast_ns
++#endif
++
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 12) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 19, 53)
++#include <linux/ktime.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)
++#include <linux/timekeeping.h>
++#endif
++/* This function exists in earlier versions, but the sub-seconds portion is always zero until 5.2 and backports to 5.1 and 4.19. */
++#define ktime_get_coarse_boottime ktime_get_boot_fast_ns
++#endif
++
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
 +#include <linux/inetdevice.h>
-+static inline __be32 our_confirm_addr_indev(struct in_device *in_dev, __be32 dst,  __be32 local, int scope)
++static inline __be32 __compat_confirm_addr_indev(struct in_device *in_dev, __be32 dst,  __be32 local, int scope)
 +{
 +	int same = 0;
 +	__be32 addr = 0;
@@ -1512,17 +1543,17 @@ index 000000000000..614f458956ad
 +	} endfor_ifa(in_dev);
 +	return same ? addr : 0;
 +}
-+static inline __be32 our_inet_confirm_addr(struct net *net, struct in_device *in_dev, __be32 dst, __be32 local, int scope)
++static inline __be32 __compat_inet_confirm_addr(struct net *net, struct in_device *in_dev, __be32 dst, __be32 local, int scope)
 +{
 +	__be32 addr = 0;
 +	struct net_device *dev;
 +	if (in_dev)
-+		return our_confirm_addr_indev(in_dev, dst, local, scope);
++		return __compat_confirm_addr_indev(in_dev, dst, local, scope);
 +	rcu_read_lock();
 +	for_each_netdev_rcu(net, dev) {
 +		in_dev = __in_dev_get_rcu(dev);
 +		if (in_dev) {
-+			addr = our_confirm_addr_indev(in_dev, dst, local, scope);
++			addr = __compat_confirm_addr_indev(in_dev, dst, local, scope);
 +			if (addr)
 +				break;
 +		}
@@ -1530,14 +1561,14 @@ index 000000000000..614f458956ad
 +	rcu_read_unlock();
 +	return addr;
 +}
-+#define inet_confirm_addr our_inet_confirm_addr
++#define inet_confirm_addr __compat_inet_confirm_addr
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0)
 +#include <linux/vmalloc.h>
 +#include <linux/mm.h>
 +#include <linux/slab.h>
-+static inline void *kvmalloc_ours(size_t size, gfp_t flags)
++static inline void *__compat_kvmalloc(size_t size, gfp_t flags)
 +{
 +	gfp_t kmalloc_flags = flags;
 +	void *ret;
@@ -1551,25 +1582,25 @@ index 000000000000..614f458956ad
 +		return ret;
 +	return __vmalloc(size, flags, PAGE_KERNEL);
 +}
-+static inline void *kvzalloc_ours(size_t size, gfp_t flags)
++static inline void *__compat_kvzalloc(size_t size, gfp_t flags)
 +{
-+	return kvmalloc_ours(size, flags | __GFP_ZERO);
++	return __compat_kvmalloc(size, flags | __GFP_ZERO);
 +}
-+#define kvmalloc kvmalloc_ours
-+#define kvzalloc kvzalloc_ours
++#define kvmalloc __compat_kvmalloc
++#define kvzalloc __compat_kvzalloc
 +#endif
 +
 +#if ((LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 41)) && !defined(ISUBUNTU1404)
 +#include <linux/vmalloc.h>
 +#include <linux/mm.h>
-+static inline void kvfree_ours(const void *addr)
++static inline void __compat_kvfree(const void *addr)
 +{
 +	if (is_vmalloc_addr(addr))
 +		vfree(addr);
 +	else
 +		kfree(addr);
 +}
-+#define kvfree kvfree_ours
++#define kvfree __compat_kvfree
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 9)
@@ -1623,16 +1654,16 @@ index 000000000000..614f458956ad
 +#endif
 +
 +#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 2) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 16) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 65) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 101) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 84)
-+#define ___COMPAT_NETLINK_DUMP_BLOCK { \
++#define __COMPAT_NETLINK_DUMP_BLOCK { \
 +	int ret; \
 +	skb->end -= nlmsg_total_size(sizeof(int)); \
 +	ret = wg_get_device_dump_real(skb, cb); \
 +	skb->end += nlmsg_total_size(sizeof(int)); \
 +	return ret; \
 +}
-+#define ___COMPAT_NETLINK_DUMP_OVERRIDE
++#define __COMPAT_NETLINK_DUMP_OVERRIDE
 +#else
-+#define ___COMPAT_NETLINK_DUMP_BLOCK return wg_get_device_dump_real(skb, cb);
++#define __COMPAT_NETLINK_DUMP_BLOCK return wg_get_device_dump_real(skb, cb);
 +#endif
 +#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 8) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 25) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 87)
 +#define wg_get_device_dump(a, b) wg_get_device_dump_real(a, b); \
@@ -1643,14 +1674,14 @@ index 000000000000..614f458956ad
 +		if (ret) \
 +			return ret; \
 +	} \
-+	___COMPAT_NETLINK_DUMP_BLOCK \
++	__COMPAT_NETLINK_DUMP_BLOCK \
 +} \
 +static int wg_get_device_dump_real(a, b)
 +#define COMPAT_CANNOT_USE_NETLINK_START
-+#elif defined(___COMPAT_NETLINK_DUMP_OVERRIDE)
++#elif defined(__COMPAT_NETLINK_DUMP_OVERRIDE)
 +#define wg_get_device_dump(a, b) wg_get_device_dump_real(a, b); \
 +static int wg_get_device_dump(a, b) { \
-+	___COMPAT_NETLINK_DUMP_BLOCK \
++	__COMPAT_NETLINK_DUMP_BLOCK \
 +} \
 +static int wg_get_device_dump_real(a, b)
 +#endif
@@ -1707,8 +1738,8 @@ index 000000000000..614f458956ad
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 11, 0)
-+struct _____dummy_container { char dev; };
-+#define netdev_notifier_info net_device *)data); __attribute((unused)) char _____dummy = ((struct _____dummy_container
++struct __compat_dummy_container { char dev; };
++#define netdev_notifier_info net_device *)data); __attribute((unused)) char __compat_dummy_variable = ((struct __compat_dummy_container
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
@@ -1755,7 +1786,7 @@ index 000000000000..614f458956ad
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
 +#include <linux/atomic.h>
 +#ifndef atomic_read_acquire
-+#define atomic_read_acquire(v) ({ int ___p1 = atomic_read(v); smp_rmb(); ___p1; })
++#define atomic_read_acquire(v) ({ int __compat_p1 = atomic_read(v); smp_rmb(); __compat_p1; })
 +#endif
 +#ifndef atomic_set_release
 +#define atomic_set_release(v, i) ({ smp_wmb(); atomic_set(v, i); })
@@ -1906,24 +1937,6 @@ index 000000000000..614f458956ad
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0) && defined(__aarch64__)
 +#define cpu_have_named_feature(name) (elf_hwcap & (HWCAP_ ## name))
-+#endif
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
-+#include <linux/sched.h>
-+#else
-+#include <linux/sched/clock.h>
-+#endif
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
-+#include <linux/hrtimer.h>
-+#else
-+#include <linux/timekeeping.h>
-+#endif
-+static inline s64 __our_ktime_get_coarse_boottime(void)
-+{
-+	return local_clock();
-+}
-+#define ktime_get_coarse_boottime __our_ktime_get_coarse_boottime
 +#endif
 +
 +/* https://github.com/ClangBuiltLinux/linux/issues/7 */
@@ -4099,7 +4112,7 @@ index 000000000000..8999527d6952
 +#endif /* _WG_NET_UDP_TUNNEL_H */
 diff --git a/net/wireguard/compat/udp_tunnel/udp_tunnel.c b/net/wireguard/compat/udp_tunnel/udp_tunnel.c
 new file mode 100644
-index 000000000000..dc47d6161a46
+index 000000000000..ae435660931c
 --- /dev/null
 +++ b/net/wireguard/compat/udp_tunnel/udp_tunnel.c
 @@ -0,0 +1,387 @@
@@ -4122,7 +4135,7 @@ index 000000000000..dc47d6161a46
 +
 +/* This is global so, uh, only one real call site... This is the kind of horrific hack you'd expect to see in compat code. */
 +static udp_tunnel_encap_rcv_t encap_rcv = NULL;
-+static void our_sk_data_ready(struct sock *sk
++static void __compat_sk_data_ready(struct sock *sk
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0)
 +			      ,int unused_vulnerable_length_param
 +#endif
@@ -4191,7 +4204,7 @@ index 000000000000..dc47d6161a46
 +	rcu_assign_sk_user_data(sock->sk, cfg->sk_user_data);
 +	/* We force the cast in this awful way, due to various Android kernels
 +	 * backporting things stupidly. */
-+	*(void **)&sock->sk->sk_data_ready = (void *)our_sk_data_ready;
++	*(void **)&sock->sk->sk_data_ready = (void *)__compat_sk_data_ready;
 +}
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
@@ -4236,12 +4249,12 @@ index 000000000000..dc47d6161a46
 +
 +#endif
 +
-+static void fake_destructor(struct sk_buff *skb)
++static void __compat_fake_destructor(struct sk_buff *skb)
 +{
 +}
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
-+static void our_iptunnel_xmit(struct rtable *rt, struct sk_buff *skb,
++static void __compat_iptunnel_xmit(struct rtable *rt, struct sk_buff *skb,
 +		  __be32 src, __be32 dst, __u8 proto,
 +		  __u8 tos, __u8 ttl, __be16 df, bool xnet)
 +{
@@ -4279,7 +4292,7 @@ index 000000000000..dc47d6161a46
 +	tstats->tx_bytes -= 8;
 +	u64_stats_update_end(&tstats->syncp);
 +}
-+#define iptunnel_xmit our_iptunnel_xmit
++#define iptunnel_xmit __compat_iptunnel_xmit
 +#endif
 +
 +void udp_tunnel_xmit_skb(struct rtable *rt, struct sock *sk, struct sk_buff *skb,
@@ -4308,7 +4321,7 @@ index 000000000000..dc47d6161a46
 +	if (!skb->sk)
 +		skb->sk = sk;
 +	if (!skb->destructor)
-+		skb->destructor = fake_destructor;
++		skb->destructor = __compat_fake_destructor;
 +#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 12, 0)
 +	ret =
 +#endif
@@ -4484,7 +4497,7 @@ index 000000000000..dc47d6161a46
 +	if (!skb->sk)
 +		skb->sk = sk;
 +	if (!skb->destructor)
-+		skb->destructor = fake_destructor;
++		skb->destructor = __compat_fake_destructor;
 +
 +	ip6tunnel_xmit(skb, dev);
 +	return 0;
@@ -4492,7 +4505,7 @@ index 000000000000..dc47d6161a46
 +#endif
 diff --git a/net/wireguard/compat/udp_tunnel/udp_tunnel_partial_compat.h b/net/wireguard/compat/udp_tunnel/udp_tunnel_partial_compat.h
 new file mode 100644
-index 000000000000..a4b5a1493a10
+index 000000000000..0605896e902f
 --- /dev/null
 +++ b/net/wireguard/compat/udp_tunnel/udp_tunnel_partial_compat.h
 @@ -0,0 +1,226 @@
@@ -4517,7 +4530,7 @@ index 000000000000..a4b5a1493a10
 +#include <net/ip6_checksum.h>
 +#include <net/ip6_tunnel.h>
 +#endif
-+static inline void fake_destructor(struct sk_buff *skb)
++static inline void __compat_fake_destructor(struct sk_buff *skb)
 +{
 +}
 +typedef int (*udp_tunnel_encap_rcv_t)(struct sock *sk, struct sk_buff *skb);
@@ -4528,7 +4541,7 @@ index 000000000000..a4b5a1493a10
 +};
 +/* This is global so, uh, only one real call site... This is the kind of horrific hack you'd expect to see in compat code. */
 +static udp_tunnel_encap_rcv_t encap_rcv = NULL;
-+static void our_sk_data_ready(struct sock *sk)
++static void __compat_sk_data_ready(struct sock *sk)
 +{
 +	struct sk_buff *skb;
 +	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
@@ -4544,7 +4557,7 @@ index 000000000000..a4b5a1493a10
 +	inet_sk(sk)->mc_loop = 0;
 +	encap_rcv = cfg->encap_rcv;
 +	rcu_assign_sk_user_data(sk, cfg->sk_user_data);
-+	sk->sk_data_ready = our_sk_data_ready;
++	sk->sk_data_ready = __compat_sk_data_ready;
 +}
 +static inline void udp_tunnel_sock_release(struct socket *sock)
 +{
@@ -4620,13 +4633,13 @@ index 000000000000..a4b5a1493a10
 +#include <linux/if.h>
 +#include <net/udp_tunnel.h>
 +#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)
-+static inline void fake_destructor(struct sk_buff *skb)
++static inline void __compat_fake_destructor(struct sk_buff *skb)
 +{
 +}
 +#endif
-+#define udp_tunnel_xmit_skb(a, b, c, d, e, f, g, h, i, j, k, l) do { struct net_device *dev__ = (c)->dev; int ret__; if (!(c)->destructor) (c)->destructor = fake_destructor; if (!(c)->sk) (c)->sk = (b); ret__ = udp_tunnel_xmit_skb(a, c, d, e, f, g, h, i, j, k, l); if (ret__) iptunnel_xmit_stats(ret__ - 8, &dev__->stats, dev__->tstats); } while (0)
++#define udp_tunnel_xmit_skb(a, b, c, d, e, f, g, h, i, j, k, l) do { struct net_device *dev__ = (c)->dev; int ret__; if (!(c)->destructor) (c)->destructor = __compat_fake_destructor; if (!(c)->sk) (c)->sk = (b); ret__ = udp_tunnel_xmit_skb(a, c, d, e, f, g, h, i, j, k, l); if (ret__) iptunnel_xmit_stats(ret__ - 8, &dev__->stats, dev__->tstats); } while (0)
 +#if IS_ENABLED(CONFIG_IPV6)
-+#define udp_tunnel6_xmit_skb(a, b, c, d, e, f, g, h, i, j, k, l) do { if (!(c)->destructor) (c)->destructor = fake_destructor; if (!(c)->sk) (c)->sk = (b); udp_tunnel6_xmit_skb(a, c, d, e, f, g, h, j, k, l); } while(0)
++#define udp_tunnel6_xmit_skb(a, b, c, d, e, f, g, h, i, j, k, l) do { if (!(c)->destructor) (c)->destructor = __compat_fake_destructor; if (!(c)->sk) (c)->sk = (b); udp_tunnel6_xmit_skb(a, c, d, e, f, g, h, j, k, l); } while(0)
 +#endif
 +#else
 +
@@ -4654,7 +4667,7 @@ index 000000000000..a4b5a1493a10
 +#include <linux/skbuff.h>
 +#include <linux/if.h>
 +#include <net/udp_tunnel.h>
-+struct udp_port_cfg_new {
++struct __compat_udp_port_cfg {
 +	u8 family;
 +	union {
 +		struct in_addr local_ip;
@@ -4672,7 +4685,7 @@ index 000000000000..a4b5a1493a10
 +	__be16 peer_udp_port;
 +	unsigned int use_udp_checksums:1, use_udp6_tx_checksums:1, use_udp6_rx_checksums:1, ipv6_v6only:1;
 +};
-+static inline int __maybe_unused udp_sock_create_new(struct net *net, struct udp_port_cfg_new *cfg, struct socket **sockp)
++static inline int __maybe_unused __compat_udp_sock_create(struct net *net, struct __compat_udp_port_cfg *cfg, struct socket **sockp)
 +{
 +	struct udp_port_cfg old_cfg = {
 +		.family = cfg->family,
@@ -4719,8 +4732,8 @@ index 000000000000..a4b5a1493a10
 +#endif
 +	return -EPFNOSUPPORT;
 +}
-+#define udp_port_cfg udp_port_cfg_new
-+#define udp_sock_create(a, b, c) udp_sock_create_new(a, b, c)
++#define udp_port_cfg __compat_udp_port_cfg
++#define udp_sock_create(a, b, c) __compat_udp_sock_create(a, b, c)
 +#endif
 diff --git a/net/wireguard/cookie.c b/net/wireguard/cookie.c
 new file mode 100644
