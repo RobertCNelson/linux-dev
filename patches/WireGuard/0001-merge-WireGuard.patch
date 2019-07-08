@@ -1,6 +1,6 @@
-From c32a11f8d47ba85ac5dccb090f79e1031725f180 Mon Sep 17 00:00:00 2001
+From 231c5f18f8238c07a64cd2dcf0d9a13f82931c78 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 30 Jun 2019 21:50:18 -0500
+Date: Sun, 7 Jul 2019 20:24:28 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -11,7 +11,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/Makefile                        |   14 +
  net/wireguard/allowedips.c                    |  377 +
  net/wireguard/allowedips.h                    |   59 +
- net/wireguard/compat/Makefile.include         |   88 +
+ net/wireguard/compat/Makefile.include         |   92 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
  net/wireguard/compat/compat.h                 |  907 ++
@@ -89,10 +89,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/peerlookup.c                    |  221 +
  net/wireguard/peerlookup.h                    |   64 +
  net/wireguard/queueing.c                      |   53 +
- net/wireguard/queueing.h                      |  198 +
+ net/wireguard/queueing.h                      |  197 +
  net/wireguard/ratelimiter.c                   |  235 +
  net/wireguard/ratelimiter.h                   |   19 +
- net/wireguard/receive.c                       |  606 ++
+ net/wireguard/receive.c                       |  605 ++
  net/wireguard/selftest/allowedips.c           |  682 ++
  net/wireguard/selftest/counter.c              |  104 +
  net/wireguard/selftest/ratelimiter.c          |  226 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  190 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51033 insertions(+)
+ 98 files changed, 51035 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -733,10 +733,10 @@ index 000000000000..e5c83cafcef4
 +#endif /* _WG_ALLOWEDIPS_H */
 diff --git a/net/wireguard/compat/Makefile.include b/net/wireguard/compat/Makefile.include
 new file mode 100644
-index 000000000000..f537abec1ac0
+index 000000000000..391f81f68435
 --- /dev/null
 +++ b/net/wireguard/compat/Makefile.include
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,92 @@
 +# SPDX-License-Identifier: GPL-2.0
 +#
 +# Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -784,6 +784,10 @@ index 000000000000..f537abec1ac0
 +ifeq ($(shell grep -s -F "int crypto_memneq" "$(srctree)/include/crypto/algapi.h"),)
 +ccflags-y += -include $(kbuild-dir)/compat/memneq/include.h
 +wireguard-y += compat/memneq/memneq.o
++endif
++
++ifeq ($(wildcard $(srctree)/include/generated/timeconst.h),)
++ccflags-y += $(shell echo 'define gcd(a,b){auto t;while(b){t=b;b=a%b;a=t;};return a;};hz=$(CONFIG_HZ);cd=gcd(hz,1000000);print "-DHZ_TO_USEC_NUM=",1000000/cd," -DHZ_TO_USEC_DEN=",hz/cd;halt;' | bc -q)
 +endif
 +
 +ifeq ($(wildcard $(srctree)/arch/arm/include/asm/neon.h)$(CONFIG_ARM),y)
@@ -1090,7 +1094,7 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..239fa58bbace
+index 000000000000..628855004c1f
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
 @@ -0,0 +1,907 @@
@@ -1502,7 +1506,7 @@ index 000000000000..239fa58bbace
 +{
 +#if !(NSEC_PER_SEC % HZ)
 +	return (NSEC_PER_SEC / HZ) * j;
-+# else
++#else
 +	return div_u64(j * HZ_TO_USEC_NUM, HZ_TO_USEC_DEN) * 1000;
 +#endif
 +}
@@ -48304,10 +48308,10 @@ index 000000000000..5c964fcb994e
 +}
 diff --git a/net/wireguard/queueing.h b/net/wireguard/queueing.h
 new file mode 100644
-index 000000000000..f8de703dff97
+index 000000000000..e49a464238fd
 --- /dev/null
 +++ b/net/wireguard/queueing.h
-@@ -0,0 +1,198 @@
+@@ -0,0 +1,197 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -48487,8 +48491,7 @@ index 000000000000..f8de703dff97
 +	wg_peer_put(peer);
 +}
 +
-+static inline void wg_queue_enqueue_per_peer_napi(struct crypt_queue *queue,
-+						  struct sk_buff *skb,
++static inline void wg_queue_enqueue_per_peer_napi(struct sk_buff *skb,
 +						  enum packet_state state)
 +{
 +	/* We take a reference, because as soon as we call atomic_set, the
@@ -48774,10 +48777,10 @@ index 000000000000..83067f71ea99
 +#endif /* _WG_RATELIMITER_H */
 diff --git a/net/wireguard/receive.c b/net/wireguard/receive.c
 new file mode 100644
-index 000000000000..6a3980bc2989
+index 000000000000..247a56b6ed94
 --- /dev/null
 +++ b/net/wireguard/receive.c
-@@ -0,0 +1,606 @@
+@@ -0,0 +1,605 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -49301,8 +49304,7 @@ index 000000000000..6a3980bc2989
 +					   &PACKET_CB(skb)->keypair->receiving,
 +					   &simd_context)) ?
 +				PACKET_STATE_CRYPTED : PACKET_STATE_DEAD;
-+		wg_queue_enqueue_per_peer_napi(&PACKET_PEER(skb)->rx_queue, skb,
-+					       state);
++		wg_queue_enqueue_per_peer_napi(skb, state);
 +		simd_relax(&simd_context);
 +	}
 +
@@ -49331,7 +49333,7 @@ index 000000000000..6a3980bc2989
 +						   wg->packet_crypt_wq,
 +						   &wg->decrypt_queue.last_cpu);
 +	if (unlikely(ret == -EPIPE))
-+		wg_queue_enqueue_per_peer(&peer->rx_queue, skb, PACKET_STATE_DEAD);
++		wg_queue_enqueue_per_peer_napi(skb, PACKET_STATE_DEAD);
 +	if (likely(!ret || ret == -EPIPE)) {
 +		rcu_read_unlock_bh();
 +		return;
@@ -51827,11 +51829,11 @@ index 000000000000..912f2167a202
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..8ec1423ef2ef
+index 000000000000..ae368725d068
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20190601"
++#define WIREGUARD_VERSION "0.0.20190702"
 -- 
 2.20.1
 
