@@ -16,15 +16,15 @@ Signed-off-by: David Hsu <davidhsu@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- Documentation/pwm.txt |  6 ++++--
- drivers/pwm/sysfs.c   | 15 ++++++++++++---
+ Documentation/driver-api/pwm.rst |  6 ++++--
+ drivers/pwm/sysfs.c              | 15 ++++++++++++---
  2 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/pwm.txt b/Documentation/pwm.txt
-index 8fbf0aa3ba2d..72db8dd15f53 100644
---- a/Documentation/pwm.txt
-+++ b/Documentation/pwm.txt
-@@ -85,9 +85,11 @@ will find:
+diff --git a/Documentation/driver-api/pwm.rst b/Documentation/driver-api/pwm.rst
+index ab62f1bb0366..7fdff19ed227 100644
+--- a/Documentation/driver-api/pwm.rst
++++ b/Documentation/driver-api/pwm.rst
+@@ -89,9 +89,11 @@ will find:
  
  The PWM channels are numbered using a per-chip index from 0 to npwm-1.
  
@@ -39,10 +39,10 @@ index 8fbf0aa3ba2d..72db8dd15f53 100644
    period
      The total period of the PWM signal (read/write).
 diff --git a/drivers/pwm/sysfs.c b/drivers/pwm/sysfs.c
-index 719f8fada0a7..66406267e0a7 100644
+index 2389b8669846..50325699c154 100644
 --- a/drivers/pwm/sysfs.c
 +++ b/drivers/pwm/sysfs.c
-@@ -23,6 +23,8 @@
+@@ -14,6 +14,8 @@
  #include <linux/kdev_t.h>
  #include <linux/pwm.h>
  
@@ -51,7 +51,7 @@ index 719f8fada0a7..66406267e0a7 100644
  struct pwm_export {
  	struct device child;
  	struct pwm_device *pwm;
-@@ -239,6 +241,10 @@ static struct attribute *pwm_attrs[] = {
+@@ -231,6 +233,10 @@ static struct attribute *pwm_attrs[] = {
  };
  ATTRIBUTE_GROUPS(pwm);
  
@@ -62,7 +62,7 @@ index 719f8fada0a7..66406267e0a7 100644
  static void pwm_export_release(struct device *child)
  {
  	struct pwm_export *export = child_to_pwm_export(child);
-@@ -248,6 +254,7 @@ static void pwm_export_release(struct device *child)
+@@ -240,6 +246,7 @@ static void pwm_export_release(struct device *child)
  
  static int pwm_export_child(struct device *parent, struct pwm_device *pwm)
  {
@@ -70,7 +70,7 @@ index 719f8fada0a7..66406267e0a7 100644
  	struct pwm_export *export;
  	char *pwm_prop[2];
  	int ret;
-@@ -266,9 +273,11 @@ static int pwm_export_child(struct device *parent, struct pwm_device *pwm)
+@@ -258,9 +265,11 @@ static int pwm_export_child(struct device *parent, struct pwm_device *pwm)
  
  	export->child.release = pwm_export_release;
  	export->child.parent = parent;
@@ -83,15 +83,15 @@ index 719f8fada0a7..66406267e0a7 100644
  
  	ret = device_register(&export->child);
  	if (ret) {
-@@ -384,7 +393,6 @@ ATTRIBUTE_GROUPS(pwm_chip);
+@@ -476,7 +485,6 @@ static SIMPLE_DEV_PM_OPS(pwm_class_pm_ops, pwm_class_suspend, pwm_class_resume);
  static struct class pwm_class = {
  	.name = "pwm",
  	.owner = THIS_MODULE,
 -	.dev_groups = pwm_chip_groups,
+ 	.pm = &pwm_class_pm_ops,
  };
  
- static int pwmchip_sysfs_match(struct device *parent, const void *data)
-@@ -400,7 +408,8 @@ void pwmchip_sysfs_export(struct pwm_chip *chip)
+@@ -493,7 +501,8 @@ void pwmchip_sysfs_export(struct pwm_chip *chip)
  	 * If device_create() fails the pwm_chip is still usable by
  	 * the kernel it's just not exported.
  	 */

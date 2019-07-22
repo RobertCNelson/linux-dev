@@ -26,19 +26,19 @@ Reviewed-by: Vaibhav Hiremath <hvaibhav.linux@gmail.com>
  3 files changed, 47 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/usb/Kconfig b/drivers/usb/Kconfig
-index e4b27413f528..0907550b90e7 100644
+index 6e59d370ef81..2162fd85b32d 100644
 --- a/drivers/usb/Kconfig
 +++ b/drivers/usb/Kconfig
-@@ -46,6 +46,7 @@ config USB
- 	tristate "Support for Host-side USB"
+@@ -47,6 +47,7 @@ config USB
  	depends on USB_ARCH_HAS_HCD
+ 	select GENERIC_ALLOCATOR
  	select USB_COMMON
 +	select POWER_SEQUENCE
  	select NLS  # for UTF-8 strings
  	---help---
  	  Universal Serial Bus (USB) is a specification for a serial bus
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 8d4631c81b9f..e7a5c8d71421 100644
+index 236313f41f4a..3db75b0d2426 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
 @@ -29,6 +29,7 @@
@@ -125,7 +125,7 @@ index 8d4631c81b9f..e7a5c8d71421 100644
  }
  
  static int
-@@ -3715,7 +3751,7 @@ static int hub_suspend(struct usb_interface *intf, pm_message_t msg)
+@@ -3720,7 +3756,7 @@ static int hub_suspend(struct usb_interface *intf, pm_message_t msg)
  
  	/* stop hub_wq and related activity */
  	hub_quiesce(hub, HUB_SUSPEND);
@@ -134,7 +134,7 @@ index 8d4631c81b9f..e7a5c8d71421 100644
  }
  
  /* Report wakeup requests from the ports of a resuming root hub */
-@@ -3755,8 +3791,13 @@ static void report_wakeup_requests(struct usb_hub *hub)
+@@ -3760,8 +3796,13 @@ static void report_wakeup_requests(struct usb_hub *hub)
  static int hub_resume(struct usb_interface *intf)
  {
  	struct usb_hub *hub = usb_get_intfdata(intf);

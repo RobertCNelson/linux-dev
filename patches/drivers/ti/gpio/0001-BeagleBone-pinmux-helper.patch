@@ -39,12 +39,12 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 drivers/misc/cape/beaglebone/bone-pinmux-helper.c
 
 diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 3f50526a771f..579ecfe34b59 100644
+index bb13c266c329..2fc9317ccbf6 100644
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -73,6 +73,20 @@ config GPIO_SYSFS
- 	  Kernel drivers may also request that a particular GPIO be
- 	  exported to userspace; this can be useful when debugging.
+@@ -69,6 +69,20 @@ config GPIO_SYSFS
+ 	  ioctl() operations instead. The character device is always
+ 	  available.
  
 +config GPIO_OF_HELPER
 +	bool "GPIO OF helper device (EXPERIMENTAL)"
@@ -64,7 +64,7 @@ index 3f50526a771f..579ecfe34b59 100644
  	depends on HAS_IOMEM # Only for IOMEM drivers
  	tristate
 diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 54d55274b93a..b8054699c3eb 100644
+index a4e91175c708..3a7520ba02db 100644
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
 @@ -10,6 +10,7 @@ obj-$(CONFIG_GPIOLIB)		+= gpiolib-devprop.o
@@ -613,10 +613,10 @@ index fbf6b1a0a4fa..ec7aa6f3c56e 100644
   * /sys/class/gpio/gpiochipN/
   *   /base ... matching gpio_chip.base (N)
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index e4290588bed9..5a1c54960685 100644
+index 6abfc8e92fcc..2cf9db44e4b2 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -553,6 +553,7 @@ source "drivers/misc/mei/Kconfig"
+@@ -497,6 +497,7 @@ source "drivers/misc/mei/Kconfig"
  source "drivers/misc/vmw_vmci/Kconfig"
  source "drivers/misc/mic/Kconfig"
  source "drivers/misc/genwqe/Kconfig"
@@ -625,10 +625,10 @@ index e4290588bed9..5a1c54960685 100644
  source "drivers/misc/cxl/Kconfig"
  source "drivers/misc/ocxl/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 80885df95e0c..0a139ba5446a 100644
+index abd8ae249746..dcc801e8834e 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -52,6 +52,7 @@ obj-$(CONFIG_SRAM)		+= sram.o
+@@ -50,6 +50,7 @@ obj-$(CONFIG_SRAM)		+= sram.o
  obj-$(CONFIG_SRAM_EXEC)		+= sram-exec.o
  obj-y				+= mic/
  obj-$(CONFIG_GENWQE)		+= genwqe/

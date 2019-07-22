@@ -293,7 +293,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	bbdtbs="v5.2.x"
+	bbdtbs="v5.3.x"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
@@ -428,11 +428,10 @@ drivers () {
 	dir 'drivers/spi'
 	dir 'drivers/ssd1306'
 	dir 'drivers/tps65217'
-	dir 'drivers/wiznet'
 
 	dir 'drivers/ti/overlays'
 	dir 'drivers/ti/cpsw'
-	dir 'drivers/ti/eqep'
+#	dir 'drivers/ti/eqep'
 	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/serial'
 	dir 'drivers/ti/tsc'

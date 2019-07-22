@@ -1,31 +1,32 @@
-From 02ef2d4ab2b89118d96b23d7f42fa3445d8519ac Mon Sep 17 00:00:00 2001
+From 70c0d4a8bce1fb3ed94838e23ac22cd611ae3991 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 7 Jul 2019 20:24:51 -0500
-Subject: [PATCH] Add BeagleBoard.org DTBS: v5.2.x
+Date: Mon, 22 Jul 2019 16:13:13 -0500
+Subject: [PATCH] Add BeagleBoard.org DTBS: v5.3.x
 
-https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.2.x
+https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.3.x
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile                    |    6 +
- arch/arm/boot/dts/am335x-abbbi.dts            |  162 +
- .../dts/am335x-bone-common-no-capemgr.dtsi    |  376 +++
- .../arm/boot/dts/am335x-bone-common-univ.dtsi | 2923 +++++++++++++++++
+ arch/arm/boot/dts/am335x-abbbi.dts            |  164 +
+ .../dts/am335x-bone-common-no-capemgr.dtsi    |  373 +++
+ .../arm/boot/dts/am335x-bone-common-univ.dtsi | 2920 +++++++++++++++++
  arch/arm/boot/dts/am335x-bone-common.dtsi     |   14 +-
- arch/arm/boot/dts/am335x-bone-jtag.dtsi       |   20 +
- arch/arm/boot/dts/am335x-bone-uboot-univ.dts  |   27 +
- arch/arm/boot/dts/am335x-bone.dts             |    1 +
+ arch/arm/boot/dts/am335x-bone-jtag.dtsi       |   15 +
+ arch/arm/boot/dts/am335x-bone-uboot-univ.dts  |   29 +
+ arch/arm/boot/dts/am335x-bone.dts             |    6 +
  .../arm/boot/dts/am335x-boneblack-common.dtsi |   10 +-
- .../boot/dts/am335x-boneblack-uboot-univ.dts  |   38 +
- arch/arm/boot/dts/am335x-boneblack-uboot.dts  |   37 +
- .../boot/dts/am335x-boneblack-wireless.dts    |    1 +
- arch/arm/boot/dts/am335x-boneblack.dts        |    1 +
- arch/arm/boot/dts/am335x-boneblue.dts         |  486 ++-
- ...am335x-bonegreen-wireless-common-univ.dtsi | 2797 ++++++++++++++++
- .../am335x-bonegreen-wireless-uboot-univ.dts  |   53 +
- .../boot/dts/am335x-bonegreen-wireless.dts    |    1 +
- arch/arm/boot/dts/am335x-bonegreen.dts        |    1 +
- arch/arm/boot/dts/am335x-osd3358-sm-red.dts   |   20 +-
- arch/arm/boot/dts/am335x-pocketbeagle.dts     | 2040 +++++++++++-
+ .../boot/dts/am335x-boneblack-uboot-univ.dts  |   40 +
+ arch/arm/boot/dts/am335x-boneblack-uboot.dts  |   41 +
+ .../boot/dts/am335x-boneblack-wireless.dts    |    6 +
+ arch/arm/boot/dts/am335x-boneblack.dts        |    6 +
+ arch/arm/boot/dts/am335x-boneblue.dts         |  491 ++-
+ ...am335x-bonegreen-wireless-common-univ.dtsi | 2794 ++++++++++++++++
+ .../am335x-bonegreen-wireless-uboot-univ.dts  |   55 +
+ .../boot/dts/am335x-bonegreen-wireless.dts    |    6 +
+ arch/arm/boot/dts/am335x-bonegreen.dts        |    6 +
+ arch/arm/boot/dts/am335x-osd3358-sm-red.dts   |   25 +-
+ arch/arm/boot/dts/am335x-pocketbeagle.dts     | 2042 +++++++++++-
+ arch/arm/boot/dts/am335x-sancloud-bbe.dts     |    5 +
  arch/arm/boot/dts/am33xx-l4.dtsi              |  162 +
  arch/arm/boot/dts/am33xx.dtsi                 |    2 +-
  .../boot/dts/am57xx-beagle-x15-common.dtsi    |    4 +
@@ -41,7 +42,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/omap4.dtsi                  |    2 +
  arch/arm/boot/dts/twl6030.dtsi                |    5 +
  .../dt-bindings/board/am335x-bbw-bbb-base.h   |  103 +
- 35 files changed, 9381 insertions(+), 118 deletions(-)
+ 36 files changed, 9421 insertions(+), 118 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-abbbi.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-univ.dtsi
@@ -55,10 +56,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 include/dt-bindings/board/am335x-bbw-bbb-base.h
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index dab2914fa293..ddff30011f27 100644
+index 9159fa2cea90..fe03bb9ef7e5 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -730,6 +730,11 @@ dtb-$(CONFIG_SOC_AM33XX) += \
+@@ -732,6 +732,11 @@ dtb-$(CONFIG_SOC_AM33XX) += \
  	am335x-base0033.dtb \
  	am335x-bone.dtb \
  	am335x-boneblack.dtb \
@@ -70,7 +71,7 @@ index dab2914fa293..ddff30011f27 100644
  	am335x-boneblack-wireless.dtb \
  	am335x-boneblue.dtb \
  	am335x-bonegreen.dtb \
-@@ -759,6 +764,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
+@@ -762,6 +767,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
  	omap4-duovero-parlor.dtb \
  	omap4-kc1.dtb \
  	omap4-panda.dtb \
@@ -80,17 +81,14 @@ index dab2914fa293..ddff30011f27 100644
  	omap4-sdp.dtb \
 diff --git a/arch/arm/boot/dts/am335x-abbbi.dts b/arch/arm/boot/dts/am335x-abbbi.dts
 new file mode 100644
-index 000000000000..7e924ce42e2a
+index 000000000000..870ce8567471
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-abbbi.dts
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,164 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
 + * Copyright 2015 Konsulko Group
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +/dts-v1/;
 +
@@ -100,6 +98,11 @@ index 000000000000..7e924ce42e2a
 +/ {
 +	model = "Arrow BeagleBone Black Industrial";
 +	compatible = "arrow,am335x-abbbi", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-abbbi.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
 +};
 +
 +&ldo3_reg {
@@ -248,16 +251,13 @@ index 000000000000..7e924ce42e2a
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
 new file mode 100644
-index 000000000000..aa86a00bdcad
+index 000000000000..90f13e062933
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
-@@ -0,0 +1,376 @@
+@@ -0,0 +1,373 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +
 +/ {
@@ -630,16 +630,13 @@ index 000000000000..aa86a00bdcad
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-common-univ.dtsi b/arch/arm/boot/dts/am335x-bone-common-univ.dtsi
 new file mode 100644
-index 000000000000..037683957292
+index 000000000000..6d51e3b4edb8
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-univ.dtsi
-@@ -0,0 +1,2923 @@
+@@ -0,0 +1,2920 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +
 +&am33xx_pinmux {
@@ -3609,18 +3606,13 @@ index 89b4cf2cb7f8..914f23be9bcf 100644
  };
 diff --git a/arch/arm/boot/dts/am335x-bone-jtag.dtsi b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
 new file mode 100644
-index 000000000000..959f4e24268d
+index 000000000000..2cdca0141712
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-jtag.dtsi
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,15 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * Device Tree Source for bone jtag
-+ *
 + * Copyright (C) 2015 Robert Nelson <robertcnelson@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +
 +&am33xx_pinmux {
@@ -3635,16 +3627,13 @@ index 000000000000..959f4e24268d
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-uboot-univ.dts b/arch/arm/boot/dts/am335x-bone-uboot-univ.dts
 new file mode 100644
-index 000000000000..24cc6956ac7c
+index 000000000000..87559166d38e
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-uboot-univ.dts
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,29 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +/dts-v1/;
 +
@@ -3655,6 +3644,11 @@ index 000000000000..24cc6956ac7c
 +/ {
 +	model = "TI AM335x BeagleBone";
 +	compatible = "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-bone-uboot-univ.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
 +};
 +
 +&ldo3_reg {
@@ -3667,10 +3661,10 @@ index 000000000000..24cc6956ac7c
 +	vmmc-supply = <&ldo3_reg>;
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone.dts b/arch/arm/boot/dts/am335x-bone.dts
-index 43bfbce41049..ef128ba5e8d6 100644
+index 43bfbce41049..c7ae3e59d29e 100644
 --- a/arch/arm/boot/dts/am335x-bone.dts
 +++ b/arch/arm/boot/dts/am335x-bone.dts
-@@ -6,6 +6,7 @@
+@@ -6,10 +6,16 @@
  
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
@@ -3678,6 +3672,15 @@ index 43bfbce41049..ef128ba5e8d6 100644
  
  / {
  	model = "TI AM335x BeagleBone";
+ 	compatible = "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-bone.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
+ 
+ &ldo3_reg {
 diff --git a/arch/arm/boot/dts/am335x-boneblack-common.dtsi b/arch/arm/boot/dts/am335x-boneblack-common.dtsi
 index 7ad079861efd..40e88b1c2d5f 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-common.dtsi
@@ -3716,16 +3719,13 @@ index 7ad079861efd..40e88b1c2d5f 100644
  		/* video-ports = <0x234501>; */
 diff --git a/arch/arm/boot/dts/am335x-boneblack-uboot-univ.dts b/arch/arm/boot/dts/am335x-boneblack-uboot-univ.dts
 new file mode 100644
-index 000000000000..7b4bf9641b26
+index 000000000000..4e5633e38694
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-uboot-univ.dts
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,40 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +/dts-v1/;
 +
@@ -3736,14 +3736,19 @@ index 000000000000..7b4bf9641b26
 +/ {
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-boneblack-uboot-univ.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
 +};
 +
 +&cpu0_opp_table {
 +	/*
-+	* All PG 2.0 silicon may not support 1GHz but some of the early
-+	* BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	* to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	*/
++	 * All PG 2.0 silicon may not support 1GHz but some of the early
++	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++	 */
 +	oppnitro-1000000000 {
 +		opp-supported-hw = <0x06 0x0100>;
 +	};
@@ -3760,33 +3765,37 @@ index 000000000000..7b4bf9641b26
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-uboot.dts b/arch/arm/boot/dts/am335x-boneblack-uboot.dts
 new file mode 100644
-index 000000000000..738fa396855b
+index 000000000000..09e8c27a4b29
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-uboot.dts
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,41 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +/dts-v1/;
 +
 +#include "am33xx.dtsi"
 +#include "am335x-bone-common.dtsi"
 +
++/* #include "am335x-bone-jtag.dtsi" */
++
 +/ {
 +	model = "TI AM335x BeagleBone Black";
 +	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-boneblack-uboot.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
 +};
 +
 +&cpu0_opp_table {
 +	/*
-+	* All PG 2.0 silicon may not support 1GHz but some of the early
-+	* BeagleBone Blacks have PG 2.0 silicon which is guaranteed
-+	* to support 1GHz OPP so enable it for PG 2.0 on this board.
-+	*/
++	 * All PG 2.0 silicon may not support 1GHz but some of the early
++	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
++	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
++	 */
 +	oppnitro-1000000000 {
 +		opp-supported-hw = <0x06 0x0100>;
 +	};
@@ -3802,10 +3811,10 @@ index 000000000000..738fa396855b
 +	vmmc-supply = <&vmmcsd_fixed>;
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-wireless.dts b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
-index 3124d94c0b3c..6ecafaaf7966 100644
+index 3124d94c0b3c..f98e0cfe14ad 100644
 --- a/arch/arm/boot/dts/am335x-boneblack-wireless.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
-@@ -8,6 +8,7 @@
+@@ -8,11 +8,17 @@
  #include "am335x-bone-common.dtsi"
  #include "am335x-boneblack-common.dtsi"
  #include <dt-bindings/interrupt-controller/irq.h>
@@ -3813,11 +3822,21 @@ index 3124d94c0b3c..6ecafaaf7966 100644
  
  / {
  	model = "TI AM335x BeagleBone Black Wireless";
+ 	compatible = "ti,am335x-bone-black-wireless", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ 
++	chosen {
++		base_dtb = "am335x-boneblack-wireless.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
++
+ 	wlan_en_reg: fixedregulator@2 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "wlan-en-regulator";
 diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
-index d3928662aed4..327948464394 100644
+index d3928662aed4..40b17b956109 100644
 --- a/arch/arm/boot/dts/am335x-boneblack.dts
 +++ b/arch/arm/boot/dts/am335x-boneblack.dts
-@@ -7,6 +7,7 @@
+@@ -7,10 +7,16 @@
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
  #include "am335x-boneblack-common.dtsi"
@@ -3825,11 +3844,32 @@ index d3928662aed4..327948464394 100644
  
  / {
  	model = "TI AM335x BeagleBone Black";
+ 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-boneblack.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
+ 
+ &cpu0_opp_table {
 diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
-index 0257576d5d16..3fdeb8e4d5d4 100644
+index 0257576d5d16..6df70194b15d 100644
 --- a/arch/arm/boot/dts/am335x-boneblue.dts
 +++ b/arch/arm/boot/dts/am335x-boneblue.dts
-@@ -122,9 +122,183 @@
+@@ -11,6 +11,11 @@
+ 	model = "TI AM335x BeagleBone Blue";
+ 	compatible = "ti,am335x-bone-blue", "ti,am33xx";
+ 
++	chosen {
++		base_dtb = "am335x-boneblue.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
++
+ 	cpus {
+ 		cpu@0 {
+ 			cpu0-supply = <&dcdc2_reg>;
+@@ -122,9 +127,183 @@
  		gpio = <&gpio3 9 0>;
  		enable-active-high;
  	};
@@ -4013,7 +4053,7 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
  	user_leds_s0: user_leds_s0 {
  		pinctrl-single,pins = <
  			AM33XX_PADCONF(AM335X_PIN_GPMC_A5, PIN_OUTPUT, MUX_MODE7) /* (V15) gpmc_a5.gpio1[21] - USR_LED_0 */
-@@ -181,11 +355,11 @@
+@@ -181,11 +360,11 @@
  	};
  
  	/* DSM2 */
@@ -4030,7 +4070,7 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
  
  	/* UT5 */
  	uart5_pins: pinmux_uart5_pins {
-@@ -258,6 +432,51 @@
+@@ -258,6 +437,51 @@
  			AM33XX_PADCONF(AM335X_PIN_MII1_RXD0, PIN_OUTPUT, MUX_MODE7)		/* (M16) gmii1_rxd0.gpio2[21] */
  		>;
  	};
@@ -4082,7 +4122,7 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
  };
  
  &uart0 {
-@@ -281,12 +500,12 @@
+@@ -281,12 +505,12 @@
  	status = "okay";
  };
  
@@ -4101,7 +4141,7 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
  
  &uart5 {
  	pinctrl-names = "default";
-@@ -384,6 +603,8 @@
+@@ -384,6 +608,8 @@
  	interrupts = <7>; /* NMI */
  	interrupt-parent = <&intc>;
  
@@ -4110,7 +4150,7 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
  	charger {
  		interrupts = <0>, <1>;
  		interrupt-names = "USB", "AC";
-@@ -484,22 +705,23 @@
+@@ -484,22 +710,23 @@
  	};
  };
  
@@ -4145,7 +4185,7 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
  };
  
  &aes {
-@@ -512,8 +734,10 @@
+@@ -512,8 +739,10 @@
  
  &rtc {
  	system-power-controller;
@@ -4158,7 +4198,7 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
  };
  
  &dcan1 {
-@@ -530,3 +754,217 @@
+@@ -530,3 +759,217 @@
  		line-name = "LS_BUF_EN";
  	};
  };
@@ -4378,16 +4418,13 @@ index 0257576d5d16..3fdeb8e4d5d4 100644
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi b/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi
 new file mode 100644
-index 000000000000..455a8fa5f68b
+index 000000000000..e6f28c969b75
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi
-@@ -0,0 +1,2797 @@
+@@ -0,0 +1,2794 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +
 +&am33xx_pinmux {
@@ -7181,16 +7218,13 @@ index 000000000000..455a8fa5f68b
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless-uboot-univ.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless-uboot-univ.dts
 new file mode 100644
-index 000000000000..5d87c70b45b3
+index 000000000000..ac63c249b196
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wireless-uboot-univ.dts
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,55 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +/dts-v1/;
 +
@@ -7201,6 +7235,11 @@ index 000000000000..5d87c70b45b3
 +/ {
 +	model = "TI AM335x BeagleBone Green Wireless";
 +	compatible = "ti,am335x-bone-green-wireless", "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-bonegreen-wireless-uboot-univ.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
 +};
 +
 +&ldo3_reg {
@@ -7239,10 +7278,10 @@ index 000000000000..5d87c70b45b3
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
-index 4092cd193b8a..82f8f61520f5 100644
+index 4092cd193b8a..a0a841d97165 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
-@@ -8,6 +8,7 @@
+@@ -8,11 +8,17 @@
  #include "am335x-bone-common.dtsi"
  #include "am335x-bonegreen-common.dtsi"
  #include <dt-bindings/interrupt-controller/irq.h>
@@ -7250,11 +7289,21 @@ index 4092cd193b8a..82f8f61520f5 100644
  
  / {
  	model = "TI AM335x BeagleBone Green Wireless";
+ 	compatible = "ti,am335x-bone-green-wireless", "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+ 
++	chosen {
++		base_dtb = "am335x-bonegreen-wireless.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
++
+ 	wlan_en_reg: fixedregulator@2 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "wlan-en-regulator";
 diff --git a/arch/arm/boot/dts/am335x-bonegreen.dts b/arch/arm/boot/dts/am335x-bonegreen.dts
-index c12bb0717779..e66eadde1d0b 100644
+index c12bb0717779..d3009aeeb640 100644
 --- a/arch/arm/boot/dts/am335x-bonegreen.dts
 +++ b/arch/arm/boot/dts/am335x-bonegreen.dts
-@@ -7,6 +7,7 @@
+@@ -7,8 +7,14 @@
  #include "am33xx.dtsi"
  #include "am335x-bone-common.dtsi"
  #include "am335x-bonegreen-common.dtsi"
@@ -7262,11 +7311,18 @@ index c12bb0717779..e66eadde1d0b 100644
  
  / {
  	model = "TI AM335x BeagleBone Green";
+ 	compatible = "ti,am335x-bone-green", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-bonegreen.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
 diff --git a/arch/arm/boot/dts/am335x-osd3358-sm-red.dts b/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
-index f47cc9fea253..8c3616c06067 100644
+index f47cc9fea253..bdb783879277 100644
 --- a/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
 +++ b/arch/arm/boot/dts/am335x-osd3358-sm-red.dts
-@@ -13,6 +13,7 @@
+@@ -13,10 +13,16 @@
  #include <dt-bindings/interrupt-controller/irq.h>
  
  #include <dt-bindings/display/tda998x.h>
@@ -7274,7 +7330,16 @@ index f47cc9fea253..8c3616c06067 100644
  
  / {
  	model = "Octavo Systems OSD3358-SM-RED";
-@@ -40,7 +41,6 @@
+ 	compatible = "oct,osd3358-sm-refdesign", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-osd3358-sm-red.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
+ 
+ &ldo3_reg {
+@@ -40,7 +46,6 @@
  &am33xx_pinmux {
  	nxp_hdmi_bonelt_pins: nxp-hdmi-bonelt-pins {
  		pinctrl-single,pins = <
@@ -7282,7 +7347,7 @@ index f47cc9fea253..8c3616c06067 100644
  			AM33XX_PADCONF(AM335X_PIN_LCD_DATA0, PIN_OUTPUT, MUX_MODE0)
  			AM33XX_PADCONF(AM335X_PIN_LCD_DATA1, PIN_OUTPUT, MUX_MODE0)
  			AM33XX_PADCONF(AM335X_PIN_LCD_DATA2, PIN_OUTPUT, MUX_MODE0)
-@@ -64,12 +64,6 @@
+@@ -64,12 +69,6 @@
  		>;
  	};
  
@@ -7295,7 +7360,7 @@ index f47cc9fea253..8c3616c06067 100644
  	mcasp0_pins: mcasp0-pins {
  		pinctrl-single,pins = <
  			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKX, PIN_INPUT_PULLUP, MUX_MODE0)
-@@ -124,9 +118,8 @@
+@@ -124,9 +123,8 @@
  		compatible = "nxp,tda998x";
  		reg = <0x70>;
  
@@ -7306,7 +7371,7 @@ index f47cc9fea253..8c3616c06067 100644
  
  		/* Convert 24bit BGR to RGB, e.g. cross red and blue wiring */
  		/* video-ports = <0x234501>; */
-@@ -264,9 +257,6 @@
+@@ -264,9 +262,6 @@
  };
  
  &am33xx_pinmux {
@@ -7316,7 +7381,7 @@ index f47cc9fea253..8c3616c06067 100644
  	user_leds_s0: user-leds-s0 {
  		pinctrl-single,pins = <
  			AM33XX_PADCONF(AM335X_PIN_GPMC_A5, PIN_OUTPUT_PULLDOWN, MUX_MODE7)	/* gpmc_a5.gpio1_21 */
-@@ -290,12 +280,6 @@
+@@ -290,12 +285,6 @@
  		>;
  	};
  
@@ -7330,10 +7395,19 @@ index f47cc9fea253..8c3616c06067 100644
  		pinctrl-single,pins = <
  			/* Slave 1 */
 diff --git a/arch/arm/boot/dts/am335x-pocketbeagle.dts b/arch/arm/boot/dts/am335x-pocketbeagle.dts
-index ff4f919d22f6..6021bb2701aa 100644
+index ff4f919d22f6..d2533a887870 100644
 --- a/arch/arm/boot/dts/am335x-pocketbeagle.dts
 +++ b/arch/arm/boot/dts/am335x-pocketbeagle.dts
-@@ -60,24 +60,24 @@
+@@ -15,6 +15,8 @@
+ 
+ 	chosen {
+ 		stdout-path = &uart0;
++		base_dtb = "am335x-pocketbeagle.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
+ 	};
+ 
+ 	leds {
+@@ -60,24 +62,24 @@
  };
  
  &am33xx_pinmux {
@@ -7374,7 +7448,7 @@ index ff4f919d22f6..6021bb2701aa 100644
  
  	mmc0_pins: pinmux-mmc0-pins {
  		pinctrl-single,pins = <
-@@ -88,27 +88,26 @@
+@@ -88,27 +90,26 @@
  			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT3, PIN_INPUT_PULLUP, MUX_MODE0)
  			AM33XX_PADCONF(AM335X_PIN_MMC0_CMD, PIN_INPUT_PULLUP, MUX_MODE0)
  			AM33XX_PADCONF(AM335X_PIN_MMC0_CLK, PIN_INPUT_PULLUP, MUX_MODE0)
@@ -7418,7 +7492,7 @@ index ff4f919d22f6..6021bb2701aa 100644
  
  	usr_leds_pins: pinmux-usr-leds-pins {
  		pinctrl-single,pins = <
-@@ -126,12 +125,839 @@
+@@ -126,12 +127,839 @@
  		>;
  	};
  
@@ -8264,7 +8338,7 @@ index ff4f919d22f6..6021bb2701aa 100644
  };
  
  &epwmss0 {
-@@ -141,7 +967,8 @@
+@@ -141,7 +969,8 @@
  &ehrpwm0 {
  	status = "okay";
  	pinctrl-names = "default";
@@ -8274,7 +8348,7 @@ index ff4f919d22f6..6021bb2701aa 100644
  };
  
  &epwmss1 {
-@@ -151,7 +978,18 @@
+@@ -151,7 +980,18 @@
  &ehrpwm1 {
  	status = "okay";
  	pinctrl-names = "default";
@@ -8294,7 +8368,7 @@ index ff4f919d22f6..6021bb2701aa 100644
  };
  
  &i2c0 {
-@@ -161,9 +999,18 @@
+@@ -161,9 +1001,18 @@
  	};
  };
  
@@ -8314,7 +8388,7 @@ index ff4f919d22f6..6021bb2701aa 100644
  
  	status = "okay";
  	clock-frequency = <400000>;
-@@ -194,14 +1041,30 @@
+@@ -194,14 +1043,30 @@
  
  &uart0 {
  	pinctrl-names = "default";
@@ -8347,7 +8421,7 @@ index ff4f919d22f6..6021bb2701aa 100644
  
  	status = "okay";
  };
-@@ -235,3 +1098,1092 @@
+@@ -235,3 +1100,1092 @@
  &cppi41dma  {
  	status = "okay";
  };
@@ -9440,6 +9514,22 @@ index ff4f919d22f6..6021bb2701aa 100644
 +
 +	};
 +};
+diff --git a/arch/arm/boot/dts/am335x-sancloud-bbe.dts b/arch/arm/boot/dts/am335x-sancloud-bbe.dts
+index 8678e6e35493..2381a5c5110c 100644
+--- a/arch/arm/boot/dts/am335x-sancloud-bbe.dts
++++ b/arch/arm/boot/dts/am335x-sancloud-bbe.dts
+@@ -12,6 +12,11 @@
+ / {
+ 	model = "SanCloud BeagleBone Enhanced";
+ 	compatible = "sancloud,am335x-boneenhanced", "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
++
++	chosen {
++		base_dtb = "am335x-sancloud-bbe.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
+ 
+ &am33xx_pinmux {
 diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
 index ced1a19d5f89..baba50525dd8 100644
 --- a/arch/arm/boot/dts/am33xx-l4.dtsi
