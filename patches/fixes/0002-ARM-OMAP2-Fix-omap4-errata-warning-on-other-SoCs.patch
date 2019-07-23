@@ -1,0 +1,40 @@
+From d8b71cf72773c22a6ab1a8e9d622608a02817f1e Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Tue, 23 Jul 2019 04:37:45 -0700
+Subject: [PATCH 2/3] ARM: OMAP2+: Fix omap4 errata warning on other SoCs
+
+We have errata i688 workaround produce warnings on SoCs other than
+omap4 and omap5:
+
+omap4_sram_init:Unable to allocate sram needed to handle errata I688
+omap4_sram_init:Unable to get sram pool needed to handle errata I688
+
+This is happening because there is no ti,omap4-mpu node, or no SRAM
+to configure for the other SoCs, so let's remove the warning based
+on the SoC revision checks.
+
+As nobody has complained it seems that the other SoC variants do not
+need this workaround.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap2/omap4-common.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/mach-omap2/omap4-common.c b/arch/arm/mach-omap2/omap4-common.c
+index f9c02f9f1c92..5c3845730dbf 100644
+--- a/arch/arm/mach-omap2/omap4-common.c
++++ b/arch/arm/mach-omap2/omap4-common.c
+@@ -127,6 +127,9 @@ static int __init omap4_sram_init(void)
+ 	struct device_node *np;
+ 	struct gen_pool *sram_pool;
+ 
++	if (!soc_is_omap44xx() && !soc_is_omap54xx())
++		return 0;
++
+ 	np = of_find_compatible_node(NULL, NULL, "ti,omap4-mpu");
+ 	if (!np)
+ 		pr_warn("%s:Unable to allocate sram needed to handle errata I688\n",
+-- 
+2.20.1
+
