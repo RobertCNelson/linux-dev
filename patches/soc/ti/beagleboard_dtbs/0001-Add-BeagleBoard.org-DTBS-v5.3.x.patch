@@ -1,6 +1,6 @@
-From 70c0d4a8bce1fb3ed94838e23ac22cd611ae3991 Mon Sep 17 00:00:00 2001
+From 9d5986ad0e480569487f4414c1e28f9ff867b825 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 22 Jul 2019 16:13:13 -0500
+Date: Sun, 28 Jul 2019 18:46:06 -0500
 Subject: [PATCH] Add BeagleBoard.org DTBS: v5.3.x
 
 https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.3.x
@@ -30,6 +30,9 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am33xx-l4.dtsi              |  162 +
  arch/arm/boot/dts/am33xx.dtsi                 |    2 +-
  .../boot/dts/am57xx-beagle-x15-common.dtsi    |    4 +
+ arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts |    5 +
+ arch/arm/boot/dts/am57xx-beagle-x15-revc.dts  |    5 +
+ arch/arm/boot/dts/am57xx-beagle-x15.dts       |    5 +
  arch/arm/boot/dts/dra7.dtsi                   |   10 +
  arch/arm/boot/dts/omap3-beagle-xm.dts         |   53 +-
  arch/arm/boot/dts/omap3-beagle.dts            |   11 +
@@ -42,7 +45,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/omap4.dtsi                  |    2 +
  arch/arm/boot/dts/twl6030.dtsi                |    5 +
  .../dt-bindings/board/am335x-bbw-bbb-base.h   |  103 +
- 36 files changed, 9421 insertions(+), 118 deletions(-)
+ 39 files changed, 9436 insertions(+), 118 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-abbbi.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-univ.dtsi
@@ -9773,6 +9776,54 @@ index d02f5fa61e5f..361f66bbc493 100644
  &i2c1 {
  	status = "okay";
  	clock-frequency = <400000>;
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts b/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
+index a374b5cd6db0..c722121b7acf 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-revb1.dts
+@@ -7,6 +7,11 @@
+ 
+ / {
+ 	model = "TI AM5728 BeagleBoard-X15 rev B1";
++
++	chosen {
++		base_dtb = "am57xx-beagle-x15-revb1.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
+ 
+ &tpd12s015 {
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+index 4badd2144db9..35550da050b9 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-revc.dts
+@@ -7,6 +7,11 @@
+ 
+ / {
+ 	model = "TI AM5728 BeagleBoard-X15 rev C";
++
++	chosen {
++		base_dtb = "am57xx-beagle-x15-revc.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
+ 
+ &tpd12s015 {
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15.dts b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+index a5c24ed4d12f..dbda396f92b4 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15.dts
++++ b/arch/arm/boot/dts/am57xx-beagle-x15.dts
+@@ -8,6 +8,11 @@
+ / {
+ 	/* NOTE: This describes the "original" pre-production A2 revision */
+ 	model = "TI AM5728 BeagleBoard-X15";
++
++	chosen {
++		base_dtb = "am57xx-beagle-x15.dts";
++		base_dtb_timestamp = __TIMESTAMP__;
++	};
+ };
+ 
+ &tpd12s015 {
 diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
 index 953f0ffce2a9..05ebd38d54dc 100644
 --- a/arch/arm/boot/dts/dra7.dtsi
