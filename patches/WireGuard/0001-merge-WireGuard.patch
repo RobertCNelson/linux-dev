@@ -1,13 +1,13 @@
-From be9ee339dda99036c16de8b5c53f3e19cf6a8f07 Mon Sep 17 00:00:00 2001
+From 3414d8ac977ed04db586fdd7cb7197c795bbc5db Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 4 Aug 2019 21:06:59 -0500
+Date: Sun, 11 Aug 2019 16:22:00 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  net/Kconfig                                   |    1 +
  net/Makefile                                  |    1 +
- net/wireguard/Kconfig                         |   32 +
+ net/wireguard/Kconfig                         |   34 +
  net/wireguard/Makefile                        |   14 +
  net/wireguard/allowedips.c                    |  377 +
  net/wireguard/allowedips.h                    |   59 +
@@ -80,11 +80,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/device.h                        |   65 +
  net/wireguard/main.c                          |   69 +
  net/wireguard/messages.h                      |  128 +
- net/wireguard/netlink.c                       |  661 ++
+ net/wireguard/netlink.c                       |  667 ++
  net/wireguard/netlink.h                       |   12 +
  net/wireguard/noise.c                         |  826 ++
  net/wireguard/noise.h                         |  137 +
- net/wireguard/peer.c                          |  237 +
+ net/wireguard/peer.c                          |  240 +
  net/wireguard/peer.h                          |   83 +
  net/wireguard/peerlookup.c                    |  221 +
  net/wireguard/peerlookup.h                    |   64 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  192 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51086 insertions(+)
+ 98 files changed, 51097 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -227,17 +227,19 @@ index 449fc0b221f8..bf63f55e444b 100644
  obj-$(CONFIG_XFRM)		+= xfrm/
 diff --git a/net/wireguard/Kconfig b/net/wireguard/Kconfig
 new file mode 100644
-index 000000000000..3a688849b621
+index 000000000000..65fb31ddb01f
 --- /dev/null
 +++ b/net/wireguard/Kconfig
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,34 @@
 +config WIREGUARD
 +	tristate "IP: WireGuard secure network tunnel"
 +	depends on NET && INET
 +	depends on IPV6 || !IPV6
 +	select NET_UDP_TUNNEL
 +	select DST_CACHE
++	select CRYPTO
 +	select CRYPTO_BLKCIPHER
++	select XOR_BLOCKS
 +	select VFP
 +	select VFPv3 if CPU_V7
 +	select NEON if CPU_V7
@@ -46009,10 +46011,10 @@ index 000000000000..3cfd1c5e9b02
 +#endif /* _WG_MESSAGES_H */
 diff --git a/net/wireguard/netlink.c b/net/wireguard/netlink.c
 new file mode 100644
-index 000000000000..eb94f4d72ace
+index 000000000000..0805a264b799
 --- /dev/null
 +++ b/net/wireguard/netlink.c
-@@ -0,0 +1,661 @@
+@@ -0,0 +1,667 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46428,10 +46430,16 @@ index 000000000000..eb94f4d72ace
 +		}
 +		up_read(&wg->static_identity.lock);
 +
-+		ret = -ENOMEM;
 +		peer = wg_peer_create(wg, public_key, preshared_key);
-+		if (!peer)
++		if (IS_ERR(peer)) {
++			/* Similar to the above, if the key is invalid, we skip
++			 * it without fanfare, so that services don't need to
++			 * worry about doing key validation themselves.
++			 */
++			ret = PTR_ERR(peer) == -EKEYREJECTED ? 0 : PTR_ERR(peer);
++			peer = NULL;
 +			goto out;
++		}
 +		/* Take additional reference, as though we've just been
 +		 * looked up.
 +		 */
@@ -47669,10 +47677,10 @@ index 000000000000..138a07bb817c
 +#endif /* _WG_NOISE_H */
 diff --git a/net/wireguard/peer.c b/net/wireguard/peer.c
 new file mode 100644
-index 000000000000..ffb911f18377
+index 000000000000..071eedf33f5a
 --- /dev/null
 +++ b/net/wireguard/peer.c
-@@ -0,0 +1,237 @@
+@@ -0,0 +1,240 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -47697,20 +47705,23 @@ index 000000000000..ffb911f18377
 +			       const u8 preshared_key[NOISE_SYMMETRIC_KEY_LEN])
 +{
 +	struct wg_peer *peer;
++	int ret = -ENOMEM;
 +
 +	lockdep_assert_held(&wg->device_update_lock);
 +
 +	if (wg->num_peers >= MAX_PEERS_PER_DEVICE)
-+		return NULL;
++		return ERR_PTR(ret);
 +
 +	peer = kzalloc(sizeof(*peer), GFP_KERNEL);
 +	if (unlikely(!peer))
-+		return NULL;
++		return ERR_PTR(ret);
 +	peer->device = wg;
 +
 +	if (!wg_noise_handshake_init(&peer->handshake, &wg->static_identity,
-+				     public_key, preshared_key, peer))
++				     public_key, preshared_key, peer)) {
++		ret = -EKEYREJECTED;
 +		goto err_1;
++	}
 +	if (dst_cache_init(&peer->endpoint_cache, GFP_KERNEL))
 +		goto err_1;
 +	if (wg_packet_queue_init(&peer->tx_queue, wg_packet_tx_worker, false,
@@ -47749,7 +47760,7 @@ index 000000000000..ffb911f18377
 +	dst_cache_destroy(&peer->endpoint_cache);
 +err_1:
 +	kfree(peer);
-+	return NULL;
++	return ERR_PTR(ret);
 +}
 +
 +struct wg_peer *wg_peer_get_maybe_zero(struct wg_peer *peer)
