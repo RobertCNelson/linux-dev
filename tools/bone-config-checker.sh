@@ -308,12 +308,15 @@ config="CONFIG_USB_CHIPIDEA" ; config_disable
 config="CONFIG_UWB" ; config_disable
 config="CONFIG_USB_ULPI" ; config_disable
 config="CONFIG_USB_ULPI_BUS" ; config_disable
+config="CONFIG_USB_ROLE_SWITCH" ; config_disable
+config="CONFIG_PWRSEQ_SD8787" ; config_disable
 
 #
 # MMC/SD/SDIO Host Controller Drivers
 #
 config="CONFIG_MMC_SDHCI" ; config_disable
 config="CONFIG_MMC_SDHCI_PLTFM" ; config_disable
+config="CONFIG_MMC_CQHCI" ; config_disable
 config="CONFIG_MEMSTICK" ; config_disable
 
 #
