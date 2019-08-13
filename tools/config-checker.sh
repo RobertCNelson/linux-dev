@@ -206,6 +206,15 @@ config="CONFIG_IP_PNP_RARP" ; config_enable
 config="CONFIG_NETLABEL" ; config_enable
 
 #
+# DCCP Kernel Hacking
+#
+config="CONFIG_NET_DSA_TAG_BRCM" ; config_disable
+config="CONFIG_NET_DSA_TAG_BRCM_PREPEND" ; config_disable
+config="CONFIG_NET_DSA_TAG_DSA" ; config_disable
+config="CONFIG_NET_DSA_TAG_EDSA" ; config_disable
+config="CONFIG_NET_DSA_TAG_TRAILER" ; config_disable
+
+#
 # CAN Device Drivers
 #
 config="CONFIG_CAN_SJA1000" ; config_disable
@@ -915,7 +924,8 @@ config="CONFIG_TINYDRM_REPAPER" ; config_module
 config="CONFIG_TINYDRM_ST7586" ; config_module
 config="CONFIG_TINYDRM_ST7735R" ; config_module
 
-config="DRM_PANFROST" ; config_disable
+config="CONFIG_DRM_LIMA" ; config_disable
+config="CONFIG_DRM_PANFROST" ; config_disable
 config="CONFIG_DRM_LEGACY" ; config_disable
 
 #exit
@@ -934,6 +944,14 @@ config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 # Console display driver support
 #
 config="CONFIG_LOGO" ; config_enable
+
+config="CONFIG_SND_SEQ_VIRMIDI" ; config_module
+config="CONFIG_SND_MPU401_UART" ; config_module
+config="CONFIG_SND_DUMMY" ; config_module
+config="CONFIG_SND_VIRMIDI" ; config_module
+config="CONFIG_SND_MTPAV" ; config_module
+config="CONFIG_SND_SERIAL_U16550" ; config_module
+config="CONFIG_SND_MPU401" ; config_module
 
 #
 # Audio support for Texas Instruments SoCs
@@ -957,6 +975,23 @@ config="CONFIG_SND_SOC_OMAP3_PANDORA" ; config_disable
 config="CONFIG_SND_SOC_OMAP3_TWL4030" ; config_module
 config="CONFIG_SND_SOC_OMAP_ABE_TWL6040" ; config_module
 config="CONFIG_SND_SOC_OMAP_HDMI" ; config_module
+
+#
+# CODEC drivers
+#
+config="CONFIG_SND_SOC_ADAU1701" ; config_module
+config="CONFIG_SND_SOC_ADAU7002" ; config_module
+config="CONFIG_SND_SOC_AK4554" ; config_module
+config="CONFIG_SND_SOC_CS4265" ; config_module
+config="CONFIG_SND_SOC_CS4271" ; config_module
+config="CONFIG_SND_SOC_CS4271_I2C" ; config_module
+config="CONFIG_SND_SOC_DMIC" ; config_module
+config="CONFIG_SND_SOC_PCM512x" ; config_module
+config="CONFIG_SND_SOC_PCM512x_I2C" ; config_module
+config="CONFIG_SND_SOC_SIGMADSP" ; config_module
+config="CONFIG_SND_SOC_SIGMADSP_I2C" ; config_module
+config="CONFIG_SND_SOC_WM8804" ; config_module
+config="CONFIG_SND_SOC_WM8804_I2C" ; config_module
 
 #
 # HID support
@@ -1024,6 +1059,11 @@ config="CONFIG_USB_MUSB_AM335X_CHILD" ; config_enable
 config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 config="CONFIG_USB_DWC3" ; config_enable
 
+config="CONFIG_AUXDISPLAY" ; config_enable
+config="CONFIG_HD44780" ; config_module
+config="CONFIG_IMG_ASCII_LCD" ; config_module
+config="CONFIG_HT16K33" ; config_module
+
 #
 # Platform Glue Driver Support
 #
@@ -1070,7 +1110,8 @@ config="CONFIG_USB_G_HID" ; config_module
 config="CONFIG_USB_G_DBGP" ; config_module
 
 config="CONFIG_UWB" ; config_disable
-config="CONFIG_PWRSEQ_SD8787" ; config_enable
+config="CONFIG_USB_ROLE_SWITCH" ; config_module
+config="CONFIG_PWRSEQ_SD8787" ; config_module
 
 #
 # MMC/SD/SDIO Card Drivers
@@ -1852,6 +1893,7 @@ config="CONFIG_PHY_SUN4I_USB" ; config_enable
 config="CONFIG_PHY_SUN9I_USB" ; config_enable
 config="CONFIG_OMAP_USB2" ; config_enable
 config="CONFIG_TWL4030_USB" ; config_enable
+config="CONFIG_TI_PIPE3" ; config_module
 
 #
 # Android
@@ -1900,6 +1942,7 @@ config="CONFIG_OVERLAY_FS" ; config_enable
 config="CONFIG_FAT_FS" ; config_enable
 config="CONFIG_MSDOS_FS" ; config_enable
 config="CONFIG_VFAT_FS" ; config_enable
+config="CONFIG_NTFS_FS" ; config_module
 
 #
 # Pseudo filesystems
@@ -1965,6 +2008,9 @@ config="CONFIG_CRYPTO_DEV_OMAP_AES" ; config_enable
 config="CONFIG_CRYPTO_DEV_OMAP_DES" ; config_enable
 
 config="CONFIG_CRYPTO_DEV_SAHARA" ; config_enable
+config="CONFIG_CRYPTO_DEV_ATMEL_I2C" ; config_enable
+config="CONFIG_CRYPTO_DEV_ATMEL_ECC" ; config_enable
+config="CONFIG_CRYPTO_DEV_ATMEL_SHA204A" ; config_enable
 
 config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_enable
 
