@@ -1,0 +1,26 @@
+From eff9413c00851c3941899f3dd509023a13c566ac Mon Sep 17 00:00:00 2001
+From: Vaishnav M A <mavaishnav007@gmail.com>
+Date: Mon, 26 Aug 2019 02:06:27 +0530
+Subject: [PATCH] change MAX_NUM_UDC from 2 to 4
+
+The project clickboard support through greybus(https://github.com/vaishnav98/gbsim/wiki/Beagleboard-GSoC-'19:--Clickboard-Support-Under-Greybus) uses dummy_hcd emulated UDC for running the greybus simulator and requires an instance of emulated UDC for each mikrobus port, since the Beaglebone Black Mikrobus Cape has 4 Mikrobus Slots for serving all of the ports through greybus simulator at a time requires 4 emulated dummy_hcd UDC.
+---
+ drivers/usb/gadget/udc/dummy_hcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
+index c0780e414534..4bebbdbdb626 100644
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -2719,7 +2719,7 @@ static struct platform_driver dummy_hcd_driver = {
+ };
+ 
+ /*-------------------------------------------------------------------------*/
+-#define MAX_NUM_UDC	2
++#define MAX_NUM_UDC	4
+ static struct platform_device *the_udc_pdev[MAX_NUM_UDC];
+ static struct platform_device *the_hcd_pdev[MAX_NUM_UDC];
+ 
+-- 
+2.23.0.rc1
+

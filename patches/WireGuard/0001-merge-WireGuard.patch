@@ -1,6 +1,6 @@
-From cb4466fbee7a81abe564661c41c3ace5c234ddf1 Mon Sep 17 00:00:00 2001
+From a12cb7152c9278daad27b8cf0ec6e08ebfd90750 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 19 Aug 2019 10:16:44 -0500
+Date: Sun, 25 Aug 2019 17:28:08 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -11,10 +11,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/Makefile                        |   14 +
  net/wireguard/allowedips.c                    |  377 +
  net/wireguard/allowedips.h                    |   59 +
- net/wireguard/compat/Makefile.include         |   94 +
+ net/wireguard/compat/Makefile.include         |   98 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  915 ++
+ net/wireguard/compat/compat.h                 |  911 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -735,10 +735,10 @@ index 000000000000..e5c83cafcef4
 +#endif /* _WG_ALLOWEDIPS_H */
 diff --git a/net/wireguard/compat/Makefile.include b/net/wireguard/compat/Makefile.include
 new file mode 100644
-index 000000000000..45a2173f0de1
+index 000000000000..7bf345b5db52
 --- /dev/null
 +++ b/net/wireguard/compat/Makefile.include
-@@ -0,0 +1,94 @@
+@@ -0,0 +1,98 @@
 +# SPDX-License-Identifier: GPL-2.0
 +#
 +# Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -786,6 +786,10 @@ index 000000000000..45a2173f0de1
 +ifeq ($(shell grep -s -F "int crypto_memneq" "$(srctree)/include/crypto/algapi.h"),)
 +ccflags-y += -include $(kbuild-dir)/compat/memneq/include.h
 +wireguard-y += compat/memneq/memneq.o
++endif
++
++ifeq ($(shell grep -s -F "addr_gen_mode" "$(srctree)/include/linux/ipv6.h"),)
++ccflags-y += -DCOMPAT_CANNOT_USE_DEV_CNF
 +endif
 +
 +ifdef CONFIG_HZ
@@ -1098,10 +1102,10 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..c98d623ab695
+index 000000000000..fb09037e8d6b
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,915 @@
+@@ -0,0 +1,911 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1702,10 +1706,6 @@ index 000000000000..c98d623ab695
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)
 +#define COMPAT_CANNOT_USE_IN6_DEV_GET
-+#endif
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
-+#define COMPAT_CANNOT_USE_DEV_CNF
 +#endif
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 3, 0)
@@ -51897,5 +51897,5 @@ index 000000000000..ae368725d068
 @@ -0,0 +1 @@
 +#define WIREGUARD_VERSION "0.0.20190702"
 -- 
-2.20.1
+2.23.0.rc1
 
