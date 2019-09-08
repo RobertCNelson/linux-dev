@@ -452,7 +452,6 @@ soc () {
 #reverts
 drivers
 soc
-dir 'fixes'
 
 packaging () {
 	echo "dir: packaging"
