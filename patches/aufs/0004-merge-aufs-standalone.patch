@@ -1,6 +1,6 @@
-From fe0051f2e1053898d9b6b91d26223418083a6fc1 Mon Sep 17 00:00:00 2001
+From e49151a1241327c9f32e26c784e989d734d4d804 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sat, 15 Jun 2019 19:42:34 -0500
+Date: Mon, 23 Sep 2019 09:53:14 -0500
 Subject: [PATCH 4/5] merge: aufs-standalone
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -25,10 +25,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  17 files changed, 38 insertions(+)
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 83695a1d9219..b9771d9b5d46 100644
+index 7ce4ccf5a51c..00d7e6a08026 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1352,6 +1352,7 @@ void d_walk(struct dentry *parent, void *data,
+@@ -1369,6 +1369,7 @@ void d_walk(struct dentry *parent, void *data,
  	seq = 1;
  	goto again;
  }
@@ -36,7 +36,7 @@ index 83695a1d9219..b9771d9b5d46 100644
  
  struct check_mount {
  	struct vfsmount *mnt;
-@@ -2847,6 +2848,7 @@ void d_exchange(struct dentry *dentry1, struct dentry *dentry2)
+@@ -2914,6 +2915,7 @@ void d_exchange(struct dentry *dentry1, struct dentry *dentry2)
  
  	write_sequnlock(&rename_lock);
  }
@@ -45,10 +45,10 @@ index 83695a1d9219..b9771d9b5d46 100644
  /**
   * d_ancestor - search for an ancestor
 diff --git a/fs/exec.c b/fs/exec.c
-index 2e0033348d8e..bd946a5b9b1e 100644
+index f7f6a140856a..1a740f3c42ba 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -109,6 +109,7 @@ bool path_noexec(const struct path *path)
+@@ -110,6 +110,7 @@ bool path_noexec(const struct path *path)
  	return (path->mnt->mnt_flags & MNT_NOEXEC) ||
  	       (path->mnt->mnt_sb->s_iflags & SB_I_NOEXEC);
  }
@@ -57,7 +57,7 @@ index 2e0033348d8e..bd946a5b9b1e 100644
  #ifdef CONFIG_USELIB
  /*
 diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 78234ee16784..2072f690b121 100644
+index d62303c5472a..d4ad34463848 100644
 --- a/fs/fcntl.c
 +++ b/fs/fcntl.c
 @@ -85,6 +85,7 @@ int setfl(int fd, struct file * filp, unsigned long arg)
@@ -69,10 +69,10 @@ index 78234ee16784..2072f690b121 100644
  static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
                       int force)
 diff --git a/fs/file_table.c b/fs/file_table.c
-index 155d7514a094..eefcbb908038 100644
+index b07b53f24ff5..34b9bbf4c556 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
-@@ -161,6 +161,7 @@ struct file *alloc_empty_file(int flags, const struct cred *cred)
+@@ -162,6 +162,7 @@ struct file *alloc_empty_file(int flags, const struct cred *cred)
  	}
  	return ERR_PTR(-ENFILE);
  }
@@ -80,7 +80,7 @@ index 155d7514a094..eefcbb908038 100644
  
  /*
   * Variant of alloc_empty_file() that doesn't check and modify nr_files.
-@@ -323,6 +324,7 @@ void flush_delayed_fput(void)
+@@ -327,6 +328,7 @@ void flush_delayed_fput(void)
  {
  	delayed_fput(NULL);
  }
@@ -88,7 +88,7 @@ index 155d7514a094..eefcbb908038 100644
  
  static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
  
-@@ -370,6 +372,7 @@ void __fput_sync(struct file *file)
+@@ -374,6 +376,7 @@ void __fput_sync(struct file *file)
  }
  
  EXPORT_SYMBOL(fput);
@@ -97,10 +97,10 @@ index 155d7514a094..eefcbb908038 100644
  void __init files_init(void)
  {
 diff --git a/fs/inode.c b/fs/inode.c
-index ee4434cea572..78b9f5631976 100644
+index 43df8452f97d..8a5c14630ff0 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
-@@ -1666,6 +1666,7 @@ int update_time(struct inode *inode, struct timespec64 *time, int flags)
+@@ -1679,6 +1679,7 @@ int update_time(struct inode *inode, struct timespec64 *time, int flags)
  
  	return update_time(inode, time, flags);
  }
@@ -109,10 +109,10 @@ index ee4434cea572..78b9f5631976 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index e56de0b2bee0..f63c51204a41 100644
+index 34c8093ddb1d..2b64af58b643 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -435,6 +435,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
+@@ -431,6 +431,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
  	mnt_dec_writers(real_mount(mnt));
  	preempt_enable();
  }
@@ -120,7 +120,7 @@ index e56de0b2bee0..f63c51204a41 100644
  
  /**
   * mnt_drop_write - give up write access to a mount
-@@ -774,6 +775,7 @@ int is_current_mnt_ns(struct vfsmount *mnt)
+@@ -781,6 +782,7 @@ int is_current_mnt_ns(struct vfsmount *mnt)
  {
  	return check_mnt(real_mount(mnt));
  }
@@ -128,7 +128,7 @@ index e56de0b2bee0..f63c51204a41 100644
  
  /*
   * vfsmount lock must be held for write
-@@ -1886,6 +1888,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1900,6 +1902,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
@@ -137,10 +137,10 @@ index e56de0b2bee0..f63c51204a41 100644
  static void lock_mnt_tree(struct mount *mnt)
  {
 diff --git a/fs/notify/group.c b/fs/notify/group.c
-index c03b83662876..94d210ca384a 100644
+index 0391190305cc..0b9f7f6d8390 100644
 --- a/fs/notify/group.c
 +++ b/fs/notify/group.c
-@@ -112,6 +112,7 @@ void fsnotify_get_group(struct fsnotify_group *group)
+@@ -99,6 +99,7 @@ void fsnotify_get_group(struct fsnotify_group *group)
  {
  	refcount_inc(&group->refcnt);
  }
@@ -148,7 +148,7 @@ index c03b83662876..94d210ca384a 100644
  
  /*
   * Drop a reference to a group.  Free it if it's through.
-@@ -121,6 +122,7 @@ void fsnotify_put_group(struct fsnotify_group *group)
+@@ -108,6 +109,7 @@ void fsnotify_put_group(struct fsnotify_group *group)
  	if (refcount_dec_and_test(&group->refcnt))
  		fsnotify_final_destroy_group(group);
  }
@@ -156,7 +156,7 @@ index c03b83662876..94d210ca384a 100644
  
  /*
   * Create a new fsnotify_group and hold a reference for the group returned.
-@@ -150,6 +152,7 @@ struct fsnotify_group *fsnotify_alloc_group(const struct fsnotify_ops *ops)
+@@ -137,6 +139,7 @@ struct fsnotify_group *fsnotify_alloc_group(const struct fsnotify_ops *ops)
  
  	return group;
  }
@@ -165,10 +165,10 @@ index c03b83662876..94d210ca384a 100644
  int fsnotify_fasync(int fd, struct file *file, int on)
  {
 diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 22acb0a79b53..a38381e57490 100644
+index 99ddd126f6f0..2154d69a2c7a 100644
 --- a/fs/notify/mark.c
 +++ b/fs/notify/mark.c
-@@ -289,6 +289,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
+@@ -276,6 +276,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
  	queue_delayed_work(system_unbound_wq, &reaper_work,
  			   FSNOTIFY_REAPER_DELAY);
  }
@@ -176,7 +176,7 @@ index 22acb0a79b53..a38381e57490 100644
  
  /*
   * Get mark reference when we found the mark via lockless traversal of object
-@@ -443,6 +444,7 @@ void fsnotify_destroy_mark(struct fsnotify_mark *mark,
+@@ -430,6 +431,7 @@ void fsnotify_destroy_mark(struct fsnotify_mark *mark,
  	mutex_unlock(&group->mark_mutex);
  	fsnotify_free_mark(mark);
  }
@@ -201,10 +201,10 @@ index 22acb0a79b53..a38381e57490 100644
  /*
   * Destroy all marks in destroy_list, waits for SRCU period to finish before
 diff --git a/fs/open.c b/fs/open.c
-index a00350018a47..fc17a6a34071 100644
+index a59abe3c669a..78809163ba03 100644
 --- a/fs/open.c
 +++ b/fs/open.c
-@@ -64,6 +64,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
+@@ -65,6 +65,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
  	inode_unlock(dentry->d_inode);
  	return ret;
  }
@@ -213,10 +213,10 @@ index a00350018a47..fc17a6a34071 100644
  long vfs_truncate(const struct path *path, loff_t length)
  {
 diff --git a/fs/read_write.c b/fs/read_write.c
-index 8979e01e9bf0..50fb9b2d1418 100644
+index 3265bb84f152..5b2dbddb0efe 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
-@@ -459,6 +459,7 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
+@@ -468,6 +468,7 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
  
  	return ret;
  }
@@ -224,7 +224,7 @@ index 8979e01e9bf0..50fb9b2d1418 100644
  
  static ssize_t new_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos)
  {
-@@ -499,6 +500,7 @@ vfs_readf_t vfs_readf(struct file *file)
+@@ -508,6 +509,7 @@ vfs_readf_t vfs_readf(struct file *file)
  		return new_sync_read;
  	return ERR_PTR(-ENOSYS);
  }
@@ -232,7 +232,7 @@ index 8979e01e9bf0..50fb9b2d1418 100644
  
  vfs_writef_t vfs_writef(struct file *file)
  {
-@@ -510,6 +512,7 @@ vfs_writef_t vfs_writef(struct file *file)
+@@ -519,6 +521,7 @@ vfs_writef_t vfs_writef(struct file *file)
  		return new_sync_write;
  	return ERR_PTR(-ENOSYS);
  }
@@ -240,19 +240,19 @@ index 8979e01e9bf0..50fb9b2d1418 100644
  
  ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
  {
-@@ -579,6 +582,7 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
+@@ -588,6 +591,7 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
  
  	return ret;
  }
 +EXPORT_SYMBOL_GPL(vfs_write);
  
- static inline loff_t file_pos_read(struct file *file)
- {
+ /* file_ppos returns &file->f_pos or NULL if file is stream */
+ static inline loff_t *file_ppos(struct file *file)
 diff --git a/fs/splice.c b/fs/splice.c
-index 9629564ee8f2..f277bda5f717 100644
+index 75b489fcb66f..0a1f7498c22b 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
-@@ -846,6 +846,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+@@ -847,6 +847,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
  
  	return splice_write(pipe, out, ppos, len, flags);
  }
@@ -260,7 +260,7 @@ index 9629564ee8f2..f277bda5f717 100644
  
  /*
   * Attempt to initiate a splice from a file to a pipe.
-@@ -875,6 +876,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
+@@ -876,6 +877,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
  
  	return splice_read(in, ppos, pipe, len, flags);
  }
@@ -269,7 +269,7 @@ index 9629564ee8f2..f277bda5f717 100644
  /**
   * splice_direct_to_actor - splices data directly between two non-pipes
 diff --git a/fs/sync.c b/fs/sync.c
-index 28607828e96f..ffd7ea43831e 100644
+index 457f4e4a5cc1..67c66358f3fe 100644
 --- a/fs/sync.c
 +++ b/fs/sync.c
 @@ -39,6 +39,7 @@ int __sync_filesystem(struct super_block *sb, int wait)
@@ -281,10 +281,10 @@ index 28607828e96f..ffd7ea43831e 100644
  /*
   * Write out and wait upon all dirty data associated with this
 diff --git a/fs/xattr.c b/fs/xattr.c
-index 0d6a6a4af861..7ce4701b7289 100644
+index 90dd78f0eb27..40b01dd1b14a 100644
 --- a/fs/xattr.c
 +++ b/fs/xattr.c
-@@ -295,6 +295,7 @@ vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
+@@ -296,6 +296,7 @@ vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
  	*xattr_value = value;
  	return error;
  }
@@ -293,12 +293,12 @@ index 0d6a6a4af861..7ce4701b7289 100644
  ssize_t
  __vfs_getxattr(struct dentry *dentry, struct inode *inode, const char *name,
 diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index c738ac7c3a46..92de98d9c634 100644
+index ec87ccf82025..739d1c8a81f5 100644
 --- a/kernel/locking/lockdep.c
 +++ b/kernel/locking/lockdep.c
-@@ -162,6 +162,7 @@ inline struct lock_class *lockdep_hlock_class(struct held_lock *hlock)
- 	}
- 	return lock_classes + hlock->class_idx - 1;
+@@ -174,6 +174,7 @@ inline struct lock_class *lockdep_hlock_class(struct held_lock *hlock)
+ 	 */
+ 	return lock_classes + class_idx;
  }
 +EXPORT_SYMBOL_GPL(lockdep_hlock_class);
  #define hlock_class(hlock) lockdep_hlock_class(hlock)
@@ -314,7 +314,7 @@ index 0fef395662a6..83fb1ecfc33d 100644
  }
 +EXPORT_SYMBOL_GPL(task_work_run);
 diff --git a/security/device_cgroup.c b/security/device_cgroup.c
-index dc28914fa72e..c2ddfea2b280 100644
+index 725674f3276d..83f6494c52a2 100644
 --- a/security/device_cgroup.c
 +++ b/security/device_cgroup.c
 @@ -824,3 +824,4 @@ int __devcgroup_check_permission(short type, u32 major, u32 minor,
@@ -323,10 +323,10 @@ index dc28914fa72e..c2ddfea2b280 100644
  }
 +EXPORT_SYMBOL_GPL(__devcgroup_check_permission);
 diff --git a/security/security.c b/security/security.c
-index 23cbb1a295a3..72b2c47ef649 100644
+index 250ee2d76406..2765042d4846 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -992,6 +992,7 @@ int security_path_rmdir(const struct path *dir, struct dentry *dentry)
+@@ -996,6 +996,7 @@ int security_path_rmdir(const struct path *dir, struct dentry *dentry)
  		return 0;
  	return call_int_hook(path_rmdir, 0, dir, dentry);
  }
@@ -334,7 +334,7 @@ index 23cbb1a295a3..72b2c47ef649 100644
  
  int security_path_unlink(const struct path *dir, struct dentry *dentry)
  {
-@@ -1008,6 +1009,7 @@ int security_path_symlink(const struct path *dir, struct dentry *dentry,
+@@ -1012,6 +1013,7 @@ int security_path_symlink(const struct path *dir, struct dentry *dentry,
  		return 0;
  	return call_int_hook(path_symlink, 0, dir, dentry, old_name);
  }
@@ -342,7 +342,7 @@ index 23cbb1a295a3..72b2c47ef649 100644
  
  int security_path_link(struct dentry *old_dentry, const struct path *new_dir,
  		       struct dentry *new_dentry)
-@@ -1016,6 +1018,7 @@ int security_path_link(struct dentry *old_dentry, const struct path *new_dir,
+@@ -1020,6 +1022,7 @@ int security_path_link(struct dentry *old_dentry, const struct path *new_dir,
  		return 0;
  	return call_int_hook(path_link, 0, old_dentry, new_dir, new_dentry);
  }
@@ -350,7 +350,7 @@ index 23cbb1a295a3..72b2c47ef649 100644
  
  int security_path_rename(const struct path *old_dir, struct dentry *old_dentry,
  			 const struct path *new_dir, struct dentry *new_dentry,
-@@ -1043,6 +1046,7 @@ int security_path_truncate(const struct path *path)
+@@ -1047,6 +1050,7 @@ int security_path_truncate(const struct path *path)
  		return 0;
  	return call_int_hook(path_truncate, 0, path);
  }
@@ -358,7 +358,7 @@ index 23cbb1a295a3..72b2c47ef649 100644
  
  int security_path_chmod(const struct path *path, umode_t mode)
  {
-@@ -1050,6 +1054,7 @@ int security_path_chmod(const struct path *path, umode_t mode)
+@@ -1054,6 +1058,7 @@ int security_path_chmod(const struct path *path, umode_t mode)
  		return 0;
  	return call_int_hook(path_chmod, 0, path, mode);
  }
@@ -366,7 +366,7 @@ index 23cbb1a295a3..72b2c47ef649 100644
  
  int security_path_chown(const struct path *path, kuid_t uid, kgid_t gid)
  {
-@@ -1057,6 +1062,7 @@ int security_path_chown(const struct path *path, kuid_t uid, kgid_t gid)
+@@ -1061,6 +1066,7 @@ int security_path_chown(const struct path *path, kuid_t uid, kgid_t gid)
  		return 0;
  	return call_int_hook(path_chown, 0, path, uid, gid);
  }
@@ -374,7 +374,7 @@ index 23cbb1a295a3..72b2c47ef649 100644
  
  int security_path_chroot(const struct path *path)
  {
-@@ -1157,6 +1163,7 @@ int security_inode_permission(struct inode *inode, int mask)
+@@ -1161,6 +1167,7 @@ int security_inode_permission(struct inode *inode, int mask)
  		return 0;
  	return call_int_hook(inode_permission, 0, inode, mask);
  }
@@ -382,7 +382,7 @@ index 23cbb1a295a3..72b2c47ef649 100644
  
  int security_inode_setattr(struct dentry *dentry, struct iattr *attr)
  {
-@@ -1328,6 +1335,7 @@ int security_file_permission(struct file *file, int mask)
+@@ -1338,6 +1345,7 @@ int security_file_permission(struct file *file, int mask)
  
  	return fsnotify_perm(file, mask);
  }
@@ -391,5 +391,5 @@ index 23cbb1a295a3..72b2c47ef649 100644
  int security_file_alloc(struct file *file)
  {
 -- 
-2.20.1
+2.23.0
 

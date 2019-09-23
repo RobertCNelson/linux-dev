@@ -1,6 +1,6 @@
-From 98295ca173201972955bd1e8393d005995f7ba8a Mon Sep 17 00:00:00 2001
+From f8bcd9074388b02d7e05ff408900099c5ef4263f Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sat, 15 Jun 2019 19:42:35 -0500
+Date: Mon, 23 Sep 2019 09:53:16 -0500
 Subject: [PATCH 5/5] merge: aufs
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -25,7 +25,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/Kconfig                               |  199 ++
  fs/aufs/Makefile                              |   46 +
  fs/aufs/aufs.h                                |   62 +
- fs/aufs/branch.c                              | 1423 ++++++++++++
+ fs/aufs/branch.c                              | 1428 ++++++++++++
  fs/aufs/branch.h                              |  366 +++
  fs/aufs/conf.mk                               |   40 +
  fs/aufs/cpup.c                                | 1458 ++++++++++++
@@ -53,10 +53,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/finfo.c                               |  149 ++
  fs/aufs/fstype.h                              |  401 ++++
  fs/aufs/hbl.h                                 |   65 +
- fs/aufs/hfsnotify.c                           |  289 +++
+ fs/aufs/hfsnotify.c                           |  288 +++
  fs/aufs/hfsplus.c                             |   60 +
  fs/aufs/hnotify.c                             |  721 ++++++
- fs/aufs/i_op.c                                | 1507 +++++++++++++
+ fs/aufs/i_op.c                                | 1505 +++++++++++++
  fs/aufs/i_op_add.c                            |  936 ++++++++
  fs/aufs/i_op_del.c                            |  513 +++++
  fs/aufs/i_op_ren.c                            | 1250 +++++++++++
@@ -71,7 +71,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/module.c                              |  273 +++
  fs/aufs/module.h                              |  166 ++
  fs/aufs/mvdown.c                              |  706 ++++++
- fs/aufs/opts.c                                | 1877 ++++++++++++++++
+ fs/aufs/opts.c                                | 1880 ++++++++++++++++
  fs/aufs/opts.h                                |  225 ++
  fs/aufs/plink.c                               |  516 +++++
  fs/aufs/poll.c                                |   51 +
@@ -80,7 +80,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/rdu.c                                 |  384 ++++
  fs/aufs/rwsem.h                               |   73 +
  fs/aufs/sbinfo.c                              |  314 +++
- fs/aufs/super.c                               | 1049 +++++++++
+ fs/aufs/super.c                               | 1047 +++++++++
  fs/aufs/super.h                               |  589 +++++
  fs/aufs/sysaufs.c                             |   93 +
  fs/aufs/sysaufs.h                             |  102 +
@@ -96,8 +96,8 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  fs/aufs/wkq.h                                 |   89 +
  fs/aufs/xattr.c                               |  356 +++
  fs/aufs/xino.c                                | 1965 +++++++++++++++++
- include/uapi/linux/aufs_type.h                |  448 ++++
- 92 files changed, 37842 insertions(+)
+ include/uapi/linux/aufs_type.h                |  452 ++++
+ 92 files changed, 37849 insertions(+)
  create mode 100644 Documentation/ABI/testing/debugfs-aufs
  create mode 100644 Documentation/ABI/testing/sysfs-aufs
  create mode 100644 Documentation/filesystems/aufs/README
@@ -2448,10 +2448,10 @@ index 000000000000..a62a85211b88
 +#endif /* __AUFS_H__ */
 diff --git a/fs/aufs/branch.c b/fs/aufs/branch.c
 new file mode 100644
-index 000000000000..fb388a049940
+index 000000000000..608bf76f8f21
 --- /dev/null
 +++ b/fs/aufs/branch.c
-@@ -0,0 +1,1423 @@
+@@ -0,0 +1,1428 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2019 Junjiro R. Okajima
@@ -3672,6 +3672,7 @@ index 000000000000..fb388a049940
 +	unsigned char verbose, writer;
 +	struct file *file, *hf, **array;
 +	struct au_hfile *hfile;
++	struct inode *h_inode;
 +
 +	mnt_flags = au_mntflags(sb);
 +	verbose = !!au_opt_test(mnt_flags, VERBOSE);
@@ -3742,8 +3743,12 @@ index 000000000000..fb388a049940
 +		hf->f_mode &= ~(FMODE_WRITE | FMODE_WRITER);
 +		spin_unlock(&hf->f_lock);
 +		if (writer) {
-+			put_write_access(file_inode(hf));
++			h_inode = file_inode(hf);
++			put_write_access(h_inode);
 +			__mnt_drop_write(hf->f_path.mnt);
++			if ((hf->f_mode & (FMODE_READ | FMODE_WRITE))
++			    == FMODE_READ)
++				i_readcount_inc(h_inode);
 +		}
 +	}
 +
@@ -16288,10 +16293,10 @@ index 000000000000..6db65b16b08a
 +#endif /* __AUFS_HBL_H__ */
 diff --git a/fs/aufs/hfsnotify.c b/fs/aufs/hfsnotify.c
 new file mode 100644
-index 000000000000..74c5483f8b69
+index 000000000000..7945ae3ca073
 --- /dev/null
 +++ b/fs/aufs/hfsnotify.c
-@@ -0,0 +1,289 @@
+@@ -0,0 +1,288 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2019 Junjiro R. Okajima
@@ -16456,13 +16461,12 @@ index 000000000000..74c5483f8b69
 +static int au_hfsn_handle_event(struct fsnotify_group *group,
 +				struct inode *inode,
 +				u32 mask, const void *data, int data_type,
-+				const unsigned char *file_name, u32 cookie,
++				const struct qstr *file_name, u32 cookie,
 +				struct fsnotify_iter_info *iter_info)
 +{
 +	int err;
 +	struct au_hnotify *hnotify;
 +	struct inode *h_dir, *h_inode;
-+	struct qstr h_child_qstr = QSTR_INIT(file_name, strlen(file_name));
 +	struct fsnotify_mark *inode_mark;
 +
 +	AuDebugOn(data_type != FSNOTIFY_EVENT_INODE);
@@ -16490,7 +16494,7 @@ index 000000000000..74c5483f8b69
 +	inode_mark = fsnotify_iter_inode_mark(iter_info);
 +	AuDebugOn(!inode_mark);
 +	hnotify = container_of(inode_mark, struct au_hnotify, hn_mark);
-+	err = au_hnotify(h_dir, hnotify, mask, &h_child_qstr, h_inode);
++	err = au_hnotify(h_dir, hnotify, mask, file_name, h_inode);
 +
 +out:
 +	return err;
@@ -16649,7 +16653,7 @@ index 000000000000..3bd869a69c8f
 +}
 diff --git a/fs/aufs/hnotify.c b/fs/aufs/hnotify.c
 new file mode 100644
-index 000000000000..2c1bb556a716
+index 000000000000..2e7c2cdb8202
 --- /dev/null
 +++ b/fs/aufs/hnotify.c
 @@ -0,0 +1,721 @@
@@ -17203,7 +17207,7 @@ index 000000000000..2c1bb556a716
 +/* ---------------------------------------------------------------------- */
 +
 +int au_hnotify(struct inode *h_dir, struct au_hnotify *hnotify, u32 mask,
-+	       struct qstr *h_child_qstr, struct inode *h_child_inode)
++	       const struct qstr *h_child_qstr, struct inode *h_child_inode)
 +{
 +	int err, len;
 +	unsigned int flags[AuHnLast], f;
@@ -17376,10 +17380,10 @@ index 000000000000..2c1bb556a716
 +}
 diff --git a/fs/aufs/i_op.c b/fs/aufs/i_op.c
 new file mode 100644
-index 000000000000..4f5001ebd0f4
+index 000000000000..ef1e08c7ca10
 --- /dev/null
 +++ b/fs/aufs/i_op.c
-@@ -0,0 +1,1507 @@
+@@ -0,0 +1,1505 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2019 Junjiro R. Okajima
@@ -18022,9 +18026,7 @@ index 000000000000..4f5001ebd0f4
 +
 +static void au_pin_hdir_set_owner(struct au_pin *p, struct task_struct *task)
 +{
-+#if !defined(CONFIG_RWSEM_GENERIC_SPINLOCK) && defined(CONFIG_RWSEM_SPIN_ON_OWNER)
-+	p->hdir->hi_inode->i_rwsem.owner = task;
-+#endif
++	atomic_long_set(&p->hdir->hi_inode->i_rwsem.owner, (long)task);
 +}
 +
 +void au_pin_hdir_acquire_nest(struct au_pin *p)
@@ -22433,7 +22435,7 @@ index 000000000000..985377d9bf66
 +}
 diff --git a/fs/aufs/inode.h b/fs/aufs/inode.h
 new file mode 100644
-index 000000000000..a6bc2768d3e7
+index 000000000000..e387ef16e999
 --- /dev/null
 +++ b/fs/aufs/inode.h
 @@ -0,0 +1,698 @@
@@ -23052,7 +23054,7 @@ index 000000000000..a6bc2768d3e7
 +void au_hn_ctl(struct au_hinode *hinode, int do_set);
 +void au_hn_reset(struct inode *inode, unsigned int flags);
 +int au_hnotify(struct inode *h_dir, struct au_hnotify *hnotify, u32 mask,
-+	       struct qstr *h_child_qstr, struct inode *h_child_inode);
++	       const struct qstr *h_child_qstr, struct inode *h_child_inode);
 +int au_hnotify_reset_br(unsigned int udba, struct au_branch *br, int perm);
 +int au_hnotify_init_br(struct au_branch *br, int perm);
 +void au_hnotify_fin_br(struct au_branch *br);
@@ -24970,10 +24972,10 @@ index 000000000000..cbac849ead31
 +}
 diff --git a/fs/aufs/opts.c b/fs/aufs/opts.c
 new file mode 100644
-index 000000000000..c92ca14574ff
+index 000000000000..77e17d7b3bdf
 --- /dev/null
 +++ b/fs/aufs/opts.c
-@@ -0,0 +1,1877 @@
+@@ -0,0 +1,1880 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2019 Junjiro R. Okajima
@@ -26362,6 +26364,7 @@ index 000000000000..c92ca14574ff
 +	case Opt_wsum:
 +		au_opt_clr(sbinfo->si_mntflags, SUM);
 +		au_opt_set(sbinfo->si_mntflags, SUM_W);
++		break;
 +	case Opt_nosum:
 +		au_opt_clr(sbinfo->si_mntflags, SUM);
 +		au_opt_clr(sbinfo->si_mntflags, SUM_W);
@@ -26487,8 +26490,10 @@ index 000000000000..c92ca14574ff
 +		if (opt->add.bindex < 0)
 +			opt->add.bindex = 0;
 +		goto add;
++		/* Always goto add, not fallthrough */
 +	case Opt_prepend:
 +		opt->add.bindex = 0;
++		/* fallthrough */
 +	add: /* indented label */
 +	case Opt_add:
 +		err = au_br_add(sb, &opt->add,
@@ -28738,10 +28743,10 @@ index 000000000000..500a920b4ea1
 +}
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
 new file mode 100644
-index 000000000000..bcb0b26fdfbe
+index 000000000000..44ee4685b218
 --- /dev/null
 +++ b/fs/aufs/super.c
-@@ -0,0 +1,1049 @@
+@@ -0,0 +1,1047 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2005-2019 Junjiro R. Okajima
@@ -28788,18 +28793,15 @@ index 000000000000..bcb0b26fdfbe
 +	return NULL;
 +}
 +
-+static void aufs_destroy_inode_cb(struct rcu_head *head)
-+{
-+	struct inode *inode = container_of(head, struct inode, i_rcu);
-+
-+	au_cache_free_icntnr(container_of(inode, struct au_icntnr, vfs_inode));
-+}
-+
 +static void aufs_destroy_inode(struct inode *inode)
 +{
 +	if (!au_is_bad_inode(inode))
 +		au_iinfo_fin(inode);
-+	call_rcu(&inode->i_rcu, aufs_destroy_inode_cb);
++}
++
++static void aufs_free_inode(struct inode *inode)
++{
++	au_cache_free_icntnr(container_of(inode, struct au_icntnr, vfs_inode));
 +}
 +
 +struct inode *au_iget_locked(struct super_block *sb, ino_t ino)
@@ -29597,6 +29599,7 @@ index 000000000000..bcb0b26fdfbe
 +static const struct super_operations aufs_sop = {
 +	.alloc_inode	= aufs_alloc_inode,
 +	.destroy_inode	= aufs_destroy_inode,
++	.free_inode	= aufs_free_inode,
 +	/* always deleting, no clearing */
 +	.drop_inode	= generic_delete_inode,
 +	.show_options	= aufs_show_options,
@@ -38133,11 +38136,11 @@ index 000000000000..35ea33469d36
 +}
 diff --git a/include/uapi/linux/aufs_type.h b/include/uapi/linux/aufs_type.h
 new file mode 100644
-index 000000000000..a19cbb220391
+index 000000000000..f5c1150463a1
 --- /dev/null
 +++ b/include/uapi/linux/aufs_type.h
-@@ -0,0 +1,448 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
+@@ -0,0 +1,452 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 +/*
 + * Copyright (C) 2005-2019 Junjiro R. Okajima
 + *
@@ -38179,7 +38182,7 @@ index 000000000000..a19cbb220391
 +
 +#include <linux/limits.h>
 +
-+#define AUFS_VERSION	"5.1-20190610"
++#define AUFS_VERSION	"5.3-20190923"
 +
 +/* todo? move this to linux-2.6.19/include/magic.h */
 +#define AUFS_SUPER_MAGIC	('a' << 24 | 'u' << 16 | 'f' << 8 | 's')
@@ -38393,7 +38396,11 @@ index 000000000000..a19cbb220391
 +
 +/* borrowed from linux/include/linux/kernel.h */
 +#ifndef ALIGN
++#ifdef _GNU_SOURCE
 +#define ALIGN(x, a)		__ALIGN_MASK(x, (typeof(x))(a)-1)
++#else
++#define ALIGN(x, a)		(((x) + (a) - 1) & ~((a) - 1))
++#endif
 +#define __ALIGN_MASK(x, mask)	(((x)+(mask))&~(mask))
 +#endif
 +
@@ -38586,5 +38593,5 @@ index 000000000000..a19cbb220391
 +
 +#endif /* __AUFS_TYPE_H__ */
 -- 
-2.20.1
+2.23.0
 

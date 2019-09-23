@@ -1,6 +1,6 @@
-From f34416f377712e93e264cd82fa436cfa7b6f66fd Mon Sep 17 00:00:00 2001
+From 1368c2936176fded7e01eab9cd7f920a2bb73a0a Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 8 Sep 2019 17:04:27 -0500
+Date: Mon, 23 Sep 2019 09:54:48 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -8,13 +8,13 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/Kconfig                                   |    1 +
  net/Makefile                                  |    1 +
  net/wireguard/Kconfig                         |   34 +
- net/wireguard/Makefile                        |   14 +
+ net/wireguard/Makefile                        |   15 +
  net/wireguard/allowedips.c                    |  377 +
  net/wireguard/allowedips.h                    |   59 +
  net/wireguard/compat/Makefile.include         |   98 +
  .../compat/checksum/checksum_partial_compat.h |  208 +
  net/wireguard/compat/compat-asm.h             |   43 +
- net/wireguard/compat/compat.h                 |  920 ++
+ net/wireguard/compat/compat.h                 |  923 ++
  net/wireguard/compat/dst_cache/dst_cache.c    |  175 +
  .../compat/dst_cache/include/net/dst_cache.h  |   97 +
  .../compat/fpu-x86/include/asm/fpu/api.h      |    1 +
@@ -103,7 +103,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  192 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51106 insertions(+)
+ 98 files changed, 51110 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -267,10 +267,10 @@ index 000000000000..65fb31ddb01f
 +	  Say N here unless you know what you're doing.
 diff --git a/net/wireguard/Makefile b/net/wireguard/Makefile
 new file mode 100644
-index 000000000000..c1a2673f6fe2
+index 000000000000..364deb705376
 --- /dev/null
 +++ b/net/wireguard/Makefile
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,15 @@
 +# SPDX-License-Identifier: GPL-2.0
 +#
 +# Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -278,6 +278,7 @@ index 000000000000..c1a2673f6fe2
 +ccflags-y := -O3 -fvisibility=hidden
 +ccflags-$(CONFIG_WIREGUARD_DEBUG) += -DDEBUG -g
 +ccflags-y += -D'pr_fmt(fmt)=KBUILD_MODNAME ": " fmt'
++ccflags-y += -Wframe-larger-than=2048
 +
 +wireguard-y := main.o noise.o device.o peer.o timers.o queueing.o send.o receive.o socket.o peerlookup.o allowedips.o ratelimiter.o cookie.o netlink.o
 +
@@ -1102,10 +1103,10 @@ index 000000000000..f5c5bc29db26
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..a608fb336a86
+index 000000000000..34d6d9eb948b
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
-@@ -0,0 +1,920 @@
+@@ -0,0 +1,923 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -1155,6 +1156,7 @@ index 000000000000..a608fb336a86
 +#endif
 +
 +#include <linux/cache.h>
++#include <linux/init.h>
 +#ifndef __ro_after_init
 +#define __ro_after_init __read_mostly
 +#endif
@@ -1197,7 +1199,7 @@ index 000000000000..a608fb336a86
 +    (LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 27) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)) || \
 +    (LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 8) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)) || \
 +    (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 40) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)) || \
-+    (LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 54))) && !defined(ISUBUNTU1404)
++    (LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 54))) && !defined(ISUBUNTU1404) && (!defined(ISRHEL7) || RHEL_MINOR < 7) /* TODO: remove < 7 workaround once CentOS 7.7 comes out. */
 +#include <linux/if.h>
 +#include <net/ip_tunnels.h>
 +#define IP6_ECN_set_ce(a, b) IP6_ECN_set_ce(b)
@@ -1952,9 +1954,11 @@ index 000000000000..a608fb336a86
 +
 +#if defined(ISUBUNTU1604)
 +#include <linux/siphash.h>
++#ifndef _WG_LINUX_SIPHASH_H
 +#define hsiphash_2u32 siphash_2u32
 +#define hsiphash_3u32 siphash_3u32
 +#define hsiphash_key_t siphash_key_t
++#endif
 +#endif
 +
 +#ifdef CONFIG_VE
@@ -51900,11 +51904,11 @@ index 000000000000..5a3e5a79fbcb
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..2a841ee5b91a
+index 000000000000..cee4e8df1afc
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20190905"
++#define WIREGUARD_VERSION "0.0.20190913"
 -- 
 2.23.0
 
