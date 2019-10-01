@@ -1,0 +1,46 @@
+From 0bb6bbf6e15ec955c812f1792e243f11cfcc1bdf Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Mon, 29 Jul 2019 11:58:09 -0500
+Subject: [PATCH 2/2] CAN_ISOTP: wire up to kconfig/makefile
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ net/can/Kconfig  | 10 ++++++++++
+ net/can/Makefile |  3 +++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/net/can/Kconfig b/net/can/Kconfig
+index a15c0e0d1fc7..8774a591398b 100644
+--- a/net/can/Kconfig
++++ b/net/can/Kconfig
+@@ -51,6 +51,16 @@ config CAN_GW
+ 	  They can be modified with AND/OR/XOR/SET operations as configured
+ 	  by the netlink configuration interface known e.g. from iptables.
+ 
++config CAN_ISOTP
++	tristate "ISO 15765-2:2016 CAN transport protocol"
++	default y
++	---help---
++	  ISO 15765-2 CAN transport protocol for protocol family CAN
++
++	  This implementation is already widely used in automotive use-cases, e.g.
++	  for UDS based OBD diagnosis. Although some small adaptions may be applied
++	  to make it ready for Linux Mainline. Feedback is welcome.
++
+ source "drivers/net/can/Kconfig"
+ 
+ endif
+diff --git a/net/can/Makefile b/net/can/Makefile
+index 1242bbbfe57f..fde676965946 100644
+--- a/net/can/Makefile
++++ b/net/can/Makefile
+@@ -15,3 +15,6 @@ can-bcm-y		:= bcm.o
+ 
+ obj-$(CONFIG_CAN_GW)	+= can-gw.o
+ can-gw-y		:= gw.o
++
++obj-$(CONFIG_CAN_ISOTP)	+= can-isotp.o
++can-isotp-y		:= isotp.o
+-- 
+2.20.1
+

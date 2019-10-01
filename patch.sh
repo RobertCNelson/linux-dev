@@ -178,6 +178,43 @@ aufs () {
 	dir 'aufs'
 }
 
+can_isotp () {
+	#regenerate="enable"
+	if [ "x${regenerate}" = "xenable" ] ; then
+		cd ../
+		if [ ! -d ./can-isotp ] ; then
+			${git_bin} clone https://github.com/hartkopp/can-isotp --depth=1
+		else
+			rm -rf ./can-isotp || true
+			${git_bin} clone https://github.com/hartkopp/can-isotp --depth=1
+		fi
+
+		cd ./KERNEL/
+
+		cp -v ../can-isotp/include/uapi/linux/can/isotp.h  include/uapi/linux/can/
+		cp -v ../can-isotp/net/can/isotp.c net/can/
+
+		${git_bin} add .
+		${git_bin} commit -a -m 'merge: can-isotp: https://github.com/hartkopp/can-isotp' -s
+		${git_bin} format-patch -1 -o ../patches/can_isotp/
+
+		rm -rf ../can-isotp/ || true
+
+		${git_bin} reset --hard HEAD~1
+
+		start_cleanup
+
+		${git} "${DIR}/patches/can_isotp/0001-merge-can-isotp-https-github.com-hartkopp-can-isotp.patch"
+
+		wdir="can_isotp"
+		number=1
+		cleanup
+
+		exit 2
+	fi
+	dir 'can_isotp'
+}
+
 rt_cleanup () {
 	echo "rt: needs fixup"
 	exit 2
@@ -346,6 +383,7 @@ local_patch () {
 
 #external_git
 #aufs
+#can_isotp
 #rt
 #wireguard
 ti_pm_firmware

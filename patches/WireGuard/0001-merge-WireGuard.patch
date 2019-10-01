@@ -1,6 +1,6 @@
-From 1368c2936176fded7e01eab9cd7f920a2bb73a0a Mon Sep 17 00:00:00 2001
+From 18b9299bc240d57dcc401fed6defadf8360f9e82 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Mon, 23 Sep 2019 09:54:48 -0500
+Date: Tue, 1 Oct 2019 10:29:04 -0500
 Subject: [PATCH] merge: WireGuard
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
@@ -80,7 +80,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/device.h                        |   65 +
  net/wireguard/main.c                          |   69 +
  net/wireguard/messages.h                      |  128 +
- net/wireguard/netlink.c                       |  667 ++
+ net/wireguard/netlink.c                       |  666 ++
  net/wireguard/netlink.h                       |   12 +
  net/wireguard/noise.c                         |  826 ++
  net/wireguard/noise.h                         |  137 +
@@ -101,9 +101,9 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/socket.h                        |   44 +
  net/wireguard/timers.c                        |  243 +
  net/wireguard/timers.h                        |   31 +
- net/wireguard/uapi/wireguard.h                |  192 +
+ net/wireguard/uapi/wireguard.h                |  196 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51110 insertions(+)
+ 98 files changed, 51113 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -46024,10 +46024,10 @@ index 000000000000..3cfd1c5e9b02
 +#endif /* _WG_MESSAGES_H */
 diff --git a/net/wireguard/netlink.c b/net/wireguard/netlink.c
 new file mode 100644
-index 000000000000..0805a264b799
+index 000000000000..190e405aeca0
 --- /dev/null
 +++ b/net/wireguard/netlink.c
-@@ -0,0 +1,667 @@
+@@ -0,0 +1,666 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -46419,10 +46419,10 @@ index 000000000000..0805a264b799
 +
 +	peer = wg_pubkey_hashtable_lookup(wg->peer_hashtable,
 +					  nla_data(attrs[WGPEER_A_PUBLIC_KEY]));
++	ret = 0;
 +	if (!peer) { /* Peer doesn't exist yet. Add a new one. */
-+		ret = -ENODEV;
-+		if (flags & WGPEER_F_REMOVE_ME)
-+			goto out; /* Tried to remove a non-existing peer. */
++		if (flags & (WGPEER_F_REMOVE_ME | WGPEER_F_UPDATE_ONLY))
++			goto out;
 +
 +		/* The peer is new, so there aren't allowed IPs to remove. */
 +		flags &= ~WGPEER_F_REPLACE_ALLOWEDIPS;
@@ -46459,7 +46459,6 @@ index 000000000000..0805a264b799
 +		wg_peer_get(peer);
 +	}
 +
-+	ret = 0;
 +	if (flags & WGPEER_F_REMOVE_ME) {
 +		wg_peer_remove(peer);
 +		goto out;
@@ -51706,10 +51705,10 @@ index 000000000000..f0653dcb1326
 +#endif /* _WG_TIMERS_H */
 diff --git a/net/wireguard/uapi/wireguard.h b/net/wireguard/uapi/wireguard.h
 new file mode 100644
-index 000000000000..5a3e5a79fbcb
+index 000000000000..dd8a47c4ad11
 --- /dev/null
 +++ b/net/wireguard/uapi/wireguard.h
-@@ -0,0 +1,192 @@
+@@ -0,0 +1,196 @@
 +/* SPDX-License-Identifier: (GPL-2.0 WITH Linux-syscall-note) OR MIT */
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -51799,10 +51798,12 @@ index 000000000000..5a3e5a79fbcb
 + *        0: NLA_NESTED
 + *            WGPEER_A_PUBLIC_KEY: len WG_KEY_LEN
 + *            WGPEER_A_FLAGS: NLA_U32, 0 and/or WGPEER_F_REMOVE_ME if the
-+ *                            specified peer should be removed rather than
-+ *                            added/updated and/or WGPEER_F_REPLACE_ALLOWEDIPS
-+ *                            if all current allowed IPs of this peer should be
-+ *                            removed prior to adding the list below.
++ *                            specified peer should not exist at the end of the
++ *                            operation, rather than added/updated and/or
++ *                            WGPEER_F_REPLACE_ALLOWEDIPS if all current allowed
++ *                            IPs of this peer should be removed prior to adding
++ *                            the list below and/or WGPEER_F_UPDATE_ONLY if the
++ *                            peer should only be set if it already exists.
 + *            WGPEER_A_PRESHARED_KEY: len WG_KEY_LEN, all zeros to remove
 + *            WGPEER_A_ENDPOINT: struct sockaddr_in or struct sockaddr_in6
 + *            WGPEER_A_PERSISTENT_KEEPALIVE_INTERVAL: NLA_U16, 0 to disable
@@ -51874,7 +51875,9 @@ index 000000000000..5a3e5a79fbcb
 +enum wgpeer_flag {
 +	WGPEER_F_REMOVE_ME = 1U << 0,
 +	WGPEER_F_REPLACE_ALLOWEDIPS = 1U << 1,
-+	__WGPEER_F_ALL = WGPEER_F_REMOVE_ME | WGPEER_F_REPLACE_ALLOWEDIPS
++	WGPEER_F_UPDATE_ONLY = 1U << 2,
++	__WGPEER_F_ALL = WGPEER_F_REMOVE_ME | WGPEER_F_REPLACE_ALLOWEDIPS |
++			 WGPEER_F_UPDATE_ONLY
 +};
 +enum wgpeer_attribute {
 +	WGPEER_A_UNSPEC,

@@ -1,6 +1,6 @@
-From 0275787d7b2f1af55244f77551893a1eb386bacc Mon Sep 17 00:00:00 2001
+From c6423b69f11cc28a5d5f37b8bd548d91a983d738 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 8 Sep 2019 17:04:45 -0500
+Date: Tue, 1 Oct 2019 10:29:42 -0500
 Subject: [PATCH] Add BeagleBoard.org DTBS: v5.3.x
 
 https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.3.x
@@ -9,7 +9,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/Makefile                    |    6 +
  arch/arm/boot/dts/am335x-abbbi.dts            |  164 +
  .../dts/am335x-bone-common-no-capemgr.dtsi    |  373 +++
- .../arm/boot/dts/am335x-bone-common-univ.dtsi | 2920 +++++++++++++++++
+ .../arm/boot/dts/am335x-bone-common-univ.dtsi | 2949 +++++++++++++++++
  arch/arm/boot/dts/am335x-bone-common.dtsi     |   14 +-
  arch/arm/boot/dts/am335x-bone-jtag.dtsi       |   15 +
  arch/arm/boot/dts/am335x-bone-uboot-univ.dts  |   29 +
@@ -45,7 +45,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/omap4.dtsi                  |    2 +
  arch/arm/boot/dts/twl6030.dtsi                |    5 +
  .../dt-bindings/board/am335x-bbw-bbb-base.h   |  103 +
- 39 files changed, 9436 insertions(+), 118 deletions(-)
+ 39 files changed, 9465 insertions(+), 118 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-abbbi.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-univ.dtsi
@@ -633,10 +633,10 @@ index 000000000000..90f13e062933
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-common-univ.dtsi b/arch/arm/boot/dts/am335x-bone-common-univ.dtsi
 new file mode 100644
-index 000000000000..6d51e3b4edb8
+index 000000000000..a168b3266088
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bone-common-univ.dtsi
-@@ -0,0 +1,2920 @@
+@@ -0,0 +1,2949 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -1819,6 +1819,18 @@ index 000000000000..6d51e3b4edb8
 +	/* P9_45                GND */
 +
 +	/* P9_46                GND */
++
++	/*       (ZCZ ball A15) */
++	A15_default_pin: pinmux_A15_default_pin {
++		pinctrl-single,pins = <0x1b0  0x0b>; };     /* Mode 3 */
++	A15_clkout_pin: pinmux_A15_clkout_pin {
++		pinctrl-single,pins = <0x1b0  0x0b>; };     /* Mode 3 */
++	A15_gpio_pin: pinmux_A15_gpio_pin {
++		pinctrl-single,pins = <0x1b0  0x2f>; };     /* Mode 7, RxActive */
++	A15_gpio_pu_pin: pinmux_A15_gpio_pu_pin {
++		pinctrl-single,pins = <0x1b0  0x37>; };     /* Mode 7, Pull-Up, RxActive */
++	A15_gpio_pd_pin: pinmux_A15_gpio_pd_pin {
++		pinctrl-single,pins = <0x1b0  0x27>; };     /* Mode 7, Pull-Down, RxActive */
 +};
 +
 +&i2c1 {
@@ -3065,6 +3077,17 @@ index 000000000000..6d51e3b4edb8
 +
 +	/* P9_46                GND */
 +
++	/*       (ZCZ ball A15) */
++	A15_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "clkout", "gpio", "gpio_pu", "gpio_pd";
++		pinctrl-0 = <&A15_default_pin>;
++		pinctrl-1 = <&A15_clkout_pin>;
++		pinctrl-2 = <&A15_gpio_pin>;
++		pinctrl-3 = <&A15_gpio_pu_pin>;
++		pinctrl-4 = <&A15_gpio_pd_pin>;
++	};
 +
 +	cape-universal {
 +		compatible = "gpio-of-helper";
@@ -3555,6 +3578,12 @@ index 000000000000..6d51e3b4edb8
 +			dir-changeable;
 +		};
 +
++		A15 {
++			gpio-name = "A15";
++			gpio = <&gpio0 19 0>;
++			input;
++			dir-changeable;
++		};
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
