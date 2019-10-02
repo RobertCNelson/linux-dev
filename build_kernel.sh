@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# Copyright (c) 2009-2018 Robert Nelson <robertcnelson@gmail.com>
+# Copyright (c) 2009-2019 Robert Nelson <robertcnelson@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,18 @@ DIR=$PWD
 git_bin=$(which git)
 
 mkdir -p "${DIR}/deploy/"
+
+config_patch_build_salt () {
+	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
+	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
+}
+
+config_use_lzo_if_no_lz4 () {
+	if [ ! -f /usr/bin/lz4 ] ; then
+		sed -i -e 's:CONFIG_KERNEL_LZ4=y:# CONFIG_KERNEL_LZ4 is not set:g' .config
+		sed -i -e 's:# CONFIG_KERNEL_LZO is not set:CONFIG_KERNEL_LZO=y:g' .config
+	fi
+}
 
 patch_kernel () {
 	cd "${DIR}/KERNEL" || exit
@@ -69,8 +81,9 @@ config_comparsion () {
 	echo "Updating: defconfig-lpae"
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig-lpae" .config
-	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
-	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
+
+	config_patch_build_salt
+
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig-lpae"
 
@@ -78,8 +91,9 @@ config_comparsion () {
 	echo "Updating: defconfig-bone"
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig-bone" .config
-	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
-	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
+
+	config_patch_build_salt
+
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig-bone"
 
@@ -87,8 +101,10 @@ config_comparsion () {
 	echo "Updating: defconfig"
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig" .config
-	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
-	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
+
+	config_patch_build_salt
+	config_use_lzo_if_no_lz4
+
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig"
 	cd "${DIR}/" || exit
