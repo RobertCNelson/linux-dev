@@ -640,7 +640,6 @@ check_for_command () {
 unset NEEDS_COMMAND
 check_for_command cpio --version
 check_for_command lzop --version
-#check_for_command lz4 -V
 
 if [ "${NEEDS_COMMAND}" ] ; then
 	echo "Please install missing commands"
