@@ -1,9 +1,9 @@
-From c6423b69f11cc28a5d5f37b8bd548d91a983d738 Mon Sep 17 00:00:00 2001
+From 199df1c702b5b7dfb45f36eb5831e4107f5d98d1 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 1 Oct 2019 10:29:42 -0500
-Subject: [PATCH] Add BeagleBoard.org DTBS: v5.3.x
+Date: Mon, 7 Oct 2019 10:34:36 -0500
+Subject: [PATCH] Add BeagleBoard.org DTBS: v5.4.x
 
-https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.3.x
+https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.4.x
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  arch/arm/boot/dts/Makefile                    |    6 +
@@ -16,11 +16,11 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/am335x-bone.dts             |    6 +
  .../arm/boot/dts/am335x-boneblack-common.dtsi |   10 +-
  .../boot/dts/am335x-boneblack-uboot-univ.dts  |   40 +
- arch/arm/boot/dts/am335x-boneblack-uboot.dts  |   41 +
+ arch/arm/boot/dts/am335x-boneblack-uboot.dts  |   40 +
  .../boot/dts/am335x-boneblack-wireless.dts    |    6 +
  arch/arm/boot/dts/am335x-boneblack.dts        |    6 +
- arch/arm/boot/dts/am335x-boneblue.dts         |  491 ++-
- ...am335x-bonegreen-wireless-common-univ.dtsi | 2794 ++++++++++++++++
+ arch/arm/boot/dts/am335x-boneblue.dts         |  469 ++-
+ ...am335x-bonegreen-wireless-common-univ.dtsi | 2823 ++++++++++++++++
  .../am335x-bonegreen-wireless-uboot-univ.dts  |   55 +
  .../boot/dts/am335x-bonegreen-wireless.dts    |    6 +
  arch/arm/boot/dts/am335x-bonegreen.dts        |    6 +
@@ -45,7 +45,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  arch/arm/boot/dts/omap4.dtsi                  |    2 +
  arch/arm/boot/dts/twl6030.dtsi                |    5 +
  .../dt-bindings/board/am335x-bbw-bbb-base.h   |  103 +
- 39 files changed, 9465 insertions(+), 118 deletions(-)
+ 39 files changed, 9473 insertions(+), 116 deletions(-)
  create mode 100644 arch/arm/boot/dts/am335x-abbbi.dts
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-no-capemgr.dtsi
  create mode 100644 arch/arm/boot/dts/am335x-bone-common-univ.dtsi
@@ -59,10 +59,10 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 include/dt-bindings/board/am335x-bbw-bbb-base.h
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 9159fa2cea90..fe03bb9ef7e5 100644
+index b21b3a64641a..a979e20ee430 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -732,6 +732,11 @@ dtb-$(CONFIG_SOC_AM33XX) += \
+@@ -739,6 +739,11 @@ dtb-$(CONFIG_SOC_AM33XX) += \
  	am335x-base0033.dtb \
  	am335x-bone.dtb \
  	am335x-boneblack.dtb \
@@ -74,7 +74,7 @@ index 9159fa2cea90..fe03bb9ef7e5 100644
  	am335x-boneblack-wireless.dtb \
  	am335x-boneblue.dtb \
  	am335x-bonegreen.dtb \
-@@ -762,6 +767,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
+@@ -769,6 +774,7 @@ dtb-$(CONFIG_ARCH_OMAP4) += \
  	omap4-duovero-parlor.dtb \
  	omap4-kc1.dtb \
  	omap4-panda.dtb \
@@ -3797,10 +3797,10 @@ index 000000000000..4e5633e38694
 +};
 diff --git a/arch/arm/boot/dts/am335x-boneblack-uboot.dts b/arch/arm/boot/dts/am335x-boneblack-uboot.dts
 new file mode 100644
-index 000000000000..09e8c27a4b29
+index 000000000000..285a92126854
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-boneblack-uboot.dts
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,40 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -3809,7 +3809,6 @@ index 000000000000..09e8c27a4b29
 +
 +#include "am33xx.dtsi"
 +#include "am335x-bone-common.dtsi"
-+
 +/* #include "am335x-bone-jtag.dtsi" */
 +
 +/ {
@@ -3886,22 +3885,19 @@ index d3928662aed4..40b17b956109 100644
  
  &cpu0_opp_table {
 diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
-index 0257576d5d16..6df70194b15d 100644
+index 2f6652ef9a15..78a360558d9e 100644
 --- a/arch/arm/boot/dts/am335x-boneblue.dts
 +++ b/arch/arm/boot/dts/am335x-boneblue.dts
-@@ -11,6 +11,11 @@
- 	model = "TI AM335x BeagleBone Blue";
- 	compatible = "ti,am335x-bone-blue", "ti,am33xx";
+@@ -14,6 +14,8 @@
  
-+	chosen {
+ 	chosen {
+ 		stdout-path = &uart0;
 +		base_dtb = "am335x-boneblue.dts";
 +		base_dtb_timestamp = __TIMESTAMP__;
-+	};
-+
- 	cpus {
- 		cpu@0 {
- 			cpu0-supply = <&dcdc2_reg>;
-@@ -122,9 +127,183 @@
+ 	};
+ 
+ 	leds {
+@@ -112,9 +114,168 @@
  		gpio = <&gpio3 9 0>;
  		enable-active-high;
  	};
@@ -3916,21 +3912,6 @@ index 0257576d5d16..6df70194b15d 100644
 +			gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
-+	};
-+};
-+
-+&cpu0_opp_table {
-+	/*
-+	* Octavo Systems:
-+	* The EFUSE_SMA register is not programmed for any of the AM335x wafers
-+	* we get and we are not programming them during our production test.
-+	* Therefore, from a DEVICE_ID revision point of view, the silicon looks
-+	* like it is Revision 2.1.  However, from an EFUSE_SMA point of view for
-+	* the HW OPP table, the silicon looks like it is Revision 1.0 (ie the
-+	* EFUSE_SMA register reads as all zeros).
-+	*/
-+	oppnitro-1000000000 {
-+		opp-supported-hw = <0x06 0x0100>;
 +	};
  };
  
@@ -4085,7 +4066,7 @@ index 0257576d5d16..6df70194b15d 100644
  	user_leds_s0: user_leds_s0 {
  		pinctrl-single,pins = <
  			AM33XX_PADCONF(AM335X_PIN_GPMC_A5, PIN_OUTPUT, MUX_MODE7) /* (V15) gpmc_a5.gpio1[21] - USR_LED_0 */
-@@ -181,11 +360,11 @@
+@@ -164,11 +325,11 @@
  	};
  
  	/* DSM2 */
@@ -4102,7 +4083,7 @@ index 0257576d5d16..6df70194b15d 100644
  
  	/* UT5 */
  	uart5_pins: pinmux_uart5_pins {
-@@ -258,6 +437,51 @@
+@@ -241,6 +402,51 @@
  			AM33XX_PADCONF(AM335X_PIN_MII1_RXD0, PIN_OUTPUT, MUX_MODE7)		/* (M16) gmii1_rxd0.gpio2[21] */
  		>;
  	};
@@ -4154,7 +4135,7 @@ index 0257576d5d16..6df70194b15d 100644
  };
  
  &uart0 {
-@@ -281,12 +505,12 @@
+@@ -264,12 +470,12 @@
  	status = "okay";
  };
  
@@ -4173,16 +4154,7 @@ index 0257576d5d16..6df70194b15d 100644
  
  &uart5 {
  	pinctrl-names = "default";
-@@ -384,6 +608,8 @@
- 	interrupts = <7>; /* NMI */
- 	interrupt-parent = <&intc>;
- 
-+	ti,pmic-shutdown-controller;
-+
- 	charger {
- 		interrupts = <0>, <1>;
- 		interrupt-names = "USB", "AC";
-@@ -484,22 +710,23 @@
+@@ -404,22 +610,23 @@
  	};
  };
  
@@ -4216,21 +4188,19 @@ index 0257576d5d16..6df70194b15d 100644
 +//	};
  };
  
- &aes {
-@@ -512,8 +739,10 @@
- 
  &rtc {
- 	system-power-controller;
--	clocks = <&clk_32768_ck>, <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
--	clock-names = "ext-clk", "int-clk";
-+};
-+
-+&wkup_m3_ipc {
-+	ti,scale-data-fw = "am335x-bone-scale-data.bin";
+@@ -428,6 +635,10 @@
+ 	clock-names = "ext-clk", "int-clk";
  };
  
++&wkup_m3_ipc {
++	ti,scale-data-fw = "am335x-bone-scale-data.bin";
++};
++
  &dcan1 {
-@@ -530,3 +759,217 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&dcan1_pins>;
+@@ -442,3 +653,217 @@
  		line-name = "LS_BUF_EN";
  	};
  };
@@ -4450,10 +4420,10 @@ index 0257576d5d16..6df70194b15d 100644
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi b/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi
 new file mode 100644
-index 000000000000..e6f28c969b75
+index 000000000000..4662f304f3ee
 --- /dev/null
 +++ b/arch/arm/boot/dts/am335x-bonegreen-wireless-common-univ.dtsi
-@@ -0,0 +1,2794 @@
+@@ -0,0 +1,2823 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
@@ -5584,6 +5554,18 @@ index 000000000000..e6f28c969b75
 +	/* P9_45                GND */
 +
 +	/* P9_46                GND */
++
++	/*       (ZCZ ball A15) */
++	A15_default_pin: pinmux_A15_default_pin {
++		pinctrl-single,pins = <0x1b0  0x0b>; };     /* Mode 3 */
++	A15_clkout_pin: pinmux_A15_clkout_pin {
++		pinctrl-single,pins = <0x1b0  0x0b>; };     /* Mode 3 */
++	A15_gpio_pin: pinmux_A15_gpio_pin {
++		pinctrl-single,pins = <0x1b0  0x2f>; };     /* Mode 7, RxActive */
++	A15_gpio_pu_pin: pinmux_A15_gpio_pu_pin {
++		pinctrl-single,pins = <0x1b0  0x37>; };     /* Mode 7, Pull-Up, RxActive */
++	A15_gpio_pd_pin: pinmux_A15_gpio_pd_pin {
++		pinctrl-single,pins = <0x1b0  0x27>; };     /* Mode 7, Pull-Down, RxActive */
 +};
 +
 +&i2c1 {
@@ -6784,6 +6766,17 @@ index 000000000000..e6f28c969b75
 +
 +	/* P9_46                GND */
 +
++	/*       (ZCZ ball A15) */
++	A15_pinmux {
++		compatible = "bone-pinmux-helper";
++		status = "okay";
++		pinctrl-names = "default", "clkout", "gpio", "gpio_pu", "gpio_pd";
++		pinctrl-0 = <&A15_default_pin>;
++		pinctrl-1 = <&A15_clkout_pin>;
++		pinctrl-2 = <&A15_gpio_pin>;
++		pinctrl-3 = <&A15_gpio_pu_pin>;
++		pinctrl-4 = <&A15_gpio_pd_pin>;
++	};
 +
 +	cape-universal {
 +		compatible = "gpio-of-helper";
@@ -7246,6 +7239,12 @@ index 000000000000..e6f28c969b75
 +			dir-changeable;
 +		};
 +
++		A15 {
++			gpio-name = "A15";
++			gpio = <&gpio0 19 0>;
++			input;
++			dir-changeable;
++		};
 +	};
 +};
 diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless-uboot-univ.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless-uboot-univ.dts
@@ -9563,7 +9562,7 @@ index 8678e6e35493..2381a5c5110c 100644
  
  &am33xx_pinmux {
 diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
-index 46849d6ecb3e..7ba792f7213c 100644
+index 7a9eb2b0d45b..99203d3ef435 100644
 --- a/arch/arm/boot/dts/am33xx-l4.dtsi
 +++ b/arch/arm/boot/dts/am33xx-l4.dtsi
 @@ -158,6 +158,39 @@
@@ -10202,7 +10201,7 @@ index 3c274965ff40..97001fefe875 100644
  
  &keypad {
 diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index c43e52fd5f65..ec51eaabb463 100644
+index 7cc95bc1598b..b4ebf768d0f9 100644
 --- a/arch/arm/boot/dts/omap4.dtsi
 +++ b/arch/arm/boot/dts/omap4.dtsi
 @@ -252,6 +252,7 @@

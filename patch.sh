@@ -359,7 +359,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	bbdtbs="v5.3.x"
+	bbdtbs="v5.4.x"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
@@ -419,9 +419,9 @@ local_patch () {
 
 #external_git
 #aufs
-#can_isotp
+can_isotp
 #rt
-#wireguard
+wireguard
 ti_pm_firmware
 beagleboard_dtbs
 #local_patch
@@ -460,15 +460,15 @@ patch_backports (){
 }
 
 backports () {
-	backport_tag="v4.x-y"
+#	backport_tag="v4.x-y"
 
-	subsystem="xyz"
+	subsystem="exfat"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		pre_backports
 
 		mkdir -p ./x/
-		cp -v ~/linux-src/x/* ./x/
+		cp -v ~/linux-src/drivers/staging/exfat/* ./drivers/staging/exfat/
 
 		post_backports
 		exit 2
@@ -526,6 +526,7 @@ soc () {
 #reverts
 drivers
 soc
+dir 'fixes'
 
 packaging () {
 	echo "dir: packaging"

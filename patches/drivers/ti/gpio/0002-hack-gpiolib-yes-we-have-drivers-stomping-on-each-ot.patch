@@ -10,24 +10,24 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index bca3e7740ef6..71a8af876b4f 100644
+index bdbc1649eafa..4bf866d74e37 100644
 --- a/drivers/gpio/gpiolib.c
 +++ b/drivers/gpio/gpiolib.c
-@@ -2332,10 +2332,10 @@ static int gpiod_request_commit(struct gpio_desc *desc, const char *label)
+@@ -2650,10 +2650,10 @@ static int gpiod_request_commit(struct gpio_desc *desc, const char *label)
  	if (test_and_set_bit(FLAG_REQUESTED, &desc->flags) == 0) {
  		desc_set_label(desc, label ? : "?");
- 		status = 0;
+ 		ret = 0;
 -	} else {
 -		kfree_const(label);
--		status = -EBUSY;
+-		ret = -EBUSY;
 -		goto done;
 +//	} else {
 +//		kfree_const(label);
-+//		status = -EBUSY;
++//		ret = -EBUSY;
 +//		goto done;
  	}
  
  	if (chip->request) {
 -- 
-2.20.1
+2.23.0
 
