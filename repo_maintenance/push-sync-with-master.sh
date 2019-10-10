@@ -11,7 +11,7 @@ if [ -e ${DIR}/version.sh ]; then
 		BRANCH="master"
 	fi
 
-	${git_bin} commit -a -m "scripts: sync with master of: https://github.com/RobertCNelson/stable-kernel.git" -s
+	${git_bin} commit -a -m "scripts: resync all build scripts with master repo: https://github.com/RobertCNelson/linux-dev" -s
 
 	${git_bin} push origin ${BRANCH}
 fi
