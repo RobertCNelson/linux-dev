@@ -22,7 +22,7 @@
 
 #yeah, i'm getting lazy..
 
-wfile="/tmp/4_19_normal_git_msg"
+wfile="/tmp/5_4_normal_git_msg"
 
 cat_files () {
 	if [ -f ../patches/git/AUFS ] ; then

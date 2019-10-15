@@ -1,9 +1,9 @@
-From 736548393b3db28d23111ec30d8488ed5a3dddf8 Mon Sep 17 00:00:00 2001
+From 8d4728533f9c73b6d27653b43f9c8cdf9c1117c9 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Thu, 10 Oct 2019 16:16:12 -0500
+Date: Tue, 15 Oct 2019 15:44:30 -0500
 Subject: [PATCH] merge: WireGuard
 
-https://git.zx2c4.com/WireGuard/commit/1e5ab020d191a75c44a34c2c1b9779bb2a2986c0
+https://git.zx2c4.com/WireGuard/commit/8eb8443709cc7636c57ecb203acedc8e47bc772e
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  net/Kconfig                                   |    1 +
@@ -83,7 +83,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/messages.h                      |  128 +
  net/wireguard/netlink.c                       |  666 ++
  net/wireguard/netlink.h                       |   12 +
- net/wireguard/noise.c                         |  826 ++
+ net/wireguard/noise.c                         |  830 ++
  net/wireguard/noise.h                         |  137 +
  net/wireguard/peer.c                          |  240 +
  net/wireguard/peer.h                          |   83 +
@@ -104,7 +104,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  196 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51113 insertions(+)
+ 98 files changed, 51117 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -46715,10 +46715,10 @@ index 000000000000..15100d92e2e3
 +#endif /* _WG_NETLINK_H */
 diff --git a/net/wireguard/noise.c b/net/wireguard/noise.c
 new file mode 100644
-index 000000000000..57f749ceb8ac
+index 000000000000..269b69faf11a
 --- /dev/null
 +++ b/net/wireguard/noise.c
-@@ -0,0 +1,826 @@
+@@ -0,0 +1,830 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -47287,6 +47287,7 @@ index 000000000000..57f749ceb8ac
 +	u8 s[NOISE_PUBLIC_KEY_LEN];
 +	u8 e[NOISE_PUBLIC_KEY_LEN];
 +	u8 t[NOISE_TIMESTAMP_LEN];
++	u64 initiation_consumption;
 +
 +	down_read(&wg->static_identity.lock);
 +	if (unlikely(!wg->static_identity.has_identity))
@@ -47335,11 +47336,14 @@ index 000000000000..57f749ceb8ac
 +	/* Success! Copy everything to peer */
 +	down_write(&handshake->lock);
 +	memcpy(handshake->remote_ephemeral, e, NOISE_PUBLIC_KEY_LEN);
-+	memcpy(handshake->latest_timestamp, t, NOISE_TIMESTAMP_LEN);
++	if (memcmp(t, handshake->latest_timestamp, NOISE_TIMESTAMP_LEN) > 0)
++		memcpy(handshake->latest_timestamp, t, NOISE_TIMESTAMP_LEN);
 +	memcpy(handshake->hash, hash, NOISE_HASH_LEN);
 +	memcpy(handshake->chaining_key, chaining_key, NOISE_HASH_LEN);
 +	handshake->remote_index = src->sender_index;
-+	handshake->last_initiation_consumption = ktime_get_coarse_boottime_ns();
++	if ((s64)(handshake->last_initiation_consumption -
++	    (initiation_consumption = ktime_get_coarse_boottime_ns())) < 0)
++		handshake->last_initiation_consumption = initiation_consumption;
 +	handshake->state = HANDSHAKE_CONSUMED_INITIATION;
 +	up_write(&handshake->lock);
 +	ret_peer = peer;
@@ -51908,11 +51912,11 @@ index 000000000000..dd8a47c4ad11
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..cee4e8df1afc
+index 000000000000..2cb62e1dbafd
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20190913"
++#define WIREGUARD_VERSION "0.0.20191012"
 -- 
 2.23.0
 
