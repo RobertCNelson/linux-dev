@@ -22,7 +22,8 @@
 
 #yeah, i'm getting lazy..
 
-wfile="/tmp/5_4_normal_git_msg"
+wfile=$(mktemp /tmp/builder.XXXXXXXXX)
+echo "Working on temp $wfile ..."
 
 cat_files () {
 	if [ -f ../patches/git/AUFS ] ; then
@@ -99,3 +100,5 @@ if [ -e ${DIR}/version.sh ]; then
 	cd ${DIR}/
 fi
 
+echo "Deleting $wfile ..."
+rm -f "$wfile"
