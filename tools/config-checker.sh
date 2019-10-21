@@ -1122,6 +1122,8 @@ config="CONFIG_USB_MXS_PHY" ; config_enable
 config="CONFIG_USB_GADGET" ; config_enable
 config="CONFIG_USB_GADGET_VBUS_DRAW" ; option="500" ; config_value
 
+config="CONFIG_USB_DUMMY_HCD" ; config_module
+
 #
 # USB Peripheral Controller
 #
