@@ -67,13 +67,12 @@ cd ${DIR}/KERNEL/
 #
 # General setup
 #
-config="CONFIG_KERNEL_XZ" ; config_disable
+config="CONFIG_BUILD_SALT" ; option="5.4-rc4-armv7-devel-r0" ; config_string
 config="CONFIG_KERNEL_LZO" ; config_enable
 
 #
 # Timers subsystem
 #
-config="CONFIG_PREEMPT_VOLUNTARY" ; config_disable
 config="CONFIG_PREEMPT" ; config_enable
 
 #
@@ -82,6 +81,10 @@ config="CONFIG_PREEMPT" ; config_enable
 config="CONFIG_IKCONFIG" ; config_enable
 config="CONFIG_IKCONFIG_PROC" ; config_enable
 config="CONFIG_IKHEADERS" ; config_module
+
+#
+# Scheduler features
+#
 config="CONFIG_EMBEDDED" ; config_enable
 
 #
@@ -116,6 +119,8 @@ config="CONFIG_SOC_AM43XX" ; config_enable
 config="CONFIG_MACH_OMAP3517EVM" ; config_disable
 config="CONFIG_MACH_OMAP3_PANDORA" ; config_disable
 config="CONFIG_OMAP5_ERRATA_801819" ; config_enable
+
+# end of TI OMAP/AM/DM/DRA Family
 config="CONFIG_ARCH_ROCKCHIP" ; config_disable
 config="CONFIG_ARCH_SOCFPGA" ; config_disable
 config="CONFIG_ARCH_TEGRA" ; config_disable
@@ -150,6 +155,7 @@ config="CONFIG_ARM_TI_CPUFREQ" ; config_enable
 # CPU Idle
 #
 config="CONFIG_CPU_IDLE" ; config_enable
+config="CONFIG_ARM_PSCI_CPUIDLE" ; config_enable
 
 #
 # ARM CPU Idle Drivers
@@ -214,6 +220,9 @@ config="CONFIG_NET_DSA_TAG_DSA" ; config_disable
 config="CONFIG_NET_DSA_TAG_EDSA" ; config_disable
 config="CONFIG_NET_DSA_TAG_TRAILER" ; config_disable
 
+# end of AX.25 network device drivers
+config="CONFIG_CAN_J1939" ; config_module
+
 #
 # CAN Device Drivers
 #
@@ -249,7 +258,21 @@ config="CONFIG_BT_HCIBPA10X" ; config_module
 config="CONFIG_BT_HCIBFUSB" ; config_module
 config="CONFIG_BT_HCIVHCI" ; config_module
 
+# end of Bluetooth device drivers
 config="CONFIG_CFG80211_DEFAULT_PS" ; config_disable
+config="CONFIG_NFC_NCI" ; config_module
+
+#
+# Near Field Communication (NFC) devices
+#
+config="CONFIG_NFC_TRF7970A" ; config_module
+config="CONFIG_NFC_PN533_I2C" ; config_module
+config="CONFIG_NFC_ST_NCI" ; config_module
+config="CONFIG_NFC_ST_NCI_I2C" ; config_module
+config="CONFIG_NFC_ST_NCI_SPI" ; config_module
+config="CONFIG_NFC_NXP_NCI" ; config_module
+config="CONFIG_NFC_NXP_NCI_I2C" ; config_module
+config="CONFIG_NFC_ST95HF" ; config_module
 
 #
 # Generic Driver Options
@@ -263,17 +286,14 @@ config="CONFIG_EXTRA_FIRMWARE" ; option="am335x-pm-firmware.elf am335x-bone-scal
 config="CONFIG_EXTRA_FIRMWARE_DIR" ; option="firmware" ; config_string
 
 #
-# Default contiguous memory area size:
-#
-config="CONFIG_CMA_SIZE_MBYTES" ; option=48 ; config_value
-
-#
 # Bus devices
 #
 config="CONFIG_IMX_WEIM" ; config_enable
 config="CONFIG_OMAP_OCP2SCP" ; config_enable
 config="CONFIG_SIMPLE_PM_BUS" ; config_enable
 config="CONFIG_VEXPRESS_CONFIG" ; config_disable
+
+# end of Bus devices
 config="CONFIG_GNSS_MTK_SERIAL" ; config_module
 
 #
@@ -293,7 +313,6 @@ config="CONFIG_NVME_TARGET" ; config_disable
 # Misc devices
 #
 config="CONFIG_ENCLOSURE_SERVICES" ; config_disable
-config="CONFIG_TIEQEP" ; config_module
 config="CONFIG_UDOO_ARD" ; config_module
 config="CONFIG_C2PORT" ; config_disable
 
@@ -303,16 +322,11 @@ config="CONFIG_C2PORT" ; config_disable
 config="CONFIG_EEPROM_AT24" ; config_enable
 config="CONFIG_EEPROM_AT25" ; config_enable
 
-#
-# Texas Instruments shared transport line discipline
-#
-#better one in iio
+# end of Texas Instruments shared transport line discipline
 config="CONFIG_SENSORS_LIS3_I2C" ; config_disable
 config="CONFIG_ALTERA_STAPL" ; config_disable
 
-#
-# VOP Driver
-#
+# end of Intel MIC & related support
 config="CONFIG_MISC_RTSX_USB" ; config_disable
 
 #
@@ -364,6 +378,7 @@ config="CONFIG_NET_DSA_BCM_SF2" ; config_disable
 config="CONFIG_NET_DSA_MV88E6060" ; config_disable
 config="CONFIG_NET_DSA_MV88E6XXX" ; config_disable
 
+# end of Distributed Switch Architecture drivers
 config="CONFIG_NET_VENDOR_ALACRITECH" ; config_disable
 
 config="CONFIG_SUN4I_EMAC" ; config_enable
@@ -395,6 +410,7 @@ config="CONFIG_NET_VENDOR_NATSEMI" ; config_disable
 config="CONFIG_NET_VENDOR_NETRONOME" ; config_disable
 config="CONFIG_NET_VENDOR_NI" ; config_disable
 
+config="CONFIG_NET_VENDOR_PENSANDO" ; config_disable
 config="CONFIG_NET_VENDOR_QUALCOMM" ; config_disable
 config="CONFIG_NET_VENDOR_RENESAS" ; config_disable
 config="CONFIG_NET_VENDOR_ROCKER" ; config_disable
@@ -487,6 +503,9 @@ config="CONFIG_BRCMSMAC" ; config_disable
 #
 config="CONFIG_INPUT_MOUSEDEV" ; config_disable
 
+#
+# Input Device Drivers
+#
 config="CONFIG_KEYBOARD_ATKBD" ; config_disable
 config="CONFIG_KEYBOARD_OPENCORES" ; config_disable
 config="CONFIG_KEYBOARD_OMAP4" ; config_disable
@@ -496,8 +515,8 @@ config="CONFIG_MOUSE_PS2" ; config_disable
 
 config="CONFIG_INPUT_JOYSTICK" ; config_enable
 config="CONFIG_JOYSTICK_IFORCE" ; config_module
-config="CONFIG_JOYSTICK_IFORCE_USB" ; config_enable
-config="CONFIG_JOYSTICK_IFORCE_232" ; config_enable
+config="CONFIG_JOYSTICK_IFORCE_USB" ; config_module
+config="CONFIG_JOYSTICK_IFORCE_232" ; config_module
 config="CONFIG_JOYSTICK_WARRIOR" ; config_module
 config="CONFIG_JOYSTICK_MAGELLAN" ; config_module
 config="CONFIG_JOYSTICK_SPACEORB" ; config_module
@@ -512,6 +531,7 @@ config="CONFIG_JOYSTICK_XPAD_LEDS" ; config_enable
 config="CONFIG_JOYSTICK_PSXPAD_SPI" ; config_enable
 config="CONFIG_JOYSTICK_PSXPAD_SPI_FF" ; config_enable
 config="CONFIG_JOYSTICK_PXRC" ; config_module
+config="CONFIG_JOYSTICK_FSIA6B" ; config_module
 
 config="CONFIG_TOUCHSCREEN_AR1021_I2C" ; config_module
 config="CONFIG_TOUCHSCREEN_EDT_FT5X06" ; config_module
@@ -553,6 +573,9 @@ config="CONFIG_HW_RANDOM_IMX_RNGC" ; config_enable
 config="CONFIG_HW_RANDOM_TPM" ; config_enable
 config="CONFIG_TCG_TPM" ; config_enable
 config="CONFIG_TCG_TIS_I2C_ATMEL" ; config_enable
+
+# end of Character devices
+config="CONFIG_RANDOM_TRUST_BOOTLOADER" ; config_enable
 
 #
 # I2C support
@@ -641,8 +664,12 @@ config="CONFIG_GPIO_XRA1403" ; config_module
 #
 config="CONFIG_W1_MASTER_MXC" ; config_module
 
-#Power Supply Class
+#
+# 1-wire Slaves
+#
+config="CONFIG_W1_SLAVE_DS250X" ; config_module
 
+# end of 1-wire Slaves
 config="CONFIG_GENERIC_ADC_BATTERY" ; config_module
 config="CONFIG_CHARGER_TPS65217" ; config_disable
 config="CONFIG_PWRSEQ_GENERIC" ; config_enable
@@ -663,6 +690,8 @@ config="CONFIG_SENSORS_ADM1031" ; config_module
 config="CONFIG_SENSORS_ADT7X10" ; config_module
 config="CONFIG_SENSORS_ADT7310" ; config_module
 config="CONFIG_SENSORS_ADT7410" ; config_module
+
+config="CONFIG_SENSORS_AS370" ; config_module
 
 config="CONFIG_SENSORS_DS1621" ; config_module
 config="CONFIG_SENSORS_DA9052_ADC" ; config_module
@@ -698,7 +727,6 @@ config="CONFIG_SENSORS_TC654" ; config_module
 
 config="CONFIG_SENSORS_LM63" ; config_module
 
-config="CONFIG_SENSORS_LM75" ; config_module
 config="CONFIG_SENSORS_LM77" ; config_module
 config="CONFIG_SENSORS_LM78" ; config_module
 config="CONFIG_SENSORS_LM80" ; config_module
@@ -722,6 +750,7 @@ config="CONFIG_SENSORS_PMBUS" ; config_module
 
 config="CONFIG_SENSORS_ADM1275" ; config_module
 config="CONFIG_SENSORS_IBM_CFFPS" ; config_module
+config="CONFIG_SENSORS_INSPUR_IPSPS" ; config_module
 config="CONFIG_SENSORS_IR35221" ; config_module
 config="CONFIG_SENSORS_IR38064" ; config_module
 config="CONFIG_SENSORS_IRPS5401" ; config_module
@@ -782,6 +811,8 @@ config="CONFIG_IMX_THERMAL" ; config_enable
 #
 config="CONFIG_TI_SOC_THERMAL" ; config_enable
 config="CONFIG_OMAP3_THERMAL" ; config_enable
+
+# end of Texas Instruments thermal drivers
 config="CONFIG_GENERIC_ADC_THERMAL" ; config_module
 config="CONFIG_WATCHDOG_CORE" ; config_enable
 
@@ -816,6 +847,7 @@ config="CONFIG_MFD_TPS65218" ; config_enable
 config="CONFIG_MFD_TPS65910" ; config_enable
 config="CONFIG_MFD_WL1273_CORE" ; config_module
 
+# end of Multifunction device drivers
 config="CONFIG_REGULATOR_USERSPACE_CONSUMER" ; config_enable
 
 config="CONFIG_REGULATOR_ACT8865" ; config_enable
@@ -905,6 +937,7 @@ config="CONFIG_DRM_I2C_ADV7511_AUDIO" ; config_enable
 
 config="CONFIG_DRM_DW_HDMI_I2S_AUDIO" ; config_module
 
+# end of Display Interface Bridges
 config="CONFIG_DRM_IMX" ; config_enable
 config="CONFIG_DRM_IMX_PARALLEL_DISPLAY" ; config_enable
 config="CONFIG_DRM_IMX_TVE" ; config_enable
@@ -913,9 +946,8 @@ config="CONFIG_DRM_IMX_HDMI" ; config_enable
 config="CONFIG_DRM_ETNAVIV" ; config_enable
 
 config="CONFIG_DRM_MXSFB" ; config_enable
+config="CONFIG_DRM_GM12U320" ; config_module
 
-config="CONFIG_DRM_TINYDRM" ; config_module
-config="CONFIG_TINYDRM_MIPI_DBI" ; config_module
 config="CONFIG_TINYDRM_HX8357D" ; config_module
 config="CONFIG_TINYDRM_ILI9225" ; config_module
 config="CONFIG_TINYDRM_ILI9341" ; config_module
@@ -936,6 +968,10 @@ config="CONFIG_DRM_LEGACY" ; config_disable
 config="CONFIG_FB_EFI" ; config_disable
 config="CONFIG_FB_MX3" ; config_disable
 config="CONFIG_FB_SSD1307" ; config_enable
+
+#
+# Backlight & LCD device support
+#
 config="CONFIG_BACKLIGHT_PWM" ; config_enable
 config="CONFIG_BACKLIGHT_PANDORA" ; config_disable
 config="CONFIG_BACKLIGHT_GPIO" ; config_enable
@@ -945,6 +981,7 @@ config="CONFIG_BACKLIGHT_GPIO" ; config_enable
 #
 config="CONFIG_LOGO" ; config_enable
 
+# end of Graphics support
 config="CONFIG_SND_SEQ_VIRMIDI" ; config_module
 config="CONFIG_SND_MPU401_UART" ; config_module
 config="CONFIG_SND_DUMMY" ; config_module
@@ -954,26 +991,8 @@ config="CONFIG_SND_SERIAL_U16550" ; config_module
 config="CONFIG_SND_MPU401" ; config_module
 
 #
-# Audio support for Texas Instruments SoCs
-#
-config="CONFIG_SND_SOC_TI_EDMA_PCM" ; config_module
-config="CONFIG_SND_SOC_TI_SDMA_PCM" ; config_module
-
-#
-# Texas Instruments DAI support for:
-#
-config="CONFIG_SND_SOC_DAVINCI_MCASP" ; config_module
-config="CONFIG_SND_SOC_OMAP_DMIC" ; config_module
-config="CONFIG_SND_SOC_OMAP_MCBSP" ; config_module
-config="CONFIG_SND_SOC_OMAP_MCPDM" ; config_module
-
-#
 # Audio support for boards with Texas Instruments SoCs
 #
-config="CONFIG_SND_SOC_NOKIA_RX51" ; config_disable
-config="CONFIG_SND_SOC_OMAP3_PANDORA" ; config_disable
-config="CONFIG_SND_SOC_OMAP3_TWL4030" ; config_module
-config="CONFIG_SND_SOC_OMAP_ABE_TWL6040" ; config_module
 config="CONFIG_SND_SOC_OMAP_HDMI" ; config_module
 
 #
@@ -1013,6 +1032,9 @@ config="CONFIG_USB_HID" ; config_enable
 #
 # I2C HID support
 #
+config="CONFIG_I2C_HID" ; config_enable
+
+# end of HID support
 config="CONFIG_USB" ; config_enable
 
 #
@@ -1059,11 +1081,6 @@ config="CONFIG_USB_MUSB_AM335X_CHILD" ; config_enable
 config="CONFIG_MUSB_PIO_ONLY" ; config_enable
 config="CONFIG_USB_DWC3" ; config_enable
 
-config="CONFIG_AUXDISPLAY" ; config_enable
-config="CONFIG_HD44780" ; config_module
-config="CONFIG_IMG_ASCII_LCD" ; config_module
-config="CONFIG_HT16K33" ; config_module
-
 #
 # Platform Glue Driver Support
 #
@@ -1108,15 +1125,6 @@ config="CONFIG_USB_G_MULTI" ; config_module
 config="CONFIG_USB_G_MULTI_RNDIS" ; config_enable
 config="CONFIG_USB_G_HID" ; config_module
 config="CONFIG_USB_G_DBGP" ; config_module
-
-config="CONFIG_UWB" ; config_disable
-config="CONFIG_USB_ROLE_SWITCH" ; config_module
-config="CONFIG_PWRSEQ_SD8787" ; config_module
-
-#
-# MMC/SD/SDIO Card Drivers
-#
-config="CONFIG_MMC_BLOCK_MINORS" ; option="8" ; config_value
 
 #
 # MMC/SD/SDIO Host Controller Drivers
@@ -1168,6 +1176,7 @@ config="CONFIG_INFINIBAND" ; config_disable
 # I2C RTC drivers
 #
 config="CONFIG_RTC_DRV_ABB5ZES3" ; config_enable
+config="CONFIG_RTC_DRV_ABEOZ9" ; config_enable
 config="CONFIG_RTC_DRV_ABX80X" ; config_enable
 
 config="CONFIG_RTC_DRV_DS1374" ; config_enable
@@ -1188,7 +1197,6 @@ config="CONFIG_RTC_DRV_PCF85363" ; config_enable
 config="CONFIG_RTC_DRV_PCF8583" ; config_enable
 config="CONFIG_RTC_DRV_M41T80" ; config_enable
 config="CONFIG_RTC_DRV_M41T80_WDT" ; config_enable
-
 config="CONFIG_RTC_DRV_BQ32K" ; config_enable
 
 config="CONFIG_RTC_DRV_TPS65910" ; config_enable
@@ -1273,21 +1281,16 @@ config="CONFIG_DW_DMAC_CORE" ; config_enable
 config="CONFIG_DW_DMAC" ; config_enable
 config="CONFIG_TI_CPPI41" ; config_enable
 
-#exit
+# end of DMABUF options
+config="CONFIG_AUXDISPLAY" ; config_enable
+config="CONFIG_HD44780" ; config_module
+config="CONFIG_IMG_ASCII_LCD" ; config_module
+config="CONFIG_HT16K33" ; config_module
 
-#
-# DMABUF options
-#
-config="CONFIG_UIO" ; config_disable
-#config="CONFIG_UIO_PDRV_GENIRQ" ; config_module
-#config="CONFIG_UIO_DMEM_GENIRQ" ; config_module
-#Broken in v4.19.x
-config="CONFIG_UIO_PRUSS" ; config_disable
+# end of Microsoft Hyper-V guest support
+config="CONFIG_GREYBUS" ; config_module
+config="CONFIG_GREYBUS_ES2" ; config_module
 
-#STAGING
-#
-# Microsoft Hyper-V guest support
-#
 config="CONFIG_RTLLIB" ; config_module
 config="CONFIG_RTLLIB_CRYPTO_CCMP" ; config_module
 config="CONFIG_RTLLIB_CRYPTO_TKIP" ; config_module
@@ -1350,12 +1353,41 @@ config="CONFIG_SPEAKUP" ; config_disable
 
 #exit
 
-#
-# Android
-#
-config="CONFIG_GREYBUS" ; config_module
+# end of Android
 
-config="CONFIG_GREYBUS_ES2" ; config_module
+config="CONFIG_FB_TFT" ; config_module
+config="CONFIG_FB_TFT_AGM1264K_FL" ; config_module
+config="CONFIG_FB_TFT_BD663474" ; config_module
+config="CONFIG_FB_TFT_HX8340BN" ; config_module
+config="CONFIG_FB_TFT_HX8347D" ; config_module
+config="CONFIG_FB_TFT_HX8353D" ; config_module
+config="CONFIG_FB_TFT_HX8357D" ; config_module
+config="CONFIG_FB_TFT_ILI9163" ; config_module
+config="CONFIG_FB_TFT_ILI9320" ; config_module
+config="CONFIG_FB_TFT_ILI9325" ; config_module
+config="CONFIG_FB_TFT_ILI9340" ; config_module
+config="CONFIG_FB_TFT_ILI9341" ; config_module
+config="CONFIG_FB_TFT_ILI9481" ; config_module
+config="CONFIG_FB_TFT_ILI9486" ; config_module
+config="CONFIG_FB_TFT_PCD8544" ; config_module
+config="CONFIG_FB_TFT_RA8875" ; config_module
+config="CONFIG_FB_TFT_S6D02A1" ; config_module
+config="CONFIG_FB_TFT_S6D1121" ; config_module
+config="CONFIG_FB_TFT_SH1106" ; config_module
+config="CONFIG_FB_TFT_SSD1289" ; config_module
+config="CONFIG_FB_TFT_SSD1305" ; config_module
+config="CONFIG_FB_TFT_SSD1306" ; config_module
+config="CONFIG_FB_TFT_SSD1331" ; config_module
+config="CONFIG_FB_TFT_SSD1351" ; config_module
+config="CONFIG_FB_TFT_ST7735R" ; config_module
+config="CONFIG_FB_TFT_ST7789V" ; config_module
+config="CONFIG_FB_TFT_TINYLCD" ; config_module
+config="CONFIG_FB_TFT_TLS8204" ; config_module
+config="CONFIG_FB_TFT_UC1611" ; config_module
+config="CONFIG_FB_TFT_UC1701" ; config_module
+config="CONFIG_FB_TFT_UPD161704" ; config_module
+config="CONFIG_FB_TFT_WATTEROTT" ; config_module
+
 config="CONFIG_GREYBUS_AUDIO" ; config_module
 config="CONFIG_GREYBUS_BOOTROM" ; config_module
 config="CONFIG_GREYBUS_FIRMWARE" ; config_module
@@ -1375,9 +1407,10 @@ config="CONFIG_GREYBUS_SPI" ; config_module
 config="CONFIG_GREYBUS_UART" ; config_module
 config="CONFIG_GREYBUS_USB" ; config_module
 
-#
-# Gasket devices
-#
+
+# end of Gasket devices
+config="CONFIG_UWB" ; config_disable
+config="CONFIG_EXFAT_FS" ; config_module
 config="CONFIG_CHROME_PLATFORMS" ; config_disable
 
 #exit
@@ -1389,6 +1422,7 @@ config="CONFIG_CLK_TWL6040" ; config_enable
 
 config="CONFIG_COMMON_CLK_PALMAS" ; config_enable
 
+# end of Common Clock Framework
 config="CONFIG_HWSPINLOCK" ; config_enable
 config="CONFIG_HWSPINLOCK_OMAP" ; config_enable
 
@@ -1696,6 +1730,7 @@ config="CONFIG_SI7020" ; config_module
 # Inertial measurement units
 #
 config="CONFIG_ADIS16400" ; config_module
+config="CONFIG_ADIS16460" ; config_module
 config="CONFIG_ADIS16480" ; config_module
 config="CONFIG_BMI160" ; config_module
 config="CONFIG_BMI160_I2C" ; config_module
@@ -1741,6 +1776,7 @@ config="CONFIG_LTR501" ; config_module
 config="CONFIG_LV0104CS" ; config_module
 config="CONFIG_MAX44000" ; config_module
 config="CONFIG_MAX44009" ; config_module
+config="CONFIG_NOA1305" ; config_module
 config="CONFIG_OPT3001" ; config_module
 config="CONFIG_PA12203001" ; config_module
 config="CONFIG_SI1133" ; config_module
@@ -1801,6 +1837,7 @@ config="CONFIG_IIO_SYSFS_TRIGGER" ; config_module
 #
 config="CONFIG_AD5272" ; config_module
 config="CONFIG_DS1803" ; config_module
+config="CONFIG_MAX5432" ; config_module
 config="CONFIG_MAX5481" ; config_module
 config="CONFIG_MAX5487" ; config_module
 config="CONFIG_MCP4018" ; config_module
@@ -1878,12 +1915,11 @@ config="CONFIG_TSYS01" ; config_module
 config="CONFIG_TSYS02D" ; config_module
 config="CONFIG_MAX31856" ; config_module
 
+# end of Temperature sensors
 config="CONFIG_PWM_PCA9685" ; config_module
 config="CONFIG_PWM_STMPE" ; config_enable
 
-#
-# IRQ chip support
-#
+# end of IRQ chip support
 config="CONFIG_RESET_TI_SYSCON" ; config_enable
 
 #
@@ -1900,9 +1936,7 @@ config="CONFIG_TI_PIPE3" ; config_module
 #
 config="CONFIG_ANDROID" ; config_disable
 
-#
-# HW tracing support
-#
+# end of HW tracing support
 config="CONFIG_FPGA" ; config_module
 config="CONFIG_ALTERA_PR_IP_CORE" ; config_module
 config="CONFIG_ALTERA_PR_IP_CORE_PLAT" ; config_module
@@ -1930,7 +1964,7 @@ config="CONFIG_OCFS2_FS" ; config_disable
 config="CONFIG_BTRFS_FS" ; config_enable
 config="CONFIG_NILFS2_FS" ; config_disable
 config="CONFIG_F2FS_FS" ; config_enable
-config="CONFIG_FS_ENCRYPTION" ; config_enable
+config="CONFIG_FS_VERITY" ; config_enable
 config="CONFIG_QFMT_V1" ; config_disable
 config="CONFIG_AUTOFS4_FS" ; config_enable
 config="CONFIG_FUSE_FS" ; config_enable
@@ -1949,6 +1983,7 @@ config="CONFIG_NTFS_FS" ; config_module
 #
 config="CONFIG_CONFIGFS_FS" ; config_enable
 
+# end of Pseudo filesystems
 config="CONFIG_ORANGEFS_FS" ; config_disable
 config="CONFIG_ADFS_FS" ; config_disable
 config="CONFIG_AFFS_FS" ; config_disable
@@ -2018,12 +2053,18 @@ config="CONFIG_CRYPTO_DEV_SUN4I_SS" ; config_enable
 # Certificates for signature checking
 #
 config="CONFIG_SYSTEM_TRUSTED_KEYS" ; option="" ; config_value
+config="CONFIG_SECONDARY_TRUSTED_KEYRING" ; config_disable
 config="CONFIG_SYSTEM_BLACKLIST_KEYRING" ; config_disable
 
 #
 # Library routines
 #
 config="CONFIG_RAID6_PQ_BENCHMARK" ; config_disable
+
+#
+# Default contiguous memory area size:
+#
+config="CONFIG_CMA_SIZE_MBYTES" ; option=48 ; config_value
 
 #
 # Compile-time checks and compiler options
