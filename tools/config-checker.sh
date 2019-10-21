@@ -1061,6 +1061,20 @@ config="CONFIG_USB_OHCI_HCD" ; config_disable
 # also be needed; see USB_STORAGE Help for more info
 #
 config="CONFIG_USB_STORAGE" ; config_enable
+config="CONFIG_USB_STORAGE_REALTEK" ; config_enable
+config="CONFIG_USB_STORAGE_DATAFAB" ; config_enable
+config="CONFIG_USB_STORAGE_FREECOM" ; config_enable
+config="CONFIG_USB_STORAGE_ISD200" ; config_enable
+config="CONFIG_USB_STORAGE_USBAT" ; config_enable
+config="CONFIG_USB_STORAGE_SDDR09" ; config_enable
+config="CONFIG_USB_STORAGE_SDDR55" ; config_enable
+config="CONFIG_USB_STORAGE_JUMPSHOT" ; config_enable
+config="CONFIG_USB_STORAGE_ALAUDA" ; config_enable
+config="CONFIG_USB_STORAGE_ONETOUCH" ; config_enable
+config="CONFIG_USB_STORAGE_KARMA" ; config_enable
+config="CONFIG_USB_STORAGE_CYPRESS_ATACB" ; config_enable
+config="CONFIG_USB_STORAGE_ENE_UB6250" ; config_enable
+config="CONFIG_USB_UAS" ; config_enable
 
 #
 # USB Imaging devices
