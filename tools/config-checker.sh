@@ -35,6 +35,8 @@ config_module_special () {
 	if [ "x${test_module}" = "x# ${config} is not set" ] ; then
 		echo "Setting: ${config}=m"
 		sed -i -e 's:# '$config' is not set:'$config'=m:g' .config
+	else
+		echo "$config=m" >> .config
 	fi
 }
 
@@ -773,7 +775,7 @@ config="CONFIG_SENSORS_ZL6100" ; config_module
 
 config="CONFIG_SENSORS_SHT15" ; config_module
 
-config="CONFIG_SENSORS_SHT3x" ; config_module
+config="CONFIG_SENSORS_SHT3x" ; config_module_special
 config="CONFIG_SENSORS_SHTC1" ; config_module
 
 config="CONFIG_SENSORS_SMSC47M1" ; config_module
@@ -1005,8 +1007,8 @@ config="CONFIG_SND_SOC_CS4265" ; config_module
 config="CONFIG_SND_SOC_CS4271" ; config_module
 config="CONFIG_SND_SOC_CS4271_I2C" ; config_module
 config="CONFIG_SND_SOC_DMIC" ; config_module
-config="CONFIG_SND_SOC_PCM512x" ; config_module
-config="CONFIG_SND_SOC_PCM512x_I2C" ; config_module
+config="CONFIG_SND_SOC_PCM512x" ; config_module_special
+config="CONFIG_SND_SOC_PCM512x_I2C" ; config_module_special
 config="CONFIG_SND_SOC_SIGMADSP" ; config_module
 config="CONFIG_SND_SOC_SIGMADSP_I2C" ; config_module
 config="CONFIG_SND_SOC_WM8804" ; config_module
