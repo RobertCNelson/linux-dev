@@ -433,12 +433,17 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		bionic|cosmic|disco|eoan)
-			#18.04 bionic: (EOL: April 2023) lts: bionic -> xyz
-			#18.10 cosmic: (EOL: July 2019)
-			#19.04 disco: (EOL: )
-			#19.10 eoan: (EOL: )
+		bionic|disco|eoan|focal)
+			#18.04 bionic: (EOL: April 2023) lts: bionic -> focal
+			#19.04 disco: (EOL: July, 2020)
+			#19.10 eoan: (EOL: January, 2020)
+			#20.04 focal: (EOL: ) lts: focal -> xyz
 			unset warn_eol_distro
+			;;
+		cosmic)
+			#18.10 cosmic: (EOL: July 18, 2019)
+			warn_eol_distro=1
+			stop_pkg_search=1
 			;;
 		yakkety|zesty|artful)
 			#16.10 yakkety: (EOL: July 20, 2017)
