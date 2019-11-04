@@ -385,6 +385,7 @@ beagleboard_dtbs () {
 		device="omap4-panda-es-b3.dtb" ; dtb_makefile_append_omap4
 
 		device="am335x-abbbi.dtb" ; dtb_makefile_append
+		device="am335x-bonegreen-gateway.dtb" ; dtb_makefile_append
 
 		device="am335x-boneblack-uboot.dtb" ; dtb_makefile_append
 
