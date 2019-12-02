@@ -319,6 +319,10 @@ debian_regs () {
 			#LMDE 3 https://linuxmint.com/rel_cindy.php
 			deb_distro="stretch"
 			;;
+		debbie)
+			#LMDE 4
+			deb_distro="buster"
+			;;
 		debian)
 			deb_distro="jessie"
 			;;
@@ -403,6 +407,11 @@ debian_regs () {
 		tina)
 			#19.2
 			#https://blog.linuxmint.com/?p=3736
+			deb_distro="bionic"
+			;;
+		tricia)
+			#19.3
+			#http://packages.linuxmint.com/index.php
 			deb_distro="bionic"
 			;;
 		esac
