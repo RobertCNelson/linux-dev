@@ -5,29 +5,25 @@ Subject: [PATCH] ar1021_i2c: invert/swap and offset options
 
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- drivers/input/touchscreen/ar1021_i2c.c | 85 ++++++++++++++++++++++++--
- 1 file changed, 80 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/ar1021_i2c.c | 81 ++++++++++++++++++++++++--
+ 1 file changed, 76 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-index b35b640fdadf..a1d4019c5a74 100644
+index c0d5c2413356..740956f9431a 100644
 --- a/drivers/input/touchscreen/ar1021_i2c.c
 +++ b/drivers/input/touchscreen/ar1021_i2c.c
-@@ -18,6 +18,11 @@
+@@ -17,6 +17,7 @@
  
  #define AR1021_MAX_X	4095
  #define AR1021_MAX_Y	4095
 +#define AR1021_MAX_PRESSURE 255
-+
-+#define AR1021_CMD	0x55
-+
-+#define AR1021_CMD_ENABLE_TOUCH		0x12
  
  #define AR1021_CMD	0x55
  
-@@ -27,8 +32,29 @@ struct ar1021_i2c {
+@@ -26,8 +27,29 @@ struct ar1021_i2c {
  	struct i2c_client *client;
  	struct input_dev *input;
- 	u8 data[AR1021_TOCUH_PKG_SIZE];
+ 	u8 data[AR1021_TOUCH_PKG_SIZE];
 +	bool invert_x;
 +	bool invert_y;
 +	bool swap_xy;
@@ -54,7 +50,7 @@ index b35b640fdadf..a1d4019c5a74 100644
  static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
  {
  	struct ar1021_i2c *ar1021 = dev_id;
-@@ -50,9 +76,22 @@ static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
+@@ -49,9 +71,22 @@ static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
  	x = ((data[2] & 0x1f) << 7) | (data[1] & 0x7f);
  	y = ((data[4] & 0x1f) << 7) | (data[3] & 0x7f);
  
@@ -79,7 +75,7 @@ index b35b640fdadf..a1d4019c5a74 100644
  	input_sync(input);
  
  out:
-@@ -94,6 +133,8 @@ static int ar1021_i2c_probe(struct i2c_client *client,
+@@ -93,6 +128,8 @@ static int ar1021_i2c_probe(struct i2c_client *client,
  	struct ar1021_i2c *ar1021;
  	struct input_dev *input;
  	int error;
@@ -88,7 +84,7 @@ index b35b640fdadf..a1d4019c5a74 100644
  
  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
  		dev_err(&client->dev, "i2c_check_functionality error\n");
-@@ -117,10 +158,44 @@ static int ar1021_i2c_probe(struct i2c_client *client,
+@@ -116,10 +153,44 @@ static int ar1021_i2c_probe(struct i2c_client *client,
  	input->open = ar1021_i2c_open;
  	input->close = ar1021_i2c_close;
  
@@ -137,5 +133,5 @@ index b35b640fdadf..a1d4019c5a74 100644
  	input_set_drvdata(input, ar1021);
  
 -- 
-2.20.1
+2.24.0
 

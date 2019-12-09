@@ -69,7 +69,7 @@ cd ${DIR}/KERNEL/
 #
 # General setup
 #
-config="CONFIG_BUILD_SALT" ; option="5.4-rc4-armv7-devel-r0" ; config_string
+config="CONFIG_BUILD_SALT" ; option="" ; config_string
 config="CONFIG_KERNEL_LZO" ; config_enable
 
 #

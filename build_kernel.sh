@@ -27,7 +27,7 @@ mkdir -p "${DIR}/deploy/"
 
 config_patch_build_salt () {
 	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
-	echo "CONFIG_BUILD_SALT=\"${KERNEL_TAG}${BUILD}\"" >> .config
+	echo "CONFIG_BUILD_SALT=\"\"" >> .config
 }
 
 config_use_lzo_if_no_lz4 () {

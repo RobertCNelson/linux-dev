@@ -1,0 +1,53 @@
+From eb0719687b5aff904a3aa691d79de808b007b744 Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Sun, 8 Dec 2019 19:16:06 -0600
+Subject: [PATCH] Add BeagleBoard.org DTBS: v5.5.x
+
+https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/v5.5.x
+
+https://github.com/beagleboard/BeagleBoard-DeviceTrees/commit/07e0fb38f187409e10a656837306df9a1f998f6e
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi |  4 ++++
+ arch/arm/boot/dts/dra7.dtsi                     | 10 ++++++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+index bc76f1705c0f..d5c56a111df0 100644
+--- a/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-beagle-x15-common.dtsi
+@@ -164,6 +164,10 @@ sound0_master: simple-audio-card,codec {
+ 	};
+ };
+ 
++&bb2d {
++	status = "okay";
++};
++
+ &i2c1 {
+ 	status = "okay";
+ 	clock-frequency = <400000>;
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index 73e5011f531a..efb99469250e 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -377,6 +377,16 @@ dmm@4e000000 {
+ 			ti,hwmods = "dmm";
+ 		};
+ 
++		bb2d: bb2d@59000000 {
++			compatible = "ti,dra7-bb2d","vivante,gc";
++			reg = <0x59000000 0x0700>;
++			interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
++			ti,hwmods = "bb2d";
++			clocks = <&dpll_core_h24x2_ck>;
++			clock-names = "fclk";
++			status = "disabled";
++		};
++
+ 		mmu0_dsp1: mmu@40d01000 {
+ 			compatible = "ti,dra7-dsp-iommu";
+ 			reg = <0x40d01000 0x100>;
+-- 
+2.24.0
+

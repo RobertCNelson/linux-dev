@@ -361,7 +361,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	bbdtbs="v5.4.x"
+	bbdtbs="v5.5.x"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
@@ -382,16 +382,16 @@ beagleboard_dtbs () {
 		cp -vr ../BeagleBoard-DeviceTrees/src/arm/* arch/arm/boot/dts/
 		cp -vr ../BeagleBoard-DeviceTrees/include/dt-bindings/* ./include/dt-bindings/
 
-		device="omap4-panda-es-b3.dtb" ; dtb_makefile_append_omap4
+		#device="omap4-panda-es-b3.dtb" ; dtb_makefile_append_omap4
 
-		device="am335x-abbbi.dtb" ; dtb_makefile_append
-		device="am335x-bonegreen-gateway.dtb" ; dtb_makefile_append
+		#device="am335x-abbbi.dtb" ; dtb_makefile_append
+		#device="am335x-bonegreen-gateway.dtb" ; dtb_makefile_append
 
-		device="am335x-boneblack-uboot.dtb" ; dtb_makefile_append
+		#device="am335x-boneblack-uboot.dtb" ; dtb_makefile_append
 
-		device="am335x-bone-uboot-univ.dtb" ; dtb_makefile_append
-		device="am335x-boneblack-uboot-univ.dtb" ; dtb_makefile_append
-		device="am335x-bonegreen-wireless-uboot-univ.dtb" ; dtb_makefile_append
+		#device="am335x-bone-uboot-univ.dtb" ; dtb_makefile_append
+		#device="am335x-boneblack-uboot-univ.dtb" ; dtb_makefile_append
+		#device="am335x-bonegreen-wireless-uboot-univ.dtb" ; dtb_makefile_append
 
 		${git_bin} add -f arch/arm/boot/dts/
 		${git_bin} add -f include/dt-bindings/
@@ -463,15 +463,15 @@ patch_backports (){
 }
 
 backports () {
-#	backport_tag="v4.x-y"
+	backport_tag="v4.x-y"
 
-	subsystem="exfat"
+	subsystem="xyz"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		pre_backports
 
 		mkdir -p ./x/
-		cp -v ~/linux-src/drivers/staging/exfat/* ./drivers/staging/exfat/
+		cp -v ~/linux-src/x/* ./x/
 
 		post_backports
 		exit 2
@@ -529,7 +529,6 @@ soc () {
 #reverts
 drivers
 soc
-dir 'fixes'
 
 packaging () {
 	echo "dir: packaging"
