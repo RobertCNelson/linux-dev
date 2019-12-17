@@ -1,9 +1,9 @@
-From 8465b81b8e6db2002f021130b99c515a5b2d37ad Mon Sep 17 00:00:00 2001
+From 1a7214fd8cb0adaee006ae0df51ee4c7aa0bb403 Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Sun, 8 Dec 2019 19:15:53 -0600
+Date: Sun, 15 Dec 2019 18:42:58 -0600
 Subject: [PATCH] merge: WireGuard
 
-https://git.zx2c4.com/WireGuard/commit/ef48a8c9861b4e05765d7defab9f6789f52a98d4
+https://git.zx2c4.com/WireGuard/commit/372152122766ad2ce8d9510cd5b6b0369a85dd75
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  net/Kconfig                                   |    1 +
@@ -79,7 +79,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/crypto/zinc/selftest/run.h      |   48 +
  net/wireguard/device.c                        |  470 +
  net/wireguard/device.h                        |   73 +
- net/wireguard/main.c                          |   69 +
+ net/wireguard/main.c                          |   68 +
  net/wireguard/messages.h                      |  128 +
  net/wireguard/netlink.c                       |  660 ++
  net/wireguard/netlink.h                       |   12 +
@@ -104,7 +104,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  net/wireguard/timers.h                        |   31 +
  net/wireguard/uapi/wireguard.h                |  196 +
  net/wireguard/version.h                       |    1 +
- 98 files changed, 51221 insertions(+)
+ 98 files changed, 51220 insertions(+)
  create mode 100644 net/wireguard/Kconfig
  create mode 100644 net/wireguard/Makefile
  create mode 100644 net/wireguard/allowedips.c
@@ -1112,7 +1112,7 @@ index 000000000000..bafd70beb68f
 +#endif /* _WG_COMPATASM_H */
 diff --git a/net/wireguard/compat/compat.h b/net/wireguard/compat/compat.h
 new file mode 100644
-index 000000000000..b4a8f8b3cc60
+index 000000000000..3cc3c7fc2a25
 --- /dev/null
 +++ b/net/wireguard/compat/compat.h
 @@ -0,0 +1,945 @@
@@ -1444,7 +1444,7 @@ index 000000000000..b4a8f8b3cc60
 +}
 +#endif
 +
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 19, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 19, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0) && !defined(ISRHEL8)
 +#include <linux/random.h>
 +#include <linux/slab.h>
 +struct rng_is_initialized_callback {
@@ -1949,7 +1949,7 @@ index 000000000000..b4a8f8b3cc60
 +}
 +#endif
 +
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) && !defined(ISRHEL8)
 +#define NLA_EXACT_LEN NLA_UNSPEC
 +#endif
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
@@ -24563,7 +24563,7 @@ index 000000000000..ce48a42f7654
 +}
 diff --git a/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64.pl b/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64.pl
 new file mode 100644
-index 000000000000..2fa79c379ca5
+index 000000000000..c9a8e0037bdb
 --- /dev/null
 +++ b/net/wireguard/crypto/zinc/poly1305/poly1305-x86_64.pl
 @@ -0,0 +1,4266 @@
@@ -24604,7 +24604,7 @@ index 000000000000..2fa79c379ca5
 +# Skylake-X system performance. Since we are likely to suppress
 +# AVX512F capability flag [at least on Skylake-X], conversion serves
 +# as kind of "investment protection". Note that next *lake processor,
-+# Cannolake, has AVX512IFMA code path to execute...
++# Cannonlake, has AVX512IFMA code path to execute...
 +#
 +# Numbers are cycles per processed byte with poly1305_blocks alone,
 +# measured with rdtsc at fixed clock frequency.
@@ -45934,10 +45934,10 @@ index 000000000000..c91f3051c5c7
 +#endif /* _WG_DEVICE_H */
 diff --git a/net/wireguard/main.c b/net/wireguard/main.c
 new file mode 100644
-index 000000000000..4b5b58e8956e
+index 000000000000..9ca4195bc985
 --- /dev/null
 +++ b/net/wireguard/main.c
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,68 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
@@ -45952,7 +45952,6 @@ index 000000000000..4b5b58e8956e
 +#include "uapi/wireguard.h"
 +#include "crypto/zinc.h"
 +
-+#include <linux/version.h>
 +#include <linux/init.h>
 +#include <linux/module.h>
 +#include <linux/genetlink.h>
@@ -48966,7 +48965,7 @@ index 000000000000..83067f71ea99
 +#endif /* _WG_RATELIMITER_H */
 diff --git a/net/wireguard/receive.c b/net/wireguard/receive.c
 new file mode 100644
-index 000000000000..dfd6e4087f97
+index 000000000000..e00f0f4b0982
 --- /dev/null
 +++ b/net/wireguard/receive.c
 @@ -0,0 +1,605 @@
@@ -49354,7 +49353,7 @@ index 000000000000..dfd6e4087f97
 +	/* We've already verified the Poly1305 auth tag, which means this packet
 +	 * was not modified in transit. We can therefore tell the networking
 +	 * stack that all checksums of every layer of encapsulation have already
-+	 * been checked "by the hardware" and therefore is unneccessary to check
++	 * been checked "by the hardware" and therefore is unnecessary to check
 +	 * again in software.
 +	 */
 +	skb->ip_summed = CHECKSUM_UNNECESSARY;
@@ -51814,7 +51813,7 @@ index 000000000000..f0653dcb1326
 +#endif /* _WG_TIMERS_H */
 diff --git a/net/wireguard/uapi/wireguard.h b/net/wireguard/uapi/wireguard.h
 new file mode 100644
-index 000000000000..dd8a47c4ad11
+index 000000000000..ae88be14c947
 --- /dev/null
 +++ b/net/wireguard/uapi/wireguard.h
 @@ -0,0 +1,196 @@
@@ -51838,13 +51837,13 @@ index 000000000000..dd8a47c4ad11
 + * one but not both of:
 + *
 + *    WGDEVICE_A_IFINDEX: NLA_U32
-+ *    WGDEVICE_A_IFNAME: NLA_NUL_STRING, maxlen IFNAMESIZ - 1
++ *    WGDEVICE_A_IFNAME: NLA_NUL_STRING, maxlen IFNAMSIZ - 1
 + *
 + * The kernel will then return several messages (NLM_F_MULTI) containing the
 + * following tree of nested items:
 + *
 + *    WGDEVICE_A_IFINDEX: NLA_U32
-+ *    WGDEVICE_A_IFNAME: NLA_NUL_STRING, maxlen IFNAMESIZ - 1
++ *    WGDEVICE_A_IFNAME: NLA_NUL_STRING, maxlen IFNAMSIZ - 1
 + *    WGDEVICE_A_PRIVATE_KEY: NLA_EXACT_LEN, len WG_KEY_LEN
 + *    WGDEVICE_A_PUBLIC_KEY: NLA_EXACT_LEN, len WG_KEY_LEN
 + *    WGDEVICE_A_LISTEN_PORT: NLA_U16
@@ -51897,7 +51896,7 @@ index 000000000000..dd8a47c4ad11
 + * WGDEVICE_A_IFINDEX and WGDEVICE_A_IFNAME:
 + *
 + *    WGDEVICE_A_IFINDEX: NLA_U32
-+ *    WGDEVICE_A_IFNAME: NLA_NUL_STRING, maxlen IFNAMESIZ - 1
++ *    WGDEVICE_A_IFNAME: NLA_NUL_STRING, maxlen IFNAMSIZ - 1
 + *    WGDEVICE_A_FLAGS: NLA_U32, 0 or WGDEVICE_F_REPLACE_PEERS if all current
 + *                      peers should be removed prior to adding the list below.
 + *    WGDEVICE_A_PRIVATE_KEY: len WG_KEY_LEN, all zeros to remove
@@ -51941,7 +51940,7 @@ index 000000000000..dd8a47c4ad11
 + * filling in information not contained in the prior. Note that if
 + * WGDEVICE_F_REPLACE_PEERS is specified in the first message, it probably
 + * should not be specified in fragments that come after, so that the list
-+ * of peers is only cleared the first time but appened after. Likewise for
++ * of peers is only cleared the first time but appended after. Likewise for
 + * peers, if WGPEER_F_REPLACE_ALLOWEDIPS is specified in the first message
 + * of a peer, it likely should not be specified in subsequent fragments.
 + *
@@ -52016,11 +52015,11 @@ index 000000000000..dd8a47c4ad11
 +#endif /* _WG_UAPI_WIREGUARD_H */
 diff --git a/net/wireguard/version.h b/net/wireguard/version.h
 new file mode 100644
-index 000000000000..479dbf4d17c2
+index 000000000000..ba0d35e0a446
 --- /dev/null
 +++ b/net/wireguard/version.h
 @@ -0,0 +1 @@
-+#define WIREGUARD_VERSION "0.0.20191206"
++#define WIREGUARD_VERSION "0.0.20191212"
 -- 
 2.24.0
 
