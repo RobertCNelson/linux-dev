@@ -42,7 +42,7 @@ fi
 dl_gcc_generic () {
 	WGET="wget -c --directory-prefix=${gcc_dir}/"
 	if [ ! -f "${gcc_dir}/${gcc_filename_prefix}/${datestamp}" ] ; then
-		echo "Installing: ${toolchain_name}"
+		echo "Installing Toolchain: ${toolchain}"
 		echo "-----------------------------"
 		${WGET} "${gcc_html_path}${gcc_filename_prefix}.tar.xz"
 		if [ -d "${gcc_dir}/${gcc_filename_prefix}" ] ; then
@@ -52,6 +52,8 @@ dl_gcc_generic () {
 		if [ -f "${gcc_dir}/${gcc_filename_prefix}/${binary}gcc" ] ; then
 			touch "${gcc_dir}/${gcc_filename_prefix}/${datestamp}"
 		fi
+	else
+		echo "Using Existing Toolchain: ${toolchain}"
 	fi
 
 	if [ "x${ARCH}" = "xarmv7l" ] ; then
