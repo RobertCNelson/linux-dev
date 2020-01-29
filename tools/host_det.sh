@@ -442,15 +442,15 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		bionic|disco|eoan|focal)
+		bionic|eoan|focal)
 			#18.04 bionic: (EOL: April 2023) lts: bionic -> focal
-			#19.04 disco: (EOL: July, 2020)
-			#19.10 eoan: (EOL: January, 2020)
-			#20.04 focal: (EOL: ) lts: focal -> xyz
+			#19.10 eoan: (EOL: July, 2020)
+			#20.04 focal: (EOL: 2030) lts: focal -> xyz
 			unset warn_eol_distro
 			;;
-		cosmic)
+		cosmic|disco)
 			#18.10 cosmic: (EOL: July 18, 2019)
+			#19.04 disco: (EOL: January 23, 2020)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
