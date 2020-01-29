@@ -268,6 +268,7 @@ ti_pm_firmware () {
 
 	dir 'drivers/ti/firmware'
 }
+
 dtb_makefile_append_omap4 () {
 	sed -i -e 's:omap4-panda.dtb \\:omap4-panda.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
 }
@@ -277,26 +278,28 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	bbdtbs="v5.5.x"
+	branch="v5.5.x"
+	https_repo="https://github.com/beagleboard/BeagleBoard-DeviceTrees"
+	work_dir="BeagleBoard-DeviceTrees"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		cd ../
-		if [ ! -d ./BeagleBoard-DeviceTrees ] ; then
-			${git_bin} clone -b ${bbdtbs} https://github.com/beagleboard/BeagleBoard-DeviceTrees --depth=1
-			cd ./BeagleBoard-DeviceTrees
-				bbdtbs_hash=$(git rev-parse HEAD)
+		if [ ! -d ./${work_dir} ] ; then
+			${git_bin} clone -b ${branch} ${https_repo} --depth=1
+			cd ./${work_dir}
+				git_hash=$(git rev-parse HEAD)
 			cd -
 		else
-			rm -rf ./BeagleBoard-DeviceTrees || true
-			${git_bin} clone -b ${bbdtbs} https://github.com/beagleboard/BeagleBoard-DeviceTrees --depth=1
-			cd ./BeagleBoard-DeviceTrees
-				bbdtbs_hash=$(git rev-parse HEAD)
+			rm -rf ./${work_dir} || true
+			${git_bin} clone -b ${branch} ${https_repo} --depth=1
+			cd ./${work_dir}
+				git_hash=$(git rev-parse HEAD)
 			cd -
 		fi
 		cd ./KERNEL/
 
-		cp -vr ../BeagleBoard-DeviceTrees/src/arm/* arch/arm/boot/dts/
-		cp -vr ../BeagleBoard-DeviceTrees/include/dt-bindings/* ./include/dt-bindings/
+		cp -vr ../${work_dir}/src/arm/* arch/arm/boot/dts/
+		cp -vr ../${work_dir}/include/dt-bindings/* ./include/dt-bindings/
 
 		device="omap4-panda-es-b3.dtb" ; dtb_makefile_append_omap4
 
@@ -311,17 +314,17 @@ beagleboard_dtbs () {
 
 		${git_bin} add -f arch/arm/boot/dts/
 		${git_bin} add -f include/dt-bindings/
-		${git_bin} commit -a -m "Add BeagleBoard.org DTBS: $bbdtbs" -m "https://github.com/beagleboard/BeagleBoard-DeviceTrees/tree/${bbdtbs}" -m "https://github.com/beagleboard/BeagleBoard-DeviceTrees/commit/${bbdtbs_hash}" -s
+		${git_bin} commit -a -m "Add BeagleBoard.org DTBS: $branch" -m "${https_repo}/tree/${branch}" -m "${https_repo}/commit/${git_hash}" -s
 		${git_bin} format-patch -1 -o ../patches/soc/ti/beagleboard_dtbs/
-		echo "BBDTBS: https://github.com/beagleboard/BeagleBoard-DeviceTrees/commit/${bbdtbs_hash}" > ../patches/git/BBDTBS
+		echo "BBDTBS: ${https_repo}/commit/${git_hash}" > ../patches/git/BBDTBS
 
-		rm -rf ../BeagleBoard-DeviceTrees/ || true
+		rm -rf ../${work_dir}/ || true
 
 		${git_bin} reset --hard HEAD^
 
 		start_cleanup
 
-		${git} "${DIR}/patches/soc/ti/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$bbdtbs.patch"
+		${git} "${DIR}/patches/soc/ti/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$branch.patch"
 
 		wdir="soc/ti/beagleboard_dtbs"
 		number=1
@@ -342,6 +345,7 @@ can_isotp
 wireguard
 ti_pm_firmware
 beagleboard_dtbs
+seeed_dtbs
 #local_patch
 
 pre_backports () {
