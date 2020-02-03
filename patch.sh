@@ -345,7 +345,6 @@ can_isotp
 wireguard
 ti_pm_firmware
 beagleboard_dtbs
-seeed_dtbs
 #local_patch
 
 pre_backports () {

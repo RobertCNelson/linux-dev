@@ -1,14 +1,14 @@
-From fca933395160906515117e39fca0be8b880bb0ce Mon Sep 17 00:00:00 2001
+From a6d64639bcd2dc188885bf3d5ee66d2e7ec16dab Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
-Date: Tue, 14 Jan 2020 14:55:49 -0600
+Date: Sun, 2 Feb 2020 13:55:59 -0600
 Subject: [PATCH] merge: can-isotp: https://github.com/hartkopp/can-isotp
 
-https://github.com/hartkopp/can-isotp/commit/b31bce98d65f894aad6427bcf6f3f7822e261a59
+https://github.com/hartkopp/can-isotp/commit/ced84cab120a1ddde2bd4561a18514707c8a6184
 Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
  include/uapi/linux/can/isotp.h |  135 +++
- net/can/isotp.c                | 1533 ++++++++++++++++++++++++++++++++
- 2 files changed, 1668 insertions(+)
+ net/can/isotp.c                | 1537 ++++++++++++++++++++++++++++++++
+ 2 files changed, 1672 insertions(+)
  create mode 100644 include/uapi/linux/can/isotp.h
  create mode 100644 net/can/isotp.c
 
@@ -155,10 +155,10 @@ index 000000000000..548e732f33a8
 +#endif
 diff --git a/net/can/isotp.c b/net/can/isotp.c
 new file mode 100644
-index 000000000000..02462b959f33
+index 000000000000..a0d20d9443bf
 --- /dev/null
 +++ b/net/can/isotp.c
-@@ -0,0 +1,1533 @@
+@@ -0,0 +1,1537 @@
 +/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
 +/*
 + * isotp.c - ISO 15765-2 CAN transport protocol for protocol family CAN
@@ -1257,7 +1257,11 @@ index 000000000000..02462b959f33
 +	int err = 0;
 +	int notify_enetdown = 0;
 +
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0)
++	if (len < CAN_REQUIRED_SIZE(struct sockaddr_can, can_addr.tp))
++#else
 +	if (len < sizeof(*addr))
++#endif
 +		return -EINVAL;
 +
 +	if (addr->can_addr.tp.rx_id == addr->can_addr.tp.tx_id)
