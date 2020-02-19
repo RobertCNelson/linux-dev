@@ -174,57 +174,6 @@ rt () {
 	dir 'rt'
 }
 
-wireguard_fail () {
-	echo "WireGuard failed"
-	exit 2
-}
-
-wireguard () {
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cd ../
-		if [ ! -d ./WireGuard ] ; then
-			${git_bin} clone https://git.zx2c4.com/WireGuard --depth=1
-			cd ./WireGuard
-				wireguard_hash=$(git rev-parse HEAD)
-			cd -
-		else
-			rm -rf ./WireGuard || true
-			${git_bin} clone https://git.zx2c4.com/WireGuard --depth=1
-			cd ./WireGuard
-				wireguard_hash=$(git rev-parse HEAD)
-			cd -
-		fi
-
-		#cd ./WireGuard/
-		#${git_bin}  revert --no-edit xyz
-		#cd ../
-
-		cd ./KERNEL/
-
-		../WireGuard/contrib/kernel-tree/create-patch.sh | patch -p1 || wireguard_fail
-
-		${git_bin} add .
-		${git_bin} commit -a -m 'merge: WireGuard' -m "https://git.zx2c4.com/WireGuard/commit/${wireguard_hash}" -s
-		${git_bin} format-patch -1 -o ../patches/WireGuard/
-		echo "WIREGUARD: https://git.zx2c4.com/WireGuard/commit/${wireguard_hash}" > ../patches/git/WIREGUARD
-
-		rm -rf ../WireGuard/ || true
-
-		${git_bin} reset --hard HEAD^
-
-		start_cleanup
-
-		${git} "${DIR}/patches/WireGuard/0001-merge-WireGuard.patch"
-
-		wdir="WireGuard"
-		number=1
-		cleanup
-	fi
-
-	dir 'WireGuard'
-}
-
 ti_pm_firmware () {
 	#http://git.ti.com/gitweb/?p=processor-firmware/ti-amx3-cm3-pm-firmware.git;a=shortlog;h=refs/heads/ti-v4.1.y-next
 	#regenerate="enable"
@@ -278,7 +227,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	branch="v5.5.x"
+	branch="v5.6.x"
 	https_repo="https://github.com/beagleboard/BeagleBoard-DeviceTrees"
 	work_dir="BeagleBoard-DeviceTrees"
 	#regenerate="enable"
@@ -342,9 +291,8 @@ local_patch () {
 #external_git
 can_isotp
 #rt
-wireguard
 ti_pm_firmware
-beagleboard_dtbs
+#beagleboard_dtbs
 #local_patch
 
 pre_backports () {
@@ -421,13 +369,10 @@ drivers () {
 	dir 'drivers/ar1021_i2c'
 	dir 'drivers/pwm'
 	dir 'drivers/spi'
-#	dir 'drivers/ssd1306'
 	dir 'drivers/tps65217'
 
 	dir 'drivers/ti/overlays'
 	dir 'drivers/ti/cpsw'
-#	dir 'drivers/ti/eqep'
-	dir 'drivers/ti/rpmsg'
 	dir 'drivers/ti/serial'
 	dir 'drivers/ti/tsc'
 	dir 'drivers/ti/gpio'

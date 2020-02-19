@@ -21,10 +21,6 @@ cat_files () {
 	if [ -f ./patches/git/TI_AMX3_CM3 ] ; then
 		cat ./patches/git/TI_AMX3_CM3 >> ${wfile}
 	fi
-
-	if [ -f ./patches/git/WIREGUARD ] ; then
-		cat ./patches/git/WIREGUARD >> ${wfile}
-	fi
 }
 
 DIR=$PWD
@@ -45,9 +41,9 @@ if [ -e ${DIR}/version.sh ]; then
 	fi
 
 	if [ -f ./patches/git/RT ] ; then
-		echo "kernel v${KERNEL_TAG} rebase with rt: v${KERNEL_REL}${kernel_rt} wireguard/can_isotp/device-tree/etc" > ${wfile}
+		echo "kernel v${KERNEL_TAG} rebase with rt: v${KERNEL_REL}${kernel_rt} can_isotp/device-tree/etc" > ${wfile}
 	else
-		echo "kernel v${KERNEL_TAG} rebase with: wireguard/can_isotp/device-tree/etc" > ${wfile}
+		echo "kernel v${KERNEL_TAG} rebase with: can_isotp/device-tree/etc" > ${wfile}
 	fi
 	cat_files
 
