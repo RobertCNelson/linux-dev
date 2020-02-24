@@ -1,6 +1,6 @@
 This is just a set of scripts to rebuild a known working kernel for ARM devices.
 
-Script Bugs: "bugs@rcn-ee.com"
+Script Bugs: "robertcnelson+bugs@gmail.com"
 
 Note, for older git tag's please use: https://github.com/RobertCNelson/yakbuild
 
