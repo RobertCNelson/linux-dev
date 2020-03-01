@@ -547,7 +547,7 @@ debian_regs () {
 	if [ "${error_unknown_deb_distro}" ] ; then
 		echo "Unrecognized deb based system:"
 		echo "-----------------------------"
-		echo "Please cut, paste and email to: bugs@rcn-ee.com"
+		echo "Please cut, paste and email to: robertcnelson+bugs@gmail.com"
 		echo "-----------------------------"
 		echo "git: [$(${git_bin} rev-parse HEAD)]"
 		echo "git: [$(cat .git/config | grep url | sed 's/\t//g' | sed 's/ //g')]"
