@@ -56,6 +56,7 @@ copy_defconfig () {
 
 make_menuconfig () {
 	cd "${DIR}/KERNEL" || exit
+	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" menuconfig
 	if [ ! -f "${DIR}/.yakbuild" ] ; then
 		cp -v .config "${DIR}/patches/defconfig"
@@ -82,22 +83,10 @@ make_deb () {
 	build_opts="${build_opts} KDEB_SOURCENAME=linux-upstream"
 
 	echo "-----------------------------"
-	if grep -q bindeb-pkg "${DIR}/KERNEL/scripts/package/Makefile"; then
-		echo "make ${build_opts} CROSS_COMPILE="${CC}" bindeb-pkg"
-		echo "-----------------------------"
-		make ${build_opts} CROSS_COMPILE="${CC}" bindeb-pkg
-	else
-		echo "make ${build_opts} CROSS_COMPILE="${CC}" deb-pkg"
-		echo "-----------------------------"
-		make ${build_opts} CROSS_COMPILE="${CC}" deb-pkg
-	fi
+	echo "make ${build_opts} CROSS_COMPILE="${CC}" bindeb-pkg"
+	echo "-----------------------------"
+	make ${build_opts} CROSS_COMPILE="${CC}" bindeb-pkg
 
-	#old
-	mv "${DIR}"/*.debian.tar.gz "${DIR}/deploy/" || true
-	mv "${DIR}"/*.dsc "${DIR}/deploy/" || true
-	mv "${DIR}"/*.orig.tar.gz "${DIR}/deploy/" || true
-
-	#current
 	mv "${DIR}"/*.buildinfo "${DIR}/deploy/" || true
 	mv "${DIR}"/*.changes "${DIR}/deploy/" || true
 	mv "${DIR}"/*.deb "${DIR}/deploy/" || true

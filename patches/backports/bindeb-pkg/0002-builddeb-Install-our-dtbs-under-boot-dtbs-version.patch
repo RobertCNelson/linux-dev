@@ -1,0 +1,25 @@
+From 22a397212dc75961423de5425c96618c147f2eaf Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Fri, 6 Mar 2020 16:53:00 -0600
+Subject: [PATCH 2/2] builddeb: Install our dtbs under /boot/dtbs/$version
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ scripts/package/builddeb | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/scripts/package/builddeb b/scripts/package/builddeb
+index 6df3c9f8b2da..3aba0e099aa1 100755
+--- a/scripts/package/builddeb
++++ b/scripts/package/builddeb
+@@ -146,6 +146,7 @@ if is_enabled CONFIG_OF_EARLY_FLATTREE; then
+ 	# Only some architectures with OF support have this target
+ 	if [ -d "${srctree}/arch/$SRCARCH/boot/dts" ]; then
+ 		$MAKE -f $srctree/Makefile INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
++		$MAKE -f $srctree/Makefile INSTALL_DTBS_PATH="$tmpdir/boot/dtbs/$version" dtbs_install
+ 	fi
+ fi
+ 
+-- 
+2.25.1
+

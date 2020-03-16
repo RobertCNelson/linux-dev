@@ -25,18 +25,6 @@ git_bin=$(which git)
 
 mkdir -p "${DIR}/deploy/"
 
-config_patch_build_salt () {
-	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
-	echo "CONFIG_BUILD_SALT=\"\"" >> .config
-}
-
-config_use_lzo_if_no_lz4 () {
-	if [ ! -f /usr/bin/lz4 ] ; then
-		sed -i -e 's:CONFIG_KERNEL_LZ4=y:# CONFIG_KERNEL_LZ4 is not set:g' .config
-		sed -i -e 's:# CONFIG_KERNEL_LZO is not set:CONFIG_KERNEL_LZO=y:g' .config
-	fi
-}
-
 patch_kernel () {
 	cd "${DIR}/KERNEL" || exit
 
@@ -82,8 +70,6 @@ config_comparsion () {
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig-lpae" .config
 
-	config_patch_build_salt
-
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig-lpae"
 
@@ -92,8 +78,6 @@ config_comparsion () {
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig-bone" .config
 
-	config_patch_build_salt
-
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig-bone"
 
@@ -101,9 +85,6 @@ config_comparsion () {
 	echo "Updating: defconfig"
 	echo "-----------------------------"
 	cp "${DIR}/patches/defconfig" .config
-
-	config_patch_build_salt
-	config_use_lzo_if_no_lz4
 
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	cp .config "${DIR}/patches/defconfig"
@@ -129,9 +110,6 @@ copy_defconfig () {
 
 make_menuconfig () {
 	cd "${DIR}/KERNEL" || exit
-	if [ ! -f "${DIR}/.yakbuild" ] ; then
-		config_use_lzo_if_no_lz4
-	fi
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" menuconfig
 	if [ ! -f "${DIR}/.yakbuild" ] ; then
@@ -253,27 +231,6 @@ if [ ! -f "${DIR}/system.sh" ] ; then
 	cp -v "${DIR}/system.sh.sample" "${DIR}/system.sh"
 fi
 
-if [ -f "${DIR}/branches.list" ] ; then
-	echo "-----------------------------"
-	echo "Please checkout one of the active branches:"
-	echo "-----------------------------"
-	cat "${DIR}/branches.list" | grep -v INACTIVE
-	echo "-----------------------------"
-	exit
-fi
-
-if [ -f "${DIR}/branch.expired" ] ; then
-	echo "-----------------------------"
-	echo "Support for this branch has expired."
-	unset response
-	echo -n "Do you wish to bypass this warning and support your self: (y/n)? "
-	read response
-	if [ "x${response}" != "xy" ] ; then
-		exit
-	fi
-	echo "-----------------------------"
-fi
-
 unset CC
 unset LINUX_GIT
 . "${DIR}/system.sh"
@@ -299,10 +256,6 @@ fi
 FULL_REBUILD=1
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
-
-	cp -v "${DIR}/KERNEL/scripts/package/builddeb" "${DIR}/3rdparty/packaging/"
-
-	patch -p1 < "${DIR}/patches/pre-packaging/builddeb-use-boot-dtbs-uname-r-path.diff"
 
 	if [ "${RUN_BISECT}" ] ; then
 		/bin/sh -e "${DIR}/scripts/bisect.sh" || { exit 1 ; }
