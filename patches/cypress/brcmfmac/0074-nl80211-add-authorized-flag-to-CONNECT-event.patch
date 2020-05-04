@@ -1,0 +1,65 @@
+From 547b24914939f9551990bd777bc7d35159293b11 Mon Sep 17 00:00:00 2001
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Date: Tue, 30 Apr 2019 17:52:41 -0500
+Subject: [PATCH 074/101] nl80211: add authorized flag to CONNECT event
+
+Add authorized flag to CONNECT event. It is used for 802.1X 4-way
+handshake offload with PMK caching.
+
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ include/net/cfg80211.h | 3 +++
+ net/wireless/nl80211.c | 2 ++
+ net/wireless/sme.c     | 1 +
+ 3 files changed, 6 insertions(+)
+
+diff --git a/include/net/cfg80211.h b/include/net/cfg80211.h
+index 598cf54..91939f3 100644
+--- a/include/net/cfg80211.h
++++ b/include/net/cfg80211.h
+@@ -6410,6 +6410,8 @@ struct cfg80211_fils_resp_params {
+  *	not known. This value is used only if @status < 0 to indicate that the
+  *	failure is due to a timeout and not due to explicit rejection by the AP.
+  *	This value is ignored in other cases (@status >= 0).
++ * @authorized: Indicates whether the connection is ready to transport
++ *	data packets.
+  */
+ struct cfg80211_connect_resp_params {
+ 	int status;
+@@ -6421,6 +6423,7 @@ struct cfg80211_connect_resp_params {
+ 	size_t resp_ie_len;
+ 	struct cfg80211_fils_resp_params fils;
+ 	enum nl80211_timeout_reason timeout_reason;
++	bool authorized;
+ };
+ 
+ /**
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index e67b77f..3191532 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -15246,6 +15246,8 @@ void nl80211_send_connect_result(struct cfg80211_registered_device *rdev,
+ 	     (nla_put_flag(msg, NL80211_ATTR_TIMED_OUT) ||
+ 	      nla_put_u32(msg, NL80211_ATTR_TIMEOUT_REASON,
+ 			  cr->timeout_reason))) ||
++	    (cr->authorized &&
++	     nla_put_flag(msg, NL80211_ATTR_PORT_AUTHORIZED)) ||
+ 	    (cr->req_ie &&
+ 	     nla_put(msg, NL80211_ATTR_REQ_IE, cr->req_ie_len, cr->req_ie)) ||
+ 	    (cr->resp_ie &&
+diff --git a/net/wireless/sme.c b/net/wireless/sme.c
+index d341763..407ce1d 100644
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -887,6 +887,7 @@ void cfg80211_connect_done(struct net_device *dev,
+ 	ev->cr.bss = params->bss;
+ 	ev->cr.status = params->status;
+ 	ev->cr.timeout_reason = params->timeout_reason;
++	ev->cr.authorized = params->authorized;
+ 
+ 	spin_lock_irqsave(&wdev->event_lock, flags);
+ 	list_add_tail(&ev->list, &wdev->event_list);
+-- 
+1.9.1
+

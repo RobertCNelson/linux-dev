@@ -1,0 +1,44 @@
+From 02d935dc678db3fb6a8c578ac17eb5c216972c52 Mon Sep 17 00:00:00 2001
+From: Justin Li <nenl@cypress.com>
+Date: Wed, 27 Feb 2019 02:47:49 -0600
+Subject: [PATCH 042/101] brcmfmac: Add P2P Action Frame retry delay to fix GAS
+ Comeback Response failure issue
+
+It was observed that P2P Cert. 5.1.19: DEVUT responds to Service
+Discovery request failed due to DUT did not send GAS Comeback Response
+after receiving request from test bed P2P peer. To fix this issue,
+we need to add P2P Action Frame retry delay to enhance P2P connection
+under VSDB and noisy environment, since the peer can be in other
+channels under VSDB.
+
+Signed-off-by: Justin Li <nenl@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+index 31862ca..793b5a0 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+@@ -66,6 +66,7 @@
+ #define P2P_CHANNEL_SYNC_RETRY		5
+ #define P2P_AF_FRM_SCAN_MAX_WAIT	msecs_to_jiffies(450)
+ #define P2P_DEFAULT_SLEEP_TIME_VSDB	200
++#define P2P_AF_RETRY_DELAY_TIME		40
+ 
+ /* WiFi P2P Public Action Frame OUI Subtypes */
+ #define P2P_PAF_GON_REQ		0	/* Group Owner Negotiation Req */
+@@ -1827,6 +1828,9 @@ bool brcmf_p2p_send_action_frame(struct brcmf_cfg80211_info *cfg,
+ 	while (!p2p->block_gon_req_tx &&
+ 	       (!ack) && (tx_retry < P2P_AF_TX_MAX_RETRY) &&
+ 		!dwell_overflow) {
++		if (af_params->channel)
++			msleep(P2P_AF_RETRY_DELAY_TIME);
++
+ 		ack = !brcmf_p2p_tx_action_frame(p2p, af_params);
+ 		tx_retry++;
+ 		dwell_overflow = brcmf_p2p_check_dwell_overflow(requested_dwell,
+-- 
+1.9.1
+

@@ -1,0 +1,63 @@
+From e874a31e5358b1f961c2ee420d4cad768db44fc2 Mon Sep 17 00:00:00 2001
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Date: Mon, 17 Feb 2020 04:18:15 -0600
+Subject: [PATCH 084/101] brcmfmac: fix for WPA/WPA2-PSK 4-way handshake and
+ SAE offload failures
+
+An incorrect value of use_fwsup is set for 4-way handshake offload for
+WPA//WPA2-PSK, caused by commit 3b1e0a7bdfee ("brcmfmac: add support for
+SAE authentication offload"). It results in missing bit
+BRCMF_VIF_STATUS_EAP_SUCCESS set in brcmf_is_linkup() and causes the
+failure. This patch correct the value for the case.
+
+Also setting bit BRCMF_VIF_STATUS_EAP_SUCCESS for SAE offload case in
+brcmf_is_linkup() to fix SAE offload failure.
+
+Fixes: 3b1e0a7bdfee ("brcmfmac: add support for SAE authentication
+offload")
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 4b007ea..557a3e6 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -1748,6 +1748,10 @@ static s32 brcmf_set_auth_type(struct net_device *ndev,
+ 		switch (sme->crypto.akm_suites[0]) {
+ 		case WLAN_AKM_SUITE_SAE:
+ 			val = WPA3_AUTH_SAE_PSK;
++			if (sme->crypto.sae_pwd) {
++				brcmf_dbg(INFO, "using SAE offload\n");
++				profile->use_fwsup = BRCMF_PROFILE_FWSUP_SAE;
++			}
+ 			break;
+ 		default:
+ 			bphy_err(drvr, "invalid cipher group (%d)\n",
+@@ -2042,11 +2046,6 @@ static void brcmf_set_join_pref(struct brcmf_if *ifp,
+ 		goto done;
+ 	}
+ 
+-	if (sme->crypto.sae_pwd) {
+-		brcmf_dbg(INFO, "using SAE offload\n");
+-		profile->use_fwsup = BRCMF_PROFILE_FWSUP_SAE;
+-	}
+-
+ 	if (sme->crypto.psk &&
+ 	    profile->use_fwsup != BRCMF_PROFILE_FWSUP_SAE) {
+ 		if (WARN_ON(profile->use_fwsup != BRCMF_PROFILE_FWSUP_NONE)) {
+@@ -5610,7 +5609,8 @@ static bool brcmf_is_linkup(struct brcmf_cfg80211_vif *vif,
+ 	u32 event = e->event_code;
+ 	u32 status = e->status;
+ 
+-	if (vif->profile.use_fwsup == BRCMF_PROFILE_FWSUP_PSK &&
++	if ((vif->profile.use_fwsup == BRCMF_PROFILE_FWSUP_PSK ||
++	     vif->profile.use_fwsup == BRCMF_PROFILE_FWSUP_SAE) &&
+ 	    event == BRCMF_E_PSK_SUP &&
+ 	    status == BRCMF_E_STATUS_FWSUP_COMPLETED)
+ 		set_bit(BRCMF_VIF_STATUS_EAP_SUCCESS, &vif->sme_state);
+-- 
+1.9.1
+

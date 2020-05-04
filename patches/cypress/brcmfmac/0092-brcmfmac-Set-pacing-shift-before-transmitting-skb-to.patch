@@ -1,0 +1,42 @@
+From c1e52d50dda15f5157e8936c12b691460737969c Mon Sep 17 00:00:00 2001
+From: Wright Feng <wright.feng@cypress.com>
+Date: Fri, 6 Mar 2020 04:16:34 -0600
+Subject: [PATCH 092/101] brcmfmac: Set pacing shift before transmitting skb to
+ bus
+
+Linux 3.6 introduces TSQ which has a per socket threshold for TCP Tx
+packet to reduce latency. In flow control mode , host driver enqueues skb
+in hanger and TCP doesn't push new skb frees until host frees the skb when
+receiving fwstatus event. So set pacing shift 8 to send them as a single
+large aggregate frame to the bus layer.
+
+43455 TX TCP throughput in FC mode 2 on Linux 5.4.18
+sk_pacing_shift : Throughput
+10: 190 Mbps
+ 9: 216 Mbps
+ 8: 233 Mbps (Max throughput)
+ 7: 233 Mpbs
+
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index f290a5f..74e6956 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -352,6 +352,9 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
+ 	if ((skb->priority == 0) || (skb->priority > 7))
+ 		skb->priority = cfg80211_classify8021d(skb, NULL);
+ 
++	/* set pacing shift for packet aggregation */
++	sk_pacing_shift_update(skb->sk, 8);
++
+ 	ret = brcmf_proto_tx_queue_data(drvr, ifp->ifidx, skb);
+ 	if (ret < 0)
+ 		brcmf_txfinalize(ifp, skb, false);
+-- 
+1.9.1
+

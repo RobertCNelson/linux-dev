@@ -227,7 +227,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	branch="v5.6.x"
+	branch="v5.7.x"
 	https_repo="https://github.com/beagleboard/BeagleBoard-DeviceTrees"
 	work_dir="BeagleBoard-DeviceTrees"
 	#regenerate="enable"
@@ -292,7 +292,7 @@ local_patch () {
 can_isotp
 #rt
 ti_pm_firmware
-#beagleboard_dtbs
+beagleboard_dtbs
 #local_patch
 
 pre_backports () {
@@ -329,21 +329,27 @@ patch_backports (){
 }
 
 backports () {
-	backport_tag="v4.x-y"
+	backport_tag="v5.4.18"
 
-	subsystem="xyz"
+	subsystem="brcm80211"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		pre_backports
 
-		mkdir -p ./x/
-		cp -v ~/linux-src/x/* ./x/
+		cp -rv ~/linux-src/drivers/net/wireless/broadcom/brcm80211/* ./drivers/net/wireless/broadcom/brcm80211/
+		cp -v ~/linux-src/include/linux/mmc/sdio_ids.h ./include/linux/mmc/sdio_ids.h
+		#cp -v ~/linux-src/include/linux/firmware.h ./include/linux/firmware.h
 
 		post_backports
 		exit 2
 	else
 		patch_backports
 	fi
+
+	#regenerate="enable"
+	dir 'cypress/brcmfmac'
+	#exit 2
+	dir 'cypress/fixes'
 }
 
 reverts () {
@@ -385,10 +391,11 @@ soc () {
 	dir 'soc/imx/imx7'
 
 	dir 'soc/ti/panda'
+	dir 'bootup_hacks'
 }
 
 ###
-#backports
+backports
 #reverts
 drivers
 soc

@@ -1,0 +1,87 @@
+From 07550fe8116a91f06a09e46a0f9de8d0ade6b369 Mon Sep 17 00:00:00 2001
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Date: Thu, 12 Dec 2019 00:52:46 +0100
+Subject: [PATCH 047/101] brcmfmac: set F2 blocksize and watermark for 4359
+
+commit e0029595fa0f7afe284b51dcf6d43704c2f9f88b upstream.
+
+Set F2 blocksize to 256 bytes and watermark to 0x40 for 4359. Also
+enable and configure F1 MesBusyCtrl. It fixes DMA error while having
+UDP bi-directional traffic.
+
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+[slightly adapted for rebase on mainline linux]
+Signed-off-by: Soeren Moch <smoch@web.de>
+[use switch-case to replace if-else for F2 blksz setting]
+Reviewed-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c | 11 ++++++++++-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c   | 15 +++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+index a957107..29197f3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+@@ -45,6 +45,7 @@
+ #define SDIO_FUNC1_BLOCKSIZE		64
+ #define SDIO_FUNC2_BLOCKSIZE		512
+ #define SDIO_4373_FUNC2_BLOCKSIZE	256
++#define SDIO_4359_FUNC2_BLOCKSIZE	256
+ /* Maximum milliseconds to wait for F2 to come up */
+ #define SDIO_WAIT_F2RDY	3000
+ 
+@@ -916,8 +917,16 @@ static int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
+ 		goto out;
+ 	}
+ 
+-	if (sdiodev->func2->device == SDIO_DEVICE_ID_CYPRESS_4373)
++	switch (sdiodev->func2->device) {
++	case SDIO_DEVICE_ID_CYPRESS_4373:
+ 		f2_blksz = SDIO_4373_FUNC2_BLOCKSIZE;
++		break;
++	case SDIO_DEVICE_ID_BROADCOM_4359:
++		f2_blksz = SDIO_4359_FUNC2_BLOCKSIZE;
++		break;
++	default:
++		break;
++	}
+ 
+ 	ret = sdio_set_block_size(sdiodev->func2, f2_blksz);
+ 	if (ret) {
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index b73f4ef..86d332b 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -50,6 +50,8 @@
+ #define CY_43455_MES_WATERMARK	0x50
+ #define CY_43455_MESBUSYCTRL	(CY_43455_MES_WATERMARK | \
+ 				 SBSDIO_MESBUSYCTRL_ENAB)
++#define CY_4359_F2_WATERMARK	0x40
++#define CY_4359_F1_MESBUSYCTRL	(CY_4359_F2_WATERMARK | SBSDIO_MESBUSYCTRL_ENAB)
+ 
+ #ifdef DEBUG
+ 
+@@ -4244,6 +4246,19 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+ 					   CY_43455_MESBUSYCTRL, &err);
+ 			break;
++		case SDIO_DEVICE_ID_BROADCOM_4359:
++			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
++				  CY_4359_F2_WATERMARK);
++			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
++					   CY_4359_F2_WATERMARK, &err);
++			devctl = brcmf_sdiod_readb(sdiod, SBSDIO_DEVICE_CTL,
++						   &err);
++			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
++			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
++					   &err);
++			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
++					   CY_4359_F1_MESBUSYCTRL, &err);
++			break;
+ 		default:
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+ 					   DEFAULT_F2_WATERMARK, &err);
+-- 
+1.9.1
+

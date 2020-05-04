@@ -1,0 +1,118 @@
+From be8eef6fc674652aef2ed4e6c2cd1667d1a20fbb Mon Sep 17 00:00:00 2001
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Date: Tue, 10 Dec 2019 14:25:14 -0600
+Subject: [PATCH 080/101] brcmfmac: support SAE authentication offload in AP
+ mode
+
+Firmware may have SAE authenticator code built-in. This is detected by
+the driver and indicated in the wiphy features flags. User space can use
+this flag to determine whether or not to provide the password material
+in the nl80211 start AP command to offload the SAE authentication in AP
+mode.
+
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../broadcom/brcm80211/brcmfmac/cfg80211.c         | 28 ++++++++++++++++++----
+ .../broadcom/brcm80211/brcmfmac/cfg80211.h         |  4 +++-
+ 2 files changed, 27 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index ea21b69..4b007ea 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -55,6 +55,7 @@
+ #define RSN_AKM_PSK			2	/* Pre-shared Key */
+ #define RSN_AKM_SHA256_1X		5	/* SHA256, 802.1X */
+ #define RSN_AKM_SHA256_PSK		6	/* SHA256, Pre-shared Key */
++#define RSN_AKM_SAE			8	/* SAE */
+ #define RSN_CAP_LEN			2	/* Length of RSN capabilities */
+ #define RSN_CAP_PTK_REPLAY_CNTR_MASK	(BIT(2) | BIT(3))
+ #define RSN_CAP_MFPR_MASK		BIT(6)
+@@ -4204,6 +4205,10 @@ static bool brcmf_valid_wpa_oui(u8 *oui, bool is_rsn_ie)
+ 			brcmf_dbg(TRACE, "RSN_AKM_MFP_1X\n");
+ 			wpa_auth |= WPA2_AUTH_1X_SHA256;
+ 			break;
++		case RSN_AKM_SAE:
++			brcmf_dbg(TRACE, "RSN_AKM_SAE\n");
++			wpa_auth |= WPA3_AUTH_SAE_PSK;
++			break;
+ 		default:
+ 			bphy_err(drvr, "Invalid key mgmt info\n");
+ 		}
+@@ -4221,11 +4226,12 @@ static bool brcmf_valid_wpa_oui(u8 *oui, bool is_rsn_ie)
+ 				brcmf_dbg(TRACE, "MFP Required\n");
+ 				mfp = BRCMF_MFP_REQUIRED;
+ 				/* Firmware only supports mfp required in
+-				 * combination with WPA2_AUTH_PSK_SHA256 or
+-				 * WPA2_AUTH_1X_SHA256.
++				 * combination with WPA2_AUTH_PSK_SHA256,
++				 * WPA2_AUTH_1X_SHA256, or WPA3_AUTH_SAE_PSK.
+ 				 */
+ 				if (!(wpa_auth & (WPA2_AUTH_PSK_SHA256 |
+-						  WPA2_AUTH_1X_SHA256))) {
++						  WPA2_AUTH_1X_SHA256 |
++						  WPA3_AUTH_SAE_PSK))) {
+ 					err = -EINVAL;
+ 					goto exit;
+ 				}
+@@ -4788,6 +4794,14 @@ s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
+ 			if (err < 0)
+ 				goto exit;
+ 		}
++		if (crypto->sae_pwd) {
++			brcmf_dbg(INFO, "using SAE offload\n");
++			profile->use_fwauth |= BIT(BRCMF_PROFILE_FWAUTH_SAE);
++			err = brcmf_set_sae_password(ifp, crypto->sae_pwd,
++						     crypto->sae_pwd_len);
++			if (err < 0)
++				goto exit;
++		}
+ 		if (profile->use_fwauth == 0)
+ 			profile->use_fwauth = BIT(BRCMF_PROFILE_FWAUTH_NONE);
+ 
+@@ -4917,6 +4931,8 @@ static int brcmf_cfg80211_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
+ 		if (profile->use_fwauth != BIT(BRCMF_PROFILE_FWAUTH_NONE)) {
+ 			if (profile->use_fwauth & BIT(BRCMF_PROFILE_FWAUTH_PSK))
+ 				brcmf_set_pmk(ifp, NULL, 0);
++			if (profile->use_fwauth & BIT(BRCMF_PROFILE_FWAUTH_SAE))
++				brcmf_set_sae_password(ifp, NULL, 0);
+ 			profile->use_fwauth = BIT(BRCMF_PROFILE_FWAUTH_NONE);
+ 		}
+ 
+@@ -7220,9 +7236,13 @@ static int brcmf_setup_wiphy(struct wiphy *wiphy, struct brcmf_if *ifp)
+ 			wiphy_ext_feature_set(wiphy,
+ 					      NL80211_EXT_FEATURE_SAE_OFFLOAD);
+ 	}
+-	if (brcmf_feat_is_enabled(ifp, BRCMF_FEAT_FWAUTH))
++	if (brcmf_feat_is_enabled(ifp, BRCMF_FEAT_FWAUTH)) {
+ 		wiphy_ext_feature_set(wiphy,
+ 				      NL80211_EXT_FEATURE_4WAY_HANDSHAKE_AP_PSK);
++		if (brcmf_feat_is_enabled(ifp, BRCMF_FEAT_SAE))
++			wiphy_ext_feature_set(wiphy,
++					      NL80211_EXT_FEATURE_SAE_OFFLOAD);
++	}
+ 	wiphy->mgmt_stypes = brcmf_txrx_stypes;
+ 	wiphy->max_remain_on_channel_duration = 5000;
+ 	if (brcmf_feat_is_enabled(ifp, BRCMF_FEAT_PNO)) {
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
+index d4e32a8..bd4ea5e 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
+@@ -142,10 +142,12 @@ enum brcmf_profile_fwsup {
+  *
+  * @BRCMF_PROFILE_FWAUTH_NONE: no firmware authenticator
+  * @BRCMF_PROFILE_FWAUTH_PSK: authenticator for WPA/WPA2-PSK
++ * @BRCMF_PROFILE_FWAUTH_PSK: authenticator for SAE
+  */
+ enum brcmf_profile_fwauth {
+ 	BRCMF_PROFILE_FWAUTH_NONE,
+-	BRCMF_PROFILE_FWAUTH_PSK
++	BRCMF_PROFILE_FWAUTH_PSK,
++	BRCMF_PROFILE_FWAUTH_SAE
+ };
+ 
+ /**
+-- 
+1.9.1
+

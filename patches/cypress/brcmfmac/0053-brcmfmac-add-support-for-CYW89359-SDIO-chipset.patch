@@ -1,0 +1,41 @@
+From d33e1dfb9eb85acbedf1aad5cd178ffcfb26f6fd Mon Sep 17 00:00:00 2001
+From: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+Date: Tue, 8 Oct 2019 01:28:40 -0500
+Subject: [PATCH 053/101] brcmfmac: add support for CYW89359 SDIO chipset
+
+Add support for CYW89359 SDIO chipset. CYW89359 is a 2x2 dual-band 11ac chipset
+with 20/40/80Mhz channel support.
+
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c | 1 +
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c   | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+index 29197f3..896546d 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+@@ -922,6 +922,7 @@ static int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
+ 		f2_blksz = SDIO_4373_FUNC2_BLOCKSIZE;
+ 		break;
+ 	case SDIO_DEVICE_ID_BROADCOM_4359:
++	case SDIO_DEVICE_ID_CYPRESS_89359:
+ 		f2_blksz = SDIO_4359_FUNC2_BLOCKSIZE;
+ 		break;
+ 	default:
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index 5c9b9b8..31b4fb2 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -4266,6 +4266,7 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
+ 					   CY_43455_MESBUSYCTRL, &err);
+ 			break;
+ 		case SDIO_DEVICE_ID_BROADCOM_4359:
++		case SDIO_DEVICE_ID_CYPRESS_89359:
+ 			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
+ 				  CY_4359_F2_WATERMARK);
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+-- 
+1.9.1
+

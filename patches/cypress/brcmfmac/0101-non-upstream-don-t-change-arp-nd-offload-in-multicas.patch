@@ -1,0 +1,37 @@
+From 392330eb77252e7f224a3bd981b46664fe835a7d Mon Sep 17 00:00:00 2001
+From: Ting-Ying Li <tingying.li@cypress.com>
+Date: Wed, 1 Apr 2020 21:08:51 -0500
+Subject: [PATCH 101/101] non-upstream: don't change arp/nd offload in
+ multicast_work
+
+Commit 6c219b008815 ("brcmfmac: disable packet filtering in promiscuous
+mode") adds brcmf_configure_arp_nd_offload() configuration according to
+promiscuous mode in _brcmf_set_multicast_list(). It will always enable
+arp/nd offload when the device is not in promiscuous mode without
+considering the interface role. Enabling ARP offload for STA/SAP
+concurent mode has caused the AP interface to send ARP responses with
+incorrect mac address.
+
+Remove the arp/nd offload setting line as a workaround for now.
+
+Signed-off-by: Ting-Ying Li <tingying.li@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 603bed9..fe083f8e 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -199,7 +199,6 @@ static void _brcmf_set_multicast_list(struct work_struct *work)
+ 	if (err < 0)
+ 		bphy_err(drvr, "Setting BRCMF_C_SET_PROMISC failed, %d\n",
+ 			 err);
+-	brcmf_configure_arp_nd_offload(ifp, !cmd_value);
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+-- 
+1.9.1
+

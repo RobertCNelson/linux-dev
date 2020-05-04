@@ -1,0 +1,38 @@
+From b8f229e335d8a20962594f663141752fe0399614 Mon Sep 17 00:00:00 2001
+From: Wright Feng <wright.feng@cypress.com>
+Date: Wed, 14 Nov 2018 23:13:02 -0600
+Subject: [PATCH 031/101] brcmfmac: keep SDIO watchdog running when
+ console_interval is non-zero
+
+brcmfmac host driver makes SDIO bus sleep and stops SDIO watchdog if no
+pending event or data. As a result, host driver does not poll firmware
+console buffer before buffer overflow, which leads to missing firmware
+logs. We should not stop SDIO watchdog if console_interval is non-zero
+in debug build.
+
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index fb1071f..0c2db76 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -3685,7 +3685,11 @@ static void brcmf_sdio_bus_watchdog(struct brcmf_sdio *bus)
+ 			if (bus->idlecount > bus->idletime) {
+ 				brcmf_dbg(SDIO, "idle\n");
+ 				sdio_claim_host(bus->sdiodev->func1);
+-				brcmf_sdio_wd_timer(bus, false);
++#ifdef DEBUG
++				if (!BRCMF_FWCON_ON() ||
++				    bus->console_interval == 0)
++#endif
++					brcmf_sdio_wd_timer(bus, false);
+ 				bus->idlecount = 0;
+ 				brcmf_sdio_bus_sleep(bus, true, false);
+ 				sdio_release_host(bus->sdiodev->func1);
+-- 
+1.9.1
+

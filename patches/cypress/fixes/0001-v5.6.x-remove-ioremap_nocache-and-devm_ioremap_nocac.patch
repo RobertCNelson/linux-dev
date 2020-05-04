@@ -1,0 +1,28 @@
+From b4292098a766038580442003bf68e121e323926b Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Tue, 21 Apr 2020 17:25:11 -0500
+Subject: [PATCH] v5.6.x: remove ioremap_nocache and devm_ioremap_nocache
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index d8ab8fb04d16..c21774a526d3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -1886,8 +1886,8 @@ static int brcmf_pcie_get_resource(struct brcmf_pciedev_info *devinfo)
+ 		return -EINVAL;
+ 	}
+ 
+-	devinfo->regs = ioremap_nocache(bar0_addr, BRCMF_PCIE_REG_MAP_SIZE);
+-	devinfo->tcm = ioremap_nocache(bar1_addr, bar1_size);
++	devinfo->regs = ioremap(bar0_addr, BRCMF_PCIE_REG_MAP_SIZE);
++	devinfo->tcm = ioremap(bar1_addr, bar1_size);
+ #ifdef CONFIG_BRCMFMAC_PCIE_BARWIN_SZ
+ 	devinfo->bar1_size = bar1_size;
+ #endif /* CONFIG_BRCMFMAC_PCIE_BARWIN_SZ */
+-- 
+2.26.1
+

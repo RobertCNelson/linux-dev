@@ -1,0 +1,101 @@
+From 9c48baad793241f922efdc17a667977d49fd6bfa Mon Sep 17 00:00:00 2001
+From: Frank Kao <frank.kao@cypress.com>
+Date: Wed, 18 Dec 2019 16:11:14 +0800
+Subject: [PATCH 069/101] brcmfmac: set F2 blocksize and watermark for 4356
+ SDIO
+
+Set F2 blocksize to 256 bytes and watermark to 0x40 for 4356 SDIO.
+Also enable and configure F1 MesBusyCtrl. It would resolve random
+driver crash issue.
+
+Signed-off-by: Frank Kao <frank.kao@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c  |  8 +++----
+ .../wireless/broadcom/brcm80211/brcmfmac/sdio.c    | 27 ++++++----------------
+ 2 files changed, 10 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+index 570210b..3ad9224 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+@@ -45,8 +45,7 @@
+ #define SDIO_FUNC1_BLOCKSIZE		64
+ #define SDIO_FUNC2_BLOCKSIZE		512
+ #define SDIO_4373_FUNC2_BLOCKSIZE	256
+-#define SDIO_4359_FUNC2_BLOCKSIZE	256
+-#define SDIO_4354_FUNC2_BLOCKSIZE	256
++#define SDIO_435X_FUNC2_BLOCKSIZE	256
+ /* Maximum milliseconds to wait for F2 to come up */
+ #define SDIO_WAIT_F2RDY	3000
+ 
+@@ -924,10 +923,9 @@ static int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
+ 		break;
+ 	case SDIO_DEVICE_ID_BROADCOM_4359:
+ 	case SDIO_DEVICE_ID_CYPRESS_89359:
+-		f2_blksz = SDIO_4359_FUNC2_BLOCKSIZE;
+-		break;
+ 	case SDIO_DEVICE_ID_BROADCOM_4354:
+-		f2_blksz = SDIO_4354_FUNC2_BLOCKSIZE;
++	case SDIO_DEVICE_ID_BROADCOM_4356:
++		f2_blksz = SDIO_435X_FUNC2_BLOCKSIZE;
+ 		break;
+ 	default:
+ 		break;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index c68b5a4..de090ee 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -53,11 +53,9 @@
+ #define CY_43455_MES_WATERMARK	0x50
+ #define CY_43455_MESBUSYCTRL	(CY_43455_MES_WATERMARK | \
+ 				 SBSDIO_MESBUSYCTRL_ENAB)
+-#define CY_4359_F2_WATERMARK	0x40
+-#define CY_4359_F1_MESBUSYCTRL	(CY_4359_F2_WATERMARK | SBSDIO_MESBUSYCTRL_ENAB)
+-#define CY_4354_F2_WATERMARK	0x40
+-#define CY_4354_F1_MESBUSYCTRL	(CY_4354_F2_WATERMARK | SBSDIO_MESBUSYCTRL_ENAB)
+-
++#define CY_435X_F2_WATERMARK	0x40
++#define CY_435X_F1_MESBUSYCTRL	(CY_435X_F2_WATERMARK | \
++				 SBSDIO_MESBUSYCTRL_ENAB)
+ #ifdef DEBUG
+ 
+ #define BRCMF_TRAP_INFO_SIZE	80
+@@ -4269,30 +4267,19 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
+ 			break;
+ 		case SDIO_DEVICE_ID_BROADCOM_4359:
+ 		case SDIO_DEVICE_ID_CYPRESS_89359:
+-			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
+-				  CY_4359_F2_WATERMARK);
+-			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+-					   CY_4359_F2_WATERMARK, &err);
+-			devctl = brcmf_sdiod_readb(sdiod, SBSDIO_DEVICE_CTL,
+-						   &err);
+-			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
+-			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
+-					   &err);
+-			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+-					   CY_4359_F1_MESBUSYCTRL, &err);
+-			break;
+ 		case SDIO_DEVICE_ID_BROADCOM_4354:
++		case SDIO_DEVICE_ID_BROADCOM_4356:
+ 			brcmf_dbg(INFO, "set F2 watermark to 0x%x*4 bytes\n",
+-				  CY_4354_F2_WATERMARK);
++				  CY_435X_F2_WATERMARK);
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+-					   CY_4354_F2_WATERMARK, &err);
++					   CY_435X_F2_WATERMARK, &err);
+ 			devctl = brcmf_sdiod_readb(sdiod, SBSDIO_DEVICE_CTL,
+ 						   &err);
+ 			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
+ 					   &err);
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
+-					   CY_4354_F1_MESBUSYCTRL, &err);
++					   CY_435X_F1_MESBUSYCTRL, &err);
+ 			break;
+ 		default:
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+-- 
+1.9.1
+

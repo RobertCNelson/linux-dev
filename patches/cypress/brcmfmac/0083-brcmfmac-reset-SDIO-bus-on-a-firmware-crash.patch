@@ -1,0 +1,119 @@
+From 722b3f93272d865da79e17c643f28b6f5cf8f0f9 Mon Sep 17 00:00:00 2001
+From: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+Date: Mon, 4 Nov 2019 02:03:38 -0600
+Subject: [PATCH 083/101] brcmfmac: reset SDIO bus on a firmware crash
+
+commit 4684997d9eea ("brcmfmac: reset PCIe bus on a firmware crash")
+adds a reset function to recover firmware trap for PCIe bus. This commit
+adds an implementation for SDIO bus.
+
+Upon SDIO firmware trap, do below:
+ - Remove the device
+ - Reset hardware
+ - Probe the device again
+
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c  |  4 +--
+ .../wireless/broadcom/brcm80211/brcmfmac/sdio.c    | 34 +++++++++++++++++++++-
+ .../wireless/broadcom/brcm80211/brcmfmac/sdio.h    |  3 ++
+ 3 files changed, 38 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+index 3ad9224..87f1155 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+@@ -868,7 +868,7 @@ static void brcmf_sdiod_freezer_detach(struct brcmf_sdio_dev *sdiodev)
+ }
+ #endif /* CONFIG_PM_SLEEP */
+ 
+-static int brcmf_sdiod_remove(struct brcmf_sdio_dev *sdiodev)
++int brcmf_sdiod_remove(struct brcmf_sdio_dev *sdiodev)
+ {
+ 	sdiodev->state = BRCMF_SDIOD_DOWN;
+ 	if (sdiodev->bus) {
+@@ -903,7 +903,7 @@ static void brcmf_sdiod_host_fixup(struct mmc_host *host)
+ 	host->caps |= MMC_CAP_NONREMOVABLE;
+ }
+ 
+-static int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
++int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev)
+ {
+ 	int ret = 0;
+ 	unsigned int f2_blksz = SDIO_FUNC2_BLOCKSIZE;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index de090ee..ec19258 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -16,6 +16,7 @@
+ #include <linux/mmc/sdio_ids.h>
+ #include <linux/mmc/sdio_func.h>
+ #include <linux/mmc/card.h>
++#include <linux/mmc/core.h>
+ #include <linux/semaphore.h>
+ #include <linux/firmware.h>
+ #include <linux/module.h>
+@@ -4124,6 +4125,36 @@ int brcmf_sdio_get_fwname(struct device *dev, const char *ext, u8 *fw_name)
+ 	return 0;
+ }
+ 
++static int brcmf_sdio_bus_reset(struct device *dev)
++{
++	int ret = 0;
++	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
++	struct brcmf_sdio_dev *sdiodev = bus_if->bus_priv.sdio;
++
++	brcmf_dbg(SDIO, "Enter\n");
++
++	/* start by unregistering irqs */
++	brcmf_sdiod_intr_unregister(sdiodev);
++
++	brcmf_sdiod_remove(sdiodev);
++
++	/* reset the adapter */
++	sdio_claim_host(sdiodev->func1);
++	mmc_hw_reset(sdiodev->func1->card->host);
++	sdio_release_host(sdiodev->func1);
++
++	brcmf_bus_change_state(sdiodev->bus_if, BRCMF_BUS_DOWN);
++
++	ret = brcmf_sdiod_probe(sdiodev);
++	if (ret) {
++		brcmf_err("Failed to probe after sdio device reset: ret %d\n",
++			  ret);
++		brcmf_sdiod_remove(sdiodev);
++	}
++
++	return ret;
++}
++
+ static const struct brcmf_bus_ops brcmf_sdio_bus_ops = {
+ 	.stop = brcmf_sdio_bus_stop,
+ 	.preinit = brcmf_sdio_bus_preinit,
+@@ -4135,7 +4166,8 @@ int brcmf_sdio_get_fwname(struct device *dev, const char *ext, u8 *fw_name)
+ 	.get_ramsize = brcmf_sdio_bus_get_ramsize,
+ 	.get_memdump = brcmf_sdio_bus_get_memdump,
+ 	.get_fwname = brcmf_sdio_get_fwname,
+-	.debugfs_create = brcmf_sdio_debugfs_create
++	.debugfs_create = brcmf_sdio_debugfs_create,
++	.reset = brcmf_sdio_bus_reset
+ };
+ 
+ #define BRCMF_SDIO_FW_CODE	0
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
+index 0bd47c1..cb0d71d 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
+@@ -368,6 +368,9 @@ static inline void brcmf_sdiod_freezer_uncount(struct brcmf_sdio_dev *sdiodev)
+ }
+ #endif /* CONFIG_PM_SLEEP */
+ 
++int brcmf_sdiod_probe(struct brcmf_sdio_dev *sdiodev);
++int brcmf_sdiod_remove(struct brcmf_sdio_dev *sdiodev);
++
+ struct brcmf_sdio *brcmf_sdio_probe(struct brcmf_sdio_dev *sdiodev);
+ void brcmf_sdio_remove(struct brcmf_sdio *bus);
+ void brcmf_sdio_isr(struct brcmf_sdio *bus);
+-- 
+1.9.1
+

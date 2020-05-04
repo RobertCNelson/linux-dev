@@ -1,0 +1,77 @@
+From d6f83b619b103e0274443a59ec818781788ab9a0 Mon Sep 17 00:00:00 2001
+From: Wright Feng <wright.feng@cypress.com>
+Date: Tue, 20 Nov 2018 21:20:41 -0600
+Subject: [PATCH 033/101] brcmfmac: reduce maximum station interface from 2 to
+ 1 in RSDB mode
+
+The firmware state machines are not fully suitable for concurrent
+station interface support, it may hit unexpected error if we have 2
+different SSIDs and the roaming scenarios concurrently.
+To avoid the bad user-experience if this is not fully validated, we
+dis-allow user to create two concurrent station interfaces.
+
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c  | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index eeb034d..7e51a70 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -6652,7 +6652,7 @@ static int brcmf_setup_wiphybands(struct brcmf_cfg80211_info *cfg)
+  *	#AP <= 4, matching BI, channels = 1, 4 total
+  *
+  * no p2p and rsdb:
+- *	#STA <= 2, #AP <= 2, channels = 2, 4 total
++ *	#STA <= 1, #AP <= 2, channels = 2, 3 total
+  *
+  * p2p, no mchan, and mbss:
+  *
+@@ -6667,8 +6667,14 @@ static int brcmf_setup_wiphybands(struct brcmf_cfg80211_info *cfg)
+  *	#AP <= 4, matching BI, channels = 1, 4 total
+  *
+  * p2p, rsdb, and no mbss:
+- *	#STA <= 2, #P2P-DEV <= 1, #{P2P-CL, P2P-GO} <= 2, AP <= 2,
++ *	#STA <= 1, #P2P-DEV <= 1, #{P2P-CL, P2P-GO} <= 2, AP <= 2,
+  *	 channels = 2, 4 total
++ *
++ * p2p, rsdb, mbss
++ *	#STA <= 1, #P2P-DEV <= 1, #{P2P-CL, P2P-GO} <= 2, AP <= 2,
++ *	 channels = 2, 4 total
++ *	#AP <= 4, matching BI, channels = 1, 4 total
++ *
+  */
+ static int brcmf_setup_ifmodes(struct wiphy *wiphy, struct brcmf_if *ifp)
+ {
+@@ -6707,7 +6713,7 @@ static int brcmf_setup_ifmodes(struct wiphy *wiphy, struct brcmf_if *ifp)
+ 		wiphy->interface_modes |= BIT(NL80211_IFTYPE_P2P_CLIENT) |
+ 					  BIT(NL80211_IFTYPE_P2P_GO) |
+ 					  BIT(NL80211_IFTYPE_P2P_DEVICE);
+-		c0_limits[i].max = 2;
++		c0_limits[i].max = 1;
+ 		c0_limits[i++].types = BIT(NL80211_IFTYPE_STATION);
+ 		c0_limits[i].max = 1;
+ 		c0_limits[i++].types = BIT(NL80211_IFTYPE_P2P_DEVICE);
+@@ -6716,7 +6722,7 @@ static int brcmf_setup_ifmodes(struct wiphy *wiphy, struct brcmf_if *ifp)
+ 				       BIT(NL80211_IFTYPE_P2P_GO);
+ 		c0_limits[i].max = 2;
+ 		c0_limits[i++].types = BIT(NL80211_IFTYPE_AP);
+-		combo[c].max_interfaces = 5;
++		combo[c].max_interfaces = 4;
+ 	} else if (p2p) {
+ 		if (brcmf_feat_is_enabled(ifp, BRCMF_FEAT_MCHAN))
+ 			combo[c].num_different_channels = 2;
+@@ -6735,7 +6741,7 @@ static int brcmf_setup_ifmodes(struct wiphy *wiphy, struct brcmf_if *ifp)
+ 		combo[c].max_interfaces = i;
+ 	} else if (rsdb) {
+ 		combo[c].num_different_channels = 2;
+-		c0_limits[i].max = 2;
++		c0_limits[i].max = 1;
+ 		c0_limits[i++].types = BIT(NL80211_IFTYPE_STATION);
+ 		c0_limits[i].max = 2;
+ 		c0_limits[i++].types = BIT(NL80211_IFTYPE_AP);
+-- 
+1.9.1
+

@@ -1,0 +1,83 @@
+From bb8ba684418f6d515c342ca3faa79f5985bed9f8 Mon Sep 17 00:00:00 2001
+From: Ryohei Kondo <ryohei.kondo@cypress.com>
+Date: Mon, 20 Aug 2018 16:27:41 +0900
+Subject: [PATCH 020/101] brcmfmac: add vendor ie for association responses
+
+Miracast Certification clause 6.1.2 may fail if there is no WFD IE
+in P2P assoc response. This change allows WFD IE to be added to P2P assoc
+response.
+
+Related WFA certification.
+6.1.2 P-SnUT operating as a Group Owner accepts a WFD Session
+with a Reference Source
+
+Signed-off-by: Ryohei Kondo <ryohei.kondo@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c    | 14 ++++++++++++++
+ .../net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h    |  4 ++++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 188426f..0f217c7 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -4319,6 +4319,11 @@ s32 brcmf_vif_set_mgmt_ie(struct brcmf_cfg80211_vif *vif, s32 pktflag,
+ 		mgmt_ie_len = &saved_ie->assoc_req_ie_len;
+ 		mgmt_ie_buf_len = sizeof(saved_ie->assoc_req_ie);
+ 		break;
++	case BRCMF_VNDR_IE_ASSOCRSP_FLAG:
++		mgmt_ie_buf = saved_ie->assoc_res_ie;
++		mgmt_ie_len = &saved_ie->assoc_res_ie_len;
++		mgmt_ie_buf_len = sizeof(saved_ie->assoc_res_ie);
++		break;
+ 	default:
+ 		err = -EPERM;
+ 		bphy_err(drvr, "not suitable type\n");
+@@ -4465,6 +4470,15 @@ s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
+ 	else
+ 		brcmf_dbg(TRACE, "Applied Vndr IEs for Probe Resp\n");
+ 
++	/* Set Assoc Response IEs to FW */
++	err = brcmf_vif_set_mgmt_ie(vif, BRCMF_VNDR_IE_ASSOCRSP_FLAG,
++				    beacon->assocresp_ies,
++				    beacon->assocresp_ies_len);
++	if (err)
++		brcmf_err("Set Assoc Resp IE Failed\n");
++	else
++		brcmf_dbg(TRACE, "Applied Vndr IEs for Assoc Resp\n");
++
+ 	return err;
+ }
+ 
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
+index 3df57e1..c9b3345 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
+@@ -176,19 +176,23 @@ enum brcmf_vif_status {
+  * @probe_req_ie: IE info for probe request.
+  * @probe_res_ie: IE info for probe response.
+  * @beacon_ie: IE info for beacon frame.
++ * @assoc_res_ie: IE info for association response frame.
+  * @probe_req_ie_len: IE info length for probe request.
+  * @probe_res_ie_len: IE info length for probe response.
+  * @beacon_ie_len: IE info length for beacon frame.
++ * @assoc_res_ie_len: IE info length for association response frame.
+  */
+ struct vif_saved_ie {
+ 	u8  probe_req_ie[IE_MAX_LEN];
+ 	u8  probe_res_ie[IE_MAX_LEN];
+ 	u8  beacon_ie[IE_MAX_LEN];
+ 	u8  assoc_req_ie[IE_MAX_LEN];
++	u8  assoc_res_ie[IE_MAX_LEN];
+ 	u32 probe_req_ie_len;
+ 	u32 probe_res_ie_len;
+ 	u32 beacon_ie_len;
+ 	u32 assoc_req_ie_len;
++	u32 assoc_res_ie_len;
+ };
+ 
+ /**
+-- 
+1.9.1
+

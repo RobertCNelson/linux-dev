@@ -1,0 +1,48 @@
+From 931893fa6605f30a868c4f615eef40cd55c93a03 Mon Sep 17 00:00:00 2001
+From: Wright Feng <wright.feng@cypress.com>
+Date: Fri, 25 May 2018 02:02:04 -0500
+Subject: [PATCH 009/101] brcmfmac: remove "arp_hostip_clear" from
+ "brcmf_netdev_stop"
+
+The firmware does not respond ARP request and causes ping failed with
+following steps.
+
+1. Bring up interface
+   ifconfig wlan0 up or start wpa_supplicant
+2. Set the IP address
+   ifconfig wlan0 192.168.100.10
+3. Bring down interface or
+   ifconfig wlan0 down or kill wpa_supplicant
+4. Bring up interface again and set the same IP address
+5. Connect to AP(192.168.100.1) and ping to AP will be failed.
+
+FMAC clears arp_hostip when bringing down the interface, but not set it
+back if setting the same IP address. We are able to see the IP address
+in interface info(inconfig wlan0) but the ping still cannot work because
+the firmware ARP offload does not respond the ARP request.
+Because of that, we remove "arp_hostip_clear" from function
+"brcmf_netdev_stop"
+
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 1b473f0..c4857a0 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -579,9 +579,6 @@ static int brcmf_netdev_stop(struct net_device *ndev)
+ 
+ 	brcmf_cfg80211_down(ndev);
+ 
+-	if (ifp->drvr->bus_if->state == BRCMF_BUS_UP)
+-		brcmf_fil_iovar_data_set(ifp, "arp_hostip_clear", NULL, 0);
+-
+ 	brcmf_net_setcarrier(ifp, false);
+ 
+ 	return 0;
+-- 
+1.9.1
+

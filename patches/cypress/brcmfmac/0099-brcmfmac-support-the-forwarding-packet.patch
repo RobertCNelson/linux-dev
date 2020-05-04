@@ -1,0 +1,280 @@
+From 737abdce331b32f481941d3b22e8c5f1c316949a Mon Sep 17 00:00:00 2001
+From: Jia-Shyr Chuang <joseph.chuang@cypress.com>
+Date: Thu, 22 Aug 2019 03:39:06 -0500
+Subject: [PATCH 099/101] brcmfmac: support the forwarding packet
+
+- Support packet forwarding mechanism on fmac driver
+  for some special usages on PCIE. Please ref to JIRA.
+- Fixed BE/VI priority issue when pumping iperf
+- Fix for linux coding style
+
+Signed-off-by: Jia-Shyr Chuang <joseph.chuang@cypress.com>
+Signed-off-by: Ting-Ying Li <tingying.li@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../broadcom/brcm80211/brcmfmac/cfg80211.c         |  13 ++-
+ .../wireless/broadcom/brcm80211/brcmfmac/core.c    | 101 ++++++++++++++++++++-
+ .../wireless/broadcom/brcm80211/brcmfmac/core.h    |  17 ++++
+ .../wireless/broadcom/brcm80211/brcmfmac/msgbuf.c  |  31 ++++++-
+ 4 files changed, 158 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index e629380..af51a82 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -4751,7 +4751,7 @@ s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
+ 		err = -EINVAL;
+ 		goto exit;
+ 	}
+-
++	ifp->isap = false;
+ 	/* Interface specific setup */
+ 	if (dev_role == NL80211_IFTYPE_AP) {
+ 		if ((brcmf_feat_is_enabled(ifp, BRCMF_FEAT_MBSS)) && (!mbss))
+@@ -4831,7 +4831,7 @@ s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
+ 				 err);
+ 			goto exit;
+ 		}
+-
++		ifp->isap = true;
+ 		brcmf_dbg(TRACE, "AP mode configuration complete\n");
+ 	} else if (dev_role == NL80211_IFTYPE_P2P_GO) {
+ 		err = brcmf_fil_iovar_int_set(ifp, "chanspec", chanspec);
+@@ -4863,6 +4863,7 @@ s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
+ 			goto exit;
+ 		}
+ 
++		ifp->isap = true;
+ 		brcmf_dbg(TRACE, "GO mode configuration complete\n");
+ 	} else {
+ 		WARN_ON(1);
+@@ -6117,6 +6118,14 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
+ 	}
+ 
+ 	if (brcmf_is_apmode(ifp->vif)) {
++		if (e->event_code == BRCMF_E_ASSOC_IND ||
++		    e->event_code == BRCMF_E_REASSOC_IND) {
++			brcmf_findadd_sta(ifp, e->addr);
++		} else if ((e->event_code == BRCMF_E_DISASSOC_IND) ||
++				(e->event_code == BRCMF_E_DEAUTH_IND) ||
++				(e->event_code == BRCMF_E_DEAUTH)) {
++			brcmf_del_sta(ifp, e->addr);
++		}
+ 		err = brcmf_notify_connect_status_ap(cfg, ndev, e, data);
+ 	} else if (brcmf_is_linkup(ifp->vif, e)) {
+ 		brcmf_dbg(CONN, "Linkup\n");
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 74e6956..603bed9 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -62,6 +62,14 @@ struct wlc_d11rxhdr {
+ 	s8 rxpwr[4];
+ } __packed;
+ 
++#define BRCMF_IF_STA_LIST_LOCK_INIT(ifp) spin_lock_init(&(ifp)->sta_list_lock)
++#define BRCMF_IF_STA_LIST_LOCK(ifp, flags) \
++	spin_lock_irqsave(&(ifp)->sta_list_lock, (flags))
++#define BRCMF_IF_STA_LIST_UNLOCK(ifp, flags) \
++	spin_unlock_irqrestore(&(ifp)->sta_list_lock, (flags))
++
++#define BRCMF_STA_NULL ((struct brcmf_sta *)NULL)
++
+ char *brcmf_ifname(struct brcmf_if *ifp)
+ {
+ 	if (!ifp)
+@@ -822,7 +830,9 @@ struct brcmf_if *brcmf_add_if(struct brcmf_pub *drvr, s32 bsscfgidx, s32 ifidx,
+ 
+ 	init_waitqueue_head(&ifp->pend_8021x_wait);
+ 	spin_lock_init(&ifp->netif_stop_lock);
+-
++	BRCMF_IF_STA_LIST_LOCK_INIT(ifp);
++	 /* Initialize STA info list */
++	INIT_LIST_HEAD(&ifp->sta_list);
+ 	if (mac_addr != NULL)
+ 		memcpy(ifp->mac_addr, mac_addr, ETH_ALEN);
+ 
+@@ -1670,3 +1680,92 @@ int brcmf_pktfilter_enable(struct net_device *ndev, bool enable)
+ 	}
+ 	return ret;
+ }
++
++/** Find STA with MAC address ea in an interface's STA list. */
++struct brcmf_sta *
++brcmf_find_sta(struct brcmf_if *ifp, const u8 *ea)
++{
++	struct brcmf_sta  *sta;
++	unsigned long flags;
++
++	BRCMF_IF_STA_LIST_LOCK(ifp, flags);
++	list_for_each_entry(sta, &ifp->sta_list, list) {
++		if (!memcmp(sta->ea.octet, ea, ETH_ALEN)) {
++			brcmf_dbg(INFO, "Found STA: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x into sta list\n",
++				  sta->ea.octet[0], sta->ea.octet[1],
++				  sta->ea.octet[2], sta->ea.octet[3],
++				  sta->ea.octet[4], sta->ea.octet[5]);
++			BRCMF_IF_STA_LIST_UNLOCK(ifp, flags);
++			return sta;
++		}
++	}
++	BRCMF_IF_STA_LIST_UNLOCK(ifp, flags);
++
++	return BRCMF_STA_NULL;
++}
++
++/** Add STA into the interface's STA list. */
++struct brcmf_sta *
++brcmf_add_sta(struct brcmf_if *ifp, const u8 *ea)
++{
++	struct brcmf_sta *sta;
++	unsigned long flags;
++
++	sta =  kzalloc(sizeof(*sta), GFP_KERNEL);
++	if (sta == BRCMF_STA_NULL) {
++		brcmf_err("Alloc failed\n");
++		return BRCMF_STA_NULL;
++	}
++	memcpy(sta->ea.octet, ea, ETH_ALEN);
++	brcmf_dbg(INFO, "Add STA: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x into sta list\n",
++		  sta->ea.octet[0], sta->ea.octet[1],
++		  sta->ea.octet[2], sta->ea.octet[3],
++		  sta->ea.octet[4], sta->ea.octet[5]);
++
++	/* link the sta and the dhd interface */
++	sta->ifp = ifp;
++	INIT_LIST_HEAD(&sta->list);
++
++	BRCMF_IF_STA_LIST_LOCK(ifp, flags);
++
++	list_add_tail(&sta->list, &ifp->sta_list);
++
++	BRCMF_IF_STA_LIST_UNLOCK(ifp, flags);
++	return sta;
++}
++
++/** Delete STA from the interface's STA list. */
++void
++brcmf_del_sta(struct brcmf_if *ifp, const u8 *ea)
++{
++	struct brcmf_sta *sta, *next;
++	unsigned long flags;
++
++	BRCMF_IF_STA_LIST_LOCK(ifp, flags);
++	list_for_each_entry_safe(sta, next, &ifp->sta_list, list) {
++		if (!memcmp(sta->ea.octet, ea, ETH_ALEN)) {
++			brcmf_dbg(INFO, "del STA: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x from sta list\n",
++				  ea[0], ea[1], ea[2], ea[3],
++				  ea[4], ea[5]);
++			list_del(&sta->list);
++			kfree(sta);
++		}
++	}
++
++	BRCMF_IF_STA_LIST_UNLOCK(ifp, flags);
++}
++
++/** Add STA if it doesn't exist. Not reentrant. */
++struct brcmf_sta*
++brcmf_findadd_sta(struct brcmf_if *ifp, const u8 *ea)
++{
++	struct brcmf_sta *sta = NULL;
++
++	sta = brcmf_find_sta(ifp, ea);
++
++	if (!sta) {
++		/* Add entry */
++		sta = brcmf_add_sta(ifp, ea);
++	}
++	return sta;
++}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h
+index 6def862..0852b66 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h
+@@ -188,6 +188,7 @@ struct brcmf_if {
+ 	struct brcmf_fws_mac_descriptor *fws_desc;
+ 	int ifidx;
+ 	s32 bsscfgidx;
++	bool isap;
+ 	u8 mac_addr[ETH_ALEN];
+ 	u8 netif_stop;
+ 	spinlock_t netif_stop_lock;
+@@ -196,6 +197,19 @@ struct brcmf_if {
+ 	struct in6_addr ipv6_addr_tbl[NDOL_MAX_ENTRIES];
+ 	u8 ipv6addr_idx;
+ 	bool fwil_fwerr;
++	struct list_head sta_list;              /* sll of associated stations */
++	spinlock_t sta_list_lock;
++};
++
++struct ether_addr {
++	u8 octet[ETH_ALEN];
++};
++
++/** Per STA params. A list of dhd_sta objects are managed in dhd_if */
++struct brcmf_sta {
++	void *ifp;             /* associated brcm_if */
++	struct ether_addr ea;   /* stations ethernet mac address */
++	struct list_head list;  /* link into brcmf_if::sta_list */
+ };
+ 
+ int brcmf_netdev_wait_pend8021x(struct brcmf_if *ifp);
+@@ -219,4 +233,7 @@ void brcmf_txflowblock_if(struct brcmf_if *ifp,
+ int brcmf_pktfilter_add_remove(struct net_device *ndev, int filter_num,
+ 			       bool add);
+ int brcmf_pktfilter_enable(struct net_device *ndev, bool enable);
++void brcmf_del_sta(struct brcmf_if *ifp, const u8 *ea);
++struct brcmf_sta *brcmf_find_sta(struct brcmf_if *ifp, const u8 *ea);
++struct brcmf_sta *brcmf_findadd_sta(struct brcmf_if *ifp, const u8 *ea);
+ #endif /* BRCMFMAC_CORE_H */
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+index 9f1e8ad..7d8fb32 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+@@ -1145,7 +1145,8 @@ static void brcmf_msgbuf_process_event(struct brcmf_msgbuf *msgbuf, void *buf)
+ {
+ 	struct brcmf_pub *drvr = msgbuf->drvr;
+ 	struct msgbuf_rx_complete *rx_complete;
+-	struct sk_buff *skb;
++	struct sk_buff *skb, *cpskb = NULL;
++	struct ethhdr *eh;
+ 	u16 data_offset;
+ 	u16 buflen;
+ 	u16 flags;
+@@ -1194,6 +1195,34 @@ static void brcmf_msgbuf_process_event(struct brcmf_msgbuf *msgbuf, void *buf)
+ 		return;
+ 	}
+ 
++	eh = (struct ethhdr *)(skb->data);
++	if (ifp->isap) {
++		skb_set_network_header(skb, sizeof(struct ethhdr));
++		skb->protocol = eh->h_proto;
++		skb->priority = cfg80211_classify8021d(skb, NULL);
++		if (is_unicast_ether_addr(eh->h_dest)) {
++			if (brcmf_find_sta(ifp, eh->h_dest)) {
++				 /* determine the priority */
++				if (skb->priority == 0 || skb->priority > 7) {
++					skb->priority =
++						cfg80211_classify8021d(skb,
++								       NULL);
++				}
++				brcmf_proto_tx_queue_data(ifp->drvr,
++							  ifp->ifidx, skb);
++				return;
++			}
++		} else {
++			cpskb = pskb_copy(skb, GFP_ATOMIC);
++			if (cpskb) {
++				brcmf_proto_tx_queue_data(ifp->drvr,
++							  ifp->ifidx,
++							  cpskb);
++			} else {
++				brcmf_err("Unable to do skb copy\n");
++			}
++		}
++	}
+ 	skb->protocol = eth_type_trans(skb, ifp->ndev);
+ 	brcmf_netif_rx(ifp, skb);
+ }
+-- 
+1.9.1
+

@@ -1,0 +1,40 @@
+From de35e70b94a4904df03c0eb127ec4a7e36b9c07e Mon Sep 17 00:00:00 2001
+From: "Lo(Double)Hsiang Lo" <double.lo@cypress.com>
+Date: Mon, 16 Dec 2019 03:41:09 -0600
+Subject: [PATCH 068/101] brcmfmac: increase dcmd maximum buffer size
+
+Increase dcmd maximum buffer size to match firmware
+configuration for new chips.
+
+Signed-off-by: Lo(Double)Hsiang Lo <double.lo@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+SWLINUX-1273
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c
+index 2c95a08..705130c 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c
+@@ -87,6 +87,8 @@ struct brcmf_proto_bcdc_header {
+ 					 * plus any space that might be needed
+ 					 * for bus alignment padding.
+ 					 */
++#define ROUND_UP_MARGIN 2048
++
+ struct brcmf_bcdc {
+ 	u16 reqid;
+ 	u8 bus_header[BUS_HEADER_LEN];
+@@ -471,7 +473,7 @@ int brcmf_proto_bcdc_attach(struct brcmf_pub *drvr)
+ 
+ 	drvr->hdrlen += BCDC_HEADER_LEN + BRCMF_PROT_FW_SIGNAL_MAX_TXBYTES;
+ 	drvr->bus_if->maxctl = BRCMF_DCMD_MAXLEN +
+-			sizeof(struct brcmf_proto_bcdc_dcmd);
++			sizeof(struct brcmf_proto_bcdc_dcmd) + ROUND_UP_MARGIN;
+ 	return 0;
+ 
+ fail:
+-- 
+1.9.1
+

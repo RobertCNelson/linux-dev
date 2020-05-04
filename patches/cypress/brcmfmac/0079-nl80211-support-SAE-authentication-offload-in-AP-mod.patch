@@ -1,0 +1,62 @@
+From 6456ef4e270c98ef01aaeacc9fdb4b2add449579 Mon Sep 17 00:00:00 2001
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Date: Tue, 10 Dec 2019 14:24:10 -0600
+Subject: [PATCH 079/101] nl80211: support SAE authentication offload in AP
+ mode
+
+Add support for SAE authentication offload in AP mode.
+
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ include/uapi/linux/nl80211.h | 10 ++++++----
+ net/wireless/nl80211.c       |  5 +++--
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/include/uapi/linux/nl80211.h b/include/uapi/linux/nl80211.h
+index 39434bfbb2e4..972bb81d4f81 100644
+--- a/include/uapi/linux/nl80211.h
++++ b/include/uapi/linux/nl80211.h
+@@ -252,9 +252,10 @@
+  * DOC: SAE authentication offload
+  *
+  * By setting @NL80211_EXT_FEATURE_SAE_OFFLOAD flag drivers can indicate they
+- * support offloading SAE authentication for WPA3-Personal networks. In
+- * %NL80211_CMD_CONNECT the password for SAE should be specified using
+- * %NL80211_ATTR_SAE_PASSWORD.
++ * support offloading SAE authentication for WPA3-Personal networks. The
++ * password for SAE should be specified using %NL80211_ATTR_SAE_PASSWORD in
++ * %NL80211_CMD_CONNECT and %NL80211_CMD_START_AP for station and AP mode
++ * respectively.
+  */
+ 
+ /**
+@@ -5524,7 +5525,8 @@ enum nl80211_feature_flags {
+  *	to a station.
+  *
+  * @NL80211_EXT_FEATURE_SAE_OFFLOAD: Device wants to do SAE authentication in
+- *	station mode (SAE password is passed as part of the connect command).
++ *	station mode (SAE password is passed as part of the connect command)
++ *	or AP mode (SAE password is passed as part of the start AP command).
+  *
+  * @NL80211_EXT_FEATURE_VLAN_OFFLOAD: The driver supports a single netdev
+  *	with VLAN tagged frames and separate VLAN-specific netdevs added using
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index ae91956441bf..d6285eb5f012 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4622,8 +4622,9 @@ static bool nl80211_valid_auth_type(struct cfg80211_registered_device *rdev,
+ 			return false;
+ 		return true;
+ 	case NL80211_CMD_START_AP:
+-		/* SAE not supported yet */
+-		if (auth_type == NL80211_AUTHTYPE_SAE)
++		if (!wiphy_ext_feature_isset(&rdev->wiphy,
++					     NL80211_EXT_FEATURE_SAE_OFFLOAD) &&
++		    auth_type == NL80211_AUTHTYPE_SAE)
+ 			return false;
+ 		/* FILS not supported yet */
+ 		if (auth_type == NL80211_AUTHTYPE_FILS_SK ||
+-- 
+2.25.1
+

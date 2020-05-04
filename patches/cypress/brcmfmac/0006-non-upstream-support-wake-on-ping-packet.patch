@@ -1,0 +1,431 @@
+From 9eb31dbff7611b815fd9f7ed75cbed7649b4884a Mon Sep 17 00:00:00 2001
+From: Double Lo <dblo@cypress.com>
+Date: Tue, 6 Feb 2018 05:07:05 -0600
+Subject: [PATCH 006/101] non-upstream: support wake on ping packet
+
+Host driver needs to provide a dummy wowlan filter for kernel and
+provided the the well configured wowlan stack. So the system will
+keep driver in connected state in suspend mode and can be wake
+up by ping packet.
+
+Enable unicast packet filter before system suspend and disable it after
+resume.
+
+Signed-off-by: Double Lo <dblo@cypress.com>
+Signed-off-by: Double Lo <double.lo@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../broadcom/brcm80211/brcmfmac/cfg80211.c         |  31 +++-
+ .../broadcom/brcm80211/brcmfmac/cfg80211.h         |   7 +
+ .../wireless/broadcom/brcm80211/brcmfmac/common.c  |  18 ++-
+ .../wireless/broadcom/brcm80211/brcmfmac/core.c    | 176 +++++++++++++++++++++
+ .../wireless/broadcom/brcm80211/brcmfmac/core.h    |   7 +-
+ .../wireless/broadcom/brcm80211/brcmfmac/feature.c |   1 -
+ .../wireless/broadcom/brcm80211/brcmfmac/fwil.h    |   2 +
+ .../broadcom/brcm80211/brcmfmac/fwil_types.h       |  13 ++
+ 8 files changed, 249 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 9d2a382..3815f14 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -3662,6 +3662,10 @@ static s32 brcmf_cfg80211_resume(struct wiphy *wiphy)
+ 					    brcmf_notify_sched_scan_results);
+ 			cfg->wowl.nd_enabled = false;
+ 		}
++
++		/* disable packet filters */
++		brcmf_pktfilter_enable(ifp->ndev, false);
++
+ 	}
+ 	return 0;
+ }
+@@ -3720,6 +3724,9 @@ static void brcmf_configure_wowl(struct brcmf_cfg80211_info *cfg,
+ 	brcmf_fil_iovar_int_set(ifp, "wowl_activate", 1);
+ 	brcmf_bus_wowl_config(cfg->pub->bus_if, true);
+ 	cfg->wowl.active = true;
++
++	/* enable packet filters */
++	brcmf_pktfilter_enable(ifp->ndev, true);
+ }
+ 
+ static s32 brcmf_cfg80211_suspend(struct wiphy *wiphy,
+@@ -3766,7 +3773,7 @@ static s32 brcmf_cfg80211_suspend(struct wiphy *wiphy,
+ 		brcmf_set_mpc(ifp, 1);
+ 
+ 	} else {
+-		/* Configure WOWL paramaters */
++		/* Configure WOWL parameters */
+ 		brcmf_configure_wowl(cfg, ifp, wowl);
+ 	}
+ 
+@@ -6598,6 +6605,7 @@ static void brcmf_wiphy_wowl_params(struct wiphy *wiphy, struct brcmf_if *ifp)
+ 	struct brcmf_cfg80211_info *cfg = wiphy_to_cfg(wiphy);
+ 	struct brcmf_pub *drvr = cfg->pub;
+ 	struct wiphy_wowlan_support *wowl;
++	struct cfg80211_wowlan *brcmf_wowlan_config = NULL;
+ 
+ 	wowl = kmemdup(&brcmf_wowlan_support, sizeof(brcmf_wowlan_support),
+ 		       GFP_KERNEL);
+@@ -6620,6 +6628,27 @@ static void brcmf_wiphy_wowl_params(struct wiphy *wiphy, struct brcmf_if *ifp)
+ 	}
+ 
+ 	wiphy->wowlan = wowl;
++
++	/* wowlan_config structure report for kernels */
++	brcmf_wowlan_config = kzalloc(sizeof(*brcmf_wowlan_config),
++				      GFP_KERNEL);
++	if (brcmf_wowlan_config) {
++		brcmf_wowlan_config->any = false;
++		brcmf_wowlan_config->disconnect = true;
++		brcmf_wowlan_config->eap_identity_req = true;
++		brcmf_wowlan_config->four_way_handshake = true;
++		brcmf_wowlan_config->rfkill_release = false;
++		brcmf_wowlan_config->patterns = NULL;
++		brcmf_wowlan_config->n_patterns = 0;
++		brcmf_wowlan_config->tcp = NULL;
++		if (brcmf_feat_is_enabled(ifp, BRCMF_FEAT_WOWL_GTK))
++			brcmf_wowlan_config->gtk_rekey_failure = true;
++		else
++			brcmf_wowlan_config->gtk_rekey_failure = false;
++	} else {
++		brcmf_err("Can not allocate memory for brcm_wowlan_config\n");
++	}
++	wiphy->wowlan_config = brcmf_wowlan_config;
+ #endif
+ }
+ 
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
+index 14d5bba..2e95ad4 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.h
+@@ -75,6 +75,13 @@
+ 
+ #define BRCMF_VIF_EVENT_TIMEOUT		msecs_to_jiffies(1500)
+ 
++/* cfg80211 wowlan definitions */
++#define WL_WOWLAN_MAX_PATTERNS			8
++#define WL_WOWLAN_MIN_PATTERN_LEN		1
++#define WL_WOWLAN_MAX_PATTERN_LEN		255
++#define WL_WOWLAN_PKT_FILTER_ID_FIRST	201
++#define WL_WOWLAN_PKT_FILTER_ID_LAST	(WL_WOWLAN_PKT_FILTER_ID_FIRST + \
++					WL_WOWLAN_MAX_PATTERNS - 1)
+ /**
+  * enum brcmf_scan_status - scan engine status
+  *
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+index cda6bef..3926d1e 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+@@ -206,7 +206,7 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
+ 	char *ptr;
+ 	s32 err;
+ 
+-	/* retreive mac address */
++	/* retrieve mac addresses */
+ 	err = brcmf_fil_iovar_data_get(ifp, "cur_etheraddr", ifp->mac_addr,
+ 				       sizeof(ifp->mac_addr));
+ 	if (err < 0) {
+@@ -340,6 +340,18 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
+ 
+ 	/* Enable tx beamforming, errors can be ignored (not supported) */
+ 	(void)brcmf_fil_iovar_int_set(ifp, "txbf", 1);
++
++	/* add unicast packet filter */
++	err = brcmf_pktfilter_add_remove(ifp->ndev,
++					 BRCMF_UNICAST_FILTER_NUM, true);
++	if (err == -BRCMF_FW_UNSUPPORTED) {
++		/* FW not support can be ignored */
++		err = 0;
++		goto done;
++	} else if (err) {
++		bphy_err(drvr, "Add unicast filter error (%d)\n", err);
++	}
++
+ done:
+ 	return err;
+ }
+@@ -411,7 +423,7 @@ struct brcmf_mp_device *brcmf_get_module_param(struct device *dev,
+ 	if (!settings)
+ 		return NULL;
+ 
+-	/* start by using the module paramaters */
++	/* start by using the module parameters */
+ 	settings->p2p_enable = !!brcmf_p2p_enable;
+ 	settings->feature_disable = brcmf_feature_disable;
+ 	settings->fcmode = brcmf_fcmode;
+@@ -497,7 +509,7 @@ static int __init brcmfmac_module_init(void)
+ 	if (err == -ENODEV)
+ 		brcmf_dbg(INFO, "No platform data available.\n");
+ 
+-	/* Initialize global module paramaters */
++	/* Initialize global module parameters */
+ 	brcmf_mp_attach();
+ 
+ 	/* Continue the initialization by registering the different busses */
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 85cf964..1b473f0 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -1475,3 +1475,179 @@ void __exit brcmf_core_exit(void)
+ #endif
+ }
+ 
++int
++brcmf_pktfilter_add_remove(struct net_device *ndev, int filter_num, bool add)
++{
++	struct brcmf_if *ifp =  netdev_priv(ndev);
++	struct brcmf_pub *drvr = ifp->drvr;
++	struct brcmf_pkt_filter_le *pkt_filter;
++	int filter_fixed_len = offsetof(struct brcmf_pkt_filter_le, u);
++	int pattern_fixed_len = offsetof(struct brcmf_pkt_filter_pattern_le,
++				  mask_and_pattern);
++	u16 mask_and_pattern[MAX_PKTFILTER_PATTERN_SIZE];
++	int buflen = 0;
++	int ret = 0;
++
++	brcmf_dbg(INFO, "%s packet filter number %d\n",
++		  (add ? "add" : "remove"), filter_num);
++
++	pkt_filter = kzalloc(sizeof(*pkt_filter) +
++			(MAX_PKTFILTER_PATTERN_SIZE * 2), GFP_ATOMIC);
++	if (!pkt_filter)
++		return -ENOMEM;
++
++	switch (filter_num) {
++	case BRCMF_UNICAST_FILTER_NUM:
++		pkt_filter->id = 100;
++		pkt_filter->type = 0;
++		pkt_filter->negate_match = 0;
++		pkt_filter->u.pattern.offset = 0;
++		pkt_filter->u.pattern.size_bytes = 1;
++		mask_and_pattern[0] = 0x0001;
++		break;
++	case BRCMF_BROADCAST_FILTER_NUM:
++		//filter_pattern = "101 0 0 0 0xFFFFFFFFFFFF 0xFFFFFFFFFFFF";
++		pkt_filter->id = 101;
++		pkt_filter->type = 0;
++		pkt_filter->negate_match = 0;
++		pkt_filter->u.pattern.offset = 0;
++		pkt_filter->u.pattern.size_bytes = 6;
++		mask_and_pattern[0] = 0xFFFF;
++		mask_and_pattern[1] = 0xFFFF;
++		mask_and_pattern[2] = 0xFFFF;
++		mask_and_pattern[3] = 0xFFFF;
++		mask_and_pattern[4] = 0xFFFF;
++		mask_and_pattern[5] = 0xFFFF;
++		break;
++	case BRCMF_MULTICAST4_FILTER_NUM:
++		//filter_pattern = "102 0 0 0 0xFFFFFF 0x01005E";
++		pkt_filter->id = 102;
++		pkt_filter->type = 0;
++		pkt_filter->negate_match = 0;
++		pkt_filter->u.pattern.offset = 0;
++		pkt_filter->u.pattern.size_bytes = 3;
++		mask_and_pattern[0] = 0xFFFF;
++		mask_and_pattern[1] = 0x01FF;
++		mask_and_pattern[2] = 0x5E00;
++		break;
++	case BRCMF_MULTICAST6_FILTER_NUM:
++		//filter_pattern = "103 0 0 0 0xFFFF 0x3333";
++		pkt_filter->id = 103;
++		pkt_filter->type = 0;
++		pkt_filter->negate_match = 0;
++		pkt_filter->u.pattern.offset = 0;
++		pkt_filter->u.pattern.size_bytes = 2;
++		mask_and_pattern[0] = 0xFFFF;
++		mask_and_pattern[1] = 0x3333;
++		break;
++	case BRCMF_MDNS_FILTER_NUM:
++		//filter_pattern = "104 0 0 0 0xFFFFFFFFFFFF 0x01005E0000FB";
++		pkt_filter->id = 104;
++		pkt_filter->type = 0;
++		pkt_filter->negate_match = 0;
++		pkt_filter->u.pattern.offset = 0;
++		pkt_filter->u.pattern.size_bytes = 6;
++		mask_and_pattern[0] = 0xFFFF;
++		mask_and_pattern[1] = 0xFFFF;
++		mask_and_pattern[2] = 0xFFFF;
++		mask_and_pattern[3] = 0x0001;
++		mask_and_pattern[4] = 0x005E;
++		mask_and_pattern[5] = 0xFB00;
++		break;
++	case BRCMF_ARP_FILTER_NUM:
++		//filter_pattern = "105 0 0 12 0xFFFF 0x0806";
++		pkt_filter->id = 105;
++		pkt_filter->type = 0;
++		pkt_filter->negate_match = 0;
++		pkt_filter->u.pattern.offset = 12;
++		pkt_filter->u.pattern.size_bytes = 2;
++		mask_and_pattern[0] = 0xFFFF;
++		mask_and_pattern[1] = 0x0608;
++		break;
++	case BRCMF_BROADCAST_ARP_FILTER_NUM:
++		//filter_pattern = "106 0 0 0
++		//0xFFFFFFFFFFFF0000000000000806
++		//0xFFFFFFFFFFFF0000000000000806";
++		pkt_filter->id = 106;
++		pkt_filter->type = 0;
++		pkt_filter->negate_match = 0;
++		pkt_filter->u.pattern.offset = 0;
++		pkt_filter->u.pattern.size_bytes = 14;
++		mask_and_pattern[0] = 0xFFFF;
++		mask_and_pattern[1] = 0xFFFF;
++		mask_and_pattern[2] = 0xFFFF;
++		mask_and_pattern[3] = 0x0000;
++		mask_and_pattern[4] = 0x0000;
++		mask_and_pattern[5] = 0x0000;
++		mask_and_pattern[6] = 0x0608;
++		mask_and_pattern[7] = 0xFFFF;
++		mask_and_pattern[8] = 0xFFFF;
++		mask_and_pattern[9] = 0xFFFF;
++		mask_and_pattern[10] = 0x0000;
++		mask_and_pattern[11] = 0x0000;
++		mask_and_pattern[12] = 0x0000;
++		mask_and_pattern[13] = 0x0608;
++		break;
++	default:
++		ret = -EINVAL;
++		goto failed;
++	}
++	memcpy(pkt_filter->u.pattern.mask_and_pattern, mask_and_pattern,
++	       pkt_filter->u.pattern.size_bytes * 2);
++	buflen = filter_fixed_len + pattern_fixed_len +
++		  pkt_filter->u.pattern.size_bytes * 2;
++
++	if (add) {
++		/* Add filter */
++		ifp->fwil_fwerr = true;
++		ret = brcmf_fil_iovar_data_set(ifp, "pkt_filter_add",
++					       pkt_filter, buflen);
++		ifp->fwil_fwerr = false;
++		if (ret)
++			goto failed;
++		drvr->pkt_filter[filter_num].id = pkt_filter->id;
++		drvr->pkt_filter[filter_num].enable  = 0;
++
++	} else {
++		/* Delete filter */
++		ret = brcmf_fil_iovar_int_set(ifp, "pkt_filter_delete",
++					      pkt_filter->id);
++		if (ret == -ENOENT)
++			ret = 0;
++		if (ret)
++			goto failed;
++
++		drvr->pkt_filter[filter_num].id = 0;
++		drvr->pkt_filter[filter_num].enable  = 0;
++	}
++failed:
++	if (ret)
++		brcmf_err("%s packet filter failed, ret=%d\n",
++			  (add ? "add" : "remove"), ret);
++
++	kfree(pkt_filter);
++	return ret;
++}
++
++int brcmf_pktfilter_enable(struct net_device *ndev, bool enable)
++{
++	struct brcmf_if *ifp =  netdev_priv(ndev);
++	struct brcmf_pub *drvr = ifp->drvr;
++	int ret = 0;
++	int idx = 0;
++
++	for (idx = 0; idx < MAX_PKT_FILTER_COUNT; ++idx) {
++		if (drvr->pkt_filter[idx].id != 0) {
++			drvr->pkt_filter[idx].enable = enable;
++			ret = brcmf_fil_iovar_data_set(ifp, "pkt_filter_enable",
++						       &drvr->pkt_filter[idx],
++				sizeof(struct brcmf_pkt_filter_enable_le));
++			if (ret) {
++				brcmf_err("%s packet filter id(%d) failed, ret=%d\n",
++					  (enable ? "enable" : "disable"),
++					  drvr->pkt_filter[idx].id, ret);
++			}
++		}
++	}
++	return ret;
++}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h
+index 6699637..6def862 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.h
+@@ -12,6 +12,7 @@
+ 
+ #include <net/cfg80211.h>
+ #include "fweh.h"
++#include "fwil_types.h"
+ 
+ #define TOE_TX_CSUM_OL		0x00000001
+ #define TOE_RX_CSUM_OL		0x00000002
+@@ -136,6 +137,8 @@ struct brcmf_pub {
+ 	struct work_struct bus_reset;
+ 
+ 	u8 clmver[BRCMF_DCMD_SMLEN];
++	struct brcmf_pkt_filter_enable_le pkt_filter[MAX_PKT_FILTER_COUNT];
++
+ };
+ 
+ /* forward declarations */
+@@ -213,5 +216,7 @@ void brcmf_txflowblock_if(struct brcmf_if *ifp,
+ void brcmf_net_setcarrier(struct brcmf_if *ifp, bool on);
+ int __init brcmf_core_init(void);
+ void __exit brcmf_core_exit(void);
+-
++int brcmf_pktfilter_add_remove(struct net_device *ndev, int filter_num,
++			       bool add);
++int brcmf_pktfilter_enable(struct net_device *ndev, bool enable);
+ #endif /* BRCMFMAC_CORE_H */
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+index 2c3526a..565db6c 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+@@ -16,7 +16,6 @@
+ #include "feature.h"
+ #include "common.h"
+ 
+-#define BRCMF_FW_UNSUPPORTED	23
+ 
+ /*
+  * expand feature list to array of feature strings.
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil.h
+index 0ff6f52..f2e00a3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil.h
+@@ -77,6 +77,8 @@
+ #define BRCMF_C_SET_VAR				263
+ #define BRCMF_C_SET_WSEC_PMK			268
+ 
++#define BRCMF_FW_UNSUPPORTED			23
++
+ s32 brcmf_fil_cmd_data_set(struct brcmf_if *ifp, u32 cmd, void *data, u32 len);
+ s32 brcmf_fil_cmd_data_get(struct brcmf_if *ifp, u32 cmd, void *data, u32 len);
+ s32 brcmf_fil_cmd_int_set(struct brcmf_if *ifp, u32 cmd, u32 data);
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+index 37c5120..f3f7b15 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+@@ -136,6 +136,19 @@
+ #define BRCMF_WOWL_MAXPATTERNS		8
+ #define BRCMF_WOWL_MAXPATTERNSIZE	128
+ 
++enum {
++	BRCMF_UNICAST_FILTER_NUM = 0,
++	BRCMF_BROADCAST_FILTER_NUM,
++	BRCMF_MULTICAST4_FILTER_NUM,
++	BRCMF_MULTICAST6_FILTER_NUM,
++	BRCMF_MDNS_FILTER_NUM,
++	BRCMF_ARP_FILTER_NUM,
++	BRCMF_BROADCAST_ARP_FILTER_NUM,
++	MAX_PKT_FILTER_COUNT
++};
++
++#define MAX_PKTFILTER_PATTERN_SIZE		16
++
+ #define BRCMF_COUNTRY_BUF_SZ		4
+ #define BRCMF_ANT_MAX			4
+ 
+-- 
+1.9.1
+

@@ -1,0 +1,42 @@
+From 8219bf950f6ee24f5b60e05c41840cb3706d690e Mon Sep 17 00:00:00 2001
+From: Soontak Lee <soontak.lee@cypress.com>
+Date: Thu, 7 Nov 2019 12:49:40 -0600
+Subject: [PATCH 060/101] brcmfmac: Fix for unable to return to visible SSID
+
+Unable to change back to visiable SSID because there is
+no disable hidden ssid routine.
+
+Signed-off-by: Soontak Lee <soontak.lee@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ .../net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c    | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index d2c9299..89ed0c7 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -4708,12 +4708,14 @@ s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
+ 			goto exit;
+ 		}
+ 
+-		if (settings->hidden_ssid) {
+-			err = brcmf_fil_iovar_int_set(ifp, "closednet", 1);
+-			if (err) {
+-				bphy_err(drvr, "closednet error (%d)\n", err);
+-				goto exit;
+-			}
++		err = brcmf_fil_iovar_int_set(ifp, "closednet",
++					      settings->hidden_ssid);
++		if (err) {
++			bphy_err(drvr, "%s closednet error (%d)\n",
++				 settings->hidden_ssid ?
++				 "enabled" : "disabled",
++				 err);
++			goto exit;
+ 		}
+ 
+ 		brcmf_dbg(TRACE, "AP mode configuration complete\n");
+-- 
+1.9.1
+

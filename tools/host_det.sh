@@ -414,6 +414,11 @@ debian_regs () {
 			#http://packages.linuxmint.com/index.php
 			deb_distro="bionic"
 			;;
+		ulyana)
+			#20
+			#http://packages.linuxmint.com/index.php
+			deb_distro="focal"
+			;;
 		esac
 
 		#Future Debian Code names:
@@ -442,22 +447,19 @@ debian_regs () {
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;
-		bionic|eoan|focal)
+		bionic|eoan|focal|groovy)
 			#18.04 bionic: (EOL: April 2023) lts: bionic -> focal
-			#19.10 eoan: (EOL: July, 2020)
-			#20.04 focal: (EOL: 2030) lts: focal -> xyz
+			#19.10 eoan: (EOL: July 2020)
+			#20.04 focal: (EOL: April 2025) lts: focal -> xyz
+			#20.10 groovy: (EOL: July 2021)
 			unset warn_eol_distro
 			;;
-		cosmic|disco)
-			#18.10 cosmic: (EOL: July 18, 2019)
-			#19.04 disco: (EOL: January 23, 2020)
-			warn_eol_distro=1
-			stop_pkg_search=1
-			;;
-		yakkety|zesty|artful)
+		yakkety|zesty|artful|cosmic|disco)
 			#16.10 yakkety: (EOL: July 20, 2017)
 			#17.04 zesty: (EOL: January 2018)
 			#17.10 artful: (EOL: July 2018)
+			#18.10 cosmic: (EOL: July 18, 2019)
+			#19.04 disco: (EOL: January 23, 2020)
 			warn_eol_distro=1
 			stop_pkg_search=1
 			;;

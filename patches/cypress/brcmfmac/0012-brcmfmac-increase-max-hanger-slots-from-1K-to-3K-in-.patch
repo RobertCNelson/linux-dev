@@ -1,0 +1,36 @@
+From 812d348383b5f86ec7ef8d6046081e9039e1ebf5 Mon Sep 17 00:00:00 2001
+From: Madhan Mohan R <MadhanMohan.R@cypress.com>
+Date: Thu, 24 May 2018 14:19:00 +0530
+Subject: [PATCH 012/101] brcmfmac: increase max hanger slots from 1K to 3K in
+ fws layer
+
+commit 	2bc50d8828ad7cc52ecd99f50074aa25f957af4 upstream.
+
+Will enable FMAC to push more packets to bus tx queue and help
+improve throughput when fws queuing is enabled. This change is
+required to tune the throughput for passing WMM CERT tests.
+
+Signed-off-by: Madhan Mohan R <madhanmohan.r@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1585124429-97371-5-git-send-email-chi-hsien.lin@cypress.com
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
+index 2bd892d..9f7a72f 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
+@@ -404,7 +404,7 @@ struct brcmf_fws_mac_descriptor {
+ 	u8 traffic_lastreported_bmp;
+ };
+ 
+-#define BRCMF_FWS_HANGER_MAXITEMS	1024
++#define BRCMF_FWS_HANGER_MAXITEMS	3072
+ 
+ /**
+  * enum brcmf_fws_hanger_item_state - state of hanger item.
+-- 
+1.9.1
+

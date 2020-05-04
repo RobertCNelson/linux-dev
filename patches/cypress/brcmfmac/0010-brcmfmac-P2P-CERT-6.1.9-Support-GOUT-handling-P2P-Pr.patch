@@ -1,0 +1,45 @@
+From e8f083f0fd6279222652a0d9d4545abd565659fb Mon Sep 17 00:00:00 2001
+From: Madhan Mohan R <MadhanMohan.R@cypress.com>
+Date: Wed, 23 May 2018 17:22:44 +0530
+Subject: [PATCH 010/101] brcmfmac: P2P CERT 6.1.9-Support GOUT handling P2P
+ Presence Request
+
+Send P2P Presence Response from the p2p interface address instead
+of the p2p device address.
+
+Signed-off-by: Madhan Mohan R <madhanmohan.r@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+index 7ba9f6a..7233b37 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+@@ -1491,6 +1491,7 @@ static s32 brcmf_p2p_tx_action_frame(struct brcmf_p2p_info *p2p,
+ {
+ 	struct brcmf_pub *drvr = p2p->cfg->pub;
+ 	struct brcmf_cfg80211_vif *vif;
++	struct brcmf_p2p_action_frame *p2p_act_frame;
+ 	s32 err = 0;
+ 	s32 timeout = 0;
+ 
+@@ -1500,7 +1501,13 @@ static s32 brcmf_p2p_tx_action_frame(struct brcmf_p2p_info *p2p,
+ 	clear_bit(BRCMF_P2P_STATUS_ACTION_TX_COMPLETED, &p2p->status);
+ 	clear_bit(BRCMF_P2P_STATUS_ACTION_TX_NOACK, &p2p->status);
+ 
+-	vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
++	/* check if it is a p2p_presence response */
++	p2p_act_frame = (struct brcmf_p2p_action_frame *)af_params->action_frame.data;
++	if (p2p_act_frame->subtype == P2P_AF_PRESENCE_RSP)
++		vif = p2p->bss_idx[P2PAPI_BSSCFG_CONNECTION].vif;
++	else
++		vif = p2p->bss_idx[P2PAPI_BSSCFG_DEVICE].vif;
++
+ 	err = brcmf_fil_bsscfg_data_set(vif->ifp, "actframe", af_params,
+ 					sizeof(*af_params));
+ 	if (err) {
+-- 
+1.9.1
+

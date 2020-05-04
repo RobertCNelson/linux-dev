@@ -1,0 +1,42 @@
+From fbace684717968e71482aa906f80f6347772805b Mon Sep 17 00:00:00 2001
+From: Soontak Lee <soontak.lee@cypress.com>
+Date: Mon, 4 Nov 2019 13:05:35 -0600
+Subject: [PATCH 055/101] brcmfmac: Use seq/seq_len and set iv_initialize when
+ plumbing of rxiv in (GTK) keys
+
+When plumbing rxiv for (GTK) keys, current code does not use seq/seq_len
+when present nor set iv_initialized for iovar wsec_key. This could
+result in missing broadcast traffic after GTK rekey. The fix is setting
+iv_initialized and using seq/seq_len for iovar wsec_key.
+
+Signed-off-by: Soontak Lee <soontak.lee@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 9779ac4..d2c9299 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -2331,6 +2331,17 @@ static void brcmf_set_join_pref(struct brcmf_if *ifp,
+ 	if (!ext_key)
+ 		key->flags = BRCMF_PRIMARY_KEY;
+ 
++	if (params->seq && params->seq_len == 6) {
++		/* rx iv */
++		u8 *ivptr;
++
++		ivptr = (u8 *)params->seq;
++		key->rxiv.hi = (ivptr[5] << 24) | (ivptr[4] << 16) |
++			(ivptr[3] << 8) | ivptr[2];
++		key->rxiv.lo = (ivptr[1] << 8) | ivptr[0];
++		key->iv_initialized = true;
++	}
++
+ 	switch (params->cipher) {
+ 	case WLAN_CIPHER_SUITE_WEP40:
+ 		key->algo = CRYPTO_ALGO_WEP1;
+-- 
+1.9.1
+

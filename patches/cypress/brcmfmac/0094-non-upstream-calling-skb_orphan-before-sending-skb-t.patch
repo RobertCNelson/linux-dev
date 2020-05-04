@@ -1,0 +1,43 @@
+From f93c8ac60acc8d78cc33547d9a6a9b76f8232ff9 Mon Sep 17 00:00:00 2001
+From: Wright Feng <wright.feng@cypress.com>
+Date: Mon, 1 Jan 2018 20:12:54 -0600
+Subject: [PATCH 094/101] non-upstream: calling skb_orphan before sending skb
+ to SDIO bus
+
+Linux 3.6 introduces TSQ which has a per socket threshold for TCP Tx
+packet to reduce latency. In fcmode 1/2, host driver enqueues skb in
+hanger and TCP doesn't push new skb frees until host frees the skb when
+receiving fwstatus event. So using skb_orphan before sending skb to bus
+will make the skb removing the ownership of socket. With this patch, we
+got better throughput in fcmode 1/2.
+
+We only call skb_orphan when Linux version is less than 4.16.0.
+
+Tested 43455 TCP throughput in 20 MHz bandwidth with/without this patch.
+fcmode 0: 59.5 / 59.6 (Mbps)
+fcmode 1: 59.3 / 23.4 (Mbps)
+fcmode 2: 59.6 / 21.5 (Mbps)
+
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index aa5046c..70f9908 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -2349,6 +2349,9 @@ static uint brcmf_sdio_sendfromq(struct brcmf_sdio *bus, uint maxframes)
+ 					      &prec_out);
+ 			if (pkt == NULL)
+ 				break;
++#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 16, 0))
++			skb_orphan(pkt);
++#endif
+ 			__skb_queue_tail(&pktq, pkt);
+ 		}
+ 		spin_unlock_bh(&bus->txq_lock);
+-- 
+1.9.1
+

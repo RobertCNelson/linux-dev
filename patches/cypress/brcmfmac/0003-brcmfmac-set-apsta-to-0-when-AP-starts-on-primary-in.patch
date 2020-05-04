@@ -1,0 +1,37 @@
+From bb367a9d3e8f735270a98bb6dd35524576e2fe5d Mon Sep 17 00:00:00 2001
+From: Wright Feng <wright.feng@cypress.com>
+Date: Mon, 11 Sep 2017 02:48:57 -0500
+Subject: [PATCH 003/101] brcmfmac: set apsta to 0 when AP starts on primary
+ interface
+
+APSTA can work on two band concurrently with using VSDB(Virtual
+Simultaneous Dual-Band) or RSDB(Real Simultaneous Dual-Band) features.
+In this case, we have to keep apsta is 1 in firmware side.
+If we start wpa_supplicant on wlan0 and then start hostapd on wlan1, the
+apsta will be set to 0, and data will be stall on wlan0(station).
+Because that, we only set apsta to 0 when AP start on primary interface.
+
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index e3ebb7a..7d2855a 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -4584,9 +4584,7 @@ s32 brcmf_vif_clear_mgmt_ies(struct brcmf_cfg80211_vif *vif)
+ 			}
+ 		}
+ 
+-		if ((dev_role == NL80211_IFTYPE_AP) &&
+-		    ((ifp->ifidx == 0) ||
+-		     !brcmf_feat_is_enabled(ifp, BRCMF_FEAT_RSDB))) {
++		if (dev_role == NL80211_IFTYPE_AP && ifp->ifidx == 0) {
+ 			err = brcmf_fil_cmd_int_set(ifp, BRCMF_C_DOWN, 1);
+ 			if (err < 0) {
+ 				bphy_err(drvr, "BRCMF_C_DOWN error %d\n",
+-- 
+1.9.1
+
