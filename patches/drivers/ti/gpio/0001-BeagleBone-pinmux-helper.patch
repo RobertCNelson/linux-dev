@@ -39,7 +39,7 @@ Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
  create mode 100644 drivers/misc/cape/beaglebone/bone-pinmux-helper.c
 
 diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index bb13c266c329..2fc9317ccbf6 100644
+index c6b5c65c84058..1a7b7d0a9a19b 100644
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
 @@ -69,6 +69,20 @@ config GPIO_SYSFS
@@ -64,7 +64,7 @@ index bb13c266c329..2fc9317ccbf6 100644
  	depends on HAS_IOMEM # Only for IOMEM drivers
  	tristate
 diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index a4e91175c708..3a7520ba02db 100644
+index 1e4894e0bf0f8..bc26568b1836c 100644
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
 @@ -10,6 +10,7 @@ obj-$(CONFIG_GPIOLIB)		+= gpiolib-devprop.o
@@ -74,10 +74,10 @@ index a4e91175c708..3a7520ba02db 100644
 +obj-$(CONFIG_GPIO_OF_HELPER)	+= gpio-of-helper.o
  
  # Device drivers. Generally keep list sorted alphabetically
- obj-$(CONFIG_GPIO_GENERIC)	+= gpio-generic.o
+ obj-$(CONFIG_GPIO_REGMAP)	+= gpio-regmap.o
 diff --git a/drivers/gpio/gpio-of-helper.c b/drivers/gpio/gpio-of-helper.c
 new file mode 100644
-index 000000000000..83f362f7da5f
+index 0000000000000..83f362f7da5ff
 --- /dev/null
 +++ b/drivers/gpio/gpio-of-helper.c
 @@ -0,0 +1,435 @@
@@ -517,7 +517,7 @@ index 000000000000..83f362f7da5f
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:gpio-of-helper");
 diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
-index fbf6b1a0a4fa..ec7aa6f3c56e 100644
+index 23e3d335cd543..21fad1d3f4a92 100644
 --- a/drivers/gpio/gpiolib-sysfs.c
 +++ b/drivers/gpio/gpiolib-sysfs.c
 @@ -37,10 +37,10 @@ static DEFINE_MUTEX(sysfs_lock);
@@ -613,10 +613,10 @@ index fbf6b1a0a4fa..ec7aa6f3c56e 100644
   * /sys/class/gpio/gpiochipN/
   *   /base ... matching gpio_chip.base (N)
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 6abfc8e92fcc..2cf9db44e4b2 100644
+index e1b1ba5e2b925..9252c020fe509 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -497,6 +497,7 @@ source "drivers/misc/mei/Kconfig"
+@@ -466,6 +466,7 @@ source "drivers/misc/mei/Kconfig"
  source "drivers/misc/vmw_vmci/Kconfig"
  source "drivers/misc/mic/Kconfig"
  source "drivers/misc/genwqe/Kconfig"
@@ -625,20 +625,20 @@ index 6abfc8e92fcc..2cf9db44e4b2 100644
  source "drivers/misc/cxl/Kconfig"
  source "drivers/misc/ocxl/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index abd8ae249746..dcc801e8834e 100644
+index c7bd01ac62917..42a1b0b642326 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -50,6 +50,7 @@ obj-$(CONFIG_SRAM)		+= sram.o
+@@ -48,6 +48,7 @@ obj-$(CONFIG_SRAM)		+= sram.o
  obj-$(CONFIG_SRAM_EXEC)		+= sram-exec.o
  obj-y				+= mic/
  obj-$(CONFIG_GENWQE)		+= genwqe/
 +obj-y				+= cape/
  obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
+ obj-$(CONFIG_PCI_ENDPOINT_TEST)	+= pci_endpoint_test.o
 diff --git a/drivers/misc/cape/Kconfig b/drivers/misc/cape/Kconfig
 new file mode 100644
-index 000000000000..a2ef85e0415c
+index 0000000000000..a2ef85e0415c5
 --- /dev/null
 +++ b/drivers/misc/cape/Kconfig
 @@ -0,0 +1,5 @@
@@ -649,7 +649,7 @@ index 000000000000..a2ef85e0415c
 +source "drivers/misc/cape/beaglebone/Kconfig"
 diff --git a/drivers/misc/cape/Makefile b/drivers/misc/cape/Makefile
 new file mode 100644
-index 000000000000..7c4eb96ab29e
+index 0000000000000..7c4eb96ab29e4
 --- /dev/null
 +++ b/drivers/misc/cape/Makefile
 @@ -0,0 +1,5 @@
@@ -660,7 +660,7 @@ index 000000000000..7c4eb96ab29e
 +obj-y				+= beaglebone/
 diff --git a/drivers/misc/cape/beaglebone/Kconfig b/drivers/misc/cape/beaglebone/Kconfig
 new file mode 100644
-index 000000000000..eeb67828fd82
+index 0000000000000..eeb67828fd829
 --- /dev/null
 +++ b/drivers/misc/cape/beaglebone/Kconfig
 @@ -0,0 +1,10 @@
@@ -676,7 +676,7 @@ index 000000000000..eeb67828fd82
 +	  Say Y here to include support for the pinmux helper
 diff --git a/drivers/misc/cape/beaglebone/Makefile b/drivers/misc/cape/beaglebone/Makefile
 new file mode 100644
-index 000000000000..7f4617a01e26
+index 0000000000000..7f4617a01e262
 --- /dev/null
 +++ b/drivers/misc/cape/beaglebone/Makefile
 @@ -0,0 +1,5 @@
@@ -687,7 +687,7 @@ index 000000000000..7f4617a01e26
 +obj-$(CONFIG_BEAGLEBONE_PINMUX_HELPER)	+= bone-pinmux-helper.o
 diff --git a/drivers/misc/cape/beaglebone/bone-pinmux-helper.c b/drivers/misc/cape/beaglebone/bone-pinmux-helper.c
 new file mode 100644
-index 000000000000..d81363a77b10
+index 0000000000000..d81363a77b103
 --- /dev/null
 +++ b/drivers/misc/cape/beaglebone/bone-pinmux-helper.c
 @@ -0,0 +1,242 @@
@@ -934,5 +934,5 @@ index 000000000000..d81363a77b10
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:bone-pinmux-helper");
 -- 
-2.20.1
+2.27.0
 

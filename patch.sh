@@ -227,7 +227,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	branch="v5.7.x"
+	branch="v5.8.x"
 	https_repo="https://github.com/beagleboard/BeagleBoard-DeviceTrees"
 	work_dir="BeagleBoard-DeviceTrees"
 	#regenerate="enable"
@@ -394,7 +394,7 @@ soc () {
 }
 
 ###
-backports
+#backports
 #reverts
 drivers
 soc

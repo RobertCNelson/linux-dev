@@ -16,10 +16,10 @@ Signed-off-by: Steve Arnold <nerdboy@gentoo.org>
  create mode 100755 drivers/misc/udoo_ard.c
 
 diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index 4781a9e04338..554f601eb72a 100644
+index 1156f1aec3f1f..a6cf7c92548d2 100644
 --- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
 +++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-@@ -84,6 +84,17 @@
+@@ -84,6 +84,17 @@ sound {
  		mux-int-port = <1>;
  		mux-ext-port = <6>;
  	};
@@ -37,7 +37,7 @@ index 4781a9e04338..554f601eb72a 100644
  };
  
  &fec {
-@@ -201,6 +212,15 @@
+@@ -209,6 +220,15 @@ MX6QDL_PAD_EIM_D21__USB_OTG_OC 0x17059
  			>;
  		};
  
@@ -54,10 +54,10 @@ index 4781a9e04338..554f601eb72a 100644
  			fsl,pins = <
  				MX6QDL_PAD_SD3_CMD__SD3_CMD		0x17059
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 2cf9db44e4b2..f4616fc61808 100644
+index 9252c020fe509..abc6e19eac311 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -487,6 +487,13 @@ config PVPANIC
+@@ -456,6 +456,13 @@ config PVPANIC
  	  a paravirtualized device provided by QEMU; it lets a virtual machine
  	  (guest) communicate panic events to the host.
  
@@ -72,12 +72,12 @@ index 2cf9db44e4b2..f4616fc61808 100644
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index dcc801e8834e..13e132dd62c9 100644
+index 42a1b0b642326..fbb2e1e8e420d 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -54,6 +54,7 @@ obj-y				+= cape/
+@@ -51,6 +51,7 @@ obj-$(CONFIG_GENWQE)		+= genwqe/
+ obj-y				+= cape/
  obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
  obj-$(CONFIG_CXL_BASE)		+= cxl/
 +obj-$(CONFIG_UDOO_ARD)		+= udoo_ard.o
  obj-$(CONFIG_PCI_ENDPOINT_TEST)	+= pci_endpoint_test.o
@@ -85,7 +85,7 @@ index dcc801e8834e..13e132dd62c9 100644
  obj-y				+= cardreader/
 diff --git a/drivers/misc/udoo_ard.c b/drivers/misc/udoo_ard.c
 new file mode 100755
-index 000000000000..2210738e09c0
+index 0000000000000..2210738e09c07
 --- /dev/null
 +++ b/drivers/misc/udoo_ard.c
 @@ -0,0 +1,417 @@
@@ -507,5 +507,5 @@ index 000000000000..2210738e09c0
 +MODULE_ALIAS("platform:"DRIVER_NAME);
 +MODULE_LICENSE("GPL");
 -- 
-2.20.1
+2.27.0
 
